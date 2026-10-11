@@ -66,10 +66,9 @@ the required build arguments and clean-machine smoke check.
 macOS is the only runtime currently exercised. Windows and Linux compatibility,
 large-crawl/million-row readiness and final product design are not claimed.
 
-## Design input
+## Native component contracts
 
-`design/source/Untitled.fig` is preserved as the original input. The Qt
-component catalogue is in `design/tab-contracts.md`; it provides native bounded
+The Qt component catalogue is in `design/tab-contracts.md`; it provides native bounded
 tables and panels without a web view or Electron runtime.
 
 The Work table gives browsing priority at the minimum 800×720 window size.

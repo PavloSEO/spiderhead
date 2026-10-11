@@ -57,3 +57,19 @@ sf spider parsing/
 desktop/dist/
 desktop/build/
 desktop/.build/
+
+# Private desktop design inputs and implementation journals
+/desktop/design/source/
+/desktop/design/site-reference/
+/desktop/design/v2/
+/desktop/design/component-acceptance.json
+/desktop/design/qt-skeleton-howto.ru.md
+/desktop/design/qt-skeleton.svg
+/desktop/docs/spec/TZ.ru.md
+/desktop/docs/spec/core-coverage.ru.md
+/desktop/docs/spec/launch-readiness-2026-10-07.ru.md
+/desktop/docs/spec/progress-2026-10-09.ru.md
+/desktop/docs/spec/prompts/
+/desktop/docs/spec/readme-gaps.ru.md
+/desktop/docs/spec/requirements-check.ru.md
+/desktop/docs/spec/site-design-reference.ru.md

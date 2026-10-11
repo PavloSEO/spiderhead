@@ -16,7 +16,7 @@ The desktop workspace uses the existing SEOHEAD palette, bundled Roboto and Mate
 
 Below 1100 logical pixels the navigation becomes a 64-pixel rail and the summary initially collapses. The user can reopen the summary or details, restore panels, or temporarily focus the table. The View menu offers 28/32/40-pixel row density. Open/Find/Copy use Qt platform shortcuts; F6 moves between native work areas. Long context labels elide visually while their full source text stays available to accessibility and tooltips. Splitter grips support arrow keys and double-click restore. Flat scrollbars retain native keyboard and pointer behavior. The project picker contains only explicitly opened recent projects (at most 20), with no folder discovery or automatic opening. Read failures are shown in a dismissible plain-text notice.
 
-The original design references and `design/source/Untitled.fig` remain immutable. Existing scans, process ownership, dispatch, cancellation, resume and MCP transport stay in the existing adapters. App hooks invalidate stale comparison responses when the pair/project changes or reading is cancelled. Locally rotated Material chevron derivatives and their hashes are recorded in the existing asset manifest. The verified application bundle is not replaced by this source change.
+Existing scans, process ownership, dispatch, cancellation, resume and MCP transport stay in the existing adapters. App hooks invalidate stale comparison responses when the pair/project changes or reading is cancelled. Locally rotated Material chevron derivatives and their hashes are recorded in the existing asset manifest. The verified application bundle is not replaced by this source change.
 
 ## Validation scope
 
@@ -24,7 +24,7 @@ The original design references and `design/source/Untitled.fig` remain immutable
 
 Native acceptance on 2026-10-07 used Cocoa on macOS ARM64 with Retina device pixel ratio 2. The app read three actual retained local fixture scans with seven URLs each through the packaged core. Recorded interactions cover scan selection, URL filtering and details, headers, clipboard, F6, panel restore, partial-run inspection, unavailable tabs, journal and fullscreen. Retained SQLite hashes were unchanged. This is a desktop presentation check; it is not a scale benchmark, VoiceOver audit, mixed-display test or Windows/Linux acceptance.
 
-Before/after captures, native interaction receipt, full test logs, source identities and the reproduction script are stored outside the repository in `Work/tools/reports/seotools-orchestrator/functional-resume-20261007/visual-native/`. The packaged core used for saved-data acceptance is `ceb2eab716c0077355d96b3a99f92ea1eb0bc0b6`; source runtime regression tests use the explicitly recorded current core checkout.
+Historical acceptance evidence is retained outside the public repository. The packaged core used for saved-data acceptance is `ceb2eab716c0077355d96b3a99f92ea1eb0bc0b6`; source runtime regression tests use the explicitly recorded current core checkout.
 
 ## Populated comparison acceptance
 

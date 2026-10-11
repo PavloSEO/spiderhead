@@ -21,7 +21,7 @@ from ..crawl_configuration import describe_controls, validate_overrides
 from ..i18n import tr, trf
 from ..scan_runner import crawl_arguments
 
-# Core issues the unavailable fields wait for (docs/spec/core-coverage.ru.md).
+# Unavailable fields remain gated by the connected core capabilities.
 ISSUE_OTHER = 920
 ISSUE_SETTINGS = 925
 ISSUE_ESTIMATE = 931

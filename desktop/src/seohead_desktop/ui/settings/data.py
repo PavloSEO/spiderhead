@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ...i18n import trf
+from ...i18n import tr, trf
 from ...settings_store import Setting
 from ..controls import Note
 from ..kit import waiting_badge
@@ -63,7 +63,7 @@ def build_page(store, context):
             action_button("Экспорт настроек…", context, "export_settings", icon="file_download"),
             action_button("Импорт…", context, "import_settings", icon="file_upload"),
         ),
-        meta_label(trf("Файл {file} без ключей и токенов — они остаются в {folder}", file=mono(".json"), folder=mono("Work/config")),
+        meta_label(trf("Файл {file} без ключей и токенов — они остаются в {folder}", file=mono(".json"), folder=mono(tr("Папка конфигурации"))),
                    rich=True),
     ]
 

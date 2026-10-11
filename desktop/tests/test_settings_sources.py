@@ -92,7 +92,7 @@ class SourcesSectionTests(unittest.TestCase):
                 "readiness_state": "configured_unverified",
                 "api_key": "SECRET-123",
                 "credential_sources": {
-                    "service_account": {"source_reference": "/Users/x/SECRET.json"}
+                    "service_account": {"source_reference": "/redacted/SECRET.json"}
                 },
             }
         }

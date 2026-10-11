@@ -5,26 +5,6 @@ It does not connect all panels to the core, implement an analyzer, or claim pari
 with every Screaming Frog release. The working application adapter remains owned
 by `app.py` / `mcp_gateway.py`; the new widgets accept projections and emit intents.
 
-## Verified input and scope
-
-- Source checkout: `seohead-desktop`, baseline `3f939d447c044e8cbaabce71e20e4e38eabdd721`.
-- Reference inspected on 2026-10-07: the already-open **Screaming Frog SEO Spider
-  19.8 (Licensed)** window. Its scan was complete and idle. The inspected crawl
-  belonged to the user's own site. No new scan, export, provider request, or
-  configuration change was made; navigation returned to Internal / URL Details /
-  Issues. Customer rows, page source, and scan counts are not copied into the code.
-- The configured reference exposed **21 main tabs, 12 lower inspector tabs, and
-  6 right tabs**. Main Configure Tabs had an empty Hidden list and 21 Visible
-  entries. This is the observed configuration, not a claim about conditional tabs
-  or another SF version.
-- Columns were read per main/detail/right tab. Filter families were inspected in
-  the Internal selector and the expanded Overview tree. **241 main filter labels**
-  are catalogued. Their thresholds describe the inspected reference; they are not
-  analyzer settings or default SEOHEAD policy.
-- Configure Tabs has Hidden / Visible lists, per-list search, movement and reorder
-  controls. The Qt implementation retains this workflow and adds an explicit
-  cancel path, a guard against hiding every tab, and a direct overflow menu.
-
 ## Design skeleton
 
 The existing SEOHEAD light theme, Roboto, rounded controls, blue active indicator,
@@ -54,7 +34,7 @@ the visible 100 rows.
 
 States are `ready`, `loading`, `unavailable`, and `error`, plus a measured empty
 result represented by `ready` and zero rows. `total=None` means unknown. An absent
-field renders as **Не измерено**, while `0`, `False`, and an empty string remain
+field renders as **Not measured**, while `0`, `False`, and an empty string remain
 distinct. Switching source/page or moving to a tab without a selected URL clears
 stale inspector evidence. Sensitive cookie/header/config values are redacted at
 the presentation boundary as an additional defense.
@@ -175,25 +155,6 @@ No proposed `scan-url-detail` or other unpublished core endpoint is required by
 these widgets. A richer projection can be connected only after its core contract
 exists and is verified.
 
-## Run and acceptance
+## Validation boundary
 
-From this checkout, using an environment that already contains PyQt5:
-
-```bash
-PYTHONPATH=src python -m seohead_desktop.ui.gallery
-PYTHONPATH=src QT_QPA_PLATFORM=offscreen python -m unittest discover -s tests -v
-PYTHONPATH=src QT_QPA_PLATFORM=cocoa python -m seohead_desktop.ui.gallery --capture-dir /absolute/output/directory
-```
-
-The gallery is visibly synthetic (`example.test`) and contains no gateway calls.
-It exercises local filtering, URL selection, source/preview states, task/scan
-selection, and note/compare events without performing the corresponding backend
-operation. Every one of the 54 panel widgets is exercised in measured-empty and
-unavailable states by the component suite. Native Cocoa captures are separate
-from offscreen tests. Live macOS accessibility verification covers URL search,
-tab switching, and stale-evidence clearing; menu click behavior is additionally
-verified with actual Qt mouse events. Windows/Linux runtime, real adapter
-integration, and large-crawl performance remain separate acceptance gates.
-
-Images and the measured acceptance manifest are kept under the workspace outputs
-directory; synthetic acceptance metadata is in `design/component-acceptance.json`.
+Exercise the bounded component contracts through the integrated desktop suite. Runtime and visual acceptance must use the integrated application and compatible core. Synthetic component coverage does not establish native accessibility, Windows/Linux runtime or large-data readiness.

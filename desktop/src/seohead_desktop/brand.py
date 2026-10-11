@@ -1,4 +1,4 @@
-"""Brandbook assets (design/v2/brand): spider for 12-40 px marks, logo for 48-512 px, lockup = mark + name.
+"""Packaged brand assets (assets/brand): spider for 12-40 px marks, logo for 48-512 px, lockup = mark + name.
 
 On the dark and high-contrast themes the white variants are used (spider, lockup); the logo tile is the same on all themes.
 """

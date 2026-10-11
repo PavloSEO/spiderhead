@@ -512,6 +512,7 @@
  "Сбросить все панели": "Reset all panels",
  "Экспорт настроек…": "Export settings…",
  "Импорт…": "Import…",
+ "Папка конфигурации": "the configuration directory",
  "Файл {file} без ключей и токенов — они остаются в {folder}": "The {file} file has no keys or tokens; those stay in {folder}",
  "все": "all",
  "30 дн": "30 d",

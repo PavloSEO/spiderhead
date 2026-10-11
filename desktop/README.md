@@ -6,16 +6,14 @@ QSS theme generated from design tokens. The app is a *presentation adapter* — 
 analysis, projects and tasks live in the core (`../seohead`) and are reached through the
 same CLI/MCP contracts the agents use.
 
-> **Status (2026-10-09): redesign in progress.** The code here is the first functional
-> skeleton (project console, URL workbench, scan runner, MCP gateway). Its visual layer is
-> being replaced by **design v2** in [`design/v2/`](design/v2/). Treat the current UI as
-> outdated; treat `design/v2` as the target.
+> **Development status:** platform support, packaging, scale and visual acceptance
+> require measured verification of the integrated source and its compatible core.
 
 ## What lives where
 
 | Path | What it is |
 |---|---|
-| `src/seohead_desktop/app.py` | Main window: top bars, navigation, pages, wiring of signals (≈3.3k lines; to be split into modules — see design/v2 readiness report) |
+| `src/seohead_desktop/app.py` | Main window: top bars, navigation, pages and signal wiring |
 | `src/seohead_desktop/ui/` | Reusable widgets: `components.py` (buttons, badges, panels), `workspace_tabs.py` (workspace tabs), `tabcatalogue.py` (SF-style tab/column contracts), `work_monitor.py` (scan observer), `crawl_configuration_dialog.py` (advanced scan settings), `content_search_panel.py`, `comparison_summary.py`, `help_guide.py`, `icons.py` (Material Symbols registry), `gallery.py` (component gallery for screenshots) |
 | `src/seohead_desktop/theme/` | `tokens.json` (single source of colours, sizes, density, motion) → `theme.qss` |
 | `src/seohead_desktop/models.py` | Qt table models (no widget per cell) |
@@ -29,11 +27,10 @@ same CLI/MCP contracts the agents use.
 | `examples/qa-site/` | Local loopback SEO test site with profiles `broken`, `clean`, `fix-delta`, `tracking` — the only site real scans are tested on |
 | `packaging/`, `scripts/build_*.sh/.ps1`, `SEOHEAD Desktop.spec` | PyInstaller bundle that ships app + compatible core + `seohead` CLI together |
 | `docs/` | User guide, workspace/tab contracts, local control, packaging, source install |
-| `ROADMAP.md` | **Owner decisions and order of work — start here** |
-| `docs/spec/` | Russian TZ, requirements check, site design reference, prompts/hand-offs |
-| `design/site-reference/` | Brand reference extracted from seohead.tech (CSS tokens, Badge/Chip) |
-| `design/v2/` | **Target design**: interactive mock-ups (35 boards), design system, readiness report, QA scripts |
-| `design/` (rest) | Earlier design notes and the first Qt skeleton |
+| `ROADMAP.md` | Development priorities and release gates |
+| `docs/canvas-tokens.md` | Shared native component tokens |
+| `docs/spec/settings-wiring.ru.md` | Generated English settings capability contract; historical filename retained for compatibility |
+| `design/tab-contracts.md` | Native bounded table and intent contracts |
 
 ## Build and run from source (monorepo)
 
@@ -52,7 +49,7 @@ Bundle (macOS): `desktop/scripts/build_macos.sh` → `desktop/dist/SEOHEAD Deskt
 `packaging/source-install.json` still pins a core commit from the time this was a separate
 repository — inside the monorepo the core is `..`; updating that flow is part of the redesign.
 
-## Design v2 in one paragraph
+## Native presentation
 
 Two modes — **Projects** (work with an AI agent: goals, tasks, inbox, scans, compare
 "before/after", reports to developers/SEO/content) and **Crawler** (Screaming-Frog-like, no
@@ -60,7 +57,7 @@ project, enter URL → Start). One 52 px top bar, workspace tabs, 200/64 px navi
 profile/settings button bottom-left, honest data states ("not measured" ≠ "0"), 17 statuses,
 3 themes (light, dark, high contrast), RU/EN, local MCP server switch shared with the CLI
 (`seohead mcp status`), installer that puts the app and the `seohead` CLI on the machine
-together. Start with [`design/v2/README.md`](design/v2/README.md).
+together. See [shared tokens](docs/canvas-tokens.md) and [native component contracts](design/tab-contracts.md).
 
 ## Licence
 
