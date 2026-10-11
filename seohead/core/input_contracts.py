@@ -201,7 +201,8 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         _form(
             "selector",
             "compression",
-            note="none (default) or explicit gzip with out_dir; every row is retained and compressed/uncompressed bytes are declared.",
+            "resume",
+            note="none (default) or explicit gzip with out_dir; every row is retained and compressed/uncompressed bytes are declared. Resume requires an exact matching persistent checkpoint.",
         ),
     ),
     _command(
@@ -214,6 +215,8 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         _form("selector", "sort"),
         _form("selector", "direction"),
         _form("selector", "contains", note="optional URL substring filter"),
+        _form("selector", "segment", note="named segment; only available for segment_changes"),
+        _form("selector", "change", note="change type; only available for segment_changes"),
         _form("selector", "max_bytes"),
     ),
     _command(
@@ -224,12 +227,18 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         _form("selector", "max_bytes"),
     ),
     _command(
+        "compare-status",
+        "compare_status",
+        _form("local_directory", "out_dir", note="comparison output path; reads active checkpoint or completed cache"),
+    ),
+    _command(
         "compare-url",
         "compare_url",
         _form("audit_document", "before", "after", note="Each source may be audit JSON or scan.v1 SQLite."),
         _form("selector", "url", note="Exact retained URL text."),
         _form("selector", "max_bytes"),
         _form("selector", "max_lines"),
+        _form("selector", "left_representation", "right_representation"),
     ),
     _command(
         "verify-fixes",

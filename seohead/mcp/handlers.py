@@ -2798,6 +2798,8 @@ def compare_crawls(
     correspondence: Any = None,
     out_dir: str | None = None,
     compression: str = "none",
+    resume: bool = False,
+    progress: Any = None,
 ) -> dict[str, Any]:
     """Diff two audits: which findings were fixed, which are new, which pages
     dropped out of the crawl entirely. See seohead.sf.core.compare for why
@@ -2816,6 +2818,8 @@ def compare_crawls(
             correspondence=correspondence,
             out_dir=out_dir,
             compression=compression,
+            resume=resume,
+            progress=progress,
         )
     finally:
         if not hasattr(before, "iter_collection") and hasattr(before_doc, "close"):
@@ -2839,6 +2843,8 @@ def compare_read(
     sort: str = "url",
     direction: str = "asc",
     contains: str | None = None,
+    segment: str | None = None,
+    change: str | None = None,
     max_bytes: int = 1_048_576,
 ) -> dict[str, Any]:
     """Read a bounded page from a validated compare.v2 file."""
@@ -2853,10 +2859,72 @@ def compare_read(
             sort=sort,
             direction=direction,
             contains=contains,
+            segment=segment,
+            change=change,
             max_bytes=max_bytes,
         )
     except (ValueError, OSError, TypeError) as exc:
         return {"ok": False, "state": "unavailable", "error": str(exc)}
+
+
+def compare_status(out_dir: str) -> dict[str, Any]:
+    """Read the current checkpoint or completed manifest for a comparison output path."""
+    import json
+
+    from seohead.core.filesystem import lock_exclusive, open_lock, unlock
+
+    destination = Path(out_dir).absolute()
+    if destination.is_symlink():
+        raise ValueError("comparison output path must not be a symbolic link")
+    manifest = destination / "compare.json"
+    if manifest.is_file() and not manifest.is_symlink():
+        result = json.loads(manifest.read_text(encoding="utf-8"))
+        job = result.get("job") if isinstance(result, dict) else None
+        return {
+            "ok": True,
+            "format": "compare.job-status.v1",
+            "state": "finished",
+            "stage": "complete",
+            "job_id": job.get("id") if isinstance(job, dict) else None,
+            "completed": 1,
+            "total": 1,
+            "resumable": False,
+            "cache_available": True,
+        }
+    work = destination.with_name(f".{destination.name}.compare-work")
+    if work.is_symlink() or not work.is_dir():
+        return {"ok": False, "state": "unavailable", "error": "comparison job was not found"}
+    checkpoint = work / "job.json"
+    if checkpoint.is_symlink() or not checkpoint.is_file():
+        return {"ok": False, "state": "unavailable", "error": "comparison checkpoint is unreadable"}
+    data = json.loads(checkpoint.read_text(encoding="utf-8"))
+    active = False
+    try:
+        fd = open_lock(work / ".writer.lock", create=False)
+    except OSError:
+        fd = None
+    if fd is not None:
+        try:
+            lock_exclusive(fd)
+        except OSError:
+            active = True
+        else:
+            unlock(fd)
+        finally:
+            import os
+
+            os.close(fd)
+    return {
+        "ok": True,
+        "format": "compare.job-status.v1",
+        **{
+            key: data.get(key)
+            for key in ("job_id", "state", "stage", "completed", "total", "reason")
+        },
+        "resumable": not active and data.get("state") in {"failed", "paused", "running"},
+        "active": active,
+        "cache_available": False,
+    }
 
 
 def compare_report(manifest_path: str, out_file: str, max_bytes: int = 65_536) -> dict[str, Any]:
@@ -2899,6 +2967,8 @@ def compare_url(
     *,
     max_bytes: int = 65_536,
     max_lines: int = 200,
+    left_representation: str = "static",
+    right_representation: str = "static",
 ) -> dict[str, Any]:
     """Return exact-URL before/after facts and finding deltas without absence claims."""
     from collections.abc import Mapping
@@ -2912,6 +2982,9 @@ def compare_url(
         raise ValueError("max_bytes must be an integer 1..65536")
     if type(max_lines) is not int or not 1 <= max_lines <= 200:
         raise ValueError("max_lines must be an integer 1..200")
+    representations = {"static", "rendered", "legacy_fragment"}
+    if left_representation not in representations or right_representation not in representations:
+        raise ValueError("representations must be static, rendered, or legacy_fragment")
 
     sources = []
     opened = []
@@ -3082,6 +3155,8 @@ def compare_url(
                     text=True,
                     max_bytes=max_bytes,
                     max_lines=max_lines,
+                    left_representation=left_representation,
+                    right_representation=right_representation,
                 )
             except (OSError, ValueError, sqlite3.Error) as exc:
                 body = {"state": "unavailable", "reason": str(exc)[:2048]}
@@ -7438,6 +7513,7 @@ _RAW_HANDLERS = {
     "facts_export": facts_export,
     "compare_crawls": compare_crawls,
     "compare_read": compare_read,
+    "compare_status": compare_status,
     "compare_report": compare_report,
     "compare_url": compare_url,
     "crawl_enrich": crawl_enrich,

@@ -1230,13 +1230,14 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         return _checked(handlers.facts_export(sites=sites))
 
     @mcp.tool(annotations=create_files, structured_output=True)
-    def seo_compare_crawls(
+    async def seo_compare_crawls(
         before: Any,
         after: Any,
         force: bool = False,
         correspondence: Any = None,
         out_dir: str | None = None,
         compression: Literal["none", "gzip"] = "none",
+        resume: bool = False,
     ) -> dict[str, Any]:
         """Diff two audit documents (dict, JSON path, or scan.v1 SQLite path) into four disjoint
         sets per finding: entered (new problem on a page that existed before),
@@ -1258,18 +1259,65 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         a package and never collects evidence or calls the network. Explicit
         compression='gzip' requires out_dir and preserves every row in deterministic
         .ndjson.gz files; manifests record compressed checksums and both byte counts.
-        Default compression='none' keeps uncompressed output.
+        Default compression='none' keeps uncompressed output. Exact-input results are
+        reusable from the same out_dir. A matching interrupted job requires resume=True;
+        its source identities and options are verified before any checkpoint is read.
         """
-        return _checked(
-            handlers.compare_crawls(
-                before=before,
-                after=after,
-                force=force,
-                correspondence=correspondence,
-                out_dir=out_dir,
-                compression=compression,
+        import asyncio
+        import queue
+
+        from seohead.mcp.mcp_progress import ProgressReporter
+
+        try:
+            context = mcp.get_context()
+        except Exception:
+            context = None
+        reporter = ProgressReporter(context, "compare-crawls")
+        updates = queue.SimpleQueue()
+
+        def collect(update: Any) -> None:
+            if reporter.enabled:
+                updates.put(update)
+
+        async with reporter:
+            task = asyncio.create_task(
+                asyncio.to_thread(
+                    handlers.compare_crawls,
+                    before=before,
+                    after=after,
+                    force=force,
+                    correspondence=correspondence,
+                    out_dir=out_dir,
+                    compression=compression,
+                    resume=resume,
+                    progress=collect,
+                )
             )
-        )
+            while not task.done():
+                await asyncio.sleep(0.5)
+                while not updates.empty():
+                    update = updates.get()
+                    detail = (
+                        f"{update.stage}: {update.completed} / {update.total}"
+                        if update.total is not None
+                        else f"{update.stage}: {update.completed} completed; total unknown"
+                    )
+                    try:
+                        await reporter.elapsed(detail)
+                    except Exception:
+                        pass
+            while not updates.empty():
+                update = updates.get()
+                detail = (
+                    f"{update.stage}: {update.completed} / {update.total}"
+                    if update.total is not None
+                    else f"{update.stage}: {update.completed} completed; total unknown"
+                )
+                try:
+                    await reporter.elapsed(detail)
+                except Exception:
+                    pass
+            return _checked(await task)
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_compare_read(
@@ -1280,6 +1328,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         sort: Literal["url", "check", "severity"] = "url",
         direction: Literal["asc", "desc"] = "asc",
         contains: str | None = None,
+        segment: str | None = None,
+        change: Literal["entered", "left", "appeared", "disappeared", "unchanged"] | None = None,
         max_bytes: int = 1_048_576,
     ) -> dict[str, Any]:
         """Read a bounded, sorted page from one integrity-checked compare.v2 file."""
@@ -1292,9 +1342,16 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 sort=sort,
                 direction=direction,
                 contains=contains,
+                segment=segment,
+                change=change,
                 max_bytes=max_bytes,
             )
         )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_status(out_dir: str) -> dict[str, Any]:
+        """Read the checkpoint or completed cache state for one compare.v2 output path."""
+        return _checked(handlers.compare_status(out_dir=out_dir))
 
     @mcp.tool(annotations=create_files, structured_output=True)
     def seo_compare_report(
@@ -1318,6 +1375,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         url: str,
         max_bytes: int = 65_536,
         max_lines: int = 200,
+        left_representation: Literal["static", "rendered", "legacy_fragment"] = "static",
+        right_representation: Literal["static", "rendered", "legacy_fragment"] = "static",
     ) -> dict[str, Any]:
         """Show exact-URL before/after facts, finding deltas and a bounded body diff.
 
@@ -1331,6 +1390,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 url=url,
                 max_bytes=max_bytes,
                 max_lines=max_lines,
+                left_representation=left_representation,
+                right_representation=right_representation,
             )
         )
 
