@@ -179,6 +179,10 @@ jobs:
         with:
           version: "0.11.26"
           enable-cache: false
+      - name: Install XML headers for locked release source builds
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libxml2-dev libxslt1-dev
       - name: Choose the previous revision
         id: base
         env:
