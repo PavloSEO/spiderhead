@@ -456,6 +456,8 @@ class RunSummary(QFrame):
         head_layout = QHBoxLayout(head)
         head_layout.setContentsMargins(4, 0, 4, 0)
         self.tabs = QTabBar()
+        self.tabs.setUsesScrollButtons(True)  # labels keep their full text at narrow widths: the bar scrolls
+        self.tabs.setElideMode(Qt.ElideNone)
         self.tabs.setProperty("tabs", "underline")
         self.tabs.setDrawBase(False)
         for name in ("Обзор", "Проблемы", "Время"):

@@ -224,7 +224,7 @@ class WorkspaceTabs(QWidget):
         self.tabbar.setExpanding(False)
         self.tabbar.setMovable(True)
         self.tabbar.setTabsClosable(True)
-        self.tabbar.setElideMode(Qt.ElideRight)
+        self.tabbar.setElideMode(Qt.ElideNone)  # full names at 800 px: the strip scrolls instead of cutting them
         self.tabbar.setSelectionBehaviorOnRemove(QTabBar.SelectLeftTab)
         self.tabbar.setDrawBase(False)
         self.tabbar.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)

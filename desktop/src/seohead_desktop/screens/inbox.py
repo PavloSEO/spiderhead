@@ -424,6 +424,8 @@ class InboxScreen(Screen):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.tabs = QTabBar()
+        self.tabs.setUsesScrollButtons(True)  # labels keep their full text at narrow widths: the bar scrolls
+        self.tabs.setElideMode(Qt.ElideNone)
         self.tabs.setProperty("tabs", "underline")
         self.tabs.setDrawBase(False)
         self.tabs.setExpanding(False)

@@ -95,6 +95,10 @@ class ShellMixin:
         try:
             opened = bool(self.project_directory)
             self.navigation.set_project_open(opened)
+            new_scan = getattr(self, "new_scan", None)
+            if new_scan is not None:  # without a project a scan has no target: disabled, with the reason
+                new_scan.setEnabled(opened)
+                new_scan.setToolTip("" if opened else tr("Сначала откройте или создайте проект: скан сохраняется в проект"))
             self.sync_scans_placeholder()
             url_total = issues = None
             scan = next((row for row in self.scan_model.rows if row.get("path") == self.selected_scan_path), None) if opened and self.selected_scan_path else None

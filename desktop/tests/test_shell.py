@@ -58,6 +58,7 @@ class ShellTests(unittest.TestCase):
             (project / "project.json").write_text("{}", encoding="utf-8")
             self.window.project_directory = str(project)
             self.window.project_result = {"project": {"site": {"target": "https://example.test/"}}}
+            self.window.data_changed.emit("project")  # a real project load refreshes the «Новый скан» enablement
 
             def close_preview():
                 dialog = self.app.activeModalWidget()
