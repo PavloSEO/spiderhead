@@ -140,6 +140,10 @@
         "size_stats_bytes": {"type": "object"},
         "internal_linking": {"type": "object"},
         "sitemap": {"type": "object"},
+        "provider_findings": {
+          "type": "object",
+          "description": "Optional typed source periods, coverage, quota, and sampled-history provenance; registered per-URL provider findings also appear in the ordinary issues array."
+        },
         "evidence_contract": {"type": "object"},
         "saved_corpus_derivations": {"type": "object"},
         "finding_exclusions": {

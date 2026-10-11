@@ -37,6 +37,34 @@ means the provider accepted the credential. Its `target_access` field is indepen
 to an arbitrary requested property, host, counter, or site. Unknown scopes and quota state stay
 `unknown` rather than being reported as empty or unlimited.
 
+Two provider checks have narrow, unbilled contracts. `yandex_cloud` calls only
+Wordstat `GetRegionsTree`; success verifies that the configured API key/folder can access that
+metadata method, while paid Wordstat methods and Web Search remain separately unverified. Yandex
+documents the region tree as free ([pricing update](https://yandex.cloud/en/blog/digest-april-2026))
+and requires the Search API service-account role for this call
+([method reference](https://yandex.cloud/en/docs/search-api/api-ref/grpc/Wordstat/),
+[GetRegionsTree instructions](https://aistudio.yandex.ru/en/docs/search-api/operations/wordstat-getregiontree)).
+`dataforseo_backlinks` reads only the free `appendix/user_data` account metadata endpoint; it
+returns the configured environment and whether quota metadata was available, never the account
+balance, rates or prices ([DataForSEO endpoint](https://docs.dataforseo.com/v3/appendix-user-data/)).
+Neither result proves that a paid collection is approved or should be started.
+
+Cloudflare token verification calls `GET /user/tokens/verify`; an active response verifies the
+token itself, not its zone/account scopes or access to a selected zone. See the
+[Cloudflare Verify Token reference](https://developers.cloudflare.com/api/resources/user/subresources/tokens/methods/verify/).
+Cloudflare accepts the token from `CLOUDFLARE_API_TOKEN`, the standard
+`~/.config/cloudflare/api-token` file, or the file selected by
+`SEOHEAD_CLOUDFLARE_TOKEN_FILE`; readiness returns the selected reference without its path or value.
+
+`project-sources-list` also reads the local `sources.sqlite` and `cloudflare.sqlite` ledgers. Each
+selected binding keeps its exact provider resource ID and reports a lag-adjusted 28-day coverage state. Local history
+resources without a project binding appear as `not_selected`. A failed sync without retained
+provider permission detail remains access `unknown`; it is not guessed to mean revoked access.
+
+The local stdio MCP server has no trusted caller identity, so OAuth mutations and credential
+revocation are denied through MCP even when the tool appears in its schema. Use the explicit local
+CLI workflow for those owner-only actions. MCP can read credential status and provider evidence.
+
 **4. Collect one bounded operation.**
 
 Call `provider_collect(provider, operation, request, artifact_dir=...)`. It produces a

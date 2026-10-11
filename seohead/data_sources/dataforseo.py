@@ -43,6 +43,7 @@ SANDBOX_BASE = "https://sandbox.dataforseo.com/"
 SOURCE = "dataforseo"
 TIMEOUT = 120
 RETRIES = 3
+MAX_ACCOUNT_METADATA_BYTES = 2 * 1024 * 1024
 
 # These countries are unavailable, not merely poorly supported. Russian aliases below are
 # functional input data and intentionally remain localized.
@@ -217,16 +218,56 @@ class DataForSEOClient:
         """Return account balance; the sandbox value is synthetic by design."""
         url = self.base + "v3/appendix/user_data"
         request = urllib.request.Request(url, headers={"Authorization": self._auth})
-        # The request URL is built from the fixed HTTPS provider base.
-        with open_no_redirect(request, timeout=TIMEOUT) as response:
-            body = json.loads(response.read().decode("utf-8"))
-        info = ((body.get("tasks") or [{}])[0].get("result") or [{}])[0]
+        try:
+            with open_no_redirect(request, timeout=TIMEOUT) as response:
+                raw = response.read(MAX_ACCOUNT_METADATA_BYTES + 1)
+        except urllib.error.HTTPError as exc:
+            raise DataForSEOError(exc.code, "account metadata request was rejected") from None
+        except (urllib.error.URLError, TimeoutError):
+            raise DataForSEOError(0, "account metadata request failed") from None
+        if len(raw) > MAX_ACCOUNT_METADATA_BYTES:
+            raise DataForSEOError(0, "account metadata response exceeded 2 MiB")
+        try:
+            body = json.loads(raw.decode("utf-8"))
+        except (UnicodeError, ValueError):
+            raise DataForSEOError(0, "account metadata response was invalid JSON") from None
+        info = _account_metadata_result(body)
         return {
             "env": self.env,
             "balance": (info.get("money") or {}).get("balance"),
             "limits": info.get("rates"),
             "prices": info.get("price"),
         }
+
+
+def _account_metadata_result(body: Any) -> dict[str, Any]:
+    """Validate the account-level status/task/result envelope before exposing any metadata."""
+    if (
+        not isinstance(body, dict)
+        or type(body.get("status_code")) is not int
+        or body["status_code"] != 20000
+    ):
+        raise DataForSEOError(0, "account metadata provider response was unsuccessful")
+    tasks = body.get("tasks")
+    if not isinstance(tasks, list) or not tasks or not isinstance(tasks[0], dict):
+        raise DataForSEOError(0, "account metadata response has no task result")
+    if (
+        type(body.get("tasks_count")) is not int
+        or body["tasks_count"] != len(tasks)
+        or type(body.get("tasks_error")) is not int
+        or body["tasks_error"] != 0
+    ):
+        raise DataForSEOError(0, "account metadata task summary was unsuccessful")
+    task = tasks[0]
+    if type(task.get("status_code")) is not int or task["status_code"] != 20000:
+        raise DataForSEOError(0, "account metadata task was unsuccessful")
+    rows = task.get("result")
+    if not isinstance(rows, list) or not rows or not isinstance(rows[0], dict):
+        raise DataForSEOError(0, "account metadata response has no result object")
+    info = rows[0]
+    if not isinstance(info.get("rates"), dict) or not isinstance(info.get("price"), dict):
+        raise DataForSEOError(0, "account metadata response lacks quota or pricing metadata")
+    return info
 
 
 def _message(raw: str) -> str:

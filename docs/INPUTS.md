@@ -28,7 +28,9 @@ and this decision makes no backend migration.
 | `project-checklist-page` | Project directory (`directory`)<br>Selector (`offset, limit, query, kind, state, sort, descending, states`) | — |
 | `project-task-detail` | Project directory (`directory`)<br>Selector (`item_id`) | — |
 | `project-scans` | Project directory (`directory`)<br>Selector (`offset, limit`) | — |
-| `provider-auth` | Inline JSON (`provider, action, grant_file, confirm`) | GSC private grant import/status/refresh; cancel a pending browser flow; confirmed disconnect or remote revoke. No secret values returned. |
+| `provider-auth` | Inline JSON for ordinary actions; callback requires stdin JSON with `state` and `code` via `--callback-stdin` | GSC read-only consent start/callback, grant status/refresh, pending-flow cancel, confirmed disconnect or remote revoke. Tokens and callback codes are never returned. |
+| `provider-credential` | Flags; `set` reads the raw credential only from stdin with `--value-stdin` | Write-only local set/replace and confirmed revoke. No secret values in arguments or results. MCP exposes status only because it has no trusted caller identity. |
+| `provider-discover` | Flags (`provider`, optional `domain`) | One provider resource discovery read for Google, Yandex, or Topvisor. Returns unselected resources and optional domain-match hints; never writes project bindings. |
 | `provider-replay` | Scan artifact (`input_path`); requires `evidence_file, out_dir` | Offline join with a private saved provider envelope; raw joins remain in restricted output. |
 | `parse` | Live URL (`url`)<br>URL list (`urls`) | — |
 | `crawl-site` | Live URL (`url`)<br>URL list (`urls`)<br>Local file (`urls_file`)<br>Scan artifact (`resume`)<br>Local configuration (`config`)<br>Project directory (`project`) | TXT, CSV, XLSX, or XML URL input; Resumes retained crawl evidence and continues network collection.; Defaults the target and scans/ path; explicit paths, legacy output and resume keep their route. |

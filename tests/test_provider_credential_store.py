@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import stat
 
@@ -125,3 +126,80 @@ def test_empty_value_is_rejected_without_writing(config_root):
         credentials.write_secret("arsenkin/token", "")
 
     assert not (config_root / "arsenkin" / "token").exists()
+
+
+def test_provider_credential_contract_returns_only_reference_and_timestamp(config_root, monkeypatch):
+    from seohead.data_sources import providers
+
+    monkeypatch.delenv("ARSENKIN_TOKEN", raising=False)
+    result = providers.manage_credential("arsenkin", "api_token", "set", value=SECRET)
+
+    assert result["source_reference"] == "config:arsenkin/token"
+    assert result["updated_at"]
+    assert SECRET not in repr(result)
+    status = providers.manage_credential("arsenkin", "api_token")
+    assert status["state"] == "configured_unverified"
+    assert SECRET not in repr(status)
+
+
+def test_provider_credential_replacement_and_revoke_require_explicit_actions(config_root):
+    from seohead.data_sources import providers
+
+    providers.manage_credential("arsenkin", "api_token", "set", value="old")
+    with pytest.raises(FileExistsError):
+        providers.manage_credential("arsenkin", "api_token", "set", value=SECRET)
+    replaced = providers.manage_credential(
+        "arsenkin", "api_token", "set", value=SECRET, replace=True
+    )
+    assert replaced["replaced"] is True
+    with pytest.raises(ValueError, match="confirm=true"):
+        providers.manage_credential("arsenkin", "api_token", "revoke")
+    revoked = providers.manage_credential(
+        "arsenkin", "api_token", "revoke", confirm=True
+    )
+    assert revoked["revoked"] is True
+
+
+def test_cloudflare_custom_token_file_is_reported_without_exposing_path_or_value(
+    config_root, monkeypatch, tmp_path
+):
+    from seohead.data_sources import providers
+
+    custom = tmp_path / "private-token"
+    custom.write_text(SECRET, encoding="utf-8")
+    custom.chmod(0o600)
+    monkeypatch.delenv("CLOUDFLARE_API_TOKEN", raising=False)
+    monkeypatch.setenv("SEOHEAD_CLOUDFLARE_TOKEN_FILE", str(custom))
+
+    status = providers.manage_credential("cloudflare", "api_token")
+
+    encoded = json.dumps(status)
+    assert status["state"] == "configured_unverified"
+    assert status["source_reference"] == "env-path:SEOHEAD_CLOUDFLARE_TOKEN_FILE"
+    assert status["env_shadowed"] is True
+    assert str(custom) not in encoded
+    assert SECRET not in encoded
+
+
+def test_cli_credential_write_reads_stdin_without_echoing_value(config_root, monkeypatch, capsys):
+    from io import StringIO
+
+    from seohead import cli
+
+    monkeypatch.delenv("ARSENKIN_TOKEN", raising=False)
+    monkeypatch.setattr("sys.stdin", StringIO(SECRET))
+    assert cli.main(
+        [
+            "provider-credential",
+            "--provider",
+            "arsenkin",
+            "--component",
+            "api_token",
+            "--action",
+            "set",
+            "--value-stdin",
+        ]
+    ) == 0
+    output = capsys.readouterr()
+    assert SECRET not in output.out + output.err
+    assert (config_root / "arsenkin" / "token").read_text(encoding="utf-8") == SECRET

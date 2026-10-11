@@ -23,7 +23,7 @@ is `project-progress`; `seohead logs bots` is `logs-bots`.
 | `sf tasks` | Build `tasks.json`/`tasks.md` from an existing `audit.json` or scan artifact. |
 | `sf doctor` | Diagnose SF CLI discovery and optional dependencies. |
 | `sf save-config` | Copy the most recent SF crawl configuration into a reusable base config file. |
-| `semantics <stage>` | Accumulating semantic core in its own SQLite database: `init`, `import`, `collect`, `clean`, `graph`, `exact`, `cluster`, `competitors`, `synonyms`, `report`, `excel`, `mine`, `sitematch`, `relevance`, `status`, `export`, each with `--project DIR`. `collect`, `synonyms`, `cluster` and `exact` are paid; see [SEMANTICS.md](SEMANTICS.md). |
+| `semantics <stage>` | Accumulating semantic core with `status`, mapped CSV/XLSX import previews, scoped exports, paged cluster/landing reads, weekly source insights and selected insight-to-checklist tasks. Paid stages show an offline request estimate and require `--confirm-paid`; see [SEMANTICS.md](SEMANTICS.md). |
 | `mcp` | Start the local stdio MCP server; `--profile` selects `full`, `audit`, `infra`, `quick-check` or `router` ([MCP profiles](MCP_PROFILES.md)). |
 | `watch` | Optional Rich terminal observer for one project beside an AI chat ([terminal observer](TERMINAL.md)). Needs the `tui` extra. |
 | `tui` | Interactive terminal shell over the same handlers ([TERMINAL.md](TERMINAL.md)). Needs the `tui` extra. |
@@ -31,8 +31,10 @@ is `project-progress`; `seohead logs bots` is `logs-bots`.
 
 The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf_audit_tasks`,
 `sf_list_exports`) expose the Screaming Frog analyzer to agents. The `seo_semantics_*` MCP tools
-(`seo_semantics_status`, `seo_semantics_run`, `seo_semantics_mine`, `seo_semantics_paid`) expose
-`seohead semantics`; the paid one refuses to run without `confirm_paid=true`.
+(`seo_semantics_status`, `seo_semantics_run`, `seo_semantics_mine`, `seo_semantics_paid`,
+`seo_semantics_clusters`, `seo_semantics_cluster_show`, `seo_semantics_cluster_queries`,
+`seo_semantics_set_landing`, `seo_semantics_insights`, `seo_semantics_insights_tasks`) expose
+`seohead semantics`; paid calls return an offline estimate and require `confirm_paid=true`.
 
 ## Collect a site
 
@@ -186,7 +188,7 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-competitors-remove` | Drop one recorded competitor from the shortlist; its workspace stays on disk. | writes |
 | `project-open` | Open a local project workspace without executing template references. | offline, read-only |
 | `project-status` | Show project scan history and named pending checklist/preparation states. | offline, read-only |
-| `project-sources-link` | Bind a provider resource ID to a project in `sources.json`; no provider call. | writes |
+| `project-sources-link` | Bind a provider resource ID (including a Cloudflare zone ID) to a project in `sources.json`; no provider call. | writes |
 | `project-sources-unlink` | Remove one resource binding from `sources.json`; no provider call. | writes |
 | `project-sources-list` | List resource bindings of a project. | offline, read-only |
 | `project-progress` | Show a compact, paginated project checklist view and its next actions. | offline, read-only |
@@ -244,7 +246,9 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 |---|---|---|
 | `provider-registry` | List provider operations, credential components, quota and privacy boundaries. | offline, read-only |
 | `provider-readiness` | Inspect configured credential sources and declared operation routes offline. | offline, read-only |
-| `provider-auth` | Manage GSC read-only OAuth grants: import private file, refresh, cancel a pending flow, or explicitly revoke. | network, writes |
+| `provider-auth` | Start GSC read-only consent, accept callback JSON from stdin, inspect/cancel a pending flow, refresh, disconnect, or revoke. | network, writes |
+| `provider-credential` | Inspect or revoke a registry credential; set or replace it from stdin only with `--value-stdin`. | writes |
+| `provider-discover` | List Google Search Console, Yandex Webmaster, or Topvisor resources visible to the configured account; output is an unselected preview. | provider read |
 | `provider-verify` | Explicitly verify bounded read-only account/target access; present credentials are not verification. | network |
 | `provider-collect` | Collect a declared provider operation with versioned redacted evidence. | network, writes, paid |
 | `provider-replay` | Join a saved private provider collection to a saved scan with no network; retain raw rows locally and return counts. | writes |

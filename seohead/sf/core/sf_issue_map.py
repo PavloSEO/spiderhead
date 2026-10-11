@@ -494,41 +494,45 @@ CATEGORIES: dict[str, list[Entry]] = {
     ],
     "Accessibility": [],  # filled below: one decision, 92 entries
     "Analytics": [
-        _t(
+        _c(
             "Orphan URLs",
-            "crawl-enrich",
-            note="found from an offline analytics CSV joined to the crawl, not by sf run; "
-            "a withheld result on a partial crawl; live per-URL sourcing needs #990",
+            "GA_ORPHAN_URL",
+            "METRIKA_ORPHAN_URL",
+            note="joined from complete project-bound GA4 or Metrika URL history; absence claims "
+            "are withheld for incomplete source coverage or partial crawls",
         ),
-        _t(
+        _c(
             "Bounce Rate Above 70%",
-            "crawl-enrich",
-            note="found from an offline per-URL bounce column (--bounce-column), not by sf run; "
-            "live per-URL sourcing needs #990 and #984",
+            "BOUNCE_RATE_ABOVE_70",
+            "METRIKA_BOUNCE_RATE_ABOVE_70",
+            note="measured from retained per-URL Metrika bounce rates; GA4 does not provide this "
+            "metric in the project join",
         ),
-        _t(
+        _c(
             "No GA Data",
-            "crawl-enrich",
-            note="found from an offline analytics CSV joined to the crawl, not by sf run; "
-            "skipped for an empty analytics file",
+            "NO_GA_DATA",
+            "NO_METRIKA_DATA",
+            note="absence is reported only for an explicitly bound property with complete retained "
+            "coverage and a complete crawl",
         ),
-        _t(
+        _c(
             "Non-Indexable with GA Data",
-            "crawl-enrich",
-            note="found from an offline visits column (--visits-column), not by sf run",
+            "NON_INDEXABLE_WITH_GA_DATA",
+            "NON_INDEXABLE_WITH_METRIKA_DATA",
+            note="joined from retained GA4 sessions or Metrika visits",
         ),
     ],
     "Search Console": [
         _o("Page is Not Mobile Friendly", "needs Search Console; see #97"),
-        _o("Orphan URLs", "needs Search Console"),
-        _o("URL is on Google, But Has Issues", "needs Search Console"),
-        _o("AMP URL is Invalid", "needs Search Console, and AMP is retired"),
-        _o("Rich Result is Invalid", "needs Search Console"),
-        _o("Indexable URL Not Indexed", "needs Search Console"),
-        _o("User-Declared Canonical Not Selected", "needs Search Console"),
-        _o("No Search Analytics Data", "needs Search Console"),
-        _o("Non-Indexable with Search Analytics Data", "needs Search Console"),
-        _o("URL Is Not on Google", "needs Search Console"),
+        _c("Orphan URLs", "GSC_ORPHAN", note="requires complete retained Search Analytics coverage and crawl"),
+        _c("URL is on Google, But Has Issues", "GSC_INDEXED_WITH_ISSUES"),
+        _c("AMP URL is Invalid", "GSC_AMP_INVALID"),
+        _c("Rich Result is Invalid", "GSC_RICH_RESULTS_INVALID"),
+        _c("Indexable URL Not Indexed", "GSC_INDEXABLE_NOT_INDEXED"),
+        _c("User-Declared Canonical Not Selected", "GSC_USER_CANONICAL_NOT_SELECTED"),
+        _c("No Search Analytics Data", "NO_SEARCH_DATA", note="requires complete retained Search Analytics coverage and crawl"),
+        _c("Non-Indexable with Search Analytics Data", "NON_INDEXABLE_WITH_SEARCH_DATA"),
+        _c("URL Is Not on Google", "GSC_URL_NOT_ON_GOOGLE"),
     ],
     "Validation": [
         _c("Missing <head> Tag", "HEAD_MISSING"),

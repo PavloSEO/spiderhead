@@ -164,6 +164,110 @@ def test_moz_legacy_url_metrics_are_not_backlinks(tmp_path, monkeypatch):
     assert profile["state"] == "unavailable" and profile["summary"] is None
 
 
+def test_moz_backlinks_uses_explicit_json_rpc_operation_and_keeps_unknown_rel(tmp_path, monkeypatch):
+    monkeypatch.setenv("SEOHEAD_SPEND_LOG", str(tmp_path / "spend.jsonl"))
+    seen = []
+
+    def transport(request):
+        seen.append(request)
+        sent = json.loads(request.data)
+        assert request.full_url == "https://api.moz.com/jsonrpc"
+        assert request.headers["X-moz-token"] == "synthetic-moz-token"
+        assert sent["jsonrpc"] == "2.0" and sent["method"] == "data.site.link.list"
+        assert sent["params"]["data"]["site_query"] == {
+            "query": "example.test",
+            "scope": "root_domain",
+        }
+        assert sent["params"]["options"] == {"scope": "page", "filters": ["external"]}
+        assert sent["params"]["offset"] == {"limit": 25, "token": None}
+        return json.dumps(
+            {
+                "jsonrpc": "2.0",
+                "id": sent["id"],
+                "result": {
+                    "links": [
+                        {
+                            "source_url": "https://donor.test/a",
+                            "target_url": "https://example.test/p",
+                            "anchor_text": "Name",
+                            "rel": ["sponsored", "custom-rel"],
+                            "is_canonical": True,
+                            "is_redirect": False,
+                        }
+                    ],
+                    "offset": {"token": "opaque-next"},
+                },
+            }
+        )
+
+    result = backlink_indexes.collect(
+        "moz",
+        "example.test",
+        operation="backlinks",
+        api_key="synthetic-moz-token",
+        confirm_paid=True,
+        transport=transport,
+    )
+    assert len(seen) == 1
+    assert result["operation"] == "backlinks" and result["estimate"]["legacy"] is False
+    assert result["rows"][0]["rel"] == ["sponsored", "custom-rel"]
+    assert result["rows"][0]["is_canonical"] is True
+    assert result["rows"][0]["is_redirect"] is False
+    assert result["next_token"] == "opaque-next" and result["truncated"] is False
+    assert result["receipt"]["cost"] is None
+    assert result["receipt"]["extra"]["cost_unknown"] is True
+    assert "synthetic-moz-token" not in json.dumps(result)
+
+
+def test_moz_backlinks_rejects_explicit_limit_over_provider_max_and_preserves_default_mode():
+    with pytest.raises(ValueError, match="1..50"):
+        backlink_indexes.estimate("moz", operation="backlinks", limit=51)
+    legacy = backlink_indexes.estimate("moz")
+    assert legacy["operation"] == "url_metrics_v2" and legacy["legacy"] is True
+    modern = backlink_indexes.estimate("moz", operation="backlinks")
+    assert modern["operation"] == "backlinks" and modern["max_rows"] == 25
+
+
+def test_moz_backlinks_rejects_mismatched_json_rpc_id_and_keeps_unknown_receipt(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setenv("SEOHEAD_SPEND_LOG", str(tmp_path / "spend.jsonl"))
+
+    def transport(request):
+        return json.dumps(
+            {
+                "jsonrpc": "2.0",
+                "id": "wrong-id",
+                "result": {"links": [], "offset": {"token": None}},
+            }
+        )
+
+    result = backlink_indexes.collect(
+        "moz",
+        "example.test",
+        operation="backlinks",
+        api_key="synthetic-moz-token",
+        confirm_paid=True,
+        transport=transport,
+    )
+    assert result["state"] == "failed"
+    assert spend.read_all()[0]["cost"] is None
+
+
+def test_backlink_response_byte_limit_leaves_unknown_receipt(tmp_path, monkeypatch):
+    monkeypatch.setenv("SEOHEAD_SPEND_LOG", str(tmp_path / "spend.jsonl"))
+    monkeypatch.setattr(backlink_indexes, "MAX_RESPONSE_BYTES", 1)
+    result = backlink_indexes.collect(
+        "ahrefs",
+        "example.test",
+        api_key="synthetic-key",
+        confirm_paid=True,
+        transport=lambda request: ("{}", {}),
+    )
+    assert result["state"] == "failed"
+    assert spend.read_all()[0]["cost"] is None
+
+
 def test_index_network_failure_never_exposes_key(tmp_path, monkeypatch):
     monkeypatch.setenv("SEOHEAD_SPEND_LOG", str(tmp_path / "spend.jsonl"))
 
@@ -175,3 +279,4 @@ def test_index_network_failure_never_exposes_key(tmp_path, monkeypatch):
     )
     assert result["state"] == "failed" and "secret-canary" not in json.dumps(result)
     assert spend.read_all()[0]["extra"]["response_received"] is False
+    assert spend.read_all()[0]["cost"] is None

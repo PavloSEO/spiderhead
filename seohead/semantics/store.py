@@ -12,6 +12,7 @@ import csv
 import json
 import sqlite3
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 SCHEMA = """
@@ -63,6 +64,22 @@ CREATE TABLE IF NOT EXISTS runs(
   n_requests INTEGER, cost_rub REAL, cost_arsenkin INTEGER, note TEXT
 );
 CREATE INDEX IF NOT EXISTS ix_serp_domain ON serp(domain);
+-- Additive workflow tables: the original phrase/run tables remain format-compatible.
+CREATE TABLE IF NOT EXISTS semantic_stage_runs(
+  id INTEGER PRIMARY KEY, stage TEXT NOT NULL, state TEXT NOT NULL,
+  started_at TEXT NOT NULL, finished_at TEXT, estimate_json TEXT,
+  result_json TEXT, error TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_semantic_stage_runs ON semantic_stage_runs(stage, id DESC);
+CREATE TABLE IF NOT EXISTS semantic_audit(
+  id INTEGER PRIMARY KEY, at TEXT NOT NULL, action TEXT NOT NULL,
+  entity TEXT NOT NULL, before_json TEXT, after_json TEXT, evidence_json TEXT
+);
+CREATE TABLE IF NOT EXISTS landing_candidates(
+  cluster_id INTEGER NOT NULL, url TEXT NOT NULL, score REAL,
+  evidence_json TEXT NOT NULL, computed_at TEXT NOT NULL,
+  PRIMARY KEY(cluster_id, url)
+);
 -- Competitor analysis: who appears in the core's SERP and how often (refresh_domains()).
 CREATE TABLE IF NOT EXISTS domains(
   domain TEXT PRIMARY KEY,
@@ -89,6 +106,9 @@ CREATE VIEW IF NOT EXISTS v_clusters AS
 
 def _now():
     return time.strftime("%Y-%m-%d %H:%M:%S")
+
+
+_DEFAULT_FETCH_TIME = object()
 
 
 class Store:
@@ -134,6 +154,10 @@ class Store:
             ("clusters", "source", "TEXT"),
             ("clusters", "level", "TEXT"),  # soft|mid|hard
             ("clusters", "page_types", "TEXT"),
+            ("phrases", "group_name", "TEXT"),
+            ("phrases", "subgroup", "TEXT"),
+            ("phrases", "url", "TEXT"),
+            ("phrases", "comment", "TEXT"),
         ]
         for table, col, typ in adds:
             have = [r["name"] for r in self.db.execute("PRAGMA table_info(" + table + ")")]
@@ -199,8 +223,109 @@ class Store:
         )
 
     def set_landing(self, cluster_id, url):
-        """Set the landing URL of a cluster."""
+        """Set a cluster landing and retain a local audit record."""
+        before = self.db.execute(
+            "SELECT landing_url FROM clusters WHERE id=?", (cluster_id,)
+        ).fetchone()
+        if before is None:
+            raise ValueError(f"unknown cluster id: {cluster_id}")
         self.db.execute("UPDATE clusters SET landing_url=? WHERE id=?", (url, cluster_id))
+        self.db.execute(
+            "INSERT INTO semantic_audit(at,action,entity,before_json,after_json) "
+            "VALUES(?,?,?,?,?)",
+            (
+                datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+                "set_landing",
+                f"cluster:{cluster_id}",
+                json.dumps({"landing_url": before[0]}, ensure_ascii=False),
+                json.dumps({"landing_url": url}, ensure_ascii=False),
+            ),
+        )
+
+    def start_stage(self, stage, estimate=None):
+        now = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+        cur = self.db.execute(
+            "INSERT INTO semantic_stage_runs(stage,state,started_at,estimate_json) "
+            "VALUES(?,'running',?,?)",
+            (stage, now, json.dumps(estimate, ensure_ascii=False, default=str) if estimate is not None else None),
+        )
+        self.db.commit()
+        return cur.lastrowid
+
+    def finish_stage(self, run_id, state, result=None, error=None):
+        if state not in {"done", "failed"}:
+            raise ValueError("terminal stage state must be done or failed")
+        now = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+        self.db.execute(
+            "UPDATE semantic_stage_runs SET state=?,finished_at=?,result_json=?,error=? WHERE id=?",
+            (
+                state,
+                now,
+                json.dumps(result, ensure_ascii=False, default=str) if result is not None else None,
+                error,
+                run_id,
+            ),
+        )
+        self.db.commit()
+
+    def stage_states(self, limit=200):
+        rows = self.db.execute(
+            "SELECT id,stage,state,started_at,finished_at,estimate_json,result_json,error "
+            "FROM semantic_stage_runs ORDER BY id DESC LIMIT ?",
+            (limit + 1,),
+        ).fetchall()
+        has_more = len(rows) > limit
+        rows = rows[:limit]
+        latest, history = {}, []
+        for row in rows:
+            item = dict(row)
+            decode_errors = []
+            for name in ("estimate_json", "result_json"):
+                value = item.pop(name)
+                try:
+                    item[name.removesuffix("_json")] = json.loads(value) if value else None
+                except (TypeError, ValueError):
+                    item[name.removesuffix("_json")] = None
+                    decode_errors.append(name.removesuffix("_json"))
+            if decode_errors:
+                item["unavailable_fields"] = decode_errors
+            item["last_run_at"] = item["finished_at"] or item["started_at"]
+            item.pop("id", None)
+            latest.setdefault(item["stage"], item)
+            history.append(item)
+        total = self.db.execute("SELECT COUNT(*) FROM semantic_stage_runs").fetchone()[0]
+        return {"latest": latest, "history": history, "limit": limit, "total": total, "has_more": has_more}
+
+    def cluster_rows(self, *, offset=0, limit=50):
+        columns = {row["name"] for row in self.db.execute("PRAGMA table_info(clusters)")}
+        select = ",".join(
+            f"c.{name} AS {name}" if name in columns else f"NULL AS {name}"
+            for name in ("id", "name", "intent", "source", "coherence", "landing_url")
+        )
+        return self.db.execute(
+            f"SELECT {select}," 
+            "COUNT(p.id) AS phrase_count," 
+            "SUM(p.base) AS base_sum," 
+            "SUM(p.exact) AS exact_sum," 
+            "COUNT(p.exact) AS exact_measured "
+            "FROM clusters c LEFT JOIN phrases p ON p.cluster_id=c.id "
+            "AND p.status IN ('kept','review') GROUP BY c.id ORDER BY c.id LIMIT ? OFFSET ?",
+            (limit, offset),
+        ).fetchall()
+
+    def cluster_row(self, cluster_id):
+        columns = {row["name"] for row in self.db.execute("PRAGMA table_info(clusters)")}
+        select = ",".join(
+            f"c.{name} AS {name}" if name in columns else f"NULL AS {name}"
+            for name in ("id", "name", "intent", "source", "coherence", "landing_url")
+        )
+        return self.db.execute(
+            f"SELECT {select},COUNT(p.id) AS phrase_count,SUM(p.base) AS base_sum,"
+            "SUM(p.exact) AS exact_sum,COUNT(p.exact) AS exact_measured "
+            "FROM clusters c LEFT JOIN phrases p ON p.cluster_id=c.id "
+            "AND p.status IN ('kept','review') WHERE c.id=? GROUP BY c.id",
+            (cluster_id,),
+        ).fetchone()
 
     def refresh_domains(self, own_domain=None):
         """Rebuild the ``domains`` competitor table from collected SERP rows."""
@@ -278,12 +403,14 @@ class Store:
             "SELECT url,domain,pos FROM serp WHERE phrase_norm=? ORDER BY pos", (phrase_norm,)
         ).fetchall()
 
-    def add_serp(self, phrase_norm, docs):
+    def add_serp(self, phrase_norm, docs, *, fetched_at=_DEFAULT_FETCH_TIME):
         self.db.execute("DELETE FROM serp WHERE phrase_norm=?", (phrase_norm,))
+        if fetched_at is _DEFAULT_FETCH_TIME:
+            fetched_at = _now()
         for d in docs:
             self.db.execute(
                 "INSERT INTO serp(phrase_norm,pos,url,domain,title,fetched_at) VALUES(?,?,?,?,?,?)",
-                (phrase_norm, d.get("pos"), d.get("url"), d.get("domain"), d.get("title"), _now()),
+                (phrase_norm, d.get("pos"), d.get("url"), d.get("domain"), d.get("title"), fetched_at),
             )
 
     # ---------- provider units ----------
@@ -320,15 +447,51 @@ class Store:
         self.db.commit()
 
     # ---------- export ----------
-    def export(self, out_dir):
+    def export(self, out_dir, *, scope="all", dry_run=False):
         out = Path(out_dir)
+        clause, params = self.scope_clause(scope, "phrases")
+        rows = self.db.execute(
+            "SELECT phrases.* FROM phrases " + clause + " ORDER BY base DESC, id", params
+        ).fetchall()
+        files = [str(out / "pool.csv"), str(out / "pool.json")]
+        if dry_run:
+            return {
+                "contract": "seohead.semantics.operation.v1",
+                "mode": "preview",
+                "state": "complete",
+                "scope": scope,
+                "rows": len(rows),
+                "planned_files": files,
+            }
         out.mkdir(parents=True, exist_ok=True)
-        rows = self.db.execute("SELECT * FROM phrases ORDER BY base DESC").fetchall()
+        from seohead.core.tabular import neutralize_formula
+
         with open(out / "pool.csv", "w", newline="", encoding="utf-8-sig") as f:
             w = csv.writer(f, delimiter=";")
             columns = [r[1] for r in self.db.execute("PRAGMA table_info(phrases)")]
             w.writerow(columns)
-            w.writerows([row[column] for column in columns] for row in rows)
+            w.writerows(
+                [neutralize_formula(row[column]) for column in columns] for row in rows
+            )
         with open(out / "pool.json", "w", encoding="utf-8") as f:
             json.dump([dict(r) for r in rows], f, ensure_ascii=False, indent=1)
         return len(rows)
+
+    def scope_clause(self, scope="all", table="phrases"):
+        if scope == "all":
+            return "", []
+        if scope == "no-landing":
+            cluster_columns = {row["name"] for row in self.db.execute("PRAGMA table_info(clusters)")}
+            if "landing_url" not in cluster_columns:
+                raise ValueError("no-landing scope is unavailable in this legacy database")
+            return (
+                f"WHERE ({table}.cluster_id IN (SELECT id FROM clusters WHERE landing_url IS NULL OR landing_url='') "
+                f"OR {table}.cluster_id IS NULL)",
+                [],
+            )
+        if isinstance(scope, str) and scope.startswith("cluster:") and scope[8:].strip():
+            return (
+                f"WHERE {table}.cluster_id IN (SELECT id FROM clusters WHERE name=?)",
+                [scope[8:].strip()],
+            )
+        raise ValueError("scope must be all, no-landing, or cluster:<name>")

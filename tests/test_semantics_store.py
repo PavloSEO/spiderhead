@@ -104,3 +104,113 @@ def test_own_domain_detection_requires_a_hostname_boundary(sem_store):
         "sub.example.invalid": "own",
         "example.invalid.other.invalid": "competitor",
     }
+
+
+def test_stage_journal_and_landing_change_keep_utc_state_and_audit(sem_store):
+    cluster_id = sem_store.upsert_cluster("industrial pumps", source="serp")
+    run_id = sem_store.start_stage("clean", estimate={"request_estimate": {"count": 0}})
+    sem_store.finish_stage(run_id, "done", result={"kept": 2})
+    sem_store.set_landing(cluster_id, "https://example.test/pumps")
+    sem_store.commit()
+
+    state = sem_store.stage_states()
+    assert state["latest"]["clean"]["state"] == "done"
+    assert state["latest"]["clean"]["started_at"].endswith("Z")
+    assert state["latest"]["clean"]["result"] == {"kept": 2}
+    (audit,) = sem_store.db.execute(
+        "SELECT action,before_json,after_json FROM semantic_audit"
+    ).fetchall()
+    assert audit["action"] == "set_landing"
+    assert json.loads(audit["before_json"]) == {"landing_url": None}
+    assert json.loads(audit["after_json"]) == {"landing_url": "https://example.test/pumps"}
+
+
+def test_scoped_export_dry_run_counts_and_selects_only_requested_rows(sem_store, tmp_path):
+    cluster_id = sem_store.upsert_cluster("industrial pumps")
+    sem_store.upsert("industrial pumps", base=240)
+    sem_store.assign_cluster("industrial pumps", cluster_id)
+    sem_store.upsert("water pumps", base=80)
+    sem_store.commit()
+
+    plan = sem_store.export(tmp_path / "export", scope="cluster:industrial pumps", dry_run=True)
+    assert plan["rows"] == 1
+    assert len(plan["planned_files"]) == 2
+    assert not (tmp_path / "export").exists()
+    written = sem_store.export(tmp_path / "scoped", scope="cluster:industrial pumps")
+    assert written == 1
+    with (tmp_path / "scoped" / "pool.json").open(encoding="utf-8") as handle:
+        assert [row["norm"] for row in json.load(handle)] == ["industrial pumps"]
+
+
+def test_semantic_csv_export_neutralizes_formula_like_phrase_text(sem_store, tmp_path):
+    sem_store.upsert("synthetic formula phrase")
+    sem_store.set_fields("synthetic formula phrase", comment='=HYPERLINK("https://example.test/")')
+    sem_store.commit()
+    sem_store.export(tmp_path / "safe")
+
+    with (tmp_path / "safe" / "pool.csv").open(encoding="utf-8-sig", newline="") as handle:
+        row = next(csv.DictReader(handle, delimiter=";"))
+    assert row["comment"].startswith("'=")
+    with (tmp_path / "safe" / "pool.json").open(encoding="utf-8") as handle:
+        assert json.load(handle)[0]["comment"].startswith("=")
+
+
+def test_cluster_reads_are_paged_and_keep_missing_frequencies_null(sem_store, tmp_path):
+    from types import SimpleNamespace
+
+    from seohead.semantics.read_model import execute_read
+
+    cluster_id = sem_store.upsert_cluster("industrial pumps")
+    sem_store.upsert("industrial pumps", base=240)
+    sem_store.assign_cluster("industrial pumps", cluster_id)
+    sem_store.set_status("industrial pumps", "kept")
+    sem_store.upsert("water pumps")
+    sem_store.assign_cluster("water pumps", cluster_id)
+    sem_store.set_status("water pumps", "kept")
+    sem_store.commit()
+
+    first = execute_read(
+        sem_store,
+        tmp_path,
+        "cluster-queries",
+        SimpleNamespace(cluster=str(cluster_id), offset=0, limit=1, json=False),
+    )
+    assert first["total"] == 2 and first["has_more"] is True
+    second = execute_read(
+        sem_store,
+        tmp_path,
+        "cluster-queries",
+        SimpleNamespace(cluster=str(cluster_id), offset=1, limit=1, json=False),
+    )
+    assert second["items"][0]["base"] is None
+    assert second["items"][0]["exact"] is None
+
+
+def test_insights_keep_missing_source_metrics_null_with_reason(sem_store, tmp_path):
+    from seohead.semantics.read_model import insights
+
+    result = insights(sem_store, tmp_path, "2026-09-01..2026-09-07", ["gsc", "metrika", "webmaster"])
+    assert result["provider_calls_made"] == 0
+    assert all(item["state"] == "unavailable" for item in result["sources"].values())
+
+
+def test_week_coverage_requires_all_seven_measured_days_and_metrika_users_stay_unavailable():
+    from datetime import date, timedelta
+
+    from seohead.semantics.read_model import _metric_value, _week_coverage
+
+    start = date(2026, 9, 7)
+    days = [(start + timedelta(days=offset)).isoformat() for offset in range(7)]
+    status = {
+        "state": "available",
+        "resources": ["counter-1"],
+        "coverage": {"counter-1": {"complete": days, "empty": [], "partial": [], "failed": [], "pending": [], "lagged": [], "unrequested": []}},
+    }
+    assert _week_coverage(status, start.isoformat(), start, start + timedelta(days=6)) == ("complete", None)
+    status["coverage"]["counter-1"]["failed"] = [days[3]]
+    status["coverage"]["counter-1"]["complete"].remove(days[3])
+    state, reason = _week_coverage(status, start.isoformat(), start, start + timedelta(days=6))
+    assert state == "partial" and "failed" in reason
+    users = _metric_value("metrika", "users", [{"users": 12, "date": days[0]}])
+    assert users["value"] is None
+    assert "weekly distinct users" in users["unavailable_reason"]
