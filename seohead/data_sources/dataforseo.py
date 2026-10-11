@@ -29,6 +29,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import date, timedelta
+from typing import Any
 
 from seohead.data_sources import spend, spend_gate
 from seohead.data_sources.credentials import (

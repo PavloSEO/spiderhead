@@ -8,7 +8,9 @@ from seohead.checks.redirects import analyze_redirect_map, generate_rule, normal
 
 def test_absolute_root_url_keeps_query_and_fragment_when_host_is_removed():
     assert normalize_url("https://example.test?source=old#section") == "/?source=old#section"
-    assert normalize_url("https://example.test/path?source=old#section") == "/path?source=old#section"
+    assert (
+        normalize_url("https://example.test/path?source=old#section") == "/path?source=old#section"
+    )
 
 
 def test_wordpress_redirection_csv_row_has_import_fields():
@@ -25,9 +27,7 @@ def test_redirect_map_reports_chains_and_loops_without_fetching():
             {"from": "/loop-b", "to": "/loop-a"},
         ]
     )
-    assert {tuple(item["path"]) for item in analysis["chains"]} == {
-        ("/old", "/middle", "/new")
-    }
+    assert {tuple(item["path"]) for item in analysis["chains"]} == {("/old", "/middle", "/new")}
     assert analysis["loops"] == [
         {"source": "/loop-a", "path": ["/loop-a", "/loop-b", "/loop-a"]},
         {"source": "/loop-b", "path": ["/loop-b", "/loop-a", "/loop-b"]},

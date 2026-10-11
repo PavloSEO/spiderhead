@@ -91,9 +91,9 @@ def test_expired_sending_lease_becomes_uncertain_instead_of_resend(tmp_path):
         == "uncertain"
     )
     assert (
-        recovered_receipts.reconcile(
-            receipt, provider_status="not_delivered", sender_stopped=True
-        )["state"]
+        recovered_receipts.reconcile(receipt, provider_status="not_delivered", sender_stopped=True)[
+            "state"
+        ]
         == "pending"
     )
     retried = _service(
@@ -127,9 +127,7 @@ def test_legacy_sending_row_requires_stopped_owner_before_retry(tmp_path):
     )
     assert receipts.reconcile(receipt, provider_status="not_delivered")["state"] == "uncertain"
     assert (
-        receipts.reconcile(
-            receipt, provider_status="not_delivered", sender_stopped=True
-        )["state"]
+        receipts.reconcile(receipt, provider_status="not_delivered", sender_stopped=True)["state"]
         == "pending"
     )
 
@@ -174,9 +172,9 @@ def test_only_verified_non_delivery_releases_an_uncertain_receipt(tmp_path):
     assert replayed == []
 
     assert receipts.reconcile(receipt, provider_status="not_delivered")["state"] == "pending"
-    retried = _service(
-        path, lambda _destination, _payload, key: replayed.append(key)
-    ).deliver(_run(), "service:test")
+    retried = _service(path, lambda _destination, _payload, key: replayed.append(key)).deliver(
+        _run(), "service:test"
+    )
     assert retried["delivery"] == "sent"
     assert replayed == [receipt]
 
@@ -201,8 +199,8 @@ def test_receipt_store_failure_after_send_is_uncertain_and_not_replayed(tmp_path
     assert len(sent) == 1
 
     replayed = []
-    recovered = _service(
-        path, lambda _destination, _payload, key: replayed.append(key)
-    ).deliver(_run(), "service:test")
+    recovered = _service(path, lambda _destination, _payload, key: replayed.append(key)).deliver(
+        _run(), "service:test"
+    )
     assert recovered["delivery"] == "uncertain"
     assert replayed == []

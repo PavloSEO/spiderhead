@@ -86,7 +86,6 @@ def structured_blocks(
     soup = BeautifulSoup(html, features="html.parser")
     resolved_base = document_base_url(soup, base_url)
     parsed: list[dict[str, Any]] = []
-    nodes_by_block: list[list[dict[str, Any]]] = []
     tags = live_jsonld_tags(soup)
     for ordinal, tag in enumerate(tags[:MAX_BLOCKS]):
         raw = (tag.string or tag.get_text() or "").strip()
@@ -144,7 +143,6 @@ def structured_blocks(
                         }
                     ]
         parsed.append(entry)
-        nodes_by_block.append(nodes)
 
     # The caller may supply the one page-wide Schema.org result used by a
     # retained-detail endpoint. Standalone callers still get the same offline check.
@@ -154,7 +152,7 @@ def structured_blocks(
         else schema_org.check_schema(html=html, document_base_url=resolved_base)
     )
     checked_entities = checked_page.get("entities") or []
-    for entry, nodes in zip(parsed, nodes_by_block, strict=True):
+    for entry in parsed:
         prefix = f"jsonld[{entry['ordinal'] + 1}]"
         for checked in checked_entities:
             if (
@@ -164,10 +162,7 @@ def structured_blocks(
             ):
                 continue
             path = checked["path"]
-            if not (
-                path == prefix
-                or path.startswith((prefix + ".", prefix + "@", prefix + "["))
-            ):
+            if not (path == prefix or path.startswith((prefix + ".", prefix + "@", prefix + "["))):
                 continue
             errors = checked.get("errors") or []
             warnings = checked.get("warnings") or []
@@ -175,8 +170,7 @@ def structured_blocks(
             entry["warnings"] += len(warnings)
             entry["message_count"] += len(errors) + len(warnings)
             entry["messages"] += [
-                {"path": path[:512], "level": "error", "text": str(text)[:500]}
-                for text in errors
+                {"path": path[:512], "level": "error", "text": str(text)[:500]} for text in errors
             ] + [
                 {"path": path[:512], "level": "warning", "text": str(text)[:500]}
                 for text in warnings
@@ -199,11 +193,7 @@ def structured_blocks(
     else:
         state = "valid"
     truncated = len(tags) > MAX_BLOCKS
-    reason = (
-        f"Showing the first {MAX_BLOCKS} of {len(tags)} JSON-LD blocks."
-        if truncated
-        else ""
-    )
+    reason = f"Showing the first {MAX_BLOCKS} of {len(tags)} JSON-LD blocks." if truncated else ""
     return {
         "state": state,
         "reason": reason,

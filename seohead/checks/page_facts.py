@@ -494,7 +494,6 @@ def extract(html: str, url: str) -> dict[str, Any]:
         "title": base["title"],
         "description": base["meta_description"],
         "meta_robots": ", ".join(base.get("robots_meta_scoped") or []),
-        "meta_robots": ", ".join(base.get("robots_meta_scoped") or []),
         "canonical": base["canonical"],
         "og": base["og"],
         "twitter": base["twitter"],

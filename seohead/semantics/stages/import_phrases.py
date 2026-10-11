@@ -44,25 +44,30 @@ def _collect_rows(source_rows, headers, *, source, strict_width):
         if line > MAX_IMPORT_ROWS + 1:
             raise ValueError(f"import exceeds the {MAX_IMPORT_ROWS}-row limit")
         if isinstance(raw, dict):
-            if None in raw or strict_width and any(raw.get(header) is None for header in headers):
+            if None in raw or (strict_width and any(raw.get(header) is None for header in headers)):
                 raise ValueError(f"wrong column count on {source} row {line}")
             values = [raw.get(header) for header in headers]
         else:
             if len(raw) > len(headers):
                 raise ValueError(f"wrong column count on {source} row {line}")
             values = list(raw) + [None] * (len(headers) - len(raw))
-        if any(not header and value not in (None, "") for header, value in zip(headers, values)):
+        if any(
+            not header and value not in (None, "")
+            for header, value in zip(headers, values, strict=True)
+        ):
             raise ValueError(f"non-empty cell has no column header on {source} row {line}")
         for value in values:
             if value is None:
                 continue
             size = len(str(value).encode("utf-8"))
             if size > MAX_IMPORT_CELL_BYTES:
-                raise ValueError(f"cell exceeds the {MAX_IMPORT_CELL_BYTES}-byte limit on {source} row {line}")
+                raise ValueError(
+                    f"cell exceeds the {MAX_IMPORT_CELL_BYTES}-byte limit on {source} row {line}"
+                )
             text_bytes += size
             if text_bytes > MAX_IMPORT_TEXT_BYTES:
                 raise ValueError(f"import exceeds the {MAX_IMPORT_TEXT_BYTES}-byte text limit")
-        rows.append(dict(zip(headers, values)))
+        rows.append(dict(zip(headers, values, strict=True)))
     return rows
 
 
@@ -85,7 +90,9 @@ def _read_table(path: Path, sheet: str | None):
             headers = [str(h).strip() if h is not None else "" for h in headers]
             if len({h.casefold() for h in headers if h}) != len([h for h in headers if h]):
                 raise ValueError("worksheet headers must be unique")
-            rows = _collect_rows(values, headers, source=f"worksheet {ws.title}", strict_width=False)
+            rows = _collect_rows(
+                values, headers, source=f"worksheet {ws.title}", strict_width=False
+            )
             return headers, rows
         finally:
             workbook.close()
@@ -127,7 +134,9 @@ def _mapping(headers, mapping=None):
             result[field] = requested
             continue
         aliases = _DEFAULTS.get(field, (field,))
-        found = next((lower.get(alias.casefold()) for alias in aliases if alias.casefold() in lower), None)
+        found = next(
+            (lower.get(alias.casefold()) for alias in aliases if alias.casefold() in lower), None
+        )
         if found:
             result[field] = found
     if "base" in mapping:
@@ -155,14 +164,18 @@ def _parse(file, sheet=None, mapping=None):
             continue
         values = {}
         for source_field, target_field in (
-            ("frequency", "base"), ("quoted", "quoted"), ("exact", "exact"),
-            ("impr", "impr"), ("pos_y", "pos_y"), ("pos_g", "pos_g"),
+            ("frequency", "base"),
+            ("quoted", "quoted"),
+            ("exact", "exact"),
+            ("impr", "impr"),
+            ("pos_y", "pos_y"),
+            ("pos_g", "pos_g"),
         ):
             column = applied.get(source_field)
             value = row.get(column) if column else None
             if value is None or str(value).strip().casefold() in {"", "null", "--", "none"}:
                 continue
-            if isinstance(value, bool) or isinstance(value, float) and not value.is_integer():
+            if isinstance(value, bool) or (isinstance(value, float) and not value.is_integer()):
                 raise ValueError(f"invalid {source_field} on input row {line}")
             try:
                 number = int(value)
@@ -172,12 +185,27 @@ def _parse(file, sheet=None, mapping=None):
                 raise ValueError(f"negative {source_field} on input row {line}")
             values[target_field] = number
         group = str(row.get(applied["group"]) or "").strip() if applied.get("group") else ""
-        subgroup = str(row.get(applied["subgroup"]) or "").strip() if applied.get("subgroup") else ""
+        subgroup = (
+            str(row.get(applied["subgroup"]) or "").strip() if applied.get("subgroup") else ""
+        )
         if group and not subgroup and ("/" in group or "\\" in group):
             parts = [part.strip() for part in group.replace("\\", "/").split("/") if part.strip()]
             group, subgroup = (parts[0], " / ".join(parts[1:])) if parts else ("", "")
-        for field, column in (("group_name", "group"), ("subgroup", "subgroup"), ("url", "url"), ("comment", "comment")):
-            value = group if field == "group_name" else subgroup if field == "subgroup" else row.get(applied.get(column)) if applied.get(column) else None
+        for field, column in (
+            ("group_name", "group"),
+            ("subgroup", "subgroup"),
+            ("url", "url"),
+            ("comment", "comment"),
+        ):
+            value = (
+                group
+                if field == "group_name"
+                else subgroup
+                if field == "subgroup"
+                else row.get(applied.get(column))
+                if applied.get(column)
+                else None
+            )
             if value is not None and str(value).strip():
                 values[field] = str(value).strip()
         parsed.append({"query": phrase, "values": values, "duplicate_in_file": phrase in seen})
@@ -202,7 +230,9 @@ def _plan_rows(store, file, *, sheet, merge, rows, applied, input_rows):
     if merge not in {"add", "update", "replace"}:
         raise ValueError("merge policy must be add, update, or replace")
     if merge == "replace" and not rows:
-        raise ValueError("replace import contains no valid queries; refusing to clear the semantic core")
+        raise ValueError(
+            "replace import contains no valid queries; refusing to clear the semantic core"
+        )
     current = {r[0] for r in store.db.execute("SELECT norm FROM phrases")}
     existing = [item for item in rows if item["query"] in current]
     new = [item for item in rows if item["query"] not in current]
@@ -255,9 +285,11 @@ def run(store, cfg, file, *, sheet=None, mapping=None, merge="add"):
             skipped += 1
             continue
         current = store.db.execute("SELECT * FROM phrases WHERE norm=?", (phrase,)).fetchone()
-        changed = values if merge in {"update", "replace"} else {
-            key: value for key, value in values.items() if current[key] is None
-        }
+        changed = (
+            values
+            if merge in {"update", "replace"}
+            else {key: value for key, value in values.items() if current[key] is None}
+        )
         if changed:
             store.set_fields(phrase, **changed)
             updated += int(not is_new)
@@ -270,7 +302,9 @@ def run(store, cfg, file, *, sheet=None, mapping=None, merge="add"):
             datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
             "import",
             "phrases",
-            json.dumps({"merge": "replace", "rows": preview["replacement_rows"]}, ensure_ascii=False)
+            json.dumps(
+                {"merge": "replace", "rows": preview["replacement_rows"]}, ensure_ascii=False
+            )
             if merge == "replace"
             else None,
             json.dumps({"merge": merge, "rows": added + updated}, ensure_ascii=False),

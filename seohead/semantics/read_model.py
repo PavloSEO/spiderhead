@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 import re
 import sqlite3
 from collections import defaultdict
@@ -30,7 +30,12 @@ RULES = (
     },
     {
         "rule_id": "search.impressions_without_clicks",
-        "threshold": {"field": "clicks", "operator": "equals", "value": 0, "requires": "impressions > 0"},
+        "threshold": {
+            "field": "clicks",
+            "operator": "equals",
+            "value": 0,
+            "requires": "impressions > 0",
+        },
         "evidence": ["gsc.clicks", "gsc.impressions", "webmaster.clicks", "webmaster.shows"],
         "recommendation": "Review the cluster landing page and search-result targeting for measured impressions without clicks.",
     },
@@ -51,7 +56,8 @@ def clusters(store, *, offset=0, limit=50):
     _page(offset, limit)
     cluster_columns = {row["name"] for row in store.db.execute("PRAGMA table_info(clusters)")}
     unavailable_cluster_fields = [
-        field for field in ("intent", "source", "coherence", "landing_url")
+        field
+        for field in ("intent", "source", "coherence", "landing_url")
         if field not in cluster_columns
     ]
     rows = store.cluster_rows(offset=offset, limit=limit + 1)
@@ -67,7 +73,9 @@ def clusters(store, *, offset=0, limit=50):
         except sqlite3.OperationalError:
             candidate = None
         item["landing_score"] = candidate[0] if candidate else None
-        item["landing_score_unavailable_reason"] = None if candidate else "no stored score for the selected landing URL"
+        item["landing_score_unavailable_reason"] = (
+            None if candidate else "no stored score for the selected landing URL"
+        )
         items.append(item)
     return {
         "format": "seohead.semantics.clusters.v1",
@@ -100,10 +108,14 @@ def cluster_show(store, reference):
     return {
         "format": "seohead.semantics.cluster.v1",
         "cluster": cluster_data,
-        "landing_url_unavailable_reason": "landing URLs are unavailable in this legacy database" if "landing_url" not in cluster_columns else None,
+        "landing_url_unavailable_reason": "landing URLs are unavailable in this legacy database"
+        if "landing_url" not in cluster_columns
+        else None,
         "aggregate": aggregate,
         "landing_candidates": candidates,
-        "landing_candidates_unavailable_reason": None if candidates else "candidate scores have not been computed from retained SERP evidence",
+        "landing_candidates_unavailable_reason": None
+        if candidates
+        else "candidate scores have not been computed from retained SERP evidence",
     }
 
 
@@ -115,7 +127,21 @@ def cluster_queries(store, reference, *, offset=0, limit=50, project=None):
         (cluster["id"],),
     ).fetchone()[0]
     available = {row["name"] for row in store.db.execute("PRAGMA table_info(phrases)")}
-    fields = ("norm", "base", "quoted", "exact", "impr", "pos_y", "pos_g", "status", "route", "group_name", "subgroup", "url", "comment")
+    fields = (
+        "norm",
+        "base",
+        "quoted",
+        "exact",
+        "impr",
+        "pos_y",
+        "pos_g",
+        "status",
+        "route",
+        "group_name",
+        "subgroup",
+        "url",
+        "comment",
+    )
     present = [field for field in fields if field in available]
     rows = store.db.execute(
         f"SELECT {','.join(present)} FROM phrases WHERE cluster_id=? AND status IN ('kept','review') "
@@ -126,9 +152,13 @@ def cluster_queries(store, reference, *, offset=0, limit=50, project=None):
     has_receipts = store.db.execute(
         "SELECT 1 FROM sqlite_master WHERE type='table' AND name='serp_fetches'"
     ).fetchone()
-    receipt_time_expr = "fetched_at" if has_receipts and "fetched_at" in {
-        row["name"] for row in store.db.execute("PRAGMA table_info(serp_fetches)")
-    } else "NULL AS fetched_at"
+    receipt_time_expr = (
+        "fetched_at"
+        if has_receipts
+        and "fetched_at"
+        in {row["name"] for row in store.db.execute("PRAGMA table_info(serp_fetches)")}
+        else "NULL AS fetched_at"
+    )
     configured_region = None
     if project is not None:
         configured_region = str((config.load(project).get("regions") or ["225"])[0])
@@ -137,10 +167,12 @@ def cluster_queries(store, reference, *, offset=0, limit=50, project=None):
         receipt = None
         any_receipt = False
         if has_receipts:
-            any_receipt = bool(store.db.execute(
-                "SELECT 1 FROM serp_fetches WHERE phrase_norm=? AND top=10 LIMIT 1",
-                (item["norm"],),
-            ).fetchone())
+            any_receipt = bool(
+                store.db.execute(
+                    "SELECT 1 FROM serp_fetches WHERE phrase_norm=? AND top=10 LIMIT 1",
+                    (item["norm"],),
+                ).fetchone()
+            )
             if configured_region:
                 receipt = store.db.execute(
                     f"SELECT region,top,state,raw_json,{receipt_time_expr} FROM serp_fetches "
@@ -165,23 +197,35 @@ def cluster_queries(store, reference, *, offset=0, limit=50, project=None):
             except (TypeError, ValueError):
                 results = []
         elif not receipt and not any_receipt:
-            results = [dict(result) for result in store.db.execute(
-                "SELECT pos,url,domain,title FROM serp WHERE phrase_norm=? ORDER BY pos LIMIT 10",
-                (item["norm"],),
-            )]
+            results = [
+                dict(result)
+                for result in store.db.execute(
+                    "SELECT pos,url,domain,title FROM serp WHERE phrase_norm=? ORDER BY pos LIMIT 10",
+                    (item["norm"],),
+                )
+            ]
         item["yandex_top10"] = {
             "results": results,
             "region": receipt["region"] if receipt else None,
             "fetched_at": receipt["fetched_at"] if receipt else legacy_fetched,
-            "state": receipt["state"] if receipt else ("legacy_cache" if results else "unavailable"),
-            "unavailable_reason": None if results else (
+            "state": receipt["state"]
+            if receipt
+            else ("legacy_cache" if results else "unavailable"),
+            "unavailable_reason": None
+            if results
+            else (
                 f"no retained SERP receipt for configured region {configured_region}"
                 if any_receipt and not receipt
-                else f"SERP receipt state is {receipt['state']}" if receipt
+                else f"SERP receipt state is {receipt['state']}"
+                if receipt
                 else "no retained Yandex TOP-10 evidence"
             ),
-            "region_unavailable_reason": "legacy SERP rows do not retain region" if results and not receipt else None,
-            "fetch_date_unavailable_reason": "this retained receipt predates fetch timestamps" if receipt and not receipt["fetched_at"] else None,
+            "region_unavailable_reason": "legacy SERP rows do not retain region"
+            if results and not receipt
+            else None,
+            "fetch_date_unavailable_reason": "this retained receipt predates fetch timestamps"
+            if receipt and not receipt["fetched_at"]
+            else None,
         }
         items.append(item)
     return {
@@ -204,9 +248,7 @@ def refresh_landing_candidates(store, own_domain):
         store.commit()
         return {"state": "unavailable", "reason": "project domain is not configured", "clusters": 0}
     store.db.execute("DELETE FROM landing_candidates")
-    clusters_rows = store.db.execute(
-        "SELECT id FROM clusters ORDER BY id"
-    ).fetchall()
+    clusters_rows = store.db.execute("SELECT id FROM clusters ORDER BY id").fetchall()
     for cluster in clusters_rows:
         phrases = store.db.execute(
             "SELECT p.norm FROM phrases p WHERE p.cluster_id=? AND p.status IN ('kept','review')",
@@ -222,7 +264,12 @@ def refresh_landing_candidates(store, own_domain):
                 (phrase[0],),
             ):
                 parsed = urlsplit(row["url"] or "")
-                host = (row["domain"] or parsed.hostname or "").lower().removeprefix("www.").rstrip(".")
+                host = (
+                    (row["domain"] or parsed.hostname or "")
+                    .lower()
+                    .removeprefix("www.")
+                    .rstrip(".")
+                )
                 if host != own and not host.endswith("." + own):
                     continue
                 item = candidates.setdefault(row["url"], {"phrases": set(), "positions": []})
@@ -242,7 +289,9 @@ def refresh_landing_candidates(store, own_domain):
                 "INSERT OR REPLACE INTO landing_candidates(cluster_id,url,score,evidence_json,computed_at) "
                 "VALUES(?,?,?,?,?)",
                 (
-                    cluster["id"], url, score,
+                    cluster["id"],
+                    url,
+                    score,
                     json.dumps(details, ensure_ascii=False),
                     datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
                 ),
@@ -292,11 +341,7 @@ def _week_coverage(source_status, week_start, period_start, period_end):
     for resource in resources:
         coverage = source_status.get("coverage", {}).get(resource, {})
         measured = set(coverage.get("complete", [])) | set(coverage.get("empty", []))
-        state_by_day = {
-            day: state
-            for state in states
-            for day in coverage.get(state, [])
-        }
+        state_by_day = {day: state for state in states for day in coverage.get(state, [])}
         for day in days:
             value = day.isoformat()
             if value not in measured:
@@ -309,16 +354,28 @@ def _week_coverage(source_status, week_start, period_start, period_end):
 def _source_rows(root, source, start, end):
     path = root / "sources.sqlite"
     if not path.is_file():
-        return [], {"state": "unavailable", "reason": "project sources.sqlite is missing", "resources": []}
+        return [], {
+            "state": "unavailable",
+            "reason": "project sources.sqlite is missing",
+            "resources": [],
+        }
     if not (root / "project.json").is_file():
-        return [], {"state": "unavailable", "reason": "project source bindings are unavailable for a standalone semantic core", "resources": []}
+        return [], {
+            "state": "unavailable",
+            "reason": "project source bindings are unavailable for a standalone semantic core",
+            "resources": [],
+        }
     from seohead.data_sources import sources_db
     from seohead.projects.bindings import list_bindings
 
     bindings = list_bindings(root)["bindings"]
     resources = sorted({item["resource"] for item in bindings if item["service"] == source})
     if not resources:
-        return [], {"state": "unavailable", "reason": "no resource is bound to this project", "resources": []}
+        return [], {
+            "state": "unavailable",
+            "reason": "no resource is bound to this project",
+            "resources": [],
+        }
     rows, capped = [], False
     for resource in resources:
         remaining = MAX_INSIGHT_ROWS - len(rows)
@@ -345,9 +402,13 @@ def _source_rows(root, source, start, end):
         "state": "partial" if capped else "available",
         "reason": "provider row limit reached; values may be incomplete" if capped else None,
         "resources": resources,
-        "coverage": {resource: ledger.get((source, resource), {}).get("coverage", {}) for resource in resources},
+        "coverage": {
+            resource: ledger.get((source, resource), {}).get("coverage", {})
+            for resource in resources
+        },
         "last_fetched_at": {
-            resource: ledger.get((source, resource), {}).get("last_fetched_at") for resource in resources
+            resource: ledger.get((source, resource), {}).get("last_fetched_at")
+            for resource in resources
         },
     }
 
@@ -379,18 +440,42 @@ def _matches(source, row, phrases, landing):
 def _metric_value(source, metric, rows):
     values = [row[metric] for row in rows if row.get(metric) is not None]
     if not values:
-        return {"value": None, "unavailable_reason": "no matched, complete provider measurements for this week"}
+        return {
+            "value": None,
+            "unavailable_reason": "no matched, complete provider measurements for this week",
+        }
     if metric == "users" and source == "metrika":
-        return {"value": None, "unavailable_reason": "Metrika history is daily and distinct users cannot be summed into weekly distinct users"}
+        return {
+            "value": None,
+            "unavailable_reason": "Metrika history is daily and distinct users cannot be summed into weekly distinct users",
+        }
     if metric in {"position", "show_position", "click_position", "ctr", "bounce_rate"}:
-        weight_name = "impressions" if source == "gsc" else "shows" if source == "webmaster" and metric == "show_position" else "clicks" if source == "webmaster" else "visits"
-        weighted = [(row.get(metric), row.get(weight_name)) for row in rows if row.get(metric) is not None and row.get(weight_name) is not None]
+        weight_name = (
+            "impressions"
+            if source == "gsc"
+            else "shows"
+            if source == "webmaster" and metric == "show_position"
+            else "clicks"
+            if source == "webmaster"
+            else "visits"
+        )
+        weighted = [
+            (row.get(metric), row.get(weight_name))
+            for row in rows
+            if row.get(metric) is not None and row.get(weight_name) is not None
+        ]
         if not weighted or sum(weight for _, weight in weighted) == 0:
             if len(rows) == 1 and len(values) == 1:
                 return {"value": values[0], "aggregation": "single_observation"}
-            return {"value": None, "unavailable_reason": f"{metric} is non-additive and has no measured {weight_name} weights"}
+            return {
+                "value": None,
+                "unavailable_reason": f"{metric} is non-additive and has no measured {weight_name} weights",
+            }
         weight_total = sum(weight for _, weight in weighted)
-        return {"value": sum(value * weight for value, weight in weighted) / weight_total, "aggregation": f"weighted_by_{weight_name}"}
+        return {
+            "value": sum(value * weight for value, weight in weighted) / weight_total,
+            "aggregation": f"weighted_by_{weight_name}",
+        }
     return {"value": sum(values), "aggregation": "sum_of_measured_rows"}
 
 
@@ -434,11 +519,15 @@ def insights(store, project, period, sources):
                 resource_status = {
                     **source_status[source],
                     "resources": [resource],
-                    "coverage": {resource: source_status[source].get("coverage", {}).get(resource, {})},
+                    "coverage": {
+                        resource: source_status[source].get("coverage", {}).get(resource, {})
+                    },
                 }
                 grouped = defaultdict(list)
                 for row in provider_rows[source]:
-                    if row.get("resource") != resource or not _matches(source, row, phrases, landing_url):
+                    if row.get("resource") != resource or not _matches(
+                        source, row, phrases, landing_url
+                    ):
                         continue
                     grouped[_week(row["date"])].append(row)
                 weeks, cursor = [], start - timedelta(days=start.weekday())
@@ -447,7 +536,9 @@ def insights(store, project, period, sources):
                     coverage_state, coverage_reason = _week_coverage(
                         resource_status, cursor.isoformat(), start, end
                     )
-                    measured_rows = [row for row in matched if row.get("coverage_state") == "complete"]
+                    measured_rows = [
+                        row for row in matched if row.get("coverage_state") == "complete"
+                    ]
                     metrics = {
                         metric: (
                             {"value": None, "unavailable_reason": coverage_reason}
@@ -456,21 +547,25 @@ def insights(store, project, period, sources):
                         )
                         for metric in SOURCE_METRICS[source]
                     }
-                    weeks.append({
-                        "week_start": cursor.isoformat(),
-                        "row_count": len(matched),
-                        "measured_row_count": len(measured_rows),
-                        "coverage_state": coverage_state,
-                        "unavailable_reason": coverage_reason,
-                        "metrics": metrics,
-                    })
+                    weeks.append(
+                        {
+                            "week_start": cursor.isoformat(),
+                            "row_count": len(matched),
+                            "measured_row_count": len(measured_rows),
+                            "coverage_state": coverage_state,
+                            "unavailable_reason": coverage_reason,
+                            "metrics": metrics,
+                        }
+                    )
                     cursor += timedelta(days=7)
                 resource_weeks[resource] = {"weeks": weeks}
             signals[source] = {
                 "source_state": source_status[source]["state"],
                 "source_unavailable_reason": source_status[source]["reason"],
                 "resources": resource_weeks,
-                "weeks": next(iter(resource_weeks.values()))["weeks"] if len(resource_weeks) == 1 else None,
+                "weeks": next(iter(resource_weeks.values()))["weeks"]
+                if len(resource_weeks) == 1
+                else None,
                 "weeks_unavailable_reason": "no bound resource or multiple resources are kept separate"
                 if len(resource_weeks) != 1
                 else None,
@@ -492,11 +587,25 @@ def insights(store, project, period, sources):
             sort_keys=True,
         )
         identity = hashlib.sha256(phrase_identity.encode("utf-8")).hexdigest()[:12]
-        cluster_result = {"id": cluster["id"], "identity": identity, "name": cluster["name"], "landing_url": landing_url, "signals": signals}
-        cluster_result["landing_url_state"] = "measured" if landing_column_available else "unavailable"
-        cluster_result["landing_url_unavailable_reason"] = None if landing_column_available else "landing URLs are unavailable in this legacy database"
+        cluster_result = {
+            "id": cluster["id"],
+            "identity": identity,
+            "name": cluster["name"],
+            "landing_url": landing_url,
+            "signals": signals,
+        }
+        cluster_result["landing_url_state"] = (
+            "measured" if landing_column_available else "unavailable"
+        )
+        cluster_result["landing_url_unavailable_reason"] = (
+            None
+            if landing_column_available
+            else "landing URLs are unavailable in this legacy database"
+        )
         cluster_result["landing_candidates"] = candidates
-        cluster_result["landing_candidates_unavailable_reason"] = None if candidates else "no stored candidate scores for this cluster"
+        cluster_result["landing_candidates_unavailable_reason"] = (
+            None if candidates else "no stored candidate scores for this cluster"
+        )
         cluster_result["rules"] = _evaluate_rules(cluster_result)
         clusters.append(cluster_result)
     return {
@@ -513,50 +622,89 @@ def insights(store, project, period, sources):
 def _evaluate_rules(cluster):
     results = []
     if cluster.get("landing_url_state") == "unavailable":
-        results.append({
-            "rule_id": "landing.unassigned",
-            "state": "unavailable",
-            "evidence": None,
-            "unavailable_reason": cluster["landing_url_unavailable_reason"],
-        })
+        results.append(
+            {
+                "rule_id": "landing.unassigned",
+                "state": "unavailable",
+                "evidence": None,
+                "unavailable_reason": cluster["landing_url_unavailable_reason"],
+            }
+        )
     elif cluster["landing_url"]:
-        results.append({"rule_id": "landing.unassigned", "state": "not_matched", "evidence": {"landing_url": cluster["landing_url"]}})
+        results.append(
+            {
+                "rule_id": "landing.unassigned",
+                "state": "not_matched",
+                "evidence": {"landing_url": cluster["landing_url"]},
+            }
+        )
     else:
-        results.append({
-            "rule_id": "landing.unassigned",
-            "state": "matched",
-            "threshold": RULES[0]["threshold"],
-            "evidence": {
-                "landing_url": None,
-                "candidate_urls": cluster["landing_candidates"],
-                "candidates_unavailable_reason": cluster["landing_candidates_unavailable_reason"],
-            },
-            "recommendation": RULES[0]["recommendation"],
-        })
+        results.append(
+            {
+                "rule_id": "landing.unassigned",
+                "state": "matched",
+                "threshold": RULES[0]["threshold"],
+                "evidence": {
+                    "landing_url": None,
+                    "candidate_urls": cluster["landing_candidates"],
+                    "candidates_unavailable_reason": cluster[
+                        "landing_candidates_unavailable_reason"
+                    ],
+                },
+                "recommendation": RULES[0]["recommendation"],
+            }
+        )
     measured = []
     for source in ("gsc", "webmaster"):
         signal = cluster["signals"].get(source)
         if not signal:
             continue
-        click_key, impression_key = ("clicks", "impressions") if source == "gsc" else ("clicks", "shows")
+        click_key, impression_key = (
+            ("clicks", "impressions") if source == "gsc" else ("clicks", "shows")
+        )
         for resource, resource_signal in signal.get("resources", {}).items():
             for week in resource_signal["weeks"]:
                 clicks = week["metrics"][click_key]["value"]
                 impressions = week["metrics"][impression_key]["value"]
                 if clicks is not None and impressions is not None:
-                    measured.append({"source": source, "resource": resource, "week_start": week["week_start"], "clicks": clicks, "impressions": impressions})
+                    measured.append(
+                        {
+                            "source": source,
+                            "resource": resource,
+                            "week_start": week["week_start"],
+                            "clicks": clicks,
+                            "impressions": impressions,
+                        }
+                    )
     if any(row["impressions"] > 0 and row["clicks"] == 0 for row in measured):
-        results.append({
-            "rule_id": "search.impressions_without_clicks",
-            "state": "matched",
-            "threshold": RULES[1]["threshold"],
-            "evidence": [row for row in measured if row["impressions"] > 0 and row["clicks"] == 0],
-            "recommendation": RULES[1]["recommendation"],
-        })
+        results.append(
+            {
+                "rule_id": "search.impressions_without_clicks",
+                "state": "matched",
+                "threshold": RULES[1]["threshold"],
+                "evidence": [
+                    row for row in measured if row["impressions"] > 0 and row["clicks"] == 0
+                ],
+                "recommendation": RULES[1]["recommendation"],
+            }
+        )
     elif measured:
-        results.append({"rule_id": "search.impressions_without_clicks", "state": "not_matched", "evidence": measured})
+        results.append(
+            {
+                "rule_id": "search.impressions_without_clicks",
+                "state": "not_matched",
+                "evidence": measured,
+            }
+        )
     else:
-        results.append({"rule_id": "search.impressions_without_clicks", "state": "unavailable", "evidence": None, "unavailable_reason": "click and impression measurements are unavailable for this period"})
+        results.append(
+            {
+                "rule_id": "search.impressions_without_clicks",
+                "state": "unavailable",
+                "evidence": None,
+                "unavailable_reason": "click and impression measurements are unavailable for this period",
+            }
+        )
     return results
 
 
@@ -584,7 +732,9 @@ def create_insight_tasks(
         raise ValueError("initialize the project checklist before creating insight tasks")
     revision = checklist.get("revision")
     if expected_revision is not None and expected_revision != revision:
-        raise ValueError(f"checklist revision changed: expected {expected_revision}, current {revision}")
+        raise ValueError(
+            f"checklist revision changed: expected {expected_revision}, current {revision}"
+        )
     if not dry_run and type(expected_revision) is not int:
         raise ValueError("expected_revision is required for an insight task write")
     if not dry_run and not confirm:
@@ -610,7 +760,9 @@ def create_insight_tasks(
         rule = next((row for row in cluster["rules"] if row["rule_id"] == rule_id), None)
         if rule is None or rule["state"] != "matched":
             state = rule["state"] if rule else "unknown_rule"
-            raise ValueError(f"selected rule {rule_id} is not matched for cluster {cluster_id}: {state}")
+            raise ValueError(
+                f"selected rule {rule_id} is not matched for cluster {cluster_id}: {state}"
+            )
         slug = re.sub(r"[^a-z0-9._/-]+", "-", rule_id.lower()).strip("-./")
         task_id = f"custom:semantic-{slug}-cluster-{cluster_id}-{cluster['identity']}"
         rule_evidence = rule.get("evidence")
@@ -620,7 +772,9 @@ def create_insight_tasks(
                 "item_count": len(rule_evidence),
                 "omitted_count": max(0, len(rule_evidence) - 5),
             }
-        elif isinstance(rule_evidence, dict) and isinstance(rule_evidence.get("candidate_urls"), list):
+        elif isinstance(rule_evidence, dict) and isinstance(
+            rule_evidence.get("candidate_urls"), list
+        ):
             candidates = rule_evidence["candidate_urls"]
             evidence = {
                 **rule_evidence,
@@ -647,7 +801,8 @@ def create_insight_tasks(
                 "id": task_id,
                 "title": f"Review {rule_id.replace('.', ' ')}: {str(cluster['name'])[:450]}",
                 "description": json.dumps(evidence, ensure_ascii=False, sort_keys=True),
-                "acceptance_criterion": rule.get("recommendation") or "Review the recorded evidence and document the decision.",
+                "acceptance_criterion": rule.get("recommendation")
+                or "Review the recorded evidence and document the decision.",
                 "evidence": evidence,
             }
         )
@@ -707,11 +862,15 @@ def insights_from_project(project, period, sources):
 
 def execute_read(store, project, stage, args):
     if stage == "clusters":
-        result = clusters(store, offset=getattr(args, "offset", 0), limit=getattr(args, "limit", 50))
+        result = clusters(
+            store, offset=getattr(args, "offset", 0), limit=getattr(args, "limit", 50)
+        )
     elif stage == "cluster-show":
         result = cluster_show(store, args.cluster)
     elif stage == "cluster-queries":
-        result = cluster_queries(store, args.cluster, offset=args.offset, limit=args.limit, project=project)
+        result = cluster_queries(
+            store, args.cluster, offset=args.offset, limit=args.limit, project=project
+        )
     elif stage == "set-landing":
         cluster = _cluster(store, args.cluster)
         url = args.url.strip() or None
@@ -719,9 +878,16 @@ def execute_read(store, project, stage, args):
             raise ValueError("landing URL must not contain control characters")
         store.set_landing(cluster["id"], url)
         store.commit()
-        result = {"format": "seohead.semantics.landing-update.v1", "cluster_id": cluster["id"], "landing_url": url, "audit_recorded": True}
+        result = {
+            "format": "seohead.semantics.landing-update.v1",
+            "cluster_id": cluster["id"],
+            "landing_url": url,
+            "audit_recorded": True,
+        }
     elif stage == "insights":
-        result = insights(store, project, args.period, [s.strip() for s in args.sources.split(",") if s.strip()])
+        result = insights(
+            store, project, args.period, [s.strip() for s in args.sources.split(",") if s.strip()]
+        )
     elif stage == "insights-tasks":
         source_list = [s.strip() for s in args.sources.split(",") if s.strip()]
         insight = insights(store, project, args.period, source_list)

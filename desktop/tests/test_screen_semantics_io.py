@@ -8,9 +8,9 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from seohead_desktop.app import load_theme
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.semantics_io import (
+    SemImportScreen,
     export_arguments,
     import_arguments,
-    SemImportScreen,
 )
 from tests._qt import sweep_widgets
 from tests._screens_host import FakeHost

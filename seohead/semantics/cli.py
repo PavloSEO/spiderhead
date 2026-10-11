@@ -51,7 +51,19 @@ def build_parser() -> argparse.ArgumentParser:
             required=True,
             help="semantic project directory, or a SEOHEAD project (uses its semantics/)",
         )
-        if name in {"status", "import", "export", "excel", *PAID_STAGES, "clusters", "cluster-show", "cluster-queries", "insights", "insights-tasks", "set-landing"}:
+        if name in {
+            "status",
+            "import",
+            "export",
+            "excel",
+            *PAID_STAGES,
+            "clusters",
+            "cluster-show",
+            "cluster-queries",
+            "insights",
+            "insights-tasks",
+            "set-landing",
+        }:
             command.add_argument("--json", action="store_true")
         if name in {"import", "export", "excel", "insights-tasks", *PAID_STAGES}:
             command.add_argument("--dry-run", action="store_true")
@@ -60,7 +72,9 @@ def build_parser() -> argparse.ArgumentParser:
         if name == "import":
             command.add_argument("--file", type=Path, required=True, help="CSV or XLSX file")
             command.add_argument("--sheet", help="worksheet name for XLSX")
-            command.add_argument("--map", dest="mapping", action="append", default=[], metavar="FIELD=COLUMN")
+            command.add_argument(
+                "--map", dest="mapping", action="append", default=[], metavar="FIELD=COLUMN"
+            )
             command.add_argument("--merge", choices=("add", "update", "replace"), default="add")
         if name in {"export", "excel"}:
             command.add_argument("--scope", choices=("all", "no-landing"), default="all")
@@ -72,25 +86,45 @@ def build_parser() -> argparse.ArgumentParser:
         if name in ("exact", "cluster"):
             command.add_argument("--limit", type=int, default=0, help="debugging only")
         if name == "exact":
-            command.add_argument("--yes", action="store_true", help="allow the configured batch size")
+            command.add_argument(
+                "--yes", action="store_true", help="allow the configured batch size"
+            )
         if name == "cluster":
             command.add_argument("--method", choices=("serp", "louvain"), default="serp")
         if name in PAID_STAGES:
-            command.add_argument("--confirm-paid", action="store_true", help="confirm the paid estimate shown by a prior --dry-run --json")
+            command.add_argument(
+                "--confirm-paid",
+                action="store_true",
+                help="confirm the paid estimate shown by a prior --dry-run --json",
+            )
         if name in {"clusters", "cluster-queries"}:
             command.add_argument("--offset", type=int, default=0)
             command.add_argument("--limit", type=int, default=50)
         if name in {"cluster-show", "cluster-queries", "set-landing"}:
             command.add_argument("--cluster", required=True, help="cluster id or exact name")
         if name == "set-landing":
-            command.add_argument("--url", required=True, help="landing URL, or empty string to clear")
+            command.add_argument(
+                "--url", required=True, help="landing URL, or empty string to clear"
+            )
         if name in {"insights", "insights-tasks"}:
-            command.add_argument("--period", required=True, help="inclusive YYYY-MM-DD..YYYY-MM-DD period")
+            command.add_argument(
+                "--period", required=True, help="inclusive YYYY-MM-DD..YYYY-MM-DD period"
+            )
             command.add_argument("--sources", default="gsc,metrika,webmaster")
         if name == "insights-tasks":
-            command.add_argument("--select", dest="selections", action="append", required=True, metavar="RULE_ID:CLUSTER_ID")
+            command.add_argument(
+                "--select",
+                dest="selections",
+                action="append",
+                required=True,
+                metavar="RULE_ID:CLUSTER_ID",
+            )
             command.add_argument("--expected-revision", type=int)
-            command.add_argument("--confirm", action="store_true", help="write only the explicitly selected matched rule/cluster pairs")
+            command.add_argument(
+                "--confirm",
+                action="store_true",
+                help="write only the explicitly selected matched rule/cluster pairs",
+            )
     return parser
 
 
@@ -102,9 +136,20 @@ def main(argv: list[str] | None = None) -> int:
             parser.error(f"--{field.replace('_', '-')} must be non-negative")
     options = vars(args)
     stage, project = options.pop("stage"), options.pop("project")
-    json_output = options.get("json", False) or options.get("dry_run", False) or (
-        stage in PAID_STAGES and not options.get("confirm_paid")
-    ) or stage in {"clusters", "cluster-show", "cluster-queries", "set-landing", "insights", "insights-tasks"}
+    json_output = (
+        options.get("json", False)
+        or options.get("dry_run", False)
+        or (stage in PAID_STAGES and not options.get("confirm_paid"))
+        or stage
+        in {
+            "clusters",
+            "cluster-show",
+            "cluster-queries",
+            "set-landing",
+            "insights",
+            "insights-tasks",
+        }
+    )
     if "mapping" in options:
         parsed = {}
         for item in options.pop("mapping"):

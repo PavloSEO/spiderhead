@@ -12,8 +12,8 @@ from seohead.storage import url_history
 from seohead.storage.history import _metadata
 from seohead.storage.native_scan import NativeScan
 from tests.test_native_capture import _event
-from tests.test_scan_native import _metadata as _scan_metadata
 from tests.test_scan_native import _link, _record, _runtime
+from tests.test_scan_native import _metadata as _scan_metadata
 
 URL = "https://example.test/page"
 

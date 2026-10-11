@@ -11,7 +11,7 @@ from collections.abc import Iterable, Mapping
 from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
-from seohead.checks.external_join import orphan_urls
+from seohead.checks.external_join import normalize_join_key, orphan_urls
 from seohead.data_sources.evidence_join import join_evidence
 
 GSC_ORPHAN = "GSC_ORPHAN"
@@ -175,11 +175,19 @@ def evaluate_inspections(
         amp_verdict = amp.get("verdict")
         rich_verdict = rich.get("verdict")
 
-        def add(check: str, details: dict[str, Any]) -> None:
+        def add(
+            check: str,
+            details: dict[str, Any],
+            inspected_url: str = url,
+            inspection_row: Mapping[str, Any] = row,
+        ) -> None:
             findings[check].append(
                 {
-                    "url": url,
-                    "details": {**details, "inspected_at": row.get("inspected_at")},
+                    "url": inspected_url,
+                    "details": {
+                        **details,
+                        "inspected_at": inspection_row.get("inspected_at"),
+                    },
                 }
             )
 

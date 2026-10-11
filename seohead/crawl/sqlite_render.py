@@ -192,9 +192,7 @@ def _candidate(
             "raw": raw_values if raw_available else None,
             "rendered": {name: rendered_values.get(name, "") for name in raw_values},
             "diffs": [dict(item) for item in diffs],
-            "rules": [
-                {"rule": rule, "diff": dict(item)} for rule, item in classify_diffs(diffs)
-            ],
+            "rules": [{"rule": rule, "diff": dict(item)} for rule, item in classify_diffs(diffs)],
         }
     parsed, degenerate = render_escalation.fold_rendered_evidence(
         candidate,

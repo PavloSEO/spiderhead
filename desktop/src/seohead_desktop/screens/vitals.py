@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from urllib.parse import urlsplit
 
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PyQt5.QtCore import QAbstractTableModel, Qt
 from PyQt5.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -42,10 +42,10 @@ class PageSpeedRows(QAbstractTableModel):
         super().__init__(parent)
         self.rows = []
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent=None):
         return 0 if parent.isValid() else len(self.rows)
 
-    def columnCount(self, parent=QModelIndex()):
+    def columnCount(self, parent=None):
         return 0 if parent.isValid() else len(self.COLUMNS)
 
     def data(self, index, role=Qt.DisplayRole):
@@ -232,7 +232,9 @@ class VitalsPage(QWidget):
         title = QLabel("Core Web Vitals")
         title.setProperty("text_style", "title")
         root.addWidget(title)
-        note = QLabel("CrUX reports field data from real Chrome users. LCP, INP and CLS are shown only when returned by the source.")
+        note = QLabel(
+            "CrUX reports field data from real Chrome users. LCP, INP and CLS are shown only when returned by the source."
+        )
         note.setProperty("text_style", "meta")
         note.setWordWrap(True)
         root.addWidget(note)
@@ -253,9 +255,13 @@ class VitalsPage(QWidget):
         root.addLayout(controls)
         self.targets = QPlainTextEdit()
         self.targets.setMaximumHeight(110)
-        self.targets.setPlaceholderText("https://example.test/page\nFor sample mode, enter up to 25 URLs, one per line.")
+        self.targets.setPlaceholderText(
+            "https://example.test/page\nFor sample mode, enter up to 25 URLs, one per line."
+        )
         root.addWidget(self.targets)
-        self.status = QLabel("No request has been made. Querying requires an API key and may consume the account's quota.")
+        self.status = QLabel(
+            "No request has been made. Querying requires an API key and may consume the account's quota."
+        )
         self.status.setProperty("text_style", "meta")
         self.status.setWordWrap(True)
         root.addWidget(self.status)
@@ -299,11 +305,17 @@ class VitalsPage(QWidget):
     def query(self):
         targets = [line.strip() for line in self.targets.toPlainText().splitlines() if line.strip()]
         try:
-            arguments = crux_arguments(self.kind.currentData(), targets, self.form_factor.currentData())
+            arguments = crux_arguments(
+                self.kind.currentData(), targets, self.form_factor.currentData()
+            )
         except ValueError as exc:
             self.status.setText(str(exc))
             return
-        description = "one CrUX field-data request" if self.kind.currentData() != "samples" else f"a CrUX sample of {len(targets)} URLs"
+        description = (
+            "one CrUX field-data request"
+            if self.kind.currentData() != "samples"
+            else f"a CrUX sample of {len(targets)} URLs"
+        )
         answer = QMessageBox.question(
             self,
             "Query Chrome UX Report",
@@ -326,7 +338,9 @@ class VitalsPage(QWidget):
             return
         targets = [line.strip() for line in self.targets.toPlainText().splitlines() if line.strip()]
         if not 1 <= len(targets) <= MAX_SAMPLES:
-            self.lab_status.setText("Enter 1–25 absolute URLs, one per line, in the targets box above.")
+            self.lab_status.setText(
+                "Enter 1–25 absolute URLs, one per line, in the targets box above."
+            )
             return
         artifact_dir = QFileDialog.getExistingDirectory(
             self, "Choose a private folder for the saved PageSpeed evidence"
@@ -417,9 +431,16 @@ class VitalsPage(QWidget):
             if kind == "pagespeed_collect":
                 self.psi_button.setEnabled(True)
                 evidence = payload.get("evidence") if isinstance(payload, dict) else None
-                reference = evidence.get("artifact_reference") if isinstance(evidence, dict) else None
+                reference = (
+                    evidence.get("artifact_reference") if isinstance(evidence, dict) else None
+                )
                 if not isinstance(reference, str) or not reference.startswith("local-artifact:"):
-                    self.lab_status.setText(str((evidence or {}).get("status") or "No retained PageSpeed artifact was created.")[:300])
+                    self.lab_status.setText(
+                        str(
+                            (evidence or {}).get("status")
+                            or "No retained PageSpeed artifact was created."
+                        )[:300]
+                    )
                     return
                 artifact_dir, strategy = pending[2], pending[3]
                 self._save_history(
@@ -437,12 +458,18 @@ class VitalsPage(QWidget):
                     return
                 read_token = object()
                 self._token = ("pagespeed_read", read_token)
-                self.lab_status.setText("Reading allowlisted Lighthouse fields from the retained artifact…")
+                self.lab_status.setText(
+                    "Reading allowlisted Lighthouse fields from the retained artifact…"
+                )
                 self.job.start(arguments, read_token)
                 return
             if kind == "pagespeed_read":
                 if payload.get("ok") is not True:
-                    self.lab_status.setText(str(payload.get("reason") or "Saved PageSpeed fields are unavailable.")[:300])
+                    self.lab_status.setText(
+                        str(payload.get("reason") or "Saved PageSpeed fields are unavailable.")[
+                            :300
+                        ]
+                    )
                     return
                 self.lab_model.set_rows(pagespeed_projection(payload).get("samples"))
                 self.lab_status.setText("Sanitized Lighthouse lab fields · not CrUX field data")
@@ -451,7 +478,9 @@ class VitalsPage(QWidget):
             return
         self._token = None
         self.query_button.setEnabled(True)
-        self.status.setText(f"{payload.get('state', 'unknown')} · CrUX current field data · {payload.get('retrieved_at', 'time unavailable')}")
+        self.status.setText(
+            f"{payload.get('state', 'unknown')} · CrUX current field data · {payload.get('retrieved_at', 'time unavailable')}"
+        )
         visible = _field_projection(payload)
         self.result.setPlainText(json.dumps(visible, ensure_ascii=False, indent=2))
 
@@ -477,7 +506,9 @@ def _field_projection(payload):
             "requested": payload.get("requested"),
             "sampled": payload.get("sampled"),
             "omitted": payload.get("omitted"),
-            "records": [_field_projection(row) for row in payload["records"] if isinstance(row, dict)],
+            "records": [
+                _field_projection(row) for row in payload["records"] if isinstance(row, dict)
+            ],
         }
     return {
         key: payload[key]
@@ -496,4 +527,3 @@ def _field_projection(payload):
         )
         if key in payload
     }
-

@@ -50,9 +50,9 @@ def test_status_is_light_by_default_and_counts_match_full(tmp_path, counters):
     assert counters["full"] == 1
 
     assert (light["validation"], full["validation"]) == ("light", "full")
-    assert {
-        k: v for k, v in light.items() if k not in {"validation", "integrity"}
-    } == {k: v for k, v in full.items() if k not in {"validation", "integrity"}}
+    assert {k: v for k, v in light.items() if k not in {"validation", "integrity"}} == {
+        k: v for k, v in full.items() if k not in {"validation", "integrity"}
+    }
     assert light["integrity"]["state"] == "not_checked"
     assert full["integrity"]["state"] == "ok"
     assert light["committed_page_outcomes"]["2xx"] == 1

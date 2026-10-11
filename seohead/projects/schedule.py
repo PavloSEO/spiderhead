@@ -315,9 +315,7 @@ def show(directory: str | Path, *, now: datetime | None = None) -> dict[str, Any
             child_root, child_project, child_settings, child_state = _open(target["directory"])
             child_host = urlsplit(child_project["site"]["target"]).hostname or ""
             configured = read_document(child_root, NAME) is not None
-            decision = due_state(
-                child_settings, child_host, stamp, child_state.get("last_window")
-            )
+            decision = due_state(child_settings, child_host, stamp, child_state.get("last_window"))
             competitors.append(
                 {
                     "url": target["url"],
@@ -484,9 +482,7 @@ def _request(
     crawl = settings["crawl"]
     agent = settings["user_agent"]
     user_agent = agent["custom"] if agent["custom"] is not None else agent["preset"]
-    artifact = (
-        _resume_scan_path(root_dir, state.get("resume_artifact")) if crawl["slice"] else None
-    )
+    artifact = _resume_scan_path(root_dir, state.get("resume_artifact")) if crawl["slice"] else None
     if artifact and crawl["mode"] == "spider":
         return {"resume": artifact, "project": target["directory"], "approve_large_crawl": False}
     base: dict[str, Any] = {
@@ -622,15 +618,11 @@ def run_due(
     if settings["include_competitors"]:
         for target in _competitor_targets(root, project):
             try:
-                child_root, child_project, child_settings, child_state = _open(
-                    target["directory"]
-                )
+                child_root, child_project, child_settings, child_state = _open(target["directory"])
                 if read_document(child_root, NAME) is None:
                     continue
                 host = urlsplit(child_project["site"]["target"]).hostname or ""
-                decision = due_state(
-                    child_settings, host, stamp, child_state.get("last_window")
-                )
+                decision = due_state(child_settings, host, stamp, child_state.get("last_window"))
             except (OSError, ValueError, KeyError, TypeError) as exc:
                 unavailable.append(
                     {
@@ -710,7 +702,9 @@ def run_due(
                         child_root != target_root
                         or child_project["project_uuid"] != target["project_uuid"]
                     ):
-                        raise ValueError("competitor project changed before scheduled-run admission")
+                        raise ValueError(
+                            "competitor project changed before scheduled-run admission"
+                        )
                     child_token = _acquire(target_root)
             if target_root != root and child_token is None:
                 entry = {
@@ -779,9 +773,7 @@ def run_due(
                             expected_revision=previous_revision,
                         )
                         message = f"{target['role']} cancelled: {type(exc).__name__}"
-                        journal.note(
-                            directory, source="scans", actor="schedule", text=message
-                        )
+                        journal.note(directory, source="scans", actor="schedule", text=message)
                         if target_root != root:
                             journal.note(
                                 target["directory"],
@@ -805,9 +797,7 @@ def run_due(
                 }
                 results.append(entry)
                 if target_settings["crawl"]["slice"] and entry["partial"] and entry["scan"]:
-                    target_state["resume_artifact"] = _stored_scan_path(
-                        target_root, entry["scan"]
-                    )
+                    target_state["resume_artifact"] = _stored_scan_path(target_root, entry["scan"])
                 else:
                     target_state["resume_artifact"] = None
                 target_state["last_window"] = decision["window"]
@@ -827,7 +817,11 @@ def run_due(
                     source="scans",
                     actor="schedule",
                     text=f"{target['role']} {'finished' if entry['ok'] else 'failed'}"
-                    + (f" partial={entry['partial']}" if entry["ok"] else f" error={entry['error']}"),
+                    + (
+                        f" partial={entry['partial']}"
+                        if entry["ok"]
+                        else f" error={entry['error']}"
+                    ),
                 )
                 if target_root != root:
                     journal.note(
@@ -835,7 +829,11 @@ def run_due(
                         source="scans",
                         actor="schedule",
                         text=f"competitor {'finished' if entry['ok'] else 'failed'}"
-                        + (f" partial={entry['partial']}" if entry["ok"] else f" error={entry['error']}"),
+                        + (
+                            f" partial={entry['partial']}"
+                            if entry["ok"]
+                            else f" error={entry['error']}"
+                        ),
                     )
             finally:
                 if child_token is not None:

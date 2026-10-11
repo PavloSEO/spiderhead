@@ -85,22 +85,41 @@ def paid_estimate(stage: str, project: str | Path, **options: Any) -> dict[str, 
     with _store(project, readonly=True) as store:
         if stage == "collect":
             seed_file = directory / cfg.get("seeds_file", "seeds.txt")
-            seeds = [line.strip() for line in seed_file.read_text(encoding="utf-8").splitlines() if line.strip()] if seed_file.exists() else []
+            seeds = (
+                [
+                    line.strip()
+                    for line in seed_file.read_text(encoding="utf-8").splitlines()
+                    if line.strip()
+                ]
+                if seed_file.exists()
+                else []
+            )
             expanded = {r[0] for r in store.db.execute("SELECT seed_norm FROM expansions")}
             has_attempts = store.db.execute(
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name='collect_attempts'"
             ).fetchone()
-            attempts = store.db.execute("SELECT seed,state,depth FROM collect_attempts").fetchall() if has_attempts else []
-            blocked = {
-                r[0] for r in store.db.execute(
-                    "SELECT seed FROM collect_attempts WHERE state IN ('submitting','unknown')"
-                )
-            } if has_attempts else set()
+            attempts = (
+                store.db.execute("SELECT seed,state,depth FROM collect_attempts").fetchall()
+                if has_attempts
+                else []
+            )
+            blocked = (
+                {
+                    r[0]
+                    for r in store.db.execute(
+                        "SELECT seed FROM collect_attempts WHERE state IN ('submitting','unknown')"
+                    )
+                }
+                if has_attempts
+                else set()
+            )
             from seohead.semantics.norm import Filters, normalize
 
             candidates = {normalize(seed) for seed in seeds}
             if options.get("resume"):
-                candidates.update(normalize(row["seed"]) for row in attempts if row["state"] == "retryable")
+                candidates.update(
+                    normalize(row["seed"]) for row in attempts if row["state"] == "retryable"
+                )
                 filters = Filters.from_config(cfg)
                 floor, max_depth = cfg.get("reexpand_floor", 40), cfg.get("max_depth", 3)
                 for row in store.db.execute(
@@ -108,7 +127,12 @@ def paid_estimate(stage: str, project: str | Path, **options: Any) -> dict[str, 
                     (floor,),
                 ):
                     phrase, depth = row["norm"], row["depth"] or 0
-                    if depth <= max_depth and not filters.is_stop(phrase) and filters.has_intent(phrase) and len(phrase.split()) >= 2:
+                    if (
+                        depth <= max_depth
+                        and not filters.is_stop(phrase)
+                        and filters.has_intent(phrase)
+                        and len(phrase.split()) >= 2
+                    ):
                         candidates.add(normalize(phrase))
             initial = candidates - expanded - blocked - {""}
             count = len(initial)
@@ -120,7 +144,9 @@ def paid_estimate(stage: str, project: str | Path, **options: Any) -> dict[str, 
             maximum = (
                 0
                 if total_phrases >= max_phrases
-                else min(limit, max_phrases) if limit else max_phrases
+                else min(limit, max_phrases)
+                if limit
+                else max_phrases
             )
             count = min(count, maximum)
             provider, unit, tasks = "yandex_wordstat", "requests", count
@@ -128,34 +154,52 @@ def paid_estimate(stage: str, project: str | Path, **options: Any) -> dict[str, 
             from seohead.semantics.norm import normalize
 
             path = directory / "synonyms.txt"
-            candidates = {normalize(line) for line in path.read_text(encoding="utf-8").splitlines()} if path.exists() else set()
+            candidates = (
+                {normalize(line) for line in path.read_text(encoding="utf-8").splitlines()}
+                if path.exists()
+                else set()
+            )
             known = {r[0] for r in store.db.execute("SELECT norm FROM phrases")}
             count = len({item for item in candidates if item and item not in known})
             provider, unit, tasks = "yandex_wordstat", "requests", count
         elif stage == "cluster":
-            rows = store.db.execute("SELECT COUNT(*) FROM phrases WHERE status='kept'").fetchone()[0]
+            rows = store.db.execute("SELECT COUNT(*) FROM phrases WHERE status='kept'").fetchone()[
+                0
+            ]
             region = str((cfg.get("regions") or ["225"])[0])
-            receipts = store.db.execute(
-                "SELECT f.phrase_norm,f.state FROM serp_fetches f JOIN phrases p ON p.norm=f.phrase_norm "
-                "WHERE f.region=? AND f.top=10 AND p.status='kept'",
-                (region,),
-            ).fetchall() if store.db.execute(
-                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='serp_fetches'"
-            ).fetchone() else []
+            receipts = (
+                store.db.execute(
+                    "SELECT f.phrase_norm,f.state FROM serp_fetches f JOIN phrases p ON p.norm=f.phrase_norm "
+                    "WHERE f.region=? AND f.top=10 AND p.status='kept'",
+                    (region,),
+                ).fetchall()
+                if store.db.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='serp_fetches'"
+                ).fetchone()
+                else []
+            )
             complete = {r[0] for r in receipts if r[1] == "complete"}
             blocked_items = sum(r[1] != "complete" for r in receipts)
             if blocked_items:
-                blocked_reason = "unresolved SERP receipts must be reconciled before another paid cluster run"
-            all_receipts = {
-                r[0] for r in store.db.execute(
-                    "SELECT DISTINCT f.phrase_norm FROM serp_fetches f JOIN phrases p ON p.norm=f.phrase_norm "
-                    "WHERE p.status='kept'"
+                blocked_reason = (
+                    "unresolved SERP receipts must be reconciled before another paid cluster run"
                 )
-            } if store.db.execute(
-                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='serp_fetches'"
-            ).fetchone() else set()
+            all_receipts = (
+                {
+                    r[0]
+                    for r in store.db.execute(
+                        "SELECT DISTINCT f.phrase_norm FROM serp_fetches f JOIN phrases p ON p.norm=f.phrase_norm "
+                        "WHERE p.status='kept'"
+                    )
+                }
+                if store.db.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='serp_fetches'"
+                ).fetchone()
+                else set()
+            )
             legacy = {
-                r[0] for r in store.db.execute(
+                r[0]
+                for r in store.db.execute(
                     "SELECT DISTINCT s.phrase_norm FROM serp s JOIN phrases p ON p.norm=s.phrase_norm "
                     "WHERE p.status='kept'"
                 )
@@ -173,7 +217,9 @@ def paid_estimate(stage: str, project: str | Path, **options: Any) -> dict[str, 
             ).fetchall()
             groups: dict[object, list[str]] = {}
             for row in rows:
-                key = row["lemma_group"] if row["lemma_group"] is not None else f"solo:{row['norm']}"
+                key = (
+                    row["lemma_group"] if row["lemma_group"] is not None else f"solo:{row['norm']}"
+                )
                 groups.setdefault(key, []).append(row["norm"])
             claimed = set()
             has_tasks = store.db.execute(
@@ -188,7 +234,9 @@ def paid_estimate(stage: str, project: str | Path, **options: Any) -> dict[str, 
                     "AND stage='exact' AND region=?",
                     (region_id,),
                 ):
-                    claimed.update(normalize(value) for value in json.loads(task[0]).get("queries", []))
+                    claimed.update(
+                        normalize(value) for value in json.loads(task[0]).get("queries", [])
+                    )
             count = sum(not claimed.intersection(members) for members in groups.values())
             limit = int(options.get("limit", 0) or 0)
             if limit:
@@ -197,19 +245,43 @@ def paid_estimate(stage: str, project: str | Path, **options: Any) -> dict[str, 
         else:
             raise ValueError(f"{stage} is not a paid semantic stage")
         choices = {
-            "region": {"selected": (cfg.get("regions") or ["225"])[0], "available": cfg.get("regions") or ["225"]},
+            "region": {
+                "selected": (cfg.get("regions") or ["225"])[0],
+                "available": cfg.get("regions") or ["225"],
+            },
             "engine": {
-                "selected": {"collect": "yandex_wordstat", "synonyms": "yandex_wordstat", "cluster": "yandex_search", "exact": "arsenkin_wordstat"}[stage],
-                "available": ["yandex_wordstat"] if stage in {"collect", "synonyms"} else ["yandex_search"] if stage == "cluster" else ["arsenkin_wordstat"],
+                "selected": {
+                    "collect": "yandex_wordstat",
+                    "synonyms": "yandex_wordstat",
+                    "cluster": "yandex_search",
+                    "exact": "arsenkin_wordstat",
+                }[stage],
+                "available": ["yandex_wordstat"]
+                if stage in {"collect", "synonyms"}
+                else ["yandex_search"]
+                if stage == "cluster"
+                else ["arsenkin_wordstat"],
             },
             "query_source": {
-                "selected": "seeds_file" if stage == "collect" else "synonyms_file" if stage == "synonyms" else "kept_phrases",
+                "selected": "seeds_file"
+                if stage == "collect"
+                else "synonyms_file"
+                if stage == "synonyms"
+                else "kept_phrases",
                 "available": ["seeds_file", "synonyms_file", "kept_phrases"],
             },
         }
         request_estimate = {"unit": unit, "count": tasks, "kind": "upper_bound"}
         if stage == "collect":
-            request_estimate.update({"count": None, "minimum": 0, "known_initial_requests": count, "maximum": maximum, "kind": "bounded_range"})
+            request_estimate.update(
+                {
+                    "count": None,
+                    "minimum": 0,
+                    "known_initial_requests": count,
+                    "maximum": maximum,
+                    "kind": "bounded_range",
+                }
+            )
         return {
             "contract": "seohead.semantics.operation.v1",
             "mode": "estimate",
@@ -257,7 +329,12 @@ def execute(stage: str, project: str | Path, **options: Any) -> dict[str, Any]:
         return {"project": str(project), "stage": "init", "directory": str(directory)}
     out = Path(args.out) if args.out else directory
     readonly_stages = {"status", "clusters", "cluster-show", "cluster-queries", "insights"}
-    dry_read = getattr(args, "dry_run", False) and stage in {"import", "export", "excel", "insights-tasks"}
+    dry_read = getattr(args, "dry_run", False) and stage in {
+        "import",
+        "export",
+        "excel",
+        "insights-tasks",
+    }
     with _store(project, readonly=stage in readonly_stages or dry_read) as store:
         if stage == "status":
             result = _status(store, project)
@@ -280,7 +357,9 @@ def execute(stage: str, project: str | Path, **options: Any) -> dict[str, Any]:
                     "files": [str(out / "pool.csv"), str(out / "pool.json")],
                 }
             if not getattr(args, "json", False):
-                print(f"export: {result['rows']} phrases -> {', '.join(result.get('planned_files', result.get('files', [])))}")
+                print(
+                    f"export: {result['rows']} phrases -> {', '.join(result.get('planned_files', result.get('files', [])))}"
+                )
             return {"project": str(project), "stage": "export", **result}
         if stage == "import" and getattr(args, "dry_run", False):
             module = importlib.import_module("seohead.semantics.stages.import_phrases")
@@ -294,7 +373,9 @@ def execute(stage: str, project: str | Path, **options: Any) -> dict[str, Any]:
             )
         if stage == "excel" and getattr(args, "dry_run", False):
             clause, params = store.scope_clause(getattr(args, "scope", "all"), "p")
-            count = store.db.execute("SELECT COUNT(*) FROM phrases p " + clause, params).fetchone()[0]
+            count = store.db.execute("SELECT COUNT(*) FROM phrases p " + clause, params).fetchone()[
+                0
+            ]
             return {
                 "contract": "seohead.semantics.operation.v1",
                 "mode": "preview",
@@ -302,9 +383,18 @@ def execute(stage: str, project: str | Path, **options: Any) -> dict[str, Any]:
                 "format": "seohead.semantics.export-plan.v1",
                 "scope": getattr(args, "scope", "all"),
                 "rows": count,
-                "planned_files": [str(out / f"{config.load(project)['_project']}_semantic_core.xlsx")],
+                "planned_files": [
+                    str(out / f"{config.load(project)['_project']}_semantic_core.xlsx")
+                ],
             }
-        if stage in {"clusters", "cluster-show", "cluster-queries", "set-landing", "insights", "insights-tasks"}:
+        if stage in {
+            "clusters",
+            "cluster-show",
+            "cluster-queries",
+            "set-landing",
+            "insights",
+            "insights-tasks",
+        }:
             from seohead.semantics.read_model import execute_read
 
             journaled = stage == "set-landing" or (
@@ -381,8 +471,12 @@ def _run_stage(module, stage, store, cfg, directory, out, args):
         )
     if stage == "import":
         return module.run(
-            store, cfg, args.file, sheet=getattr(args, "sheet", None),
-            mapping=getattr(args, "mapping", None), merge=getattr(args, "merge", "add")
+            store,
+            cfg,
+            args.file,
+            sheet=getattr(args, "sheet", None),
+            mapping=getattr(args, "mapping", None),
+            merge=getattr(args, "merge", "add"),
         )
     if stage == "exact":
         return module.run(store, cfg, yes=args.yes, limit=args.limit)

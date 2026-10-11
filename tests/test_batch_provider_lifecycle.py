@@ -276,9 +276,7 @@ def test_oauth_callback_state_is_one_time_and_expires_or_cancels(tmp_path):
     expired_path.parent.mkdir(parents=True)
     _, expired_state = oauth_flow.create_flow(expired_path, now)
     with pytest.raises(ValueError, match="oauth_flow_not_waiting"):
-        oauth_flow.verify_callback_state(
-            expired_path, expired_state, now + timedelta(seconds=600)
-        )
+        oauth_flow.verify_callback_state(expired_path, expired_state, now + timedelta(seconds=600))
     other_path = _flow_file(tmp_path / "other")
     other_path.parent.mkdir(parents=True)
     oauth_flow.create_flow(other_path, now)

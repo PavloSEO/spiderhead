@@ -592,9 +592,7 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
             if tag.has_attr("about")
             else inherited_subject
         )
-        resource = next(
-            (tag[a] for a in ("resource", "href", "src") if tag.has_attr(a)), None
-        )
+        resource = next((tag[a] for a in ("resource", "href", "src") if tag.has_attr(a)), None)
         object_subject = (
             iri(str(resource), doc_base, vocab, local_prefixes) if resource is not None else None
         )
@@ -658,7 +656,9 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
             if types and not tag.has_attr("about") and not literal_property:
                 value: Any = {"@id": subject}
                 if owner_subject != subject:
-                    current_entity = entity(subject, vocab, all(supported for _, supported in types))
+                    current_entity = entity(
+                        subject, vocab, all(supported for _, supported in types)
+                    )
                     current_entity["_rdfa_contained"] = True
                     current_entity["_rdfa_parent"] = owner_subject
             else:
@@ -670,7 +670,9 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
                     copy_edges.append((owner_subject, value["@id"]))
                     triple_count += 1
                     if triple_count > MAX_RDFA_TRIPLES:
-                        reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TRIPLES}-triple limit")
+                        reasons.add(
+                            f"RDFa processing stopped at the {MAX_RDFA_TRIPLES}-triple limit"
+                        )
                         break
             for prop, _ in props:
                 triple_count += 1
@@ -693,7 +695,14 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
                 waiting_started.add(waiting_id)
                 waiting = [
                     *waiting,
-                    (relation_subject, relation, False, supported, tag.has_attr("inlist"), waiting_id),
+                    (
+                        relation_subject,
+                        relation,
+                        False,
+                        supported,
+                        tag.has_attr("inlist"),
+                        waiting_id,
+                    ),
                 ]
                 continue
             owner = entity(relation_subject, vocab, supported)
@@ -712,7 +721,14 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
                 waiting_started.add(waiting_id)
                 waiting = [
                     *waiting,
-                    (relation_subject, relation, True, supported, tag.has_attr("inlist"), waiting_id),
+                    (
+                        relation_subject,
+                        relation,
+                        True,
+                        supported,
+                        tag.has_attr("inlist"),
+                        waiting_id,
+                    ),
                 ]
                 continue
             owner = entity(target, vocab, supported)
@@ -729,7 +745,9 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
         if rels and object_subject is not None:
             current = object_subject
         for child in reversed(children):
-            pending.append((child, doc_base, vocab, local_prefixes, current, waiting, language, depth + 1))
+            pending.append(
+                (child, doc_base, vocab, local_prefixes, current, waiting, language, depth + 1)
+            )
 
     if waiting_started - waiting_resolved:
         reasons.add("RDFa incomplete rel/rev relationship has no resource or subject descendant")
@@ -1230,7 +1248,14 @@ def check_schema(
             blocks_invalid=0,
             vocabularies=[],
             parse_errors=[],
-            graph={"nodes": 0, "with_id": 0, "linked_by_id": 0, "top_level": 0, "islands": [], "is_graph": False},
+            graph={
+                "nodes": 0,
+                "with_id": 0,
+                "linked_by_id": 0,
+                "top_level": 0,
+                "islands": [],
+                "is_graph": False,
+            },
             entities=[],
             rich_results=[],
             rules_version=RICH_RESULTS_RULES_VERSION,
@@ -1314,7 +1339,11 @@ def check_schema(
             {"format": "microdata", "status": "checked" if microdata_count else "absent"},
             {
                 "format": "rdfa",
-                "status": "partial" if rdfa_reasons else "checked" if rdfa_count or rdfa else "absent",
+                "status": "partial"
+                if rdfa_reasons
+                else "checked"
+                if rdfa_count or rdfa
+                else "absent",
                 "reasons": rdfa_reasons,
             },
         ],

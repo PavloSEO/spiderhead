@@ -226,7 +226,9 @@ class CoreJob(QObject):
         if self._closing:
             return
         if type(timeout_ms) is not int or not 1_000 <= timeout_ms <= 1_800_000:
-            self.failed.emit(token, tr("Бюджет времени команды должен быть от 1 секунды до 30 минут"))
+            self.failed.emit(
+                token, tr("Бюджет времени команды должен быть от 1 секунды до 30 минут")
+            )
             return
         if not isinstance(executable, str) or not executable or "\x00" in executable:
             self.failed.emit(token, tr("Исполняемый файл локального ядра не указан"))
@@ -320,7 +322,9 @@ class CoreJob(QObject):
         if job["text_result"]:
             if exit_code != 0:
                 tail = bytes(job["stderr"]).decode("utf-8", "replace").strip().splitlines()
-                self.failed.emit(token, (tail[-1] if tail else tr("Команда завершилась с ошибкой"))[:300])
+                self.failed.emit(
+                    token, (tail[-1] if tail else tr("Команда завершилась с ошибкой"))[:300]
+                )
                 return
             self.done.emit(token, {"ok": True, "text": text})
             return

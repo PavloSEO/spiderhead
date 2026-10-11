@@ -17,7 +17,13 @@ def test_resource_filters_and_metrics_reuse_retained_page_document(tmp_path):
     by_kind = handlers.scan_url_query(
         input_path=str(path),
         filters=[{"column": "resource_kind", "op": "eq", "value": "image"}],
-        columns=["url", "resource_count", "resource_images", "resource_bytes", "resource_bytes_state"],
+        columns=[
+            "url",
+            "resource_count",
+            "resource_images",
+            "resource_bytes",
+            "resource_bytes_state",
+        ],
     )
     by_url = handlers.scan_url_query(
         input_path=str(path),

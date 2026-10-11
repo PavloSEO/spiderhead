@@ -72,9 +72,7 @@ def test_mcp_profile_and_config_are_mutually_exclusive():
     import pytest
 
     with pytest.raises(ValueError, match="profile and config are mutually exclusive"):
-        handlers.crawl_site(
-            url="https://example.com/", profile="catalog", config="config.json"
-        )
+        handlers.crawl_site(url="https://example.com/", profile="catalog", config="config.json")
 
 
 def test_urls_file_enters_the_existing_list_collector_in_source_order(tmp_path, monkeypatch):

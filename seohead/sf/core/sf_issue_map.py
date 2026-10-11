@@ -525,13 +525,21 @@ CATEGORIES: dict[str, list[Entry]] = {
     ],
     "Search Console": [
         _o("Page is Not Mobile Friendly", "needs Search Console; see #97"),
-        _c("Orphan URLs", "GSC_ORPHAN", note="requires complete retained Search Analytics coverage and crawl"),
+        _c(
+            "Orphan URLs",
+            "GSC_ORPHAN",
+            note="requires complete retained Search Analytics coverage and crawl",
+        ),
         _c("URL is on Google, But Has Issues", "GSC_INDEXED_WITH_ISSUES"),
         _c("AMP URL is Invalid", "GSC_AMP_INVALID"),
         _c("Rich Result is Invalid", "GSC_RICH_RESULTS_INVALID"),
         _c("Indexable URL Not Indexed", "GSC_INDEXABLE_NOT_INDEXED"),
         _c("User-Declared Canonical Not Selected", "GSC_USER_CANONICAL_NOT_SELECTED"),
-        _c("No Search Analytics Data", "NO_SEARCH_DATA", note="requires complete retained Search Analytics coverage and crawl"),
+        _c(
+            "No Search Analytics Data",
+            "NO_SEARCH_DATA",
+            note="requires complete retained Search Analytics coverage and crawl",
+        ),
         _c("Non-Indexable with Search Analytics Data", "NON_INDEXABLE_WITH_SEARCH_DATA"),
         _c("URL Is Not on Google", "GSC_URL_NOT_ON_GOOGLE"),
     ],

@@ -206,9 +206,7 @@ def evaluate(
                 continue
         else:
             try:
-                body = read_document_body(
-                    con, document_id, max_decoded_bytes=MAX_BODY_BYTES
-                )
+                body = read_document_body(con, document_id, max_decoded_bytes=MAX_BODY_BYTES)
             except ScanError as exc:
                 reason = _unavailable_reason(exc)
                 unavailable(reason)

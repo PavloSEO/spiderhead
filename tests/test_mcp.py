@@ -216,7 +216,9 @@ def test_mcp_all_tools(tmp_path):
 def test_mcp_snippet_csv_exports_review_tasks(tmp_path):
     output = tmp_path / "snippet-tasks.json"
     tool = next(
-        tool for tool in build_server()._tool_manager.list_tools() if tool.name == "sf_snippet_edits"
+        tool
+        for tool in build_server()._tool_manager.list_tools()
+        if tool.name == "sf_snippet_edits"
     )
     result = asyncio.run(
         tool.run(

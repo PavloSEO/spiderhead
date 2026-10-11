@@ -79,8 +79,12 @@ def _history(project_dir: str | Path, source: str, resource: str) -> dict[str, A
     complete_days = set((entry or {}).get("coverage", {}).get("complete", []))
     empty_days = set((entry or {}).get("coverage", {}).get("empty", []))
     first, last = date.fromisoformat(start), date.fromisoformat(end)
-    expected = [(first + timedelta(days=index)).isoformat() for index in range((last-first).days+1)]
-    coverage_complete = bool(entry) and all(day in complete_days or day in empty_days for day in expected)
+    expected = [
+        (first + timedelta(days=index)).isoformat() for index in range((last - first).days + 1)
+    ]
+    coverage_complete = bool(entry) and all(
+        day in complete_days or day in empty_days for day in expected
+    )
     return {
         "period": {"from": start, "to": end},
         "rows": rows["rows"],
@@ -170,7 +174,13 @@ def _analytics_rows(
             item[visit_column] += visits
             item["visits_seen"] = True
             bounce = row.get("bounce_rate")
-            if source == "metrika" and isinstance(bounce, (int, float)) and not isinstance(bounce, bool) and 0 <= bounce <= 1 and visits > 0:
+            if (
+                source == "metrika"
+                and isinstance(bounce, (int, float))
+                and not isinstance(bounce, bool)
+                and 0 <= bounce <= 1
+                and visits > 0
+            ):
                 item["bounce_weighted"] += bounce * visits
                 item["bounce_weight"] += visits
             elif source == "metrika" and visits > 0:
@@ -199,8 +209,7 @@ def _analytics_rows(
         rows.append(row)
     bounce_column = (
         "bounce_rate"
-        if source == "metrika"
-        and any(row.get("bounce_rate") is not None for row in rows)
+        if source == "metrika" and any(row.get("bounce_rate") is not None for row in rows)
         else None
     )
     return rows, visit_column, bounce_column, unreadable
@@ -235,7 +244,9 @@ def _cap_findings(findings: dict[str, Any]) -> tuple[dict[str, Any], bool]:
     return result, truncated
 
 
-def _gsc_findings(pages: list[dict[str, Any]], history: dict[str, Any], resource: str, crawl_partial: bool) -> dict[str, Any]:
+def _gsc_findings(
+    pages: list[dict[str, Any]], history: dict[str, Any], resource: str, crawl_partial: bool
+) -> dict[str, Any]:
     from seohead.checks.search_console_findings import evaluate
     from seohead.data_sources.evidence_import import MAPPING_FORMAT, normalize_inline
 
@@ -255,7 +266,12 @@ def _gsc_findings(pages: list[dict[str, Any]], history: dict[str, Any], resource
         "url": {"field": "page", "kind": "absolute"},
         "metrics": [
             {"name": name, "type": "number", "unit": unit}
-            for name, unit in (("clicks", "count"), ("impressions", "count"), ("ctr", "ratio"), ("position", "position"))
+            for name, unit in (
+                ("clicks", "count"),
+                ("impressions", "count"),
+                ("ctr", "ratio"),
+                ("position", "position"),
+            )
         ],
         "dimensions": ["date", "query", "page"],
         "collection": {
@@ -263,14 +279,19 @@ def _gsc_findings(pages: list[dict[str, Any]], history: dict[str, Any], resource
             "sampled": False,
             "thresholded": False,
             "truncated": history["truncated"],
-            "reason": None if history["coverage_complete"] else "retained GSC coverage has gaps or is truncated",
+            "reason": None
+            if history["coverage_complete"]
+            else "retained GSC coverage has gaps or is truncated",
         },
         "duplicate_policy": "mark",
         "row_shape": "flat",
     }
     evidence = normalize_inline(
         [
-            {name: row.get(name) for name in ("page", "query", "date", "clicks", "impressions", "ctr", "position")}
+            {
+                name: row.get(name)
+                for name in ("page", "query", "date", "clicks", "impressions", "ctr", "position")
+            }
             for row in history["rows"]
         ],
         manifest=manifest,
@@ -384,9 +405,7 @@ def _gsc_inspections(
         deferred=(quota or {}).get("deferred", 0),
     )
     summary["history_urls"] = len(rows)
-    crawl_urls = {
-        page.get("url") for page in pages if isinstance(page.get("url"), str)
-    }
+    crawl_urls = {page.get("url") for page in pages if isinstance(page.get("url"), str)}
     inspected_urls = {
         row.get("url")
         for row in rows
@@ -521,17 +540,28 @@ def project_provider_findings(
         bindings = list_bindings(project_dir)["bindings"]
         origin = _origin(project_dir)
     except (OSError, ValueError):
-        return {"schema_version": "provider_findings.v1", "state": "unavailable", "reason": "project bindings are unavailable", "sources": {}}
+        return {
+            "schema_version": "provider_findings.v1",
+            "state": "unavailable",
+            "reason": "project bindings are unavailable",
+            "sources": {},
+        }
     sources: dict[str, Any] = {}
     for provider, source_name in (("gsc", "gsc"), ("ga4", "ga4"), ("metrika", "metrika")):
         binding = _history_source(bindings, provider)
         if binding is None:
-            sources[provider] = {"state": "not_configured", "reason": "no unique selected provider binding"}
+            sources[provider] = {
+                "state": "not_configured",
+                "reason": "no unique selected provider binding",
+            }
             continue
         try:
             history = _history(project_dir, source_name, binding["resource"])
         except (OSError, ValueError):
-            sources[provider] = {"state": "unavailable", "reason": "no readable retained provider history"}
+            sources[provider] = {
+                "state": "unavailable",
+                "reason": "no readable retained provider history",
+            }
             continue
         if provider == "gsc":
             result = _gsc_findings(pages, history, binding["resource"], crawl_partial)
@@ -704,9 +734,7 @@ def emit_provider_issues(ctx: Any, evidence: dict[str, Any]) -> None:
 
     inspection = gsc.get("inspection") if isinstance(gsc.get("inspection"), dict) else {}
     inspection_findings = (
-        inspection.get("findings")
-        if isinstance(inspection.get("findings"), dict)
-        else {}
+        inspection.get("findings") if isinstance(inspection.get("findings"), dict) else {}
     )
     inspection_details = {
         "provider": "gsc",
@@ -784,8 +812,7 @@ def emit_provider_issues(ctx: Any, evidence: dict[str, Any]) -> None:
                     f"retained {provider} history",
                 )
             if (
-                item.get("state") in {"withheld", "skipped", "partial"}
-                or item.get("unreadable", 0)
+                item.get("state") in {"withheld", "skipped", "partial"} or item.get("unreadable", 0)
             ) and not urls:
                 skip(issue_check, str(item.get("reason") or f"{provider} evidence is incomplete"))
             elif data.get("state") in {"not_configured", "unavailable"} and not urls:

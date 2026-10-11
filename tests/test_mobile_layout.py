@@ -10,13 +10,26 @@ BASE = {
     "document_width_px": 430,
     "content_overflow_px": 40,
     "overflow_elements": [
-        {"tag": "table", "id": "wide", "class_name": "table", "right_px": 430, "width_px": 430, "y": 10}
+        {
+            "tag": "table",
+            "id": "wide",
+            "class_name": "table",
+            "right_px": 430,
+            "width_px": 430,
+            "y": 10,
+        }
     ],
-    "small_text_elements": [
-        {"tag": "span", "text": "tiny", "font_size_px": 10.0, "x": 1, "y": 2}
-    ],
+    "small_text_elements": [{"tag": "span", "text": "tiny", "font_size_px": 10.0, "x": 1, "y": 2}],
     "small_target_elements": [
-        {"tag": "button", "role": "button", "text": "go", "width_px": 30, "height_px": 40, "x": 1, "y": 2}
+        {
+            "tag": "button",
+            "role": "button",
+            "text": "go",
+            "width_px": 30,
+            "height_px": 40,
+            "x": 1,
+            "y": 2,
+        }
     ],
     "small_text_count": 1,
     "small_target_count": 1,
@@ -35,11 +48,7 @@ class _Page:
 
 
 def test_mobile_layout_keeps_measured_thresholds_and_coverage_state():
-    result = measure_mobile_layout(
-        _Page(
-            BASE.copy()
-        )
-    )
+    result = measure_mobile_layout(_Page(BASE.copy()))
     assert result["state"] == "complete"
     assert result["content_overflow"] is True
     assert result["thresholds"] == {"small_text_below_px": 12, "small_target_below_px": 48}
@@ -59,9 +68,7 @@ def test_missing_counts_are_unavailable_instead_of_clean_zero():
     assert result["state"] == "unavailable"
     assert result["reason"]
 
-    assert not validate_mobile_layout_evidence(
-        {"schema": "mobile_layout.v1", "state": "complete"}
-    )
+    assert not validate_mobile_layout_evidence({"schema": "mobile_layout.v1", "state": "complete"})
 
 
 def test_malformed_measurement_details_are_unavailable():

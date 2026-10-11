@@ -101,7 +101,10 @@ def measure_mobile_layout(page: Any) -> dict[str, Any]:
     if not all(_valid_text_detail(item) for item in small_text):
         return {"state": "unavailable", "reason": "renderer returned malformed text-size evidence"}
     if not all(_valid_target_detail(item) for item in small_targets):
-        return {"state": "unavailable", "reason": "renderer returned malformed target-size evidence"}
+        return {
+            "state": "unavailable",
+            "reason": "renderer returned malformed target-size evidence",
+        }
     if not all(_valid_overflow_detail(item) for item in overflow_elements):
         return {"state": "unavailable", "reason": "renderer returned malformed overflow evidence"}
     capped = measured["capped"]

@@ -1,6 +1,6 @@
 """Offline renderer network-log bounds and URL redaction tests."""
 
-from seohead.checks.render import _BrowserNetworkEvidence, _bounded_action_evaluator
+from seohead.checks.render import _bounded_action_evaluator, _BrowserNetworkEvidence
 
 
 class _Request:

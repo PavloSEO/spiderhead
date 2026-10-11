@@ -240,9 +240,13 @@ class CompetitorsScreenTests(unittest.TestCase):
             screen.remove_selected()
         confirm.assert_called_once()
         request_id, tool, arguments, handler = host.commands[-1]
-        self.assertEqual((request_id, tool), ("competitors-remove", "seo_project_competitors_remove"))
+        self.assertEqual(
+            (request_id, tool), ("competitors-remove", "seo_project_competitors_remove")
+        )
         self.assertEqual(arguments, {"directory": "/owner", "url": "https://one.example.test/"})
-        handler({"ok": True, "removed": "https://one.example.test/", "workspace_kept": "competitors/a"})
+        handler(
+            {"ok": True, "removed": "https://one.example.test/", "workspace_kept": "competitors/a"}
+        )
         self.assertEqual(host.refreshed, 1)
         self.assertIn("данные сохранены", screen.status.text())
 

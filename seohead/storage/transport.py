@@ -27,7 +27,9 @@ def ensure_schema(con: sqlite3.Connection) -> None:
             ):
                 name = f"{phase}_{suffix}"
                 if name not in existing:
-                    con.execute(f"ALTER TABLE response_transport_meta ADD COLUMN {name} {definition}")
+                    con.execute(
+                        f"ALTER TABLE response_transport_meta ADD COLUMN {name} {definition}"
+                    )
             state = f"{phase}_state"
             if state not in existing:
                 con.execute(

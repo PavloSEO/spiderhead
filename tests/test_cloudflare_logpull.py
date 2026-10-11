@@ -1,7 +1,7 @@
 """Mocked Cloudflare Logpull reads feed the shared local server-log store."""
 
-from datetime import datetime, timezone
 import json
+from datetime import datetime, timezone
 
 import pytest
 

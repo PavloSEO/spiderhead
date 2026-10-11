@@ -338,10 +338,7 @@ def _definition(value: Any, catalogue: dict, *, historical: bool = False) -> dic
                 _text(field_value, field, 2048 if field != "assignee" else 128)
         finding_ref = value["finding_ref"]
         if finding_ref is not None:
-            if (
-                not isinstance(finding_ref, dict)
-                or set(finding_ref) != {"scan_id", "finding_id"}
-            ):
+            if not isinstance(finding_ref, dict) or set(finding_ref) != {"scan_id", "finding_id"}:
                 raise ValueError("finding_ref requires scan_id and finding_id")
             _text(finding_ref["scan_id"], "finding_ref scan_id", 128)
             _text(finding_ref["finding_id"], "finding_ref finding_id", 256)
@@ -593,12 +590,15 @@ def _validate_document(document: dict, project: dict) -> dict:
             document["plans"] = [document.pop("plan")]
     elif set(document) != expected_keys:
         raise ValueError("unsupported coverage document shape")
-    if document["version"] != {
-        FORMAT: 1,
-        FORMAT_V2: 2,
-        FORMAT_V3: 3,
-        FORMAT_V4: 4,
-    }[document["format"]]:
+    if (
+        document["version"]
+        != {
+            FORMAT: 1,
+            FORMAT_V2: 2,
+            FORMAT_V3: 3,
+            FORMAT_V4: 4,
+        }[document["format"]]
+    ):
         raise ValueError("unsupported coverage version")
     if document["project_uuid"] != project["project_uuid"]:
         raise ValueError("coverage project UUID mismatch")
@@ -744,9 +744,7 @@ def _affected_url_count(
                     if page.get("errors"):
                         unavailable = "saved scan history contains unreadable entries"
                         break
-                    found = next(
-                        (row for row in page["items"] if row.get("uuid") == scan_id), None
-                    )
+                    found = next((row for row in page["items"] if row.get("uuid") == scan_id), None)
                     if found is not None:
                         scan_path = Path(found["path"])
                         break

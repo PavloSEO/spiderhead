@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 import os
+import re
 import stat
 from pathlib import Path
 from typing import Any
@@ -57,7 +57,12 @@ def read_pagespeed_artifact(
     match = _ARTIFACT_REF.fullmatch(artifact_ref or "")
     if not match:
         raise ValueError("artifact_ref must be a local provider artifact reference")
-    if type(offset) is not int or offset < 0 or type(limit) is not int or not 1 <= limit <= MAX_SAMPLES:
+    if (
+        type(offset) is not int
+        or offset < 0
+        or type(limit) is not int
+        or not 1 <= limit <= MAX_SAMPLES
+    ):
         raise ValueError("offset must be nonnegative and limit must be 1..25")
     root = Path(artifact_dir)
     if root.is_symlink() or not root.is_dir():
@@ -78,10 +83,7 @@ def read_pagespeed_artifact(
         or info.st_nlink != 1
         or info.st_size > MAX_ARTIFACT_BYTES
         or not is_private_mode(info.st_mode)
-            or (
-                hasattr(os, "getuid")
-                and info.st_uid != os.getuid()
-            )
+        or (hasattr(os, "getuid") and info.st_uid != os.getuid())
     ):
         raise ValueError("provider artifact is unsafe or exceeds its byte limit")
     resolved = path.resolve(strict=True)
@@ -96,10 +98,7 @@ def read_pagespeed_artifact(
             or opened.st_size > MAX_ARTIFACT_BYTES
             or opened.st_ino != info.st_ino
             or opened.st_dev != info.st_dev
-            or (
-                hasattr(os, "getuid")
-                and opened.st_uid != os.getuid()
-            )
+            or (hasattr(os, "getuid") and opened.st_uid != os.getuid())
         ):
             raise ValueError("provider artifact changed while it was being opened")
         with os.fdopen(descriptor, "rb") as stream:
@@ -131,8 +130,10 @@ def read_pagespeed_artifact(
         raise ValueError("provider artifact reference does not match its content")
     result = stored["result"]
     samples = result.get("samples")
-    if not isinstance(samples, list) or len(samples) > MAX_SAMPLES or any(
-        not isinstance(sample, dict) for sample in samples
+    if (
+        not isinstance(samples, list)
+        or len(samples) > MAX_SAMPLES
+        or any(not isinstance(sample, dict) for sample in samples)
     ):
         raise ValueError("PageSpeed artifact has an invalid sample list")
     selected = []
@@ -144,7 +145,9 @@ def read_pagespeed_artifact(
                 if not isinstance(category, dict):
                     continue
                 score = category.get("score")
-                if score is not None and (isinstance(score, bool) or not isinstance(score, int | float)):
+                if score is not None and (
+                    isinstance(score, bool) or not isinstance(score, int | float)
+                ):
                     score = None
                 safe_categories[str(name)[:64]] = {
                     "score": score,
@@ -160,15 +163,21 @@ def read_pagespeed_artifact(
                 numeric = audit.get("numeric_value")
                 safe_audits[str(name)[:100]] = {
                     "score": score if score is None or type(score) in {int, float} else None,
-                    "numeric_value": numeric if numeric is None or type(numeric) in {int, float} else None,
+                    "numeric_value": numeric
+                    if numeric is None or type(numeric) in {int, float}
+                    else None,
                     "display_value": _small_text(audit.get("display_value")),
                     "score_display_mode": _small_text(audit.get("score_display_mode"), 40),
                 }
         selected.append(
             {
                 "url": _public_url(sample.get("url")),
-                "strategy": sample.get("strategy") if sample.get("strategy") in {"mobile", "desktop"} else None,
-                "state": sample.get("state") if sample.get("state") in {"complete", "failed"} else "unavailable",
+                "strategy": sample.get("strategy")
+                if sample.get("strategy") in {"mobile", "desktop"}
+                else None,
+                "state": sample.get("state")
+                if sample.get("state") in {"complete", "failed"}
+                else "unavailable",
                 "final_url": _public_url(sample.get("final_url")),
                 "fetch_time": _small_text(sample.get("fetch_time"), 40),
                 "retrieved_at": _small_text(sample.get("fetch_time"), 40),

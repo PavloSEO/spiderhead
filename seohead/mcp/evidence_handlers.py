@@ -323,7 +323,9 @@ def scan_structured_blocks(
                 "structured_evidence": _structured_evidence_summary(structured),
                 "language_evidence": _language_evidence_summary(language),
                 "schema_detail": {
-                    "state": structured.get("state", "unavailable") if structured else "unavailable",
+                    "state": structured.get("state", "unavailable")
+                    if structured
+                    else "unavailable",
                     "reason": structured.get("reason", reason) if structured else reason,
                     "analysis_state": "unavailable",
                     "validation": _bounded_validation(
@@ -363,17 +365,23 @@ def scan_structured_blocks(
         formats = {
             "jsonld": {
                 "state": (
-                    "partial" if blocks.get("blocks_truncated") else
-                    "absent" if blocks.get("state") == "absent" else
-                    "checked"
+                    "partial"
+                    if blocks.get("blocks_truncated")
+                    else "absent"
+                    if blocks.get("state") == "absent"
+                    else "checked"
                 ),
                 "result_state": blocks.get("state", "unavailable"),
                 "reason": blocks.get("reason", ""),
                 "block_count": blocks.get("block_count", 0),
                 "blocks_truncated": blocks.get("blocks_truncated", False),
-                "entity_count": sum(item.get("format") == "jsonld" for item in entities if isinstance(item, dict)),
+                "entity_count": sum(
+                    item.get("format") == "jsonld" for item in entities if isinstance(item, dict)
+                ),
                 "entities": [item for item in entity_details if item["format"] == "jsonld"],
-                "entities_truncated": sum(item.get("format") == "jsonld" for item in entities if isinstance(item, dict))
+                "entities_truncated": sum(
+                    item.get("format") == "jsonld" for item in entities if isinstance(item, dict)
+                )
                 > sum(item.get("format") == "jsonld" for item in entity_details),
             },
             "microdata": {
@@ -383,9 +391,13 @@ def scan_structured_blocks(
                     str(item)[:500]
                     for item in (coverage_by_format.get("microdata", {}).get("reasons") or [])[:20]
                 ),
-                "entity_count": sum(item.get("format") == "microdata" for item in entities if isinstance(item, dict)),
+                "entity_count": sum(
+                    item.get("format") == "microdata" for item in entities if isinstance(item, dict)
+                ),
                 "entities": [item for item in entity_details if item["format"] == "microdata"],
-                "entities_truncated": sum(item.get("format") == "microdata" for item in entities if isinstance(item, dict))
+                "entities_truncated": sum(
+                    item.get("format") == "microdata" for item in entities if isinstance(item, dict)
+                )
                 > sum(item.get("format") == "microdata" for item in entity_details),
             },
             "rdfa": {
@@ -395,9 +407,13 @@ def scan_structured_blocks(
                     str(item)[:500]
                     for item in (coverage_by_format.get("rdfa", {}).get("reasons") or [])[:20]
                 ),
-                "entity_count": sum(item.get("format") == "rdfa" for item in entities if isinstance(item, dict)),
+                "entity_count": sum(
+                    item.get("format") == "rdfa" for item in entities if isinstance(item, dict)
+                ),
                 "entities": [item for item in entity_details if item["format"] == "rdfa"],
-                "entities_truncated": sum(item.get("format") == "rdfa" for item in entities if isinstance(item, dict))
+                "entities_truncated": sum(
+                    item.get("format") == "rdfa" for item in entities if isinstance(item, dict)
+                )
                 > sum(item.get("format") == "rdfa" for item in entity_details),
             },
         }
@@ -408,18 +424,32 @@ def scan_structured_blocks(
             for reason in item.get("reasons") or []
         ]
         if blocks.get("blocks_truncated"):
-            partial_reasons.append(str(blocks.get("reason") or "JSON-LD block details were truncated")[:500])
+            partial_reasons.append(
+                str(blocks.get("reason") or "JSON-LD block details were truncated")[:500]
+            )
         if entity_count > len(entity_details):
-            partial_reasons.append("Schema entity details were truncated to the retained response limit")
-        if any(item.get("entities_truncated") for item in formats.values() if isinstance(item, dict)):
-            partial_reasons.append("Per-format entity details were truncated to the retained response limit")
+            partial_reasons.append(
+                "Schema entity details were truncated to the retained response limit"
+            )
+        if any(
+            item.get("entities_truncated") for item in formats.values() if isinstance(item, dict)
+        ):
+            partial_reasons.append(
+                "Per-format entity details were truncated to the retained response limit"
+            )
         saved_validation = structured.get("validation") if structured else None
         schema_state = structured.get("state", "unavailable") if structured else "unavailable"
-        schema_reason = structured.get("reason", "retained structured evidence was not stored") if structured else "retained structured evidence was not stored"
+        schema_reason = (
+            structured.get("reason", "retained structured evidence was not stored")
+            if structured
+            else "retained structured evidence was not stored"
+        )
         analysis_state = (
-            "partial" if partial_reasons else
-            "malformed" if checked.get("parse_errors") else
-            "checked"
+            "partial"
+            if partial_reasons
+            else "malformed"
+            if checked.get("parse_errors")
+            else "checked"
         )
         result = {
             "ok": True,
@@ -452,11 +482,11 @@ def scan_structured_blocks(
                 "markup_counts": checked.get("markup_counts", {}),
                 "markup_coverage": coverage_details,
                 "partial_reasons": list(dict.fromkeys(partial_reasons))[:20],
-                "parse_errors": [str(item)[:500] for item in (checked.get("parse_errors") or [])[:100]],
+                "parse_errors": [
+                    str(item)[:500] for item in (checked.get("parse_errors") or [])[:100]
+                ],
                 "graph": checked.get("graph", {}),
-                "local_eligibility": _bounded_local_eligibility(
-                    checked.get("rich_results") or []
-                ),
+                "local_eligibility": _bounded_local_eligibility(checked.get("rich_results") or []),
                 "local_eligibility_count": len(checked.get("rich_results") or []),
                 "local_eligibility_truncated": len(checked.get("rich_results") or []) > 200,
                 "formats": formats,
@@ -542,10 +572,14 @@ def _bounded_validation(validation: Any) -> dict[str, Any]:
         "feature_check_count": len(checks),
         "feature_checks": [
             {
-                **{key: value for key, value in item.items() if key not in {
-                    "missing_required", "missing_required_any_of"
-                }},
-                "missing_required": [str(value)[:256] for value in (item.get("missing_required") or [])[:50]],
+                **{
+                    key: value
+                    for key, value in item.items()
+                    if key not in {"missing_required", "missing_required_any_of"}
+                },
+                "missing_required": [
+                    str(value)[:256] for value in (item.get("missing_required") or [])[:50]
+                ],
                 "missing_required_any_of": [
                     [str(value)[:256] for value in group[:50]]
                     for group in (item.get("missing_required_any_of") or [])[:20]

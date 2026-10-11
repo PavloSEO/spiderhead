@@ -198,17 +198,20 @@ def project_policy(
     with project_write_lock(root):
         current = read_document(root, "crawl-policy.json")
         if current and (
-            set(current) not in (
+            set(current)
+            not in (
                 {"format", "project_uuid", "revision", "policy"},
                 {"format", "project_uuid", "revision", "policy", "operation_id"},
             )
             or current["format"] != POLICY_FORMAT
             or current["project_uuid"] != project["project_uuid"]
             or type(current["revision"]) is not int
-            or current.get("operation_id") is not None
-            and (
-                type(current["operation_id"]) is not str
-                or not re.fullmatch(r"[0-9a-f]{32}", current["operation_id"])
+            or (
+                current.get("operation_id") is not None
+                and (
+                    type(current["operation_id"]) is not str
+                    or not re.fullmatch(r"[0-9a-f]{32}", current["operation_id"])
+                )
             )
         ):
             raise ValueError("unsupported or mismatched project crawl policy")
@@ -239,7 +242,11 @@ def project_policy(
             "applied": apply,
             "revision": revision,
             "policy": selected,
-            "operation_id": operation_id if apply else current.get("operation_id") if current else None,
+            "operation_id": operation_id
+            if apply
+            else current.get("operation_id")
+            if current
+            else None,
         }
 
 

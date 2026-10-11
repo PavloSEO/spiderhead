@@ -1,5 +1,5 @@
-import json
 import io
+import json
 import subprocess
 import unittest
 
@@ -75,7 +75,7 @@ class LocalOwnerActionsTests(unittest.TestCase):
                     "reason": "Reviewed the result.",
                     "reviewer": "OWNER",
                     "signoff": True,
-                }
+                },
             },
         )
         with self.assertRaises(ValueError):

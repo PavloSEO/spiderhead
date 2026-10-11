@@ -40,9 +40,7 @@ def test_cloudflare_snapshot_history_is_bounded_local_and_url_keyed(tmp_path):
     saved = save_snapshot(_result(), project=str(tmp_path), observed_at="2026-10-02T00:00:00Z")
 
     metadata = list_snapshots(project=str(tmp_path), zone_id="synthetic-zone-id")
-    page = list_snapshots(
-        project=str(tmp_path), zone_id="synthetic-zone-id", include_facts=True
-    )
+    page = list_snapshots(project=str(tmp_path), zone_id="synthetic-zone-id", include_facts=True)
     zones = list_zones(project=str(tmp_path))
 
     assert saved["state"] == "stored" and saved["snapshot_state"] == "complete"

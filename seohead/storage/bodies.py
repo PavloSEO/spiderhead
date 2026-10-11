@@ -331,9 +331,7 @@ def read_document_content(
     ).fetchone()
     if row is None or row[1] is None:
         raise ScanError("document body disappeared during read")
-    scan = con.execute(
-        "SELECT scan_uuid,evidence_revision FROM scan WHERE singleton=1"
-    ).fetchone()
+    scan = con.execute("SELECT scan_uuid,evidence_revision FROM scan WHERE singleton=1").fetchone()
     return {
         "scan_uuid": scan[0] if scan is not None else None,
         "evidence_revision": scan[1] if scan is not None else None,

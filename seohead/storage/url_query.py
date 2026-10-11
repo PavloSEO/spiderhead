@@ -103,9 +103,7 @@ COLUMNS: dict[str, Column] = {
     "title_length": Column("length(p.title)", "int"),
     "meta_description_length": Column("length(p.meta_description)", "int"),
     "h1_length": Column("length(p.h1)", "int"),
-    "inlinks": Column(
-        "(SELECT COUNT(*) FROM links l WHERE l.destination_url_id=p.url_id)", "int"
-    ),
+    "inlinks": Column("(SELECT COUNT(*) FROM links l WHERE l.destination_url_id=p.url_id)", "int"),
     "title_duplicate": Column(
         "EXISTS (SELECT 1 FROM pages t WHERE t.url_id<>p.url_id "
         "AND trim(t.title)<>'' AND lower(t.title)=lower(p.title))",
@@ -121,12 +119,8 @@ COLUMNS: dict[str, Column] = {
         "AND CAST(json_extract(s.payload_json,'$.url_id') AS INTEGER)=p.url_id)",
         "bool",
     ),
-    "canonical_self": Column(
-        "(p.canonical<>'' AND p.canonical=u.url)", "bool"
-    ),
-    "canonical_other": Column(
-        "(p.canonical<>'' AND p.canonical<>u.url)", "bool"
-    ),
+    "canonical_self": Column("(p.canonical<>'' AND p.canonical=u.url)", "bool"),
+    "canonical_other": Column("(p.canonical<>'' AND p.canonical<>u.url)", "bool"),
     "resource_count": Column(
         "(SELECT COUNT(*) FROM resource_graph_occurrences r "
         "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id)",
@@ -275,7 +269,18 @@ _REQUIRED_PAGE_COLUMNS = frozenset(
 )
 _STATUS_CLASSES = {f"{n}xx": (n * 100, n * 100 + 100) for n in range(1, 6)}
 _RESOURCE_KINDS = frozenset(
-    {"image", "media", "document", "stylesheet", "module", "manifest", "script", "css_import", "css_url", "font"}
+    {
+        "image",
+        "media",
+        "document",
+        "stylesheet",
+        "module",
+        "manifest",
+        "script",
+        "css_import",
+        "css_url",
+        "font",
+    }
 )
 # Facet expressions are fixed SQL; no caller-provided text reaches the query.
 FACET_GROUPS: dict[str, str] = {
@@ -443,7 +448,9 @@ def _filter_clause(item: Any) -> tuple[str, list[Any], bool]:
     return f"instr({hay},?)=0", [needle], uses_url  # not_contains
 
 
-def _resource_filter_clause(name: str, op: Any, value: Any, case_sensitive: bool) -> tuple[str, list[Any], bool]:
+def _resource_filter_clause(
+    name: str, op: Any, value: Any, case_sensitive: bool
+) -> tuple[str, list[Any], bool]:
     """Filter pages by a retained resource occurrence without duplicating page rows."""
     if not isinstance(op, str):
         raise QueryError("invalid_filter", "resource filter operator must be text")
@@ -669,7 +676,9 @@ def _facet_counts(
         unavailable.add("in_sitemap")
     if "with_inlinks" in ids and not _links_measured(con):
         unavailable.add("with_inlinks")
-    resource_facets = {"with_resources", "with_images", "with_scripts", "with_stylesheets"} & set(ids)
+    resource_facets = {"with_resources", "with_images", "with_scripts", "with_stylesheets"} & set(
+        ids
+    )
     if resource_facets and resource_graph_state != "complete":
         (capped_groups if resource_graph_state == "capped" else unavailable).update(resource_facets)
     active = [group for group in ids if group not in unavailable and group not in capped_groups]
@@ -1002,7 +1011,9 @@ def _query(
             )
         if "inlinks" in requested_names and not _links_measured(con):
             raise QueryError(
-                "inlinks_unavailable", "link observations were not retained for this scan", "unavailable"
+                "inlinks_unavailable",
+                "link observations were not retained for this scan",
+                "unavailable",
             )
         resource_names = {
             "resource_count",
@@ -1015,10 +1026,10 @@ def _query(
             "resource_kind",
         }
         resource_facets = {"with_resources", "with_images", "with_scripts", "with_stylesheets"}
-        needs_resource_state = bool(requested_names & resource_names or set(facet_ids) & resource_facets)
-        resource_graph_state = (
-            _resource_graph_state(con, budget) if needs_resource_state else None
+        needs_resource_state = bool(
+            requested_names & resource_names or set(facet_ids) & resource_facets
         )
+        resource_graph_state = _resource_graph_state(con, budget) if needs_resource_state else None
         if requested_names & resource_names and resource_graph_state != "complete":
             capped = resource_graph_state == "capped"
             raise QueryError(
@@ -1030,11 +1041,14 @@ def _query(
             )
         if requested_names & set(_TRANSPORT_COLUMNS):
             _prepare_transport_phase_projection(con)
-        if "has_hreflang" in filter_names and con.execute(
-            "SELECT 1 FROM pages WHERE hreflang_json IS NULL LIMIT 1"
-        ).fetchone():
+        if (
+            "has_hreflang" in filter_names
+            and con.execute("SELECT 1 FROM pages WHERE hreflang_json IS NULL LIMIT 1").fetchone()
+        ):
             raise QueryError(
-                "hreflang_unavailable", "hreflang presence is not measured for every page", "unavailable"
+                "hreflang_unavailable",
+                "hreflang presence is not measured for every page",
+                "unavailable",
             )
         _click_depth_check(con, {*columns, *([sort] if sort else []), *filter_names})
         indexed = {n for n, c in COLUMNS.items() if c.indexed} | (
@@ -1069,9 +1083,7 @@ def _query(
             )
             distinct_facet_states = set(facet_states.values())
             facets_state = (
-                next(iter(distinct_facet_states))
-                if len(distinct_facet_states) == 1
-                else "partial"
+                next(iter(distinct_facet_states)) if len(distinct_facet_states) == 1 else "partial"
             )
         small = filtered is not None and filtered <= SORT_ROW_CAP
         order_col = sort or "page_ordinal"

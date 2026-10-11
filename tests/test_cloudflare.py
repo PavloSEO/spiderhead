@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import date, datetime, timedelta
 
 import pytest
@@ -220,6 +221,12 @@ def test_token_file_rejects_symlinks_and_group_readable_files(tmp_path, monkeypa
     with pytest.raises(cloudflare.CloudflareError):
         cloudflare.read_token()
 
+    link.unlink()
+    source.chmod(0o644)
+    monkeypatch.setenv("SEOHEAD_CLOUDFLARE_TOKEN_FILE", str(source))
+    with pytest.raises(cloudflare.CloudflareError):
+        cloudflare.read_token()
+
 
 def test_verify_token_reports_lifecycle_without_claiming_zone_permissions():
     result = cloudflare.verify_token(
@@ -235,12 +242,6 @@ def test_verify_token_reports_lifecycle_without_claiming_zone_permissions():
     )
     assert result == {"ok": True, "token_status": "active"}
     assert "private-token-id" not in repr(result)
-
-    link.unlink()
-    source.chmod(0o644)
-    monkeypatch.setenv("SEOHEAD_CLOUDFLARE_TOKEN_FILE", str(source))
-    with pytest.raises(cloudflare.CloudflareError):
-        cloudflare.read_token()
 
 
 def test_project_binding_resolves_cloudflare_zone_id_before_graphql(monkeypatch, tmp_path):
@@ -330,7 +331,7 @@ def test_configuration_flag_reads_zone_ai_settings_and_bounded_rulesets(tmp_path
                             "description": "synthetic policy",
                             "action": "block",
                             "enabled": True,
-                            "expression": "http.request.uri.path eq \"/private\"",
+                            "expression": 'http.request.uri.path eq "/private"',
                         }
                     ],
                 },
@@ -362,8 +363,13 @@ def test_configuration_flag_reads_zone_ai_settings_and_bounded_rulesets(tmp_path
     assert result["ok"]
     assert result["configuration"]["state"] == "complete"
     assert result["configuration"]["zone_settings"]["search_for_agents"]["value"] == "on"
-    assert result["configuration"]["rulesets"]["http_request_firewall_custom"]["rules"][0]["action"] == "block"
+    assert (
+        result["configuration"]["rulesets"]["http_request_firewall_custom"]["rules"][0]["action"]
+        == "block"
+    )
     assert result["configuration"]["logpush"]["jobs"][0]["dataset"] == "http_requests"
     assert "destination_conf" not in json.dumps(result)
-    assert result["configuration_requests"] == len(cloudflare.AI_SETTINGS) + len(cloudflare.RULE_PHASES)
+    assert result["configuration_requests"] == len(cloudflare.AI_SETTINGS) + len(
+        cloudflare.RULE_PHASES
+    )
     assert len(calls) == 1 + result["configuration_requests"] + result["queries"]

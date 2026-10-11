@@ -37,6 +37,7 @@ def status_arguments(project):
         raise ValueError("An open semantic project is required")
     return ["semantics", "status", "--project", project, "--json"]
 
+
 # (stage id in seohead.semantics, Russian title, icon, one-line description; no sample values)
 STEPS = (
     ("import", "Импорт", "upload", "Загрузка маркеров и готовых списков запросов."),
@@ -157,7 +158,9 @@ class SemanticsScreen(Screen):
         self.status_view = QPlainTextEdit()
         self.status_view.setReadOnly(True)
         self.status_view.setPlaceholderText("The core's local semantic status appears here.")
-        self.failed = StatePanel("error", "Semantic status unavailable", "Retry to read the local project database.")
+        self.failed = StatePanel(
+            "error", "Semantic status unavailable", "Retry to read the local project database."
+        )
         self.state_stack.addWidget(self.no_project)
         self.state_stack.addWidget(self.loading)
         self.state_stack.addWidget(self.status_view)
@@ -310,7 +313,13 @@ class SemanticsScreen(Screen):
         if kind == "status":
             if payload.get("state") not in {"complete", "partial"}:
                 self.status_loaded = False
-                self.failed.text.setText(str(payload.get("reason") or payload.get("error") or "The semantics status is unavailable.")[:300])
+                self.failed.text.setText(
+                    str(
+                        payload.get("reason")
+                        or payload.get("error")
+                        or "The semantics status is unavailable."
+                    )[:300]
+                )
                 self.state_stack.setCurrentWidget(self.failed)
                 return
             stages = payload.get("stages") or {}
@@ -324,7 +333,9 @@ class SemanticsScreen(Screen):
                 f"Next stage: {payload.get('next_stage') or 'not reported'}",
             ]
             for name, value in counts.items() if isinstance(counts, dict) else ():
-                lines.append(f"{name.replace('_', ' ')}: {value if value is not None else 'not measured'}")
+                lines.append(
+                    f"{name.replace('_', ' ')}: {value if value is not None else 'not measured'}"
+                )
             if payload.get("spend"):
                 lines.append(f"Spend: {payload['spend']}")
             if payload.get("stages_unavailable_reason"):
@@ -336,7 +347,9 @@ class SemanticsScreen(Screen):
         if kind == "estimate":
             if payload.get("state") != "complete":
                 self.estimate = None
-                self.estimate_note.setText(str(payload.get("error") or "Estimate unavailable")[:300])
+                self.estimate_note.setText(
+                    str(payload.get("error") or "Estimate unavailable")[:300]
+                )
                 self.run_button.setEnabled(False)
                 return
             self.estimate = payload
@@ -403,13 +416,16 @@ class SemanticsScreen(Screen):
         if self.paid.get(stage) and self.estimate is None:
             self.estimate_note.setText("Preview the request estimate before a paid stage.")
             return
-        if QMessageBox.question(
-            self,
-            "Run semantic stage",
-            "Run the selected stage with the configured providers? This may make external or paid requests.",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
-        ) != QMessageBox.Yes:
+        if (
+            QMessageBox.question(
+                self,
+                "Run semantic stage",
+                "Run the selected stage with the configured providers? This may make external or paid requests.",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            != QMessageBox.Yes
+        ):
             return
         arguments = ["semantics", stage, "--project", self.host.project_directory, "--json"]
         if self.paid.get(stage):
@@ -463,7 +479,15 @@ class SemanticsReadScreen(Screen):
         self.queries_button.clicked.connect(self.load_queries)
         self.insights_button = QPushButton("Local insights")
         self.insights_button.clicked.connect(self.load_insights)
-        for widget in (self.offset, self.limit, self.cluster, self.query_button, self.detail_button, self.queries_button, self.insights_button):
+        for widget in (
+            self.offset,
+            self.limit,
+            self.cluster,
+            self.query_button,
+            self.detail_button,
+            self.queries_button,
+            self.insights_button,
+        ):
             controls.addWidget(widget)
         layout.addLayout(controls)
         self.result = QPlainTextEdit()
@@ -472,9 +496,18 @@ class SemanticsReadScreen(Screen):
         layout.addWidget(self.result, 1)
 
     def refresh(self):
-        self.project.setText(Path(str(self.host.project_directory)).name if self.host.project_directory else "No project open")
+        self.project.setText(
+            Path(str(self.host.project_directory)).name
+            if self.host.project_directory
+            else "No project open"
+        )
         enabled = bool(self.host.project_directory)
-        for button in (self.query_button, self.detail_button, self.queries_button, self.insights_button):
+        for button in (
+            self.query_button,
+            self.detail_button,
+            self.queries_button,
+            self.insights_button,
+        ):
             button.setEnabled(enabled)
         if self.isVisible() and not enabled:
             self.result.setPlainText("Open a project to read semantic data.")
@@ -507,14 +540,38 @@ class SemanticsReadScreen(Screen):
         except ValueError as exc:
             self.result.setPlainText(str(exc))
             return
-        self._start("clusters", ["semantics", "clusters", "--project", self.host.project_directory, "--offset", str(offset), "--limit", str(limit), "--json"])
+        self._start(
+            "clusters",
+            [
+                "semantics",
+                "clusters",
+                "--project",
+                self.host.project_directory,
+                "--offset",
+                str(offset),
+                "--limit",
+                str(limit),
+                "--json",
+            ],
+        )
 
     def load_detail(self):
         name = self.cluster.text().strip()
         if not name:
             self.result.setPlainText("Enter a cluster ID or name.")
             return
-        self._start("detail", ["semantics", "cluster-show", "--project", self.host.project_directory, "--cluster", name, "--json"])
+        self._start(
+            "detail",
+            [
+                "semantics",
+                "cluster-show",
+                "--project",
+                self.host.project_directory,
+                "--cluster",
+                name,
+                "--json",
+            ],
+        )
 
     def load_queries(self):
         name = self.cluster.text().strip()
@@ -526,12 +583,40 @@ class SemanticsReadScreen(Screen):
         except ValueError as exc:
             self.result.setPlainText(str(exc))
             return
-        self._start("queries", ["semantics", "cluster-queries", "--project", self.host.project_directory, "--cluster", name, "--offset", str(offset), "--limit", str(limit), "--json"])
+        self._start(
+            "queries",
+            [
+                "semantics",
+                "cluster-queries",
+                "--project",
+                self.host.project_directory,
+                "--cluster",
+                name,
+                "--offset",
+                str(offset),
+                "--limit",
+                str(limit),
+                "--json",
+            ],
+        )
 
     def load_insights(self):
         today = date.today()
         period = f"{today.year}-01-01..{today.isoformat()}"
-        self._start("insights", ["semantics", "insights", "--project", self.host.project_directory, "--period", period, "--sources", "gsc,metrika,webmaster", "--json"])
+        self._start(
+            "insights",
+            [
+                "semantics",
+                "insights",
+                "--project",
+                self.host.project_directory,
+                "--period",
+                period,
+                "--sources",
+                "gsc,metrika,webmaster",
+                "--json",
+            ],
+        )
 
     def _done(self, token, payload):
         if self._pending is None or token is not self._pending[1]:

@@ -24,7 +24,9 @@ from .url_query import CoreJob
 MAX_CSV_BYTES = 5 * 1024 * 1024
 
 
-def snippet_arguments(csv_path: str, out_path: str, *, scan: str = "", query: str = "") -> list[str]:
+def snippet_arguments(
+    csv_path: str, out_path: str, *, scan: str = "", query: str = ""
+) -> list[str]:
     if not csv_path or not out_path:
         raise ValueError("Choose snippet CSV input and a new task output file")
     if Path(out_path).exists():
@@ -54,7 +56,9 @@ class SnippetEditor(QWidget):
         title = QLabel("Snippet review")
         title.setProperty("text_style", "title")
         root.addWidget(title)
-        note = QLabel("Paste or import CSV with a URL column and a title and/or description column. This works without a crawl and never fetches a page.")
+        note = QLabel(
+            "Paste or import CSV with a URL column and a title and/or description column. This works without a crawl and never fetches a page."
+        )
         note.setProperty("text_style", "meta")
         note.setWordWrap(True)
         root.addWidget(note)
@@ -74,16 +78,22 @@ class SnippetEditor(QWidget):
         self.query.setPlaceholderText("Optional literal search query for a retained text excerpt")
         root.addWidget(self.query)
         self.csv = QPlainTextEdit()
-        self.csv.setPlaceholderText("url,title,description\nhttps://example.test/page,Revised title,Revised description")
+        self.csv.setPlaceholderText(
+            "url,title,description\nhttps://example.test/page,Revised title,Revised description"
+        )
         self.csv.setLineWrapMode(QPlainTextEdit.NoWrap)
         root.addWidget(self.csv, 2)
-        self.status = QLabel("Input stays local. Empty edit fields mean unchanged; rejected rows are reported with their source line.")
+        self.status = QLabel(
+            "Input stays local. Empty edit fields mean unchanged; rejected rows are reported with their source line."
+        )
         self.status.setProperty("text_style", "meta")
         self.status.setWordWrap(True)
         root.addWidget(self.status)
 
     def open_csv(self):
-        path, _ = QFileDialog.getOpenFileName(self, "Open snippet CSV", "", "CSV files (*.csv);;All files (*)")
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open snippet CSV", "", "CSV files (*.csv);;All files (*)"
+        )
         if not path:
             return
         try:
@@ -101,7 +111,9 @@ class SnippetEditor(QWidget):
         writer.writerow(["url", "title", "description"])
         writer.writerow([url, title, description])
         self.csv.setPlainText(stream.getvalue())
-        self.status.setText("Prepared from the selected retained scan row. Review the values before exporting.")
+        self.status.setText(
+            "Prepared from the selected retained scan row. Review the values before exporting."
+        )
 
     def export_tasks(self):
         text = self.csv.toPlainText()
@@ -131,7 +143,9 @@ class SnippetEditor(QWidget):
             scan = self.host.selected_scan_path if self.use_scan.isChecked() else ""
             if self.use_scan.isChecked() and not scan:
                 raise ValueError("Select a retained scan in the project header first")
-            arguments = snippet_arguments(csv_path, out_path, scan=scan or "", query=self.query.text())
+            arguments = snippet_arguments(
+                csv_path, out_path, scan=scan or "", query=self.query.text()
+            )
         except ValueError as exc:
             self._cleanup()
             self.status.setText(str(exc))
@@ -152,7 +166,9 @@ class SnippetEditor(QWidget):
         if payload.get("ok") is not True:
             self.status.setText(str(payload.get("error") or "Snippet task export failed.")[:300])
             return
-        self.status.setText(f"Exported local snippet review tasks to {self._out_name}. Inspect the new task file before use.")
+        self.status.setText(
+            f"Exported local snippet review tasks to {self._out_name}. Inspect the new task file before use."
+        )
 
     def _failed(self, token, reason):
         if token is not self._pending:
@@ -166,4 +182,3 @@ class SnippetEditor(QWidget):
         if self._temporary is not None:
             self._temporary.remove()
             self._temporary = None
-

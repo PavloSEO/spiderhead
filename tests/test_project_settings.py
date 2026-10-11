@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from seohead.projects import project_settings as settings_module
 from seohead.projects.action_log import page as action_page
 from seohead.projects.project_settings import (
     delete_project,
@@ -17,7 +18,6 @@ from seohead.projects.project_settings import (
     review_proposal,
     update_label,
 )
-from seohead.projects import project_settings as settings_module
 from seohead.projects.run_observation import start
 from seohead.projects.runtime import DEFAULT_POLICY, project_policy
 from seohead.projects.workspace import create_project
@@ -199,10 +199,9 @@ def test_project_delete_refuses_a_live_run(project):
     assert project.is_dir()
 
 
-def test_project_delete_does_not_move_while_shared_writer_lock_is_unavailable(
-    project, monkeypatch
-):
+def test_project_delete_does_not_move_while_shared_writer_lock_is_unavailable(project, monkeypatch):
     from contextlib import contextmanager
+
     from seohead.projects import runtime
 
     @contextmanager
@@ -219,8 +218,8 @@ def test_project_delete_does_not_move_while_shared_writer_lock_is_unavailable(
 
 @pytest.mark.parametrize("kind", ["competitor", "export", "schedule"])
 def test_project_delete_refuses_each_active_domain_job(project, kind):
-    from seohead.projects import competitor_scans, exports, schedule
     from seohead.core.filesystem import unlock
+    from seohead.projects import competitor_scans, exports, schedule
 
     descriptor = None
     local_lock = None

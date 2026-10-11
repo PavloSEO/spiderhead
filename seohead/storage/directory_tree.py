@@ -226,7 +226,9 @@ def scan_directory_tree(
 
         tree = node("", "/", included, 0)
         result = {
-            "state": "partial" if truncated or source["lifecycle"] != "finished" or source["crawl_partial"] else "available",
+            "state": "partial"
+            if truncated or source["lifecycle"] != "finished" or source["crawl_partial"]
+            else "available",
             "reason": "directory tree was bounded" if truncated else "",
             "source": {
                 "scan_uuid": source["scan_uuid"],
@@ -234,8 +236,12 @@ def scan_directory_tree(
                 "lifecycle": source["lifecycle"],
             },
             "validation": validation,
-            "scope": {"origin": origin, "total_pages": total, "included_pages": included,
-                      "excluded_other_origins": excluded_origin},
+            "scope": {
+                "origin": origin,
+                "total_pages": total,
+                "included_pages": included,
+                "excluded_other_origins": excluded_origin,
+            },
             "max_depth": max_depth,
             "max_children": max_children,
             "max_nodes": max_nodes,

@@ -73,9 +73,7 @@ def _stable_projection(value: Any) -> Any:
     return value
 
 
-def _revisioned(
-    payload: dict[str, Any], since_revision: str | None
-) -> dict[str, Any]:
+def _revisioned(payload: dict[str, Any], since_revision: str | None) -> dict[str, Any]:
     if since_revision is not None and (
         not isinstance(since_revision, str) or not _REVISION.fullmatch(since_revision)
     ):
@@ -190,9 +188,7 @@ def _read_retained_findings(row: dict[str, Any]) -> dict[str, Any]:
         "skipped_checks": copy.deepcopy(run.get("checks_skipped", []))
         if isinstance(run, dict)
         else [],
-        "check_coverage": coverage_summary(
-            (audit.get("summary") or {}).get("check_coverage")
-        ),
+        "check_coverage": coverage_summary((audit.get("summary") or {}).get("check_coverage")),
         "schema_version": audit.get("schema_version"),
         "generated_at": run.get("generated_at") if isinstance(run, dict) else None,
     }
@@ -1317,9 +1313,7 @@ def scans_page(directory: str | Path, *, offset: int = 0, limit: int = 20) -> di
     }
 
 
-def observe_activity(
-    directory: str | Path, *, since_revision: str | None = None
-) -> dict:
+def observe_activity(directory: str | Path, *, since_revision: str | None = None) -> dict:
     """Cheap collector telemetry; never open retained scans or compute task coverage."""
     if since_revision is not None and (
         not isinstance(since_revision, str) or not _REVISION.fullmatch(since_revision)
@@ -1374,8 +1368,11 @@ def observe_activity(
                     "runs": {"state": "unavailable", "reason": str(exc), "items": []},
                 }
             )
-    return _revisioned({
-        "ok": True,
-        "observed_at": datetime.now(timezone.utc).isoformat(),
-        "sites": {"total": len(sites), "items": sites},
-    }, since_revision)
+    return _revisioned(
+        {
+            "ok": True,
+            "observed_at": datetime.now(timezone.utc).isoformat(),
+            "sites": {"total": len(sites), "items": sites},
+        },
+        since_revision,
+    )

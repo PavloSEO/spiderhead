@@ -164,7 +164,9 @@ def test_moz_legacy_url_metrics_are_not_backlinks(tmp_path, monkeypatch):
     assert profile["state"] == "unavailable" and profile["summary"] is None
 
 
-def test_moz_backlinks_uses_explicit_json_rpc_operation_and_keeps_unknown_rel(tmp_path, monkeypatch):
+def test_moz_backlinks_uses_explicit_json_rpc_operation_and_keeps_unknown_rel(
+    tmp_path, monkeypatch
+):
     monkeypatch.setenv("SEOHEAD_SPEND_LOG", str(tmp_path / "spend.jsonl"))
     seen = []
 
@@ -220,7 +222,7 @@ def test_moz_backlinks_uses_explicit_json_rpc_operation_and_keeps_unknown_rel(tm
 
 
 def test_moz_backlinks_rejects_explicit_limit_over_provider_max_and_preserves_default_mode():
-    with pytest.raises(ValueError, match="1..50"):
+    with pytest.raises(ValueError, match=r"1\.\.50"):
         backlink_indexes.estimate("moz", operation="backlinks", limit=51)
     legacy = backlink_indexes.estimate("moz")
     assert legacy["operation"] == "url_metrics_v2" and legacy["legacy"] is True

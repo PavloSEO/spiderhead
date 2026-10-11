@@ -57,8 +57,48 @@ def _category(name: str) -> str:
         ("project", ("project", "remediation", "workflow", "task", "checklist")),
         ("screaming-frog", ("sf_",)),
         ("semantic", ("semantic",)),
-        ("content", ("parse", "schema", "duplicate", "heading", "meta_description", "images", "redirects", "links", "robots", "headers", "hreflang", "asset_weight", "social_meta", "soft404", "citability", "llms_txt", "ai_bots")),
-        ("provider", ("gsc", "metrika", "webmaster", "dataforseo", "google_", "topvisor", "backlinks", "serp", "arsenkin", "sources_", "cloudflare", "crux", "wayback", "logs_", "indexnow")),
+        (
+            "content",
+            (
+                "parse",
+                "schema",
+                "duplicate",
+                "heading",
+                "meta_description",
+                "images",
+                "redirects",
+                "links",
+                "robots",
+                "headers",
+                "hreflang",
+                "asset_weight",
+                "social_meta",
+                "soft404",
+                "citability",
+                "llms_txt",
+                "ai_bots",
+            ),
+        ),
+        (
+            "provider",
+            (
+                "gsc",
+                "metrika",
+                "webmaster",
+                "dataforseo",
+                "google_",
+                "topvisor",
+                "backlinks",
+                "serp",
+                "arsenkin",
+                "sources_",
+                "cloudflare",
+                "crux",
+                "wayback",
+                "logs_",
+                "indexnow",
+            ),
+        ),
         ("recon", ("domain", "cdn", "tech", "security", "regions", "crtsh", "mirror", "whois")),
         ("report", ("report", "export", "facts", "spend", "bi_")),
     )
@@ -210,7 +250,12 @@ def _cost_line(tool: ToolSpec) -> str:
 
 def _render_tool(tool: ToolSpec) -> list[str]:
     heading = f"### `{tool.command}`" if tool.command else f"### `{tool.name}`"
-    lines = [heading, "", f"**Category:** `{tool.category}` · **Project-aware:** {'yes' if tool.project_aware else 'no'}", ""]
+    lines = [
+        heading,
+        "",
+        f"**Category:** `{tool.category}` · **Project-aware:** {'yes' if tool.project_aware else 'no'}",
+        "",
+    ]
     if tool.command:
         lines += [f"MCP name: `{tool.name}`", ""]
     if tool.summary:

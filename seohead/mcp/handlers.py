@@ -769,8 +769,8 @@ def crawl_site(
     if sitemap_only and not sitemap:
         raise ValueError("sitemap_only requires an explicit sitemap")
     if project is not None:
-        from seohead.projects.workspace import open_project
         from seohead.projects.runtime import project_policy
+        from seohead.projects.workspace import open_project
 
         opened = open_project(project)
         project_root = Path(opened["path"])
@@ -1287,9 +1287,7 @@ def crawl_site(
                     {
                         "control": {
                             "action": reporter.control_action,
-                            "state": "paused"
-                            if reporter.control_action == "pause"
-                            else "stopped",
+                            "state": "paused" if reporter.control_action == "pause" else "stopped",
                         }
                     }
                     if reporter.control_action
@@ -2331,7 +2329,9 @@ def _audit_crawl_result(
                     "no page response had a supported Content-Type and recognizable body signature",
                 )
     else:
-        ctx.skip(body_mime.CHECK_ID, "crawl was not stored; per-URL response bodies are unavailable")
+        ctx.skip(
+            body_mime.CHECK_ID, "crawl was not stored; per-URL response bodies are unavailable"
+        )
 
     if stored_scan is not None:
         from seohead.storage.retained_link_findings import RetainedLinkFindings
@@ -2650,17 +2650,28 @@ def images_optimize(
         scanned = 0
         total = None
         while scanned < 10_000 and len(images) < max_images:
-            page = scan_evidence(scan, section="resources", offset=offset, limit=min(1000, 10_000 - scanned))
+            page = scan_evidence(
+                scan, section="resources", offset=offset, limit=min(1000, 10_000 - scanned)
+            )
             evidence = page.get("evidence") or {}
             if evidence.get("state") == "unavailable":
-                return {"ok": False, "state": "unavailable", "reason": evidence.get("reason"), "results": []}
+                return {
+                    "ok": False,
+                    "state": "unavailable",
+                    "reason": evidence.get("reason"),
+                    "results": [],
+                }
             total = evidence.get("total")
             occurrences = evidence.get("occurrences") or []
             if not occurrences:
                 break
             for occurrence in occurrences:
                 scanned += 1
-                if occurrence.get("kind") != "image" or occurrence.get("state") in {"excluded", "failed", "budget"}:
+                if occurrence.get("kind") != "image" or occurrence.get("state") in {
+                    "excluded",
+                    "failed",
+                    "budget",
+                }:
                     continue
                 url = occurrence.get("resolved_url")
                 if not isinstance(url, str) or not url:
@@ -2696,7 +2707,11 @@ def images_optimize(
                 remaining = download_budget - downloaded_bytes
                 if remaining <= 0:
                     downloads.append(
-                        {"url": url, "ok": False, "error": "scan image download byte budget exhausted"}
+                        {
+                            "url": url,
+                            "ok": False,
+                            "error": "scan image download byte budget exhausted",
+                        }
                     )
                     continue
                 row = downloader.download_images(
@@ -2713,7 +2728,9 @@ def images_optimize(
             by_source = {row.get("file"): row for row in optimized.get("results", [])}
             results = []
             for url, instances in images.items():
-                download = downloaded.get(url, {"ok": False, "error": "image download result unavailable"})
+                download = downloaded.get(
+                    url, {"ok": False, "error": "image download result unavailable"}
+                )
                 result = by_source.get(download.get("path"))
                 download_report = {key: value for key, value in download.items() if key != "path"}
                 optimization_report = (
@@ -6156,6 +6173,7 @@ def project_restore(archive: str, to: str) -> dict[str, Any]:
 
     return restore_project(archive, to)
 
+
 def project_update(directory: str, label: str, expected_revision: int) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_update as core
 
@@ -6182,9 +6200,7 @@ def project_settings_propose(
     return core(directory, changes=changes, expected_revision=expected_revision)
 
 
-def project_settings_proposals(
-    directory: str, offset: int = 0, limit: int = 50
-) -> dict[str, Any]:
+def project_settings_proposals(directory: str, offset: int = 0, limit: int = 50) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_settings_proposals as core
 
     return core(directory, offset=offset, limit=limit)
@@ -6249,9 +6265,7 @@ def doctor(
     )
 
 
-def update_check(
-    consent: bool, automatic: bool = False, max_releases: int = 5
-) -> dict[str, Any]:
+def update_check(consent: bool, automatic: bool = False, max_releases: int = 5) -> dict[str, Any]:
     from seohead.core.update import check_updates
 
     return check_updates(consent=consent, automatic=automatic, max_releases=max_releases)
@@ -6985,10 +6999,10 @@ def project_policy(
     with project_write_lock(root):
         if not apply:
             return core(directory, policy=policy, apply=False, expected_revision=expected_revision)
+        import uuid
+
         from seohead.projects.action_log import record as record_action
         from seohead.projects.action_log import resolve_pending
-
-        import uuid
 
         operation_id = uuid.uuid4().hex
         pending = record_action(
@@ -7282,9 +7296,7 @@ def provider_artifact_read(
     """Read a bounded, allowlisted PageSpeed summary from a caller-owned local artifact dir."""
     from seohead.data_sources.provider_artifacts import read_pagespeed_artifact
 
-    return read_pagespeed_artifact(
-        artifact_ref, artifact_dir, offset=offset, limit=limit
-    )
+    return read_pagespeed_artifact(artifact_ref, artifact_dir, offset=offset, limit=limit)
 
 
 def provider_join(
@@ -7914,7 +7926,9 @@ def tool_catalog(
         or type(offset) is not int
         or offset < 0
     ):
-        raise ValueError("query must be bounded text, limit must be 1..50, and offset must be non-negative")
+        raise ValueError(
+            "query must be bounded text, limit must be 1..50, and offset must be non-negative"
+        )
     words = query.casefold().split()
     matches = []
     from seohead.mcp.tool_reference import load_semantics_tools
@@ -7952,7 +7966,12 @@ def url_check_batch(
         raise ValueError("provide exactly one of urls[] or scan")
     page = None
     if scan:
-        if type(offset) is not int or offset < 0 or type(max_urls) is not int or not 1 <= max_urls <= 50:
+        if (
+            type(offset) is not int
+            or offset < 0
+            or type(max_urls) is not int
+            or not 1 <= max_urls <= 50
+        ):
             raise ValueError("scan offset must be non-negative and max_urls must be 1..50")
         page = scan_url_query(
             scan, columns=["url"], offset=offset, limit=max_urls, max_bytes=1_048_576
@@ -7979,11 +7998,17 @@ def url_check_batch(
         raise ValueError("checks must contain 1..5 check names")
     supported = {
         "parse": lambda url, opts: parse(url=url, options=opts),
-        "robots-check": lambda url, opts: robots_check(url=url, user_agent=opts.get("user_agent", "*"), paths=opts.get("paths")),
+        "robots-check": lambda url, opts: robots_check(
+            url=url, user_agent=opts.get("user_agent", "*"), paths=opts.get("paths")
+        ),
         "headers-check": lambda url, opts: headers_check(url=url, method=opts.get("method", "GET")),
         "redirects-check": lambda url, opts: redirects_check(url=url, options=opts),
         "schema-check": lambda url, _opts: schema_check(url=url),
-        "links-check": lambda url, opts: links_check(url=url, internal_only=opts.get("internal_only", False), limit=min(int(opts.get("limit", 200)), 500)),
+        "links-check": lambda url, opts: links_check(
+            url=url,
+            internal_only=opts.get("internal_only", False),
+            limit=min(int(opts.get("limit", 200)), 500),
+        ),
         "hreflang-check": lambda url, _opts: hreflang_check(url=url),
         "security-check": lambda url, opts: security_check(url=url, probe_paths=False),
         "ai-bots-check": lambda url, _opts: ai_bots_check(url=url),
@@ -8013,10 +8038,10 @@ def url_check_batch(
                 items = result.get("results") if isinstance(result, dict) else None
                 failed = isinstance(result, dict) and result.get("ok") is False
                 if name == "parse" and isinstance(items, list) and items:
-                    failed = all(isinstance(item, dict) and item.get("ok") is False for item in items)
-                results.append(
-                    {"url": url, "check": name, "ok": not failed, "result": result}
-                )
+                    failed = all(
+                        isinstance(item, dict) and item.get("ok") is False for item in items
+                    )
+                results.append({"url": url, "check": name, "ok": not failed, "result": result})
             except Exception as exc:
                 results.append({"url": url, "check": name, "ok": False, "error": str(exc)})
     all_failed = bool(results) and all(row["ok"] is False for row in results)
@@ -8106,10 +8131,7 @@ def scan_content_search(
                         "content-search record exceeds the 64 KiB serialized record limit"
                     )
                 projected = record_bytes + len(encoded) + (count + 1) * 40
-                if (
-                    projected + MAX_CONTENT_SEARCH_MANIFEST_BYTES
-                    > MAX_CONTENT_SEARCH_PACKAGE_BYTES
-                ):
+                if projected + MAX_CONTENT_SEARCH_MANIFEST_BYTES > MAX_CONTENT_SEARCH_PACKAGE_BYTES:
                     package_limit_hit = True
                     return False
                 index.write(record_bytes.to_bytes(8, "big"))
@@ -8286,9 +8308,7 @@ def scan_content_search_page(
     ] or os.path.getsize(records_path) != records.get("bytes"):
         raise ValueError("content-search package index length is invalid")
     package_bytes = (
-        manifest_path.stat().st_size
-        + os.path.getsize(index_path)
-        + os.path.getsize(records_path)
+        manifest_path.stat().st_size + os.path.getsize(index_path) + os.path.getsize(records_path)
     )
     if package_bytes > MAX_CONTENT_SEARCH_PACKAGE_BYTES:
         raise ValueError("content-search package exceeds its byte limit")
@@ -8382,6 +8402,8 @@ def _content_search_filtered_page(
     status_code: int | None,
     checked_row: Any,
 ) -> dict[str, Any]:
+    from seohead.storage.content_search import MAX_SERIALIZED_RECORD_BYTES
+
     # ponytail: linear pass over every record, no matched index | ceiling: ~1M records per page read | upgrade: matched.idx offsets (issue #939 slice 2)
     def matches(row: dict[str, Any]) -> bool:
         return (status is None or row.get("status") == status) and (

@@ -26,9 +26,7 @@ def test_inspect_urls_preserves_index_amp_and_rich_verdicts_without_raw_bodies()
                     "ampResult": {"verdict": "FAIL", "ampUrl": "https://example.test/amp"},
                     "richResultsResult": {
                         "verdict": "FAIL",
-                        "detectedItems": [
-                            {"richResultType": "Product", "items": [{"name": "x"}]}
-                        ],
+                        "detectedItems": [{"richResultType": "Product", "items": [{"name": "x"}]}],
                     },
                 }
             }
@@ -42,7 +40,9 @@ def test_inspect_urls_preserves_index_amp_and_rich_verdicts_without_raw_bodies()
     )
 
     assert result["requests_made"] == 1
-    assert calls == [{"inspectionUrl": "https://example.test/a", "siteUrl": "sc-domain:example.test"}]
+    assert calls == [
+        {"inspectionUrl": "https://example.test/a", "siteUrl": "sc-domain:example.test"}
+    ]
     row = result["urls"][0]
     assert row["index_status"]["verdict"] == "PASS"
     assert row["amp_result"]["verdict"] == "FAIL"
@@ -56,9 +56,7 @@ def test_inspect_urls_rejects_empty_index_status_result():
         "sc-domain:example.test",
         ["https://example.test/a"],
         token="synthetic-token",
-        transport=lambda *args: json.dumps(
-            {"inspectionResult": {"indexStatusResult": {}}}
-        ),
+        transport=lambda *args: json.dumps({"inspectionResult": {"indexStatusResult": {}}}),
     )
     assert result["state"] == "partial"
     assert result["urls"][0]["state"] == "failed"

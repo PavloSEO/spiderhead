@@ -77,11 +77,7 @@ def _connect(root: Path) -> sqlite3.Connection:
         descriptor = None
     else:
         os.close(descriptor)
-    if (
-        path.is_symlink()
-        or not path.is_file()
-        or (os.name != "nt" and path.stat().st_mode & 0o077)
-    ):
+    if path.is_symlink() or not path.is_file() or (os.name != "nt" and path.stat().st_mode & 0o077):
         raise ValueError("run control store must be a private regular file")
     con = sqlite3.connect(path, timeout=5, isolation_level=None)
     con.execute("PRAGMA busy_timeout=5000")
@@ -91,9 +87,7 @@ def _connect(root: Path) -> sqlite3.Connection:
     )
     columns = {str(row[1]) for row in con.execute("PRAGMA table_info(requests)")}
     if "state" not in columns:
-        con.execute(
-            "ALTER TABLE requests ADD COLUMN state TEXT NOT NULL DEFAULT 'pending'"
-        )
+        con.execute("ALTER TABLE requests ADD COLUMN state TEXT NOT NULL DEFAULT 'pending'")
     return con
 
 
@@ -189,11 +183,7 @@ def request(directory: str | Path, run_id: str, action: str) -> dict[str, str]:
             raise
     latest = status(root, limit=MAX_RUNS)["items"]
     active = next((item for item in latest if item["id"] == run_id), None)
-    if (
-        active is None
-        or active["state"] != "running"
-        or active.get("pid_state") != "live"
-    ):
+    if active is None or active["state"] != "running" or active.get("pid_state") != "live":
         if _inactive_request_receipt(root, run_id, action):
             return {"ok": True, "run_id": run_id, "state": f"{action}_applied"}
         raise ValueError("run_id is no longer an active native crawl")

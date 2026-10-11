@@ -128,11 +128,7 @@ def doctor(
                 "until": None,
                 "reason": "license status is not established by executable discovery",
             },
-            "reason": (
-                None
-                if sf_path
-                else config_reason or "Screaming Frog CLI was not found"
-            ),
+            "reason": (None if sf_path else config_reason or "Screaming Frog CLI was not found"),
         },
         "mcp": _optional_module("mcp"),
         "sqlite": {

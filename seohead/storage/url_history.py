@@ -9,6 +9,7 @@ absence. Nothing is written, and the scans are never modified.
 from __future__ import annotations
 
 import hashlib
+import itertools
 import json
 import sqlite3
 from collections import Counter
@@ -133,22 +134,31 @@ def _observe(path: Path, url: str) -> dict[str, Any]:
         return None
     title = row["title"] if isinstance(row["title"], str) else ""
     link_count_state = (
-        "measured" if links_state == "complete" and not crawl_partial else "partial"
+        "measured"
+        if links_state == "complete" and not crawl_partial
+        else "partial"
         if links_state != "unavailable"
         else "unavailable"
     )
     canonical = _text_or_none(row["canonical"])
     redirect = _text_or_none(row["redirect_url"])
-    body_state = row["body_state"] or "unavailable"
     body_reason = row["body_reason"] or "document was not retained"
     field_states = {
         "status_code": {
             "state": "measured" if row["status_code"] is not None else "unavailable",
-            **({} if row["status_code"] is not None else {"reason": "response status was not retained"}),
+            **(
+                {}
+                if row["status_code"] is not None
+                else {"reason": "response status was not retained"}
+            ),
         },
         "indexability": {
             "state": "measured" if row["status_code"] is not None else "unavailable",
-            **({} if row["status_code"] is not None else {"reason": "response status is required to determine indexability"}),
+            **(
+                {}
+                if row["status_code"] is not None
+                else {"reason": "response status is required to determine indexability"}
+            ),
         },
         "title": {"state": "measured"},
         "meta_description": {"state": "measured"},
@@ -162,19 +172,43 @@ def _observe(path: Path, url: str) -> dict[str, Any]:
         },
         "response_time_seconds": {
             "state": "measured" if row["response_time"] is not None else "unavailable",
-            **({} if row["response_time"] is not None else {"reason": "response timing was not retained"}),
+            **(
+                {}
+                if row["response_time"] is not None
+                else {"reason": "response timing was not retained"}
+            ),
         },
         "html_size_bytes": {
             "state": "measured" if row["status_code"] is not None else "unavailable",
-            **({} if row["status_code"] is not None else {"reason": "response size was not retained"}),
+            **(
+                {}
+                if row["status_code"] is not None
+                else {"reason": "response size was not retained"}
+            ),
         },
         "inlinks": {
             "state": link_count_state,
-            **({} if link_count_state == "measured" else {"reason": "link inventory is incomplete" if link_count_state == "partial" else "link inventory is unavailable"}),
+            **(
+                {}
+                if link_count_state == "measured"
+                else {
+                    "reason": "link inventory is incomplete"
+                    if link_count_state == "partial"
+                    else "link inventory is unavailable"
+                }
+            ),
         },
         "outlinks": {
             "state": link_count_state,
-            **({} if link_count_state == "measured" else {"reason": "link inventory is incomplete" if link_count_state == "partial" else "link inventory is unavailable"}),
+            **(
+                {}
+                if link_count_state == "measured"
+                else {
+                    "reason": "link inventory is incomplete"
+                    if link_count_state == "partial"
+                    else "link inventory is unavailable"
+                }
+            ),
         },
         "external_link_response_codes": external_statuses,
     }
@@ -235,7 +269,7 @@ _CHANGE_FIELDS = (
 def _transitions(scans: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Compare adjacent observations without treating an absent URL as a fix."""
     transitions = []
-    for newer, older in zip(scans, scans[1:]):
+    for newer, older in itertools.pairwise(scans):
         entry = {
             "before_scan_uuid": older["scan_uuid"],
             "after_scan_uuid": newer["scan_uuid"],

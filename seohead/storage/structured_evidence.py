@@ -70,14 +70,14 @@ def _has_schema_rdfa(soup: BeautifulSoup) -> bool:
             for node in ancestors
         ):
             return True
-        prefix_text = " ".join(str(node.get("prefix") or "") for node in ancestors if hasattr(node, "get"))
+        prefix_text = " ".join(
+            str(node.get("prefix") or "") for node in ancestors if hasattr(node, "get")
+        )
         prefix_map = {
-            name: namespace
-            for name, namespace in re.findall(r"(\w[\w-]*):\s+(\S+)", prefix_text)
+            name: namespace for name, namespace in re.findall(r"(\w[\w-]*):\s+(\S+)", prefix_text)
         }
         if any(
-            ":" in term
-            and schema_namespace(prefix_map.get(term.split(":", 1)[0], ""))
+            ":" in term and schema_namespace(prefix_map.get(term.split(":", 1)[0], ""))
             for term in terms
         ):
             return True

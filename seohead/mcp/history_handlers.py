@@ -137,7 +137,11 @@ def scan_link_inspect(
             if preset is not None:
                 definitions = {
                     "inlinks": {"direction": "in", "link_type": "internal", "status_class": "all"},
-                    "broken_links": {"direction": "out", "link_type": "internal", "status_class": "broken"},
+                    "broken_links": {
+                        "direction": "out",
+                        "link_type": "internal",
+                        "status_class": "broken",
+                    },
                 }
                 if preset not in definitions:
                     raise ValueError("preset must be inlinks or broken_links")

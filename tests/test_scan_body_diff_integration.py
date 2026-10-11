@@ -108,6 +108,7 @@ def test_static_uses_active_inventory_after_page_selects_rendered_document(tmp_p
     with sqlite3.connect(left_path) as left, sqlite3.connect(right_path) as right:
         result = body_diff(left, right, PAGE_URL)
     assert result["status"] == "unchanged"
+    assert result["left"]["document_id"] == left_static
 
 
 def test_body_diff_compares_static_with_rendered_in_one_scan(tmp_path):
@@ -171,7 +172,6 @@ def test_body_diff_cli_and_mcp_share_cross_representation_options(tmp_path, caps
         text=True,
     )
     assert command_result == mcp_result
-    assert result["left"]["document_id"] == left_static
 
 
 def test_static_resource_response_fallback_is_retained_and_variant_safe(tmp_path):

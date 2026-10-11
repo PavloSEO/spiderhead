@@ -301,7 +301,6 @@ def issue_summary_arguments(scan_path):
     ]
 
 
-
 def message_ru(message):
     """Russian text of a core finding message, or the neutral fallback; the raw text lives only in the «Исходный ответ ядра» block."""
     text = (message or "").strip()
@@ -508,7 +507,9 @@ class IssuesScreen(Screen):
             return
         _token, key = self._issue_summary_pending
         self._issue_summary_pending = None
-        summary = payload.get("issue_summary") or (payload.get("evidence") or {}).get("issue_summary")
+        summary = payload.get("issue_summary") or (payload.get("evidence") or {}).get(
+            "issue_summary"
+        )
         if payload.get("ok") is not True or not isinstance(summary, dict):
             self._issue_summary_key = None
             return
@@ -837,7 +838,8 @@ class IssuesScreen(Screen):
             skipped.extend(
                 row
                 for row in (self.issue_summary or {}).get("checks", [])
-                if isinstance(row, dict) and row.get("state") in {"skipped", "disabled", "unavailable"}
+                if isinstance(row, dict)
+                and row.get("state") in {"skipped", "disabled", "unavailable"}
             )
             unique_skipped = {}
             for row in skipped:

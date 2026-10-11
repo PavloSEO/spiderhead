@@ -128,7 +128,9 @@ def test_empty_value_is_rejected_without_writing(config_root):
     assert not (config_root / "arsenkin" / "token").exists()
 
 
-def test_provider_credential_contract_returns_only_reference_and_timestamp(config_root, monkeypatch):
+def test_provider_credential_contract_returns_only_reference_and_timestamp(
+    config_root, monkeypatch
+):
     from seohead.data_sources import providers
 
     monkeypatch.delenv("ARSENKIN_TOKEN", raising=False)
@@ -154,9 +156,7 @@ def test_provider_credential_replacement_and_revoke_require_explicit_actions(con
     assert replaced["replaced"] is True
     with pytest.raises(ValueError, match="confirm=true"):
         providers.manage_credential("arsenkin", "api_token", "revoke")
-    revoked = providers.manage_credential(
-        "arsenkin", "api_token", "revoke", confirm=True
-    )
+    revoked = providers.manage_credential("arsenkin", "api_token", "revoke", confirm=True)
     assert revoked["revoked"] is True
 
 
@@ -188,18 +188,21 @@ def test_cli_credential_write_reads_stdin_without_echoing_value(config_root, mon
 
     monkeypatch.delenv("ARSENKIN_TOKEN", raising=False)
     monkeypatch.setattr("sys.stdin", StringIO(SECRET))
-    assert cli.main(
-        [
-            "provider-credential",
-            "--provider",
-            "arsenkin",
-            "--component",
-            "api_token",
-            "--action",
-            "set",
-            "--value-stdin",
-        ]
-    ) == 0
+    assert (
+        cli.main(
+            [
+                "provider-credential",
+                "--provider",
+                "arsenkin",
+                "--component",
+                "api_token",
+                "--action",
+                "set",
+                "--value-stdin",
+            ]
+        )
+        == 0
+    )
     output = capsys.readouterr()
     assert SECRET not in output.out + output.err
     assert (config_root / "arsenkin" / "token").read_text(encoding="utf-8") == SECRET

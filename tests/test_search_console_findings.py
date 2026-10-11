@@ -172,7 +172,10 @@ def test_bounded_inspection_maps_six_positive_findings_without_census_claims():
             {
                 "url": "https://example.com/two",
                 "state": "complete",
-                "index_status": {"verdict": "NEUTRAL", "coverageState": "Crawled - currently not indexed"},
+                "index_status": {
+                    "verdict": "NEUTRAL",
+                    "coverageState": "Crawled - currently not indexed",
+                },
             },
         ],
         requested=2,
@@ -183,7 +186,10 @@ def test_bounded_inspection_maps_six_positive_findings_without_census_claims():
     assert len(findings["GSC_AMP_INVALID"]) == 1
     assert len(findings["GSC_RICH_RESULTS_INVALID"]) == 1
     assert findings["GSC_INDEXABLE_NOT_INDEXED"][0]["url"] == "https://example.com/two"
-    assert findings["GSC_USER_CANONICAL_NOT_SELECTED"][0]["details"]["google_canonical"] == "https://example.com/canonical"
+    assert (
+        findings["GSC_USER_CANONICAL_NOT_SELECTED"][0]["details"]["google_canonical"]
+        == "https://example.com/canonical"
+    )
     assert findings["GSC_URL_NOT_ON_GOOGLE"][0]["url"] == "https://example.com/two"
     assert "not a site-wide census" in result["scope"]
 

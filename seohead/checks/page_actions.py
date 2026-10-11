@@ -159,10 +159,7 @@ def run_actions(
     """
     custom, custom_budget = validate_actions(actions)
     named, preset_budget = preset_actions(presets or [])
-    if (
-        len(custom) + len(named) > MAX_STEPS
-        or custom_budget + preset_budget > MAX_TOTAL_BUDGET_MS
-    ):
+    if len(custom) + len(named) > MAX_STEPS or custom_budget + preset_budget > MAX_TOTAL_BUDGET_MS:
         raise ValueError("page actions exceed the combined step or time budget")
     steps = custom + named
     results: list[dict[str, Any]] = []

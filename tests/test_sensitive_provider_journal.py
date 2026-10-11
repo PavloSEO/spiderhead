@@ -24,18 +24,21 @@ def test_cli_credential_value_is_redacted_in_the_actual_handler_journal(
     monkeypatch.setattr("seohead.data_sources.credentials.CONFIG_ROOT", tmp_path / "config")
     monkeypatch.setattr("sys.stdin", StringIO(secret))
 
-    assert cli.main(
-        [
-            "provider-credential",
-            "--provider",
-            "arsenkin",
-            "--component",
-            "api_token",
-            "--action",
-            "set",
-            "--value-stdin",
-        ]
-    ) == 0
+    assert (
+        cli.main(
+            [
+                "provider-credential",
+                "--provider",
+                "arsenkin",
+                "--component",
+                "api_token",
+                "--action",
+                "set",
+                "--value-stdin",
+            ]
+        )
+        == 0
+    )
 
     result_output = capsys.readouterr().out
     journal_text = log_path.read_text(encoding="utf-8")
@@ -44,9 +47,7 @@ def test_cli_credential_value_is_redacted_in_the_actual_handler_journal(
     assert entry["arguments"]["value"] == "[redacted]"
 
 
-def test_cli_oauth_callback_state_and_code_are_redacted_in_journal(
-    monkeypatch, tmp_path, capsys
-):
+def test_cli_oauth_callback_state_and_code_are_redacted_in_journal(monkeypatch, tmp_path, capsys):
     state = "synthetic-callback-state"
     code = "synthetic-authorization-code"
     log_path = tmp_path / "runs.jsonl"
@@ -71,9 +72,10 @@ def test_cli_oauth_callback_state_and_code_are_redacted_in_journal(
     )
     monkeypatch.setattr("sys.stdin", StringIO(json.dumps({"state": state, "code": code})))
 
-    assert cli.main(
-        ["provider-auth", "--provider", "gsc", "--action", "callback", "--callback-stdin"]
-    ) == 0
+    assert (
+        cli.main(["provider-auth", "--provider", "gsc", "--action", "callback", "--callback-stdin"])
+        == 0
+    )
 
     result_output = capsys.readouterr().out
     journal_text = log_path.read_text(encoding="utf-8")

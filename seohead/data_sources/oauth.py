@@ -309,7 +309,9 @@ def manage_grant(
         with oauth_flow.flow_lock(flow_path):
             oauth_flow.verify_callback_state(flow_path, state, connected_at)
             if grant_available(provider):
-                raise ValueError("a durable OAuth grant appeared during consent; disconnect it first")
+                raise ValueError(
+                    "a durable OAuth grant appeared during consent; disconnect it first"
+                )
             save_grant(
                 provider,
                 {

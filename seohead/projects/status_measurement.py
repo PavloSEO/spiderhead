@@ -48,7 +48,10 @@ def _document(directory: str | Path) -> tuple[Path, dict[str, Any], dict[str, An
             "reason",
         }:
             raise ValueError("project storage measurement has an unsupported shape")
-        if storage["state"] not in {"available", "unavailable"} or storage["relative_path"] != "scans":
+        if (
+            storage["state"] not in {"available", "unavailable"}
+            or storage["relative_path"] != "scans"
+        ):
             raise ValueError("project storage measurement state is invalid")
         if storage["measured_at"] is not None and type(storage["measured_at"]) is not str:
             raise ValueError("project storage measurement timestamp is invalid")
@@ -59,11 +62,15 @@ def _document(directory: str | Path) -> tuple[Path, dict[str, Any], dict[str, An
             if value is not None and (type(value) is not int or value < 0):
                 raise ValueError(f"project storage {name} must be a nonnegative integer or null")
         if storage["state"] == "available" and (
-            storage["total_bytes"] is None or storage["scan_count"] is None or storage["reason"] is not None
+            storage["total_bytes"] is None
+            or storage["scan_count"] is None
+            or storage["reason"] is not None
         ):
             raise ValueError("available project storage measurement is incomplete")
         if storage["state"] == "unavailable" and (
-            storage["total_bytes"] is not None or storage["scan_count"] is not None or not storage["reason"]
+            storage["total_bytes"] is not None
+            or storage["scan_count"] is not None
+            or not storage["reason"]
         ):
             raise ValueError("unavailable project storage measurement requires a reason")
     return root, project, current

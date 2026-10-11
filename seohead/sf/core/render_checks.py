@@ -21,8 +21,7 @@ FIELD_CHECKS = {
 }
 ELEMENT_CHECKS = tuple(
     dict.fromkeys(
-        [item for values in RULE_CHECKS.values() for item in values]
-        + list(FIELD_CHECKS.values())
+        [item for values in RULE_CHECKS.values() for item in values] + list(FIELD_CHECKS.values())
     )
 )
 CHECKS = (*ELEMENT_CHECKS, "RENDER_RESOURCE_BLOCKED")
@@ -131,8 +130,13 @@ def check_rendered_elements(ctx: AuditContext) -> None:
             ctx.skip(check_id, reason)
     elif element_unavailable or element_partial:
         for check_id in ELEMENT_CHECKS:
-            ctx.skip(check_id, "one or more raw-versus-rendered comparisons were partial or unavailable")
+            ctx.skip(
+                check_id, "one or more raw-versus-rendered comparisons were partial or unavailable"
+            )
     if not network_measured:
         ctx.skip("RENDER_RESOURCE_BLOCKED", "no retained rendered network log was available")
     elif network_unavailable or network_partial:
-        ctx.skip("RENDER_RESOURCE_BLOCKED", "one or more rendered network logs were partial or unavailable")
+        ctx.skip(
+            "RENDER_RESOURCE_BLOCKED",
+            "one or more rendered network logs were partial or unavailable",
+        )

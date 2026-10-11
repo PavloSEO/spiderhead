@@ -15,7 +15,7 @@ import sqlite3
 import time
 import uuid
 from collections.abc import Callable, Iterable
-from contextlib import closing
+from contextlib import closing, suppress
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -318,15 +318,9 @@ class MonitorServiceDelivery:
                 self.send(destination, payload, receipt)
                 self.receipts.delivered(self.project_uuid, artifact_id, destination, receipt)
             except Exception:
-                try:
-                    self.receipts.uncertain(
-                        self.project_uuid, artifact_id, destination, receipt
-                    )
-                except Exception:
-                    pass
-                receipts.append(
-                    {"receipt": receipt, "state": "uncertain", "kind": event["kind"]}
-                )
+                with suppress(Exception):
+                    self.receipts.uncertain(self.project_uuid, artifact_id, destination, receipt)
+                receipts.append({"receipt": receipt, "state": "uncertain", "kind": event["kind"]})
                 return {
                     "ok": False,
                     "delivery": "uncertain",

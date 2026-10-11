@@ -2,9 +2,16 @@
 
 from __future__ import annotations
 
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QMessageBox, QPushButton, QTableView, QVBoxLayout
+from PyQt5.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QTableView,
+    QVBoxLayout,
+)
 
-from ..i18n import tr
 from ..ui.kit import StatePanel
 from .base import Screen
 from .logs import LogRowsModel, bot_arguments
@@ -56,7 +63,9 @@ class LogsBotsScreen(Screen):
         self.table.setAlternatingRowColors(True)
         self.table.setSelectionBehavior(QTableView.SelectRows)
         root.addWidget(self.table, 1)
-        self.state = StatePanel("empty", "No retained log evidence", "Import an access log from Logs first.")
+        self.state = StatePanel(
+            "empty", "No retained log evidence", "Import an access log from Logs first."
+        )
         root.addWidget(self.state)
         self.state.hide()
 
@@ -84,7 +93,9 @@ class LogsBotsScreen(Screen):
             offset = 0
         if offset is not None:
             self.offset = offset
-        self.summary.setText("Loading bot IP claims. No DNS request will run until you choose Verify.")
+        self.summary.setText(
+            "Loading bot IP claims. No DNS request will run until you choose Verify."
+        )
         token = object()
         self._token = (token, verify)
         self.job.start(bot_arguments(source, verify=verify, offset=self.offset), token)
@@ -118,7 +129,9 @@ class LogsBotsScreen(Screen):
         verify = self._token[1]
         self._token = None
         if payload.get("ok") is not True:
-            self.summary.setText(str(payload.get("error") or "Bot IP evidence is unavailable.")[:300])
+            self.summary.setText(
+                str(payload.get("error") or "Bot IP evidence is unavailable.")[:300]
+            )
             self.model.set_rows([])
             self.verify_button.setEnabled(bool(self._source()))
             return

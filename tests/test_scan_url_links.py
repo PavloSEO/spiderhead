@@ -291,7 +291,9 @@ def test_named_link_presets_reach_cli_mcp_and_apply_saved_filters(scan, capsys):
     assert broken["direction"] == "out"
     assert broken["filters"]["link_type"] == "internal"
     assert broken["filters"]["status_class"] == "broken"
-    assert all(row["target_status"] is not None and row["target_status"] >= 400 for row in broken["items"])
+    assert all(
+        row["target_status"] is not None and row["target_status"] >= 400 for row in broken["items"]
+    )
 
     code = cli.main(
         [

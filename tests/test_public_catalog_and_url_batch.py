@@ -50,9 +50,7 @@ def test_url_check_batch_keeps_one_failure_local_to_its_pair(monkeypatch):
         raise OSError("temporary network failure")
 
     monkeypatch.setattr(handlers, "robots_check", fail)
-    result = handlers.url_check_batch(
-        ["https://example.test/a"], ["headers-check", "robots-check"]
-    )
+    result = handlers.url_check_batch(["https://example.test/a"], ["headers-check", "robots-check"])
     assert result["count"] == 2
     assert result["results"][0]["result"] == {"url": "https://example.test/a"}
     assert result["results"][1]["error"] == "temporary network failure"

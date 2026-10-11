@@ -164,7 +164,9 @@ def test_mcp_runner_refuses_paid_stages_without_confirmation(tmp_path, monkeypat
     assert run_quiet("collect", project, allowed=("clean",))["ok"] is False
 
 
-def test_louvain_paid_preflight_counts_uncached_serps_and_never_constructs_provider(tmp_path, monkeypatch):
+def test_louvain_paid_preflight_counts_uncached_serps_and_never_constructs_provider(
+    tmp_path, monkeypatch
+):
     from seohead.semantics.stages import cluster
 
     project = tmp_path / "demo"
@@ -260,7 +262,13 @@ def test_import_preview_applies_mapping_and_counts_duplicates_without_writes(sem
         sem_store,
         config.load(tmp_path),
         fixture,
-        mapping={"query": "Keyword", "frequency": "Searches", "group": "Category", "url": "URL", "comment": "Comment"},
+        mapping={
+            "query": "Keyword",
+            "frequency": "Searches",
+            "group": "Category",
+            "url": "URL",
+            "comment": "Comment",
+        },
         merge="update",
     )
     assert preview["applied_mapping"]["query"] == "Keyword"
@@ -281,17 +289,27 @@ def test_import_replace_rejects_empty_input_without_clearing_core(sem_store, tmp
     source.write_text("query;base\n", encoding="utf-8")
     with pytest.raises(ValueError, match="refusing to clear"):
         run(sem_store, config.load(tmp_path), source, merge="replace")
-    assert sem_store.db.execute("SELECT base FROM phrases WHERE norm='retained phrase'").fetchone()[0] == 42
+    assert (
+        sem_store.db.execute("SELECT base FROM phrases WHERE norm='retained phrase'").fetchone()[0]
+        == 42
+    )
 
 
-def test_import_replace_clears_derived_rows_but_preserves_paid_receipts(sem_store, tmp_path, monkeypatch):
+def test_import_replace_clears_derived_rows_but_preserves_paid_receipts(
+    sem_store, tmp_path, monkeypatch
+):
     from seohead.semantics.stages.import_phrases import run
 
     sem_store.upsert("industrial pumps", base=20)
     cluster_id = sem_store.upsert_cluster("old cluster", source="serp")
     sem_store.assign_cluster("industrial pumps", cluster_id)
-    sem_store.add_serp("industrial pumps", [{"url": "https://example.test/old", "domain": "example.test", "pos": 1}])
-    sem_store.db.execute("INSERT INTO domains(domain,n_queries,avg_pos,best_pos,kind) VALUES('example.test',1,1,1,'own')")
+    sem_store.add_serp(
+        "industrial pumps",
+        [{"url": "https://example.test/old", "domain": "example.test", "pos": 1}],
+    )
+    sem_store.db.execute(
+        "INSERT INTO domains(domain,n_queries,avg_pos,best_pos,kind) VALUES('example.test',1,1,1,'own')"
+    )
     sem_store.db.execute(
         "INSERT INTO landing_candidates(cluster_id,url,score,evidence_json,computed_at) VALUES(?,?,?,?,?)",
         (cluster_id, "https://example.test/old", 1.0, "{}", "2026-09-01T00:00:00Z"),
@@ -301,9 +319,21 @@ def test_import_replace_clears_derived_rows_but_preserves_paid_receipts(sem_stor
     )
     sem_store.db.execute(
         "INSERT INTO serp_fetches VALUES(?,?,?,?,?,?,?,?)",
-        ("industrial pumps", "225", 10, "complete", None, '{"docs":[{"url":"https://example.test/pumps","domain":"example.test","pos":1}]}', None, "2026-09-01T00:00:00Z"),
+        (
+            "industrial pumps",
+            "225",
+            10,
+            "complete",
+            None,
+            '{"docs":[{"url":"https://example.test/pumps","domain":"example.test","pos":1}]}',
+            None,
+            "2026-09-01T00:00:00Z",
+        ),
     )
-    sem_store.db.execute("INSERT INTO expansions(seed_norm,expanded_at,results_n,assoc_n,region) VALUES(?,?,?,?,?)", ("industrial pumps", "2026-09-01", 1, 0, "225"))
+    sem_store.db.execute(
+        "INSERT INTO expansions(seed_norm,expanded_at,results_n,assoc_n,region) VALUES(?,?,?,?,?)",
+        ("industrial pumps", "2026-09-01", 1, 0, "225"),
+    )
     sem_store.commit()
     source = tmp_path / "replace.csv"
     source.write_text("query;base\nindustrial pumps;20\n", encoding="utf-8")
@@ -325,7 +355,12 @@ def test_import_replace_clears_derived_rows_but_preserves_paid_receipts(sem_stor
 
     monkeypatch.setattr(cluster, "WebSearch", forbidden)
     cluster.run(sem_store, config.load(tmp_path))
-    assert sem_store.db.execute("SELECT url FROM serp WHERE phrase_norm='industrial pumps'").fetchone()[0] == "https://example.test/pumps"
+    assert (
+        sem_store.db.execute(
+            "SELECT url FROM serp WHERE phrase_norm='industrial pumps'"
+        ).fetchone()[0]
+        == "https://example.test/pumps"
+    )
 
 
 def test_import_table_caps_refuse_before_replace_mutation(sem_store, tmp_path, monkeypatch):
@@ -342,7 +377,9 @@ def test_import_table_caps_refuse_before_replace_mutation(sem_store, tmp_path, m
     monkeypatch.setattr(import_phrases, "MAX_IMPORT_CELL_BYTES", 4)
     source.write_text("q\nlong phrase\n", encoding="utf-8")
     with pytest.raises(ValueError, match="cell exceeds"):
-        import_phrases.run(sem_store, config.load(tmp_path), source, mapping={"query": "q"}, merge="replace")
+        import_phrases.run(
+            sem_store, config.load(tmp_path), source, mapping={"query": "q"}, merge="replace"
+        )
     assert sem_store.db.execute("SELECT COUNT(*) FROM phrases").fetchone()[0] == 0
 
     monkeypatch.setattr(import_phrases, "MAX_IMPORT_CELL_BYTES", 16_384)

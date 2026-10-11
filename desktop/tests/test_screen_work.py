@@ -11,11 +11,11 @@ from PyQt5.QtWidgets import QDialog, QLabel
 
 from seohead_desktop import i18n, theming
 from seohead_desktop.app import MainWindow, load_theme
-from seohead_desktop.qt import app as qt_app
 from seohead_desktop.local_owner_actions import LocalOwnerActions, manual_signoff_request
+from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.work import (
-    ManualTaskSignoffDialog,
     TASK_STATES,
+    ManualTaskSignoffDialog,
     TaskAttemptDialog,
     TaskEditDialog,
     WorkScreen,

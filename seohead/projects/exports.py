@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import csv
 import contextlib
+import csv
 import hashlib
 import json
 import os
@@ -11,9 +11,10 @@ import re
 import shutil
 import threading
 import uuid
+from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 from seohead.core.filesystem import atomic_write_bytes
 
@@ -53,7 +54,14 @@ TASK_COLUMNS = (
 COMPARE_COLUMNS = ("category", "check", "severity", "target_url", "row_json")
 TASK_COMMENT_COLUMNS = ("task_id", "comment_ordinal", "created_at", "actor", "text", "reference")
 TASK_HISTORY_COLUMNS = (
-    "task_id", "event_type", "event_ordinal", "occurred_at", "revision", "actor", "status", "entry_json"
+    "task_id",
+    "event_type",
+    "event_ordinal",
+    "occurred_at",
+    "revision",
+    "actor",
+    "status",
+    "entry_json",
 )
 
 
@@ -260,6 +268,7 @@ class _ExportCancelled(Exception):
 
 def _known_scan_uuids(root: Path) -> set[str]:
     from seohead.storage.history import list_scans
+
     from .runtime import preparation_status
 
     directories = [root / "scans"]
@@ -280,9 +289,8 @@ def _known_scan_uuids(root: Path) -> set[str]:
             child_root, child_project = _load(child)
         except (OSError, ValueError):
             continue
-        if (
-            child_root != child.resolve()
-            or child_project.get("project_uuid") != row.get("project_uuid")
+        if child_root != child.resolve() or child_project.get("project_uuid") != row.get(
+            "project_uuid"
         ):
             continue
         directories.append(child_root / "scans")
@@ -318,7 +326,9 @@ def _compare_source(root: Path, manifest_path: str) -> tuple[Path, dict[str, Any
     known = _known_scan_uuids(root)
     unknown = [source["scan_uuid"] for source in sources if source["scan_uuid"] not in known]
     if unknown:
-        raise ProjectExportError("both compare scans must belong to this project or a competitor workspace")
+        raise ProjectExportError(
+            "both compare scans must belong to this project or a competitor workspace"
+        )
     files = manifest.get("files")
     if not isinstance(files, dict):
         raise ProjectExportError("compare manifest has no bounded dataset files")
@@ -407,8 +417,7 @@ def _task_related_rows(
     if dataset != "task_history":
         raise ProjectExportError("dataset must be tasks, task_comments, task_history, or compare")
     total = sum(
-        len(item["definitions"]) + len(item["records"])
-        for item in document["items"].values()
+        len(item["definitions"]) + len(item["records"]) for item in document["items"].values()
     )
 
     def iterate_history() -> Iterator[dict[str, Any]]:
@@ -416,10 +425,7 @@ def _task_related_rows(
             events = [
                 (version["observed_at"], 0, "definition", version)
                 for version in item["definitions"]
-            ] + [
-                (record["recorded_at"], 1, "attempt", record)
-                for record in item["records"]
-            ]
+            ] + [(record["recorded_at"], 1, "attempt", record) for record in item["records"]]
             events.sort(key=lambda event: (event[0], event[1]))
             for ordinal, (occurred_at, _tie_break, event_type, entry) in enumerate(events, 1):
                 is_attempt = event_type == "attempt"
@@ -444,7 +450,9 @@ def _rows(directory: str, dataset: str, compare_manifest: str | None):
     if dataset in {"task_comments", "task_history"}:
         return _task_related_rows(directory, dataset)
     if dataset != "compare" or compare_manifest is None:
-        raise ProjectExportError("dataset must be tasks, task_comments, task_history, or compare with a compare_manifest")
+        raise ProjectExportError(
+            "dataset must be tasks, task_comments, task_history, or compare with a compare_manifest"
+        )
     root, _ = _load(directory)
     path, manifest, names = _compare_source(root, compare_manifest)
     from seohead.sf.core.compare_store import iter_compare_rows
@@ -458,15 +466,20 @@ def _rows(directory: str, dataset: str, compare_manifest: str | None):
                     "category": name,
                     "check": record.get("check") or record.get("issue", {}).get("check"),
                     "severity": record.get("severity") or record.get("issue", {}).get("severity"),
-                    "target_url": record.get("target_url") or record.get("issue", {}).get("target_url"),
+                    "target_url": record.get("target_url")
+                    or record.get("issue", {}).get("target_url"),
                     "row_json": record,
                 }
 
-    return iterate(), total, {
-        "before": manifest["before"],
-        "after": manifest["after"],
-        "compare_manifest_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-    }
+    return (
+        iterate(),
+        total,
+        {
+            "before": manifest["before"],
+            "after": manifest["after"],
+            "compare_manifest_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        },
+    )
 
 
 def _write_rows(
@@ -499,19 +512,28 @@ def _write_rows(
         _write_job(root, job)
         _check_cancel(root, job)
         if shutil.disk_usage(out_dir).free < 10 * 1024**3:
-            raise ProjectExportError("project export stopped to preserve the 10 GiB free-space reserve")
+            raise ProjectExportError(
+                "project export stopped to preserve the 10 GiB free-space reserve"
+            )
 
     try:
         job.update(state="running", phase="writing", temporary=temporary.name, updated_at=_now())
         _write_job(root, job)
         if job["format"] == "json":
             stream = _open_temporary(temporary)
-            prefix = json.dumps(
-                {"format": "seohead.project-export.v1", "dataset": job["dataset"], "source": job["source"]},
-                ensure_ascii=False,
-                sort_keys=True,
-                separators=(",", ":"),
-            )[:-1] + ',"rows":['
+            prefix = (
+                json.dumps(
+                    {
+                        "format": "seohead.project-export.v1",
+                        "dataset": job["dataset"],
+                        "source": job["source"],
+                    },
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )[:-1]
+                + ',"rows":['
+            )
             stream.write(prefix.encode("utf-8"))
             digest.update(prefix.encode("utf-8"))
         elif job["format"] == "csv":
@@ -522,9 +544,13 @@ def _write_rows(
             try:
                 from openpyxl import Workbook
             except ImportError as exc:
-                raise ProjectExportError("XLSX export requires the reports extra (openpyxl)") from exc
+                raise ProjectExportError(
+                    "XLSX export requires the reports extra (openpyxl)"
+                ) from exc
             if total > 1_048_575:
-                raise ProjectExportError("XLSX has one header row and a 1,048,575 data-row limit; use complete CSV or JSON")
+                raise ProjectExportError(
+                    "XLSX has one header row and a 1,048,575 data-row limit; use complete CSV or JSON"
+                )
             workbook = Workbook(write_only=True)
             sheet_name = {
                 "tasks": "Tasks",
@@ -542,7 +568,9 @@ def _write_rows(
                 raise ProjectExportError(f"export exceeds the {MAX_EXPORT_ROWS}-row bound")
             values = [_safe_cell(row.get(column)) for column in columns]
             if job["format"] == "xlsx" and any(len(value) > XLSX_CELL_LIMIT for value in values):
-                raise ProjectExportError("XLSX cell exceeds 32,767 characters; use complete CSV or JSON")
+                raise ProjectExportError(
+                    "XLSX cell exceeds 32,767 characters; use complete CSV or JSON"
+                )
             if job["format"] == "json":
                 encoded = json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
                 chunk = ("," if processed > 1 else "") + encoded
@@ -626,7 +654,9 @@ def _record_published_export(root: Path, directory: str, job: dict[str, Any]) ->
             raise ProjectExportError("published export does not match its prepared checksum")
     else:
         if not _matches_artifact(temporary, result):
-            raise ProjectExportError("prepared export is unavailable or does not match its checksum")
+            raise ProjectExportError(
+                "prepared export is unavailable or does not match its checksum"
+            )
         os.link(temporary, target, follow_symlinks=False)
     if temporary.exists() and not temporary.is_symlink() and _matches_artifact(temporary, result):
         temporary.unlink()
@@ -686,7 +716,10 @@ def record_export(
         "revision": 0,
         "items": [],
     }
-    if document.get("format") != HISTORY_FORMAT or document.get("project_uuid") != project["project_uuid"]:
+    if (
+        document.get("format") != HISTORY_FORMAT
+        or document.get("project_uuid") != project["project_uuid"]
+    ):
         raise ProjectExportError("export history belongs to another project or format")
     items = document.get("items")
     if (
@@ -715,11 +748,23 @@ def record_export(
     for _attempt in range(8):
         if job_id is not None:
             existing = next(
-                (row for row in items if isinstance(row, dict) and row.get("job_id") == item["job_id"]),
+                (
+                    row
+                    for row in items
+                    if isinstance(row, dict) and row.get("job_id") == item["job_id"]
+                ),
                 None,
             )
             if existing is not None:
-                comparable = ("dataset", "format", "path", "row_count", "byte_count", "sha256", "source")
+                comparable = (
+                    "dataset",
+                    "format",
+                    "path",
+                    "row_count",
+                    "byte_count",
+                    "sha256",
+                    "source",
+                )
                 if all(existing.get(key) == item.get(key) for key in comparable):
                     return existing
                 raise ProjectExportError("export job receipt conflicts with its published result")
@@ -740,8 +785,13 @@ def record_export(
                 "revision": 0,
                 "items": [],
             }
-            if document.get("format") != HISTORY_FORMAT or document.get("project_uuid") != project["project_uuid"]:
-                raise ProjectExportError("export history belongs to another project or format") from exc
+            if (
+                document.get("format") != HISTORY_FORMAT
+                or document.get("project_uuid") != project["project_uuid"]
+            ):
+                raise ProjectExportError(
+                    "export history belongs to another project or format"
+                ) from exc
             items = document.get("items")
             if (
                 not isinstance(items, list)
@@ -762,8 +812,7 @@ def _validate_export(item: dict[str, Any]) -> None:
     try:
         valid_id = isinstance(item.get("id"), str) and str(uuid.UUID(item["id"])) == item["id"]
         valid_job_id = item.get("job_id") is None or (
-            isinstance(item.get("job_id"), str)
-            and str(uuid.UUID(item["job_id"])) == item["job_id"]
+            isinstance(item.get("job_id"), str) and str(uuid.UUID(item["job_id"])) == item["job_id"]
         )
     except (TypeError, ValueError):
         valid_id = valid_job_id = False
@@ -799,7 +848,10 @@ def exports_page(directory: str | Path, *, offset: int = 0, limit: int = 50) -> 
         items = []
         revision = 0
     else:
-        if document.get("format") != HISTORY_FORMAT or document.get("project_uuid") != project["project_uuid"]:
+        if (
+            document.get("format") != HISTORY_FORMAT
+            or document.get("project_uuid") != project["project_uuid"]
+        ):
             raise ProjectExportError("export history belongs to another project or format")
         items = document.get("items", [])
         revision = document.get("revision", 0)
@@ -904,7 +956,9 @@ def _resume_existing_export(
     target, temporary = _artifact_paths(root, job)
     if job.get("state") == "completed":
         if not _matches_artifact(target, result):
-            raise ProjectExportError("completed export is missing or no longer matches its recorded checksum")
+            raise ProjectExportError(
+                "completed export is missing or no longer matches its recorded checksum"
+            )
         if job.get("history_state") == "failed":
             return _record_published_export(root, directory, job)
         return job
@@ -935,7 +989,15 @@ def _resume_existing_export(
     if cancel.is_symlink():
         raise ProjectExportError("unsafe export cancellation marker")
     cancel.unlink(missing_ok=True)
-    for key in ("result", "source", "started_at", "finished_at", "reason", "history_reason", "export"):
+    for key in (
+        "result",
+        "source",
+        "started_at",
+        "finished_at",
+        "reason",
+        "history_reason",
+        "export",
+    ):
         job.pop(key, None)
     job.update(
         state="queued",
@@ -960,7 +1022,7 @@ def _recoverable(root: Path, job: dict[str, Any]) -> bool:
     return (
         not target.exists()
         and not target.is_symlink()
-        and (not temporary.exists() or temporary.is_file() and not temporary.is_symlink())
+        and (not temporary.exists() or (temporary.is_file() and not temporary.is_symlink()))
     )
 
 
@@ -984,7 +1046,11 @@ def start_export(
         raise ProjectExportError("compare_manifest is required only for compare exports")
     if not isinstance(output, str) or Path(output).name != output or output.startswith("."):
         raise ProjectExportError("output must be a new filename directly under reports/")
-    output = output if Path(output).suffix else output + {"json": ".json", "csv": ".csv", "xlsx": ".xlsx"}[fmt]
+    output = (
+        output
+        if Path(output).suffix
+        else output + {"json": ".json", "csv": ".csv", "xlsx": ".xlsx"}[fmt]
+    )
     if Path(output).suffix.casefold() != {"json": ".json", "csv": ".csv", "xlsx": ".xlsx"}[fmt]:
         raise ProjectExportError("output extension must match format")
     identity = str(uuid.UUID(job_id)) if job_id is not None else str(uuid.uuid4())

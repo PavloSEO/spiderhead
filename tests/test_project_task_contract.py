@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import json
 
-from seohead.projects.coverage import append_task_comment, coverage_status, initialize_coverage, update_item
+from seohead.projects.coverage import (
+    append_task_comment,
+    coverage_status,
+    initialize_coverage,
+    update_item,
+)
 from seohead.projects.observer import checklist_page, task_detail
 from seohead.projects.workspace import create_project
 

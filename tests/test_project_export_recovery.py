@@ -58,9 +58,7 @@ def test_export_status_does_not_create_the_job_directory(tmp_path, monkeypatch):
     assert not jobs.exists()
 
 
-def test_published_file_remains_completed_when_history_receipt_write_fails(
-    tmp_path, monkeypatch
-):
+def test_published_file_remains_completed_when_history_receipt_write_fails(tmp_path, monkeypatch):
     _project(tmp_path, monkeypatch)
     monkeypatch.setattr(
         exports,
@@ -94,9 +92,7 @@ def test_published_file_remains_completed_when_history_receipt_write_fails(
     assert status["recoverable"] is True
 
 
-def test_same_job_id_finishes_receipt_without_rewriting_published_output(
-    tmp_path, monkeypatch
-):
+def test_same_job_id_finishes_receipt_without_rewriting_published_output(tmp_path, monkeypatch):
     _project(tmp_path, monkeypatch)
     rows = [{"task_id": "custom:one", "title": "Task"}]
     monkeypatch.setattr(exports, "_rows", lambda *_args: (rows, 1, {"checklist_revision": 3}))
@@ -144,9 +140,7 @@ def test_same_job_id_finishes_receipt_without_rewriting_published_output(
     assert (tmp_path / first["result"]["path"]).read_bytes() == artifact
 
 
-def test_interrupted_prepared_export_resumes_from_verified_temporary_file(
-    tmp_path, monkeypatch
-):
+def test_interrupted_prepared_export_resumes_from_verified_temporary_file(tmp_path, monkeypatch):
     project_uuid = _project(tmp_path, monkeypatch)
     job_id = str(uuid.uuid4())
     content = b'{"rows":[{"task_id":"custom:one"}]}\n'
@@ -260,7 +254,9 @@ def test_related_task_datasets_stream_comments_and_append_only_history(tmp_path,
             }
         },
     }
-    monkeypatch.setattr(exports, "_load", lambda _directory: (tmp_path, {"project_uuid": project_uuid}))
+    monkeypatch.setattr(
+        exports, "_load", lambda _directory: (tmp_path, {"project_uuid": project_uuid})
+    )
     monkeypatch.setattr(coverage, "_read", lambda _root, _project: document)
 
     comments, comment_count, comment_source = exports._task_related_rows(tmp_path, "task_comments")
@@ -277,7 +273,9 @@ def test_related_task_datasets_stream_comments_and_append_only_history(tmp_path,
     assert comment_source == history_source == {"checklist_revision": 9}
 
 
-def test_default_tasks_export_uses_only_stored_items_and_includes_kind_source(tmp_path, monkeypatch):
+def test_default_tasks_export_uses_only_stored_items_and_includes_kind_source(
+    tmp_path, monkeypatch
+):
     from seohead.projects import catalogue, coverage
 
     project_uuid = _project(tmp_path, monkeypatch)
@@ -300,7 +298,9 @@ def test_default_tasks_export_uses_only_stored_items_and_includes_kind_source(tm
             },
         },
     }
-    monkeypatch.setattr(exports, "_load", lambda _directory: (tmp_path, {"project_uuid": project_uuid}))
+    monkeypatch.setattr(
+        exports, "_load", lambda _directory: (tmp_path, {"project_uuid": project_uuid})
+    )
     monkeypatch.setattr(coverage, "_read", lambda _root, _project: document)
     monkeypatch.setattr(catalogue, "load_catalogue", lambda: {})
     monkeypatch.setattr(
@@ -310,9 +310,27 @@ def test_default_tasks_export_uses_only_stored_items_and_includes_kind_source(tm
             "state": "initialized",
             "revision": 5,
             "items": [
-                {"id": "check:TITLE", "title": "Title", "attempt_status": "not_run", "task": {}, "affected_urls": {}},
-                {"id": "custom:owner-task", "title": "Owner task", "attempt_status": "not_run", "task": {}, "affected_urls": {}},
-                {"id": "check:GLOBAL_ONLY", "title": "Catalogue only", "attempt_status": "not_run", "task": {}, "affected_urls": {}},
+                {
+                    "id": "check:TITLE",
+                    "title": "Title",
+                    "attempt_status": "not_run",
+                    "task": {},
+                    "affected_urls": {},
+                },
+                {
+                    "id": "custom:owner-task",
+                    "title": "Owner task",
+                    "attempt_status": "not_run",
+                    "task": {},
+                    "affected_urls": {},
+                },
+                {
+                    "id": "check:GLOBAL_ONLY",
+                    "title": "Catalogue only",
+                    "attempt_status": "not_run",
+                    "task": {},
+                    "affected_urls": {},
+                },
             ],
         },
     )

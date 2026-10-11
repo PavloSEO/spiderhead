@@ -98,7 +98,9 @@ def _measure(
         "max_ms": round(max(times_ms), 2),
         "within_budget": bool(last.get("ok")) and median <= budget_ms,
         "budget_ms": budget_ms,
-        "result_state": (last.get("issue_summary") or {}).get("state", last.get("facets_state", "exact")),
+        "result_state": (last.get("issue_summary") or {}).get(
+            "state", last.get("facets_state", "exact")
+        ),
     }
 
 

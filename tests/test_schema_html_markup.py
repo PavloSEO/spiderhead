@@ -184,6 +184,7 @@ def test_rdfa_subject_graph_lists_typed_literals_and_reverse_edges():
     graph, _, reasons = schema._extract_rdfa(schema.BeautifulSoup(markup, "lxml"), base)
     ada = next(node for node in graph if node.get("@id", "").endswith("#ada"))
     grace = next(node for node in graph if node.get("@id", "").endswith("#grace"))
+    assert grace["@type"] == ["Person"]
     assert ada["additionalName"] == ["Queen", "of coding"]
     assert ada["birthDate"]["@value"] == "1990-01-01"
     assert ada["birthDate"]["@type"].endswith("#date")
@@ -263,8 +264,7 @@ def test_rdfa_property_copy_is_iterative_bounded_and_removes_patterns():
     assert by_id["#other"]["name"] == "Cycle name"
     assert by_id["#other"]["description"] == "Cycle description"
     assert not any(
-        any(type_name.endswith("#Pattern") for type_name in node.get("@type", []))
-        for node in nodes
+        any(type_name.endswith("#Pattern") for type_name in node.get("@type", [])) for node in nodes
     )
     assert not any(
         "http://www.w3.org/ns/rdfa#copy" in key

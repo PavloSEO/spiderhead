@@ -188,11 +188,11 @@ def normalize_get_parameters(url: str) -> str:
     if not parts.query:
         return url
     kept = []
-    for field in parts.query.split("&"):
-        name = unquote_plus(field.split("=", 1)[0]).lower()
+    for query_param in parts.query.split("&"):
+        name = unquote_plus(query_param.split("=", 1)[0]).lower()
         if name.startswith("utm_") or name == "fbclid":
             continue
-        kept.append(field)
+        kept.append(query_param)
     return urlunsplit((parts.scheme, parts.netloc, parts.path, "&".join(kept), parts.fragment))
 
 
@@ -975,8 +975,9 @@ def crawl_site(
             # follow_redirects on, a 301 is recorded as a 200 carrying the
             # target's title and body, the Location is never seen, and redirect
             # auditing is impossible — the old and new URL become duplicates.
-            from seohead.recon.net import crawl_transport_options
             from seohead.crawl.auth import host_bound_auth
+            from seohead.recon.net import crawl_transport_options
+
             client, _ = http_client(
                 timeout,
                 follow_redirects=False,

@@ -110,7 +110,9 @@ def test_instant_logs_capture_closes_owned_socket_and_imports_only_capped_events
             return {"success": True, "result": []}
         return {
             "success": True,
-            "result": {"destination_conf": f"wss://logs.cloudflare.com/instant-logs/ws/sessions/{session}"},
+            "result": {
+                "destination_conf": f"wss://logs.cloudflare.com/instant-logs/ws/sessions/{session}"
+            },
         }
 
     class Socket:
@@ -155,7 +157,9 @@ def test_instant_logs_rejects_unpinned_websocket_endpoint(tmp_path, monkeypatch)
             return {"success": True, "result": []}
         return {
             "success": True,
-            "result": {"destination_conf": "wss://evil.example/instant-logs/ws/sessions/" + "c" * 32},
+            "result": {
+                "destination_conf": "wss://evil.example/instant-logs/ws/sessions/" + "c" * 32
+            },
         }
 
     result = cloudflare_logs.instant_logs_capture(
@@ -178,7 +182,14 @@ def test_instant_logs_byte_cap_closes_socket_without_importing_oversized_message
     session = "d" * 32
 
     def transport(method, url, body, token):
-        return {"success": True, "result": [] if method == "GET" else {"destination_conf": f"wss://logs.cloudflare.com/instant-logs/ws/sessions/{session}"}}
+        return {
+            "success": True,
+            "result": []
+            if method == "GET"
+            else {
+                "destination_conf": f"wss://logs.cloudflare.com/instant-logs/ws/sessions/{session}"
+            },
+        }
 
     class Socket:
         closed = False
@@ -214,7 +225,14 @@ def test_instant_logs_cancel_closes_socket_and_does_not_touch_foreign_session(
     session = "b" * 32
 
     def transport(method, url, body, token):
-        return {"success": True, "result": [] if method == "GET" else {"destination_conf": f"wss://logs.cloudflare.com/instant-logs/ws/sessions/{session}"}}
+        return {
+            "success": True,
+            "result": []
+            if method == "GET"
+            else {
+                "destination_conf": f"wss://logs.cloudflare.com/instant-logs/ws/sessions/{session}"
+            },
+        }
 
     class Socket:
         closed = False

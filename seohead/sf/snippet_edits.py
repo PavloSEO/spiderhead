@@ -12,8 +12,6 @@ already appeared is reported as an error and skipped; the other rows still load.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-
 import csv
 import hashlib
 import io
@@ -21,6 +19,7 @@ import json
 import math
 import re
 import unicodedata
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
@@ -128,9 +127,9 @@ def _clusters(text: str) -> list[str]:
             or 0x1F3FB <= code <= 0x1F3FF
         )
         regional = 0x1F1E6 <= code <= 0x1F1FF
-        if groups and (extender or join_next or char == "\u200d"):
-            groups[-1] += char
-        elif regional and groups and regional_count % 2 == 1:
+        if (groups and (extender or join_next or char == "\u200d")) or (
+            regional and groups and regional_count % 2 == 1
+        ):
             groups[-1] += char
         else:
             groups.append(char)
@@ -240,6 +239,7 @@ def inspect_retained_document(
         }
 
     from bs4 import BeautifulSoup
+
     from seohead.checks import parser, spellcheck
     from seohead.checks.content_area import extract_area_text, resolve_content_area
 
@@ -420,11 +420,7 @@ def attach_retained_measurements(
 
 def _document_identity(document: dict[str, Any]) -> dict[str, Any]:
     """Copy only stable retained-document provenance fields into a result."""
-    return {
-        key: document[key]
-        for key in ("state", "reason", "url")
-        if key in document
-    } | {
+    return {key: document[key] for key in ("state", "reason", "url") if key in document} | {
         key: document[key]
         for key in (
             "scan_uuid",

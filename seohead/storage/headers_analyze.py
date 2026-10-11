@@ -62,17 +62,22 @@ def analyze(
                 "source": source,
                 "validation": validation,
             }
-        names = {row[0] for row in con.execute("SELECT name FROM main.sqlite_master WHERE type='table'")}
-        transport_columns = {
-            row[1] for row in con.execute("PRAGMA table_info(response_transport_meta)")
-        } if "response_transport_meta" in names else set()
+        names = {
+            row[0] for row in con.execute("SELECT name FROM main.sqlite_master WHERE type='table'")
+        }
+        transport_columns = (
+            {row[1] for row in con.execute("PRAGMA table_info(response_transport_meta)")}
+            if "response_transport_meta" in names
+            else set()
+        )
         has_phase_data = all(
             f"{phase}_{suffix}" in transport_columns
             for phase in _PHASES
             for suffix in ("seconds", "state", "reason")
         )
         phase_select = (
-            ",t.protocol,t.protocol_state," + ",".join(
+            ",t.protocol,t.protocol_state,"
+            + ",".join(
                 f"t.{phase}_{suffix} AS {phase}_{suffix}"
                 for phase in _PHASES
                 for suffix in ("seconds", "state", "reason")
@@ -150,14 +155,18 @@ def analyze(
                 else:
                     unavailable += 1
                 for finding in analysis["findings"]:
-                    findings_by_check[finding["check"]] = findings_by_check.get(finding["check"], 0) + 1
+                    findings_by_check[finding["check"]] = (
+                        findings_by_check.get(finding["check"], 0) + 1
+                    )
                 phases = {}
                 for phase in _PHASES:
                     state_key = f"{phase}_state"
                     phases[phase] = (
                         {
                             "seconds": row[f"{phase}_seconds"],
-                            "state": row[state_key] if row[state_key] != "unknown" else "unavailable",
+                            "state": row[state_key]
+                            if row[state_key] != "unknown"
+                            else "unavailable",
                             "reason": row[f"{phase}_reason"] or "",
                         }
                         if has_phase_data and row["response_id"] is not None

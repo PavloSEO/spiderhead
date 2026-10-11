@@ -163,9 +163,7 @@ def _occurrence_spans(
     _, timed_out = _run_with_budget(collect, timeout_seconds=DEFAULT_TIMEOUT_SECONDS)
     timeout_reason = None
     if timed_out:
-        timeout_reason = (
-            "regex_budget_exceeded" if pattern is not None else "match_budget_exceeded"
-        )
+        timeout_reason = "regex_budget_exceeded" if pattern is not None else "match_budget_exceeded"
     return spans, total, total > MAX_OCCURRENCES_PER_DOCUMENT, timed_out, timeout_reason
 
 
@@ -197,9 +195,7 @@ def _redaction_spans(target: str) -> tuple[array, array]:
     return starts, ends
 
 
-def _redact_slice(
-    target: str, start: int, end: int, spans: tuple[array, array]
-) -> str:
+def _redact_slice(target: str, start: int, end: int, spans: tuple[array, array]) -> str:
     """Redact credential-shaped tokens intersecting one bounded source slice."""
     starts, ends = spans
     index = max(0, bisect_right(starts, start) - 1)
@@ -327,7 +323,7 @@ def search_scan(
     case_sensitive: bool = False,
     allow_active: bool = False,
     include_snippets: bool = False,
-    on_record: Callable[[dict[str, Any]], None | bool] | None = None,
+    on_record: Callable[[dict[str, Any]], bool | None] | None = None,
     kind: str = "literal",
     url: str | None = None,
 ) -> dict[str, Any]:
@@ -482,11 +478,13 @@ def search_scan(
                         }[scope],
                         selector,
                     )
-                    spans, occurrence_count, occurrences_truncated, timed_out, timeout_reason = _occurrence_spans(
-                        target,
-                        query,
-                        case_sensitive=case_sensitive,
-                        pattern=pattern,
+                    spans, occurrence_count, occurrences_truncated, timed_out, timeout_reason = (
+                        _occurrence_spans(
+                            target,
+                            query,
+                            case_sensitive=case_sensitive,
+                            pattern=pattern,
+                        )
                     )
                     found = occurrence_count > 0
                     # A replacement character or legacy re-encoded body can
@@ -593,11 +591,10 @@ def search_scan(
                     occurrence_truncation_reasons[reason] += 1
             if record["status"] == "unavailable":
                 reasons[record["reason"]] += 1
-            if on_record is not None:
-                if on_record(record) is False:
-                    consumer_stopped = True
-                    stream_error = "record consumer stopped before all selected documents were emitted"
-                    break
+            if on_record is not None and on_record(record) is False:
+                consumer_stopped = True
+                stream_error = "record consumer stopped before all selected documents were emitted"
+                break
 
     partial_reasons: list[str] = []
     if header["crawl_partial"]:

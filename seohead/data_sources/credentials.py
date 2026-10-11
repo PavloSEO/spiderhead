@@ -124,9 +124,7 @@ def _invalid_source(path: str, accepted: list[str], reason: str) -> dict[str, An
     }
 
 
-def source_status(
-    path: str, env_var: str, *, file_env_var: str | None = None
-) -> dict[str, Any]:
+def source_status(path: str, env_var: str, *, file_env_var: str | None = None) -> dict[str, Any]:
     """Describe a credential source without returning its value or an absolute path."""
     accepted = [f"env:{env_var}", f"config:{path}"]
     custom_file = (os.environ.get(file_env_var) or "").strip() if file_env_var else ""

@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
-from PyQt5.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QPushButton, QTableView, QVBoxLayout
+from PyQt5.QtWidgets import (
+    QComboBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QTableView,
+    QVBoxLayout,
+)
 
 from ..ui.kit import StatePanel
 from .base import Screen
-from .logs import LogRowsModel, PAGE_SIZE, join_arguments
+from .logs import PAGE_SIZE, LogRowsModel, join_arguments
 from .scan_common import selected_scan
 from .url_query import CoreJob
 
@@ -78,7 +86,11 @@ class LogsCompareScreen(Screen):
         self.table.setAlternatingRowColors(True)
         self.table.setSelectionBehavior(QTableView.SelectRows)
         root.addWidget(self.table, 1)
-        self.state = StatePanel("empty", "Choose retained logs and a scan", "Log joins are read-only and require a complete native scan.")
+        self.state = StatePanel(
+            "empty",
+            "Choose retained logs and a scan",
+            "Log joins are read-only and require a complete native scan.",
+        )
         root.addWidget(self.state)
         self.state.hide()
 
@@ -89,7 +101,11 @@ class LogsCompareScreen(Screen):
     def refresh(self):
         entry = getattr(self.host, "log_imports", {}).get(self.host.project_directory)
         scan = selected_scan(self.host)
-        self.scan_label.setText(scan.get("display_name") or scan.get("uuid") or "No scan selected" if scan else "No scan selected")
+        self.scan_label.setText(
+            scan.get("display_name") or scan.get("uuid") or "No scan selected"
+            if scan
+            else "No scan selected"
+        )
         if not entry or not entry.get("source"):
             self._show("Import a log from the Logs screen before comparing.")
             return
@@ -120,10 +136,18 @@ class LogsCompareScreen(Screen):
             return
         self._token = None
         if payload.get("ok") is not True:
-            source = getattr(self.host, "log_imports", {}).get(self.host.project_directory, {}).get("source", "")
+            source = (
+                getattr(self.host, "log_imports", {})
+                .get(self.host.project_directory, {})
+                .get("source", "")
+            )
             scan = selected_scan(self.host) or {}
-            message = str(payload.get("reason") or payload.get("error") or "Log/scan join unavailable.")
-            message = message.replace(source, "retained log").replace(str(scan.get("path", "")), "selected scan")
+            message = str(
+                payload.get("reason") or payload.get("error") or "Log/scan join unavailable."
+            )
+            message = message.replace(source, "retained log").replace(
+                str(scan.get("path", "")), "selected scan"
+            )
             self.summary.setText(message[:300])
             self.model.set_rows([])
             return

@@ -31,7 +31,9 @@ class CruxArgumentsTests(unittest.TestCase):
         )
 
     def test_template_sampling_is_capped_and_validated(self):
-        args = crux_arguments("samples", ["https://example.test/a", "https://example.test/b"], "TABLET")
+        args = crux_arguments(
+            "samples", ["https://example.test/a", "https://example.test/b"], "TABLET"
+        )
         self.assertIn("--max-samples", args)
         self.assertEqual(args[args.index("--max-samples") + 1], "2")
         with self.assertRaises(ValueError):
@@ -45,15 +47,18 @@ class CruxArgumentsTests(unittest.TestCase):
         collect = pagespeed_collect_arguments(
             ["https://example.test/a"], "mobile_samples", "/private/artifacts"
         )
-        self.assertEqual(collect[:7], [
-            "provider-collect",
-            "--provider",
-            "pagespeed",
-            "--operation",
-            "mobile_samples",
-            "--artifact-dir",
-            "/private/artifacts",
-        ])
+        self.assertEqual(
+            collect[:7],
+            [
+                "provider-collect",
+                "--provider",
+                "pagespeed",
+                "--operation",
+                "mobile_samples",
+                "--artifact-dir",
+                "/private/artifacts",
+            ],
+        )
         self.assertIn('"urls":["https://example.test/a"]', collect[-1])
         read = pagespeed_read_arguments("/private/artifacts", "local-artifact:" + "a" * 64)
         self.assertEqual(read[0], "provider-artifact-read")
@@ -72,8 +77,16 @@ class CruxArgumentsTests(unittest.TestCase):
                         "url": "https://example.test/page",
                         "strategy": "mobile",
                         "lab_only": True,
-                        "categories": {"performance": {"score": 0.8, "title": "Performance", "raw": "omit"}},
-                        "audits": {"largest-contentful-paint": {"numeric_value": 2500, "display_value": "2.5 s", "raw": "omit"}},
+                        "categories": {
+                            "performance": {"score": 0.8, "title": "Performance", "raw": "omit"}
+                        },
+                        "audits": {
+                            "largest-contentful-paint": {
+                                "numeric_value": 2500,
+                                "display_value": "2.5 s",
+                                "raw": "omit",
+                            }
+                        },
                         "raw_response": "omit",
                     }
                 ],

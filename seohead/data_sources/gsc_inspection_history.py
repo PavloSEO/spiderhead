@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import json
 import os
-import stat
 import sqlite3
+import stat
 import uuid
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
@@ -66,7 +66,9 @@ def _connect(path: Path, *, create: bool) -> sqlite3.Connection:
     try:
         con.execute("PRAGMA trusted_schema=OFF")
         con.execute("BEGIN IMMEDIATE" if create else "BEGIN")
-        tables = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        tables = {
+            row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }
         if not tables and create and not info.st_size:
             con.execute("CREATE TABLE metadata(format TEXT PRIMARY KEY)")
             con.execute("INSERT INTO metadata VALUES (?)", (FORMAT,))
@@ -75,7 +77,9 @@ def _connect(path: Path, *, create: bool) -> sqlite3.Connection:
                 " inspected_at TEXT NOT NULL,state TEXT NOT NULL,index_status TEXT,amp_result TEXT,"
                 " rich_results_result TEXT)"
             )
-            con.execute("CREATE INDEX inspections_site_time ON inspections(site_url,inspected_at DESC,id DESC)")
+            con.execute(
+                "CREATE INDEX inspections_site_time ON inspections(site_url,inspected_at DESC,id DESC)"
+            )
         elif tables != {"metadata", "inspections"}:
             raise ValueError("existing database is not GSC inspection history")
         elif con.execute("SELECT format FROM metadata").fetchall() != [(FORMAT,)]:
@@ -103,7 +107,9 @@ def _connect_quota(path: Path) -> sqlite3.Connection:
     try:
         con.execute("PRAGMA trusted_schema=OFF")
         con.execute("BEGIN IMMEDIATE")
-        tables = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        tables = {
+            row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }
         if not tables and not info.st_size:
             con.execute("CREATE TABLE metadata(format TEXT PRIMARY KEY)")
             con.execute("INSERT INTO metadata VALUES (?)", (QUOTA_FORMAT,))
@@ -120,7 +126,9 @@ def _connect_quota(path: Path) -> sqlite3.Connection:
             columns = {row[1] for row in con.execute("PRAGMA table_info(reservations)")}
             if format_row == [("seohead.gsc-inspection-quota.v1",)]:
                 if "urls" not in columns:
-                    con.execute("ALTER TABLE reservations ADD COLUMN urls TEXT NOT NULL DEFAULT '[]'")
+                    con.execute(
+                        "ALTER TABLE reservations ADD COLUMN urls TEXT NOT NULL DEFAULT '[]'"
+                    )
                 con.execute("UPDATE metadata SET format=?", (QUOTA_FORMAT,))
             elif format_row != [(QUOTA_FORMAT,)]:
                 raise ValueError("unsupported GSC inspection quota format")
@@ -132,7 +140,9 @@ def _connect_quota(path: Path) -> sqlite3.Connection:
         raise
 
 
-def reserve(project: str, site_url: str, urls: list[str], *, now: datetime | None = None) -> dict[str, Any]:
+def reserve(
+    project: str, site_url: str, urls: list[str], *, now: datetime | None = None
+) -> dict[str, Any]:
     """Reserve a capped subset before network access so interrupted runs still count toward budget."""
     if (
         not isinstance(site_url, str)
@@ -142,8 +152,7 @@ def reserve(project: str, site_url: str, urls: list[str], *, now: datetime | Non
     ):
         raise ValueError("site_url and urls are required")
     if len(urls) > MAX_RESERVATION_URLS or not all(
-        isinstance(url, str) and url and len(url.encode("utf-8")) <= MAX_URL_BYTES
-        for url in urls
+        isinstance(url, str) and url and len(url.encode("utf-8")) <= MAX_URL_BYTES for url in urls
     ):
         raise ValueError("inspection URLs must be a bounded nonempty string list")
     unique = list(dict.fromkeys(urls))
@@ -154,14 +163,19 @@ def reserve(project: str, site_url: str, urls: list[str], *, now: datetime | Non
         raise ValueError("quota clock must include a timezone")
     current = current.astimezone(timezone.utc)
     day = current.date().isoformat()
-    minute = current.strftime("%Y-%m-%dT%H:%M")
     reserved_at = current.isoformat(timespec="seconds").replace("+00:00", "Z")
-    cutoff_day = (current - timedelta(hours=24)).isoformat(timespec="seconds").replace("+00:00", "Z")
-    cutoff_minute = (current - timedelta(minutes=1)).isoformat(timespec="seconds").replace("+00:00", "Z")
+    cutoff_day = (
+        (current - timedelta(hours=24)).isoformat(timespec="seconds").replace("+00:00", "Z")
+    )
+    cutoff_minute = (
+        (current - timedelta(minutes=1)).isoformat(timespec="seconds").replace("+00:00", "Z")
+    )
     path = _quota_path()
     reservation_id = str(uuid.uuid4())
     with closing(_connect_quota(path)) as con, con:
-        retention_cutoff = (current - timedelta(days=30)).isoformat(timespec="seconds").replace("+00:00", "Z")
+        retention_cutoff = (
+            (current - timedelta(days=30)).isoformat(timespec="seconds").replace("+00:00", "Z")
+        )
         con.execute("DELETE FROM reservations WHERE reserved_at<?", (retention_cutoff,))
         used = con.execute(
             "SELECT COALESCE(SUM(count),0) FROM reservations"
@@ -228,11 +242,13 @@ def settle(
         ).fetchone()
         if row is None or row[3] != "reserved" or requests_made > row[2]:
             raise ValueError("unknown or already settled inspection reservation")
-        site_url, _reserved_at, reserved, _state, reserved_urls_json = row
+        site_url, _reserved_at, _reserved, _state, reserved_urls_json = row
         if requests_made == 0:
             if outcomes:
                 raise ValueError("zero-request settlement cannot contain inspection outcomes")
-            quota_con.execute("UPDATE reservations SET state='released' WHERE id=?", (reservation_id,))
+            quota_con.execute(
+                "UPDATE reservations SET state='released' WHERE id=?", (reservation_id,)
+            )
             return {"state": "released", "stored": 0}
         if len(outcomes) > requests_made:
             raise ValueError("provider returned more inspection rows than requests")
@@ -305,9 +321,7 @@ def settle(
                     (site_url, url, timestamp, state, *payloads),
                 )
                 stored += 1
-        quota_con.execute(
-            "UPDATE reservations SET state='complete' WHERE id=?", (reservation_id,)
-        )
+        quota_con.execute("UPDATE reservations SET state='complete' WHERE id=?", (reservation_id,))
     return {"state": "stored", "stored": stored}
 
 
@@ -371,6 +385,7 @@ def latest(
         "limit": limit,
         "has_more": has_more,
         "next_offset": offset + len(selected) if has_more else None,
-        "truncated_by_byte_limit": page_bytes >= MAX_PAGE_BYTES or (has_more and len(selected) < limit),
+        "truncated_by_byte_limit": page_bytes >= MAX_PAGE_BYTES
+        or (has_more and len(selected) < limit),
         "rows": list(selected.values()),
     }

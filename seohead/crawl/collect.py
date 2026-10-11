@@ -1301,8 +1301,8 @@ def collect_urls(
             # follow_redirects on, a 301 is recorded as a 200 carrying the
             # target's title and body, the Location is never seen, and redirect
             # auditing is impossible — the old and new URL become duplicates.
-            from seohead.recon.net import crawl_transport_options
             from seohead.crawl.auth import host_bound_auth
+            from seohead.recon.net import crawl_transport_options
 
             client_headers = {"User-Agent": user_agent or UA}
             client_headers.update(extra_request_headers or {})

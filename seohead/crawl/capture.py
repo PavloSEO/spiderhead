@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+import time
 import zlib
 from collections.abc import Iterable
 from dataclasses import dataclass
 from io import BytesIO
-import time
 from typing import Any
 
 from seohead.core.common import utc_iso_z as now_utc
@@ -262,9 +262,9 @@ def bounded_entity_chunks(chunks: Iterable[bytes], content_encoding: str, limit:
                 reader_context = zstd.open(BytesIO(encoded), options=options)
             else:
                 window_kib = max(1, (limit + 1023) // 1024)
-                reader_context = zstd.ZstdDecompressor(
-                    max_window_size=window_kib
-                ).stream_reader(BytesIO(encoded), read_across_frames=True)
+                reader_context = zstd.ZstdDecompressor(max_window_size=window_kib).stream_reader(
+                    BytesIO(encoded), read_across_frames=True
+                )
             with reader_context as reader:
                 out = bytearray()
                 while chunk := reader.read(64 * 1024):

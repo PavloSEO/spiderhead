@@ -510,7 +510,8 @@ def _render_generic(w, group: list[Issue]) -> None:
             detail = ", ".join(
                 f"{k.replace('_', ' ').capitalize()}: {_esc(v)}"
                 for k, v in issue.details.items()
-                if k not in {
+                if k
+                not in {
                     "safe_url",
                     "url_id",
                     "user_canonical",

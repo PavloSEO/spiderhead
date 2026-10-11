@@ -33,7 +33,7 @@ import tempfile
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
-from urllib.parse import parse_qsl, urlencode, urljoin, urlparse, urlunsplit
+from urllib.parse import parse_qsl, urlencode, urljoin, urlparse, urlsplit, urlunsplit
 
 from bs4 import BeautifulSoup
 
@@ -410,7 +410,11 @@ class _BrowserNetworkEvidence:
 
     def finish(self) -> dict[str, Any]:
         return {
-            "state": "unavailable" if not self.active else "partial" if self.omitted else "complete",
+            "state": "unavailable"
+            if not self.active
+            else "partial"
+            if self.omitted
+            else "complete",
             "reason": (
                 "browser network log was not started"
                 if not self.active
@@ -1653,7 +1657,9 @@ def render_check(
         "raw": raw,
         "rendered": rendered,
         "element_diff_state": "complete" if wait_reached == wait else "unavailable",
-        "element_diff_reason": "" if wait_reached == wait else "requested navigation milestone was not reached",
+        "element_diff_reason": ""
+        if wait_reached == wait
+        else "requested navigation milestone was not reached",
         "element_diffs": element_diffs,
         "element_rules": element_rules,
         "empty_shell": shell,

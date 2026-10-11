@@ -317,9 +317,11 @@ def _ssim_score(source: str, candidate: str) -> float:
         window -= 1
 
     def moments(values):
-        integral = np.pad(values, ((1, 0), (1, 0), (0, 0))).cumsum(
-            0, dtype=np.float64
-        ).cumsum(1, dtype=np.float64)
+        integral = (
+            np.pad(values, ((1, 0), (1, 0), (0, 0)))
+            .cumsum(0, dtype=np.float64)
+            .cumsum(1, dtype=np.float64)
+        )
         return (
             integral[window:, window:]
             - integral[:-window, window:]
@@ -333,8 +335,7 @@ def _ssim_score(source: str, candidate: str) -> float:
     covariance = moments(left * right) - mean_left * mean_right
     c1, c2 = (0.01 * 255) ** 2, (0.03 * 255) ** 2
     score = ((2 * mean_left * mean_right + c1) * (2 * covariance + c2)) / (
-        (mean_left * mean_left + mean_right * mean_right + c1)
-        * (var_left + var_right + c2)
+        (mean_left * mean_left + mean_right * mean_right + c1) * (var_left + var_right + c2)
     )
     return float(score.mean())
 

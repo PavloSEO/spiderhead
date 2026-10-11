@@ -183,12 +183,16 @@ def build_parser() -> argparse.ArgumentParser:
         "snippet-edits", help="Import snippet edits from CSV and export review tasks"
     )
     snippets.add_argument("--csv", required=True, help="CSV with url and title/description columns")
-    snippets.add_argument("--out", required=True, help="New JSON task file; existing files are kept")
+    snippets.add_argument(
+        "--out", required=True, help="New JSON task file; existing files are kept"
+    )
     snippets.add_argument(
         "--metrics-json",
         help="Optional JSON map of named local font profiles for measured pixel widths",
     )
-    snippets.add_argument("--scan", help="Optional saved scan.v1 artifact for retained-page context")
+    snippets.add_argument(
+        "--scan", help="Optional saved scan.v1 artifact for retained-page context"
+    )
     snippets.add_argument("--query", help="Explicit search query for a retained-page text excerpt")
     snippets.add_argument(
         "--representation",

@@ -22,10 +22,10 @@ import tempfile
 import threading
 import zlib
 from collections import OrderedDict
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from contextlib import closing, nullcontext, suppress
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 from urllib.parse import urlsplit
 
 from seohead.core.filesystem import fsync_directory
@@ -49,7 +49,7 @@ from .evidence_contract import comparison_compatibility, comparison_warnings
 _BUCKETS = ("entered", "left", "appeared", "disappeared", "unchanged")
 _INDEX_BATCH = 10_000
 _READ_INDEX_LIMIT = 1
-_READ_INDEXES: OrderedDict[tuple[Any, ...], "_ReadIndex"] = OrderedDict()
+_READ_INDEXES: OrderedDict[tuple[Any, ...], _ReadIndex] = OrderedDict()
 _READ_INDEXES_LOCK = threading.RLock()
 _SQLITE_MAX_INTEGER = (1 << 63) - 1
 
@@ -69,9 +69,17 @@ def _rename_directory_noreplace(source: Path, destination: Path) -> None:
         result = rename(os.fsencode(source), os.fsencode(destination), 0x00000004)  # RENAME_EXCL
     elif sys.platform.startswith("linux") and hasattr(libc, "renameat2"):
         rename = libc.renameat2
-        rename.argtypes = (ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint)
+        rename.argtypes = (
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_uint,
+        )
         rename.restype = ctypes.c_int
-        result = rename(-100, os.fsencode(source), -100, os.fsencode(destination), 1)  # AT_FDCWD, RENAME_NOREPLACE
+        result = rename(
+            -100, os.fsencode(source), -100, os.fsencode(destination), 1
+        )  # AT_FDCWD, RENAME_NOREPLACE
     else:
         if destination.exists() or destination.is_symlink():
             raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(destination))
@@ -82,14 +90,18 @@ def _rename_directory_noreplace(source: Path, destination: Path) -> None:
         raise OSError(error, os.strerror(error), str(destination))
 
 
-def _safe_member(path: Path, *, directory: bool = False, optional: bool = False, max_links: int = 1) -> None:
+def _safe_member(
+    path: Path, *, directory: bool = False, optional: bool = False, max_links: int = 1
+) -> None:
     try:
         info = path.lstat()
     except FileNotFoundError:
         if optional:
             return
-        raise CompareError(f"comparison checkpoint member is missing: {path.name}")
-    if stat.S_ISLNK(info.st_mode) or (not stat.S_ISDIR(info.st_mode) if directory else not stat.S_ISREG(info.st_mode)):
+        raise CompareError(f"comparison checkpoint member is missing: {path.name}") from None
+    if stat.S_ISLNK(info.st_mode) or (
+        not stat.S_ISDIR(info.st_mode) if directory else not stat.S_ISREG(info.st_mode)
+    ):
         raise CompareError(f"comparison checkpoint member is unsafe: {path.name}")
     if not directory and info.st_nlink > max_links:
         raise CompareError(f"comparison checkpoint member has unexpected hard links: {path.name}")
@@ -168,9 +180,22 @@ def _primary_segment(page: Mapping[str, Any], ordered_segments: list[Any]) -> st
     return "unsegmented" if primary in (None, UNSEGMENTED) else str(primary)
 
 
-def _job_id(identities: Mapping[str, Any], force: bool, correspondence: Any, compression: str) -> str:
-    declaration_hash = hashlib.sha256(_json(correspondence).encode("utf-8")).hexdigest() if correspondence else None
-    key = _json({"identities": identities, "force": force, "correspondence": declaration_hash, "compression": compression})
+def _job_id(
+    identities: Mapping[str, Any], force: bool, correspondence: Any, compression: str
+) -> str:
+    declaration_hash = (
+        hashlib.sha256(_json(correspondence).encode("utf-8")).hexdigest()
+        if correspondence
+        else None
+    )
+    key = _json(
+        {
+            "identities": identities,
+            "force": force,
+            "correspondence": declaration_hash,
+            "compression": compression,
+        }
+    )
     return hashlib.sha256(key.encode("utf-8")).hexdigest()[:32]
 
 
@@ -271,19 +296,34 @@ def _index_collection(
             raise CompareError("validated audit.v2 source lacks a collection count")
         rows = ((ordinal, source.get_item(f"/{name}", ordinal)) for ordinal in range(offset, total))
     else:
-        rows = ((ordinal, row) for ordinal, row in enumerate(_iter_rows(source, name)) if ordinal >= offset)
+        rows = (
+            (ordinal, row)
+            for ordinal, row in enumerate(_iter_rows(source, name))
+            if ordinal >= offset
+        )
     for ordinal, row in rows:
         _check_cancel(cancel_event)
         last_offset = ordinal + 1
         if name == "pages":
-            if not isinstance(row, Mapping) or not isinstance(row.get("url"), str) or not row["url"]:
+            if (
+                not isinstance(row, Mapping)
+                or not isinstance(row.get("url"), str)
+                or not row["url"]
+            ):
                 raise CompareError("comparison page must contain a nonempty URL")
             document = _json(row)
             segment = _primary_segment(row, ordered_segments)
             try:
                 con.execute(
                     "INSERT INTO pages VALUES (?,?,?,?,?,?)",
-                    (side, row["url"], row["url"], ordinal, None if source_backed else document, segment),
+                    (
+                        side,
+                        row["url"],
+                        row["url"],
+                        ordinal,
+                        None if source_backed else document,
+                        segment,
+                    ),
                 )
             except sqlite3.IntegrityError as exc:
                 raise CompareError(f"comparison has duplicate page URL {row['url']!r}") from exc
@@ -304,7 +344,9 @@ def _index_collection(
                     (side, check, url, url, ordinal, None if source_backed else document),
                 )
             except sqlite3.IntegrityError as exc:
-                raise CompareError(f"comparison has duplicate finding key {(check, url)!r}") from exc
+                raise CompareError(
+                    f"comparison has duplicate finding key {(check, url)!r}"
+                ) from exc
         next_offset = ordinal + 1
         if next_offset % _INDEX_BATCH == 0:
             _set_state(con, checkpoint_key, next_offset)
@@ -367,7 +409,14 @@ def _bind(
         after_url, kind = _mapped_url(before_url, declaration)
         if after_url is None:
             if completed % _INDEX_BATCH == 0:
-                _notify(progress, job_id=job_id, state="running", stage="url_correspondence", completed=completed, total=total)
+                _notify(
+                    progress,
+                    job_id=job_id,
+                    state="running",
+                    stage="url_correspondence",
+                    completed=completed,
+                    total=total,
+                )
             continue
         matched = con.execute("SELECT 1 FROM pages WHERE side=1 AND url=?", (after_url,)).fetchone()
         state = "matched" if matched else "after_not_crawled"
@@ -380,7 +429,14 @@ def _bind(
                 "UPDATE pages SET comparison_url=? WHERE side=0 AND url=?", (after_url, before_url)
             )
         if completed % _INDEX_BATCH == 0:
-            _notify(progress, job_id=job_id, state="running", stage="url_correspondence", completed=completed, total=total)
+            _notify(
+                progress,
+                job_id=job_id,
+                state="running",
+                stage="url_correspondence",
+                completed=completed,
+                total=total,
+            )
     for before_url, after_url in sorted(declaration["pairs"].items()):
         if not con.execute("SELECT 1 FROM pages WHERE side=0 AND url=?", (before_url,)).fetchone():
             con.execute(
@@ -540,8 +596,7 @@ class _ReadIndex:
             "segment TEXT,change_key TEXT,url_fold TEXT,tie_key INTEGER,document TEXT);"
         )
         batch = []
-        ordinal = 0
-        for row in iter_compare_rows(manifest_path, name):
+        for ordinal, row in enumerate(iter_compare_rows(manifest_path, name)):
             issue = row.get("issue") if name == "segment_changes" else row
             if issue is None:
                 issue = row.get("after") or row
@@ -568,7 +623,6 @@ class _ReadIndex:
                     document,
                 )
             )
-            ordinal += 1
             if len(batch) >= _INDEX_BATCH:
                 self.con.executemany("INSERT INTO rows VALUES (?,?,?,?,?,?,?,?)", batch)
                 self.con.commit()
@@ -720,13 +774,32 @@ def read_compare_page(
         raise CompareError(f"comparison data file is unavailable for {name!r}") from exc
     if data_path.is_symlink():
         raise CompareError("comparison file must not be a symbolic link")
-    file_signature = (file_info.st_dev, file_info.st_ino, file_info.st_size, file_info.st_mtime_ns, file_info.st_ctime_ns)
-    key = (str(manifest_path), name, hashlib.sha256(raw_manifest).hexdigest(), file_signature,
-           manifest_info.st_dev, manifest_info.st_ino, manifest_info.st_size, manifest_info.st_mtime_ns, manifest_info.st_ctime_ns)
+    file_signature = (
+        file_info.st_dev,
+        file_info.st_ino,
+        file_info.st_size,
+        file_info.st_mtime_ns,
+        file_info.st_ctime_ns,
+    )
+    key = (
+        str(manifest_path),
+        name,
+        hashlib.sha256(raw_manifest).hexdigest(),
+        file_signature,
+        manifest_info.st_dev,
+        manifest_info.st_ino,
+        manifest_info.st_size,
+        manifest_info.st_mtime_ns,
+        manifest_info.st_ctime_ns,
+    )
     with _READ_INDEXES_LOCK:
         index = _READ_INDEXES.get(key)
         if index is None:
-            stale = [cache_key for cache_key in _READ_INDEXES if cache_key[:2] == (str(manifest_path), name)]
+            stale = [
+                cache_key
+                for cache_key in _READ_INDEXES
+                if cache_key[:2] == (str(manifest_path), name)
+            ]
             for cache_key in stale:
                 _READ_INDEXES.pop(cache_key).close()
             temporary = tempfile.TemporaryDirectory(prefix="spiderhead-compare-index-")
@@ -792,16 +865,27 @@ def compare_markdown(manifest_path: str | Path, *, max_bytes: int = 65_536) -> s
         lines.extend(("", f"Segment breakdown: `{segments.get('state', 'unavailable')}`."))
         for name, values in sorted((segments.get("segments") or {}).items()):
             if isinstance(values, Mapping) and values.get("state") == "compared":
-                before, after, changes = values.get("before"), values.get("after"), values.get("changes")
-                if isinstance(before, Mapping) and isinstance(after, Mapping) and isinstance(changes, Mapping):
+                before, after, changes = (
+                    values.get("before"),
+                    values.get("after"),
+                    values.get("changes"),
+                )
+                if (
+                    isinstance(before, Mapping)
+                    and isinstance(after, Mapping)
+                    and isinstance(changes, Mapping)
+                ):
                     before_pages, after_pages = before.get("pages"), after.get("pages")
                     before_issues, after_issues = before.get("issues"), after.get("issues")
-                    if not all(type(item) is int for item in (before_pages, after_pages, before_issues, after_issues)):
+                    if not all(
+                        type(item) is int
+                        for item in (before_pages, after_pages, before_issues, after_issues)
+                    ):
                         continue
                     lines.append(
                         f"- {name}: pages {before_pages} → {after_pages} "
-                        f"({after_pages-before_pages:+}); findings {before_issues} → "
-                        f"{after_issues} ({after_issues-before_issues:+}); "
+                        f"({after_pages - before_pages:+}); findings {before_issues} → "
+                        f"{after_issues} ({after_issues - before_issues:+}); "
                         + ", ".join(f"{bucket} {changes.get(bucket, 0)}" for bucket in _BUCKETS)
                         + "."
                     )
@@ -857,7 +941,9 @@ def _facts(con: sqlite3.Connection, before_source: Any, after_source: Any):
         }
 
 
-def _publish(root: Path, destination: Path, *, job_id: str, cancel_event: threading.Event | None) -> None:
+def _publish(
+    root: Path, destination: Path, *, job_id: str, cancel_event: threading.Event | None
+) -> None:
     """Atomically publish the complete package without replacing foreign output."""
     reservation = destination.with_name(f".{destination.name}.compare-publish-{job_id}")
     try:
@@ -865,7 +951,7 @@ def _publish(root: Path, destination: Path, *, job_id: str, cancel_event: thread
     except FileExistsError:
         _safe_member(reservation)
         if reservation.stat().st_size != 0:
-            raise CompareError("comparison publish reservation is malformed")
+            raise CompareError("comparison publish reservation is malformed") from None
     else:
         with os.fdopen(fd, "wb") as stream:
             stream.flush()
@@ -876,13 +962,22 @@ def _publish(root: Path, destination: Path, *, job_id: str, cancel_event: thread
         _safe_member(destination, directory=True)
         members = list(destination.iterdir())
         if not members:
-            raise FileExistsError(f"comparison output directory already exists and is not owned by this job: {destination}")
+            raise FileExistsError(
+                f"comparison output directory already exists and is not owned by this job: {destination}"
+            )
         # Recover only a prior hard-link publication whose every visible file is still
         # the exact staged inode. Empty or foreign directories are never adopted.
         for member in members:
             staged = root / member.name
-            if member.is_symlink() or not member.is_file() or not staged.is_file() or not os.path.samefile(member, staged):
-                raise CompareError(f"comparison publish destination contains an unowned member: {member.name}")
+            if (
+                member.is_symlink()
+                or not member.is_file()
+                or not staged.is_file()
+                or not os.path.samefile(member, staged)
+            ):
+                raise CompareError(
+                    f"comparison publish destination contains an unowned member: {member.name}"
+                )
         for member in members:
             member.unlink()
         destination.rmdir()
@@ -894,7 +989,11 @@ def _publish(root: Path, destination: Path, *, job_id: str, cancel_event: thread
         fsync_directory(destination.parent)
     except BaseException:
         with suppress(OSError):
-            if reservation.is_file() and not reservation.is_symlink() and reservation.stat().st_size == 0:
+            if (
+                reservation.is_file()
+                and not reservation.is_symlink()
+                and reservation.stat().st_size == 0
+            ):
                 reservation.unlink()
         raise
 
@@ -912,8 +1011,8 @@ def compare_to_files(
     cancel_event: threading.Event | None = None,
 ) -> dict[str, Any]:
     """Write or resume a disk-backed comparison with a validated output cache."""
-    from seohead.core.verification import source_identity
     from seohead.core.filesystem import atomic_write_bytes, lock_exclusive, open_lock, unlock
+    from seohead.core.verification import source_identity
 
     destination = Path(out_dir).absolute()
     declaration = _load_correspondence(correspondence) if correspondence is not None else None
@@ -966,7 +1065,9 @@ def compare_to_files(
             or cached.get("force") is not force
             or cached.get("compression", "none") != compression
         ):
-            raise FileExistsError(f"comparison output already exists for different inputs: {destination}")
+            raise FileExistsError(
+                f"comparison output already exists for different inputs: {destination}"
+            )
         for name in cached.get("files", {}):
             for _row_data in iter_compare_rows(destination / "compare.json", name):
                 pass
@@ -977,7 +1078,12 @@ def compare_to_files(
             if reservation.exists() and reservation.stat().st_size == 0:
                 reservation.unlink()
         _notify(progress, job_id=job_id, state="finished", stage="cached", completed=1, total=1)
-        return {**cached, "manifest": str(destination / "compare.json"), "out_dir": str(destination), "cache_hit": True}
+        return {
+            **cached,
+            "manifest": str(destination / "compare.json"),
+            "out_dir": str(destination),
+            "cache_hit": True,
+        }
 
     if work.exists() and not resume:
         raise FileExistsError(f"comparison checkpoint exists; pass resume=True to continue: {work}")
@@ -989,16 +1095,18 @@ def compare_to_files(
         work.mkdir()
         (work / "output").mkdir()
         initial_job = {
-                "schema_version": "compare.job.v1",
-                "job_id": job_id,
-                "identities": identities,
-                "force": force,
-                "compression": compression,
-                "correspondence_sha256": hashlib.sha256(_json(declaration).encode("utf-8")).hexdigest() if declaration else None,
-                "files": {},
-                "state": "running",
-                "stage": "indexing",
-            }
+            "schema_version": "compare.job.v1",
+            "job_id": job_id,
+            "identities": identities,
+            "force": force,
+            "compression": compression,
+            "correspondence_sha256": hashlib.sha256(_json(declaration).encode("utf-8")).hexdigest()
+            if declaration
+            else None,
+            "files": {},
+            "state": "running",
+            "stage": "indexing",
+        }
         atomic_write_bytes(work / "job.json", (_json(initial_job) + "\n").encode("utf-8"))
     _safe_member(work, directory=True)
     work_info = work.lstat()
@@ -1009,7 +1117,11 @@ def compare_to_files(
         job = json.loads(job_path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise CompareError("comparison checkpoint is unreadable; it was preserved") from exc
-    if not isinstance(job, Mapping) or job.get("schema_version") != "compare.job.v1" or job.get("job_id") != job_id:
+    if (
+        not isinstance(job, Mapping)
+        or job.get("schema_version") != "compare.job.v1"
+        or job.get("job_id") != job_id
+    ):
         raise CompareError("comparison checkpoint belongs to different inputs or options")
     lock_path = work / ".writer.lock"
     _safe_member(lock_path, optional=True)
@@ -1022,13 +1134,30 @@ def compare_to_files(
 
     def checkpoint(state: str, stage: str, **extra: Any) -> None:
         _check_cancel(cancel_event)
-        job.update(state=state, stage=stage, updated_at=__import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(), **extra)
+        job.update(
+            state=state,
+            stage=stage,
+            updated_at=__import__("datetime")
+            .datetime.now(__import__("datetime").timezone.utc)
+            .isoformat(),
+            **extra,
+        )
         atomic_write_bytes(job_path, (_json(job) + "\n").encode("utf-8"), durable=True)
 
-    def report(state: str, stage: str, completed: int | None, total: int | None, reason: str | None = None) -> None:
+    def report(
+        state: str, stage: str, completed: int | None, total: int | None, reason: str | None = None
+    ) -> None:
         _check_cancel(cancel_event)
         checkpoint(state, stage, completed=completed, total=total, reason=reason)
-        _notify(progress, job_id=job_id, state=state, stage=stage, completed=completed, total=total, reason=reason)
+        _notify(
+            progress,
+            job_id=job_id,
+            state=state,
+            stage=stage,
+            completed=completed,
+            total=total,
+            reason=reason,
+        )
 
     def persist_progress(update: Any) -> None:
         job.update(
@@ -1057,14 +1186,21 @@ def compare_to_files(
 
         before_segments = resolve_order(before_defs) if before_defs else []
         after_segments = resolve_order(after_defs) if after_defs else []
-        counts = {(side, name): _collection_count(source, name)
-                  for side, source in ((0, before), (1, after)) for name in ("pages", "issues")}
-        total_index = None if any(value is None for value in counts.values()) else sum(counts.values())
+        counts = {
+            (side, name): _collection_count(source, name)
+            for side, source in ((0, before), (1, after))
+            for name in ("pages", "issues")
+        }
+        total_index = (
+            None if any(value is None for value in counts.values()) else sum(counts.values())
+        )
         with closing(sqlite3.connect(db_path)) as con:
             con.execute("PRAGMA temp_store=FILE")
             con.execute("PRAGMA cache_size=-8192")
             con.execute("PRAGMA synchronous=FULL")
-            existing = con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='job_state'").fetchone()
+            existing = con.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='job_state'"
+            ).fetchone()
             if not existing:
                 con.executescript("""
                     CREATE TABLE job_state(key TEXT PRIMARY KEY,value TEXT NOT NULL);
@@ -1083,35 +1219,56 @@ def compare_to_files(
             valid_phases = {"indexing", "binding", "classify_before", "classify_after", "export"}
             if phase not in valid_phases:
                 raise CompareError("comparison checkpoint has an invalid phase")
-            for side, source in ((0, before), (1, after)):
+            for side, _source in ((0, before), (1, after)):
                 for name in ("pages", "issues"):
                     total = counts[(side, name)]
                     offset = _state_value(con, f"indexed:{side}:{name}", 0)
-                    if type(offset) is not int or offset < 0 or (total is not None and offset > total):
+                    if (
+                        type(offset) is not int
+                        or offset < 0
+                        or (total is not None and offset > total)
+                    ):
                         raise CompareError("comparison checkpoint has an invalid source cursor")
                     actual, maximum = con.execute(
-                        f"SELECT count(*),COALESCE(max(ordinal),-1) FROM {name} WHERE side=?", (side,)
+                        f"SELECT count(*),COALESCE(max(ordinal),-1) FROM {name} WHERE side=?",
+                        (side,),
                     ).fetchone()
                     if actual != offset or maximum >= offset:
-                        raise CompareError("comparison checkpoint cursor does not match indexed rows")
+                        raise CompareError(
+                            "comparison checkpoint cursor does not match indexed rows"
+                        )
                 total_issues = counts[(side, "issues")]
                 cursor = _state_value(con, f"classified:{side}", 0)
-                actual = con.execute("SELECT count(*) FROM issues WHERE side=? AND ordinal<?", (side, cursor if type(cursor) is int else 0)).fetchone()[0]
-                if type(cursor) is not int or cursor < 0 or (total_issues is not None and cursor > total_issues) or actual != min(cursor, total_issues or cursor):
+                actual = con.execute(
+                    "SELECT count(*) FROM issues WHERE side=? AND ordinal<?",
+                    (side, cursor if type(cursor) is int else 0),
+                ).fetchone()[0]
+                if (
+                    type(cursor) is not int
+                    or cursor < 0
+                    or (total_issues is not None and cursor > total_issues)
+                    or actual != min(cursor, total_issues or cursor)
+                ):
                     raise CompareError("comparison checkpoint has an invalid classification cursor")
             if phase != "indexing":
                 for side in (0, 1):
                     for name in ("pages", "issues"):
                         if _state_value(con, f"indexed:{side}:{name}", 0) != counts[(side, name)]:
-                            raise CompareError("comparison checkpoint phase skips unfinished source indexing")
+                            raise CompareError(
+                                "comparison checkpoint phase skips unfinished source indexing"
+                            )
             if phase in {"classify_before", "classify_after", "export"}:
                 expected_before = counts[(0, "issues")]
                 if _state_value(con, "classified:0", 0) != expected_before:
-                    raise CompareError("comparison checkpoint skips unfinished before-side classification")
+                    raise CompareError(
+                        "comparison checkpoint skips unfinished before-side classification"
+                    )
             if phase in {"classify_after", "export"}:
                 expected_after = counts[(1, "issues")]
                 if _state_value(con, "classified:1", 0) != expected_after:
-                    raise CompareError("comparison checkpoint skips unfinished after-side classification")
+                    raise CompareError(
+                        "comparison checkpoint skips unfinished after-side classification"
+                    )
             if phase == "export":
                 before_count, after_count = counts[(0, "issues")], counts[(1, "issues")]
                 delta_count = con.execute("SELECT count(*) FROM delta").fetchone()[0]
@@ -1119,17 +1276,30 @@ def compare_to_files(
                     "SELECT count(*) FROM issues b JOIN issues a ON a.side=1 AND a.check_key=b.check_key AND a.comparison_url=b.comparison_url WHERE b.side=0"
                 ).fetchone()[0]
                 if before_count + after_count != delta_count + 2 * matched:
-                    raise CompareError("comparison checkpoint classification does not conserve findings")
+                    raise CompareError(
+                        "comparison checkpoint classification does not conserve findings"
+                    )
             if phase == "indexing":
                 completed = 0
-                order = ((0, before, "pages", before_segments), (0, before, "issues", before_segments),
-                         (1, after, "pages", after_segments), (1, after, "issues", after_segments))
+                order = (
+                    (0, before, "pages", before_segments),
+                    (0, before, "issues", before_segments),
+                    (1, after, "pages", after_segments),
+                    (1, after, "issues", after_segments),
+                )
                 for side, source, name, ordered_segments in order:
                     base = completed
                     done = _index_collection(
-                        con, source, side, name, ordered_segments,
-                        checkpoint_key=f"indexed:{side}:{name}", progress=persist_progress,
-                        job_id=job_id, progress_base=base, progress_total=total_index,
+                        con,
+                        source,
+                        side,
+                        name,
+                        ordered_segments,
+                        checkpoint_key=f"indexed:{side}:{name}",
+                        progress=persist_progress,
+                        job_id=job_id,
+                        progress_base=base,
+                        progress_total=total_index,
                         cancel_event=cancel_event,
                     )
                     completed += done
@@ -1152,8 +1322,12 @@ def compare_to_files(
                         total=page_total,
                         cancel_event=cancel_event,
                     )
-                con.execute("CREATE UNIQUE INDEX IF NOT EXISTS issue_identity ON issues(side,check_key,comparison_url)")
-                con.execute("CREATE INDEX IF NOT EXISTS page_identity ON pages(side,comparison_url)")
+                con.execute(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS issue_identity ON issues(side,check_key,comparison_url)"
+                )
+                con.execute(
+                    "CREATE INDEX IF NOT EXISTS page_identity ON pages(side,comparison_url)"
+                )
                 con.execute("CREATE INDEX IF NOT EXISTS issue_ordinal ON issues(side,ordinal)")
                 _set_state(con, "phase", "classify_before")
                 con.commit()
@@ -1166,7 +1340,9 @@ def compare_to_files(
                 total = counts[(side, "issues")]
                 offset = int(_state_value(con, f"classified:{side}", 0))
                 partial_other = bool(_run(after if side == 0 else before).get("crawl_partial"))
-                present_bucket, absent_bucket = (("left", "disappeared") if side == 0 else ("entered", "appeared"))
+                present_bucket, absent_bucket = (
+                    ("left", "disappeared") if side == 0 else ("entered", "appeared")
+                )
                 while True:
                     _check_cancel(cancel_event)
                     rows = con.execute(
@@ -1212,7 +1388,9 @@ def compare_to_files(
                     _set_state(con, "phase", "classify_after" if side == 0 else "export")
                     con.commit()
             con.execute("CREATE INDEX IF NOT EXISTS delta_order ON delta(bucket,check_key,url)")
-            con.execute("CREATE INDEX IF NOT EXISTS delta_segment ON delta(segment,bucket,check_key,url)")
+            con.execute(
+                "CREATE INDEX IF NOT EXISTS delta_segment ON delta(segment,bucket,check_key,url)"
+            )
             con.commit()
 
             output_root = root
@@ -1228,28 +1406,45 @@ def compare_to_files(
                 if path.exists():
                     info = path.lstat()
                     if not path.is_file() or path.is_symlink() or info.st_nlink != 1:
-                        raise CompareError("uncheckpointed comparison output file is unsafe to replace")
+                        raise CompareError(
+                            "uncheckpointed comparison output file is unsafe to replace"
+                        )
                     path.unlink()
                 report("running", f"export_{name}", 0, total)
                 latest = 0
+
                 def on_progress(count: int) -> None:
                     nonlocal latest
                     _check_cancel(cancel_event)
                     latest = count
                     report("running", f"export_{name}", count, total)
+
                 _check_cancel(cancel_event)
-                files[name] = _export(output_root, name, rows, compression=compression, on_progress=on_progress, cancel_event=cancel_event)
-                checkpoint("running", "export", files=files, completed_file=name, completed_rows=latest)
+                files[name] = _export(
+                    output_root,
+                    name,
+                    rows,
+                    compression=compression,
+                    on_progress=on_progress,
+                    cancel_event=cancel_event,
+                )
+                checkpoint(
+                    "running", "export", files=files, completed_file=name, completed_rows=latest
+                )
 
             for bucket in _BUCKETS[:-1]:
-                total = con.execute("SELECT COUNT(*) FROM delta WHERE bucket=?", (bucket,)).fetchone()[0]
+                total = con.execute(
+                    "SELECT COUNT(*) FROM delta WHERE bucket=?", (bucket,)
+                ).fetchone()[0]
                 export(
                     bucket,
-                    (_row((before, after)[row[0]], "issues", row[1], row[2])
-                     for row in con.execute(
-                         "SELECT i.side,i.ordinal,i.document FROM delta d JOIN issues i ON i.rowid=d.issue_rowid WHERE d.bucket=? ORDER BY d.check_key,d.url",
-                         (bucket,),
-                     )),
+                    (
+                        _row((before, after)[row[0]], "issues", row[1], row[2])
+                        for row in con.execute(
+                            "SELECT i.side,i.ordinal,i.document FROM delta d JOIN issues i ON i.rowid=d.issue_rowid WHERE d.bucket=? ORDER BY d.check_key,d.url",
+                            (bucket,),
+                        )
+                    ),
                     total=total,
                 )
             unchanged_total = con.execute(
@@ -1257,46 +1452,75 @@ def compare_to_files(
             ).fetchone()[0]
             export(
                 "unchanged",
-                ({"before": _row(before, "issues", row[0], row[1]),
-                  "after": _row(after, "issues", row[2], row[3])}
-                 for row in con.execute(
-                     "SELECT b.ordinal,b.document,a.ordinal,a.document FROM issues b JOIN issues a ON a.side=1 AND a.check_key=b.check_key AND a.comparison_url=b.comparison_url WHERE b.side=0 ORDER BY b.check_key,b.url"
-                 )),
+                (
+                    {
+                        "before": _row(before, "issues", row[0], row[1]),
+                        "after": _row(after, "issues", row[2], row[3]),
+                    }
+                    for row in con.execute(
+                        "SELECT b.ordinal,b.document,a.ordinal,a.document FROM issues b JOIN issues a ON a.side=1 AND a.check_key=b.check_key AND a.comparison_url=b.comparison_url WHERE b.side=0 ORDER BY b.check_key,b.url"
+                    )
+                ),
                 total=unchanged_total,
             )
             export(
                 "by_check",
-                ({"check": row[0], **dict(zip(_BUCKETS[:-1], row[1:], strict=True))}
-                 for row in con.execute(
-                     "SELECT check_key,sum(bucket='entered'),sum(bucket='left'),sum(bucket='appeared'),sum(bucket='disappeared') FROM delta GROUP BY check_key ORDER BY check_key"
-                 )),
+                (
+                    {"check": row[0], **dict(zip(_BUCKETS[:-1], row[1:], strict=True))}
+                    for row in con.execute(
+                        "SELECT check_key,sum(bucket='entered'),sum(bucket='left'),sum(bucket='appeared'),sum(bucket='disappeared') FROM delta GROUP BY check_key ORDER BY check_key"
+                    )
+                ),
             )
-            segment_rows_total = con.execute("SELECT COUNT(*) FROM delta").fetchone()[0] + unchanged_total
+            segment_rows_total = (
+                con.execute("SELECT COUNT(*) FROM delta").fetchone()[0] + unchanged_total
+            )
+
             def segment_changes():
                 for row in con.execute(
                     "SELECT d.bucket,d.segment,i.side,i.ordinal,i.document FROM delta d JOIN issues i ON i.rowid=d.issue_rowid ORDER BY d.segment,d.bucket,d.check_key,d.url"
                 ):
-                    yield {"segment": row[1], "change": row[0], "issue": _row((before, after)[row[2]], "issues", row[3], row[4])}
+                    yield {
+                        "segment": row[1],
+                        "change": row[0],
+                        "issue": _row((before, after)[row[2]], "issues", row[3], row[4]),
+                    }
                 for row in con.execute(
                     "SELECT p.segment,b.ordinal,b.document,a.ordinal,a.document FROM issues b JOIN issues a ON a.side=1 AND a.check_key=b.check_key AND a.comparison_url=b.comparison_url LEFT JOIN pages p ON p.side=1 AND p.url=a.url WHERE b.side=0 ORDER BY p.segment,b.check_key,b.url"
                 ):
-                    segment = row[0] or ("unsegmented" if not before_defs and compatible_segments else "unavailable")
+                    segment = row[0] or (
+                        "unsegmented" if not before_defs and compatible_segments else "unavailable"
+                    )
                     if not compatible_segments:
                         segment = "unavailable"
-                    yield {"segment": segment, "change": "unchanged",
-                           "before": _row(before, "issues", row[1], row[2]),
-                           "after": _row(after, "issues", row[3], row[4])}
+                    yield {
+                        "segment": segment,
+                        "change": "unchanged",
+                        "before": _row(before, "issues", row[1], row[2]),
+                        "after": _row(after, "issues", row[3], row[4]),
+                    }
+
             export("segment_changes", segment_changes(), total=segment_rows_total)
             if declaration is not None:
-                export("correspondence", (json.loads(row[0]) for row in con.execute("SELECT document FROM pairs ORDER BY before_url")))
+                export(
+                    "correspondence",
+                    (
+                        json.loads(row[0])
+                        for row in con.execute("SELECT document FROM pairs ORDER BY before_url")
+                    ),
+                )
                 export("facts", _facts(con, before, after))
 
             counts = {bucket: files[bucket]["rows"] for bucket in _BUCKETS}
             totals = {}
             page_totals = {}
             for side, label in ((0, "before"), (1, "after")):
-                totals[label] = con.execute("SELECT count(*) FROM issues WHERE side=?", (side,)).fetchone()[0]
-                page_totals[label] = con.execute("SELECT count(*) FROM pages WHERE side=?", (side,)).fetchone()[0]
+                totals[label] = con.execute(
+                    "SELECT count(*) FROM issues WHERE side=?", (side,)
+                ).fetchone()[0]
+                page_totals[label] = con.execute(
+                    "SELECT count(*) FROM pages WHERE side=?", (side,)
+                ).fetchone()[0]
                 identities[label]["urls_crawled"] = page_totals[label]
             conservation = {
                 "before_issues": totals["before"],
@@ -1304,46 +1528,107 @@ def compare_to_files(
                 "before_accounted": counts["left"] + counts["disappeared"] + counts["unchanged"],
                 "after_accounted": counts["entered"] + counts["appeared"] + counts["unchanged"],
             }
-            if conservation["before_issues"] != conservation["before_accounted"] or conservation["after_issues"] != conservation["after_accounted"]:
+            if (
+                conservation["before_issues"] != conservation["before_accounted"]
+                or conservation["after_issues"] != conservation["after_accounted"]
+            ):
                 raise CompareError("comparison conservation failed")
 
-            segment_summary = {"unsegmented": {"before": {"pages": 0, "issues": 0}, "after": {"pages": 0, "issues": 0}, "changes": dict.fromkeys(_BUCKETS, 0)}}
+            segment_summary = {
+                "unsegmented": {
+                    "before": {"pages": 0, "issues": 0},
+                    "after": {"pages": 0, "issues": 0},
+                    "changes": dict.fromkeys(_BUCKETS, 0),
+                }
+            }
             if compatible_segments:
                 for definition in before_defs:
                     name = str(definition.get("name", ""))
                     if name:
-                        segment_summary.setdefault(name, {"before": {"pages": 0, "issues": 0}, "after": {"pages": 0, "issues": 0}, "changes": dict.fromkeys(_BUCKETS, 0)})
+                        segment_summary.setdefault(
+                            name,
+                            {
+                                "before": {"pages": 0, "issues": 0},
+                                "after": {"pages": 0, "issues": 0},
+                                "changes": dict.fromkeys(_BUCKETS, 0),
+                            },
+                        )
             for side, label in ((0, "before"), (1, "after")):
-                for segment, pages in con.execute("SELECT segment,count(*) FROM pages WHERE side=? GROUP BY segment", (side,)):
-                    segment_summary.setdefault(segment, {"before": {"pages": 0, "issues": 0}, "after": {"pages": 0, "issues": 0}, "changes": dict.fromkeys(_BUCKETS, 0)})[label]["pages"] = pages
+                for segment, pages in con.execute(
+                    "SELECT segment,count(*) FROM pages WHERE side=? GROUP BY segment", (side,)
+                ):
+                    segment_summary.setdefault(
+                        segment,
+                        {
+                            "before": {"pages": 0, "issues": 0},
+                            "after": {"pages": 0, "issues": 0},
+                            "changes": dict.fromkeys(_BUCKETS, 0),
+                        },
+                    )[label]["pages"] = pages
                 for segment, issues in con.execute(
-                    "SELECT COALESCE(p.segment,'unavailable'),count(*) FROM issues i LEFT JOIN pages p ON p.side=i.side AND p.url=i.url WHERE i.side=? GROUP BY COALESCE(p.segment,'unavailable')", (side,)
+                    "SELECT COALESCE(p.segment,'unavailable'),count(*) FROM issues i LEFT JOIN pages p ON p.side=i.side AND p.url=i.url WHERE i.side=? GROUP BY COALESCE(p.segment,'unavailable')",
+                    (side,),
                 ):
                     name = segment or "unavailable"
-                    segment_summary.setdefault(name, {"before": {"pages": 0, "issues": 0}, "after": {"pages": 0, "issues": 0}, "changes": dict.fromkeys(_BUCKETS, 0)})[label]["issues"] = issues
-            for segment, bucket, amount in con.execute("SELECT segment,bucket,count(*) FROM delta GROUP BY segment,bucket"):
-                segment_summary.setdefault(segment, {"before": {"pages": 0, "issues": 0}, "after": {"pages": 0, "issues": 0}, "changes": dict.fromkeys(_BUCKETS, 0)})["changes"][bucket] = amount
+                    segment_summary.setdefault(
+                        name,
+                        {
+                            "before": {"pages": 0, "issues": 0},
+                            "after": {"pages": 0, "issues": 0},
+                            "changes": dict.fromkeys(_BUCKETS, 0),
+                        },
+                    )[label]["issues"] = issues
+            for segment, bucket, amount in con.execute(
+                "SELECT segment,bucket,count(*) FROM delta GROUP BY segment,bucket"
+            ):
+                segment_summary.setdefault(
+                    segment,
+                    {
+                        "before": {"pages": 0, "issues": 0},
+                        "after": {"pages": 0, "issues": 0},
+                        "changes": dict.fromkeys(_BUCKETS, 0),
+                    },
+                )["changes"][bucket] = amount
             for segment, amount in con.execute(
                 "SELECT COALESCE(p.segment,'unavailable'),count(*) FROM issues b JOIN issues a ON a.side=1 AND a.check_key=b.check_key AND a.comparison_url=b.comparison_url LEFT JOIN pages p ON p.side=1 AND p.url=a.url WHERE b.side=0 GROUP BY COALESCE(p.segment,'unavailable')"
             ):
-                segment_summary.setdefault(segment or "unavailable", {"before": {"pages": 0, "issues": 0}, "after": {"pages": 0, "issues": 0}, "changes": dict.fromkeys(_BUCKETS, 0)})["changes"]["unchanged"] = amount
+                segment_summary.setdefault(
+                    segment or "unavailable",
+                    {
+                        "before": {"pages": 0, "issues": 0},
+                        "after": {"pages": 0, "issues": 0},
+                        "changes": dict.fromkeys(_BUCKETS, 0),
+                    },
+                )["changes"]["unchanged"] = amount
             if compatible_segments and before_defs:
                 for name, values in segment_summary.items():
                     values["state"] = "unavailable" if name == "unavailable" else "compared"
 
-            warnings = list(dict.fromkeys(preflight(before, after) + comparison_warnings(_header(before), _header(after))))
+            warnings = list(
+                dict.fromkeys(
+                    preflight(before, after) + comparison_warnings(_header(before), _header(after))
+                )
+            )
             result = {
-                "schema_version": "compare.v2", **identities, "force": force,
+                "schema_version": "compare.v2",
+                **identities,
+                "force": force,
                 "compression": compression,
                 "warnings": warnings,
                 "compatibility": comparison_compatibility(_header(before), _header(after)),
                 "summary": counts,
                 "segment_breakdown": {
                     "state": "compared" if compatible_segments and before_defs else "unavailable",
-                    **({} if compatible_segments and before_defs else {"reason": "both runs must retain matching named segment definitions"}),
-                    "whole_site": {"before": {"pages": page_totals["before"], "issues": totals["before"]},
-                                   "after": {"pages": page_totals["after"], "issues": totals["after"]},
-                                   "changes": counts},
+                    **(
+                        {}
+                        if compatible_segments and before_defs
+                        else {"reason": "both runs must retain matching named segment definitions"}
+                    ),
+                    "whole_site": {
+                        "before": {"pages": page_totals["before"], "issues": totals["before"]},
+                        "after": {"pages": page_totals["after"], "issues": totals["after"]},
+                        "changes": counts,
+                    },
                     "segments": segment_summary if compatible_segments and before_defs else {},
                 },
                 "conservation": {**conservation, "state": "complete"},
@@ -1362,7 +1647,10 @@ def compare_to_files(
             if gaps:
                 result["measurement_gaps"] = gaps
             if declaration is not None:
-                result["correspondence"] = {"schema_version": "url-correspondence.v1", "origin_map": declaration["origin_map"]}
+                result["correspondence"] = {
+                    "schema_version": "url-correspondence.v1",
+                    "origin_map": declaration["origin_map"],
+                }
 
             manifest_path = root / "compare.json"
             staged = root / ".compare.json.staged"
@@ -1387,13 +1675,28 @@ def compare_to_files(
             _check_cancel(cancel_event)
             _publish(root, destination, job_id=job_id, cancel_event=cancel_event)
             checkpoint("finished", "complete", files=files, completed=1, total=1)
-            _notify(progress, job_id=job_id, state="finished", stage="complete", completed=1, total=1)
+            _notify(
+                progress, job_id=job_id, state="finished", stage="complete", completed=1, total=1
+            )
             succeeded = True
-        return {**result, "manifest": str(destination / "compare.json"), "out_dir": str(destination), "cache_hit": False}
+        return {
+            **result,
+            "manifest": str(destination / "compare.json"),
+            "out_dir": str(destination),
+            "cache_hit": False,
+        }
     except BaseException as exc:
         with suppress(Exception):
             checkpoint("failed", str(job.get("stage", "compare")), reason=str(exc)[:500])
-        _notify(progress, job_id=job_id, state="failed", stage=str(job.get("stage", "compare"))[:64], completed=job.get("completed"), total=job.get("total"), reason=str(exc)[:500])
+        _notify(
+            progress,
+            job_id=job_id,
+            state="failed",
+            stage=str(job.get("stage", "compare"))[:64],
+            completed=job.get("completed"),
+            total=job.get("total"),
+            reason=str(exc)[:500],
+        )
         raise
     finally:
         unlock(lock_fd)

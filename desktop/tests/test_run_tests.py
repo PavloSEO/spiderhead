@@ -1,8 +1,8 @@
 """The suite runner's discovery and progress options stay intentionally small."""
 
 import importlib.util
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts/run_tests.py"
 SPEC = importlib.util.spec_from_file_location("desktop_test_runner", SCRIPT)

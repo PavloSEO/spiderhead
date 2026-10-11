@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import pytest
 
+from seohead.core import filesystem
 from seohead.projects.action_log import page, record, resolve_pending
 from seohead.projects.permissions import require_mcp_allowed
 from seohead.projects.runtime import project_write_lock
 from seohead.projects.workspace import create_project
-from seohead.core import filesystem
 
 
 @pytest.fixture
@@ -54,9 +54,11 @@ def test_action_log_fails_closed_without_a_lock_backend(project, monkeypatch):
     monkeypatch.setattr(filesystem, "fcntl", None)
     monkeypatch.setattr(filesystem, "msvcrt", None)
 
-    with pytest.raises(OSError, match="no supported OS file-lock backend"):
-        with project_write_lock(project):
-            pass
+    with (
+        pytest.raises(OSError, match="no supported OS file-lock backend"),
+        project_write_lock(project),
+    ):
+        pass
 
 
 def test_action_log_fails_fast_when_another_writer_holds_the_lock(project, monkeypatch):
@@ -65,9 +67,11 @@ def test_action_log_fails_fast_when_another_writer_holds_the_lock(project, monke
 
     monkeypatch.setattr(filesystem, "lock_exclusive", contended)
 
-    with pytest.raises(ValueError, match="another writer owns the project workspace"):
-        with project_write_lock(project, timeout_seconds=0):
-            pass
+    with (
+        pytest.raises(ValueError, match="another writer owns the project workspace"),
+        project_write_lock(project, timeout_seconds=0),
+    ):
+        pass
 
 
 def test_pending_action_resolves_in_place_without_a_second_slot(project, monkeypatch):

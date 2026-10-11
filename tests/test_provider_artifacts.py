@@ -9,7 +9,9 @@ from seohead.data_sources.provider_artifacts import read_pagespeed_artifact
 
 
 def _artifact(directory, payload):
-    content_hash = hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
+    content_hash = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, default=str).encode()
+    ).hexdigest()
     path = directory / f"provider-{content_hash[:16]}.json"
     path.write_text(json.dumps(payload, ensure_ascii=False, sort_keys=True), encoding="utf-8")
     path.chmod(0o600)

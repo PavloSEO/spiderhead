@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import ipaddress
 import json
 import os
@@ -11,9 +12,10 @@ import tempfile
 import threading
 import time
 import urllib.parse
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from seohead.data_sources import cloudflare
 
@@ -36,9 +38,7 @@ _SESSION_PATH = re.compile(r"^/instant-logs/ws/sessions/[a-fA-F0-9]{32}$")
 
 
 def _apache_quote(value: Any) -> str:
-    return urllib.parse.quote(
-        str(value or "-"), safe="/?:=&%#+,;@!$'()*-._~"
-    )
+    return urllib.parse.quote(str(value or "-"), safe="/?:=&%#+,;@!$'()*-._~")
 
 
 def _to_apache(row: dict[str, Any]) -> str:
@@ -69,9 +69,9 @@ def _to_apache(row: dict[str, Any]) -> str:
     method = row.get("ClientRequestMethod") or "GET"
     agent = row.get("ClientRequestUserAgent") or "-"
     return (
-        f'{address} - - [{stamp.strftime("%d/%b/%Y:%H:%M:%S +0000")}] '
+        f"{address} - - [{stamp.strftime('%d/%b/%Y:%H:%M:%S +0000')}] "
         f'"{_apache_quote(method)} {_apache_quote(row["ClientRequestURI"])} HTTP/1.1" '
-        f"{status} {size if size is not None else '-'} \"-\" \"{_apache_quote(agent)}\""
+        f'{status} {size if size is not None else "-"} "-" "{_apache_quote(agent)}"'
     )
 
 
@@ -108,7 +108,11 @@ def _write_project_import(project: str, lines: list[str], *, complete: bool) -> 
         if temporary_path is not None:
             temporary_path.unlink(missing_ok=True)
     if not result.get("ok"):
-        return {"ok": False, "state": "failed", "reason": result.get("error") or "local log import failed"}
+        return {
+            "ok": False,
+            "state": "failed",
+            "reason": result.get("error") or "local log import failed",
+        }
     return {
         "ok": True,
         "state": "partial" if not complete or not result.get("complete") else "complete",
@@ -177,7 +181,9 @@ def _websocket_connect():
     try:
         from websockets.sync.client import connect
     except ImportError:
-        raise RuntimeError("optional websockets dependency is unavailable; install the cloudflare-stream extra") from None
+        raise RuntimeError(
+            "optional websockets dependency is unavailable; install the cloudflare-stream extra"
+        ) from None
     return connect
 
 
@@ -216,9 +222,15 @@ def instant_logs_capture(
     try:
         secret = token or cloudflare.read_token()
         zone_id = cloudflare.resolve_project_zone(project)
-        info = cloudflare.resolve_zone_id(zone_id, secret, transport or cloudflare._default_transport)
+        info = cloudflare.resolve_zone_id(
+            zone_id, secret, transport or cloudflare._default_transport
+        )
     except (cloudflare.CloudflareError, OSError, ValueError):
-        return {"ok": False, "state": "unavailable", "reason": "selected Cloudflare zone is unavailable"}
+        return {
+            "ok": False,
+            "state": "unavailable",
+            "reason": "selected Cloudflare zone is unavailable",
+        }
     plan = str(info.get("plan") or "").strip().casefold()
     if plan.startswith("business"):
         plan_state = "business"
@@ -237,23 +249,62 @@ def instant_logs_capture(
     try:
         existing = api("GET", base, None, secret)
     except Exception:
-        return {"ok": False, "state": "unavailable", "plan": plan_state, "reason": "could not check for an active zone session"}
+        return {
+            "ok": False,
+            "state": "unavailable",
+            "plan": plan_state,
+            "reason": "could not check for an active zone session",
+        }
     active_jobs = existing.get("result") if isinstance(existing, dict) else None
-    if not isinstance(existing, dict) or not existing.get("success") or not isinstance(active_jobs, list):
-        return {"ok": False, "state": "unavailable", "plan": plan_state, "reason": "Instant Logs session list is unavailable"}
+    if (
+        not isinstance(existing, dict)
+        or not existing.get("success")
+        or not isinstance(active_jobs, list)
+    ):
+        return {
+            "ok": False,
+            "state": "unavailable",
+            "plan": plan_state,
+            "reason": "Instant Logs session list is unavailable",
+        }
     if active_jobs:
-        return {"ok": False, "state": "unavailable", "plan": plan_state, "reason": "a zone Instant Logs session is already active"}
+        return {
+            "ok": False,
+            "state": "unavailable",
+            "plan": plan_state,
+            "reason": "a zone Instant Logs session is already active",
+        }
     if cancel_event is not None and cancel_event.is_set():
-        return {"ok": False, "state": "cancelled", "plan": plan_state, "reason": "capture cancelled before session creation"}
-    body = {"fields": ",".join(INSTANT_FIELDS), "filter": "", "sample": sample, "kind": "instant-logs"}
+        return {
+            "ok": False,
+            "state": "cancelled",
+            "plan": plan_state,
+            "reason": "capture cancelled before session creation",
+        }
+    body = {
+        "fields": ",".join(INSTANT_FIELDS),
+        "filter": "",
+        "sample": sample,
+        "kind": "instant-logs",
+    }
     try:
         created = api("POST", base, body, secret)
     except Exception:
-        return {"ok": False, "state": "failed", "plan": plan_state, "reason": "Instant Logs session creation failed"}
+        return {
+            "ok": False,
+            "state": "failed",
+            "plan": plan_state,
+            "reason": "Instant Logs session creation failed",
+        }
     result = created.get("result") if isinstance(created, dict) else None
     destination = result.get("destination_conf") if isinstance(result, dict) else None
     if not created.get("success") or not isinstance(destination, str):
-        return {"ok": False, "state": "failed", "plan": plan_state, "reason": "Instant Logs did not return a WebSocket endpoint"}
+        return {
+            "ok": False,
+            "state": "failed",
+            "plan": plan_state,
+            "reason": "Instant Logs did not return a WebSocket endpoint",
+        }
     parsed = urllib.parse.urlsplit(destination)
     if (
         parsed.scheme != "wss"
@@ -356,26 +407,30 @@ def instant_logs_capture(
         stop_reason = "stream_unavailable"
     finally:
         if ws is not None:
-            try:
+            with contextlib.suppress(Exception):
                 ws.close()
-            except Exception:
-                pass
     if stream_error and not records:
         return {
             "ok": False,
-            "state": "unavailable" if "optional websockets dependency" in stream_error else "failed",
+            "state": "unavailable"
+            if "optional websockets dependency" in stream_error
+            else "failed",
             "plan": plan_state,
             "reason": stream_error,
             "stop_reason": stop_reason,
             "provider_session": "socket closed or connection unavailable; Cloudflare idle expiry is at most five minutes",
         }
     try:
-        imported = _write_project_import(project, records, complete=False) if records else {
-            "ok": True,
-            "state": "empty",
-            "imported": 0,
-            "complete": False,
-        }
+        imported = (
+            _write_project_import(project, records, complete=False)
+            if records
+            else {
+                "ok": True,
+                "state": "empty",
+                "imported": 0,
+                "complete": False,
+            }
+        )
     except Exception:
         return {
             "ok": False,
@@ -386,7 +441,12 @@ def instant_logs_capture(
             "provider_session": "socket is closed; Cloudflare auto-stops the owned session after five idle minutes",
         }
     if not imported.get("ok"):
-        return {"ok": False, "state": "failed", "plan": plan_state, "reason": imported.get("reason")}
+        return {
+            "ok": False,
+            "state": "failed",
+            "plan": plan_state,
+            "reason": imported.get("reason"),
+        }
     return {
         "ok": True,
         "state": "partial",

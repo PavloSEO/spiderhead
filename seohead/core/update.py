@@ -151,7 +151,11 @@ def _normalize_releases(payload: Any, limit: int) -> list[dict[str, Any]]:
         raise ValueError("release feed must be a JSON array")
     releases = []
     for item in payload[:limit]:
-        if not isinstance(item, dict) or item.get("draft") is True or item.get("prerelease") is True:
+        if (
+            not isinstance(item, dict)
+            or item.get("draft") is True
+            or item.get("prerelease") is True
+        ):
             continue
         tag = item.get("tag_name")
         parsed_version = _version(tag) if isinstance(tag, str) else None
@@ -181,9 +185,7 @@ def _normalize_releases(payload: Any, limit: int) -> list[dict[str, Any]]:
                 if isinstance(item.get("body") or "", str)
                 else "",
                 "assets": [
-                    asset
-                    for raw in assets[:MAX_ASSETS]
-                    if (asset := _asset(raw, tag)) is not None
+                    asset for raw in assets[:MAX_ASSETS] if (asset := _asset(raw, tag)) is not None
                 ],
             }
         )
@@ -236,64 +238,66 @@ def check_updates(
             follow_redirects=True,
             headers={"Accept": "application/vnd.github+json", "User-Agent": "SpiderHead"},
         )
-        with client:
-            with client.stream("GET", RELEASES_URL, params={"per_page": max_releases}) as response:
-                if response.status_code != 200:
+        with (
+            client,
+            client.stream("GET", RELEASES_URL, params={"per_page": max_releases}) as response,
+        ):
+            if response.status_code != 200:
+                result = {
+                    "state": "error",
+                    "error": {
+                        "code": "release_feed_http_error",
+                        "message": f"release feed returned HTTP {response.status_code}",
+                    },
+                }
+            else:
+                chunks = []
+                size = 0
+                for chunk in response.iter_bytes(64 * 1024):
+                    size += len(chunk)
+                    if size > MAX_FEED_BYTES:
+                        break
+                    chunks.append(chunk)
+                if size > MAX_FEED_BYTES:
                     result = {
                         "state": "error",
                         "error": {
-                            "code": "release_feed_http_error",
-                            "message": f"release feed returned HTTP {response.status_code}",
+                            "code": "release_feed_too_large",
+                            "message": "release feed exceeded its response byte limit",
                         },
                     }
                 else:
-                    chunks = []
-                    size = 0
-                    for chunk in response.iter_bytes(64 * 1024):
-                        size += len(chunk)
-                        if size > MAX_FEED_BYTES:
-                            break
-                        chunks.append(chunk)
-                    if size > MAX_FEED_BYTES:
+                    try:
+                        payload = json.loads(b"".join(chunks))
+                        releases = _normalize_releases(payload, max_releases)
+                    except (ValueError, TypeError):
+                        releases = None
+                    if releases is None:
                         result = {
                             "state": "error",
                             "error": {
-                                "code": "release_feed_too_large",
-                                "message": "release feed exceeded its response byte limit",
+                                "code": "invalid_release_feed",
+                                "message": "release feed was not valid bounded JSON",
                             },
                         }
+                    elif not releases:
+                        result = {
+                            "state": "unavailable",
+                            "reason": "the repository has no usable stable release metadata",
+                            "latest": None,
+                            "releases": [],
+                        }
                     else:
-                        try:
-                            payload = json.loads(b"".join(chunks))
-                            releases = _normalize_releases(payload, max_releases)
-                        except (ValueError, TypeError):
-                            releases = None
-                        if releases is None:
-                            result = {
-                                "state": "error",
-                                "error": {
-                                    "code": "invalid_release_feed",
-                                    "message": "release feed was not valid bounded JSON",
-                                },
-                            }
-                        elif not releases:
-                            result = {
-                                "state": "unavailable",
-                                "reason": "the repository has no usable stable release metadata",
-                                "latest": None,
-                                "releases": [],
-                            }
-                        else:
-                            latest = releases[0]
-                            current = _version(__version__)
-                            released = _version(latest["version"])
-                            result = {
-                                "state": "available",
-                                "current_version": __version__,
-                                "latest": latest,
-                                "update_available": bool(current and released and released > current),
-                                "releases": releases,
-                            }
+                        latest = releases[0]
+                        current = _version(__version__)
+                        released = _version(latest["version"])
+                        result = {
+                            "state": "available",
+                            "current_version": __version__,
+                            "latest": latest,
+                            "update_available": bool(current and released and released > current),
+                            "releases": releases,
+                        }
     except Exception as exc:
         result = {
             "state": "error",
@@ -315,7 +319,9 @@ def check_updates(
     }
 
 
-def _checksum(client: Any, release: dict[str, Any], asset: dict[str, Any]) -> tuple[str | None, str | None]:
+def _checksum(
+    client: Any, release: dict[str, Any], asset: dict[str, Any]
+) -> tuple[str | None, str | None]:
     if asset.get("sha256"):
         return asset["sha256"], None
     sums = next((item for item in release["assets"] if item["name"] == "SHA256SUMS.txt"), None)
@@ -330,7 +336,10 @@ def _checksum(client: Any, release: dict[str, Any], asset: dict[str, Any]) -> tu
             for chunk in response.iter_bytes(16 * 1024):
                 size += len(chunk)
                 if size > MAX_CHECKSUM_BYTES:
-                    return None, "the release checksum file was unavailable or exceeded its byte limit"
+                    return (
+                        None,
+                        "the release checksum file was unavailable or exceeded its byte limit",
+                    )
                 chunks.append(chunk)
         checksum_text = b"".join(chunks).decode("utf-8")
     except (OSError, UnicodeDecodeError):
@@ -354,7 +363,11 @@ def download_update(
 ) -> dict[str, Any]:
     """Download one checksummed asset from the last checked release without installing it."""
     if consent is not True:
-        return {"ok": False, "state": "consent_required", "reason": "download requires explicit consent"}
+        return {
+            "ok": False,
+            "state": "consent_required",
+            "reason": "download requires explicit consent",
+        }
     if not isinstance(tag, str) or not _VERSION.fullmatch(tag):
         raise ValueError("tag must be a bounded stable release tag")
     if (
@@ -389,7 +402,11 @@ def download_update(
         }
     cached_assets = release.get("assets")
     if not isinstance(cached_assets, list):
-        return {"ok": False, "state": "unavailable", "reason": "checked release asset metadata is invalid"}
+        return {
+            "ok": False,
+            "state": "unavailable",
+            "reason": "checked release asset metadata is invalid",
+        }
     assets = []
     for item in cached_assets[:MAX_ASSETS]:
         if not isinstance(item, dict):
@@ -406,9 +423,17 @@ def download_update(
             assets.append(validated)
     asset = next((item for item in assets if item["name"] == asset_name), None)
     if asset is None:
-        return {"ok": False, "state": "unavailable", "reason": "asset is not in the checked release metadata"}
+        return {
+            "ok": False,
+            "state": "unavailable",
+            "reason": "asset is not in the checked release metadata",
+        }
     if not (asset_name.endswith(".whl") or asset_name.endswith(".tar.gz")):
-        return {"ok": False, "state": "unsupported_asset", "reason": "only Python wheel and source archive assets are supported"}
+        return {
+            "ok": False,
+            "state": "unsupported_asset",
+            "reason": "only Python wheel and source archive assets are supported",
+        }
     if not isinstance(out, str) or not out or len(out) > 4096:
         raise ValueError("out must be a bounded output path")
     destination = Path(out).expanduser()
@@ -440,7 +465,10 @@ def download_update(
                     return {
                         "ok": False,
                         "state": "error",
-                        "error": {"code": "download_http_error", "message": f"asset returned HTTP {response.status_code}"},
+                        "error": {
+                            "code": "download_http_error",
+                            "message": f"asset returned HTTP {response.status_code}",
+                        },
                     }
                 raw_length = response.headers.get("Content-Length")
                 try:
@@ -448,7 +476,11 @@ def download_update(
                 except ValueError:
                     total = None
                 if total is not None and (total < 0 or total > max_bytes):
-                    return {"ok": False, "state": "size_limit", "reason": "asset exceeds the configured byte limit"}
+                    return {
+                        "ok": False,
+                        "state": "size_limit",
+                        "reason": "asset exceeds the configured byte limit",
+                    }
                 descriptor, temporary = tempfile.mkstemp(prefix=".seohead-update-", dir=parent)
                 temporary_path = Path(temporary)
                 digest = hashlib.sha256()
@@ -459,7 +491,11 @@ def download_update(
                             return {"ok": False, "state": "cancelled", "bytes": received}
                         received += len(chunk)
                         if received > max_bytes:
-                            return {"ok": False, "state": "size_limit", "reason": "asset exceeded the configured byte limit"}
+                            return {
+                                "ok": False,
+                                "state": "size_limit",
+                                "reason": "asset exceeded the configured byte limit",
+                            }
                         digest.update(chunk)
                         stream.write(chunk)
                         if progress is not None:
@@ -467,7 +503,11 @@ def download_update(
                     stream.flush()
                     os.fsync(stream.fileno())
                 if digest.hexdigest() != expected:
-                    return {"ok": False, "state": "checksum_mismatch", "reason": "downloaded asset did not match the release SHA-256"}
+                    return {
+                        "ok": False,
+                        "state": "checksum_mismatch",
+                        "reason": "downloaded asset did not match the release SHA-256",
+                    }
                 if cancelled is not None and cancelled():
                     return {"ok": False, "state": "cancelled", "bytes": received}
                 os.link(temporary_path, destination, follow_symlinks=False)
@@ -487,7 +527,10 @@ def download_update(
         return {
             "ok": False,
             "state": "error",
-            "error": {"code": "download_failed", "message": f"asset download failed ({type(exc).__name__})"},
+            "error": {
+                "code": "download_failed",
+                "message": f"asset download failed ({type(exc).__name__})",
+            },
         }
     finally:
         if temporary_path is not None:

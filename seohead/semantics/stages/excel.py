@@ -67,19 +67,29 @@ def run(store, cfg, out_dir, *, scope="all"):
         "SELECT COUNT(*) FROM phrases p" + where + " AND p.exact IS NULL", scope_params
     ).fetchone()[0]
     n_clusters = db.execute(
-        "SELECT COUNT(DISTINCT p.cluster_id) FROM phrases p" + where + " AND p.cluster_id IS NOT NULL",
+        "SELECT COUNT(DISTINCT p.cluster_id) FROM phrases p"
+        + where
+        + " AND p.cluster_id IS NOT NULL",
         scope_params,
     ).fetchone()[0]
     drop_n = db.execute(
-        "SELECT COUNT(*) FROM phrases p " + scope_where + (" AND " if scope_where else " WHERE ") + "p.status='dropped'",
+        "SELECT COUNT(*) FROM phrases p "
+        + scope_where
+        + (" AND " if scope_where else " WHERE ")
+        + "p.status='dropped'",
         scope_params,
     ).fetchone()[0]
     rev_n = db.execute(
-        "SELECT COUNT(*) FROM phrases p " + scope_where + (" AND " if scope_where else " WHERE ") + "p.status='review'",
+        "SELECT COUNT(*) FROM phrases p "
+        + scope_where
+        + (" AND " if scope_where else " WHERE ")
+        + "p.status='review'",
         scope_params,
     ).fetchone()[0]
     # Informational phrases are the blog core, not junk: count them separately.
-    info_n = db.execute("SELECT COUNT(*) FROM phrases p" + where + " AND p.route='info'", scope_params).fetchone()[0]
+    info_n = db.execute(
+        "SELECT COUNT(*) FROM phrases p" + where + " AND p.route='info'", scope_params
+    ).fetchone()[0]
     sp = store.spend()
 
     wb = Workbook()
@@ -161,8 +171,10 @@ def run(store, cfg, out_dir, *, scope="all"):
     rows = db.execute(
         "SELECT norm,base,status,reason,reason_stage FROM phrases WHERE status IN ('dropped','dead','review') ORDER BY base DESC"
         if scope == "all"
-        else "SELECT p.norm,p.base,p.status,p.reason,p.reason_stage FROM phrases p " + scope_where + " AND p.status IN ('dropped','dead','review') ORDER BY p.base DESC"
-        , scope_params if scope != "all" else ()
+        else "SELECT p.norm,p.base,p.status,p.reason,p.reason_stage FROM phrases p "
+        + scope_where
+        + " AND p.status IN ('dropped','dead','review') ORDER BY p.base DESC",
+        scope_params if scope != "all" else (),
     ).fetchall()
     _sheet(
         wb.create_sheet("Rejected"),

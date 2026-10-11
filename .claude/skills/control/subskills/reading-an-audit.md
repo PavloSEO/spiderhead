@@ -23,7 +23,7 @@ Fired, skipped, disabled and silent are four different things:
 - **silent** — the check *was invoked* and found nothing. This is the good one.
   `checks_silent_ids` names the population; a check nothing ever invokes is a defect, not this.
 
-A health score computed from 16 of 248 checks is not a health score. The audit says so in
+A health score computed from 16 of 280 checks is not a health score. The audit says so in
 `health_score_basis`; **report that sentence next to the score, always.** Where coverage is too
 low to score at all, the score is withheld rather than averaged out of what happened to be
 available.

@@ -278,14 +278,11 @@ def _exclude_html_bodies(path: Path, *, older_than_days: int | None = None) -> i
     """Remove stored page documents from an archive snapshot while preserving evidence tables."""
     with sqlite3.connect(path) as con:
         tables = {
-            row[0]
-            for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")
         }
         if not {"scan", "documents", "responses", "bodies"} <= tables:
             return 0
-        header = con.execute(
-            "SELECT format_version FROM scan WHERE singleton=1"
-        ).fetchone()
+        header = con.execute("SELECT format_version FROM scan WHERE singleton=1").fetchone()
         if header is None or header[0] not in {"scan.v1", "scan.v2"}:
             return 0
         before = con.execute("SELECT COUNT(*) FROM bodies").fetchone()[0]
@@ -305,9 +302,7 @@ def _exclude_html_bodies(path: Path, *, older_than_days: int | None = None) -> i
                 "r.response_id=documents.source_response_id AND lower(r.content_type) LIKE '%html%'))"
             )
             values = (cutoff_at,)
-            con.execute(
-                "CREATE TEMP TABLE archive_omitted_body_hashes(sha256 TEXT PRIMARY KEY)"
-            )
+            con.execute("CREATE TEMP TABLE archive_omitted_body_hashes(sha256 TEXT PRIMARY KEY)")
             con.execute(
                 "INSERT OR IGNORE INTO archive_omitted_body_hashes "
                 "SELECT body_sha256 FROM documents WHERE " + condition,

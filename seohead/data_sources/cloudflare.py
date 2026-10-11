@@ -22,8 +22,8 @@ Only GET requests and POSTs to the GraphQL endpoint (a read) are issued.
 
 from __future__ import annotations
 
-import json
 import ipaddress
+import json
 import os
 import stat
 import tempfile
@@ -51,7 +51,11 @@ MAX_TRACKED_PATHS = 5000
 MAX_URL_FACTS = 50000
 MAX_TOKEN_BYTES = 8192
 MAX_RULES = 2000
-RULE_PHASES = ("http_request_redirect", "http_request_dynamic_redirect", "http_request_firewall_custom")
+RULE_PHASES = (
+    "http_request_redirect",
+    "http_request_dynamic_redirect",
+    "http_request_firewall_custom",
+)
 AI_SETTINGS = ("search_for_agents", "redirects_for_ai_training")
 MAX_CONFIG_ITEMS = 100
 SOURCE = "cloudflare-aggregated"
@@ -153,19 +157,35 @@ def verify_token(*, token: str | None = None, transport: Transport | None = None
     try:
         secret = token or read_token()
     except CloudflareError:
-        return {"ok": False, "token_status": None, "error": "Cloudflare API token is not configured"}
+        return {
+            "ok": False,
+            "token_status": None,
+            "error": "Cloudflare API token is not configured",
+        }
     try:
         payload = (transport or _default_transport)(
             "GET", f"{API}/user/tokens/verify", None, secret
         )
     except (CloudflareError, urllib.error.URLError, TimeoutError, OSError):
-        return {"ok": False, "token_status": None, "error": "Cloudflare token verification request failed"}
+        return {
+            "ok": False,
+            "token_status": None,
+            "error": "Cloudflare token verification request failed",
+        }
     if not payload.get("success") or not isinstance(payload.get("result"), dict):
-        return {"ok": False, "token_status": None, "error": "Cloudflare token verification returned an invalid response"}
+        return {
+            "ok": False,
+            "token_status": None,
+            "error": "Cloudflare token verification returned an invalid response",
+        }
     result = payload["result"]
     state = result.get("status")
     if state not in {"active", "disabled", "expired"}:
-        return {"ok": False, "token_status": None, "error": "Cloudflare token verification returned an unknown status"}
+        return {
+            "ok": False,
+            "token_status": None,
+            "error": "Cloudflare token verification returned an unknown status",
+        }
     return {"ok": state == "active", "token_status": state}
 
 
@@ -264,7 +284,10 @@ def resolve_zone_id(zone_id: str, token: str, transport: Transport) -> dict[str,
 def _zone_setting(zone_id: str, setting: str, token: str, transport: Transport) -> dict[str, Any]:
     try:
         payload = transport(
-            "GET", f"{API}/zones/{urllib.parse.quote(zone_id, safe='')}/settings/{setting}", None, token
+            "GET",
+            f"{API}/zones/{urllib.parse.quote(zone_id, safe='')}/settings/{setting}",
+            None,
+            token,
         )
     except (CloudflareError, urllib.error.URLError, TimeoutError, OSError):
         return {"state": "unavailable", "reason": "zone settings read failed"}
@@ -306,7 +329,11 @@ def _ruleset(phase: str, zone_id: str, token: str, transport: Transport) -> dict
         or not isinstance(rules, list)
         or not all(isinstance(rule, dict) for rule in rules)
     ):
-        return {"state": "unavailable", "reason": "ruleset is unavailable or not readable", "rules": []}
+        return {
+            "state": "unavailable",
+            "reason": "ruleset is unavailable or not readable",
+            "rules": [],
+        }
     return {
         "state": "partial" if len(rules) > MAX_RULES else "complete",
         "rules": [
@@ -334,20 +361,38 @@ def _logpush_jobs(zone_id: str, token: str, transport: Transport) -> dict[str, A
         payload = transport("GET", url, None, token)
     except (CloudflareError, urllib.error.URLError, TimeoutError, OSError):
         return {"state": "unavailable", "reason": "Logpush jobs read failed", "jobs": []}
-    if not isinstance(payload, dict) or not payload.get("success") or not isinstance(payload.get("result"), list):
-        return {"state": "unavailable", "reason": "Logpush jobs are unavailable or not readable", "jobs": []}
+    if (
+        not isinstance(payload, dict)
+        or not payload.get("success")
+        or not isinstance(payload.get("result"), list)
+    ):
+        return {
+            "state": "unavailable",
+            "reason": "Logpush jobs are unavailable or not readable",
+            "jobs": [],
+        }
     rows = payload["result"]
     if not all(isinstance(row, dict) for row in rows):
         return {"state": "unavailable", "reason": "Logpush jobs response is malformed", "jobs": []}
     info = payload.get("result_info") or {}
     total = info.get("total_count") if isinstance(info, dict) else None
     return {
-        "state": "partial" if len(rows) >= MAX_CONFIG_ITEMS or (isinstance(total, int) and total > len(rows)) else "complete",
+        "state": "partial"
+        if len(rows) >= MAX_CONFIG_ITEMS or (isinstance(total, int) and total > len(rows))
+        else "complete",
         "total": total if isinstance(total, int) else None,
         "jobs": [
             {
                 key: row.get(key)
-                for key in ("id", "dataset", "enabled", "kind", "frequency", "max_upload_bytes", "max_upload_records")
+                for key in (
+                    "id",
+                    "dataset",
+                    "enabled",
+                    "kind",
+                    "frequency",
+                    "max_upload_bytes",
+                    "max_upload_records",
+                )
                 if key in row
             }
             for row in rows[:MAX_CONFIG_ITEMS]
@@ -357,16 +402,24 @@ def _logpush_jobs(zone_id: str, token: str, transport: Transport) -> dict[str, A
     }
 
 
-def configuration(zone_id: str, *, token: str | None = None, transport: Transport | None = None) -> dict[str, Any]:
+def configuration(
+    zone_id: str, *, token: str | None = None, transport: Transport | None = None
+) -> dict[str, Any]:
     """Read a bounded subset of zone AI settings, redirects and custom WAF rules."""
     secret = token or read_token()
     send = transport or _default_transport
     settings = {name: _zone_setting(zone_id, name, secret, send) for name in AI_SETTINGS}
     rulesets = {phase: _ruleset(phase, zone_id, secret, send) for phase in RULE_PHASES}
     logpush = _logpush_jobs(zone_id, secret, send)
-    states = [item["state"] for item in settings.values()] + [item["state"] for item in rulesets.values()] + [logpush["state"]]
+    states = (
+        [item["state"] for item in settings.values()]
+        + [item["state"] for item in rulesets.values()]
+        + [logpush["state"]]
+    )
     return {
-        "state": "complete" if all(state == "measured" or state == "complete" for state in states) else "partial",
+        "state": "complete"
+        if all(state == "measured" or state == "complete" for state in states)
+        else "partial",
         "source": "Cloudflare zone settings and Rulesets API; read-only",
         "zone_settings": settings,
         "rulesets": rulesets,
@@ -619,11 +672,7 @@ def traffic(
         },
     }
     result["findings"] = _findings(result)
-    result["state"] = (
-        "partial"
-        if sampled or truncated_days or url_facts_truncated
-        else "complete"
-    )
+    result["state"] = "partial" if sampled or truncated_days or url_facts_truncated else "complete"
     if include_configuration:
         result["configuration"] = configuration(info["id"], token=secret, transport=send)
         result["configuration_requests"] = len(AI_SETTINGS) + len(RULE_PHASES) + 1
@@ -712,16 +761,17 @@ def logpull(
                 "reason": "Cloudflare Logpull is available on Enterprise plans only",
             }
         field_payload = send(
-            "GET", f"{API}/zones/{urllib.parse.quote(info['id'], safe='')}/logs/received/fields", None, secret
+            "GET",
+            f"{API}/zones/{urllib.parse.quote(info['id'], safe='')}/logs/received/fields",
+            None,
+            secret,
         )
         fields_result = field_payload.get("result") if isinstance(field_payload, dict) else None
         if isinstance(fields_result, dict):
             available = set(fields_result)
         elif isinstance(fields_result, list):
             available = {
-                item.get("key")
-                if isinstance(item, dict)
-                else item
+                item.get("key") if isinstance(item, dict) else item
                 for item in fields_result
                 if (isinstance(item, dict) and item.get("key")) or isinstance(item, str)
             }
@@ -765,7 +815,12 @@ def logpull(
             "error": str(exc),
         }
     except (urllib.error.URLError, TimeoutError, OSError):
-        return {"ok": False, "state": "failed", "provider": "cloudflare", "error": "Cloudflare Logpull request failed"}
+        return {
+            "ok": False,
+            "state": "failed",
+            "provider": "cloudflare",
+            "error": "Cloudflare Logpull request failed",
+        }
 
     if isinstance(raw, str):
         encoded = raw.encode("utf-8")
@@ -775,15 +830,35 @@ def logpull(
         try:
             raw_text = raw.decode("utf-8")
         except UnicodeError:
-            return {"ok": False, "state": "failed", "provider": "cloudflare", "error": "Cloudflare Logpull returned invalid UTF-8"}
+            return {
+                "ok": False,
+                "state": "failed",
+                "provider": "cloudflare",
+                "error": "Cloudflare Logpull returned invalid UTF-8",
+            }
     else:
-        return {"ok": False, "state": "failed", "provider": "cloudflare", "error": "Cloudflare Logpull returned an invalid response"}
+        return {
+            "ok": False,
+            "state": "failed",
+            "provider": "cloudflare",
+            "error": "Cloudflare Logpull returned an invalid response",
+        }
     if len(encoded) > MAX_RESPONSE_BYTES:
-        return {"ok": False, "state": "failed", "provider": "cloudflare", "error": "Cloudflare Logpull response exceeded the 16 MiB limit"}
+        return {
+            "ok": False,
+            "state": "failed",
+            "provider": "cloudflare",
+            "error": "Cloudflare Logpull response exceeded the 16 MiB limit",
+        }
 
     lines = [line for line in raw_text.splitlines() if line]
     if len(lines) > count:
-        return {"ok": False, "state": "failed", "provider": "cloudflare", "error": "Cloudflare Logpull exceeded the requested row limit"}
+        return {
+            "ok": False,
+            "state": "failed",
+            "provider": "cloudflare",
+            "error": "Cloudflare Logpull exceeded the requested row limit",
+        }
     converted = []
     try:
         for line in lines:
@@ -808,11 +883,16 @@ def logpull(
             size = row.get("EdgeResponseBytes")
             size = str(int(size)) if size is not None else "-"
             converted.append(
-                f'{ip} - - [{stamp.strftime("%d/%b/%Y:%H:%M:%S +0000")}] '
+                f"{ip} - - [{stamp.strftime('%d/%b/%Y:%H:%M:%S +0000')}] "
                 f'"{method} {uri} HTTP/1.1" {status} {size} "-" "{agent}"'
             )
     except (KeyError, TypeError, ValueError, OverflowError):
-        return {"ok": False, "state": "failed", "provider": "cloudflare", "error": "Cloudflare Logpull returned malformed HTTP request rows"}
+        return {
+            "ok": False,
+            "state": "failed",
+            "provider": "cloudflare",
+            "error": "Cloudflare Logpull returned malformed HTTP request rows",
+        }
     if not converted:
         return {
             "ok": True,
@@ -837,13 +917,21 @@ def logpull(
         temporary_path = None
         try:
             with tempfile.NamedTemporaryFile(
-                mode="w", encoding="utf-8", newline="\n", prefix=".cloudflare-logpull-", suffix=".log", dir=logs_dir, delete=False
+                mode="w",
+                encoding="utf-8",
+                newline="\n",
+                prefix=".cloudflare-logpull-",
+                suffix=".log",
+                dir=logs_dir,
+                delete=False,
             ) as handle:
                 temporary_path = Path(handle.name)
                 for line in converted:
                     handle.write(line + "\n")
                 if len(converted) == count:
-                    handle.write("\n")  # Sentinel makes the shared importer mark the capped prefix partial.
+                    handle.write(
+                        "\n"
+                    )  # Sentinel makes the shared importer mark the capped prefix partial.
             from seohead.checks.logstore import import_logs
 
             import_result = import_logs(str(temporary_path), project, max_lines=count)
@@ -863,7 +951,8 @@ def logpull(
             "state": "failed",
             "provider": "cloudflare",
             "zone": info["name"],
-            "error": (import_result or {}).get("error") or "Cloudflare log rows could not be retained",
+            "error": (import_result or {}).get("error")
+            or "Cloudflare log rows could not be retained",
         }
     truncated = len(converted) == count
     return {

@@ -48,7 +48,9 @@ def _scan(
         con.execute("INSERT INTO urls VALUES (2,?)", (final_url,))
     sha = hashlib.sha256(body).hexdigest() if body is not None else None
     if body is not None:
-        con.execute("INSERT INTO bodies VALUES (?,?,?,?,?)", (sha, "identity", len(body), len(body), body))
+        con.execute(
+            "INSERT INTO bodies VALUES (?,?,?,?,?)", (sha, "identity", len(body), len(body), body)
+        )
     con.execute(
         "INSERT INTO responses VALUES (1,1,?,'page',200,200,?,?,?,?,?)",
         (
@@ -69,9 +71,7 @@ def _scan(
             "none" if body is not None else "not_in_corpus",
         ),
     )
-    con.execute(
-        "INSERT INTO pages VALUES (1,1,1,'static',200,?)", (content_type,)
-    )
+    con.execute("INSERT INTO pages VALUES (1,1,1,'static',200,?)", (content_type,))
     if competing is not None:
         other_type, other_body = competing
         other_sha = hashlib.sha256(other_body).hexdigest()
@@ -109,9 +109,7 @@ def test_selected_document_wins_over_competing_response_and_redirect_target():
 
 
 def test_redirected_effective_url_does_not_hide_selected_response():
-    con, requested_url = _scan(
-        b"%PDF-1.7\n", "text/html", final_url="https://example.test/final"
-    )
+    con, requested_url = _scan(b"%PDF-1.7\n", "text/html", final_url="https://example.test/final")
     findings = []
     try:
         result = body_mime.evaluate(con, on_finding=findings.append)

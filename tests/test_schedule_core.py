@@ -12,8 +12,8 @@ import pytest
 from seohead.crawl import settings as crawl_settings
 from seohead.crawl.user_agents import DEFAULT_TOKEN, DEFAULT_USER_AGENT, resolve
 from seohead.projects import schedule, schedule_install
-from seohead.projects.schedule import due_state, infer_time_zone, next_due, validate
 from seohead.projects.runtime import add_competitors
+from seohead.projects.schedule import due_state, infer_time_zone, next_due, validate
 from seohead.projects.workspace import create_project
 
 
@@ -133,9 +133,7 @@ def _fake_scan(calls, *, partial=False):
         calls.append(kwargs)
         return {
             "ok": True,
-            "scan": str(
-                Path(kwargs["project"]) / "scans" / f"{len(calls)}.seohead"
-            ),
+            "scan": str(Path(kwargs["project"]) / "scans" / f"{len(calls)}.seohead"),
             "partial": partial,
             "finish_reason": "x",
         }
@@ -168,9 +166,7 @@ def test_run_due_passes_budgets_user_agent_and_writes_journal(tmp_path):
 
 def test_competitor_has_an_independent_monthly_schedule(tmp_path):
     project = _project(tmp_path)
-    competitor = add_competitors(str(project), ["https://rival.example.test/"])[
-        "competitors"
-    ][0]
+    competitor = add_competitors(str(project), ["https://rival.example.test/"])["competitors"][0]
     child = project / competitor["directory"]
     schedule.configure(
         project,
@@ -192,9 +188,7 @@ def test_competitor_has_an_independent_monthly_schedule(tmp_path):
     )
 
     calls = []
-    result = schedule.run_due(
-        project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00")
-    )
+    result = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00"))
 
     assert result["ran"] is True and result["ok"] is True
     assert result["runs"][0]["role"] == "competitor"
@@ -207,9 +201,7 @@ def test_competitor_has_an_independent_monthly_schedule(tmp_path):
 
 def test_schedule_show_reports_each_competitors_own_next_run(tmp_path):
     project = _project(tmp_path)
-    competitor = add_competitors(str(project), ["https://rival.example.test/"])[
-        "competitors"
-    ][0]
+    competitor = add_competitors(str(project), ["https://rival.example.test/"])["competitors"][0]
     child = project / competitor["directory"]
     schedule.configure(
         project,
@@ -237,9 +229,7 @@ def test_schedule_show_reports_each_competitors_own_next_run(tmp_path):
 
 def test_competitor_overlap_is_recorded_in_both_workspaces(tmp_path):
     project = _project(tmp_path)
-    competitor = add_competitors(str(project), ["https://rival.example.test/"])[
-        "competitors"
-    ][0]
+    competitor = add_competitors(str(project), ["https://rival.example.test/"])["competitors"][0]
     child = project / competitor["directory"]
     schedule.configure(
         project, expected_revision=0, enabled=True, time_zone="UTC", include_competitors=True
@@ -249,18 +239,14 @@ def test_competitor_overlap_is_recorded_in_both_workspaces(tmp_path):
     assert competitor_lock is not None
     calls = []
     try:
-        result = schedule.run_due(
-            project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00")
-        )
+        result = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00"))
     finally:
         schedule._release(competitor_lock)
 
     assert result["runs"][0]["role"] == "primary"
     assert result["runs"][1]["error"] == "overlap refused"
     assert len(calls) == 1
-    assert "another scheduled run holds its lock" in (child / "log.md").read_text(
-        encoding="utf-8"
-    )
+    assert "another scheduled run holds its lock" in (child / "log.md").read_text(encoding="utf-8")
 
 
 def test_run_due_refuses_overlap_while_another_process_holds_the_lock(tmp_path):
@@ -270,9 +256,7 @@ def test_run_due_refuses_overlap_while_another_process_holds_the_lock(tmp_path):
     assert owner_lock is not None
     calls = []
     try:
-        held = schedule.run_due(
-            project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00")
-        )
+        held = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00"))
     finally:
         schedule._release(owner_lock)
     assert held == {"ok": True, "ran": False, "reason": "overlap refused"} and not calls

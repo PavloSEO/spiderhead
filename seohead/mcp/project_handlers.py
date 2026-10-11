@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from typing import Any
 
 from seohead.projects.coverage import initialize_coverage, record_execution, update_item
@@ -65,12 +66,12 @@ def project_settings_propose(
     from seohead.projects.action_log import current_interface
     from seohead.projects.project_settings import propose_settings
 
-    return propose_settings(directory, changes, client=current_interface(), expected_revision=expected_revision)
+    return propose_settings(
+        directory, changes, client=current_interface(), expected_revision=expected_revision
+    )
 
 
-def project_settings_proposals(
-    directory: str, offset: int = 0, limit: int = 50
-) -> dict[str, Any]:
+def project_settings_proposals(directory: str, offset: int = 0, limit: int = 50) -> dict[str, Any]:
     from seohead.projects.project_settings import list_proposals
 
     return list_proposals(directory, offset=offset, limit=limit)
@@ -250,19 +251,17 @@ def project_inbox_unread(directory: str, consumer: str, limit: int = 10) -> dict
 
 
 def project_event_append(directory: str, source: str, actor: str, text: str) -> dict[str, Any]:
-    from seohead.projects.journal import record
     from seohead.projects.action_log import record_interface_action
+    from seohead.projects.journal import record
 
     result = record(directory, source=source, actor=actor, text=text)
-    try:
+    with contextlib.suppress(OSError, ValueError):
         record_interface_action(
             directory,
             action="project.event.append",
             outcome="applied",
             detail=f"Recorded {source}/{actor} event {result['event']['sequence']}",
         )
-    except (OSError, ValueError):
-        pass
     return result
 
 
@@ -373,7 +372,9 @@ def project_checklist_record(
     except Exception as exc:
         _action_log(target, "checklist-record", "denied", type(exc).__name__)
         raise
-    _action_log(target, "checklist-record", "applied", f"item_id={local_id}; status={record.get('status')}")
+    _action_log(
+        target, "checklist-record", "applied", f"item_id={local_id}; status={record.get('status')}"
+    )
     return result
 
 

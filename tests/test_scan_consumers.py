@@ -134,11 +134,12 @@ def test_compare_handler_cli_and_mcp_keep_identical_comparability_warnings(
     expected = handlers.compare_crawls(original, original)
     assert handlers.compare_crawls(str(scan), original) == expected
     server = build_server()
-    assert asyncio.run(
-        server._tool_manager.get_tool("seo_compare_crawls").fn(
-            before=str(scan), after=original
+    assert (
+        asyncio.run(
+            server._tool_manager.get_tool("seo_compare_crawls").fn(before=str(scan), after=original)
         )
-    ) == expected
+        == expected
+    )
     assert cli.main(["compare-crawls", "--before", str(scan), "--after", original]) == 0
     assert json.loads(capsys.readouterr().out) == expected
     scan.with_name("audit.json").write_text("{}")

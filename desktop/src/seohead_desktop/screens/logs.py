@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from uuid import UUID
 
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PyQt5.QtCore import QAbstractTableModel, Qt
 from PyQt5.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -120,10 +120,10 @@ class LogRowsModel(QAbstractTableModel):
         self.columns = []
         self.rows = []
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent=None):
         return 0 if parent.isValid() else len(self.rows)
 
-    def columnCount(self, parent=QModelIndex()):
+    def columnCount(self, parent=None):
         return 0 if parent.isValid() else len(self.columns)
 
     def data(self, index, role=Qt.DisplayRole):
@@ -209,7 +209,9 @@ class LogsScreen(Screen):
         self.join_button.clicked.connect(self.show_join)
         row.addWidget(self.join_button)
         self.previous = QPushButton("Previous")
-        self.previous.clicked.connect(lambda: self.load_page(offset=max(0, self.offset - PAGE_SIZE)))
+        self.previous.clicked.connect(
+            lambda: self.load_page(offset=max(0, self.offset - PAGE_SIZE))
+        )
         row.addWidget(self.previous)
         self.next = QPushButton("Next")
         self.next.clicked.connect(lambda: self.load_page(offset=self.offset + PAGE_SIZE))
@@ -324,7 +326,9 @@ class LogsScreen(Screen):
             return
         self._pending = None
         if payload.get("ok") is not True or not payload.get("source"):
-            self.summary.setText(payload.get("error") or "The core did not retain the selected log.")
+            self.summary.setText(
+                payload.get("error") or "The core did not retain the selected log."
+            )
             self.import_button.setEnabled(True)
             return
         self.host.log_imports[self.host.project_directory] = payload
@@ -372,4 +376,3 @@ class LogsScreen(Screen):
     def _show_empty(self, message):
         self.state.text.setText(message)
         self.state.show()
-

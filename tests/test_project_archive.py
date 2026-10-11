@@ -110,7 +110,9 @@ def test_archive_can_omit_raw_html_bodies_and_preserve_evidence_tables(tmp_path)
     assert b"<html>private body</html>" not in archived_bytes
     with sqlite3.connect(archived) as db:
         assert db.execute("SELECT COUNT(*) FROM bodies").fetchone()[0] == 0
-        assert db.execute("SELECT body_sha256,body_state,body_reason FROM documents").fetchone() == (
+        assert db.execute(
+            "SELECT body_sha256,body_state,body_reason FROM documents"
+        ).fetchone() == (
             None,
             "unavailable",
             "not_in_corpus",
@@ -125,7 +127,9 @@ def test_archive_can_keep_only_the_newest_n_scan_files(tmp_path):
         ("new.sqlite", "2026-10-01T00:00:00Z"),
     ):
         with sqlite3.connect(project / "scans" / name) as db:
-            db.execute("CREATE TABLE scan(singleton INTEGER,scan_uuid TEXT,created_at TEXT,finished_at TEXT)")
+            db.execute(
+                "CREATE TABLE scan(singleton INTEGER,scan_uuid TEXT,created_at TEXT,finished_at TEXT)"
+            )
             db.execute("INSERT INTO scan VALUES(1,?,?,NULL)", (name, created))
 
     out = tmp_path / "latest.zip"
@@ -180,9 +184,7 @@ def test_archive_preserves_validated_project_state_and_skips_measurement_cache(t
     from seohead.projects.schedule import _state_default, default_settings
 
     project = _project(tmp_path)
-    project_uuid = json.loads((project / "project.json").read_text())[
-        "project_uuid"
-    ]
+    project_uuid = json.loads((project / "project.json").read_text())["project_uuid"]
     (project / "events.jsonl").write_text("", encoding="utf-8")
     (project / "sources.json").write_text(
         json.dumps({"format": "seohead.project.sources.v1", "version": 1, "bindings": []}),
@@ -262,7 +264,7 @@ def test_archive_refuses_invalid_allowlisted_state(tmp_path):
     (project / "sources.json").write_text('{"unexpected":true}', encoding="utf-8")
     out = tmp_path / "invalid-state.zip"
 
-    with pytest.raises(ValueError, match="sources.json"):
+    with pytest.raises(ValueError, match=r"sources\.json"):
         archive_project(project, out)
     assert not out.exists()
 
@@ -375,14 +377,16 @@ def test_cli_archive_and_restore_round_trip(tmp_path, capsys):
 
 
 def test_project_archive_mcp_and_flat_cli_share_plan(tmp_path, capsys):
+    from seohead import cli
     from seohead.mcp import handlers
     from seohead.mcp.mcp_server import build_server
 
     project = _project(tmp_path)
     out = tmp_path / "planned.zip"
-    assert cli.main(
-        ["project-archive", "--project", str(project), "--out", str(out), "--dry-run"]
-    ) == 0
+    assert (
+        cli.main(["project-archive", "--project", str(project), "--out", str(out), "--dry-run"])
+        == 0
+    )
     command_result = json.loads(capsys.readouterr().out)
     direct_result = handlers.project_archive(str(project), str(out), dry_run=True)
     tool = build_server()._tool_manager.get_tool("seo_project_archive")

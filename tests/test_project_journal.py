@@ -86,12 +86,8 @@ def test_run_start_and_first_measured_progress_are_journaled(project):
         artifact=project / "scans" / "live.sqlite",
     )
 
-    run_observation.progress(
-        str(project), run["id"], fetched=2, queued=3, inflight=1, excluded=0
-    )
-    run_observation.progress(
-        str(project), run["id"], fetched=3, queued=2, inflight=1, excluded=0
-    )
+    run_observation.progress(str(project), run["id"], fetched=2, queued=3, inflight=1, excluded=0)
+    run_observation.progress(str(project), run["id"], fetched=3, queued=2, inflight=1, excluded=0)
 
     rows = _events(project)
     assert [row["text"] for row in rows] == [

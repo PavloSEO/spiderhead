@@ -579,9 +579,7 @@ def test_spend_distinguishes_unknown_from_measured_zero_and_normalizes_legacy_re
     spend.record("free-source", "read", cost=0.0, unit="requests")
     rows = [json.loads(line) for line in journal.read_text(encoding="utf-8").splitlines()]
     legacy = dict(rows[0], cost=0.0)
-    journal.write_text(
-        json.dumps(legacy) + "\n" + json.dumps(rows[1]) + "\n", encoding="utf-8"
-    )
+    journal.write_text(json.dumps(legacy) + "\n" + json.dumps(rows[1]) + "\n", encoding="utf-8")
 
     read_rows = spend.read_all()
     assert read_rows[0]["cost"] is None

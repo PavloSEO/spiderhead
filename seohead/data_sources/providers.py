@@ -10,8 +10,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import time
 import stat
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -274,7 +274,7 @@ def manage_credential(
 ) -> dict[str, Any]:
     """Inspect, write or revoke one registry-owned credential without returning its value."""
     slot = credential_slot(provider, component)
-    path, env_var = _CREDENTIAL_SOURCES[provider][component]
+    path, _env_var = _CREDENTIAL_SOURCES[provider][component]
     if action == "status":
         state = _credential_source_status(provider, component)
         result = {
@@ -394,9 +394,7 @@ def provider_discover(
                 if raw.startswith("sc-domain:")
                 else (urlsplit(raw).hostname or "").lower()
             )
-            item["domain_match"] = (
-                host.removeprefix("www.") == needle if host else None
-            )
+            item["domain_match"] = host.removeprefix("www.") == needle if host else None
     return {
         "ok": bool(result.get("ok")),
         "provider": provider,
@@ -834,9 +832,7 @@ def provider_verify(
                 or ("Cloudflare API token is not active" if token_status != "active" else None),
                 "token_status": token_status,
                 "state": "invalid" if token_status in {"disabled", "expired"} else None,
-                "verified_capabilities": ["api_token.active"]
-                if token_status == "active"
-                else [],
+                "verified_capabilities": ["api_token.active"] if token_status == "active" else [],
                 "unverified_capabilities": ["zone and account resource access"],
             }
     elif provider == "yandex_cloud":
@@ -989,7 +985,9 @@ def provider_verify(
     return {
         "ok": authenticated,
         "provider": provider,
-        "state": "authenticated" if authenticated else (result.get("state") or "verification_failed"),
+        "state": "authenticated"
+        if authenticated
+        else (result.get("state") or "verification_failed"),
         "readiness_state": readiness,
         "permission_state": permission_state,
         "authenticated_account": authenticated,
@@ -1108,9 +1106,7 @@ def provider_collect(
                 if transport is not None
                 else None
             )
-            result = cloudflare.logpull(
-                transport=transport, raw_transport=raw_transport, **request
-            )
+            result = cloudflare.logpull(transport=transport, raw_transport=raw_transport, **request)
         else:
             result = cloudflare_history.list_snapshots(**request)
     elif provider == "metrika":

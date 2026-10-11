@@ -28,9 +28,7 @@ def summarize(
     try:
         companion = audit_v2_path(path)
         if companion.exists():
-            source = AuditV2Reader(
-                path, light_binding=True, timeout_seconds=timeout_seconds
-            )
+            source = AuditV2Reader(path, light_binding=True, timeout_seconds=timeout_seconds)
             if expected_source is not None and (
                 source.binding.get("scan_uuid") != expected_source.get("scan_uuid")
                 or source.binding.get("evidence_revision")
@@ -97,7 +95,10 @@ def summarize(
                 return _unavailable(f"saved audit {name} counter is missing")
             severities[name] = value
         checks = by_check
-        if any(not isinstance(key, str) or type(value) is not int or value < 0 for key, value in checks.items()):
+        if any(
+            not isinstance(key, str) or type(value) is not int or value < 0
+            for key, value in checks.items()
+        ):
             return _unavailable("saved audit per-check counters are invalid")
         coverage_counts = [
             coverage.get(key)
@@ -147,7 +148,10 @@ def _check_states(registry, by_check, coverage, run, suppressed_by_check) -> lis
         for item in disabled_rows
     }
     disabled.update(
-        {str(value).upper(): "disabled in profile" for value in coverage.get("checks_disabled_ids", [])}
+        {
+            str(value).upper(): "disabled in profile"
+            for value in coverage.get("checks_disabled_ids", [])
+        }
     )
     silent = {str(value).upper() for value in coverage.get("checks_silent_ids", [])}
     checks = {str(key).upper(): value for key, value in by_check.items()}
@@ -160,7 +164,11 @@ def _check_states(registry, by_check, coverage, run, suppressed_by_check) -> lis
         elif key in silent:
             state, reason, findings = "silent", "", 0
         elif key in suppressed:
-            state, reason, findings = "fired_suppressed", "all findings suppressed by saved policy", 0
+            state, reason, findings = (
+                "fired_suppressed",
+                "all findings suppressed by saved policy",
+                0,
+            )
         elif key in skipped:
             state, reason, findings = "skipped", skipped[key], None
         elif key in disabled:

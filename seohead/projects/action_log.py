@@ -12,6 +12,7 @@ from typing import Any
 
 from seohead.core import filesystem
 from seohead.core.filesystem import atomic_write_bytes
+
 from .workspace import _load
 
 FILE = "actions.jsonl"

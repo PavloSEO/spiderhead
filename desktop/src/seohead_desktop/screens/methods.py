@@ -16,10 +16,10 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from .tool_redirects import ToolRedirectsScreen
-from .snippets import SnippetEditor
-from .url_query import CoreJob
 from ..ui.workspace import VIEW_IDS
+from .snippets import SnippetEditor
+from .tool_redirects import ToolRedirectsScreen
+from .url_query import CoreJob
 
 VIEW_METHODS = VIEW_IDS.index("methods")
 
@@ -59,7 +59,9 @@ class MethodCatalogueScreen(QWidget):
         split.addWidget(self.list)
         self.detail = QPlainTextEdit()
         self.detail.setReadOnly(True)
-        self.detail.setPlaceholderText("Select a method or scenario to inspect its documented inputs and steps.")
+        self.detail.setPlaceholderText(
+            "Select a method or scenario to inspect its documented inputs and steps."
+        )
         self.detail.setLineWrapMode(QPlainTextEdit.WidgetWidth)
         split.addWidget(self.detail)
         split.setStretchFactor(0, 1)
@@ -146,7 +148,13 @@ class MethodCatalogueScreen(QWidget):
         )
         lines.extend(["", f"Version: {item.get('version') or 'not declared'}"])
         if unavailable:
-            lines.extend(["", "Metadata missing from the source:", ", ".join(str(value) for value in unavailable)])
+            lines.extend(
+                [
+                    "",
+                    "Metadata missing from the source:",
+                    ", ".join(str(value) for value in unavailable),
+                ]
+            )
         lines.extend(["", f"Definition hash: {item.get('definition_hash') or 'not supplied'}"])
         self.detail.setPlainText("\n".join(lines))
 
@@ -182,4 +190,3 @@ class MethodsWorkspace(QWidget):
             self.catalogue.refresh()
         elif self.tabs.widget(index) is self.redirects:
             self.redirects.refresh()
-

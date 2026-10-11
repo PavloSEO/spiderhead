@@ -604,7 +604,14 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "scan-directory-tree":
-        for name in ("input_path", "max_depth", "max_children", "max_nodes", "max_bytes", "timeout_seconds"):
+        for name in (
+            "input_path",
+            "max_depth",
+            "max_children",
+            "max_nodes",
+            "max_bytes",
+            "timeout_seconds",
+        ):
             value = getattr(args, name, None)
             if value is not None:
                 kw[name] = value
@@ -1381,8 +1388,13 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             kw["out_dir"] = args.out_dir
     elif cmd == "compare-url":
         for name in (
-            "before", "after", "url", "max_bytes", "max_lines",
-            "left_representation", "right_representation",
+            "before",
+            "after",
+            "url",
+            "max_bytes",
+            "max_lines",
+            "left_representation",
+            "right_representation",
         ):
             value = getattr(args, name, None)
             if value is not None:
@@ -2283,7 +2295,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "url-check-batch":
         _source_flag(sub, "--urls", help="comma-separated URL list; maximum 50 URL/check pairs")
         sub.add_argument("--checks", help="comma-separated supported single-URL check names")
-        _source_flag(sub, "--scan", help="retained scan; checks only the requested page starting at --offset")
+        _source_flag(
+            sub, "--scan", help="retained scan; checks only the requested page starting at --offset"
+        )
         sub.add_argument("--offset", type=int, help="zero-based retained scan page offset")
         sub.add_argument("--max-urls", type=int, help="retained scan URL page size (1..50)")
     if cmd == "crawl-site":
@@ -2388,8 +2402,12 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             help="set PATH=VALUE after --config; repeatable; paths: --config-help",
         )
         # Keep these compatibility controls discoverable while config remains the preferred route.
-        sub.add_argument("--max-depth", type=int, help="maximum link depth (legacy setting override)")
-        sub.add_argument("--min-delay", type=float, help="minimum delay between requests in seconds")
+        sub.add_argument(
+            "--max-depth", type=int, help="maximum link depth (legacy setting override)"
+        )
+        sub.add_argument(
+            "--min-delay", type=float, help="minimum delay between requests in seconds"
+        )
     if cmd == "crawl-control":
         _source_flag(sub, "--project", help="project containing the active crawl")
         _source_flag(sub, "--run-id", dest="run_id", help="active project run ID")
@@ -2595,23 +2613,58 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "cloudflare-history":
         _source_flag(sub, "--project", help="local project containing Cloudflare history")
         sub.add_argument("--zone-id", dest="zone_id", help="optional zone ID filter")
-        sub.add_argument("--snapshot-id", dest="snapshot_id", type=int, help="optional exact snapshot ID filter")
+        sub.add_argument(
+            "--snapshot-id", dest="snapshot_id", type=int, help="optional exact snapshot ID filter"
+        )
         sub.add_argument("--limit", type=int, default=20, help="snapshots per page, 1..100")
         sub.add_argument("--offset", type=int, default=0, help="zero-based snapshot offset")
-        sub.add_argument("--include-facts", action="store_true", help="include bounded URL/day fact rows; default is metadata-only")
-        sub.add_argument("--facts-offset", dest="facts_offset", type=int, default=0, help="fact offset within each returned snapshot")
-        sub.add_argument("--facts-limit", dest="facts_limit", type=int, default=100, help="facts per snapshot page, 1..500")
+        sub.add_argument(
+            "--include-facts",
+            action="store_true",
+            help="include bounded URL/day fact rows; default is metadata-only",
+        )
+        sub.add_argument(
+            "--facts-offset",
+            dest="facts_offset",
+            type=int,
+            default=0,
+            help="fact offset within each returned snapshot",
+        )
+        sub.add_argument(
+            "--facts-limit",
+            dest="facts_limit",
+            type=int,
+            default=100,
+            help="facts per snapshot page, 1..500",
+        )
     if cmd == "cloudflare-logpush-import":
-        _source_flag(sub, "--file", dest="input_path", help="caller-supplied UTF-8 Logpush JSON Lines file")
+        _source_flag(
+            sub, "--file", dest="input_path", help="caller-supplied UTF-8 Logpush JSON Lines file"
+        )
         _source_flag(sub, "--project", help="local project that owns the logstore")
         sub.add_argument("--max-events", type=int, default=10_000, help="maximum records to import")
     if cmd == "cloudflare-instant-logs":
         _source_flag(sub, "--project", help="project with one selected Cloudflare zone binding")
-        sub.add_argument("--confirm-live-capture", action="store_true", help="confirm creating a transient Instant Logs session")
-        sub.add_argument("--max-seconds", type=int, default=10, help="capture duration, 1..60 seconds")
-        sub.add_argument("--max-events", type=int, default=100, help="maximum records to retain, 1..1000")
-        sub.add_argument("--max-bytes", type=int, default=1_048_576, help="maximum received frame bytes, 1..8388608")
-        sub.add_argument("--sample", type=int, default=10, help="Cloudflare sample interval, 1..100")
+        sub.add_argument(
+            "--confirm-live-capture",
+            action="store_true",
+            help="confirm creating a transient Instant Logs session",
+        )
+        sub.add_argument(
+            "--max-seconds", type=int, default=10, help="capture duration, 1..60 seconds"
+        )
+        sub.add_argument(
+            "--max-events", type=int, default=100, help="maximum records to retain, 1..1000"
+        )
+        sub.add_argument(
+            "--max-bytes",
+            type=int,
+            default=1_048_576,
+            help="maximum received frame bytes, 1..8388608",
+        )
+        sub.add_argument(
+            "--sample", type=int, default=10, help="Cloudflare sample interval, 1..100"
+        )
     if cmd == "crtsh-subdomains":
         _source_flag(sub, "--domain", help="domain to search Certificate Transparency logs for")
     if cmd == "gsc-query":
@@ -2872,9 +2925,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--out", help="new archive file path")
         sub.add_argument("--dry-run", action="store_true")
         sub.add_argument("--exclude-bodies", action="store_true")
-        sub.add_argument(
-            "--exclude-bodies-older-than-days", type=int, choices=(30, 90)
-        )
+        sub.add_argument("--exclude-bodies-older-than-days", type=int, choices=(30, 90))
         sub.add_argument("--keep-newest-scans", type=int)
     if cmd == "project-restore":
         _source_flag(sub, "--archive", help="verified project archive file")
@@ -3071,7 +3122,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument(
             "--run-limit", type=int, help="terminal runs per site, 1..100 (default: 20)"
         )
-        sub.add_argument("--since-revision", help="opaque observer revision from the previous response")
+        sub.add_argument(
+            "--since-revision", help="opaque observer revision from the previous response"
+        )
     if cmd.startswith("project-inbox-"):
         _source_flag(sub, "--directory", help="validated local project workspace")
     if cmd.startswith("project-event-"):
@@ -3323,7 +3376,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
         if cmd == "project-activity":
-            sub.add_argument("--since-revision", help="opaque activity revision from the previous response")
+            sub.add_argument(
+                "--since-revision", help="opaque activity revision from the previous response"
+            )
     if cmd in {"project-view-show", "project-view-delete", "project-view-rename"}:
         sub.add_argument("--name", help="saved finding view name")
     if cmd == "project-view-rename":
@@ -3386,7 +3441,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             "--task-id", required=True, help="current custom task with structured competitor limits"
         )
         sub.add_argument("--expected-revision", type=int, required=True)
-        sub.add_argument("--confirm", action="store_true", help="explicitly start competitor crawls")
+        sub.add_argument(
+            "--confirm", action="store_true", help="explicitly start competitor crawls"
+        )
         sub.add_argument("--concurrency", type=int, default=3, help="parallel sites, 1..3")
         sub.add_argument("--run-id", help="stable UUID for polling, cancellation and safe resume")
     if cmd in {"project-competitors-scan-status", "project-competitors-scan-cancel"}:
@@ -3469,9 +3526,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--replace", action="store_true", help="replace an existing value")
         sub.add_argument("--confirm", action="store_true", help="confirm credential revocation")
     if cmd == "provider-discover":
-        _source_flag(
-            sub, "--provider", required=True, choices=("google", "yandex", "topvisor")
-        )
+        _source_flag(sub, "--provider", required=True, choices=("google", "yandex", "topvisor"))
         sub.add_argument("--domain", help="optional hostname for domain-match hints")
     if cmd in {"provider-verify", "provider-collect"}:
         _source_flag(sub, "--provider", help="provider registry identifier")
@@ -3479,7 +3534,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--operation", help="declared read-only provider operation")
         _source_flag(sub, "--artifact-dir", help="restricted local raw-evidence directory")
     if cmd == "provider-artifact-read":
-        _source_flag(sub, "--artifact-ref", dest="artifact_ref", help="local-artifact digest reference")
+        _source_flag(
+            sub, "--artifact-ref", dest="artifact_ref", help="local-artifact digest reference"
+        )
         _source_flag(sub, "--artifact-dir", help="the directory used by the collection call")
         sub.add_argument("--offset", type=int, default=0, help="zero-based sample offset")
         sub.add_argument("--limit", type=int, default=25, help="sample rows to return, 1..25")
@@ -3632,9 +3689,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--url", help="exact logical URL")
         sub.add_argument("--variant-key")
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
-        sub.add_argument(
-            "--left-representation", choices=("static", "rendered", "legacy_fragment")
-        )
+        sub.add_argument("--left-representation", choices=("static", "rendered", "legacy_fragment"))
         sub.add_argument(
             "--right-representation", choices=("static", "rendered", "legacy_fragment")
         )
@@ -3714,8 +3769,14 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--output-dir", help="download target directory")
     if cmd == "images-optimize":
         _source_flag(sub, "--files", help="comma-separated image paths/dirs")
-        _source_flag(sub, "--scan", help="validated retained scan whose declared images should be optimized")
-        sub.add_argument("--max-images", type=int, help="maximum distinct scan images to download and optimize (1..50)")
+        _source_flag(
+            sub, "--scan", help="validated retained scan whose declared images should be optimized"
+        )
+        sub.add_argument(
+            "--max-images",
+            type=int,
+            help="maximum distinct scan images to download and optimize (1..50)",
+        )
         sub.add_argument("--output-dir", help="safe output directory (recommended)")
         sub.add_argument(
             "--in-place",
@@ -3725,7 +3786,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument(
             "--overwrite", action="store_true", help="replace an existing destination file"
         )
-        sub.add_argument("--strip-exif", action="store_true", help="remove EXIF metadata from output images")
+        sub.add_argument(
+            "--strip-exif", action="store_true", help="remove EXIF metadata from output images"
+        )
         sub.add_argument("--format", choices=("keep", "jpeg", "png", "webp", "avif"))
         sub.add_argument("--quality", help="lossy quality 10..100 or auto (SSIM-guided)")
         sub.add_argument("--max-width", type=int, help="maximum output width; never upscales")
@@ -3839,11 +3902,17 @@ def build_parser() -> argparse.ArgumentParser:
     doctor.add_argument("--projects-directory", help="existing projects directory to inspect")
     doctor.add_argument("--config", default="config.json", help="SF configuration path")
     doctor.add_argument("--sf-cli", help="explicit Screaming Frog CLI path")
-    update_check = subs.add_parser("update-check", help="check core releases after explicit consent")
+    update_check = subs.add_parser(
+        "update-check", help="check core releases after explicit consent"
+    )
     update_check.add_argument("--consent", action="store_true", required=True)
-    update_check.add_argument("--automatic", action="store_true", help="reuse a fresh result for a consented daily check")
+    update_check.add_argument(
+        "--automatic", action="store_true", help="reuse a fresh result for a consented daily check"
+    )
     update_check.add_argument("--max-releases", type=int, default=5)
-    update_download = subs.add_parser("update-download", help="download a checksummed core release asset")
+    update_download = subs.add_parser(
+        "update-download", help="download a checksummed core release asset"
+    )
     update_download.add_argument("--consent", action="store_true", required=True)
     update_download.add_argument("--tag", required=True)
     update_download.add_argument("--asset", dest="asset_name", required=True)
@@ -3969,9 +4038,7 @@ def build_parser() -> argparse.ArgumentParser:
     project_archive.add_argument("--project", dest="project_dir", required=True)
     project_archive.add_argument("--out", required=True, help="new archive file path")
     project_archive.add_argument("--exclude-bodies", action="store_true")
-    project_archive.add_argument(
-        "--exclude-bodies-older-than-days", type=int, choices=(30, 90)
-    )
+    project_archive.add_argument("--exclude-bodies-older-than-days", type=int, choices=(30, 90))
     project_archive.add_argument("--keep-newest-scans", type=int)
     project_archive.add_argument(
         "--dry-run", action="store_true", help="report files and size estimate; write nothing"
@@ -4011,9 +4078,9 @@ def build_parser() -> argparse.ArgumentParser:
         dest="crawl_profile_command", metavar="<action>", required=True
     )
     crawl_profile_subs.add_parser("list", help="list saved crawl profile names")
-    crawl_profile_subs.add_parser("show", help="print one saved crawl profile as JSON").add_argument(
-        "name", metavar="NAME"
-    )
+    crawl_profile_subs.add_parser(
+        "show", help="print one saved crawl profile as JSON"
+    ).add_argument("name", metavar="NAME")
     crawl_profile_subs.add_parser("delete", help="delete a saved crawl profile").add_argument(
         "name", metavar="NAME"
     )
@@ -4093,7 +4160,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if cmd == "version":
         from seohead.core.core_info import core_info
-        from seohead.mcp.tool_reference import load_seo_tools, load_sf_tools, load_semantics_tools
+        from seohead.mcp.tool_reference import load_semantics_tools, load_seo_tools, load_sf_tools
 
         tools = [*load_seo_tools(), *load_sf_tools(), *load_semantics_tools()]
         info = core_info(
@@ -4156,7 +4223,11 @@ def main(argv: list[str] | None = None) -> int:
 
         def report_progress(received: int, total: int | None) -> None:
             nonlocal last_reported
-            if received == 0 or total is not None and received >= total or received - last_reported >= 1024 * 1024:
+            if (
+                received == 0
+                or (total is not None and received >= total)
+                or received - last_reported >= 1024 * 1024
+            ):
                 label = str(total) if total is not None else "unknown"
                 print(f"download progress: {received}/{label} bytes", file=sys.stderr)
                 last_reported = received

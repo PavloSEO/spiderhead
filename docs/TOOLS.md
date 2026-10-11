@@ -16,8 +16,8 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 `{"ok": false, "error": "..."}` instead of raising. An unreachable site is
 data, not an accident.
 
-The current registry has 195 commands and 204 callable tools,
-with 248 audit checks. These are inventories, not coverage on every input.
+The current registry has 230 commands and 246 callable tools,
+with 280 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
 ## Generated command inventory
@@ -28,34 +28,40 @@ and inputs remain in the nearby route sections and generated tool reference.
 `ai-bots-check` · `ai-column` · `asset-weight-check` · `audit-workflow` · `backlinks-check` ·
 `backlinks-disavow` · `backlinks-profile` · `bi-bigquery-plan` · `bi-destination-apply` · `bi-export` ·
 `bi-filter` · `bi-sheets-plan` · `boilerplate-report` · `cdn-check` · `citability-check` ·
-`cloudflare-traffic` · `compare-crawls` · `crawl-describe-settings` · `crawl-diagnose` ·
-`crawl-diagnose-export` · `crawl-enrich` · `crawl-import` · `crawl-site` · `crtsh-subdomains` · `crux-report`
-· `dataforseo-estimate` · `domain-profile` · `duplicate-check` · `evidence-join` · `evidence-normalize` ·
-`facts-export` · `findings-view` · `google-keywords` · `google-serp` · `gsc-archive` · `gsc-progress` ·
-`gsc-query` · `headers-check` · `hreflang-check` · `images-download` · `images-optimize` · `indexnow-submit` ·
-`inspect-url` · `keywords-cluster` · `keywords-exact` · `keywords-expand` · `keywords-seasonality` ·
-`links-check` · `llms-txt-check` · `log-analyze` · `log-scan` · `logs-bots` · `logs-import` · `logs-join` ·
-`logs-summary` · `markdown-extract` · `marketing-inventory` · `meta-description-drafts` · `metrika-counters` ·
-`metrika-report` · `metrika-setup` · `metrika-traffic-pdf` · `miratext-analyze` · `mirror-check` ·
-`monitor-collect` · `monitor-configure` · `monitor-local-deliver` · `monitor-run` · `monitor-schedule` ·
-`monitor-status` · `parse` · `project-activity` · `project-checklist-init` · `project-checklist-page` ·
+`cloudflare-history` · `cloudflare-instant-logs` · `cloudflare-logpush-import` · `cloudflare-traffic` ·
+`compare-crawls` · `compare-read` · `compare-report` · `compare-status` · `compare-url` · `crawl-control` ·
+`crawl-describe-settings` · `crawl-diagnose` · `crawl-diagnose-export` · `crawl-enrich` · `crawl-import` ·
+`crawl-site` · `crtsh-subdomains` · `crux-report` · `custom-extract-sample` · `dataforseo-estimate` · `doctor`
+· `domain-profile` · `duplicate-check` · `evidence-join` · `evidence-normalize` · `facts-export` ·
+`findings-view` · `google-keywords` · `google-serp` · `gsc-archive` · `gsc-progress` · `gsc-query` ·
+`headers-analyze` · `headers-check` · `hreflang-check` · `images-download` · `images-optimize` ·
+`indexnow-submit` · `inspect-url` · `keywords-cluster` · `keywords-exact` · `keywords-expand` ·
+`keywords-seasonality` · `links-check` · `llms-txt-check` · `log-analyze` · `log-scan` · `logs-bots` ·
+`logs-import` · `logs-join` · `logs-summary` · `markdown-extract` · `marketing-inventory` ·
+`meta-description-drafts` · `metrika-counters` · `metrika-report` · `metrika-setup` · `metrika-traffic-pdf` ·
+`miratext-analyze` · `mirror-check` · `monitor-collect` · `monitor-configure` · `monitor-local-deliver` ·
+`monitor-run` · `monitor-schedule` · `monitor-status` · `parse` · `project-action-log` · `project-activity` ·
+`project-agent-heartbeat` · `project-archive` · `project-checklist-init` · `project-checklist-page` ·
 `project-checklist-record` · `project-checklist-update` · `project-competitors-add` ·
 `project-competitors-list` · `project-competitors-remove` · `project-competitors-scan` ·
-`project-competitors-scan-cancel` · `project-competitors-scan-status` · `project-event-append` · `project-event-page` ·
-`project-export` · `project-export-cancel` · `project-export-status` · `project-exports-page` ·
-`project-facts` · `project-inbox-acknowledge` · `project-inbox-goal` · `project-inbox-list` ·
-`project-inbox-read` · `project-inbox-submit` · `project-inbox-triage` · `project-inbox-unread` ·
-`project-new` · `project-observe` · `project-open` · `project-policy` · `project-prepare` ·
-`project-priorities` · `project-progress` · `project-scans` · `project-sources-link` · `project-sources-list`
-· `project-sources-unlink` · `project-start` · `project-status` · `project-task-comment` · `project-task-detail` ·
+`project-competitors-scan-cancel` · `project-competitors-scan-status` · `project-delete` ·
+`project-event-append` · `project-event-page` · `project-export` · `project-export-cancel` ·
+`project-export-status` · `project-exports-page` · `project-facts` · `project-inbox-acknowledge` ·
+`project-inbox-goal` · `project-inbox-list` · `project-inbox-read` · `project-inbox-submit` ·
+`project-inbox-triage` · `project-inbox-unread` · `project-new` · `project-observe` · `project-open` ·
+`project-policy` · `project-prepare` · `project-priorities` · `project-progress` · `project-restore` ·
+`project-scans` · `project-settings` · `project-settings-proposals` · `project-settings-propose` ·
+`project-settings-review` · `project-sources-link` · `project-sources-list` · `project-sources-unlink` ·
+`project-start` · `project-status` · `project-task-comment` · `project-task-detail` · `project-update` ·
 `project-view-delete` · `project-view-list` · `project-view-rename` · `project-view-save` ·
-`project-view-show` · `provider-auth` · `provider-credential` · `provider-discover` · `provider-collect` · `provider-join` · `provider-readiness` ·
-`provider-registry` · `provider-replay` · `provider-verify` · `publication-cohorts` · `redirects-check` ·
-`redirects-generate` · `regions-check` · `regions-tree` · `remediation-cases` · `remediation-create` ·
-`remediation-ingest` · `remediation-recheck` · `remediation-record-verification` · `remediation-report` ·
-`remediation-summary` · `remediation-transition` · `render-check` · `report-build` · `robots-check` ·
-`scan-body-diff` · `scan-body-read` · `scan-content-search` · `scan-content-search-page` · `scan-evidence` ·
-`scan-extract` · `scan-findings-page` · `scan-fragment-links` · `scan-graph` · `scan-import-urls` · `scan-inspect` ·
+`project-view-show` · `provider-artifact-read` · `provider-auth` · `provider-collect` · `provider-credential`
+· `provider-discover` · `provider-join` · `provider-readiness` · `provider-registry` · `provider-replay` ·
+`provider-verify` · `publication-cohorts` · `redirects-check` · `redirects-generate` · `regions-check` ·
+`regions-tree` · `remediation-cases` · `remediation-create` · `remediation-ingest` · `remediation-recheck` ·
+`remediation-record-verification` · `remediation-report` · `remediation-summary` · `remediation-transition` ·
+`render-check` · `report-build` · `robots-check` · `scan-body-diff` · `scan-body-read` · `scan-content-search`
+· `scan-content-search-page` · `scan-directory-tree` · `scan-evidence` · `scan-export` · `scan-extract` ·
+`scan-findings-page` · `scan-fragment-links` · `scan-graph` · `scan-import-urls` · `scan-inspect` ·
 `scan-link-inspect` · `scan-list` · `scan-navigation` · `scan-pin` · `scan-prune` · `scan-reanalyze` ·
 `scan-rendered-routes` · `scan-requeue` · `scan-sitemap-generate` · `scan-snapshot` · `scan-status` ·
 `scan-structured-blocks` · `scan-url-detail` · `scan-url-history` · `scan-url-query` · `scenario-list` ·
@@ -63,9 +69,9 @@ and inputs remain in the nearby route sections and generated tool reference.
 `schedule-uninstall` · `schema-build` · `schema-check` · `security-check` · `segment-diff` · `semantic-inputs`
 · `semantic-similarity` · `serp-fetch` · `site-audit` · `sitemap-crawl` · `skill-list` · `skill-show` ·
 `social-meta-check` · `soft404-check` · `sources-doctor` · `sources-export` · `sources-status` ·
-`sources-sync` · `spend-report` · `tech-detect` · `tool-catalog` · `topvisor-read` · `verify-fixes` ·
-`wayback-history` · `webmaster-url-queries` · `workflow-checkpoint` · `workflow-execute` · `workflow-resume` ·
-`workflow-start` · `workflow-status`
+`sources-sync` · `spend-report` · `tech-detect` · `tool-catalog` · `topvisor-read` · `update-check` ·
+`update-download` · `url-check-batch` · `verify-fixes` · `wayback-history` · `webmaster-url-queries` ·
+`workflow-checkpoint` · `workflow-execute` · `workflow-resume` · `workflow-start` · `workflow-status`
 <!-- generated-command-inventory:end -->
 See [Server logs](SERVER_LOGS.md) for import, join and DNS evidence contracts.
 
@@ -943,7 +949,7 @@ assignment or by the audit's already validated segment rules. It records
 assignment provenance and keeps candidate, declared, confirmed, and unassigned
 states separate; it does not infer a shared implementation from repeated findings.
 
-**248 checks**: 12 critical, 115 warnings, 121 notices. Sources: SF exports,
+**280 checks**: 12 critical, 133 warnings, 135 notices. Sources: SF exports,
 derived metrics, inlink exports, the sitemap module, and heuristics.
 
 Native scans with retained bodies evaluate DOM depth/node count and content-area exact/near
@@ -1011,7 +1017,7 @@ turns on automatically for crawl modes (`--crawl`, `--crawl-list`, `--load-crawl
 `--sitemap` is given; pass `--no-live-recheck` to keep it off.
 
 **MCP.** The same set under the `seo_*` names plus the `sf_*` audit tools and the
-`seo_semantics_*` semantic-core tools. Their stage, import/export, cluster, landing and
+`seo_semantics_*` semantic-core tools (230 + 6 + 10). Their stage, import/export, cluster, landing and
 insight contracts are documented in [SEMANTICS.md](SEMANTICS.md):
 
 ```bash
@@ -1020,7 +1026,7 @@ seohead mcp        # stdio
 
 ## Where to go next
 - [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — every tool's arguments, types, defaults, cost, and failure modes, generated from the MCP definitions
-- [CHECKS.md](CHECKS.md) — the 248 checks the SF crawl audit runs, generated from the registry
+- [CHECKS.md](CHECKS.md) — the 280 checks the SF crawl audit runs, generated from the registry
 - [ARCHITECTURE.md](ARCHITECTURE.md) — layers, invariants, where new code goes
 - [SKILLS.md](SKILLS.md) — which skill drives which tool
 - [DECISIONS.md](DECISIONS.md) — why it was decided this way and not another

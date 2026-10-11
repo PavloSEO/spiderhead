@@ -11,15 +11,15 @@ import pytest
 
 from seohead.storage import ScanError
 from seohead.storage.bodies import (
-    _read_document,
     MAX_WINDOW_CHARS,
+    _line_count,
+    _read_document,
     decode_entity,
     encode_body,
     read_body,
     read_document,
-    read_page_document_content,
     read_document_window,
-    _line_count,
+    read_page_document_content,
 )
 
 

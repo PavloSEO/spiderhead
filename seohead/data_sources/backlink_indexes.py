@@ -49,7 +49,7 @@ _OMITTED = object()
 
 
 def estimate(
-    provider: str, *, limit: int | None | object = _OMITTED, operation: str | None = None
+    provider: str, *, limit: int | object | None = _OMITTED, operation: str | None = None
 ) -> dict:
     """No network or credential access; estimates show units, not invented dollar prices."""
     moz_links = provider == "moz" and operation == "backlinks"
@@ -107,7 +107,7 @@ def collect(
     provider: str,
     target: str,
     *,
-    limit: int | None | object = _OMITTED,
+    limit: int | object | None = _OMITTED,
     offset: int = 0,
     operation: str | None = None,
     page_token: str | None = None,
@@ -126,8 +126,10 @@ def collect(
     automatically; the returned opaque token can be supplied as ``page_token``.
     """
     moz_links = provider == "moz" and operation == "backlinks"
-    effective_limit = 25 if (limit is _OMITTED or limit is None) and moz_links else (
-        100 if limit is _OMITTED or limit is None else limit
+    effective_limit = (
+        25
+        if (limit is _OMITTED or limit is None) and moz_links
+        else (100 if limit is _OMITTED or limit is None else limit)
     )
     preflight = estimate(provider, limit=effective_limit, operation=operation)
     if operation not in (None, "backlinks"):
@@ -243,9 +245,10 @@ def collect(
         extra={"cost_unknown": charge is None, "response_received": True, "estimated_units": units},
     )
     try:
-        if not isinstance(raw, str | bytes) or len(
-            raw.encode() if isinstance(raw, str) else raw
-        ) > MAX_RESPONSE_BYTES:
+        if (
+            not isinstance(raw, str | bytes)
+            or len(raw.encode() if isinstance(raw, str) else raw) > MAX_RESPONSE_BYTES
+        ):
             raise ValueError("response exceeds size budget")
         body = json.loads(raw)
         if not isinstance(body, dict):
@@ -297,11 +300,7 @@ def collect(
         "url_metrics": rows if provider == "moz" and not moz_links else None,
         "next_token": next_token if moz_links else None,
         "returned": len(rows),
-        "truncated": (
-            next_token is not None
-            if moz_links
-            else len(rows) >= preflight["max_rows"]
-        ),
+        "truncated": (next_token is not None if moz_links else len(rows) >= preflight["max_rows"]),
         "scope": (
             "legacy v2 per-URL metrics"
             if provider == "moz" and not moz_links

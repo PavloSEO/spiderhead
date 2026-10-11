@@ -10,11 +10,15 @@ from seohead.core import doctor as doctor_module
 def test_doctor_reports_unknown_license_without_guessing_and_avoids_local_paths(
     tmp_path, monkeypatch
 ):
-    monkeypatch.setattr(doctor_module, "_optional_module", lambda name: {
-        "state": "available",
-        "version": "1.0",
-        "reason": None,
-    })
+    monkeypatch.setattr(
+        doctor_module,
+        "_optional_module",
+        lambda name: {
+            "state": "available",
+            "version": "1.0",
+            "reason": None,
+        },
+    )
     monkeypatch.setattr("seohead.sf.config.load_config", lambda _path: {})
     monkeypatch.setattr("seohead.sf.core.runner.find_sf_cli", lambda _config, _override: None)
 

@@ -159,14 +159,18 @@ def verify_callback_state(path: Path, state: str, now: datetime) -> dict[str, An
         raise ValueError("no_active_flow")
     if effective_status(flow, now) != "waiting":
         raise ValueError("oauth_flow_not_waiting")
-    if not isinstance(state, str) or not 1 <= len(state) <= 512 or not secrets.compare_digest(
-        flow["state_sha256"], hash_state(state)
+    if (
+        not isinstance(state, str)
+        or not 1 <= len(state) <= 512
+        or not secrets.compare_digest(flow["state_sha256"], hash_state(state))
     ):
         raise ValueError("oauth_state_mismatch")
     return flow
 
 
-def complete_flow(path: Path, flow: dict[str, Any], now: datetime, expires_in: int) -> dict[str, Any]:
+def complete_flow(
+    path: Path, flow: dict[str, Any], now: datetime, expires_in: int
+) -> dict[str, Any]:
     """Mark a flow connected only after its caller has completed a verified token exchange."""
     if type(expires_in) is not int or not 1 <= expires_in <= 86400:
         raise ValueError("OAuth token expiry is outside the supported range")

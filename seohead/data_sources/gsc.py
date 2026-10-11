@@ -61,6 +61,8 @@ MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 
 class ResponseTooLarge(ValueError):
     """A Search Console response exceeded the local read budget."""
+
+
 _ARCHIVE_DIMENSIONS = ("date", "query", "page", "country", "device", "searchAppearance")
 _SEARCH_TYPES = ("web", "image", "video", "news", "discover", "googleNews")
 _AGGREGATION_TYPES = ("auto", "byPage", "byProperty")
@@ -690,9 +692,7 @@ def inspect_urls(
         or not urls
         or len(urls) > MAX_INSPECTION_URLS
         or not all(
-            isinstance(url, str)
-            and url
-            and len(url.encode("utf-8")) <= MAX_INSPECTION_URL_BYTES
+            isinstance(url, str) and url and len(url.encode("utf-8")) <= MAX_INSPECTION_URL_BYTES
             for url in urls
         )
     ):
@@ -720,7 +720,9 @@ def inspect_urls(
             )
             raw_bytes = raw.encode("utf-8") if isinstance(raw, str) else raw
             if not isinstance(raw_bytes, bytes) or len(raw_bytes) > MAX_RESPONSE_BYTES:
-                raise ResponseTooLarge("Search Console inspection response exceeded the 8 MiB limit")
+                raise ResponseTooLarge(
+                    "Search Console inspection response exceeded the 8 MiB limit"
+                )
             body = _response_object(raw)
         except (
             urllib.error.HTTPError,
@@ -729,19 +731,29 @@ def inspect_urls(
             ResponseTooLarge,
             UnicodeError,
         ):
-            outcomes.append({"url": url, "state": "failed", "error": "Search Console inspection request failed"})
+            outcomes.append(
+                {"url": url, "state": "failed", "error": "Search Console inspection request failed"}
+            )
             continue
         inspection = (body or {}).get("inspectionResult")
         if not isinstance(inspection, dict):
             outcomes.append(
-                {"url": url, "state": "failed", "error": "Search Console malformed inspection response"}
+                {
+                    "url": url,
+                    "state": "failed",
+                    "error": "Search Console malformed inspection response",
+                }
             )
             continue
         index_status = inspection.get("indexStatusResult")
         verdict = index_status.get("verdict") if isinstance(index_status, dict) else None
         if not isinstance(index_status, dict) or verdict not in {"PASS", "FAIL", "NEUTRAL"}:
             outcomes.append(
-                {"url": url, "state": "failed", "error": "Search Console malformed inspection response"}
+                {
+                    "url": url,
+                    "state": "failed",
+                    "error": "Search Console malformed inspection response",
+                }
             )
             continue
         index_fields = (

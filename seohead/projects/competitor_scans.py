@@ -10,10 +10,11 @@ import os
 import threading
 import time
 import uuid
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 from urllib.parse import urlsplit
 
 from seohead.core.filesystem import atomic_write_bytes, lock_exclusive, open_lock, unlock
@@ -106,12 +107,15 @@ def _read_manifest(root: Path, run_id: str, project_uuid: str) -> dict[str, Any]
         or not isinstance(document.get("fingerprint"), str)
         or len(document["fingerprint"]) != 64
         or any(char not in "0123456789abcdef" for char in document["fingerprint"])
-        or document.get("state") not in {"running", "interrupted", "completed", "partial", "failed", "cancelled"}
-        or document.get("runner_token") is not None
-        and (
-            not isinstance(document.get("runner_token"), str)
-            or len(document["runner_token"]) != 32
-            or any(char not in "0123456789abcdef" for char in document["runner_token"])
+        or document.get("state")
+        not in {"running", "interrupted", "completed", "partial", "failed", "cancelled"}
+        or (
+            document.get("runner_token") is not None
+            and (
+                not isinstance(document.get("runner_token"), str)
+                or len(document["runner_token"]) != 32
+                or any(char not in "0123456789abcdef" for char in document["runner_token"])
+            )
         )
         or type(document.get("concurrency")) is not int
         or not 1 <= document["concurrency"] <= MAX_CONCURRENCY
@@ -160,8 +164,7 @@ def _read_manifest(root: Path, run_id: str, project_uuid: str) -> dict[str, Any]
         totals["requests"] += site["max_requests"]
         totals["seconds"] += site["max_crawl_seconds"]
     if any(document["budgets"][key] != totals[key] for key in totals) or any(
-        totals[key] > document["budgets"][f"max_{key}"]
-        for key in totals
+        totals[key] > document["budgets"][f"max_{key}"] for key in totals
     ):
         raise CompetitorScanError("competitor scan run budgets disagree with its per-site plans")
     return document
@@ -348,7 +351,9 @@ def _crawl_plan(target: dict[str, Any], requested_max_urls: int) -> dict[str, An
     return plan
 
 
-def _request(target: dict[str, Any], plan: dict[str, Any], scan_out: Path, *, approve: bool) -> dict[str, Any]:
+def _request(
+    target: dict[str, Any], plan: dict[str, Any], scan_out: Path, *, approve: bool
+) -> dict[str, Any]:
     kwargs: dict[str, Any] = {
         "project": str(target["root"]),
         "max_urls": plan["max_urls"],
@@ -467,9 +472,7 @@ def task_competitor_run_reference(
         plans, _budgets = _plans(targets)
         manifests = _manifests(root, project["project_uuid"])
         compatible = [
-            manifest
-            for manifest in manifests
-            if _manifest_matches_inputs(manifest, task_id, plans)
+            manifest for manifest in manifests if _manifest_matches_inputs(manifest, task_id, plans)
         ]
         if not compatible:
             return None
@@ -487,9 +490,7 @@ def task_competitor_run_reference(
             "producer_build": manifest.get("producer_build"),
             "updated_at": manifest["updated_at"],
             "coverage_revision": manifest["coverage_revision"],
-            "completed_sites": sum(
-                site.get("state") == "completed" for site in manifest["sites"]
-            ),
+            "completed_sites": sum(site.get("state") == "completed" for site in manifest["sites"]),
             "total_sites": len(manifest["sites"]),
         }
     except (OSError, TypeError, ValueError):
@@ -685,10 +686,7 @@ def _new_manifest(
 
     for plan in plans:
         target_root = root / plan["directory"]
-        child_uuid = plan["project_uuid"]
-        scan_path = new_scan_path(
-            target_root / "scans", plan["url"], str(uuid.uuid4())
-        )
+        scan_path = new_scan_path(target_root / "scans", plan["url"], str(uuid.uuid4()))
         artifact = scan_path.resolve().relative_to(target_root.resolve()).as_posix()
         sites.append(
             {
@@ -748,7 +746,9 @@ def _incomplete(manifest: dict[str, Any]) -> bool:
     return any(item["state"] in {"pending", "running", "interrupted"} for item in manifest["sites"])
 
 
-def _resolve_site_target(root: Path, targets: list[dict[str, Any]], site: dict[str, Any]) -> dict[str, Any]:
+def _resolve_site_target(
+    root: Path, targets: list[dict[str, Any]], site: dict[str, Any]
+) -> dict[str, Any]:
     match = next(
         (
             row
@@ -805,14 +805,15 @@ def scan_task_competitors(
     root, project = _load(directory)
     checklist = coverage_status(root)
     if checklist.get("revision") != expected_revision:
-        raise ValueError(f"coverage revision conflict: current revision is {checklist.get('revision')}")
+        raise ValueError(
+            f"coverage revision conflict: current revision is {checklist.get('revision')}"
+        )
     document = _read(root, project)
     saved = (document or {}).get("items", {}).get(task_id)
     if not saved or saved["definition"].get("kind") != "custom":
         raise ValueError("task_id must name a current custom task")
     target_rows = _targets(root, project, saved)
     plans, budgets = _plans(target_rows)
-    fingerprint = _manifest_fingerprint(task_id, plans)
 
     from .runtime import project_write_lock
 
@@ -825,7 +826,9 @@ def scan_task_competitors(
         # Recheck the revision/task under the run lock before publishing a manifest.
         current = coverage_status(root)
         if current.get("revision") != expected_revision:
-            raise ValueError(f"coverage revision conflict: current revision is {current.get('revision')}")
+            raise ValueError(
+                f"coverage revision conflict: current revision is {current.get('revision')}"
+            )
         if run_id is not None:
             existing_path = _manifest_path(root, run_id)
             if existing_path.exists():
@@ -862,7 +865,9 @@ def scan_task_competitors(
                 resumed = True
             else:
                 if len(_manifests(root, project["project_uuid"])) >= MAX_RUN_MANIFESTS:
-                    raise CompetitorScanError(f"competitor scan history is limited to {MAX_RUN_MANIFESTS} runs")
+                    raise CompetitorScanError(
+                        f"competitor scan history is limited to {MAX_RUN_MANIFESTS} runs"
+                    )
                 manifest = _new_manifest(
                     root,
                     project,
@@ -881,19 +886,19 @@ def scan_task_competitors(
             manifest["approve_large_crawl"] != approve_large_crawl
             or manifest.get("producer_build") != producer_build
         ):
-            raise CompetitorScanError("approval or producer settings changed since the run checkpoint")
+            raise CompetitorScanError(
+                "approval or producer settings changed since the run checkpoint"
+            )
         manifest["concurrency"] = concurrency
-        current_plans = {
-            (plan["project_uuid"], plan["url"]): plan for plan in plans
-        }
+        current_plans = {(plan["project_uuid"], plan["url"]): plan for plan in plans}
         if any(
             current_plans.get((site["project_uuid"], site["url"])) is None
-            or not _site_inputs_match(
-                site, current_plans[(site["project_uuid"], site["url"])]
-            )
+            or not _site_inputs_match(site, current_plans[(site["project_uuid"], site["url"])])
             for site in manifest["sites"]
         ):
-            raise CompetitorScanError("competitor scan site settings changed since the run checkpoint")
+            raise CompetitorScanError(
+                "competitor scan site settings changed since the run checkpoint"
+            )
 
         cancel_path = _cancel_path(root, manifest["run_id"], create=True)
         manifest["state"] = "running"
@@ -918,7 +923,9 @@ def scan_task_competitors(
             child_root = target["root"]
             artifact_rel = site["artifact"]
             artifact = child_root / artifact_rel
-            if artifact.is_symlink() or not artifact.resolve().is_relative_to((child_root / "scans").resolve()):
+            if artifact.is_symlink() or not artifact.resolve().is_relative_to(
+                (child_root / "scans").resolve()
+            ):
                 raise CompetitorScanError("competitor scan checkpoint path is unsafe")
 
             with state_lock:
@@ -926,7 +933,11 @@ def scan_task_competitors(
                 if current_state in {"completed", "partial", "failed", "cancelled"}:
                     return
                 if _cancelled(root, manifest["run_id"], cancel_requested) or cancel_event.is_set():
-                    site.update(state="cancelled", reason="cancelled before this site started", finished_at=_now())
+                    site.update(
+                        state="cancelled",
+                        reason="cancelled before this site started",
+                        finished_at=_now(),
+                    )
                     save()
                     return
                 recovering = current_state in {"running", "interrupted"}
@@ -946,7 +957,9 @@ def scan_task_competitors(
                     )
                     save()
                     return
-                site.update(state="running", started_at=site.get("started_at") or _now(), reason=None)
+                site.update(
+                    state="running", started_at=site.get("started_at") or _now(), reason=None
+                )
                 save()
 
             if recovering:
@@ -954,7 +967,11 @@ def scan_task_competitors(
                     existing_record = _read_scan(artifact)
                 except (OSError, ValueError) as exc:
                     with state_lock:
-                        site.update(state="failed", reason=f"interrupted scan is unreadable: {type(exc).__name__}", finished_at=_now())
+                        site.update(
+                            state="failed",
+                            reason=f"interrupted scan is unreadable: {type(exc).__name__}",
+                            finished_at=_now(),
+                        )
                         save()
                     return
                 if not existing_record["crawl_partial"] and not existing_record["corpus_partial"]:
@@ -1024,7 +1041,11 @@ def scan_task_competitors(
                 with state_lock:
                     site.update(
                         state="failed",
-                        reason=(str(result.get("error", "crawl failed")) if isinstance(result, dict) else "invalid crawl result")[:1024],
+                        reason=(
+                            str(result.get("error", "crawl failed"))
+                            if isinstance(result, dict)
+                            else "invalid crawl result"
+                        )[:1024],
                         finished_at=_now(),
                     )
                     save()
@@ -1039,8 +1060,12 @@ def scan_task_competitors(
                     save()
                 return
             partial = bool(scan_record["crawl_partial"] or scan_record["corpus_partial"])
-            cancelled = _cancelled(root, manifest["run_id"], cancel_requested) or cancel_event.is_set()
-            state = "interrupted" if cancelled and partial else "partial" if partial else "completed"
+            cancelled = (
+                _cancelled(root, manifest["run_id"], cancel_requested) or cancel_event.is_set()
+            )
+            state = (
+                "interrupted" if cancelled and partial else "partial" if partial else "completed"
+            )
             with state_lock:
                 site.update(
                     state=state,
@@ -1053,12 +1078,13 @@ def scan_task_competitors(
                 )
                 save()
 
-        executor = ThreadPoolExecutor(max_workers=concurrency, thread_name_prefix="competitor-crawl")
+        executor = ThreadPoolExecutor(
+            max_workers=concurrency, thread_name_prefix="competitor-crawl"
+        )
         cancellation: BaseException | None = None
         try:
             futures = {
-                executor.submit(execute, index): index
-                for index in range(len(manifest["sites"]))
+                executor.submit(execute, index): index for index in range(len(manifest["sites"]))
             }
             for future in as_completed(futures):
                 try:
@@ -1203,4 +1229,9 @@ def cancel_competitor_scan_run(directory: str | Path, run_id: str) -> dict[str, 
         if marker.is_symlink():
             raise CompetitorScanError("competitor scan cancellation marker is unsafe")
         atomic_write_bytes(marker, b"cancel requested\n", mode=0o600)
-    return {"ok": True, "run_id": str(uuid.UUID(run_id)), "state": "cancel_requested", "cancelled": True}
+    return {
+        "ok": True,
+        "run_id": str(uuid.UUID(run_id)),
+        "state": "cancel_requested",
+        "cancelled": True,
+    }

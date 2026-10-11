@@ -77,9 +77,12 @@ def test_scan_v2_persists_an_indexed_click_depth_projection(tmp_path):
     con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
     try:
         assert con.execute("SELECT COUNT(*) FROM scan_click_depth").fetchone()[0] == 5
-        assert con.execute(
-            "SELECT depth FROM scan_click_depth JOIN urls USING(url_id) WHERE url=?", (DEEP,)
-        ).fetchone()[0] == 2
+        assert (
+            con.execute(
+                "SELECT depth FROM scan_click_depth JOIN urls USING(url_id) WHERE url=?", (DEEP,)
+            ).fetchone()[0]
+            == 2
+        )
         assert con.execute(
             "SELECT 1 FROM sqlite_master WHERE type='index' AND name='scan_click_depth_depth'"
         ).fetchone()

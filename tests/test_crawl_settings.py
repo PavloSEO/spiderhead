@@ -554,9 +554,7 @@ def test_basic_and_digest_auth_require_acknowledged_host_bound_environment_refs(
     ]
     with pytest.raises(cfg.ConfigError, match="auth_acknowledged"):
         cfg.load(overrides={"http.auth": auth})
-    resolved = cfg.load(
-        overrides={"http.auth": auth, "http.auth_acknowledged": True}
-    )
+    resolved = cfg.load(overrides={"http.auth": auth, "http.auth_acknowledged": True})
     assert resolved["http"]["auth"][0]["scheme"] == "digest"
     manifest = cfg.manifest(resolved)
     assert manifest["http.auth"] == [{"host": "example.com", "scheme": "digest"}]
@@ -609,21 +607,21 @@ def test_configuring_http_auth_adds_default_destructive_path_exclusions(monkeypa
             "password_env": "env:SEOHEAD_TEST_PASSWORD",
         }
     ]
-    resolved = cfg.load(
-        overrides={"http.auth": auth, "http.auth_acknowledged": True}
-    )
+    resolved = cfg.load(overrides={"http.auth": auth, "http.auth_acknowledged": True})
     for pattern in cfg.DESTRUCTIVE_PATH_PATTERNS:
         assert pattern in resolved["scope"]["exclude_patterns"]
 
 
 def test_zstd_negotiation_is_explicit_and_requires_a_bounded_decoder(monkeypatch):
     if not cfg.zstd_decoder_available():
-        with pytest.raises(cfg.ConfigError, match="compression.zstd or the optional zstandard package"):
+        with pytest.raises(
+            cfg.ConfigError, match=r"compression.zstd or the optional zstandard package"
+        ):
             cfg.load(overrides={"http.zstd": True})
         return
     resolved = cfg.load(overrides={"http.zstd": True})
     assert "zstd" in cfg.request_headers(resolved)["Accept-Encoding"]
-    with pytest.raises(cfg.ConfigError, match="cache.mode=off"):
+    with pytest.raises(cfg.ConfigError, match=r"cache.mode=off"):
         cfg.load(
             overrides={
                 "http.zstd": True,

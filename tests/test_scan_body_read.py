@@ -44,19 +44,22 @@ def test_body_read_cli_and_mcp_share_the_bounded_reader(tmp_path, capsys):
         diagnostic=b"<html>diagnostic</html>",
         renderer=_renderer(PAGE_URL),
     )
-    assert cli.main(
-        [
-            "scan-body-read",
-            "--scan",
-            str(path),
-            "--url",
-            PAGE_URL,
-            "--offset",
-            "6",
-            "--length",
-            "5",
-        ]
-    ) == 0
+    assert (
+        cli.main(
+            [
+                "scan-body-read",
+                "--scan",
+                str(path),
+                "--url",
+                PAGE_URL,
+                "--offset",
+                "6",
+                "--length",
+                "5",
+            ]
+        )
+        == 0
+    )
     command_result = json.loads(capsys.readouterr().out)
     tool = build_server()._tool_manager.get_tool("seo_scan_body_read")
     mcp_result = tool.fn(input_path=str(path), url=PAGE_URL, offset=6, length=5)

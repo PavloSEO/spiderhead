@@ -140,9 +140,7 @@ class IssuesTests(IssuesBase):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         self.assertGreater(len(module.CHECKS), 100)
-        self.assertEqual(
-            [code for code in module.CHECKS if not check_name(code)], []
-        )
+        self.assertEqual([code for code in module.CHECKS if not check_name(code)], [])
 
     def test_no_issue_numbers_and_no_service_footer_on_screen(self):
         self.screen.row_buttons[next(iter(self.screen.row_buttons))].click()

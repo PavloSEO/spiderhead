@@ -1162,7 +1162,9 @@ def validate(config: dict[str, Any]) -> None:
     if cache_mode not in CACHE_MODES:
         raise ConfigError(f"cache.mode must be one of {CACHE_MODES}, got {cache_mode!r}")
     if config["http"]["auth"] and cache_mode != "off":
-        raise ConfigError("http.auth requires cache.mode=off to avoid reusing authenticated responses")
+        raise ConfigError(
+            "http.auth requires cache.mode=off to avoid reusing authenticated responses"
+        )
     if type(config["http"]["zstd"]) is not bool:
         raise ConfigError("http.zstd must be boolean")
     if config["http"]["zstd"]:
@@ -1171,7 +1173,9 @@ def validate(config: dict[str, Any]) -> None:
                 "http.zstd requires Python 3.14+ compression.zstd or the optional zstandard package"
             )
         if cache_mode != "off":
-            raise ConfigError("http.zstd requires cache.mode=off so encoded responses are not mixed")
+            raise ConfigError(
+                "http.zstd requires cache.mode=off so encoded responses are not mixed"
+            )
     # "replay" promises it never touches the network for a URL already on disk;
     # "invalidate" promises the opposite -- a live measurement on every lookup.
     # Both are explicit, deliberate settings, so silently letting one win (issue
@@ -1764,10 +1768,7 @@ def _redact_credential_headers(entries: list[dict[str, Any]]) -> list[dict[str, 
 
 def _redact_http_auth(entries: list[dict[str, Any]]) -> list[dict[str, str]]:
     """Keep authentication method/host provenance, never env-var references."""
-    return [
-        {"host": entry.get("host", ""), "scheme": entry.get("scheme", "")}
-        for entry in entries
-    ]
+    return [{"host": entry.get("host", ""), "scheme": entry.get("scheme", "")} for entry in entries]
 
 
 def manifest(config: dict[str, Any]) -> dict[str, Any]:
@@ -1835,8 +1836,7 @@ def request_headers(config: dict[str, Any]) -> dict[str, str] | None:
             "Accept-Encoding",
         )
         accepted = [
-            part.strip().lower()
-            for part in headers.get(accept_key, "gzip, deflate").split(",")
+            part.strip().lower() for part in headers.get(accept_key, "gzip, deflate").split(",")
         ]
         if "zstd" not in accepted:
             accepted.append("zstd")
@@ -1900,7 +1900,7 @@ RATE_WARN_RPS = 2.0
 def zstd_decoder_available() -> bool:
     """Whether a bounded zstd decoder is available for explicitly negotiated responses."""
     try:
-        from compression import zstd  # noqa: F401
+        from compression import zstd
     except ImportError:
         try:
             import zstandard

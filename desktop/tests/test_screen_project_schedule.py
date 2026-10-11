@@ -192,7 +192,9 @@ class ScheduleTabTests(unittest.TestCase):
             self.wait(lambda: page.state is not None and page.state["revision"] == 7)
             self.assertGreaterEqual(page.target_selector.findData("competitors/example"), 0)
             self.assertEqual(page.target_selector.findData("../outside"), -1)
-            page.target_selector.setCurrentIndex(page.target_selector.findData("competitors/example"))
+            page.target_selector.setCurrentIndex(
+                page.target_selector.findData("competitors/example")
+            )
             self.wait(lambda: page.state is not None and page.state["revision"] == 3)
             self.assertEqual(
                 page._directory(), str(Path("/project/qa/competitors/example").resolve())

@@ -26,7 +26,7 @@ from PyQt5.QtWidgets import (
 
 from .. import theming
 from ..ui.icons import material_icon
-from ..ui.kit import StatePanel, no_project_panel
+from ..ui.kit import no_project_panel
 from .base import Screen
 from .url_query import CoreJob
 
@@ -37,7 +37,17 @@ MAPPING_FIELDS = ("query", "frequency", "group", "subgroup", "url", "comment")
 def import_arguments(project, path, *, sheet="", mapping=None, merge="add", dry_run=True):
     if not project or not path or merge not in {"add", "update", "replace"}:
         raise ValueError("Choose a project, input file and merge policy")
-    arguments = ["semantics", "import", "--project", project, "--file", path, "--merge", merge, "--json"]
+    arguments = [
+        "semantics",
+        "import",
+        "--project",
+        project,
+        "--file",
+        path,
+        "--merge",
+        merge,
+        "--json",
+    ]
     if sheet.strip():
         arguments += ["--sheet", sheet.strip()]
     for field, value in (mapping or {}).items():
@@ -85,9 +95,7 @@ class SemImportScreen(Screen):
         root.addWidget(self._build_bar())
         self.stack = QStackedWidget()
         root.addWidget(self.stack, 1)
-        self.empty = no_project_panel(
-            host, "Open a project to import or export its semantic core."
-        )
+        self.empty = no_project_panel(host, "Open a project to import or export its semantic core.")
         self.body = QWidget()
         body = QVBoxLayout(self.body)
         body.setContentsMargins(20, 14, 20, 14)
@@ -103,7 +111,9 @@ class SemImportScreen(Screen):
         body.addWidget(self.form_stack)
         self.output = QPlainTextEdit()
         self.output.setReadOnly(True)
-        self.output.setPlaceholderText("Core preview, counts, mapping and omitted rows appear here.")
+        self.output.setPlaceholderText(
+            "Core preview, counts, mapping and omitted rows appear here."
+        )
         body.addWidget(self.output, 1)
         self.stack.addWidget(self.empty)
         self.stack.addWidget(self.body)
@@ -123,7 +133,11 @@ class SemImportScreen(Screen):
             button.setProperty("pill", "group")
             button.setCheckable(True)
             button.setText(label)
-            button.setIcon(material_icon("upload_file" if key == "import" else "download", theming.roles()["text_2"]))
+            button.setIcon(
+                material_icon(
+                    "upload_file" if key == "import" else "download", theming.roles()["text_2"]
+                )
+            )
             button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
             button.clicked.connect(lambda _checked=False, value=key: self.set_mode(value))
             self.mode_buttons[key] = button
@@ -184,7 +198,11 @@ class SemImportScreen(Screen):
         self.export_format.currentIndexChanged.connect(self._invalidate_preview)
         layout.addRow("Format", self.export_format)
         self.scope = QComboBox()
-        for key, label in (("all", "All phrases"), ("no-landing", "Clusters without landing"), ("cluster", "One cluster")):
+        for key, label in (
+            ("all", "All phrases"),
+            ("no-landing", "Clusters without landing"),
+            ("cluster", "One cluster"),
+        ):
             self.scope.addItem(label, key)
         self.scope.currentIndexChanged.connect(self._invalidate_preview)
         layout.addRow("Scope", self.scope)
@@ -227,7 +245,9 @@ class SemImportScreen(Screen):
         self.preview_button.setText("Preview import" if mode == "import" else "Preview export")
 
     def _choose_file(self):
-        path, _ = QFileDialog.getOpenFileName(self, "Choose semantic phrase file", "", "Semantic files (*.csv *.xlsx);;All files (*)")
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Choose semantic phrase file", "", "Semantic files (*.csv *.xlsx);;All files (*)"
+        )
         if path:
             self.file_path.setText(path)
             self._invalidate_preview()
@@ -312,7 +332,9 @@ class SemImportScreen(Screen):
             return
         files = self._preview.get("planned_files") or []
         if any(Path(path).exists() for path in files if isinstance(path, str)):
-            self.output.setPlainText("One or more planned output files already exist. Choose an empty folder and preview again.")
+            self.output.setPlainText(
+                "One or more planned output files already exist. Choose an empty folder and preview again."
+            )
             self._invalidate_preview()
             return
         merge = self.merge.currentData() if self.mode == "import" else ""
@@ -321,9 +343,16 @@ class SemImportScreen(Screen):
             if self.mode == "import" and merge == "replace"
             else "Apply the previewed semantic import/export to local project files?"
         )
-        if QMessageBox.question(
-            self, "Apply semantic operation", message, QMessageBox.Yes | QMessageBox.No, QMessageBox.No
-        ) != QMessageBox.Yes:
+        if (
+            QMessageBox.question(
+                self,
+                "Apply semantic operation",
+                message,
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            != QMessageBox.Yes
+        ):
             return
         try:
             arguments = self._args(False)

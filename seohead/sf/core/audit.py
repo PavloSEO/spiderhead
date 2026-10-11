@@ -255,9 +255,7 @@ def run_audit(
         crawl_valid, _ = _crawl_validity(html_count, {}, page_count)
         urls_in_sitemap = int((sitemap_summary or {}).get("urls_in_sitemap") or 0)
         sitemap_partial = bool(
-            urls_in_sitemap
-            and crawl_valid
-            and page_count < urls_in_sitemap * PARTIAL_CRAWL_RATIO
+            urls_in_sitemap and crawl_valid and page_count < urls_in_sitemap * PARTIAL_CRAWL_RATIO
         )
         crawl_partial = sitemap_partial or omitted_pages > 0
     try:

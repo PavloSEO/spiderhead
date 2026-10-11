@@ -204,9 +204,13 @@ def test_content_search_counts_matches_past_the_explicit_offset_output_limit(tmp
     assert records[0]["occurrences_returned"] == len(records[0]["occurrences"])
     assert records[0]["occurrences_omitted"] == count - len(records[0]["occurrences"])
     assert 0 < len(records[0]["occurrences"]) < 10_000
-    assert len(
-        json.dumps(records[0], ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\n"
-    ) <= MAX_SERIALIZED_RECORD_BYTES
+    assert (
+        len(
+            json.dumps(records[0], ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            + b"\n"
+        )
+        <= MAX_SERIALIZED_RECORD_BYTES
+    )
     assert result["coverage"]["state"] == "partial"
     assert result["coverage"]["occurrence_truncated_documents"] == 1
 
@@ -375,7 +379,7 @@ def test_redaction_covers_common_credential_labels_and_bearer_values():
     target = (
         "access_token=ACCESSSECRET refresh_token: REFRESHSECRET "
         'client_secret="CLIENT SECRET" api_key=APISECRET '
-        'Authorization: Bearer HEADERSECRET Bearer standalonesecrettoken '
+        "Authorization: Bearer HEADERSECRET Bearer standalonesecrettoken "
         '{"access_token":"JSONACCESSSECRET","client_secret":"JSONCLIENTSECRET"}'
     )
     redacted = _redact_slice(target, 0, len(target), _redaction_spans(target))

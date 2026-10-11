@@ -46,9 +46,7 @@ class JobProgressUpdate:
         for name, value in (("completed", self.completed), ("total", self.total)):
             if value is not None and (type(value) is not int or value < 0):
                 raise ValueError(f"{name} must be a nonnegative integer or None")
-        if self.reason is not None and (
-            not isinstance(self.reason, str) or len(self.reason) > 500
-        ):
+        if self.reason is not None and (not isinstance(self.reason, str) or len(self.reason) > 500):
             raise ValueError("reason must be text no longer than 500 characters or None")
 
 

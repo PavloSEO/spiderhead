@@ -946,10 +946,8 @@ def local_deliver(directory: str | Path, *, scan_id: str, expected_revision: int
 
     reports = _reports_root(root)
     receipt_path = reports / "monitor-delivery-receipts.sqlite"
-    if (
-        not receipt_path.parent.resolve().is_relative_to(reports.resolve())
-        or os.path.lexists(receipt_path)
-        and (receipt_path.is_symlink() or not receipt_path.is_file())
+    if not receipt_path.parent.resolve().is_relative_to(reports.resolve()) or (
+        os.path.lexists(receipt_path) and (receipt_path.is_symlink() or not receipt_path.is_file())
     ):
         raise ValueError("monitor delivery receipt store is unsafe")
     service = MonitorServiceDelivery(

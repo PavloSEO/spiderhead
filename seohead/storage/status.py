@@ -25,9 +25,7 @@ def scan_status(input_path: str, *, full_validation: bool = False) -> dict[str, 
     path = Path(input_path)
     checked_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
     try:
-        con, validation = open_scan_mode(
-            path, require_audit=False, light=not full_validation
-        )
+        con, validation = open_scan_mode(path, require_audit=False, light=not full_validation)
     except (OSError, sqlite3.Error, ScanError, ValueError, TypeError) as exc:
         # A status read distinguishes unavailable/damaged storage from an empty scan.
         scan_uuid = None

@@ -276,12 +276,21 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
     _command(
         "compare-status",
         "compare_status",
-        _form("local_directory", "out_dir", note="comparison output path; reads active checkpoint or completed cache"),
+        _form(
+            "local_directory",
+            "out_dir",
+            note="comparison output path; reads active checkpoint or completed cache",
+        ),
     ),
     _command(
         "compare-url",
         "compare_url",
-        _form("audit_document", "before", "after", note="Each source may be audit JSON or scan.v1 SQLite."),
+        _form(
+            "audit_document",
+            "before",
+            "after",
+            note="Each source may be audit JSON or scan.v1 SQLite.",
+        ),
         _form("selector", "url", note="Exact retained URL text."),
         _form("selector", "max_bytes"),
         _form("selector", "max_lines"),

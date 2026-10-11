@@ -43,11 +43,7 @@ def _connect(path: Path, *, create: bool) -> sqlite3.Connection:
         else:
             os.close(descriptor)
     info = path.lstat()
-    if (
-        not stat.S_ISREG(info.st_mode)
-        or info.st_nlink != 1
-        or not is_private_mode(info.st_mode)
-    ):
+    if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or not is_private_mode(info.st_mode):
         raise ValueError("Cloudflare history must be a private regular unaliased file")
     con = open_writer(path) if create else open_readonly(path.absolute())
     try:
@@ -101,7 +97,11 @@ def save_snapshot(
     if len(encoded.encode("utf-8")) > MAX_SNAPSHOT_BYTES:
         raise ValueError("Cloudflare history snapshot exceeds 32 MiB")
     truncated_days = result.get("truncated_days") or []
-    state = "partial" if result.get("sampled") or truncated_days or payload["url_facts_truncated"] else "complete"
+    state = (
+        "partial"
+        if result.get("sampled") or truncated_days or payload["url_facts_truncated"]
+        else "complete"
+    )
     stamp = observed_at or datetime.now(timezone.utc).isoformat(timespec="seconds")
     fingerprint = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
     path = _path(project)
@@ -178,7 +178,9 @@ def list_snapshots(
             filters.append("id=?")
             params.append(snapshot_id)
         clause = " WHERE " + " AND ".join(filters) if filters else ""
-        total = con.execute(f"SELECT COUNT(*) FROM cloudflare_snapshots{clause}", params).fetchone()[0]
+        total = con.execute(
+            f"SELECT COUNT(*) FROM cloudflare_snapshots{clause}", params
+        ).fetchone()[0]
         payload_column = ",payload" if include_facts else ",length(payload)"
         query = (
             "SELECT id,zone_id,zone,observed_at,period_from,period_to,state,sampled,truncated_days"
@@ -198,9 +200,7 @@ def list_snapshots(
                 payload.get("url_facts_omitted", 0) if isinstance(payload, dict) else None
             )
             stored_omitted = (
-                stored_omitted
-                if type(stored_omitted) is int and stored_omitted >= 0
-                else None
+                stored_omitted if type(stored_omitted) is int and stored_omitted >= 0 else None
             )
             facts = []
             if include_facts:
@@ -247,9 +247,7 @@ def list_snapshots(
                 entry.update(
                     {
                         "url_facts": facts,
-                        "url_facts_source_truncated": bool(
-                            payload.get("url_facts_truncated")
-                        ),
+                        "url_facts_source_truncated": bool(payload.get("url_facts_truncated")),
                         "url_facts_omitted": stored_omitted,
                         "url_facts_total_retained": len(all_facts),
                         "url_facts_offset": facts_offset,
@@ -265,9 +263,7 @@ def list_snapshots(
                 )
             else:
                 entry["url_facts_payload_bytes"] = row[9]
-            size = len(
-                json.dumps(entry, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-            )
+            size = len(json.dumps(entry, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
             if page_bytes + size > MAX_PAGE_BYTES - 4096:
                 byte_limited = True
                 break
@@ -297,7 +293,9 @@ def list_zones(*, project: str, limit: int = 100, offset: int = 0) -> dict[str, 
         raise ValueError("limit must be 1..100 and offset must be nonnegative")
     path = _path(project)
     with contextlib.closing(_connect(path, create=False)) as con:
-        total = con.execute("SELECT COUNT(DISTINCT zone_id) FROM cloudflare_snapshots").fetchone()[0]
+        total = con.execute("SELECT COUNT(DISTINCT zone_id) FROM cloudflare_snapshots").fetchone()[
+            0
+        ]
         zones = con.execute(
             "SELECT zone_id FROM cloudflare_snapshots GROUP BY zone_id ORDER BY MAX(id) DESC LIMIT ? OFFSET ?",
             (limit, offset),
@@ -306,7 +304,7 @@ def list_zones(*, project: str, limit: int = 100, offset: int = 0) -> dict[str, 
         for (zone_id,) in zones:
             row = con.execute(
                 "SELECT zone,observed_at,period_from,period_to,state,sampled,truncated_days"
-            ",payload"
+                ",payload"
                 " FROM cloudflare_snapshots WHERE zone_id=? ORDER BY id DESC LIMIT 1",
                 (zone_id,),
             ).fetchone()
@@ -318,9 +316,14 @@ def list_zones(*, project: str, limit: int = 100, offset: int = 0) -> dict[str, 
                     "latest_period": {"from": row[2], "to": row[3]},
                     "state": row[4],
                     "sampled": bool(row[5]),
-                    "truncated": bool(json.loads(row[6])) or bool(
-                        json.loads(row[7]).get("url_facts_truncated")
-                    ),
+                    "truncated": bool(json.loads(row[6]))
+                    or bool(json.loads(row[7]).get("url_facts_truncated")),
                 }
             )
-    return {"schema_version": FORMAT, "total": total, "offset": offset, "limit": limit, "zones": result}
+    return {
+        "schema_version": FORMAT,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "zones": result,
+    }

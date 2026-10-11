@@ -10,6 +10,7 @@ Requires the optional ``mcp`` dependency: ``pip install "seohead-seotools[mcp]"`
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import sys
@@ -1344,10 +1345,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                             if update.total is not None
                             else f"{update.stage}: {update.completed} completed; total unknown"
                         )
-                        try:
+                        with contextlib.suppress(Exception):
                             await reporter.elapsed(detail)
-                        except Exception:
-                            pass
                 while not updates.empty():
                     update = updates.get()
                     detail = (
@@ -1355,19 +1354,15 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                         if update.total is not None
                         else f"{update.stage}: {update.completed} completed; total unknown"
                     )
-                    try:
+                    with contextlib.suppress(Exception):
                         await reporter.elapsed(detail)
-                    except Exception:
-                        pass
                 return _checked(await task)
             except asyncio.CancelledError:
                 cancel_event.set()
                 # The worker checks this token at every indexing/classification/export batch
                 # and immediately before entering the publish step.
-                try:
+                with contextlib.suppress(Exception):
                     await asyncio.shield(task)
-                except Exception:
-                    pass
                 raise
 
     @mcp.tool(annotations=read_files, structured_output=True)
@@ -1993,7 +1988,9 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 return
             last_reported = received
             try:
-                future = asyncio.run_coroutine_threadsafe(ctx.report_progress(received, total), loop)
+                future = asyncio.run_coroutine_threadsafe(
+                    ctx.report_progress(received, total), loop
+                )
                 future.add_done_callback(lambda completed: completed.exception())
             except (AttributeError, RuntimeError):
                 return
@@ -2014,10 +2011,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             return _checked(await asyncio.shield(worker))
         except asyncio.CancelledError:
             cancel.set()
-            try:
+            with contextlib.suppress(Exception):
                 await asyncio.shield(worker)
-            except Exception:
-                pass
             raise
 
     @mcp.tool(annotations=fetch, structured_output=True)
@@ -2135,10 +2130,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             return _checked(await asyncio.shield(task))
         except asyncio.CancelledError:
             cancelled.set()
-            try:
+            with contextlib.suppress(Exception):
                 await asyncio.shield(task)
-            except Exception:
-                pass
             raise
 
     @mcp.tool(annotations=fetch, structured_output=True)
@@ -3303,9 +3296,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         offset: int = 0,
         limit: int = 50,
         client: Literal["cli", "mcp", "system"] | None = None,
-        outcome: Literal[
-            "pending", "applied", "approved", "denied", "stale", "refused", "deleted"
-        ]
+        outcome: Literal["pending", "applied", "approved", "denied", "stale", "refused", "deleted"]
         | None = None,
         query: str = "",
     ) -> dict[str, Any]:
@@ -3580,9 +3571,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         validates the local artifact reference and returns an allowlisted, sanitized sample page;
         it never returns the raw saved envelope or makes a provider request."""
         return _checked(
-            handlers.provider_artifact_read(
-                artifact_ref, artifact_dir, offset=offset, limit=limit
-            )
+            handlers.provider_artifact_read(artifact_ref, artifact_dir, offset=offset, limit=limit)
         )
 
     @mcp.tool(annotations=pure, structured_output=True)
@@ -3727,9 +3716,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         )
 
     @mcp.tool(annotations=read_files, structured_output=True)
-    def seo_project_activity(
-        directory: str, since_revision: str | None = None
-    ) -> dict[str, Any]:
+    def seo_project_activity(directory: str, since_revision: str | None = None) -> dict[str, Any]:
         """Read lightweight current activity for a local project and its sites.
 
         Reads saved local evidence only; does not collect, fetch or modify it. Pass the returned

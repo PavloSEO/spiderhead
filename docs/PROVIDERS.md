@@ -34,6 +34,8 @@ Rendered from the registry exactly as `provider-registry` reports it.
 | `miratext` | read-only, paid, off by default | seo_analysis | api_key | free queue or explicitly confirmed paid provider task | restricted site/account data |
 | `bing_webmaster` | read-only | sites, crawl, links, url_links, keywords, search_performance | api_key | Bing Webmaster API quota | restricted site/account data |
 | `dataforseo_backlinks` (off by default) | read-only, paid, off by default | backlinks_summary, backlinks, referring_domains, backlinks_history, domain_pages_summary | login, password | paid per provider response | restricted site/account data |
+| `moz` (off by default) | read-only, paid | backlinks_summary | api_token | Moz API plan limits | restricted site/account data |
+| `cloudflare` | read-only | token_verify, traffic, logpull, history | api_token | Cloudflare account and zone plan limits | restricted site/account data |
 | `indexnow` (off by default) | confirmed write, off by default | submit | submission_key | provider submission quota | caller-supplied URL list, public endpoint |
 | `wayback` | read-only | history | none | public service pacing | public data |
 | `crtsh` | read-only | subdomains | none | public service availability | public data |
@@ -58,58 +60,10 @@ Rendered from the registry exactly as `provider-registry` reports it.
 | `content-gap-analysis` | Compare supplied competitor pages or texts and surface author-facing word-density gaps | `miratext` (dedicated integration) | `miratext-analyze` | supported | Miratext API key | Free queue by default; paid or keyword search needs explicit confirmation and is journaled with unknown provider units | restricted — supplied URLs, texts, and result tables stay local | Only explicitly supplied URLs/texts are analysed; the optional provider-built keyword competitor set is paid and never starts without confirmation. Final tables retain provider-reported units and mark an unknown response shape unavailable | yes — use supplied competitor URLs/texts; author tables are returned as JSON |
 | `url-submission` | Notify Bing, Yandex, Naver, and Seznam that URLs changed | `indexnow` (dedicated integration) | `indexnow-submit` | supported | Self-generated key hosted on the target site | Free; provider submission quota; off by default | caller-supplied URL list sent to a public endpoint | Confirmed write, not a collection — the command calls the dedicated indexnow.submit directly and provider-collect refuses it by contract; Google has not joined IndexNow | not applicable — write operation |
 | `public-recon` | Snapshot history of a URL and subdomains named in public certificate logs | `wayback`, `crtsh` | `wayback-history`, `crtsh-subdomains` | supported | None — public services | Free; public service pacing and availability | public | provider-verify reports not_required — there is no access contract to verify | not applicable |
+| `cloudflare-edge-and-log-evidence` | Read aggregated per-URL edge facts and explicitly import a bounded edge-log interval | `cloudflare` | `cloudflare-traffic`, `cloudflare-history`, `provider-collect` | supported | Cloudflare API token; Zone Read + Account Analytics Read, with Logs Read for Logpull | GraphQL analytics is free within Cloudflare quota; Logpull is Enterprise-only, at most one hour per request and seven days of history | Aggregated traffic history stores no IPs; explicit Logpull imports IP-level rows to a private project logs artifact | Adaptive GraphQL facts are grouped daily data, not raw requests. Configured redirect/WAF rules are not proof of per-request matches. Logpull always requires an explicit project binding, end time at least five minutes old, and never enables DNS verification | not applicable — provider-native daily history and explicit log import |
 | `evidence-join` | Attach external URL-keyed rows to a crawl and surface orphan candidates for explicit review | `gsc`, `ga4`, `metrika`, `yandex_webmaster`, `bing_webmaster` | `provider-join`, `provider-replay` | supported | None — operates on already-collected or user-supplied rows | Free; local operation | restricted inputs stay local; artifact directory is created mode 0700 | Never changes the crawl frontier; unkeyable, crawl-only, and external-only populations stay named and separate | yes — this is the CSV fallback path itself |
 
-## Resource discovery
-
-`provider-discover --provider google|yandex|topvisor [--domain HOST]` makes one bounded,
-read-only request to list resources visible to the authenticated account. It returns normalized
-service/resource/label records and an optional domain-match hint. The result is a preview: it
-never creates or changes a project binding, and visible account resources remain unselected until
-the operator explicitly binds one with `project-sources-link`. Topvisor discovery reads one page;
-`truncated` is true when the provider reports another page.
-
-## GSC OAuth consent lifecycle
-
-Configure `GSC_OAUTH_CLIENT_ID` and `GSC_OAUTH_REDIRECT_URI` locally, then start the read-only
-consent flow. The generated URL contains a random state value; the local flow file stores only its
-digest and expires after ten minutes. The callback accepts state and authorization code through
-stdin JSON, exchanges the code for a read-only grant, and reports connected timestamps only after
-the provider's token response validates:
-
-```bash
-seohead provider-auth --provider gsc --action start
-printf '%s' '{"state":"CALLBACK_STATE","code":"CALLBACK_CODE"}' | \
-  seohead provider-auth --provider gsc --action callback --callback-stdin
-seohead provider-auth --provider gsc --action status
-```
-
-Do not place callback values in command arguments or logs. `--action cancel` invalidates a waiting
-flow locally. Cancelled and expired flows reject callbacks; a connected account still requires an
-explicit `provider-verify` read before any target is described as accessible. The CLI owns callback
-input; MCP can start, inspect, and cancel flows without receiving callback codes.
-
 ## Unsupported work, stated explicitly
-
-### Write-only credential management
-
-`provider-credential --action status` returns only a relative `config:` reference, whether an
-environment override shadows that file, a configuration state, and the file's `updated_at`
-timestamp. It never returns a stored value. Set or replace through the local CLI stdin channel;
-values in command arguments and inline JSON are not accepted:
-
-```bash
-printf %s "$PROVIDER_TOKEN" | seohead provider-credential \
-  --provider arsenkin --component api_token --action set --value-stdin
-seohead provider-credential --provider arsenkin --component api_token \
-  --action revoke --confirm
-```
-
-Provider and component names are checked against the registry. The existing atomic private-file
-writer stores values with restrictive permissions. Replacement requires `--replace`; revocation
-requires `--confirm`. MCP allows status only because it has no trusted caller identity; revoke and
-all OAuth mutations stay in explicit local CLI workflows. Credential configuration never proves
-provider or target access; use `provider-verify` for that explicit check.
 
 - **arsenkin serp_clustering via provider-collect** — declared in the registry but deliberately refused by the collection dispatch; tracked by the dedicated-operation contract rather than duplicated here
 - **metrika raw_logs (Yandex Logs API)** — excluded by design — raw logs may contain personal identifiers and must not reach reports or commits

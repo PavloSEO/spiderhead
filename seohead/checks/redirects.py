@@ -178,7 +178,9 @@ def generate_rules(
     return rules
 
 
-def analyze_redirect_map(redirects: list[dict], default_url: str = "/") -> dict[str, list[dict[str, Any]]]:
+def analyze_redirect_map(
+    redirects: list[dict], default_url: str = "/"
+) -> dict[str, list[dict[str, Any]]]:
     """Report local redirect chains and loops without making network requests."""
     mapping: dict[str, str] = {}
     for raw in redirects:
@@ -186,7 +188,9 @@ def analyze_redirect_map(redirects: list[dict], default_url: str = "/") -> dict[
         raw_source = str(item["old_url"]).strip()
         raw_target = str(default_url if item["redirect_to_default"] else item["new_url"]).strip()
         source = _chain_key(raw_source)
-        target = _chain_key(urljoin(raw_source, raw_target) if urlsplit(raw_source).scheme else raw_target)
+        target = _chain_key(
+            urljoin(raw_source, raw_target) if urlsplit(raw_source).scheme else raw_target
+        )
         if source and target:
             mapping[source] = target
     chains: list[dict[str, Any]] = []
@@ -216,7 +220,9 @@ def _chain_key(value: str) -> str:
         return ""
     parts = urlsplit(value)
     if parts.scheme and parts.netloc:
-        return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), parts.path or "/", parts.query, ""))
+        return urlunsplit(
+            (parts.scheme.lower(), parts.netloc.lower(), parts.path or "/", parts.query, "")
+        )
     return normalize_url(value)
 
 

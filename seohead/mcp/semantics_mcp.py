@@ -138,14 +138,22 @@ def register(mcp, _checked: Callable[[Any], Any]):  # pragma: no cover - needs t
         """Read paginated semantic clusters and nullable frequency aggregates."""
         from seohead.semantics.runner import run_quiet
 
-        return _checked(run_quiet("clusters", project, allowed=("clusters",), offset=offset, limit=limit, json=True))
+        return _checked(
+            run_quiet(
+                "clusters", project, allowed=("clusters",), offset=offset, limit=limit, json=True
+            )
+        )
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_semantics_cluster_show(project: str, cluster: str) -> dict[str, Any]:
         """Read one semantic cluster, its phrases aggregate and stored landing candidates."""
         from seohead.semantics.runner import run_quiet
 
-        return _checked(run_quiet("cluster-show", project, allowed=("cluster-show",), cluster=cluster, json=True))
+        return _checked(
+            run_quiet(
+                "cluster-show", project, allowed=("cluster-show",), cluster=cluster, json=True
+            )
+        )
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_semantics_cluster_queries(
@@ -154,14 +162,33 @@ def register(mcp, _checked: Callable[[Any], Any]):  # pragma: no cover - needs t
         """Read a bounded page of phrases belonging to one semantic cluster."""
         from seohead.semantics.runner import run_quiet
 
-        return _checked(run_quiet("cluster-queries", project, allowed=("cluster-queries",), cluster=cluster, offset=offset, limit=limit, json=True))
+        return _checked(
+            run_quiet(
+                "cluster-queries",
+                project,
+                allowed=("cluster-queries",),
+                cluster=cluster,
+                offset=offset,
+                limit=limit,
+                json=True,
+            )
+        )
 
     @mcp.tool(annotations=create_files, structured_output=True)
     def seo_semantics_set_landing(project: str, cluster: str, url: str) -> dict[str, Any]:
         """Set or clear a cluster landing URL and retain an audit record."""
         from seohead.semantics.runner import run_quiet
 
-        return _checked(run_quiet("set-landing", project, allowed=("set-landing",), cluster=cluster, url=url, json=True))
+        return _checked(
+            run_quiet(
+                "set-landing",
+                project,
+                allowed=("set-landing",),
+                cluster=cluster,
+                url=url,
+                json=True,
+            )
+        )
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_semantics_insights(

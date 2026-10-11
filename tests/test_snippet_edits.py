@@ -96,9 +96,9 @@ def test_imported_edits_export_as_unapplied_url_tasks():
     ]
     assert tasks["source_artifact"]["kind"] == "snippet_csv"
     assert tasks["tasks"][0]["source_artifact"] == tasks["source_artifact"]
-    assert tasks["source_artifact"]["content_sha256"] in tasks["tasks"][0]["goal_proposal"][
-        "summary"
-    ]
+    assert (
+        tasks["source_artifact"]["content_sha256"] in tasks["tasks"][0]["goal_proposal"]["summary"]
+    )
 
 
 def test_local_font_metrics_return_width_preview_and_profile_provenance(monkeypatch, tmp_path):
@@ -150,7 +150,7 @@ def test_retained_document_preview_preserves_lineage_and_query_dependence():
                 '<meta name="description" content="Meta summary"></head>'
                 "<body><nav>Boilerplate query</nav><main>Authorization: Bearer synthetic-token. "
                 "Page content for query. "
-                '<span data-nosnippet>Excluded query text.</span></main></body></html>'
+                "<span data-nosnippet>Excluded query text.</span></main></body></html>"
             ),
             "document_id": 7,
             "representation": "static",
@@ -178,7 +178,9 @@ def test_retained_document_preview_preserves_lineage_and_query_dependence():
 def test_retained_document_never_treats_partial_or_missing_body_as_empty_content():
     from seohead.sf.snippet_edits import inspect_retained_document
 
-    partial = inspect_retained_document({"state": "available", "text": "<p>part" , "truncated": True})
+    partial = inspect_retained_document(
+        {"state": "available", "text": "<p>part", "truncated": True}
+    )
     missing = inspect_retained_document({"state": "unavailable", "reason": "not_retained"})
     assert partial["state"] == "partial"
     assert missing["state"] == "unavailable"
@@ -210,9 +212,7 @@ def test_retained_spelling_accepts_only_explicit_injected_backend_and_word_list(
         def check(self, text, _lang):
             position = text.find("Brand")
             return (
-                [{"word": "Brand", "offset": position, "suggestions": []}]
-                if position >= 0
-                else []
+                [{"word": "Brand", "offset": position, "suggestions": []}] if position >= 0 else []
             )
 
     document = {
@@ -260,7 +260,9 @@ def test_retained_spelling_uses_the_same_data_nosnippet_filtered_content_area():
     )
     assert result["spelling"]["findings_total"] == 1
     assert all("Private marker" not in call for call in backend.calls)
-    assert all("Private marker" not in finding["snippet"] for finding in result["spelling"]["findings"])
+    assert all(
+        "Private marker" not in finding["snippet"] for finding in result["spelling"]["findings"]
+    )
 
 
 def test_data_nosnippet_on_the_selected_root_hides_all_root_text():
@@ -270,7 +272,7 @@ def test_data_nosnippet_on_the_selected_root_hides_all_root_text():
         {
             "state": "available",
             "url": "https://example.test/p",
-            "text": '<html><body><main data-nosnippet>Hiddenword query</main></body></html>',
+            "text": "<html><body><main data-nosnippet>Hiddenword query</main></body></html>",
         },
         query="query",
     )
@@ -321,9 +323,7 @@ def test_saved_scan_context_uses_exact_urls_and_keeps_source_identity(monkeypatc
         }
 
     monkeypatch.setattr(bodies, "read_page_document_content", read_document)
-    tasks = build_snippet_tasks(
-        parse_snippet_csv("url,title\nhttps://example.test/p,New title\n")
-    )
+    tasks = build_snippet_tasks(parse_snippet_csv("url,title\nhttps://example.test/p,New title\n"))
     result = attach_retained_context(tasks, tmp_path / "scan.sqlite", query="pump")
 
     assert calls[0][1] == "https://example.test/p"
@@ -371,7 +371,9 @@ def test_retained_metadata_and_query_excerpt_share_local_profiles(monkeypatch, t
         "description": 54,
     }
     assert retained["query_excerpt"]["pixel_widths"]["local-layout"]["description"] == 33
-    assert retained["query_excerpt"]["previews"]["local-layout"]["description"]["truncated"] is False
+    assert (
+        retained["query_excerpt"]["previews"]["local-layout"]["description"]["truncated"] is False
+    )
 
 
 def test_snippet_task_export_refuses_to_replace_an_existing_file(tmp_path):

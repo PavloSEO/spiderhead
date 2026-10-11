@@ -31,12 +31,14 @@ from .asset_checks import (
     check_render_assets,
     check_resource_assets,
 )
-from .mobile_checks import CHECKS as MOBILE_RENDER_CHECKS, check_mobile_render_layout
-from .render_checks import CHECKS as RENDER_ELEMENT_CHECKS, check_rendered_elements
 from .context import AuditContext
 from .markup_rules import check_document_markup
+from .mobile_checks import CHECKS as MOBILE_RENDER_CHECKS
+from .mobile_checks import check_mobile_render_layout
 from .models import Page
 from .normalize import norm_url
+from .render_checks import CHECKS as RENDER_ELEMENT_CHECKS
+from .render_checks import check_rendered_elements
 
 NON_ASCII = re.compile(r"[^\x00-\x7F]")
 

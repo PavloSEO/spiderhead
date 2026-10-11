@@ -1159,9 +1159,7 @@ class SchemaPage(QWidget):
             )
         )
         hreflang = page.get("hreflang_json")
-        rows = [
-            ("Записей hreflang", number(len(hreflang)) if isinstance(hreflang, list) else None)
-        ]
+        rows = [("Записей hreflang", number(len(hreflang)) if isinstance(hreflang, list) else None)]
         pairs = Pairs(tuple(key for key, _v in rows))
         for key, value in rows:
             pairs.set(key, value)
@@ -1177,7 +1175,9 @@ class SchemaPage(QWidget):
         token = object()
         self._pending = (key, token)
         self.blocks.text.setText("Reading retained structured data…")
-        self.tree.text.setText(f"The exact URL and {representation} retained document are being read locally.")
+        self.tree.text.setText(
+            f"The exact URL and {representation} retained document are being read locally."
+        )
         arguments = [
             "scan-structured-blocks",
             "--scan",
@@ -1222,9 +1222,9 @@ class SchemaPage(QWidget):
         source_state = payload.get("source_state")
         analysis_state = detail.get("analysis_state", "unavailable")
         root_count = payload.get("block_count")
-        root_suffix = (
-            f" · source {source_state}" if source_state else ""
-        ) + (f" · {root_count} JSON-LD blocks" if type(root_count) is int else "")
+        root_suffix = (f" · source {source_state}" if source_state else "") + (
+            f" · {root_count} JSON-LD blocks" if type(root_count) is int else ""
+        )
         if payload.get("blocks_truncated"):
             root_suffix += " · block output truncated"
         self.blocks.title.setText(
@@ -1263,7 +1263,9 @@ class SchemaPage(QWidget):
             "structural_state": validation.get("structural_state"),
             "feature_eligibility_state": validation.get("feature_eligibility_state"),
             "feature_checks": validation.get("feature_checks"),
-            "unsupported_context_normalization": validation.get("unsupported_context_normalization"),
+            "unsupported_context_normalization": validation.get(
+                "unsupported_context_normalization"
+            ),
             "entity_errors": validation.get("entity_errors"),
             "entity_warnings": validation.get("entity_warnings"),
             "markup_coverage": detail.get("markup_coverage"),
@@ -1292,7 +1294,7 @@ class SchemaPage(QWidget):
                 "Variant",
                 "Content type",
                 "Body SHA-256",
-            "Decoded SHA-256",
+                "Decoded SHA-256",
                 "Source state",
                 "Analysis state",
             ),

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from typing import ClassVar
 
 from seohead.core import update
 
@@ -175,7 +176,7 @@ def test_download_cancellation_removes_partial_file(tmp_path, monkeypatch):
 
     class Response:
         status_code = 200
-        headers = {"Content-Length": str(len(body))}
+        headers: ClassVar[dict[str, str]] = {"Content-Length": str(len(body))}
 
         @staticmethod
         def iter_bytes(_size):

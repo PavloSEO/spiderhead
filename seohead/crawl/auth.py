@@ -8,9 +8,7 @@ from collections.abc import Callable
 from typing import Any
 
 
-def host_bound_auth(
-    entries: list[dict[str, Any]], request_gate: Callable[[], None] | None = None
-):
+def host_bound_auth(entries: list[dict[str, Any]], request_gate: Callable[[], None] | None = None):
     """Build HTTPX auth that sends credentials only to their declared host.
 
     Digest challenge retries reserve their own rate and request-budget turn.
@@ -41,9 +39,7 @@ def host_bound_auth(
             with self._lock:
                 auth = self._authenticators.get(host)
                 if auth is None:
-                    auth_type = (
-                        httpx.BasicAuth if entry["scheme"] == "basic" else httpx.DigestAuth
-                    )
+                    auth_type = httpx.BasicAuth if entry["scheme"] == "basic" else httpx.DigestAuth
                     auth = auth_type(username, password)
                     self._authenticators[host] = auth
             flow = auth.auth_flow(request)

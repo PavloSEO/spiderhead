@@ -10,8 +10,8 @@ from pathlib import Path
 import pytest
 
 from seohead.core.verification import classify, compact_after_source, select_source
-from seohead.sf.core.compare import CompareError, compare
 from seohead.sf.core import compare_store
+from seohead.sf.core.compare import CompareError, compare
 from seohead.sf.core.compare_store import compare_markdown, read_compare_page
 from seohead.storage.audit_v2 import AuditV2Reader, write_audit_v2
 from tests.test_scan_audit_v2 import _scan
@@ -156,9 +156,7 @@ def test_compare_resume_uses_committed_collection_checkpoint(tmp_path, monkeypat
 
 
 def test_compare_v2_reader_sorts_filters_and_reuses_process_index(tmp_path, monkeypatch):
-    before = _audit(
-        issues=[_issue("b", "TITLE_MISSING", B), _issue("a", "DESC_MISSING", A)]
-    )
+    before = _audit(issues=[_issue("b", "TITLE_MISSING", B), _issue("a", "DESC_MISSING", A)])
     result = compare(before, _audit(), out_dir=tmp_path / "comparison")
     original = compare_store.iter_compare_rows
     calls = 0
@@ -180,9 +178,7 @@ def test_compare_v2_reader_sorts_filters_and_reuses_process_index(tmp_path, monk
         raise AssertionError("the process-local page index should serve subsequent pages")
 
     monkeypatch.setattr(compare_store, "iter_compare_rows", no_rescan)
-    filtered = read_compare_page(
-        result["manifest"], "disappeared", contains="b.test", limit=10
-    )
+    filtered = read_compare_page(result["manifest"], "disappeared", contains="b.test", limit=10)
     assert filtered["total"] == 1
     assert filtered["rows"][0]["target_url"] == B
 

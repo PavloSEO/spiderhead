@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import copy
 import functools
 import re
@@ -61,10 +62,12 @@ def _settings(directory: str | Path) -> tuple[Path, dict[str, Any], dict[str, An
         or type(current["settings"].get("label")) is not str
         or not _LABEL.fullmatch(current["settings"].get("label", ""))
         or not current["settings"].get("label", "").strip()
-        or current["last_operation_id"] is not None
-        and (
-            type(current["last_operation_id"]) is not str
-            or not re.fullmatch(r"[0-9a-f]{32}", current["last_operation_id"])
+        or (
+            current["last_operation_id"] is not None
+            and (
+                type(current["last_operation_id"]) is not str
+                or not re.fullmatch(r"[0-9a-f]{32}", current["last_operation_id"])
+            )
         )
     ):
         raise ValueError("project settings have an unsupported shape")
@@ -197,18 +200,19 @@ def _proposal_document(
                 or type(proposal["client"]) is not str
                 or proposal["client"] not in {"cli", "mcp", "system"}
                 or type(proposal["status"]) is not str
-                or proposal["status"]
-                not in {"pending", "applying", "applied", "denied", "stale"}
+                or proposal["status"] not in {"pending", "applying", "applied", "denied", "stale"}
                 or type(proposal["kind"]) is not str
                 or proposal["kind"] not in {"project_settings", "crawl_policy"}
                 or type(proposal["base_revision"]) is not int
                 or proposal["base_revision"] < 0
                 or type(proposal["action_sequence"]) is not int
                 or proposal["action_sequence"] < 1
-                or proposal["decision"] is not None
-                and (
-                    type(proposal["decision"]) is not str
-                    or proposal["decision"] not in {"approve", "deny"}
+                or (
+                    proposal["decision"] is not None
+                    and (
+                        type(proposal["decision"]) is not str
+                        or proposal["decision"] not in {"approve", "deny"}
+                    )
                 )
             ):
                 raise ValueError("settings proposal metadata is invalid")
@@ -234,7 +238,10 @@ def _proposal_document(
                 raise ValueError("pending settings proposal cannot have a decision")
             if proposal["status"] == "applying" and proposal["decision"] != "approve":
                 raise ValueError("applying settings proposal must be approved")
-            if proposal["status"] in {"applied", "denied", "stale"} and proposal["decision"] is None:
+            if (
+                proposal["status"] in {"applied", "denied", "stale"}
+                and proposal["decision"] is None
+            ):
                 raise ValueError("decided settings proposal must retain its decision")
     return root, project, current
 
@@ -542,15 +549,13 @@ def delete_project(directory: str | Path, *, client: str = "cli") -> dict[str, A
             os.replace(root, destination)
         except (OSError, ValueError) as exc:
             if root.exists():
-                try:
+                with contextlib.suppress(ValueError):
                     resolve_pending(
                         root,
                         pending_action["sequence"],
                         outcome="refused",
                         detail=f"Project delete refused: {type(exc).__name__}.",
                     )
-                except ValueError:
-                    pass
             raise
     assert destination is not None
     result = {

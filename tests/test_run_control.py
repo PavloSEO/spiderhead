@@ -124,9 +124,7 @@ def test_post_insert_recheck_deletes_only_a_still_pending_request(tmp_path, monk
     with pytest.raises(ValueError, match="no longer an active"):
         run_control.request(project, run["id"], "stop")
     with run_control._connect(project) as con:
-        assert con.execute(
-            "SELECT 1 FROM requests WHERE run_id=?", (run["id"],)
-        ).fetchone() is None
+        assert con.execute("SELECT 1 FROM requests WHERE run_id=?", (run["id"],)).fetchone() is None
 
 
 def test_controlled_reporter_turns_the_next_progress_boundary_into_checkpoint_interrupt(

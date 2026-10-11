@@ -91,9 +91,7 @@ class CompetitorsScreen(Screen):
         self.scan_button.clicked.connect(self.start_scans)
         controls.addWidget(self.scan_button)
         self.remove_button = QPushButton(tr("Убрать из списка"))
-        self.remove_button.setToolTip(
-            tr("Локальная папка и сканы конкурента останутся на диске.")
-        )
+        self.remove_button.setToolTip(tr("Локальная папка и сканы конкурента останутся на диске."))
         self.remove_button.setEnabled(False)
         self.remove_button.clicked.connect(self.remove_selected)
         controls.addWidget(self.remove_button)
@@ -230,9 +228,7 @@ class CompetitorsScreen(Screen):
             parent=self,
         )
         dialog.add_button("Cancel", "text", on_click=dialog.reject)
-        dialog.add_button(
-            "Remove from list", "destructive", icon="delete", on_click=dialog.accept
-        )
+        dialog.add_button("Remove from list", "destructive", icon="delete", on_click=dialog.accept)
         if dialog.exec_() != QDialog.Accepted:
             return
         self.status.setText(tr("Убираем конкурента из списка…"))

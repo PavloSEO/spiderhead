@@ -208,9 +208,9 @@ def _client_context(
     if fetcher is not None:
         yield None
         return
-    from seohead.recon.net import crawl_transport_options
     from seohead.crawl.auth import host_bound_auth
     from seohead.crawl.settings import request_headers
+    from seohead.recon.net import crawl_transport_options
 
     headers = {"User-Agent": settings["http"]["user_agent"] or UA}
     headers.update(request_headers(settings) or {})
@@ -325,9 +325,7 @@ def _document_batch(
         reject=reject,
         mark_link_partial=mark_partial,
         normalize_target=(
-            normalize_get_parameters
-            if settings["scope"]["normalize_tracking_parameters"]
-            else None
+            normalize_get_parameters if settings["scope"]["normalize_tracking_parameters"] else None
         ),
     )
     forms, omitted = form_edges(parsed, source_url)

@@ -171,12 +171,16 @@ def test_provider_findings_enter_registered_issue_stream_and_missing_sources_ski
     assert set(provider_findings.GSC_ANALYTICS_CHECKS) <= set(CHECKS)
     assert set(provider_findings.GSC_INSPECTION_CHECKS) <= set(CHECKS)
     assert {
-        check for mapping in provider_findings.ANALYTICS_CHECKS.values() for check in mapping.values()
+        check
+        for mapping in provider_findings.ANALYTICS_CHECKS.values()
+        for check in mapping.values()
     } <= set(CHECKS)
     registered_ids = set(provider_findings.GSC_ANALYTICS_CHECKS)
     registered_ids.update(provider_findings.GSC_INSPECTION_CHECKS)
     registered_ids.update(
-        check for mapping in provider_findings.ANALYTICS_CHECKS.values() for check in mapping.values()
+        check
+        for mapping in provider_findings.ANALYTICS_CHECKS.values()
+        for check in mapping.values()
     )
     mapped_ids = {check for _category, entry in entries() for check in entry.refs}
     assert registered_ids <= mapped_ids
@@ -189,7 +193,9 @@ def test_provider_findings_enter_registered_issue_stream_and_missing_sources_ski
                     "state": "complete",
                     "coverage": {"period": {"from": "2026-01-01", "to": "2026-01-28"}},
                     "findings": {
-                        "GSC_ORPHAN": [{"url": "https://example.test/gone", "details": {"impressions": 4}}],
+                        "GSC_ORPHAN": [
+                            {"url": "https://example.test/gone", "details": {"impressions": 4}}
+                        ],
                         "NO_SEARCH_DATA": [],
                         "NON_INDEXABLE_WITH_SEARCH_DATA": [],
                     },
@@ -197,7 +203,9 @@ def test_provider_findings_enter_registered_issue_stream_and_missing_sources_ski
                         "inspected": 1,
                         "failed": 0,
                         "deferred": 0,
-                        "findings": {check: [] for check in provider_findings.GSC_INSPECTION_CHECKS},
+                        "findings": {
+                            check: [] for check in provider_findings.GSC_INSPECTION_CHECKS
+                        },
                     },
                 },
                 "ga4": {"state": "not_configured", "reason": "no GA4 binding"},

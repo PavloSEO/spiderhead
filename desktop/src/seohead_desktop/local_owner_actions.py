@@ -61,10 +61,15 @@ def manual_signoff_request(directory, item_id, expected_revision, reason):
 def run_owner_action(executable, arguments, *, stdin_data=None, popen=subprocess.Popen):
     if not isinstance(executable, str) or not executable:
         raise ValueError("local core CLI is unavailable")
-    if not isinstance(arguments, list) or not arguments or arguments[0] not in {
-        "project-inbox-goal",
-        "project-checklist-record",
-    }:
+    if (
+        not isinstance(arguments, list)
+        or not arguments
+        or arguments[0]
+        not in {
+            "project-inbox-goal",
+            "project-checklist-record",
+        }
+    ):
         raise ValueError("local owner-action command is not declared")
     if stdin_data is not None and (
         arguments[0] != "project-checklist-record"
@@ -167,15 +172,11 @@ def competitor_scan_arguments(
 
 
 def competitor_scan_status_arguments(directory, run_id):
-    return _competitor_scan_read_arguments(
-        "project-competitors-scan-status", directory, run_id
-    )
+    return _competitor_scan_read_arguments("project-competitors-scan-status", directory, run_id)
 
 
 def competitor_scan_cancel_arguments(directory, run_id):
-    return _competitor_scan_read_arguments(
-        "project-competitors-scan-cancel", directory, run_id
-    )
+    return _competitor_scan_read_arguments("project-competitors-scan-cancel", directory, run_id)
 
 
 def _competitor_scan_read_arguments(command, directory, run_id):
@@ -191,9 +192,7 @@ def _competitor_scan_read_arguments(command, directory, run_id):
     return [command, "--directory", directory, "--run-id", run_id]
 
 
-def run_competitor_scan_command(
-    executable, arguments, *, timeout=30, popen=subprocess.Popen
-):
+def run_competitor_scan_command(executable, arguments, *, timeout=30, popen=subprocess.Popen):
     """Run only a declared competitor-run CLI command with bounded output and no GUI-thread wait."""
     if not isinstance(executable, str) or not executable:
         raise ValueError("local core CLI is unavailable")
@@ -271,9 +270,7 @@ class _Job(QRunnable):
     def run(self):
         try:
             self.signals.done.emit(
-                run_owner_action(
-                    self.executable, self.arguments, stdin_data=self.stdin_data
-                )
+                run_owner_action(self.executable, self.arguments, stdin_data=self.stdin_data)
             )
         except (OSError, ValueError, subprocess.SubprocessError):
             self.signals.failed.emit(

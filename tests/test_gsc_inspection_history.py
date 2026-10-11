@@ -4,8 +4,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from seohead.data_sources import gsc_inspection_history
-from seohead.data_sources import credentials
+from seohead.data_sources import credentials, gsc_inspection_history
 from seohead.projects import workspace
 
 
@@ -112,10 +111,7 @@ def test_gsc_inspection_latest_history_is_paged_by_url(tmp_path, monkeypatch):
     gsc_inspection_history.settle(
         project,
         reservation["reservation_id"],
-        [
-            {"url": url, "state": "complete", "index_status": {"verdict": "PASS"}}
-            for url in urls
-        ],
+        [{"url": url, "state": "complete", "index_status": {"verdict": "PASS"}} for url in urls],
         requests_made=2,
     )
 

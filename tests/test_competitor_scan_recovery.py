@@ -29,9 +29,7 @@ def _project(tmp_path: Path, *, count: int = 1, max_urls: int = 500):
     definition = {
         "id": "custom:competitor-audit",
         "title": "Audit selected competitors",
-        "competitors": [
-            {"url": row["url"], "max_urls": max_urls} for row in rows
-        ],
+        "competitors": [{"url": row["url"], "max_urls": max_urls} for row in rows],
     }
     current = coverage.coverage_status(project)
     coverage.update_item(project, definition, expected_revision=current["revision"])

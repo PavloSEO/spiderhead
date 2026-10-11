@@ -211,9 +211,10 @@ def test_default_max_query_variants_per_path_allows_more_before_capping():
 
 
 def test_native_site_crawl_normalizes_common_tracking_parameters():
-    assert normalize_get_parameters(
-        "https://example.test/p?utm_source=x&Keep=%2F&FBCLID=y#fragment"
-    ) == "https://example.test/p?Keep=%2F#fragment"
+    assert (
+        normalize_get_parameters("https://example.test/p?utm_source=x&Keep=%2F&FBCLID=y#fragment")
+        == "https://example.test/p?Keep=%2F#fragment"
+    )
     responses = {
         "https://example.com/robots.txt": ROBOTS_OK,
         "https://example.com/?keep=1": page(

@@ -28,7 +28,9 @@ def test_basic_auth_is_host_bound_and_uses_environment_values(monkeypatch):
         seen.append((request.url.host, request.headers.get("Authorization")))
         return httpx.Response(200, request=request)
 
-    with httpx.Client(auth=host_bound_auth([_entry()]), transport=httpx.MockTransport(transport)) as client:
+    with httpx.Client(
+        auth=host_bound_auth([_entry()]), transport=httpx.MockTransport(transport)
+    ) as client:
         client.get("https://example.test/")
         client.get("https://other.test/")
 
@@ -63,7 +65,7 @@ def test_digest_challenge_retry_reserves_an_extra_request_turn(monkeypatch):
         assert client.get("https://example.test/").status_code == 200
 
     assert seen[0] is None
-    assert seen[1].startswith("Digest username=\"crawler\"")
+    assert seen[1].startswith('Digest username="crawler"')
     assert turns == ["retry"]
 
 
@@ -93,7 +95,7 @@ def test_concurrent_digest_flows_serialize_shared_nonce_state(monkeypatch):
                     active -= 1
 
             advance_shared_state()
-            response = yield request
+            yield request
             advance_shared_state()
             yield request
 
@@ -111,14 +113,16 @@ def test_concurrent_digest_flows_serialize_shared_nonce_state(monkeypatch):
             )
         return httpx.Response(200, request=request)
 
-    with httpx.Client(
-        auth=host_bound_auth([_entry("digest")]),
-        transport=httpx.MockTransport(transport),
-    ) as client:
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            responses = list(
-                pool.map(lambda path: client.get(f"https://example.test/{path}"), ("a", "b"))
-            )
+    with (
+        httpx.Client(
+            auth=host_bound_auth([_entry("digest")]),
+            transport=httpx.MockTransport(transport),
+        ) as client,
+        ThreadPoolExecutor(max_workers=2) as pool,
+    ):
+        responses = list(
+            pool.map(lambda path: client.get(f"https://example.test/{path}"), ("a", "b"))
+        )
 
     assert [response.status_code for response in responses] == [200, 200]
     assert maximum == 1

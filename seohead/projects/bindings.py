@@ -131,13 +131,10 @@ def _source_readiness(entry: dict[str, Any], as_of: date) -> dict[str, Any]:
     lag = spec.lag_days
     end = as_of - timedelta(days=lag)
     start = end - timedelta(days=27)
-    expected = {
-        (start + timedelta(days=offset)).isoformat()
-        for offset in range(28)
-    }
+    expected = {(start + timedelta(days=offset)).isoformat() for offset in range(28)}
     coverage = entry.get("coverage", {})
     data_days = set(coverage.get("complete", [])) & expected
-    covered_days = (data_days | (set(coverage.get("empty", [])) & expected))
+    covered_days = data_days | (set(coverage.get("empty", [])) & expected)
     last_attempts = entry.get("last_attempts", {})
     access_failures = {
         day: state
@@ -189,8 +186,12 @@ def _history_resources(root: Path, as_of: date) -> tuple[list[dict[str, Any]], b
             summaries = [_source_readiness(entry, as_of) for entry in entries]
             failures = [item for item in summaries if item["state"] == "no_access"]
             data_sources = [item for item in summaries if item["data_28d"]]
-            best = failures[0] if failures else data_sources[0] if data_sources else max(
-                summaries, key=lambda item: item["available_days"]
+            best = (
+                failures[0]
+                if failures
+                else data_sources[0]
+                if data_sources
+                else max(summaries, key=lambda item: item["available_days"])
             )
             output.append(
                 {

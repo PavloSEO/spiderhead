@@ -232,22 +232,18 @@ def body_diff(
         raise ValueError("url must be a nonempty string")
     if representation not in _REPRESENTATIONS:
         raise ValueError("representation must be static, rendered, or legacy_fragment")
-    left_representation = (
-        representation if left_representation is None else left_representation
-    )
-    right_representation = (
-        representation if right_representation is None else right_representation
-    )
+    left_representation = representation if left_representation is None else left_representation
+    right_representation = representation if right_representation is None else right_representation
     if left_representation not in _REPRESENTATIONS or right_representation not in _REPRESENTATIONS:
-        raise ValueError("left and right representations must be static, rendered, or legacy_fragment")
+        raise ValueError(
+            "left and right representations must be static, rendered, or legacy_fragment"
+        )
     if variant_key is not None and not isinstance(variant_key, str):
         raise ValueError("variant_key must be a string or null")
     if type(text) is not bool:
         raise ValueError("text must be a boolean")
     _limits(max_bytes, max_lines)
-    left_row, left_problem = _observation(
-        _connection(left), url, left_representation, variant_key
-    )
+    left_row, left_problem = _observation(_connection(left), url, left_representation, variant_key)
     right_row, right_problem = _observation(
         _connection(right), url, right_representation, variant_key
     )
@@ -294,9 +290,7 @@ def body_diff(
                 f"{side} body is {row['body_state']}/{row['body_reason']}",
             )
     if left_row["fidelity"] != right_row["fidelity"] and not (
-        left_representation != right_representation
-        and _textual(left_row)
-        and _textual(right_row)
+        left_representation != right_representation and _textual(left_row) and _textual(right_row)
     ):
         return result(
             "not_comparable",
@@ -318,10 +312,7 @@ def body_diff(
     if renderer_rows:
         renderers = [(side, _renderer_provenance(row)) for side, row in renderer_rows]
         if any(renderer is None for _side, renderer in renderers):
-            sides = ", ".join(
-                side for side, renderer in renderers
-                if renderer is None
-            )
+            sides = ", ".join(side for side, renderer in renderers if renderer is None)
             return result(
                 "not_comparable",
                 f"rendered renderer provenance is unavailable for {sides}",

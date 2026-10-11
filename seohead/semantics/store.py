@@ -231,8 +231,7 @@ class Store:
             raise ValueError(f"unknown cluster id: {cluster_id}")
         self.db.execute("UPDATE clusters SET landing_url=? WHERE id=?", (url, cluster_id))
         self.db.execute(
-            "INSERT INTO semantic_audit(at,action,entity,before_json,after_json) "
-            "VALUES(?,?,?,?,?)",
+            "INSERT INTO semantic_audit(at,action,entity,before_json,after_json) VALUES(?,?,?,?,?)",
             (
                 datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
                 "set_landing",
@@ -247,7 +246,13 @@ class Store:
         cur = self.db.execute(
             "INSERT INTO semantic_stage_runs(stage,state,started_at,estimate_json) "
             "VALUES(?,'running',?,?)",
-            (stage, now, json.dumps(estimate, ensure_ascii=False, default=str) if estimate is not None else None),
+            (
+                stage,
+                now,
+                json.dumps(estimate, ensure_ascii=False, default=str)
+                if estimate is not None
+                else None,
+            ),
         )
         self.db.commit()
         return cur.lastrowid
@@ -294,7 +299,13 @@ class Store:
             latest.setdefault(item["stage"], item)
             history.append(item)
         total = self.db.execute("SELECT COUNT(*) FROM semantic_stage_runs").fetchone()[0]
-        return {"latest": latest, "history": history, "limit": limit, "total": total, "has_more": has_more}
+        return {
+            "latest": latest,
+            "history": history,
+            "limit": limit,
+            "total": total,
+            "has_more": has_more,
+        }
 
     def cluster_rows(self, *, offset=0, limit=50):
         columns = {row["name"] for row in self.db.execute("PRAGMA table_info(clusters)")}
@@ -303,10 +314,10 @@ class Store:
             for name in ("id", "name", "intent", "source", "coherence", "landing_url")
         )
         return self.db.execute(
-            f"SELECT {select}," 
-            "COUNT(p.id) AS phrase_count," 
-            "SUM(p.base) AS base_sum," 
-            "SUM(p.exact) AS exact_sum," 
+            f"SELECT {select},"
+            "COUNT(p.id) AS phrase_count,"
+            "SUM(p.base) AS base_sum,"
+            "SUM(p.exact) AS exact_sum,"
             "COUNT(p.exact) AS exact_measured "
             "FROM clusters c LEFT JOIN phrases p ON p.cluster_id=c.id "
             "AND p.status IN ('kept','review') GROUP BY c.id ORDER BY c.id LIMIT ? OFFSET ?",
@@ -410,7 +421,14 @@ class Store:
         for d in docs:
             self.db.execute(
                 "INSERT INTO serp(phrase_norm,pos,url,domain,title,fetched_at) VALUES(?,?,?,?,?,?)",
-                (phrase_norm, d.get("pos"), d.get("url"), d.get("domain"), d.get("title"), fetched_at),
+                (
+                    phrase_norm,
+                    d.get("pos"),
+                    d.get("url"),
+                    d.get("domain"),
+                    d.get("title"),
+                    fetched_at,
+                ),
             )
 
     # ---------- provider units ----------
@@ -470,9 +488,7 @@ class Store:
             w = csv.writer(f, delimiter=";")
             columns = [r[1] for r in self.db.execute("PRAGMA table_info(phrases)")]
             w.writerow(columns)
-            w.writerows(
-                [neutralize_formula(row[column]) for column in columns] for row in rows
-            )
+            w.writerows([neutralize_formula(row[column]) for column in columns] for row in rows)
         with open(out / "pool.json", "w", encoding="utf-8") as f:
             json.dump([dict(r) for r in rows], f, ensure_ascii=False, indent=1)
         return len(rows)
@@ -481,7 +497,9 @@ class Store:
         if scope == "all":
             return "", []
         if scope == "no-landing":
-            cluster_columns = {row["name"] for row in self.db.execute("PRAGMA table_info(clusters)")}
+            cluster_columns = {
+                row["name"] for row in self.db.execute("PRAGMA table_info(clusters)")
+            }
             if "landing_url" not in cluster_columns:
                 raise ValueError("no-landing scope is unavailable in this legacy database")
             return (

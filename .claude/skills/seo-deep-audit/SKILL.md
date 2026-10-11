@@ -90,14 +90,14 @@ Remember the stack: if `tech-detect` found an SPA/Next.js/Nuxt, mark JS renderin
 (Phase 2). Some findings from `domain-profile.flags` and `cdn-check.findings` go directly into
 the report.
 
-**Phase 1 — Crawl evidence (248-check registry).** SEOHEAD is the analyzer and adapter here, not
+**Phase 1 — Crawl evidence (280-check registry).** SEOHEAD is the analyzer and adapter here, not
 the crawler. Check the environment first with `seohead sf doctor`; live mode requires a separately
 installed, actively licensed Screaming Frog CLI.
 ```bash
 seohead sf run --crawl https://<domain> --out report --tasks
 ```
 The **full** profile is the default (maximum available coverage), and the sitemap is automatically
-obtained from robots. The registry contains 248 checks, but only checks supported by the available
+obtained from robots. The registry contains 280 checks, but only checks supported by the available
 exports and enabled SF modules can run. If the output contains many `skipped` results
 (MIXED_CONTENT/STRUCTURED_DATA/SPELLING/DOM_*), enable them once through the `sf-config` skill
 (create `audit.seospiderconfig`); the tool will pick it up automatically. If SF/a license is not

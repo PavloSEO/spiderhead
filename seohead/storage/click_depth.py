@@ -104,9 +104,12 @@ def prepare_query(con: sqlite3.Connection) -> None:
             )
             if root is None:
                 raise LookupError("start page is not stored in this scan")
-            ready = lifecycle == "finished" and con.execute(
-                "SELECT 1 FROM main.scan_click_depth WHERE url_id=?", (root[0],)
-            ).fetchone()
+            ready = (
+                lifecycle == "finished"
+                and con.execute(
+                    "SELECT 1 FROM main.scan_click_depth WHERE url_id=?", (root[0],)
+                ).fetchone()
+            )
             if ready:
                 con.execute(
                     "CREATE TEMP VIEW cd_depth AS SELECT url_id,depth FROM main.scan_click_depth"

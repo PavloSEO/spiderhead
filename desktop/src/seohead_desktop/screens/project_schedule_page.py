@@ -532,17 +532,14 @@ class SchedulePage(_SettingsPage):
                     parent=self,
                 )
                 dialog.add_button("Cancel", "text", on_click=dialog.reject)
-                dialog.add_button(
-                    "Discard", "destructive", icon="delete", on_click=dialog.accept
-                )
+                dialog.add_button("Discard", "destructive", icon="delete", on_click=dialog.accept)
                 if dialog.exec_() != QDialog.Accepted:
                     self._loading_targets = True
                     previous = next(
                         (
                             index
                             for index in range(self.target_selector.count())
-                            if (self.target_selector.itemData(index) or "owner")
-                            == self._target_key
+                            if (self.target_selector.itemData(index) or "owner") == self._target_key
                         ),
                         0,
                     )
@@ -608,9 +605,7 @@ class SchedulePage(_SettingsPage):
             from .work import project_names
 
             return project_names(self.host)[1] or ""
-        item = next(
-            (row for row in self._target_rows if row.get("directory") == relative), {}
-        )
+        item = next((row for row in self._target_rows if row.get("directory") == relative), {})
         return item.get("url") or item.get("host") or relative
 
     def resizeEvent(self, event):
