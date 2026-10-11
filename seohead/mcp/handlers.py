@@ -7,6 +7,7 @@ behavior to the core + a handler here, then surface it in each face.
 from __future__ import annotations
 
 import contextlib
+import sqlite3
 import sys
 import time
 from collections.abc import Callable
@@ -2828,6 +2829,277 @@ def compare_crawls(
     if diagnostics:
         result["input_diagnostics"] = diagnostics
     return result
+
+
+def compare_read(
+    manifest_path: str,
+    file: str,
+    offset: int = 0,
+    limit: int = 200,
+    sort: str = "url",
+    direction: str = "asc",
+    contains: str | None = None,
+    max_bytes: int = 1_048_576,
+) -> dict[str, Any]:
+    """Read a bounded page from a validated compare.v2 file."""
+    from seohead.sf.core.compare_store import read_compare_page
+
+    try:
+        return read_compare_page(
+            manifest_path,
+            file,
+            offset=offset,
+            limit=limit,
+            sort=sort,
+            direction=direction,
+            contains=contains,
+            max_bytes=max_bytes,
+        )
+    except (ValueError, OSError, TypeError) as exc:
+        return {"ok": False, "state": "unavailable", "error": str(exc)}
+
+
+def compare_report(manifest_path: str, out_file: str, max_bytes: int = 65_536) -> dict[str, Any]:
+    """Write a bounded Markdown summary to a new path from a validated compare.v2 package."""
+    import hashlib
+    import os
+    import tempfile
+
+    from seohead.sf.core.compare_store import compare_markdown
+
+    report = compare_markdown(manifest_path, max_bytes=max_bytes)
+    destination = Path(out_file).absolute()
+    if destination.exists():
+        raise FileExistsError(f"report output already exists: {destination}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=".compare-report-", dir=destination.parent)
+    data = report.encode("utf-8")
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.link(temporary, destination)
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(temporary)
+    return {
+        "ok": True,
+        "format": "compare.v2.markdown",
+        "report": str(destination),
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def compare_url(
+    before: Any,
+    after: Any,
+    url: str,
+    *,
+    max_bytes: int = 65_536,
+    max_lines: int = 200,
+) -> dict[str, Any]:
+    """Return exact-URL before/after facts and finding deltas without absence claims."""
+    from collections.abc import Mapping
+
+    from seohead.sf.core.compare import _iter_rows
+    from seohead.storage.inputs import load_audit_source
+
+    if not isinstance(url, str) or not url or len(url) > 8192:
+        raise ValueError("url must be nonempty exact URL text of at most 8192 characters")
+    if type(max_bytes) is not int or not 1 <= max_bytes <= 65_536:
+        raise ValueError("max_bytes must be an integer 1..65536")
+    if type(max_lines) is not int or not 1 <= max_lines <= 200:
+        raise ValueError("max_lines must be an integer 1..200")
+
+    sources = []
+    opened = []
+    try:
+        for value, label in ((before, "before"), (after, "after")):
+            is_source = hasattr(value, "iter_collection")
+            source = value if is_source else load_audit_source(value, label)
+            sources.append(source)
+            if not is_source and hasattr(source, "close"):
+                opened.append(source)
+    except BaseException:
+        for source in opened:
+            source.close()
+        raise
+    try:
+        cards = []
+        findings = []
+        fields = (
+            "status_code",
+            "title",
+            "meta_description",
+            "h1",
+            "word_count",
+            "inlinks",
+            "internal_outlinks",
+            "canonical",
+            "response_time",
+            "size_bytes",
+            "indexability",
+        )
+        aliases = {"response_time": "response_time_seconds", "size_bytes": "html_size_bytes"}
+
+        def value_of(page: Mapping[str, Any], field: str) -> Any:
+            metrics = page.get("metrics") if isinstance(page.get("metrics"), Mapping) else {}
+            if field == "indexability":
+                val = page.get(field, metrics.get(field))
+                return val
+            if field in page:
+                return page[field]
+            if field in metrics:
+                return metrics[field]
+            return None
+
+        for source in sources:
+            page = next(
+                (item for item in _iter_rows(source, "pages") if item.get("url") == url), None
+            )
+            if page is None:
+                cards.append({"state": "absent", "url": url, "fields": {}})
+            else:
+                facts = {}
+                for field in fields:
+                    value = value_of(page, field)
+                    name = aliases.get(field, field)
+                    facts[name] = {
+                        "state": "measured" if value is not None else "unavailable",
+                        "value": value,
+                        **(
+                            {}
+                            if value is not None
+                            else {"reason": f"source does not retain {field}"}
+                        ),
+                    }
+                cards.append({"state": "present", "url": url, "fields": facts})
+            findings.append(
+                [
+                    dict(issue)
+                    for issue in _iter_rows(source, "issues")
+                    if issue.get("target_url") == url
+                ]
+            )
+
+        if cards[0]["state"] != "present" or cards[1]["state"] != "present":
+            comparison_state = "not_rechecked"
+            reason = (
+                "both scans must contain this URL before field or finding deltas can be interpreted"
+            )
+            changes = {}
+            finding_delta = {
+                "state": comparison_state,
+                "reason": reason,
+                "entered": [],
+                "left": [],
+            }
+        else:
+            comparison_state = "compared"
+            reason = None
+            changes = {}
+            for name in cards[0]["fields"]:
+                left, right = cards[0]["fields"][name], cards[1]["fields"][name]
+                if left["state"] != "measured" or right["state"] != "measured":
+                    changes[name] = {
+                        "state": "unavailable",
+                        "reason": "field was not measured on both scans",
+                    }
+                elif left["value"] != right["value"]:
+                    changes[name] = {
+                        "state": "changed",
+                        "before": left["value"],
+                        "after": right["value"],
+                    }
+                else:
+                    changes[name] = {"state": "unchanged", "value": left["value"]}
+            before_by_check = {row.get("check"): row for row in findings[0]}
+            after_by_check = {row.get("check"): row for row in findings[1]}
+            from seohead.sf.core.compare import _run
+
+            unavailable = []
+            invalid_run = False
+            for source in sources:
+                run = _run(source)
+                invalid_run = invalid_run or run.get("crawl_valid") is False
+                for field in ("checks_skipped", "checks_disabled"):
+                    unavailable.extend(
+                        item.get("id")
+                        for item in (run.get(field) or [])
+                        if isinstance(item, dict) and isinstance(item.get("id"), str)
+                    )
+            unavailable = set(unavailable)
+            if invalid_run:
+                unavailable.update(before_by_check.keys() | after_by_check.keys())
+            entered, left, unmeasured = [], [], []
+            for check in sorted(after_by_check.keys() - before_by_check.keys()):
+                if check in unavailable:
+                    unmeasured.append(
+                        {
+                            "check": check,
+                            "state": "not_measured",
+                            "reason": "check coverage is incomplete",
+                        }
+                    )
+                else:
+                    entered.append(after_by_check[check])
+            for check in sorted(before_by_check.keys() - after_by_check.keys()):
+                if check in unavailable:
+                    unmeasured.append(
+                        {
+                            "check": check,
+                            "state": "not_measured",
+                            "reason": "check coverage is incomplete",
+                        }
+                    )
+                else:
+                    left.append(before_by_check[check])
+            finding_delta = {
+                "state": "compared",
+                "entered": entered,
+                "left": left,
+                "not_comparable": unmeasured,
+                "unchanged": sorted(before_by_check.keys() & after_by_check.keys()),
+            }
+
+        body = {
+            "state": "not_requested",
+            "reason": "text diff requires native scan.v1 SQLite inputs",
+        }
+        if all(
+            isinstance(value, (str, Path)) and Path(value).suffix.lower() in {".sqlite", ".db"}
+            for value in (before, after)
+        ):
+            from seohead.storage.body_diff import body_diff
+
+            try:
+                body = body_diff(
+                    before,
+                    after,
+                    url,
+                    text=True,
+                    max_bytes=max_bytes,
+                    max_lines=max_lines,
+                )
+            except (OSError, ValueError, sqlite3.Error) as exc:
+                body = {"state": "unavailable", "reason": str(exc)[:2048]}
+        return {
+            "ok": True,
+            "format": "compare-url.v1",
+            "url": url,
+            "state": comparison_state,
+            **({"reason": reason} if reason else {}),
+            "before": cards[0],
+            "after": cards[1],
+            "changes": changes,
+            "findings": finding_delta,
+            "body_diff": body,
+        }
+    finally:
+        for source in opened:
+            source.close()
 
 
 def verify_fixes(
@@ -7165,6 +7437,9 @@ _RAW_HANDLERS = {
     "report_build": report_build,
     "facts_export": facts_export,
     "compare_crawls": compare_crawls,
+    "compare_read": compare_read,
+    "compare_report": compare_report,
+    "compare_url": compare_url,
     "crawl_enrich": crawl_enrich,
     "crawl_import": crawl_import,
     "segment_diff": segment_diff,

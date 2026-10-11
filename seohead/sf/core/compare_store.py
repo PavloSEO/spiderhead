@@ -239,6 +239,181 @@ def iter_compare_rows(manifest_path: str | Path, name: str):
         raise CompareError(f"invalid comparison file {name!r}: {exc}") from exc
 
 
+def read_compare_page(
+    manifest_path: str | Path,
+    name: str,
+    *,
+    offset: int = 0,
+    limit: int = 200,
+    sort: str = "url",
+    direction: str = "asc",
+    contains: str | None = None,
+    max_bytes: int = 1_048_576,
+) -> dict[str, Any]:
+    """Read one bounded, deterministically sorted page from a compare.v2 stream."""
+    if not isinstance(name, str):
+        raise CompareError("file must be a comparison stream name")
+    if type(offset) is not int or offset < 0:
+        raise CompareError("offset must be a non-negative integer")
+    if type(limit) is not int or not 1 <= limit <= 500:
+        raise CompareError("limit must be an integer 1..500")
+    if sort not in {"url", "check", "severity"}:
+        raise CompareError("sort must be url, check, or severity")
+    if direction not in {"asc", "desc"}:
+        raise CompareError("direction must be asc or desc")
+    if type(max_bytes) is not int or not 4096 <= max_bytes <= 8 * 1024 * 1024:
+        raise CompareError("max_bytes must be 4096..8388608")
+    if contains is not None and (not isinstance(contains, str) or len(contains) > 2048):
+        raise CompareError("contains must be at most 2048 characters")
+    manifest_path = Path(manifest_path)
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise CompareError(f"comparison manifest does not contain file {name!r}") from exc
+    if (
+        not isinstance(manifest, Mapping)
+        or manifest.get("schema_version") != "compare.v2"
+        or not isinstance(manifest.get("files"), Mapping)
+        or name not in manifest["files"]
+    ):
+        raise CompareError(f"comparison manifest does not contain file {name!r}")
+
+    # Sorting is performed by SQLite so a large file never becomes a Python list.
+    with tempfile.TemporaryDirectory(prefix=".compare-read-") as temporary:
+        with closing(sqlite3.connect(Path(temporary) / "page.sqlite")) as con:
+            con.execute("PRAGMA temp_store=FILE")
+            con.execute("PRAGMA cache_size=-8192")
+            con.executescript("CREATE TABLE rows (sort_key TEXT, tie_key TEXT, document TEXT);")
+            count = 0
+            for row in iter_compare_rows(manifest_path, name):
+                url = row.get("target_url") or row.get("url") or ""
+                check = row.get("check") or ""
+                severity = row.get("severity") or ""
+                if name == "unchanged":
+                    after = row.get("after") or {}
+                    before = row.get("before") or {}
+                    url = after.get("target_url") or before.get("target_url") or ""
+                    check = after.get("check") or before.get("check") or ""
+                    severity = after.get("severity") or before.get("severity") or ""
+                if contains is not None and contains.casefold() not in str(url).casefold():
+                    continue
+                key = {"url": url, "check": check, "severity": severity}[sort]
+                document = _json(row)
+                con.execute(
+                    "INSERT INTO rows VALUES (?,?,?)", (str(key).casefold(), document, document)
+                )
+                count += 1
+            order = "ASC" if direction == "asc" else "DESC"
+            rows = []
+            size = 0
+            for (document,) in con.execute(
+                f"SELECT document FROM rows ORDER BY sort_key {order}, tie_key ASC LIMIT ? OFFSET ?",
+                (limit, offset),
+            ):
+                row = json.loads(document)
+                encoded = len((_json(row) + "\n").encode("utf-8"))
+                if size + encoded > max_bytes:
+                    if not rows:
+                        raise CompareError("one comparison row exceeds max_bytes")
+                    break
+                rows.append(row)
+                size += encoded
+    return {
+        "ok": True,
+        "format": "compare.v2.page",
+        "file": name,
+        "total": count,
+        "offset": offset,
+        "returned": len(rows),
+        "has_more": offset + len(rows) < count,
+        "sort": sort,
+        "direction": direction,
+        "rows": rows,
+    }
+
+
+def compare_markdown(manifest_path: str | Path, *, max_bytes: int = 65_536) -> str:
+    """Render a bounded summary report from a complete compare.v2 package."""
+    if type(max_bytes) is not int or not 4096 <= max_bytes <= 65_536:
+        raise CompareError("max_bytes must be 4096..65536")
+    manifest_path = Path(manifest_path)
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise CompareError(f"could not read comparison manifest: {exc}") from exc
+    if not isinstance(manifest, dict) or manifest.get("schema_version") != "compare.v2":
+        raise CompareError("unsupported comparison manifest schema")
+    summary = manifest.get("summary")
+    if not isinstance(summary, Mapping):
+        raise CompareError("comparison manifest is missing summary counts")
+    conservation = manifest.get("conservation")
+    if not isinstance(conservation, Mapping) or conservation.get("state") != "complete":
+        raise CompareError("comparison manifest does not prove complete row conservation")
+    before = manifest.get("before") if isinstance(manifest.get("before"), Mapping) else {}
+    after = manifest.get("after") if isinstance(manifest.get("after"), Mapping) else {}
+    lines = [
+        "# Saved scan comparison",
+        "",
+        f"Before scan: `{before.get('scan_uuid', 'unknown')}`",
+        f"After scan: `{after.get('scan_uuid', 'unknown')}`",
+        "",
+        "| Change | Findings |",
+        "|---|---:|",
+    ]
+    for key in _BUCKETS:
+        value = summary.get(key)
+        if type(value) is not int or value < 0:
+            raise CompareError(f"comparison summary has an invalid {key} count")
+        lines.append(f"| {key.title()} | {value} |")
+    lines.extend(("", f"Conservation: `{conservation.get('state')}`."))
+    segments = manifest.get("segment_breakdown")
+    if isinstance(segments, Mapping):
+        lines.extend(("", f"Segment breakdown: `{segments.get('state', 'unavailable')}`."))
+        for name, values in sorted((segments.get("segments") or {}).items()):
+            if isinstance(values, Mapping) and values.get("state") == "compared":
+                pages, issues = values.get("pages"), values.get("issues")
+                if (
+                    isinstance(pages, Mapping)
+                    and isinstance(issues, Mapping)
+                    and all(type(pages.get(key)) is int for key in ("before", "after", "delta"))
+                    and all(type(issues.get(key)) is int for key in ("before", "after", "delta"))
+                ):
+                    lines.append(
+                        f"- {name}: pages {pages.get('before')} → {pages.get('after')} "
+                        f"({pages.get('delta'):+}); findings {issues.get('before')} → "
+                        f"{issues.get('after')} ({issues.get('delta'):+})."
+                    )
+    by_check = []
+    for row in iter_compare_rows(manifest_path, "by_check"):
+        by_check.append(row)
+        if len(by_check) > 500:
+            raise CompareError("report exceeds the 500-check limit")
+    if by_check:
+        lines.extend(
+            (
+                "",
+                "## Findings by check",
+                "",
+                "| Check | Entered | Left | Appeared | Disappeared |",
+                "|---|---:|---:|---:|---:|",
+            )
+        )
+        for row in by_check:
+            check = str(row.get("check", "")).replace("|", "\\|")
+            lines.append(
+                f"| {check} | {row.get('entered', 0)} | {row.get('left', 0)} | "
+                f"{row.get('appeared', 0)} | {row.get('disappeared', 0)} |"
+            )
+    warnings = manifest.get("warnings")
+    if isinstance(warnings, list) and warnings:
+        lines.extend(("", "## Comparison caveats", ""))
+        lines.extend(f"- {str(warning).replace(chr(10), ' ')}" for warning in warnings[:50])
+    report = "\n".join(lines) + "\n"
+    if len(report.encode("utf-8")) > max_bytes:
+        raise CompareError("report exceeds max_bytes")
+    return report
+
+
 def _facts(con: sqlite3.Connection, before_source: Any, after_source: Any):
     for raw_pair, before_ordinal, raw_before, after_ordinal, raw_after in con.execute("""
         SELECT pairs.document, b.ordinal, b.document, a.ordinal, a.document FROM pairs
@@ -258,6 +433,64 @@ def _facts(con: sqlite3.Connection, before_source: Any, after_source: Any):
             "after": after,
             "changed": sorted(name for name in before if before[name] != after[name]),
         }
+
+
+def _segment_breakdown(
+    before: Any,
+    after: Any,
+    before_pages: int,
+    after_pages: int,
+    before_issues: int,
+    after_issues: int,
+) -> dict[str, Any]:
+    """Expose source-declared segment counts without inventing segment membership."""
+    left = _header(before).get("segments")
+    right = _header(after).get("segments")
+    if not isinstance(left, Mapping) or not isinstance(right, Mapping) or not left or not right:
+        return {
+            "state": "unavailable",
+            "reason": "both audits must retain segment counts to compare their segments",
+            "whole_site": {
+                "before": {"pages": before_pages, "issues": before_issues},
+                "after": {"pages": after_pages, "issues": after_issues},
+            },
+            "segments": {},
+        }
+    names = sorted(set(left) | set(right))
+    segments = {}
+    for name in names:
+        a = left.get(name)
+        b = right.get(name)
+        if not isinstance(a, Mapping) or not isinstance(b, Mapping):
+            segments[name] = {
+                "state": "unavailable",
+                "reason": "segment was not measured on both scans",
+            }
+            continue
+        counts = {}
+        for metric in ("pages", "issues"):
+            av, bv = a.get(metric), b.get(metric)
+            if type(av) is int and type(bv) is int:
+                counts[metric] = {"before": av, "after": bv, "delta": bv - av}
+            else:
+                counts[metric] = {"state": "unavailable", "reason": f"{metric} count is missing"}
+        segments[name] = {"state": "compared", **counts}
+    return {
+        "state": "compared",
+        "whole_site": {
+            "pages": {
+                "before": before_pages,
+                "after": after_pages,
+                "delta": after_pages - before_pages,
+            },
+            "issues": {
+                "before": before_issues,
+                "after": after_issues,
+                "delta": after_issues - before_issues,
+            },
+        },
+        "segments": segments,
+    }
 
 
 def _publish(root: Path, destination: Path) -> None:
@@ -427,6 +660,14 @@ def compare_to_files(
             "warnings": warnings,
             "compatibility": comparison_compatibility(_header(before), _header(after)),
             "summary": counts,
+            "segment_breakdown": _segment_breakdown(
+                before,
+                after,
+                identities["before"]["urls_crawled"],
+                identities["after"]["urls_crawled"],
+                totals["before"],
+                totals["after"],
+            ),
             "conservation": {**conservation, "state": "complete"},
             "policies": {
                 "identity": "exact check and target URL; declared correspondence only",

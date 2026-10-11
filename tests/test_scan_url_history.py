@@ -70,10 +70,17 @@ def test_history_lists_newest_first_with_numbering_and_absence(scans):
     assert newest["indexability"] is False  # 2xx but noindex
     assert newest["canonical"] == "https://example.test/canonical"
     assert newest["title_hash"] == hashlib.sha256(b"Back").hexdigest()
+    assert newest["title"] == "Back"
+    assert newest["word_count"] is not None and newest["html_size_bytes"] is not None
+    assert "response_time_seconds" in newest and "inlinks" in newest and "outlinks" in newest
     assert middle["state"] == "absent" and middle["status_code"] is None
     assert oldest["state"] == "present" and oldest["status_code"] == 404
     assert oldest["indexability"] is False
     assert oldest["title_hash"] == hashlib.sha256(b"Gone").hexdigest()
+    transition = got["transitions"][0]
+    assert transition["state"] == "not_comparable"
+    assert transition["changes"] == {}
+    assert got["transitions"][1]["state"] == "not_comparable"
     assert len(by_uuid) == 3
 
 

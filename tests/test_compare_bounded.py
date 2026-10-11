@@ -11,6 +11,7 @@ import pytest
 
 from seohead.core.verification import classify, compact_after_source, select_source
 from seohead.sf.core.compare import CompareError, compare
+from seohead.sf.core.compare_store import compare_markdown, read_compare_page
 from seohead.storage.audit_v2 import AuditV2Reader, write_audit_v2
 from tests.test_scan_audit_v2 import _scan
 from tests.test_verify_fixes import A, B, _audit, _issue
@@ -74,6 +75,7 @@ def test_file_compare_conserves_every_row_and_matches_legacy(tmp_path):
         "after_accounted": 3,
         "state": "complete",
     }
+    assert result["segment_breakdown"]["state"] == "unavailable"
     by_check = {row.pop("check"): row for row in _read(result, "by_check")}
     assert by_check == legacy["summary"]["by_check"]
     assert len(json.dumps(result)) < 20000
@@ -88,6 +90,22 @@ def test_file_compare_conserves_every_row_and_matches_legacy(tmp_path):
     ]
 
 
+def test_compare_v2_reports_declared_segment_count_deltas(tmp_path):
+    before = _audit()
+    after = _audit()
+    before["segments"] = {"Blog": {"pages": 4, "issues": 2}}
+    after["segments"] = {"Blog": {"pages": 5, "issues": 1}}
+    result = compare(before, after, out_dir=tmp_path / "segmented")
+    assert result["segment_breakdown"]["segments"]["Blog"] == {
+        "state": "compared",
+        "pages": {"before": 4, "after": 5, "delta": 1},
+        "issues": {"before": 2, "after": 1, "delta": -1},
+    }
+    report = compare_markdown(result["manifest"])
+    assert "# Saved scan comparison" in report
+    assert "Blog: pages 4 → 5 (+1); findings 2 → 1 (-1)." in report
+
+
 def test_file_compare_is_deterministic_and_never_replaces_output(tmp_path):
     before = _audit(issues=[_issue("b", "TITLE_MISSING", B), _issue("a", "TITLE_MISSING", A)])
     after = _audit()
@@ -97,6 +115,34 @@ def test_file_compare_is_deterministic_and_never_replaces_output(tmp_path):
     assert first["files"] == second["files"]
     with pytest.raises(FileExistsError):
         compare(before, after, out_dir=tmp_path / "first")
+
+
+def test_compare_v2_reader_sorts_filters_and_bounds_rows(tmp_path):
+    before = _audit(
+        issues=[_issue("b", "TITLE_MISSING", B), _issue("a", "DESC_MISSING", A)]
+    )
+    result = compare(before, _audit(), out_dir=tmp_path / "comparison")
+    page = read_compare_page(
+        result["manifest"], "disappeared", limit=1, sort="url", direction="asc"
+    )
+    assert page["total"] == 2 and page["returned"] == 1 and page["has_more"] is True
+    assert page["rows"][0]["target_url"] == A
+    filtered = read_compare_page(
+        result["manifest"], "disappeared", contains="b.test", limit=10
+    )
+    assert filtered["total"] == 1
+    assert filtered["rows"][0]["target_url"] == B
+
+
+def test_compare_url_never_calls_missing_url_a_fix():
+    from seohead.mcp.handlers import compare_url
+
+    before = _audit(urls=(A,), issues=[_issue("a", "TITLE_MISSING", A)])
+    after = _audit(urls=(), issues=[])
+    result = compare_url(before, after, A)
+    assert result["state"] == "not_rechecked"
+    assert result["findings"]["state"] == "not_rechecked"
+    assert result["findings"]["left"] == []
 
 
 @pytest.mark.parametrize("kind", ["page", "finding"])

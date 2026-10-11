@@ -26,7 +26,10 @@ _PAGE_SQL = (
     "SELECT p.status_code,"
     " COALESCE(p.status_code BETWEEN 200 AND 299 AND"
     " instr(lower(p.meta_robots||','||p.x_robots),'noindex')=0, 0) AS indexable,"
-    " p.title,p.canonical,p.redirect_url,d.body_sha256"
+    " p.title,p.meta_description,p.h1,p.canonical,p.redirect_url,d.body_sha256,"
+    " p.size_bytes,p.response_time,p.word_count,"
+    " (SELECT COUNT(*) FROM links l WHERE l.source_url_id=p.url_id) AS outlinks,"
+    " (SELECT COUNT(*) FROM links l WHERE l.destination_url_id=u.url_id) AS inlinks"
     " FROM urls u JOIN pages p ON p.url_id=u.url_id"
     " LEFT JOIN documents d ON d.document_id=p.document_id"
     " WHERE u.url=?"
@@ -50,10 +53,18 @@ def _observe(path: Path, url: str) -> dict[str, Any]:
     return {
         "status_code": row["status_code"],
         "indexability": bool(row["indexable"]),
+        "title": title,
         "title_hash": hashlib.sha256(title.encode("utf-8")).hexdigest(),
+        "meta_description": row["meta_description"],
+        "h1": row["h1"],
         "canonical": _text_or_none(row["canonical"]),
         "redirect_target": _text_or_none(row["redirect_url"]),
         "content_hash": _text_or_none(row["body_sha256"]),
+        "word_count": row["word_count"],
+        "inlinks": row["inlinks"],
+        "outlinks": row["outlinks"],
+        "response_time_seconds": row["response_time"],
+        "html_size_bytes": row["size_bytes"],
     }
 
 
@@ -61,10 +72,59 @@ _EMPTY_STATE: dict[str, Any] = {
     "status_code": None,
     "indexability": None,
     "title_hash": None,
+    "title": None,
+    "meta_description": None,
+    "h1": None,
     "canonical": None,
     "redirect_target": None,
     "content_hash": None,
+    "word_count": None,
+    "inlinks": None,
+    "outlinks": None,
+    "response_time_seconds": None,
+    "html_size_bytes": None,
 }
+
+_CHANGE_FIELDS = (
+    "status_code",
+    "title",
+    "meta_description",
+    "h1",
+    "word_count",
+    "inlinks",
+    "outlinks",
+    "canonical",
+    "response_time_seconds",
+    "indexability",
+    "html_size_bytes",
+)
+
+
+def _transitions(scans: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Compare adjacent observations without treating an absent URL as a fix."""
+    transitions = []
+    for newer, older in zip(scans, scans[1:]):
+        entry = {
+            "before_scan_uuid": older["scan_uuid"],
+            "after_scan_uuid": newer["scan_uuid"],
+        }
+        if newer["state"] != "present" or older["state"] != "present":
+            entry.update(
+                state="not_comparable",
+                reason="both scans must contain a readable observation of this URL",
+                changes={},
+            )
+        else:
+            entry.update(
+                state="compared",
+                changes={
+                    field: {"before": older[field], "after": newer[field]}
+                    for field in _CHANGE_FIELDS
+                    if older[field] != newer[field]
+                },
+            )
+        transitions.append(entry)
+    return transitions
 
 
 def url_history(scans_dir: str | Path, url: str, *, limit: int = DEFAULT_LIMIT) -> dict[str, Any]:
@@ -111,5 +171,6 @@ def url_history(scans_dir: str | Path, url: str, *, limit: int = DEFAULT_LIMIT) 
         "returned": len(scans),
         "has_more": total > len(scans),
         "scans": scans,
+        "transitions": _transitions(scans),
         "errors": errors,
     }

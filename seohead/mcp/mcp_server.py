@@ -1271,6 +1271,69 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             )
         )
 
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_read(
+        manifest_path: str,
+        file: str,
+        offset: int = 0,
+        limit: int = 200,
+        sort: Literal["url", "check", "severity"] = "url",
+        direction: Literal["asc", "desc"] = "asc",
+        contains: str | None = None,
+        max_bytes: int = 1_048_576,
+    ) -> dict[str, Any]:
+        """Read a bounded, sorted page from one integrity-checked compare.v2 file."""
+        return _checked(
+            handlers.compare_read(
+                manifest_path=manifest_path,
+                file=file,
+                offset=offset,
+                limit=limit,
+                sort=sort,
+                direction=direction,
+                contains=contains,
+                max_bytes=max_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_compare_report(
+        manifest_path: str,
+        out_file: str,
+        max_bytes: int = 65_536,
+    ) -> dict[str, Any]:
+        """Write a new, bounded Markdown summary from a compare.v2 manifest."""
+        return _checked(
+            handlers.compare_report(
+                manifest_path=manifest_path,
+                out_file=out_file,
+                max_bytes=max_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_url(
+        before: Any,
+        after: Any,
+        url: str,
+        max_bytes: int = 65_536,
+        max_lines: int = 200,
+    ) -> dict[str, Any]:
+        """Show exact-URL before/after facts, finding deltas and a bounded body diff.
+
+        A URL absent from either scan is not classified as a fixed finding. Text is read only
+        from compatible retained native bodies; this call never fetches the URL.
+        """
+        return _checked(
+            handlers.compare_url(
+                before=before,
+                after=after,
+                url=url,
+                max_bytes=max_bytes,
+                max_lines=max_lines,
+            )
+        )
+
     @mcp.tool(annotations=create_files_from_web, structured_output=True)
     def seo_verify_fixes(
         baseline: Any,

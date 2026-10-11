@@ -118,3 +118,34 @@ same scan is not fresh evidence. An invalid after crawl cannot resolve findings.
 A partial crawl can verify an actually measured selected page only when check
 coverage, policy, response and representation support that local verdict; missing
 pages and unmeasured or graph-wide checks remain `not_verifiable`.
+
+## Reading and inspecting a comparison
+
+Use `compare-read` (MCP `seo_compare_read`) to page a complete compare.v2 stream by
+`file`, with a stable offset, a bounded row count and byte budget, a URL substring
+filter, and sorting by URL, check or severity. The reader validates the manifest,
+checksum, row framing and complete stored stream before returning a page. Sorting
+uses a temporary disk-backed SQLite index; a page read can therefore take time
+proportional to the selected stream. The output remains capped at 500 rows and 8 MiB.
+
+Use `compare-url` (MCP `seo_compare_url`) for one exact URL. It returns before and
+after page facts, measured field deltas, and finding changes. Missing URLs yield
+`not_rechecked`; unavailable facts stay unavailable. For two native scan.v1 SQLite
+inputs it also requests a text diff capped at 200 lines and 64 KiB per side from
+the retained-body diff primitive. It makes no network request.
+
+`scan-url-history` now includes title, meta description, H1, word count, observed
+inlinks/outlinks, response time and HTML size alongside status, indexability,
+canonical, redirect and body identity. Adjacent `transitions` compare fields only
+when both scans contain a readable URL observation; gaps are `not_comparable`.
+
+The compare.v2 manifest includes source-declared segment page/issue count deltas
+when both audits retained segment summaries. If either side lacks them, segment
+breakdown is explicitly unavailable. Comparison generation is still a synchronous
+operation; progress checkpoints, resumable generation and a reusable comparison
+cache are not provided by this interface.
+
+Use `compare-report --manifest compare/compare.json --out-file comparison.md` to
+write a new Markdown summary. It reports aggregate deltas, source-declared segment
+counts, per-check counts and bounded caveats; it includes no page URLs. The report
+is limited to 64 KiB and 500 checks, and an existing destination is refused.
