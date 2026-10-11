@@ -421,3 +421,170 @@ def test_pagespeed_verify_runs_an_explicit_sample_and_reports_elapsed_time(monke
     assert result["permission_state"] == "authenticated_account"
     assert result["response_time_ms"] >= 0
     assert result["quota_state"] == "unknown"
+
+
+def test_yandex_cloud_verify_uses_only_the_unbilled_region_tree(monkeypatch):
+    from seohead.data_sources import yandex_cloud
+
+    monkeypatch.setattr(
+        providers,
+        "_credential_details",
+        lambda _provider: (
+            {"api_key": True, "folder_id": True},
+            {
+                "api_key": {"state": "configured_unverified"},
+                "folder_id": {"state": "configured_unverified"},
+            },
+        ),
+    )
+    monkeypatch.setattr(providers, "_readiness_state", lambda *_args: "configured_unverified")
+
+    class FakeWordstat:
+        folder = "folder-test"
+
+    monkeypatch.setattr(yandex_cloud, "Wordstat", FakeWordstat)
+    calls = []
+
+    def region_tree(url, payload):
+        calls.append((url, payload))
+        return 200, {"regions": [{"id": "225", "name": "Russia"}]}
+
+    result = providers.provider_verify("yandex_cloud", transport=region_tree)
+
+    assert result["ok"] is True
+    assert result["authenticated_account"] is True
+    assert result["verified_capabilities"] == ["wordstat.getRegionsTree"]
+    assert "web_search" in result["unverified_capabilities"]
+    assert calls == [
+        (
+            "https://searchapi.api.cloud.yandex.net/v2/wordstat/getRegionsTree",
+            {"folderId": "folder-test"},
+        )
+    ]
+
+
+def test_yandex_cloud_verification_does_not_confuse_permission_denial_with_network_failure(
+    monkeypatch,
+):
+    from seohead.data_sources import yandex_cloud
+
+    monkeypatch.setattr(
+        providers,
+        "_credential_details",
+        lambda _provider: (
+            {"api_key": True, "folder_id": True},
+            {
+                "api_key": {"state": "configured_unverified"},
+                "folder_id": {"state": "configured_unverified"},
+            },
+        ),
+    )
+    monkeypatch.setattr(providers, "_readiness_state", lambda *_args: "configured_unverified")
+
+    class FakeWordstat:
+        folder = "folder-test"
+
+    monkeypatch.setattr(yandex_cloud, "Wordstat", FakeWordstat)
+
+    denied = providers.provider_verify(
+        "yandex_cloud", transport=lambda *_args: (403, {"message": "denied"})
+    )
+    unavailable = providers.provider_verify(
+        "yandex_cloud", transport=lambda *_args: (503, {"message": "maintenance"})
+    )
+
+    assert denied["permission_state"] == "not_granted"
+    assert unavailable["permission_state"] == "verification_failed"
+    assert denied["verified"] is False and unavailable["verified"] is False
+
+
+def test_dataforseo_verify_uses_free_account_metadata_without_returning_it(monkeypatch):
+    from seohead.data_sources.dataforseo import DataForSEOClient
+
+    monkeypatch.setattr(
+        providers,
+        "_credential_details",
+        lambda _provider: (
+            {"login": True, "password": True},
+            {
+                "login": {"state": "configured_unverified"},
+                "password": {"state": "configured_unverified"},
+            },
+        ),
+    )
+    monkeypatch.setattr(providers, "_readiness_state", lambda *_args: "configured_unverified")
+    monkeypatch.setattr(
+        DataForSEOClient,
+        "balance",
+        lambda self: {
+            "env": "prod",
+            "balance": 123.45,
+            "limits": {"secretly detailed": "not for this response"},
+            "prices": {"backlinks": "private account metadata"},
+        },
+    )
+
+    result = providers.provider_verify("dataforseo_backlinks")
+
+    assert result["ok"] is True
+    assert result["quota_state"] == "reported"
+    assert result["environment"] == "prod"
+    assert result["verified_capabilities"] == ["appendix.user_data"]
+    assert "backlinks subscription and collection access" in result["unverified_capabilities"]
+    assert "123.45" not in json.dumps(result)
+    assert "private account metadata" not in json.dumps(result)
+
+
+def test_cloudflare_token_verification_does_not_claim_zone_permissions(monkeypatch):
+    from seohead.data_sources import cloudflare
+
+    monkeypatch.setattr(
+        providers,
+        "_credential_details",
+        lambda _provider: (
+            {"api_token": True},
+            {"api_token": {"state": "configured_unverified"}},
+        ),
+    )
+    monkeypatch.setattr(providers, "_readiness_state", lambda *_args: "configured_unverified")
+    monkeypatch.setattr(
+        cloudflare,
+        "verify_token",
+        lambda transport=None: {"ok": True, "token_status": "active", "status": 200},
+    )
+
+    result = providers.provider_verify("cloudflare", {"zone_id": "zone-test"})
+
+    assert result["ok"] is True
+    assert result["token_status"] == "active"
+    assert result["target_access"] == "not_requested"
+    assert result["verified"] is False
+    assert "zone and account resource access" in result["unverified_capabilities"]
+
+
+def test_gsc_verify_maps_invalid_grant_to_invalid_permission(monkeypatch):
+    from seohead.data_sources import gsc
+
+    monkeypatch.setattr(
+        providers,
+        "_credential_details",
+        lambda _provider: (
+            {"oauth_bearer": True},
+            {"oauth_bearer": {"state": "configured_unverified"}},
+        ),
+    )
+    monkeypatch.setattr(providers, "_readiness_state", lambda *_args: "configured_unverified")
+    monkeypatch.setattr(
+        gsc,
+        "discover_properties",
+        lambda transport=None: {
+            "ok": False,
+            "state": "not_configured",
+            "error": "invalid_grant",
+        },
+    )
+
+    result = providers.provider_verify("gsc")
+
+    assert result["permission_state"] == "invalid"
+    assert result["verified"] is False

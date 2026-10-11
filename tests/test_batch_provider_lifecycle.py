@@ -331,3 +331,24 @@ def test_oauth_consent_start_and_callback_are_redacted_and_mockable(tmp_path, mo
     assert observed["code"] == "synthetic-code"
     assert connected["flow"]["status"] == "connected"
     assert connected["flow"]["token_expires_at"]
+
+
+def test_invalid_grant_refresh_is_normalized_and_clears_connected_flow_state(tmp_path, monkeypatch):
+    monkeypatch.setattr(oauth, "CONFIG_ROOT", tmp_path / "config")
+    oauth.save_grant("gsc", _grant())
+    path = _flow_file(tmp_path)
+    now = datetime(2026, 10, 10, 12, 0, tzinfo=timezone.utc)
+    flow, _state = oauth_flow.create_flow(path, now)
+    oauth_flow.complete_flow(path, flow, now, 3600)
+
+    with pytest.raises(credentials.MissingCredential, match="invalid_grant") as excinfo:
+        oauth.refresh_access_token(
+            "gsc",
+            transport=lambda _payload: {
+                "error": "invalid_grant",
+                "error_description": "synthetic-secret-provider-response",
+            },
+        )
+
+    assert "synthetic-secret-provider-response" not in str(excinfo.value)
+    assert oauth_flow.load_flow(path)["status"] == "invalid"

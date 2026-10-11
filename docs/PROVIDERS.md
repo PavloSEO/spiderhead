@@ -107,9 +107,9 @@ seohead provider-credential --provider arsenkin --component api_token \
 
 Provider and component names are checked against the registry. The existing atomic private-file
 writer stores values with restrictive permissions. Replacement requires `--replace`; revocation
-requires `--confirm`. The MCP tool allows status and confirmed revocation only. Credential
-configuration never proves provider or target access; use `provider-verify` for that explicit
-check.
+requires `--confirm`. MCP allows status only because it has no trusted caller identity; revoke and
+all OAuth mutations stay in explicit local CLI workflows. Credential configuration never proves
+provider or target access; use `provider-verify` for that explicit check.
 
 - **arsenkin serp_clustering via provider-collect** — declared in the registry but deliberately refused by the collection dispatch; tracked by the dedicated-operation contract rather than duplicated here
 - **metrika raw_logs (Yandex Logs API)** — excluded by design — raw logs may contain personal identifiers and must not reach reports or commits

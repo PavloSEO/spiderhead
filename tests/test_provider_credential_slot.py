@@ -68,3 +68,10 @@ def test_moz_api_token_component_is_in_the_registry():
 
     assert slot["source_reference"] == "config:moz/api_token"
     assert slot["env_reference"] == "env:MOZ_API_TOKEN"
+
+
+def test_cloudflare_api_token_component_is_in_the_registry():
+    slot = providers.credential_slot("cloudflare", "api_token")
+
+    assert slot["source_reference"] == "config:cloudflare/api-token"
+    assert slot["env_reference"] == "env:CLOUDFLARE_API_TOKEN"

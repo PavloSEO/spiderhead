@@ -117,6 +117,13 @@ _REGISTRY: dict[str, dict[str, Any]] = {
         "privacy_class": "restricted",
         "default_enabled": False,
     },
+    "cloudflare": {
+        "credential_components": ["api_token"],
+        "access": "read_only",
+        "operations": ["token_verify", "traffic", "logpull", "history"],
+        "quota_mode": "Cloudflare account and zone plan limits",
+        "privacy_class": "restricted",
+    },
     "indexnow": {
         "credential_components": ["submission_key"],
         "access": "confirmed_write",
@@ -164,6 +171,7 @@ _CREDENTIAL_SOURCES: dict[str, dict[str, tuple[str, str]]] = {
         "password": ("dataforseo/password", "DATAFORSEO_PASSWORD"),
     },
     "moz": {"api_token": ("moz/api_token", "MOZ_API_TOKEN")},
+    "cloudflare": {"api_token": ("cloudflare/api-token", "CLOUDFLARE_API_TOKEN")},
     "indexnow": {"submission_key": ("indexnow/key", "INDEXNOW_KEY")},
 }
 
@@ -179,6 +187,7 @@ _COLLECTABLE_OPERATIONS: dict[str, frozenset[str]] = {
     "bing_webmaster": frozenset(
         {"sites", "crawl", "links", "url_links", "keywords", "search_performance"}
     ),
+    "cloudflare": frozenset({"traffic", "logpull", "history"}),
     "dataforseo_backlinks": frozenset(
         {
             "backlinks_summary",
@@ -199,6 +208,7 @@ _DEDICATED_OPERATIONS = {
     },
     "indexnow": {"submit": "indexnow-submit"},
     "miratext": {"seo_analysis": "miratext-analyze"},
+    "cloudflare": {"token_verify": "provider-verify"},
 }
 
 
@@ -208,6 +218,16 @@ def provider_registry() -> dict[str, Any]:
         "format": "seohead.provider-registry.v1",
         "providers": json.loads(json.dumps(_REGISTRY)),
     }
+
+
+def _credential_source_status(provider: str, component: str) -> dict[str, Any]:
+    path, env_var = _CREDENTIAL_SOURCES[provider][component]
+    file_env_var = (
+        "SEOHEAD_CLOUDFLARE_TOKEN_FILE"
+        if provider == "cloudflare" and component == "api_token"
+        else None
+    )
+    return credentials.source_status(path, env_var, file_env_var=file_env_var)
 
 
 def credential_slot(provider: str, component: str) -> dict[str, Any]:
@@ -223,13 +243,23 @@ def credential_slot(provider: str, component: str) -> dict[str, Any]:
     if component not in sources:
         raise ValueError(f"{component!r} is not a stored credential component of {provider!r}")
     path, env_var = sources[component]
-    return {
+    slot: dict[str, Any] = {
         "provider": provider,
         "component": component,
         "source_reference": f"config:{path}",
         "env_reference": f"env:{env_var}",
         "env_shadowed": bool((os.environ.get(env_var) or "").strip()),
     }
+    if provider == "cloudflare" and component == "api_token":
+        slot["accepted_source_references"] = [
+            f"env:{env_var}",
+            f"config:{path}",
+            "env-path:SEOHEAD_CLOUDFLARE_TOKEN_FILE",
+        ]
+        slot["env_shadowed"] = slot["env_shadowed"] or bool(
+            (os.environ.get("SEOHEAD_CLOUDFLARE_TOKEN_FILE") or "").strip()
+        )
+    return slot
 
 
 def manage_credential(
@@ -245,7 +275,7 @@ def manage_credential(
     slot = credential_slot(provider, component)
     path, env_var = _CREDENTIAL_SOURCES[provider][component]
     if action == "status":
-        state = credentials.source_status(path, env_var)
+        state = _credential_source_status(provider, component)
         result = {
             "ok": True,
             "provider": provider,
@@ -384,8 +414,8 @@ def _credential_details(provider: str) -> tuple[dict[str, bool], dict[str, dict[
         raise ValueError("unknown provider")
     components: dict[str, bool] = {}
     details: dict[str, dict[str, Any]] = {}
-    for name, source in (sources or {}).items():
-        state = credentials.source_status(*source)
+    for name in sources or {}:
+        state = _credential_source_status(provider, name)
         details[name] = state
         components[name] = state["state"] == "configured_unverified"
     if provider in {"gsc", "ga4"}:
@@ -677,6 +707,8 @@ def _permission_failure_state(result: dict[str, Any]) -> str:
         return "insufficient_scope"
     if result.get("status") == 401 or "invalid grant" in error or "invalid token" in error:
         return "invalid"
+    if result.get("token_status") in {"disabled", "expired"}:
+        return "invalid"
     if result.get("status") == 403:
         return "not_granted"
     return "verification_failed"
@@ -774,6 +806,83 @@ def provider_verify(
             }
         else:
             result = {"ok": True, "balance": balance}
+    elif provider == "cloudflare":
+        from seohead.data_sources.cloudflare import verify_token
+
+        try:
+            token = verify_token(transport=transport)
+        except Exception:
+            result = {"ok": False, "status": None, "error": "Cloudflare token verification failed"}
+        else:
+            token_status = token.get("token_status")
+            result = {
+                "ok": token.get("ok") is True and token_status == "active",
+                "status": token.get("status"),
+                "error": token.get("error")
+                or ("Cloudflare API token is not active" if token_status != "active" else None),
+                "token_status": token_status,
+                "state": "invalid" if token_status in {"disabled", "expired"} else None,
+                "verified_capabilities": ["api_token.active"]
+                if token_status == "active"
+                else [],
+                "unverified_capabilities": ["zone and account resource access"],
+            }
+    elif provider == "yandex_cloud":
+        from seohead.data_sources.yandex_cloud import HOST, Wordstat
+
+        client = Wordstat()
+        request_tree = transport or client._request
+        try:
+            status, body = request_tree(
+                f"{HOST}/v2/wordstat/getRegionsTree", {"folderId": client.folder}
+            )
+        except Exception:
+            result = {"ok": False, "status": None, "error": "provider connection failed"}
+        else:
+            valid_tree = (
+                isinstance(body, dict)
+                and isinstance(body.get("regions"), list)
+                and bool(body["regions"])
+            )
+            result = {
+                "ok": status == 200 and valid_tree,
+                "status": status,
+                "error": None
+                if status == 200 and valid_tree
+                else "unbilled getRegionsTree capability check failed",
+                "quota_state": "not_reported",
+                "verified_capabilities": ["wordstat.getRegionsTree"]
+                if status == 200 and valid_tree
+                else [],
+                "unverified_capabilities": [
+                    "wordstat.topRequests",
+                    "wordstat.dynamics",
+                    "web_search",
+                ],
+            }
+    elif provider == "dataforseo_backlinks":
+        from seohead.data_sources.dataforseo import DataForSEOClient, DataForSEOError
+
+        try:
+            account = DataForSEOClient(env="prod").balance()
+        except DataForSEOError as exc:
+            result = {
+                "ok": False,
+                "status": exc.status,
+                "error": "DataForSEO account metadata check failed",
+            }
+        except Exception:
+            result = {"ok": False, "status": None, "error": "provider connection failed"}
+        else:
+            quota_state = "reported" if isinstance(account.get("limits"), dict) else "unknown"
+            result = {
+                "ok": True,
+                "quota_state": quota_state,
+                "account_data_available": True,
+                "environment": account.get("env"),
+                "verified_capabilities": ["appendix.user_data"],
+                "unverified_capabilities": ["backlinks subscription and collection access"],
+            }
     elif provider in {"ga4", "metrika", "pagespeed", "crux"}:
         operation = {
             "ga4": "landing_pages",
@@ -862,7 +971,7 @@ def provider_verify(
     return {
         "ok": authenticated,
         "provider": provider,
-        "state": "authenticated" if authenticated else result.get("state", "verification_failed"),
+        "state": "authenticated" if authenticated else (result.get("state") or "verification_failed"),
         "readiness_state": readiness,
         "permission_state": permission_state,
         "authenticated_account": authenticated,
@@ -876,6 +985,15 @@ def provider_verify(
         "quota_mode": _REGISTRY[provider]["quota_mode"],
         "quota_state": result.get("quota_state", "unknown"),
         "response_time_ms": round((time.monotonic() - started) * 1000, 1),
+        **({"token_status": result["token_status"]} if "token_status" in result else {}),
+        **(
+            {
+                "verified_capabilities": result["verified_capabilities"],
+                "unverified_capabilities": result["unverified_capabilities"],
+            }
+            if "verified_capabilities" in result
+            else {}
+        ),
         "contract_compatible": authenticated and target_access in {"verified", "not_requested"},
         "error": result.get("error"),
     }

@@ -2968,6 +2968,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         confirm: bool = False,
     ) -> dict[str, Any]:
         """Manage GSC read-only OAuth: start consent, inspect/cancel flows, import grants, refresh or confirm revocation. Never returns tokens."""
+        from seohead.projects.permissions import require_mcp_allowed
+
+        if action != "status":
+            require_mcp_allowed(f"provider.auth.{action}")
         return _checked(
             handlers.provider_auth(
                 provider=provider, action=action, grant_file=grant_file, confirm=confirm
@@ -3003,6 +3007,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         confirm: bool = False,
     ) -> dict[str, Any]:
         """Inspect or explicitly revoke a provider credential; secret writes stay on the local CLI."""
+        from seohead.projects.permissions import require_mcp_allowed
+
+        if action != "status":
+            require_mcp_allowed(f"provider.credential.{action}")
         return _checked(handlers.provider_credential(provider, component, action, confirm))
 
     @mcp.tool(annotations=fetch, structured_output=True)

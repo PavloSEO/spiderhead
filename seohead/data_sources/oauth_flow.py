@@ -20,7 +20,7 @@ from seohead.data_sources.credentials import is_private_mode
 FLOW_TTL = timedelta(seconds=600)
 _BASE_KEYS = {"flow_id", "state_sha256", "status", "created_at", "expires_at"}
 _EXTRA_KEYS = {"connected_at", "token_expires_at"}
-_STATES = {"waiting", "connected", "expired", "cancelled", "revoked"}
+_STATES = {"waiting", "connected", "expired", "cancelled", "revoked", "invalid"}
 
 
 def hash_state(state: str) -> str:
@@ -155,5 +155,15 @@ def mark_revoked(path: Path) -> dict[str, Any] | None:
     if flow is None:
         return None
     flow["status"] = "revoked"
+    _write(path, flow)
+    return flow
+
+
+def mark_invalid(path: Path) -> dict[str, Any] | None:
+    """Record that a provider rejected the stored OAuth grant during an explicit refresh."""
+    flow = load_flow(path)
+    if flow is None:
+        return None
+    flow["status"] = "invalid"
     _write(path, flow)
     return flow

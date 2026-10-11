@@ -296,7 +296,11 @@ def _acquire_token(value: str | None) -> tuple[str | None, str | None]:
         if grant_available("gsc"):
             try:
                 return durable_oauth_token()["access_token"], None
-            except (MissingCredential, OSError, ValueError):
+            except MissingCredential as refresh_error:
+                if "invalid_grant" in str(refresh_error).lower():
+                    return None, "invalid_grant"
+                return None, "stored OAuth grant refresh failed; reconnect or check the grant"
+            except (OSError, ValueError):
                 return None, "stored OAuth grant refresh failed; reconnect or check the grant"
         status = gsc_service_account_status()
         if status == "missing":

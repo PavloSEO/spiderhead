@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import json
+from datetime import date, timedelta
 
 import pytest
 
 from seohead import cli
+from seohead.data_sources import sources_db
 from seohead.mcp import handlers
 from seohead.projects import bindings
 from seohead.projects.workspace import create_project, open_project
@@ -47,6 +49,91 @@ def test_cloudflare_zone_id_can_be_bound_without_provider_discovery(tmp_path):
 
     assert linked["binding"]["service"] == "cloudflare"
     assert linked["binding"]["resource"] == "zone-123"
+
+
+def test_list_bindings_reports_local_28_day_coverage_and_unselected_resources(tmp_path):
+    project = _project(tmp_path)
+    today = date.today()
+    end = today - timedelta(days=sources_db.SOURCES["ga4"].lag_days)
+    start = end - timedelta(days=27)
+
+    def fetcher(resource, first, last):
+        return {
+            "ok": True,
+            "rows": [
+                {
+                    "date": first,
+                    "landing_page": "/",
+                    "channel": "organic",
+                    "sessions": 2,
+                    "engaged_sessions": 1,
+                    "users": 2,
+                }
+            ],
+            "complete": True,
+        }
+
+    for resource in ("123", "456"):
+        sources_db.sync(
+            project / "sources.sqlite",
+            "ga4",
+            resource,
+            start_date=start.isoformat(),
+            end_date=end.isoformat(),
+            fetchers={"ga4": fetcher},
+        )
+    bindings.link(project, "ga4", "123")
+
+    listed = bindings.list_bindings(project, as_of=today)
+
+    assert listed["bindings"][0]["readiness"]["history_state"] == "data_28d"
+    assert listed["bindings"][0]["readiness"]["data_28d"] is True
+    unselected = next(item for item in listed["resources"] if item["resource"] == "456")
+    assert unselected["status"] == "not_selected"
+    assert unselected["history_state"] == "data_28d"
+
+
+def test_binding_readiness_preserves_explicit_no_access_without_guessing_from_failures():
+    as_of = date(2026, 10, 12)
+    end = as_of - timedelta(days=sources_db.SOURCES["gsc"].lag_days)
+    start = end - timedelta(days=27)
+    days = [(start + timedelta(days=offset)).isoformat() for offset in range(28)]
+    entry = {
+        "source": "gsc",
+        "coverage": {"complete": days, "empty": []},
+        "last_attempts": {days[-1]: "no_access"},
+    }
+
+    readiness = bindings._source_readiness(entry, as_of)
+
+    assert readiness["state"] == "no_access"
+    assert readiness["data_28d"] is True
+    assert readiness["access_state"] == "no_access"
+
+    entry["last_attempts"] = {days[-1]: "failed"}
+    unknown = bindings._source_readiness(entry, as_of)
+    assert unknown["access_state"] == "unknown"
+
+
+def test_cloudflare_history_readiness_keeps_partial_snapshots_unavailable_for_full_coverage():
+    row = {
+        "zone_id": "zone-123",
+        "zone": "example.test",
+        "latest_observed_at": "2026-10-12T08:00:00Z",
+        "latest_period": {"from": "2026-09-15", "to": "2026-10-11"},
+        "state": "complete",
+        "sampled": False,
+        "truncated": False,
+    }
+
+    complete = bindings._cloudflare_history_state(row, date(2026, 10, 12))
+    row["sampled"] = True
+    partial = bindings._cloudflare_history_state(row, date(2026, 10, 12))
+
+    assert complete["history_state"] == "data_28d"
+    assert complete["coverage_28d"] is True
+    assert partial["history_state"] == "partial_28d"
+    assert partial["access_state"] == "unknown"
 
 
 def test_relinking_the_same_pair_is_idempotent(tmp_path):

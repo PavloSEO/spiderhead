@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
@@ -111,6 +112,10 @@ def _default_exchange(payload: dict[str, str]) -> dict[str, Any]:
         return json.loads(response.read().decode("utf-8"))
 
 
+def _mark_invalid_grant(provider: str) -> None:
+    oauth_flow.mark_invalid(_flow_path(provider))
+
+
 def refresh_access_token(
     provider: str, *, transport: RefreshTransport | None = None
 ) -> dict[str, Any]:
@@ -122,9 +127,22 @@ def refresh_access_token(
         "client_id": grant["client_id"],
         "client_secret": grant["client_secret"],
     }
-    body = (transport or _default_refresh)(payload)
+    try:
+        body = (transport or _default_refresh)(payload)
+    except urllib.error.HTTPError as exc:
+        try:
+            response = json.loads(exc.read(8193).decode("utf-8", "replace"))
+        except (OSError, ValueError):
+            response = {}
+        if isinstance(response, dict) and response.get("error") == "invalid_grant":
+            _mark_invalid_grant(provider)
+            raise MissingCredential("invalid_grant") from None
+        raise MissingCredential("OAuth refresh failed; provider rejected the grant") from None
     token = body.get("access_token") if isinstance(body, dict) else None
     if not isinstance(token, str) or not token:
+        if isinstance(body, dict) and body.get("error") == "invalid_grant":
+            _mark_invalid_grant(provider)
+            raise MissingCredential("invalid_grant")
         raise MissingCredential("OAuth refresh did not return an access token")
     return {"access_token": token, "scopes": grant["scopes"], "expires_in": body.get("expires_in")}
 
@@ -219,7 +237,7 @@ def manage_grant(
         flow = oauth_flow.cancel_flow(_flow_path(provider), datetime.now(timezone.utc))
         if flow is None:
             return {"ok": False, "error": "no_active_flow"}
-        if flow["status"] in {"connected", "revoked"}:
+        if flow["status"] in {"connected", "revoked", "invalid"}:
             return {"ok": False, "error": "flow_not_waiting"}
         return {"ok": True, "flow": {"flow_id": flow["flow_id"], "status": flow["status"]}}
     if action == "connect":
@@ -284,9 +302,8 @@ def manage_grant(
             or not 1 <= expires_in <= 86400
         ):
             raise ValueError("Google OAuth response did not grant the required read-only scope")
-        oauth_flow.verify_callback_state(
-            _flow_path(provider), state, datetime.now(timezone.utc)
-        )
+        connected_at = datetime.now(timezone.utc)
+        oauth_flow.verify_callback_state(_flow_path(provider), state, connected_at)
         if grant_available(provider):
             raise ValueError("a durable OAuth grant appeared during consent; disconnect it first")
         save_grant(
@@ -298,7 +315,7 @@ def manage_grant(
                 "scopes": [expected_scope],
             },
         )
-        completed = oauth_flow.complete_flow(_flow_path(provider), flow, now, expires_in)
+        completed = oauth_flow.complete_flow(_flow_path(provider), flow, connected_at, expires_in)
         return {
             "ok": True,
             "configured": True,
@@ -311,7 +328,22 @@ def manage_grant(
             },
         }
     if action == "refresh":
-        refreshed = refresh_access_token(provider)
+        try:
+            refreshed = refresh_access_token(provider)
+        except MissingCredential as exc:
+            if "invalid_grant" in str(exc).lower():
+                return {
+                    "ok": False,
+                    "refreshed": False,
+                    "state": "invalid_grant",
+                    "error": "stored OAuth grant was rejected; reconnect through consent",
+                }
+            return {
+                "ok": False,
+                "refreshed": False,
+                "state": "verification_failed",
+                "error": "stored OAuth grant could not be refreshed",
+            }
         return {
             "ok": True,
             "refreshed": True,
