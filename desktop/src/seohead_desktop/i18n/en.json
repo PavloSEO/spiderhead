@@ -2505,5 +2505,21 @@
  "Полный обход по ссылкам": "Full crawl by links",
  "Список важных URL": "List of important URLs",
  "SpiderHeadBot (по умолчанию)": "SpiderHeadBot (default)",
- "Своя строка": "Custom string"
+ "Своя строка": "Custom string",
+ "ещё не запускалось": "not run yet",
+ "с ошибкой": "with errors",
+ "например 1, 15": "for example 1, 15",
+ "Авто — по домену сайта": "Auto — from the site domain",
+ "по одному URL в строке, до 500": "one URL per line, up to 500",
+ "Важные URL": "Important URLs",
+ "Продолжать неполный обход в следующие ночи": "Continue an incomplete crawl on the following nights",
+ " с между запросами": " s between requests",
+ "Пауза между запросами": "Pause between requests",
+ "Дни недели · пусто — каждый день": "Weekdays · empty means every day",
+ "Числа месяца · через запятую, пусто — не выбирать": "Days of month · comma-separated, empty means none",
+ "Сейчас для расписания используется пояс {zone}": "The schedule currently uses the {zone} time zone",
+ "SpiderHeadBot попадает в логи сайта, и его можно фильтровать.": "SpiderHeadBot appears in the site's logs and can be filtered.",
+ "Запусков по расписанию: {n}": "Scheduled runs: {n}",
+ "Расписание: запусков сейчас нет": "Schedule: no runs due now",
+ "Расписание: нет проектов или ядра": "Schedule: no projects or core"
 }

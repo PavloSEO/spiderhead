@@ -1,8 +1,9 @@
-"""Tray mode: the window may stay hidden while the core's scheduler runs the due scans of the remembered projects.
+"""Tray mode: the window may stay hidden while the core runs the due scheduled scans of the remembered projects.
 
-Each tick calls the core's `schedule-run-due` for every remembered project (the core decides what is due and refuses
-overlap). The Mac is kept awake only while the core reports a running scan. Nothing is stored here: the projects come
-from the window's recent list, the schedule from the project files.
+Each tick reads every remembered project's schedule (`schedule-show`) and runs `schedule-run-due` only where a run is
+due now. The Mac is kept awake (caffeinate) from the start of such a run until the pass ends, because the core's
+run-due call is the scan itself. Nothing is stored here: projects come from the window's recent list, schedules from
+the project files. A tick does nothing while a previous pass is still going.
 """
 
 from __future__ import annotations
@@ -12,22 +13,32 @@ from PyQt5.QtWidgets import QAction, QApplication, QMenu, QStyle, QSystemTrayIco
 
 from .i18n import tr, trf
 from .keep_awake import KeepAwake
-from .schedule_core import ScheduleJobs, run_due
-from .source_service import read_cli
+from .schedule_core import ScheduleJobs, read_schedule, run_due
 
 INTERVAL_MS = 60_000
 
 
-def run_pass(executable, directories, call=read_cli):
-    """Run due scans for each project; a project the core cannot answer for is counted, not fatal."""
-    total, unavailable = 0, 0
-    for directory in directories:
-        try:
-            result = run_due(executable, directory, call=call)
-            total += result["running"]
-        except ValueError:
-            unavailable += 1
-    return {"running": total, "unavailable": unavailable, "projects": len(directories)}
+def run_pass(executable, directories, keep_awake, read=read_schedule, run=run_due):
+    """Run the due scans of each project. Runs on a worker thread; a project the core cannot answer for is counted."""
+    ran = unavailable = 0
+    try:
+        for directory in directories:
+            try:
+                state = read(executable, directory)
+            except ValueError:
+                unavailable += 1
+                continue
+            if not state["due_now"]:
+                continue
+            keep_awake.set_active(True)
+            try:
+                if run(executable, directory)["ran"]:
+                    ran += 1
+            except ValueError:
+                unavailable += 1
+    finally:
+        keep_awake.set_active(False)
+    return {"ran": ran, "unavailable": unavailable, "projects": len(directories)}
 
 
 class TrayMode(QObject):
@@ -36,6 +47,7 @@ class TrayMode(QObject):
         self.window = window
         self.keep_awake = keep_awake or KeepAwake()
         self.jobs = ScheduleJobs(self)
+        self.busy = False
         self.timer = QTimer(self)
         self.timer.setInterval(INTERVAL_MS)
         self.timer.timeout.connect(self.check)
@@ -47,8 +59,8 @@ class TrayMode(QObject):
         now.triggered.connect(self.check)
         quit_action = QAction(tr("Выйти"), menu)
         quit_action.triggered.connect(self.quit)
-        for action in (show, now):
-            menu.addAction(action)
+        menu.addAction(show)
+        menu.addAction(now)
         menu.addSeparator()
         menu.addAction(quit_action)
         self.icon.setContextMenu(menu)
@@ -63,20 +75,21 @@ class TrayMode(QObject):
     def check(self):
         executable = getattr(self.window, "core_executable", None)
         directories = [item["path"] for item in getattr(self.window, "recent_projects", [])]
-        if not executable or not directories:
-            self._report({"running": 0, "unavailable": 0, "projects": len(directories)})
+        if self.busy:
             return
-        self.jobs.submit(lambda: run_pass(executable, directories), self._report, self._failed, self)
+        if not executable or not directories:
+            self.icon.setToolTip(tr("Расписание: нет проектов или ядра"))
+            return
+        self.busy = True
+        self.jobs.submit(lambda: run_pass(executable, directories, self.keep_awake), self._report, self._failed, self)
 
     def _report(self, result):
-        self.keep_awake.set_active(result["running"] > 0)
-        if result["running"]:
-            text = trf("Сканов по расписанию сейчас: {n}", n=result["running"])
-        else:
-            text = tr("Расписание: активных сканов нет")
+        self.busy = False
+        text = trf("Запусков по расписанию: {n}", n=result["ran"]) if result["ran"] else tr("Расписание: запусков сейчас нет")
         self.icon.setToolTip(text)
 
     def _failed(self, _text):
+        self.busy = False
         self.keep_awake.set_active(False)
         self.icon.setToolTip(tr("Расписание: ядро не ответило"))
 
