@@ -280,11 +280,13 @@ not a measured blocking duration.
 For declared-resource budgets and delivery findings, enable `storage.format_version=scan.v2`
 and `resources.fetch=true`. The existing resource request, origin, byte, nesting and time
 budgets still apply. `HEAVY_PAGE_WEIGHT` reads actual responses delivered by a requested native
-browser navigation, with document, image, font and third-party buckets. It observes the existing
+browser navigation, with document, image, font and third-party buckets. Third-party here means
+a hostname different from the initial navigation target, including subdomains. It observes the existing
 pinned transport and adds no requests. Declared responsive alternatives and unused CSS resources
 are not summed as runtime bytes. A raw-only page can exceed the budget on its HTML alone; remaining
 runtime assets stay unavailable. Partial navigation bytes remain a lower bound within the recorded
-window. The unit is content-decoded body bytes, not compressed transfer size. `RESOURCE_OVER_2MB` identifies
+window. Browser weight uses content-decoded body bytes, not compressed transfer size; the
+HTML-only fallback labels its own captured-byte unit. `RESOURCE_OVER_2MB` identifies
 individual resources over the configured limit. The default is 2 MiB for both checks.
 Native overrides are `analysis.asset_thresholds.page_weight_max_bytes` and
 `analysis.asset_thresholds.resource_max_bytes`; SF config uses the same names under `thresholds`.
