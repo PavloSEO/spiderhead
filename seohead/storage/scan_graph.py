@@ -8,12 +8,16 @@ import time
 from collections import deque
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urljoin, urlsplit, urlunsplit
+
+from seohead.checks.parser import robots_directives
+from seohead.crawl.spider import _canonical_key
+from seohead.sf.core.normalize import norm_url
 
 from . import ScanError
 from .link_positions import position_summary
 from .link_queries import _representation, _spellings, _url
-from .url_links import LinksError, _header, _open_light
+from .url_links import _FRAGMENT_VARIANTS, LinksError, _header, _ids, _open_light
 
 FORMAT = "seohead.scan-graph.v1"
 MAX_NODES = 5000
@@ -90,23 +94,51 @@ def _cluster(url: str, section: str | None) -> str:
 
 
 def _node(con, row, inlink_cap):
+    variants = _ids(con, _canonical_key(row["url"]), fragments=True)
     count = con.execute(
-        "SELECT COUNT(*) FROM (SELECT 1 FROM links WHERE destination_url_id=? LIMIT ?)",
-        (row["url_id"], inlink_cap + 1),
+        "SELECT COUNT(*) FROM (SELECT 1 FROM json_each(?) variants "
+        "CROSS JOIN links l INDEXED BY links_destination_source_position "
+        "WHERE l.destination_url_id=variants.value LIMIT ?)",
+        (json.dumps(variants[:_FRAGMENT_VARIANTS]), inlink_cap + 1),
     ).fetchone()[0]
+    robots = con.execute(
+        "SELECT payload_json FROM context_items WHERE kind='robots_blocked_url' AND item_key=?",
+        (f"url:{row['url_id']}",),
+    ).fetchone()
+    robots = json.loads(robots[0]) if robots else None
+    status = row["status_code"]
+    reason = (
+        "HTTP status unmeasured"
+        if status is None
+        else f"HTTP {status}"
+        if not 200 <= status < 300
+        else "noindex directive"
+        if "noindex" in robots_directives(row["meta_robots"], row["x_robots"])
+        else "canonicalized to another URL"
+        if row["canonical"]
+        and norm_url(urljoin(row["url"], row["canonical"])) != norm_url(row["url"])
+        else "blocked by recorded robots policy"
+        if robots
+        else ""
+    )
     return {
         "id": row["url_id"],
         "url": row["url"],
         "status_code": row["status_code"],
         "depth": row["crawl_depth"],
-        "indexable": bool(
-            row["status_code"] is not None
-            and 200 <= row["status_code"] < 300
-            and "noindex" not in (row["meta_robots"] + "," + row["x_robots"]).lower()
-        ),
+        "indexable": not bool(reason),
+        "indexability_state": "unmeasured"
+        if status is None
+        else "non_indexable"
+        if reason
+        else "indexable_candidate",
+        "indexability_reason": reason,
+        "robots_blocked": robots is not None,
+        "robots_policy": robots["policy"] if robots else None,
+        "robots_token": robots["token"] if robots else None,
         "word_count": row["word_count"],
         "inlinks": min(count, inlink_cap),
-        "inlinks_capped": count > inlink_cap,
+        "inlinks_capped": count > inlink_cap or len(variants) > _FRAGMENT_VARIANTS,
         "weight": None,
         "weight_state": "not_measured",
     }
@@ -116,7 +148,8 @@ def _edge(row):
     return {
         "id": row["link_id"],
         "source": row["source_url_id"],
-        "target": row["destination_url_id"],
+        "target": row["destination_page_id"],
+        "destination_url_id": row["destination_url_id"],
         "source_url": row["source_url"],
         "target_url": row["target_url"],
         "anchor": row["anchor"],
@@ -141,7 +174,7 @@ def _stats(ids, edges):
 
     incoming = set()
     for edge in edges:
-        source, target = edge["source_url_id"], edge["destination_url_id"]
+        source, target = edge["source_url_id"], edge["destination_page_id"]
         if source != target:
             incoming.add(target)
         parent[find(source)] = find(target)
@@ -153,6 +186,31 @@ def _stats(ids, edges):
         "component_kind": "weakly_connected",
         "global_reachability": "not_measured",
     }
+
+
+def _target_join(schema="main"):
+    """Resolve an occurrence to one retained page using indexed URL lookups.
+
+    Fragment stripping is SQL-local; only an absent exact page needs the root
+    slash alias. The original destination remains an occurrence observation.
+    """
+    base = "CASE WHEN instr(d.url,'#')>0 THEN substr(d.url,1,instr(d.url,'#')-1) ELSE d.url END"
+
+    def lookup(url):
+        return (
+            f"SELECT resolved.url_id FROM {schema}.urls resolved CROSS JOIN {schema}.pages present "
+            f"ON present.url_id=resolved.url_id WHERE resolved.url={url}"
+        )
+
+    return (
+        f"JOIN {schema}.pages target ON target.url_id=COALESCE(({lookup(base)}),"
+        f"({lookup('graph_root_alias(' + base + ')')})) "
+    )
+
+
+def _root_alias(url):
+    key = _canonical_key(url)
+    return key if key != url else _spellings(key)[1]
 
 
 def _around(
@@ -175,21 +233,35 @@ def _around(
         raise LinksError("url_not_found", "around URL is not a retained page")
     seed = row[0]
     seen, queue, examined = {seed}, deque([(seed, 0)]), 0
-    capped = False
+    capped = variant_capped = False
     while queue:
         node, level = queue.popleft()
         if level >= depth:
             continue
+        node_url = con.execute("SELECT url FROM urls WHERE url_id=?", (node,)).fetchone()[0]
+        variants = _ids(con, _canonical_key(node_url), fragments=True)
+        variant_capped = variant_capped or len(variants) > _FRAGMENT_VARIANTS
         # Separate indexed directions avoid SQLite choosing a full-table OR scan.
-        for direction, other in (
-            ("source_url_id", "destination_url_id"),
-            ("destination_url_id", "source_url_id"),
-        ):
+        queries = (
+            (
+                "SELECT target.url_id FROM links l JOIN urls d ON d.url_id=l.destination_url_id "
+                + _target_join()
+                + "JOIN urls u ON u.url_id=target.url_id "
+                f"WHERE l.source_url_id=? AND {link_where} AND {section_where}",
+                [node, *link_params, *section_params],
+            ),
+            (
+                "SELECT l.source_url_id FROM json_each(?) variants CROSS JOIN links l "
+                "INDEXED BY links_destination_source_position ON l.destination_url_id=variants.value "
+                "JOIN pages p ON p.url_id=l.source_url_id JOIN urls u ON u.url_id=p.url_id "
+                f"WHERE {link_where} AND {section_where}",
+                [json.dumps(variants[:_FRAGMENT_VARIANTS]), *link_params, *section_params],
+            ),
+        )
+        for sql, params in queries:
             for (target,) in con.execute(
-                f"SELECT l.{other} FROM links l JOIN pages p ON p.url_id=l.{other} "
-                f"JOIN urls u ON u.url_id=p.url_id WHERE l.{direction}=? AND {link_where} "
-                f"AND {section_where} ORDER BY l.link_id LIMIT ?",
-                [node, *link_params, *section_params, edge_budget - examined + 1],
+                sql + " ORDER BY l.link_id LIMIT ?",
+                [*params, edge_budget - examined + 1],
             ):
                 examined += 1
                 if examined > edge_budget:
@@ -205,7 +277,7 @@ def _around(
                 break
         if capped:
             break
-    return sorted(seen), capped, examined
+    return sorted(seen), capped or variant_capped, examined
 
 
 def _clusters(
@@ -257,11 +329,13 @@ def _clusters(
     rows = list(
         con.execute(
             "SELECT graph_section(source_url),graph_section(target_url),COUNT(*) FROM "
-            "(SELECT u.url AS source_url,d.url AS target_url FROM links l "
+            "(SELECT u.url AS source_url,t.url AS target_url FROM links l "
             "JOIN urls u ON u.url_id=l.source_url_id JOIN urls d ON d.url_id=l.destination_url_id "
-            "JOIN pages p ON p.url_id=l.source_url_id JOIN pages target ON target.url_id=l.destination_url_id "
+            "JOIN pages p ON p.url_id=l.source_url_id "
+            + _target_join()
+            + "JOIN urls t ON t.url_id=target.url_id "
             f"WHERE {where} AND {link_where} AND "
-            + ("d.url>=? AND d.url<? " if params else "1 ")
+            + ("t.url>=? AND t.url<? " if params else "1 ")
             + "LIMIT ?) GROUP BY graph_section(source_url),graph_section(target_url) "
             "ORDER BY 1,2 LIMIT ? OFFSET ?",
             [*params, *link_params, *params, AGGREGATE_SCAN_CAP + 1, edge_limit + 1, edge_offset],
@@ -326,6 +400,8 @@ def scan_graph(
         )
     con = _open_light(scan_path)
     try:
+        con.create_function("graph_root_alias", 1, _root_alias, deterministic=True)
+        con.create_function("graph_document_key", 1, _canonical_key, deterministic=True)
         header, _, _, start = _header(con)
         where, params = _section(section, start)
         link_where, link_params = _link_filter(positions, representation)
@@ -396,7 +472,7 @@ def scan_graph(
                 marks = ",".join("?" for _ in ids)
                 rows = list(
                     con.execute(
-                        f"SELECT p.url_id,p.status_code,p.crawl_depth,p.meta_robots,p.x_robots,p.word_count,u.url FROM pages p JOIN urls u USING(url_id) "
+                        f"SELECT p.url_id,p.status_code,p.crawl_depth,p.meta_robots,p.x_robots,p.canonical,p.word_count,u.url FROM pages p JOIN urls u USING(url_id) "
                         f"WHERE p.url_id IN ({marks}) ORDER BY p.url_id",
                         ids,
                     )
@@ -404,7 +480,7 @@ def scan_graph(
             else:
                 rows = list(
                     con.execute(
-                        "SELECT p.url_id,p.status_code,p.crawl_depth,p.meta_robots,p.x_robots,p.word_count,u.url FROM urls u CROSS JOIN pages p ON p.url_id=u.url_id "
+                        "SELECT p.url_id,p.status_code,p.crawl_depth,p.meta_robots,p.x_robots,p.canonical,p.word_count,u.url FROM urls u CROSS JOIN pages p ON p.url_id=u.url_id "
                         f"WHERE {where} ORDER BY u.url LIMIT ? OFFSET ?",
                         [*params, max_nodes + 1, node_window_offset],
                     )
@@ -441,11 +517,12 @@ def scan_graph(
                 if ids:
                     marks = ",".join("?" for _ in ids)
                     edge_select = (
-                        "SELECT l.*,s.url AS source_url,d.url AS target_url FROM "
+                        "SELECT l.*,target.url_id AS destination_page_id,s.url AS source_url,d.url AS target_url FROM "
                         "(SELECT value AS url_id FROM json_each(?)) picked "
                         "CROSS JOIN links l ON l.source_url_id=picked.url_id "
                         "JOIN urls s ON s.url_id=l.source_url_id JOIN urls d ON d.url_id=l.destination_url_id "
-                        f"WHERE l.destination_url_id IN ({marks}) AND {link_where} "
+                        + _target_join()
+                        + f"WHERE target.url_id IN ({marks}) AND {link_where} "
                         "ORDER BY l.source_url_id,l.evidence_representation,l.ordinal,l.link_id "
                     )
                     edge_params = [json.dumps(ids), *ids, *link_params]
@@ -569,10 +646,12 @@ def _diff(con, path, positions, representation, section, start, offset, limit, c
         where, params = _section(section, origin)
         link_where, link_params = _link_filter(positions, representation)
         sql = (
-            f"SELECT u.url AS source,d.url AS target FROM {schema}.links l "
+            f"SELECT graph_document_key(u.url) AS source,graph_document_key(t.url) AS target FROM {schema}.links l "
             f"JOIN {schema}.urls u ON u.url_id=l.source_url_id JOIN {schema}.urls d ON d.url_id=l.destination_url_id "
-            f"JOIN {schema}.pages p ON p.url_id=l.source_url_id JOIN {schema}.pages target ON target.url_id=l.destination_url_id "
-            f"WHERE {where} AND {link_where} AND " + ("d.url>=? AND d.url<?" if params else "1")
+            f"JOIN {schema}.pages p ON p.url_id=l.source_url_id "
+            + _target_join(schema)
+            + f"JOIN {schema}.urls t ON t.url_id=target.url_id "
+            f"WHERE {where} AND {link_where} AND " + ("t.url>=? AND t.url<?" if params else "1")
         )
         return sql, [*params, *link_params, *params]
 
@@ -581,7 +660,7 @@ def _diff(con, path, positions, representation, section, start, offset, limit, c
     result = {
         "state": "complete",
         "scan_uuid": header["scan_uuid"],
-        "identity": "source/destination exact retained URL pair",
+        "identity": "source/destination fragmentless crawler document URL pair",
     }
     for label, left, lp, right, rp in (
         ("added", current, cp, previous, pp),
@@ -602,8 +681,8 @@ def _diff(con, path, positions, representation, section, start, offset, limit, c
     def orphans(schema, pairs_sql, origin):
         where, params = _section(section, origin)
         return (
-            f"SELECT u.url FROM {schema}.urls u CROSS JOIN {schema}.pages p ON p.url_id=u.url_id "
-            f"WHERE {where} AND NOT EXISTS(SELECT 1 FROM ({pairs_sql}) e WHERE e.target=u.url AND e.source!=e.target)",
+            f"SELECT graph_document_key(u.url) AS url FROM {schema}.urls u CROSS JOIN {schema}.pages p ON p.url_id=u.url_id "
+            f"WHERE {where} AND NOT EXISTS(SELECT 1 FROM ({pairs_sql}) e WHERE e.target=graph_document_key(u.url) AND e.source!=e.target)",
             params,
         )
 

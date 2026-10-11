@@ -142,3 +142,99 @@ def test_section_expand_pages_next_node_window_and_capped_edges(tmp_path):
     assert {edge["id"] for edge in edge_page["edges"]}.isdisjoint(
         edge["id"] for edge in first["edges"]
     )
+
+
+def test_fragment_occurrences_resolve_page_nodes_in_both_walk_directions(tmp_path):
+    path = _scan(tmp_path, {ROOT: [_edge(ROOT, A + "#part")], A: [_edge(A, A + "#self")]})
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    graph = scan_graph(path)
+    nodes = {node["url"]: node for node in graph["nodes"]}
+    edge = next(edge for edge in graph["edges"] if edge["source_url"] == ROOT)
+    assert edge["target"] == nodes[A]["id"]
+    assert edge["target_url"] == A + "#part"
+    assert edge["destination_url_id"] != edge["target"]
+    assert nodes[A]["inlinks"] == 2
+    assert graph["statistics"]["orphans"] == 3
+    assert graph["statistics"]["components"] == 3
+    for seed in (ROOT, A + "#part"):
+        around = scan_graph(path, around=seed, depth=1)
+        assert {node["url"] for node in around["nodes"]} == {ROOT, A}
+        assert len(around["edges"]) == 2
+        assert around["statistics"]["components"] == 1
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == digest
+
+
+def test_document_pair_diff_ignores_fragment_spelling_and_finds_lost_inlinks(tmp_path):
+    old = _scan(tmp_path / "old", {ROOT: [_edge(ROOT, A)]})
+    variant = _scan(
+        tmp_path / "variant", {ROOT: [_edge(ROOT, A + "#one"), _edge(ROOT, A + "#two")]}
+    )
+    diff = scan_graph(variant, compare_to=old)["comparison"]
+    assert diff["added"] == diff["removed"] == diff["new_orphans"] == []
+    missing = _scan(tmp_path / "missing", {})
+    lost = scan_graph(missing, compare_to=variant)["comparison"]
+    assert lost["removed"] == [{"source_url": ROOT, "target_url": A}]
+    assert lost["new_orphans"] == [A]
+
+
+def test_root_alias_fragment_maps_back_to_retained_slash_page(tmp_path):
+    path = _scan(tmp_path, {B: [_edge(B, ROOT.rstrip("/") + "#top")]})
+    graph = scan_graph(path)
+    nodes = {node["url"]: node for node in graph["nodes"]}
+    assert graph["edges"][0]["target"] == nodes[ROOT]["id"]
+    assert nodes[ROOT]["inlinks"] == 1
+    for seed in (ROOT, B):
+        assert {node["url"] for node in scan_graph(path, around=seed, depth=1)["nodes"]} == {
+            ROOT,
+            B,
+        }
+
+
+def test_fragment_edges_survive_section_and_section_aggregate(tmp_path):
+    a, b = ROOT + "catalog/a", ROOT + "catalog/b"
+    path = _scan(tmp_path, {a: [_edge(a, b + "#part")]}, pages=(a, b))
+    graph = scan_graph(path, section="/catalog/")
+    assert len(graph["edges"]) == 1
+    assert graph["statistics"]["components"] == 1
+    assert scan_graph(path, aggregate="sections")["edges"] == [
+        {"source": ROOT + "catalog/", "target": ROOT + "catalog/", "occurrences": 1}
+    ]
+
+
+def test_node_indexability_uses_canonical_directives_and_retained_robots(tmp_path):
+    import json
+    import sqlite3
+
+    path = _scan(tmp_path, {})
+    with sqlite3.connect(path) as con:
+        con.execute(
+            "UPDATE pages SET meta_robots=? WHERE url_id=(SELECT url_id FROM urls WHERE url=?)",
+            ("none", ROOT),
+        )
+        con.execute(
+            "UPDATE pages SET canonical=? WHERE url_id=(SELECT url_id FROM urls WHERE url=?)",
+            (B, A),
+        )
+        con.execute(
+            "UPDATE pages SET x_robots=? WHERE url_id=(SELECT url_id FROM urls WHERE url=?)",
+            ("bingbot: noindex", B),
+        )
+        target_id = con.execute("SELECT url_id FROM urls WHERE url=?", (TARGET,)).fetchone()[0]
+        con.execute(
+            "INSERT INTO context_items VALUES('robots_blocked_url',?,'scan_context.v1',?,'complete','robots.txt')",
+            (
+                f"url:{target_id}",
+                json.dumps({"url_id": target_id, "token": "*", "policy": "report_only"}),
+            ),
+        )
+    nodes = {node["url"]: node for node in scan_graph(path)["nodes"]}
+    assert (
+        not nodes[ROOT]["indexable"] and nodes[ROOT]["indexability_reason"] == "noindex directive"
+    )
+    assert (
+        not nodes[A]["indexable"]
+        and nodes[A]["indexability_reason"] == "canonicalized to another URL"
+    )
+    assert nodes[B]["indexable"] and nodes[B]["indexability_state"] == "indexable_candidate"
+    assert nodes[TARGET]["robots_blocked"] and nodes[TARGET]["robots_policy"] == "report_only"
+    assert not nodes[TARGET]["indexable"]
