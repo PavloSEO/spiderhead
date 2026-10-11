@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 from seohead.checks.sitemap import MAX_SITEMAPS, normalize_url
 from seohead.crawl.sitemap_capture import SourceRoot, capture_declared_roots
@@ -16,6 +17,11 @@ def initial_sitemaps(
     return ((normalize_url(explicit), source),) if explicit else ()
 
 
+def _conventional_sitemap(start_url: str) -> str:
+    parts = urlsplit(start_url)
+    return normalize_url(urlunsplit((parts.scheme, parts.netloc, "/sitemap.xml", "", "")))
+
+
 def load_sitemaps(
     scan: Any,
     emit_seeds: Callable[[Iterable[str]], None],
@@ -24,6 +30,7 @@ def load_sitemaps(
     result: dict[str, Any],
     request_gate: Callable[[], None] | None = None,
     proxy_route=None,
+    start_url: str | None = None,
 ) -> None:
     selected = scan.sitemap_roots()
     if settings["sitemaps"]["auto_discover"] and not any(
@@ -45,6 +52,13 @@ def load_sitemaps(
                 raise ScanError("selected sitemap root limit reached")
             selected_keys.add(key)
             scan.declare_sitemap(key, "robots", len(selected_keys) - 1)
+        # robots.txt that declares no Sitemap falls back to the conventional /sitemap.xml.
+        if (
+            not selected_keys
+            and start_url
+            and not any(root["source"] == "fallback" for root in selected)
+        ):
+            scan.declare_sitemap(_conventional_sitemap(start_url), "fallback", 0)
         selected = scan.sitemap_roots()
     result.update(
         sitemap_url=selected[0]["url"] if selected else None,
@@ -80,7 +94,10 @@ def load_sitemaps(
     )
     if pending:
         emit_seeds(pending)
-    if any(not outcome.complete for outcome in outcomes):
+    # A conventional /sitemap.xml is a guess: when it is absent the root stays recorded as
+    # incomplete, but that alone must not interrupt a crawl that robots.txt never promised.
+    guessed_only = bool(selected) and all(root["source"] == "fallback" for root in selected)
+    if any(not outcome.complete for outcome in outcomes) and not guessed_only:
         scan.interrupt("sitemap expansion is incomplete")
     elif any(root["source"] == "sitemap-only" for root in selected) and not declared_count:
         raise ScanError("sitemap-only source declared no crawlable URL members")

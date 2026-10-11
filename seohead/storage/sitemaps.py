@@ -57,7 +57,7 @@ def validate_context(
             type(ordinal) is not int
             or not 0 <= ordinal < MAX_SELECTED_ROOTS
             or item["item_key"] != f"ordinal:{ordinal}"
-            or payload["source"] not in {"explicit", "robots", "sitemap-only"}
+            or payload["source"] not in {"explicit", "robots", "fallback", "sitemap-only"}
         ):
             raise ScanError("invalid sitemap declaration source/order")
     elif kind == "sitemap_declared_url":
@@ -119,7 +119,7 @@ def declare(con: sqlite3.Connection, url: str, source: str, ordinal: int) -> int
         type(url) is not str
         or not url
         or type(source) is not str
-        or source not in {"explicit", "robots", "sitemap-only"}
+        or source not in {"explicit", "robots", "fallback", "sitemap-only"}
         or type(ordinal) is not int
         or ordinal < 0
     ):
