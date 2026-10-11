@@ -49,13 +49,14 @@ def test_raw_multitoken_stylesheet_rel_remains_render_blocking(rel):
     assert parsed["render_blocking"] == ["https://example.com/style.css"]
 
 
-def test_unstored_native_render_blocking_survives_jsonl_projection():
+@pytest.mark.parametrize("html", [HEAD_HTML, "<html><head></head><body>clean</body></html>"])
+def test_unstored_native_render_blocking_survives_jsonl_projection(html):
     from dataclasses import asdict
 
     from seohead.crawl.collect import CrawlResult, PageRecord, _record_from_parsed
     from seohead.crawl.evidence import build_evidence
 
-    parsed = parse_html(HEAD_HTML, "https://example.com/page")
+    parsed = parse_html(html, "https://example.com/page")
     record = PageRecord(
         url="https://example.com/page",
         status_code=200,
@@ -67,9 +68,30 @@ def test_unstored_native_render_blocking_survives_jsonl_projection():
     ctx = AuditContext(LoadedExports(frames=evidence["frames"]), load_config(None))
     assert ctx.scan_con is None
     check_render_blocking(ctx)
-    issue = next(i for i in ctx.issues if i.check == "RENDER_BLOCKING")
-    assert issue.details["resources"] == parsed["render_blocking"]
+    if parsed["render_blocking"]:
+        issue = next(i for i in ctx.issues if i.check == "RENDER_BLOCKING")
+        assert issue.details["resources"] == parsed["render_blocking"]
+    else:
+        assert ctx.issues == []
+    assert ctx.skipped == []
     assert ctx.asset_measurements["RENDER_BLOCKING"]["state"] == "complete"
+
+
+def test_unstored_native_missing_render_blocking_stays_unavailable():
+    from dataclasses import asdict
+
+    from seohead.crawl.collect import CrawlResult, PageRecord, _record_from_parsed
+    from seohead.crawl.evidence import build_evidence
+
+    assert _record_from_parsed({})["render_blocking"] is None
+    record = PageRecord(url="https://example.com/", status_code=200, content_type="text/html")
+    restored = PageRecord(**json.loads(json.dumps(asdict(record))))
+    evidence = build_evidence(CrawlResult(pages=[restored]))
+    ctx = AuditContext(LoadedExports(frames=evidence["frames"]), load_config(None))
+    check_render_blocking(ctx)
+    assert ctx.issues == []
+    assert "RENDER_BLOCKING" in {s.id for s in ctx.skipped}
+    assert ctx.asset_measurements["RENDER_BLOCKING"]["state"] == "unavailable"
 
 
 def test_parse_html_without_head_resources_is_empty():

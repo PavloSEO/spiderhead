@@ -352,7 +352,7 @@ def _record_from_parsed(parsed: dict) -> dict[str, Any]:
         "doctype": _text_of(parsed.get("doctype")),
         "viewport": _text_of(parsed.get("viewport")),
         "meta_refresh": _text_of(parsed.get("meta_refresh")),
-        "render_blocking": "\n".join(parsed["render_blocking"])
+        "render_blocking": json.dumps(parsed["render_blocking"])
         if "render_blocking" in parsed
         else None,
         "title_outside_head": position.get("title_outside_head"),
