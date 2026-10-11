@@ -130,3 +130,43 @@ def test_latest_project_scan_refuses_when_no_complete_scan_exists(tmp_path):
     project = _project(tmp_path)
     with pytest.raises(ValueError, match="no finished, complete audited scan"):
         latest_project_scan(str(project))
+
+
+def test_default_report_of_streamed_latest_scan_names_the_next_step(tmp_path):
+    from seohead.mcp import handlers
+    from seohead.sf.core.models import AuditResult, Issue, Page
+    from seohead.storage.native_scan import NativeScan
+
+    project = _project(tmp_path)
+    path = project / "scans" / "streamed.sqlite"
+    config = load(overrides={"speed.min_delay_seconds": 0, "limits.max_urls": 500})
+    metadata = {**_metadata(), "config": config, "config_fingerprint": fingerprint(config)}
+    with NativeScan.create(path, **metadata) as scan:
+        scan.enqueue([("https://example.test/", 0)])
+        lease = scan.claim(1)[0]
+        scan.commit_page(
+            lease,
+            _record(lease.url),
+            captures=[_event(lease.url, b"<html>body</html>")],
+            runtime=_runtime(),
+        )
+        result = AuditResult(
+            run={"input_mode": "crawl", "generated_at": "2026-10-04T00:00:00Z"},
+            summary={"totals": {}, "by_severity": {}, "by_check": {}, "health_score": None},
+            issues=[
+                Issue(check="TITLE_MISSING", severity="warning", source="fixture", message="x")
+            ],
+            pages=[Page(url="https://example.test/", metrics={"title": ""})],
+        )
+        header, collections = result.audit_v2_parts()
+        scan.save_audit_v2(header, collections)
+        assert scan.finish_capture("finished")
+    with sqlite3.connect(path) as con:
+        con.execute(
+            "UPDATE scan SET finished_at=?", ((datetime.now(UTC) - timedelta(days=1)).isoformat(),)
+        )
+
+    assert latest_project_scan(str(project)) == path
+    report = handlers.audit_workflow(directory=str(project), action="report", fmt="md")
+    assert report["ok"], report
+    assert "not bound" in report["notice"]
