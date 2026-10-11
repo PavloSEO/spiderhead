@@ -1,11 +1,11 @@
-import pytest
-
 """Project-bound reports over streamed audit.v2 scans, budget-capped scope, and CLI --input."""
 
 from __future__ import annotations
 
 import sqlite3
 from datetime import datetime, timedelta, timezone
+
+import pytest
 
 from seohead.cli import main as cli_main
 from seohead.crawl.settings import fingerprint, load
