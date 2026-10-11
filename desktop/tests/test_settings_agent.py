@@ -51,12 +51,14 @@ class AgentSectionTests(unittest.TestCase):
         self.assertIs(self.store.get("agent.change_tasks"), True)
         self.assertIs(self.store.get("agent.show_actions"), True)
 
-    def test_rights_switches_write_store_and_paid_provider_is_locked(self):
+    def test_unapplied_rights_are_disabled_off_and_never_written(self):
         page = agent.build_page(self.store, self.context)
+        for name in ("Запускать сканы", "Менять задачи и статусы", "Показывать действия агента"):
+            switch = switch_named(page, name)
+            self.assertFalse(switch.isEnabled(), name)
+            self.assertFalse(switch.isChecked(), name)
         switch_named(page, "Запускать сканы").click()
-        self.assertIs(self.store.get("agent.run_scans"), True)
-        switch_named(page, "Менять задачи и статусы").click()
-        self.assertIs(self.store.get("agent.change_tasks"), False)
+        self.assertIs(self.store.get("agent.run_scans"), False)
         paid = switch_named(page, "Платные провайдеры")
         self.assertTrue(paid.isChecked())
         self.assertFalse(paid.isEnabled())
