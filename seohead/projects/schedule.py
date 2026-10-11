@@ -14,7 +14,7 @@ import os
 import stat
 from collections.abc import Callable
 from datetime import datetime, time, timedelta, timezone
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
@@ -428,6 +428,55 @@ def _list_urls(root: Path, settings: dict[str, Any]) -> list[str]:
     return list(policy.get("urls") or [])
 
 
+def _stored_scan_path(root: Path, value: Any) -> Any:
+    """Keep project-owned scan references portable inside schedule state."""
+    if not isinstance(value, str) or not value:
+        return value
+    path = Path(value)
+    if not path.is_absolute():
+        path = root / path
+    try:
+        return path.resolve().relative_to(root.resolve()).as_posix()
+    except (OSError, ValueError):
+        return value
+
+
+def _resume_scan_path(root: Path, value: Any) -> str | None:
+    """Resolve relative state and rebase legacy absolute refs after project restore."""
+    if not isinstance(value, str) or not value:
+        return None
+    path = Path(value)
+    scans_root = (root / "scans").resolve()
+    if not path.is_absolute() and not PureWindowsPath(value).is_absolute():
+        candidate = (root / path).resolve()
+        try:
+            candidate.relative_to(scans_root)
+        except ValueError as exc:
+            raise ValueError("scheduled resume artifact must be inside project scans") from exc
+        return str(candidate)
+    if path.is_absolute():
+        try:
+            path.resolve().relative_to(scans_root)
+            return str(path.resolve())
+        except (OSError, ValueError):
+            parts = path.parts
+    else:
+        parts = PureWindowsPath(value).parts
+    scan_indexes = [index for index, part in enumerate(parts) if part.lower() == "scans"]
+    if scan_indexes:
+        relative = parts[scan_indexes[-1] + 1 :]
+        if relative and ".." not in relative:
+            rebased = root.joinpath("scans", *relative)
+            try:
+                rebased.resolve().relative_to(scans_root)
+            except (OSError, ValueError):
+                pass
+            else:
+                if rebased.is_file() and not rebased.is_symlink():
+                    return str(rebased)
+    raise ValueError("scheduled resume artifact cannot be resolved inside project scans")
+
+
 def _request(
     settings: dict[str, Any], target: dict[str, Any], state: dict[str, Any], root_dir: Path
 ) -> dict[str, Any]:
@@ -435,7 +484,9 @@ def _request(
     crawl = settings["crawl"]
     agent = settings["user_agent"]
     user_agent = agent["custom"] if agent["custom"] is not None else agent["preset"]
-    artifact = state.get("resume_artifact") if crawl["slice"] else None
+    artifact = (
+        _resume_scan_path(root_dir, state.get("resume_artifact")) if crawl["slice"] else None
+    )
     if artifact and crawl["mode"] == "spider":
         return {"resume": artifact, "project": target["directory"], "approve_large_crawl": False}
     base: dict[str, Any] = {
@@ -719,12 +770,15 @@ def run_due(
                 }
                 results.append(entry)
                 if target_settings["crawl"]["slice"] and entry["partial"] and entry["scan"]:
-                    target_state["resume_artifact"] = entry["scan"]
+                    target_state["resume_artifact"] = _stored_scan_path(
+                        target_root, entry["scan"]
+                    )
                 else:
                     target_state["resume_artifact"] = None
                 target_state["last_window"] = decision["window"]
                 target_state["last_run_at"] = _now()
-                target_state["last_result"] = [entry]
+                stored_entry = {**entry, "scan": _stored_scan_path(target_root, entry["scan"])}
+                target_state["last_result"] = [stored_entry]
                 previous_revision = target_state.get("revision", 0)
                 target_state["revision"] = previous_revision + 1
                 write_document(

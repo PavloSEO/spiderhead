@@ -133,7 +133,9 @@ def _fake_scan(calls, *, partial=False):
         calls.append(kwargs)
         return {
             "ok": True,
-            "scan": f"/scan/{len(calls)}.seohead",
+            "scan": str(
+                Path(kwargs["project"]) / "scans" / f"{len(calls)}.seohead"
+            ),
             "partial": partial,
             "finish_reason": "x",
         }
@@ -302,12 +304,26 @@ def test_slice_mode_resumes_the_previous_partial_artifact(tmp_path):
     )
     calls = []
     schedule.run_due(project, scan=_fake_scan(calls, partial=True), now=_utc("2026-10-12T02:00:00"))
+    state = json.loads((project / "schedule-state.json").read_text(encoding="utf-8"))
+    assert state["resume_artifact"] == "scans/1.seohead"
+    assert state["last_result"][0]["scan"] == "scans/1.seohead"
     schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-13T02:00:00"))
     assert calls[1] == {
-        "resume": "/scan/1.seohead",
+        "resume": str(project / "scans" / "1.seohead"),
         "project": str(project),
         "approve_large_crawl": False,
     }
+
+
+def test_legacy_absolute_resume_path_rebases_inside_restored_project(tmp_path):
+    old_scan = tmp_path / "old-project" / "scans" / "resume.sqlite"
+    old_scan.parent.mkdir(parents=True)
+    old_scan.write_text("synthetic scan", encoding="utf-8")
+    project = _project(tmp_path / "restored")
+    rebased = project / "scans" / old_scan.name
+    rebased.write_text("restored scan", encoding="utf-8")
+
+    assert schedule._resume_scan_path(project, str(old_scan)) == str(rebased)
 
 
 def test_list_mode_uses_project_urls_and_refuses_without_them(tmp_path):
