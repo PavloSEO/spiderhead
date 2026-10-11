@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -108,6 +109,14 @@ _REGISTRY: dict[str, dict[str, Any]] = {
         "privacy_class": "restricted",
         "default_enabled": False,
     },
+    "moz": {
+        "credential_components": ["api_token"],
+        "access": "read_only_paid",
+        "operations": ["backlinks_summary"],
+        "quota_mode": "Moz API plan limits",
+        "privacy_class": "restricted",
+        "default_enabled": False,
+    },
     "indexnow": {
         "credential_components": ["submission_key"],
         "access": "confirmed_write",
@@ -154,6 +163,7 @@ _CREDENTIAL_SOURCES: dict[str, dict[str, tuple[str, str]]] = {
         "login": ("dataforseo/login", "DATAFORSEO_LOGIN"),
         "password": ("dataforseo/password", "DATAFORSEO_PASSWORD"),
     },
+    "moz": {"api_token": ("moz/api_token", "MOZ_API_TOKEN")},
     "indexnow": {"submission_key": ("indexnow/key", "INDEXNOW_KEY")},
 }
 
@@ -219,6 +229,152 @@ def credential_slot(provider: str, component: str) -> dict[str, Any]:
         "source_reference": f"config:{path}",
         "env_reference": f"env:{env_var}",
         "env_shadowed": bool((os.environ.get(env_var) or "").strip()),
+    }
+
+
+def manage_credential(
+    provider: str,
+    component: str,
+    action: str = "status",
+    *,
+    value: str | None = None,
+    replace: bool = False,
+    confirm: bool = False,
+) -> dict[str, Any]:
+    """Inspect, write or revoke one registry-owned credential without returning its value."""
+    slot = credential_slot(provider, component)
+    path, env_var = _CREDENTIAL_SOURCES[provider][component]
+    if action == "status":
+        state = credentials.source_status(path, env_var)
+        result = {
+            "ok": True,
+            "provider": provider,
+            "component": component,
+            **slot,
+            "state": state["state"],
+            "updated_at": None,
+        }
+        if (
+            state["state"] == "configured_unverified"
+            and state["source_reference"] == slot["source_reference"]
+        ):
+            try:
+                result["updated_at"] = datetime.fromtimestamp(
+                    (credentials.CONFIG_ROOT / path).stat().st_mtime, timezone.utc
+                ).isoformat()
+            except OSError:
+                result["state"] = "unavailable"
+        return result
+    if action == "set":
+        if not isinstance(value, str):
+            raise ValueError("credential value must be non-empty text no larger than 65536 bytes")
+        stored = value.removesuffix("\n").removesuffix("\r")
+        if not stored.strip() or len(stored.encode("utf-8")) > 65536:
+            raise ValueError("credential value must be non-empty text no larger than 65536 bytes")
+        if any(ord(char) < 32 or ord(char) == 127 for char in stored):
+            raise ValueError("credential value contains an unsupported character")
+        credentials.write_secret(path, stored, replace=replace)
+        return {
+            "ok": True,
+            "provider": provider,
+            "component": component,
+            "source_reference": slot["source_reference"],
+            "env_shadowed": slot["env_shadowed"],
+            "updated_at": datetime.fromtimestamp(
+                (credentials.CONFIG_ROOT / path).stat().st_mtime, timezone.utc
+            ).isoformat(),
+            "replaced": replace,
+        }
+    if action == "revoke":
+        if confirm is not True:
+            raise ValueError("credential revocation requires confirm=true")
+        removed = credentials.revoke_secret(path)
+        return {
+            "ok": True,
+            "provider": provider,
+            "component": component,
+            "source_reference": slot["source_reference"],
+            "env_shadowed": slot["env_shadowed"],
+            "revoked": removed,
+        }
+    raise ValueError("action must be status, set, or revoke")
+
+
+def provider_discover(
+    provider: str, *, domain: str | None = None, transport: Any = None
+) -> dict[str, Any]:
+    """List resources visible to an authenticated account; never select or bind them."""
+    if provider not in {"google", "yandex", "topvisor"}:
+        raise ValueError("provider must be google, yandex, or topvisor")
+    if domain is not None and (
+        not isinstance(domain, str) or not domain.strip() or len(domain) > 253
+    ):
+        raise ValueError("domain must be a bounded hostname")
+    if provider == "google":
+        from seohead.data_sources.gsc import discover_properties
+
+        result = discover_properties(transport=transport)
+        rows = result.get("properties", []) if result.get("ok") else []
+        resources = [
+            {"service": "gsc", "resource": row.get("site_url"), "label": row.get("site_url")}
+            for row in rows
+            if isinstance(row, dict) and isinstance(row.get("site_url"), str)
+        ]
+    elif provider == "yandex":
+        from seohead.data_sources.yandex_webmaster import collect
+
+        result = collect("hosts", transport=transport)
+        data = result.get("data", {}) if result.get("ok") else {}
+        hosts = data.get("hosts", []) if isinstance(data, dict) else []
+        resources = [
+            {
+                "service": "webmaster",
+                "resource": row.get("host_id"),
+                "label": row.get("ascii_host_url"),
+            }
+            for row in hosts
+            if isinstance(row, dict) and isinstance(row.get("host_id"), str)
+        ]
+    else:
+        from seohead.data_sources.topvisor import fetch
+
+        result = fetch("projects", {"limit": 100, "offset": 0})
+        rows = result.get("result", []) if result.get("ok") else []
+        resources = [
+            {
+                "service": "topvisor",
+                "resource": str(row.get("id")),
+                "label": row.get("name"),
+            }
+            for row in rows
+            if isinstance(row, dict) and row.get("id") is not None
+        ]
+    if domain:
+        from urllib.parse import urlsplit
+
+        needle = domain.strip().lower()
+        if "://" in needle:
+            needle = urlsplit(needle).hostname or needle
+        needle = needle.removeprefix("www.")
+        for item in resources:
+            raw = str(item.get("label") or item.get("resource") or "")
+            host = (
+                raw.removeprefix("sc-domain:").lower()
+                if raw.startswith("sc-domain:")
+                else (urlsplit(raw).hostname or "").lower()
+            )
+            item["domain_match"] = (
+                host.removeprefix("www.") == needle if host else None
+            )
+    return {
+        "ok": bool(result.get("ok")),
+        "provider": provider,
+        "resources": resources,
+        "count": len(resources),
+        "truncated": bool(result.get("nextOffset")),
+        "selected": False,
+        "error": result.get("error"),
+        "note": "discovery lists visible resources only; it does not bind or select one",
     }
 
 
@@ -590,6 +746,7 @@ def provider_verify(
         if provider in {"gsc", "ga4"}:
             result["service_account_status"] = credentials.gsc_service_account_status()
         return result
+    started = time.monotonic()
     if provider == "gsc":
         from seohead.data_sources.gsc import discover_properties
 
@@ -617,6 +774,38 @@ def provider_verify(
             }
         else:
             result = {"ok": True, "balance": balance}
+    elif provider in {"ga4", "metrika", "pagespeed", "crux"}:
+        operation = {
+            "ga4": "landing_pages",
+            "metrika": "counters",
+            "pagespeed": "mobile_samples",
+            "crux": "current",
+        }[provider]
+        required = {
+            "ga4": ("property_id", "start_date", "end_date"),
+            "metrika": (),
+            "pagespeed": ("urls",),
+            "crux": (),
+        }[provider]
+        missing = any(not request.get(name) for name in required) or (
+            provider == "crux" and bool(request.get("url")) == bool(request.get("origin"))
+        )
+        if missing:
+            return {
+                "ok": False,
+                "provider": provider,
+                "state": "verification_input_required",
+                "readiness_state": readiness,
+                "permission_state": "unknown",
+                "target_access": "not_requested",
+                "verified": False,
+                "required_fields": list(required)
+                or (["url or origin"] if provider == "crux" else []),
+                "credential_components": components,
+                "credential_sources": sources,
+                "quota_state": "unknown",
+            }
+        result = provider_collect(provider, operation, request, transport=transport)
     else:
         return {
             "ok": False,
@@ -685,7 +874,8 @@ def provider_verify(
         "selected_reference": _reference(target),
         "granted_scopes": result.get("scopes") or "unknown",
         "quota_mode": _REGISTRY[provider]["quota_mode"],
-        "quota_state": "unknown",
+        "quota_state": result.get("quota_state", "unknown"),
+        "response_time_ms": round((time.monotonic() - started) * 1000, 1),
         "contract_compatible": authenticated and target_access in {"verified", "not_requested"},
         "error": result.get("error"),
     }

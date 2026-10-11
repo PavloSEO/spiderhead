@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import socket
+import urllib.parse
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -183,6 +184,8 @@ def test_flow_record_is_private_and_holds_no_grant_material(tmp_path):
         "status",
         "created_at",
         "expires_at",
+        "connected_at",
+        "token_expires_at",
     }
     assert record["status"] == "waiting"
     assert record["state_sha256"] == oauth_flow.hash_state(state)
@@ -255,3 +258,76 @@ def test_symlinked_flow_record_is_refused(tmp_path, monkeypatch):
 
     with pytest.raises(ValueError, match="symlinks"):
         oauth.manage_grant("gsc", "status")
+
+
+def test_oauth_callback_state_is_one_time_and_expires_or_cancels(tmp_path):
+    path = _flow_file(tmp_path)
+    now = datetime(2026, 10, 10, 12, 0, tzinfo=timezone.utc)
+    flow, state = oauth_flow.create_flow(path, now)
+
+    assert oauth_flow.verify_callback_state(path, state, now)["flow_id"] == flow["flow_id"]
+    oauth_flow.cancel_flow(path, now)
+    with pytest.raises(ValueError, match="oauth_flow_not_waiting"):
+        oauth_flow.verify_callback_state(path, state, now)
+
+    expired_path = _flow_file(tmp_path / "expired")
+    expired_path.parent.mkdir(parents=True)
+    _, expired_state = oauth_flow.create_flow(expired_path, now)
+    with pytest.raises(ValueError, match="oauth_flow_not_waiting"):
+        oauth_flow.verify_callback_state(
+            expired_path, expired_state, now + timedelta(seconds=600)
+        )
+    other_path = _flow_file(tmp_path / "other")
+    other_path.parent.mkdir(parents=True)
+    oauth_flow.create_flow(other_path, now)
+    with pytest.raises(ValueError, match="state_mismatch"):
+        oauth_flow.verify_callback_state(other_path, "bad", now)
+
+
+def test_callback_completion_records_verified_exchange_times(tmp_path):
+    path = _flow_file(tmp_path)
+    now = datetime(2026, 10, 10, 12, 0, tzinfo=timezone.utc)
+    flow, state = oauth_flow.create_flow(path, now)
+    oauth_flow.verify_callback_state(path, state, now)
+
+    connected = oauth_flow.complete_flow(path, flow, now, 3600)
+
+    assert connected["status"] == "connected"
+    assert connected["connected_at"] == now.isoformat()
+    assert connected["token_expires_at"] == (now + timedelta(seconds=3600)).isoformat()
+
+
+def test_oauth_consent_start_and_callback_are_redacted_and_mockable(tmp_path, monkeypatch):
+    monkeypatch.setattr(oauth, "CONFIG_ROOT", tmp_path / "config")
+    monkeypatch.setenv("GSC_OAUTH_CLIENT_ID", "synthetic-client.apps.example.test")
+    monkeypatch.setenv("GSC_OAUTH_CLIENT_SECRET", "synthetic-client-secret")
+    monkeypatch.setenv("GSC_OAUTH_REDIRECT_URI", "http://localhost:8765/oauth/callback")
+
+    started = oauth.manage_grant("gsc", "start")
+    query = urllib.parse.parse_qs(urllib.parse.urlsplit(started["authorization_url"]).query)
+    observed = {}
+
+    def exchange(payload):
+        observed.update(payload)
+        return {
+            "access_token": "synthetic-access-token",
+            "refresh_token": "synthetic-refresh-token",
+            "expires_in": 3600,
+            "scope": _SCOPE,
+        }
+
+    connected = oauth.manage_grant(
+        "gsc",
+        "callback",
+        state=query["state"][0],
+        code="synthetic-code",
+        exchange_transport=exchange,
+    )
+
+    public = json.dumps({"started": started, "connected": connected})
+    assert "synthetic-client-secret" not in public
+    assert "synthetic-access-token" not in public
+    assert "synthetic-refresh-token" not in public
+    assert observed["code"] == "synthetic-code"
+    assert connected["flow"]["status"] == "connected"
+    assert connected["flow"]["token_expires_at"]

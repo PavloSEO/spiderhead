@@ -21,7 +21,7 @@ from seohead.projects.workspace import _load
 SOURCES_FILE = "sources.json"
 SOURCES_FORMAT = "seohead.project.sources.v1"
 SOURCES_VERSION = 1
-SERVICES = ("gsc", "ga4", "gtm", "metrika", "webmaster", "bing", "topvisor")
+SERVICES = ("gsc", "ga4", "gtm", "metrika", "webmaster", "bing", "topvisor", "cloudflare")
 MAX_BINDINGS = 200
 _MAX_BYTES = 262_144
 _MAX_RESOURCE = 512

@@ -40,6 +40,15 @@ def test_project_json_is_never_rewritten(tmp_path):
     assert (project / "project.json").read_bytes() == before
 
 
+def test_cloudflare_zone_id_can_be_bound_without_provider_discovery(tmp_path):
+    project = _project(tmp_path)
+
+    linked = bindings.link(project, "cloudflare", "zone-123", label="Example zone")
+
+    assert linked["binding"]["service"] == "cloudflare"
+    assert linked["binding"]["resource"] == "zone-123"
+
+
 def test_relinking_the_same_pair_is_idempotent(tmp_path):
     project = _project(tmp_path)
     bindings.link(project, "metrika", "42")

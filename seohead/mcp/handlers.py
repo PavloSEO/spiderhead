@@ -6056,11 +6056,16 @@ def provider_replay(
 
 
 def provider_auth(
-    provider: str, action: str = "status", grant_file: str | None = None, confirm: bool = False
+    provider: str,
+    action: str = "status",
+    grant_file: str | None = None,
+    confirm: bool = False,
+    state: str | None = None,
+    code: str | None = None,
 ) -> dict[str, Any]:
     from seohead.data_sources.oauth import manage_grant
 
-    return manage_grant(provider, action, grant_file, confirm)
+    return manage_grant(provider, action, grant_file, confirm, state=state, code=code)
 
 
 def provider_registry() -> dict[str, Any]:
@@ -6079,6 +6084,25 @@ def provider_verify(provider: str, request: dict[str, Any] | None = None) -> dic
     from seohead.mcp.provider_handlers import provider_verify as core
 
     return core(provider, request)
+
+
+def provider_credential(
+    provider: str,
+    component: str,
+    action: str = "status",
+    confirm: bool = False,
+    value: str | None = None,
+    replace: bool = False,
+) -> dict[str, Any]:
+    from seohead.mcp.provider_handlers import provider_credential as core
+
+    return core(provider, component, action, confirm, value, replace)
+
+
+def provider_discover(provider: str, domain: str | None = None) -> dict[str, Any]:
+    from seohead.mcp.provider_handlers import provider_discover as core
+
+    return core(provider, domain)
 
 
 def provider_collect(
@@ -7290,6 +7314,8 @@ _RAW_HANDLERS = {
     "provider_registry": provider_registry,
     "provider_readiness": provider_readiness,
     "provider_verify": provider_verify,
+    "provider_credential": provider_credential,
+    "provider_discover": provider_discover,
     "provider_collect": provider_collect,
     "provider_join": provider_join,
     "evidence_normalize": evidence_normalize,

@@ -395,3 +395,29 @@ def test_arsenkin_verify_maps_rejected_token_to_invalid(monkeypatch, tmp_path):
     assert result["permission_state"] == "invalid"
     assert result["verified"] is False
     assert "synthetic-arsenkin-canary" not in json.dumps(result)
+
+
+def test_pagespeed_verify_runs_an_explicit_sample_and_reports_elapsed_time(monkeypatch):
+    monkeypatch.setattr(
+        providers,
+        "_credential_details",
+        lambda _provider: ({"api_key": True}, {"api_key": {"state": "configured_unverified"}}),
+    )
+    monkeypatch.setattr(providers, "_readiness_state", lambda *_args: "configured_unverified")
+    monkeypatch.setattr(
+        providers,
+        "provider_collect",
+        lambda provider, operation, request, transport=None: {
+            "ok": True,
+            "provider": provider,
+            "operation": operation,
+            "samples": [{"url": request["urls"][0]}],
+        },
+    )
+
+    result = providers.provider_verify("pagespeed", {"urls": ["https://example.test/"]})
+
+    assert result["ok"] is True
+    assert result["permission_state"] == "authenticated_account"
+    assert result["response_time_ms"] >= 0
+    assert result["quota_state"] == "unknown"

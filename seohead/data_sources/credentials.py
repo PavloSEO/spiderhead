@@ -136,6 +136,8 @@ def source_status(path: str, env_var: str) -> dict[str, Any]:
         }
 
     candidate = CONFIG_ROOT / path
+    if candidate.is_symlink() or candidate.parent.is_symlink():
+        return _invalid_source(path, accepted, "configured credential path uses a symlink")
     try:
         info = candidate.stat()
     except FileNotFoundError:
@@ -146,8 +148,10 @@ def source_status(path: str, env_var: str) -> dict[str, Any]:
         }
     except OSError:
         return _invalid_source(path, accepted, "configured credential file is unreadable")
-    if not candidate.is_file():
-        return _invalid_source(path, accepted, "configured credential path is not a regular file")
+    if not candidate.is_file() or not is_private_mode(info.st_mode):
+        return _invalid_source(
+            path, accepted, "configured credential path is not a private regular file"
+        )
     if info.st_size > 1024 * 1024:
         return _invalid_source(path, accepted, "configured credential file exceeds 1 MiB")
     try:

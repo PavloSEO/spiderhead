@@ -2962,12 +2962,12 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
     def seo_provider_auth(
         provider: str,
         action: Literal[
-            "status", "connect", "refresh", "cancel", "disconnect", "revoke"
+            "status", "start", "connect", "refresh", "cancel", "disconnect", "revoke"
         ] = "status",
         grant_file: str | None = None,
         confirm: bool = False,
     ) -> dict[str, Any]:
-        """Manage GSC read-only OAuth grants: import private file, refresh, cancel a pending flow, or explicitly revoke. Never returns secrets."""
+        """Manage GSC read-only OAuth: start consent, inspect/cancel flows, import grants, refresh or confirm revocation. Never returns tokens."""
         return _checked(
             handlers.provider_auth(
                 provider=provider, action=action, grant_file=grant_file, confirm=confirm
@@ -2994,6 +2994,23 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
     def seo_provider_verify(provider: str, request: dict[str, Any] | None = None) -> dict[str, Any]:
         """Explicitly verify bounded read-only account/target access; present credentials are not verification."""
         return _checked(handlers.provider_verify(provider, request))
+
+    @mcp.tool(annotations=submit, structured_output=True)
+    def seo_provider_credential(
+        provider: str,
+        component: str,
+        action: Literal["status", "revoke"] = "status",
+        confirm: bool = False,
+    ) -> dict[str, Any]:
+        """Inspect or explicitly revoke a provider credential; secret writes stay on the local CLI."""
+        return _checked(handlers.provider_credential(provider, component, action, confirm))
+
+    @mcp.tool(annotations=fetch, structured_output=True)
+    def seo_provider_discover(
+        provider: Literal["google", "yandex", "topvisor"], domain: str | None = None
+    ) -> dict[str, Any]:
+        """List account-visible provider resources; discovery does not bind or select them."""
+        return _checked(handlers.provider_discover(provider, domain))
 
     @mcp.tool(annotations=paid, structured_output=True)
     def seo_provider_collect(

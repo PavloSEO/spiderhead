@@ -47,7 +47,7 @@ and inputs remain in the nearby route sections and generated tool reference.
 `project-priorities` · `project-progress` · `project-scans` · `project-sources-link` · `project-sources-list`
 · `project-sources-unlink` · `project-start` · `project-status` · `project-task-detail` ·
 `project-view-delete` · `project-view-list` · `project-view-rename` · `project-view-save` ·
-`project-view-show` · `provider-auth` · `provider-collect` · `provider-join` · `provider-readiness` ·
+`project-view-show` · `provider-auth` · `provider-credential` · `provider-discover` · `provider-collect` · `provider-join` · `provider-readiness` ·
 `provider-registry` · `provider-replay` · `provider-verify` · `publication-cohorts` · `redirects-check` ·
 `redirects-generate` · `regions-check` · `regions-tree` · `remediation-cases` · `remediation-create` ·
 `remediation-ingest` · `remediation-recheck` · `remediation-record-verification` · `remediation-report` ·
@@ -149,7 +149,7 @@ not the geographic region `key`; `summary` takes the singular `region_index`.
 | `project-new` | Create a portable local project with site facts and custom template/profile references; does not execute a checklist | no |
 | `project-open` | Validate and open a saved project without rewriting it | no |
 | `project-status` | Show scan history and explicit pending checklist/preparation states | no |
-| `project-sources-link` | Bind a provider resource ID (`--service`, `--resource`, optional `--label`) to a project in `sources.json`; no provider call or discovery | no |
+| `project-sources-link` | Bind a provider resource ID (`--service`, `--resource`, optional `--label`; Cloudflare uses zone IDs) to a project in `sources.json`; no provider call or discovery | no |
 | `project-sources-unlink` | Remove one `(service, resource)` binding from `sources.json` | no |
 | `project-sources-list` | List the project's resource bindings with `status: selected` | no |
 | `project-progress` | Show a compact, bounded page of checklist states and next actions; any percentage is explicitly labelled audit-task completion and requires an agreed scope | no |
@@ -574,7 +574,9 @@ and spend-journal rules.
 |---|---|---|
 | `provider-registry` | Lists declared providers and their bounded operations; it does not verify credentials | no |
 | `provider-readiness` | Reports redacted credential-source states, supported operation routes and their shared JSON call-envelope schema, quota/privacy, and whether verification remains necessary. It makes no provider requests | no |
-| `provider-auth` | Manages a private GSC read-only OAuth grant: status, connect from a private grant file, explicit refresh, cancel of a pending browser flow record (local only), confirmed local disconnect, or confirmed remote revoke. It never returns OAuth material. | refresh/revoke only when requested |
+| `provider-auth` | Manages a private GSC read-only OAuth grant: status, connect from a private grant file, explicit refresh, cancel of a pending browser flow record (local only), confirmed local disconnect, or confirmed remote revoke. It never returns OAuth material. | consent, refresh/revoke only when requested |
+| `provider-credential` | Inspects or explicitly revokes registry credentials; local CLI set/replace reads stdin only. Values never appear in results. | local config write |
+| `provider-discover` | Lists one page/set of resources visible to Google Search Console, Yandex Webmaster or Topvisor. It returns preview records and never creates a project binding. | provider read |
 | `provider-verify` | Performs one explicit read-only credential and optional target-access check. An authenticated account does not by itself prove access to a requested target. | provider read |
 | `provider-collect` | Performs one declared read-only operation and returns a versioned evidence envelope with complete, partial, failed, or skipped state. An optional restricted artifact directory keeps raw rows locally. | provider read; optional local artifact |
 | `provider-join` | Joins supplied crawl pages and collected evidence rows without changing a frontier. It preserves matched, crawl-only, external-only, and unkeyable populations. | no |

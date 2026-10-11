@@ -194,6 +194,8 @@ COMMANDS = (
     "scenario-show",
     "provider-replay",
     "provider-auth",
+    "provider-credential",
+    "provider-discover",
     "provider-registry",
     "provider-readiness",
     "provider-verify",
@@ -849,8 +851,49 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         for name in ("provider", "action", "grant_file"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+        if getattr(args, "action", None) == "callback":
+            if not getattr(args, "callback_stdin", False):
+                raise ValueError("OAuth callback requires --callback-stdin")
+            raw_callback = sys.stdin.read(8193)
+            if len(raw_callback.encode("utf-8")) > 8192:
+                raise ValueError("OAuth callback input exceeds 8192 bytes")
+            try:
+                callback = json.loads(raw_callback)
+            except (TypeError, ValueError) as exc:
+                raise ValueError("OAuth callback input must be a JSON object") from exc
+            if (
+                not isinstance(callback, dict)
+                or set(callback) != {"state", "code"}
+                or not all(isinstance(callback[key], str) for key in ("state", "code"))
+            ):
+                raise ValueError("OAuth callback input must contain string state and code fields")
+            kw["state"], kw["code"] = callback["state"], callback["code"]
+        elif getattr(args, "callback_stdin", False):
+            raise ValueError("--callback-stdin is valid only with --action callback")
         if getattr(args, "confirm", False):
             kw["confirm"] = True
+    elif cmd == "provider-credential":
+        for name in ("provider", "component", "action"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        action = getattr(args, "action", "status")
+        if action == "set":
+            if not getattr(args, "value_stdin", False):
+                raise ValueError("credential set requires --value-stdin")
+            value = sys.stdin.read(65537)
+            if len(value.encode("utf-8")) > 65536:
+                raise ValueError("credential input exceeds 65536 bytes")
+            kw["value"] = value
+            kw["replace"] = bool(getattr(args, "replace", False))
+        elif getattr(args, "value_stdin", False) or getattr(args, "replace", False):
+            raise ValueError("--value-stdin and --replace are valid only with --action set")
+        if getattr(args, "confirm", False):
+            kw["confirm"] = True
+    elif cmd == "provider-discover":
+        kw["provider"] = args.provider
+        if args.domain:
+            kw["domain"] = args.domain
     elif cmd in {"provider-verify", "provider-collect"}:
         for name in ("provider", "operation", "artifact_dir"):
             if getattr(args, name, None) is not None:
@@ -2599,7 +2642,8 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--directory", help="validated local project workspace")
         if cmd != "project-sources-list":
             sub.add_argument(
-                "--service", help="gsc, ga4, gtm, metrika, webmaster, bing or topvisor"
+                "--service",
+                help="gsc, ga4, gtm, metrika, webmaster, bing, topvisor or cloudflare",
             )
             sub.add_argument("--resource", help="provider resource ID, e.g. a GSC property")
         if cmd == "project-sources-link":
@@ -2903,12 +2947,43 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "provider-auth":
         _source_flag(sub, "--provider", help="OAuth provider (gsc)")
         sub.add_argument(
-            "--action", choices=("status", "connect", "refresh", "cancel", "disconnect", "revoke")
+            "--action",
+            choices=(
+                "status",
+                "start",
+                "callback",
+                "connect",
+                "refresh",
+                "cancel",
+                "disconnect",
+                "revoke",
+            ),
         )
         _source_flag(
             sub, "--grant-file", help="private bounded JSON grant obtained through provider consent"
         )
         sub.add_argument("--confirm", action="store_true")
+        sub.add_argument(
+            "--callback-stdin",
+            action="store_true",
+            help="read OAuth callback state and code from stdin JSON",
+        )
+    if cmd == "provider-credential":
+        _source_flag(sub, "--provider", required=True, help="provider registry identifier")
+        _source_flag(sub, "--component", required=True, help="stored credential component")
+        sub.add_argument("--action", choices=("status", "set", "revoke"), default="status")
+        sub.add_argument(
+            "--value-stdin",
+            action="store_true",
+            help="read the credential value from stdin; never pass it as an argument",
+        )
+        sub.add_argument("--replace", action="store_true", help="replace an existing value")
+        sub.add_argument("--confirm", action="store_true", help="confirm credential revocation")
+    if cmd == "provider-discover":
+        _source_flag(
+            sub, "--provider", required=True, choices=("google", "yandex", "topvisor")
+        )
+        sub.add_argument("--domain", help="optional hostname for domain-match hints")
     if cmd in {"provider-verify", "provider-collect"}:
         _source_flag(sub, "--provider", help="provider registry identifier")
     if cmd == "provider-collect":
