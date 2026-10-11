@@ -35,6 +35,8 @@ COMMANDS = (
     "crawl-site",
     "crawl-describe-settings",
     "scan-reanalyze",
+    "scan-graph",
+    "scan-sitemap-generate",
     "log-scan",
     "crawl-diagnose",
     "crawl-diagnose-export",
@@ -433,10 +435,37 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     kw: dict[str, Any] = dict(data)  # --input is the base; flags override/augment
 
     if cmd == "scan-reanalyze":
-        for flag in ("input_path", "out", "producer_build"):
+        for flag in ("input_path", "out", "producer_build", "step", "max_documents"):
             value = getattr(args, flag, None)
             if value is not None:
                 kw[flag] = value
+    elif cmd in {"scan-graph", "scan-sitemap-generate"}:
+        for flag in (
+            "input_path",
+            "positions",
+            "section",
+            "around",
+            "depth",
+            "aggregate",
+            "representation",
+            "node_offset",
+            "edge_offset",
+            "node_limit",
+            "edge_limit",
+            "max_nodes",
+            "max_edges",
+            "compare_to",
+            "timeout_seconds",
+            "max_bytes",
+            "out_dir",
+            "sitemap_base_url",
+            "exclude",
+        ):
+            value = getattr(args, flag, None)
+            if value is not None:
+                kw[flag] = value
+        if getattr(args, "include_images", False):
+            kw["include_images"] = True
     elif cmd == "project-inbox-triage":
         for name in ("entry_id", "actor", "expected_revision"):
             value = getattr(args, name, None)
@@ -1685,6 +1714,54 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--source", dest="input_path", help="retained SQLite scan to read")
         sub.add_argument("--out", help="new derived SQLite file; never overwrites an existing file")
         sub.add_argument("--producer-build", metavar="SHA", help="current analyzer source build")
+        sub.add_argument(
+            "--step",
+            choices=("all", "links.position"),
+            help="full reanalysis or resumable position-only backfill",
+        )
+        sub.add_argument(
+            "--max-documents",
+            type=int,
+            help="position documents per derived batch; only with --step links.position",
+        )
+    if cmd in {"scan-graph", "scan-sitemap-generate"}:
+        _source_flag(
+            sub, "--scan", "--source", dest="input_path", help="retained SQLite scan to read"
+        )
+    if cmd == "scan-sitemap-generate":
+        sub.add_argument("--out-dir", help="fresh output directory for sitemap XML files")
+        sub.add_argument(
+            "--sitemap-base-url",
+            help="absolute public directory URL where the files will be deployed",
+        )
+        sub.add_argument(
+            "--include-images",
+            action="store_true",
+            help="include images from complete retained HTML evidence",
+        )
+        sub.add_argument(
+            "--exclude", action="append", help="URL exclusion glob; repeat for several patterns"
+        )
+    if cmd == "scan-graph":
+        for name in ("positions", "section", "around", "compare-to"):
+            sub.add_argument("--" + name)
+        sub.add_argument("--aggregate", choices=("none", "sections"))
+        sub.add_argument(
+            "--representation",
+            choices=("all", "static", "rendered", "legacy_fragment", "legacy_unknown"),
+        )
+        for name in (
+            "depth",
+            "node-offset",
+            "edge-offset",
+            "node-limit",
+            "edge-limit",
+            "max-nodes",
+            "max-edges",
+            "max-bytes",
+        ):
+            sub.add_argument("--" + name, type=int)
+        sub.add_argument("--timeout-seconds", type=float)
     if cmd in URL_COMMANDS:
         _source_flag(sub, "--url", help="target URL")
     if cmd == "links-check":
@@ -3122,6 +3199,8 @@ def build_parser() -> argparse.ArgumentParser:
         "url-query",
         "url-detail",
         "link-inspect",
+        "graph",
+        "sitemap-generate",
         "status",
         "rendered-routes",
         "content-search",

@@ -34,6 +34,8 @@ and this decision makes no backend migration.
 | `crawl-site` | Live URL (`url`)<br>URL list (`urls`)<br>Local file (`urls_file`)<br>Scan artifact (`resume`)<br>Local configuration (`config`)<br>Project directory (`project`) | TXT, CSV, XLSX, or XML URL input; Resumes retained crawl evidence and continues network collection.; Defaults the target and scans/ path; explicit paths, legacy output and resume keep their route. |
 | `crawl-describe-settings` | No direct input | — |
 | `scan-reanalyze` | Scan artifact (`scan`) | — |
+| `scan-graph` | Scan artifact (`scan`)<br>Scan artifact (`compare_to`)<br>Selector (`positions, section, around, depth, aggregate, representation, node_offset, edge_offset, node_limit, edge_limit, max_nodes, max_edges, timeout_seconds, max_bytes`) | Reads a bounded retained graph offline; missing evidence and clipping stay explicit.; Optional retained comparison source. |
+| `scan-sitemap-generate` | Scan artifact (`scan`); requires `out_dir, sitemap_base_url`<br>Local directory (`out_dir`)<br>Selector (`sitemap_base_url, include_images, exclude`) | Deployment base URL sets output scope; it is never fetched.; Fresh exclusive output directory; never deploys. |
 | `log-scan` | Local directory (`run`)<br>Scan artifact (`run`) | — |
 | `crawl-diagnose` | Scan artifact (`scan`)<br>Local directory (`run`) | Choose one retained source; diagnosis is offline and read-only. |
 | `crawl-diagnose-export` | Scan artifact (`scan`); requires `export`<br>Local directory (`run`); requires `export`<br>Local file (`export`) | Choose one retained source and a new redacted export destination; refuses overwrite. |

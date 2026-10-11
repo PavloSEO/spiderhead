@@ -1775,7 +1775,11 @@ def _audit_crawl_result(
     # (SITEMAP_DESYNC and the "in_sitemap_and_linked"-shaped summary keys) is cruder
     # than the dedicated reconciliation below, so those three summary keys are
     # overwritten by it further down rather than the other way around.
-    if offline:
+    if stored_scan is not None:
+        from seohead.sf.core.native_sitemap import run_retained_sitemap
+
+        measured = run_retained_sitemap(ctx, stored_sitemap, start_url=url or "")
+    elif offline:
         reason = "offline reanalysis has no retained sitemap XML, robots.txt, or lastmod evidence"
         for check in (
             "SITEMAP_NOT_IN_ROBOTS",
@@ -1819,14 +1823,9 @@ def _audit_crawl_result(
         if (measured.get("sitemaps") or measured.get("declared_in_robots") is not None)
         else {}
     )
-    if stored_scan is not None and (stored_sitemap is None or not stored_sitemap.available):
-        reason = (
-            stored_sitemap.reason if stored_sitemap is not None else "no saved sitemap declarations"
-        )
-        for check in ("SITEMAP_ORPHAN", "URL_NOT_IN_SITEMAP", "SITEMAP_DESYNC"):
-            ctx.skip(check, reason)
-        sitemap_summary.update(reconciliation_available=False, reconciliation_reason=reason)
-    if sitemap_seed["declared"] or (stored_sitemap is not None and stored_sitemap.available):
+    if stored_scan is not None:
+        sitemap_summary = measured
+    if stored_scan is None and sitemap_seed["declared"]:
         # "Reached by following links" — not merely fetched, since a seeded
         # URL is fetched regardless of whether anything links to it. Three
         # disjoint facts, reported under the check ids the Screaming Frog
@@ -2175,6 +2174,36 @@ def _audit_crawl_result(
     else:
         for check_id in security_headers.CHECK_IDS:
             ctx.skip(check_id, "crawl was not stored; per-URL response headers are not retained")
+
+    if stored_scan is not None:
+        from seohead.storage.retained_link_findings import RetainedLinkFindings
+
+        with RetainedLinkFindings(
+            stored_scan.con,
+            max_locations=audit_config.get("output", {}).get("max_locations_per_issue", 200),
+            hop_cap=ctx.thresholds.get("redirect_hop_cap", 20),
+        ) as retained_links:
+            for item in retained_links.findings():
+                ctx.add(item.pop("check"), **item)
+            if stored_scan.con.execute("SELECT 1 FROM links LIMIT 1").fetchone() is None:
+                for check in (
+                    "BROKEN_INTERNAL_LINK",
+                    "LINK_TO_5XX",
+                    "INTERNAL_LINK_TO_REDIRECT",
+                    "INTERNAL_LINK_NO_ANCHOR",
+                ):
+                    ctx.skip(check, "native scan retains no hyperlink occurrences")
+            external_summary = getattr(result, "external_summary", None)
+            if not external_summary:
+                ctx.skip(
+                    "EXTERNAL_NO_RESPONSE",
+                    "native external destination checks were not captured; enable discovery.external.crawl",
+                )
+            elif not sum(int(external_summary.get(key) or 0) for key in ("fetched", "failed")):
+                ctx.skip(
+                    "EXTERNAL_NO_RESPONSE",
+                    "captured external phase attempted no measurable destinations; its summary records skipped or blocked targets",
+                )
 
     # A broken bookmark is not a link-status problem: the fragment resolves
     # inside the retained destination document, which only a native scan keeps
@@ -4781,11 +4810,83 @@ def sources_export(
     )
 
 
-def scan_reanalyze(input_path: str, out: str, producer_build: str | None = None) -> dict[str, Any]:
+def scan_reanalyze(
+    input_path: str,
+    out: str,
+    producer_build: str | None = None,
+    step: str = "all",
+    max_documents: int | None = None,
+) -> dict[str, Any]:
     """Derive a fresh SQLite scan by parsing retained evidence without network access."""
     from seohead.mcp.reanalysis_handlers import reanalyze_scan
 
-    return reanalyze_scan(input_path=input_path, out=out, producer_build=producer_build)
+    return reanalyze_scan(
+        input_path=input_path,
+        out=out,
+        producer_build=producer_build,
+        step=step,
+        max_documents=max_documents,
+    )
+
+
+def scan_sitemap_generate(
+    input_path: str,
+    out_dir: str,
+    sitemap_base_url: str,
+    include_images: bool = False,
+    exclude: list[str] | None = None,
+) -> dict[str, Any]:
+    """Write XML sitemaps from retained canonical/indexable 200 responses; no network."""
+    from seohead.mcp.scan_sitemaps import generate_scan_sitemaps
+
+    return generate_scan_sitemaps(
+        input_path=input_path,
+        out_dir=out_dir,
+        sitemap_base_url=sitemap_base_url,
+        include_images=include_images,
+        exclude=exclude,
+    )
+
+
+def scan_graph(
+    input_path: str,
+    positions: list[str] | str | None = None,
+    section: str | None = None,
+    around: str | None = None,
+    depth: int = 2,
+    aggregate: str = "none",
+    representation: str = "all",
+    node_offset: int = 0,
+    edge_offset: int = 0,
+    node_limit: int = 1000,
+    edge_limit: int = 2000,
+    max_nodes: int = 5000,
+    max_edges: int = 20000,
+    compare_to: str | None = None,
+    timeout_seconds: float = 1.0,
+    max_bytes: int = 8388608,
+) -> dict[str, Any]:
+    """Read a bounded retained internal graph, its sections and scan-to-scan changes."""
+    from seohead.mcp.history_handlers import scan_graph as core
+
+    return core(
+        input_path=input_path,
+        positions=positions,
+        section=section,
+        around=around,
+        depth=depth,
+        aggregate=aggregate,
+        representation=representation,
+        node_offset=node_offset,
+        edge_offset=edge_offset,
+        node_limit=node_limit,
+        edge_limit=edge_limit,
+        max_nodes=max_nodes,
+        max_edges=max_edges,
+        compare_to=compare_to,
+        timeout_seconds=timeout_seconds,
+        max_bytes=max_bytes,
+    )
 
 
 def scan_list(
@@ -6961,6 +7062,8 @@ _RAW_HANDLERS = {
     "crux_report": crux_report,
     "indexnow_submit": indexnow_submit,
     "scan_reanalyze": scan_reanalyze,
+    "scan_graph": scan_graph,
+    "scan_sitemap_generate": scan_sitemap_generate,
     "scan_list": scan_list,
     "scan_inspect": scan_inspect,
     "scan_url_detail": scan_url_detail,

@@ -20,6 +20,7 @@ from urllib.parse import urlsplit
 
 from seohead.checks.parser import robots_directives
 from seohead.checks.sitemap import normalize_url
+from seohead.crawl.evidence import _same_page
 from seohead.recon.net import normalize_url as normalize_start_url
 from seohead.storage import ScanError, open_scan
 from seohead.storage.analysis_graph import selected_links_cte
@@ -50,6 +51,72 @@ class SqlSitemapReconciliation:
     counts: dict[str, int] = field(default_factory=dict)
     crawl_partial: bool = False
     declared_raw_count: int = 0
+
+    def iter_declared_facts(self) -> Iterator[sqlite3.Row]:
+        """Stream declared URLs with their retained fetch, never a network probe."""
+        if self._con is None or not self._names:
+            return iter(())
+        names = self._names
+        return iter(
+            self._con.execute(
+                f"SELECT u.url,source.url AS sitemap_url,p.status_code,p.canonical,p.meta_robots,p.x_robots,"
+                f"p.redirect_url,p.final_url,b.url_id IS NOT NULL AS blocked "
+                f"FROM {names['declared']} d JOIN urls u ON u.url_id=d.report_url_id "
+                "JOIN urls source ON source.url_id=d.sitemap_url_id "
+                f"LEFT JOIN {names['pages']} n USING(key) LEFT JOIN pages p ON p.url_id=n.url_id "
+                f"LEFT JOIN {names['blocked']} b ON b.url_id=d.report_url_id ORDER BY d.key"
+            )
+        )
+
+    def iter_missing_canonical_pages(self) -> Iterator[sqlite3.Row]:
+        """All fetched eligible pages absent from a complete declared population."""
+        if not self.available or self._con is None:
+            return iter(())
+        names = self._names
+        return iter(
+            self._con.execute(
+                f"SELECT u.url,p.status_code FROM {names['comparable']} c "
+                f"LEFT JOIN {names['declared']} d USING(key) "
+                "JOIN urls u ON u.url_id=c.report_url_id JOIN pages p ON p.url_id=u.url_id "
+                "WHERE d.key IS NULL ORDER BY c.key"
+            )
+        )
+
+    def iter_orphan_facts(self) -> Iterator[sqlite3.Row]:
+        """Stream unlinked declarations with their actual selected sitemap source."""
+        if not self.available or self._con is None:
+            return iter(())
+        names = self._names
+        return iter(
+            self._con.execute(
+                f"SELECT u.url,source.url AS sitemap_url,p.status_code FROM {names['declared']} d "
+                f"LEFT JOIN {names['observed']} o USING(key) JOIN urls u ON u.url_id=d.report_url_id "
+                "JOIN urls source ON source.url_id=d.sitemap_url_id "
+                f"LEFT JOIN {names['pages']} n USING(key) LEFT JOIN pages p ON p.url_id=n.url_id "
+                "WHERE o.key IS NULL ORDER BY d.key"
+            )
+        )
+
+    def count_bucket(self, name: str) -> int:
+        """Count an output population without materializing it."""
+        if name not in _BUCKETS:
+            raise ValueError(f"unknown sitemap bucket: {name}")
+        if not self.available:
+            return 0
+        if name == "in_sitemap_and_linked":
+            return self.counts["urls_in_sitemap"] - self.counts["in_sitemap_not_in_crawl"]
+        if name == "in_sitemap_not_linked":
+            return self.counts["in_sitemap_not_in_crawl"]
+        if name == "linked_not_in_sitemap":
+            return self.counts["in_crawl_not_in_sitemap"]
+        names = self._names
+        return int(
+            self._con.execute(
+                f"SELECT COUNT(*) FROM {names['observed']} o "
+                f"LEFT JOIN {names['comparable']} c USING(key) "
+                f"LEFT JOIN {names['declared']} d USING(key) WHERE c.key IS NULL AND d.key IS NULL"
+            ).fetchone()[0]
+        )
 
     def iter_bucket(self, name: str) -> Iterator[str]:
         """Yield one stored spelling at a time in current normalized-key order."""
@@ -191,6 +258,9 @@ def prepare_sitemap_reconciliation(
         con.execute("PRAGMA query_only=OFF")
     _create_temp(con, names)
     _load_context_membership(con, names)
+    _fill_declared(con, names)
+    _fill_blocked(con, names["blocked"])
+    _fill_comparable(con, names["comparable"], names["blocked"], start_url, names["pages"])
     if not _summaries_complete(con, names):
         return SqlSitemapReconciliation(
             con,
@@ -198,10 +268,7 @@ def prepare_sitemap_reconciliation(
             reason="saved sitemap declaration membership is partial",
             _query_only_before=query_only_before,
         )
-    _fill_declared(con, names)
     _fill_observed(con, names["observed"])
-    _fill_blocked(con, names["blocked"])
-    _fill_comparable(con, names["comparable"], names["blocked"], start_url)
     counts = _counts(con, names)
     crawl_partial = bool(
         con.execute("SELECT crawl_partial FROM scan WHERE singleton=1").fetchone()[0]
@@ -341,17 +408,22 @@ def _temp_names() -> dict[str, str]:
             "sources",
             "members",
             "summaries",
+            "pages",
         )
     }
 
 
 def _create_temp(con: sqlite3.Connection, names: dict[str, str]) -> None:
     for name in ("declared", "observed", "comparable"):
+        extra = ",sitemap_url_id INTEGER NOT NULL" if name == "declared" else ""
         con.execute(
             f"CREATE TEMP TABLE {names[name]} "
-            "(key TEXT PRIMARY KEY, report_url_id INTEGER NOT NULL) WITHOUT ROWID"
+            f"(key TEXT PRIMARY KEY, report_url_id INTEGER NOT NULL{extra}) WITHOUT ROWID"
         )
     con.execute(f"CREATE TEMP TABLE {names['blocked']} (url_id INTEGER PRIMARY KEY) WITHOUT ROWID")
+    con.execute(
+        f"CREATE TEMP TABLE {names['pages']} (key TEXT PRIMARY KEY,url_id INTEGER NOT NULL) WITHOUT ROWID"
+    )
     con.execute(
         f"CREATE TEMP TABLE {names['sources']} (sitemap_url_id INTEGER PRIMARY KEY) WITHOUT ROWID"
     )
@@ -373,13 +445,20 @@ def _normalized(url: str) -> str | None:
 
 
 def _fill_declared(con: sqlite3.Connection, names: dict[str, str]) -> None:
-    for row in _rows(con.execute(f"SELECT url_id FROM {names['members']} ORDER BY ordinal")):
+    for row in _rows(
+        con.execute(
+            f"SELECT m.url_id,m.sitemap_url_id,u.url FROM {names['members']} m "
+            "LEFT JOIN urls u USING(url_id) ORDER BY m.ordinal"
+        )
+    ):
         url_id = int(row["url_id"])
-        row = con.execute("SELECT url FROM urls WHERE url_id=?", (url_id,)).fetchone()
-        if row is None:
+        if row["url"] is None:
             raise SitemapContextError("saved sitemap member references an unknown URL")
-        if key := _normalized(str(row[0])):
-            con.execute(f"INSERT OR IGNORE INTO {names['declared']} VALUES (?,?)", (key, url_id))
+        if key := _normalized(str(row["url"])):
+            con.execute(
+                f"INSERT OR IGNORE INTO {names['declared']} VALUES (?,?,?)",
+                (key, url_id, row["sitemap_url_id"]),
+            )
 
 
 def _fill_observed(con: sqlite3.Connection, table: str) -> None:
@@ -411,16 +490,24 @@ def _fill_blocked(con: sqlite3.Connection, table: str) -> None:
         con.execute(f"INSERT OR IGNORE INTO {table} VALUES (?)", (url_id,))
 
 
-def _fill_comparable(con: sqlite3.Connection, table: str, blocked: str, start_url: str) -> None:
+def _fill_comparable(
+    con: sqlite3.Connection, table: str, blocked: str, start_url: str, pages: str
+) -> None:
     start_host = urlsplit(normalize_start_url(start_url)).netloc.lower()
     for row in _rows(
         con.execute(
-            "SELECT p.url_id,u.url,p.status_code,p.content_type,p.meta_robots,p.x_robots "
+            "SELECT p.url_id,u.url,p.status_code,p.content_type,p.meta_robots,p.x_robots,p.canonical,"
+            "blocked.url_id IS NOT NULL AS blocked "
             "FROM pages AS p JOIN urls AS u ON u.url_id=p.url_id "
             f"LEFT JOIN {blocked} AS blocked ON blocked.url_id=p.url_id "
-            "WHERE blocked.url_id IS NULL ORDER BY p.page_ordinal"
+            "ORDER BY p.page_ordinal"
         )
     ):
+        key = _normalized(str(row["url"]))
+        if key:
+            con.execute(f"INSERT OR IGNORE INTO {pages} VALUES (?,?)", (key, int(row["url_id"])))
+        if row["blocked"]:
+            continue
         status = row["status_code"]
         if status is None or not 200 <= int(status) < 300:
             continue
@@ -430,7 +517,9 @@ def _fill_comparable(con: sqlite3.Connection, table: str, blocked: str, start_ur
             continue
         if "noindex" in robots_directives(str(row["meta_robots"]), str(row["x_robots"])):
             continue
-        if key := _normalized(str(row["url"])):
+        if row["canonical"] and not _same_page(str(row["url"]), str(row["canonical"])):
+            continue
+        if key:
             con.execute(f"INSERT OR IGNORE INTO {table} VALUES (?,?)", (key, int(row["url_id"])))
 
 

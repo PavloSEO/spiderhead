@@ -133,6 +133,40 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
     _command("crawl-describe-settings", "crawl_describe_settings", _form("no_input")),
     _command("scan-reanalyze", "scan_reanalyze", _form("scan_artifact", "input_path")),
     _command(
+        "scan-graph",
+        "scan_graph",
+        _form("scan_artifact", "input_path"),
+        _form("scan_artifact", "compare_to", note="Optional retained comparison source."),
+        _form(
+            "selector",
+            "positions",
+            "section",
+            "around",
+            "depth",
+            "aggregate",
+            "representation",
+            "node_offset",
+            "edge_offset",
+            "node_limit",
+            "edge_limit",
+            "max_nodes",
+            "max_edges",
+            "timeout_seconds",
+            "max_bytes",
+        ),
+        note="Reads a bounded retained graph offline; missing evidence and clipping stay explicit.",
+    ),
+    _command(
+        "scan-sitemap-generate",
+        "scan_sitemap_generate",
+        _form("scan_artifact", "input_path", required_with=("out_dir", "sitemap_base_url")),
+        _form(
+            "local_directory", "out_dir", note="Fresh exclusive output directory; never deploys."
+        ),
+        _form("selector", "sitemap_base_url", "include_images", "exclude"),
+        note="Deployment base URL sets output scope; it is never fetched.",
+    ),
+    _command(
         "log-scan", "log_scan", _form("legacy_directory", "run"), _form("scan_artifact", "run")
     ),
     _command(
@@ -1383,6 +1417,8 @@ def render_markdown() -> str:
         "scan-snapshot",
         "scan-pin",
         "scan-reanalyze",
+        "scan-graph",
+        "scan-sitemap-generate",
     }
 
     def display_arguments(contract: CommandContract, form: InputForm) -> str:

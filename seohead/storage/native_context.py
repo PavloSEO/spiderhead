@@ -65,6 +65,12 @@ def validate_context(
         raise ScanError("native scan context payload is invalid JSON") from exc
     from . import sitemaps
 
+    if item["kind"] == "links.position":
+        from .link_positions import validate_checkpoint
+
+        validate_checkpoint(con, item, payload)
+        return
+
     if item["kind"] == "list_mode":
         if (
             item["item_key"] != "run"

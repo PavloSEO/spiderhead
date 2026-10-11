@@ -22,7 +22,7 @@ from seohead.crawl.spider import LinkEdge
 # "other" is deliberately excluded from both this set and from counting as
 # content: it means "outside a configured, narrower content area", which is
 # neither a recognized boilerplate region nor confirmed content.
-BOILERPLATE_POSITIONS: tuple[str, ...] = ("nav", "header", "sidebar", "footer")
+BOILERPLATE_POSITIONS: tuple[str, ...] = ("nav", "header", "sidebar", "footer", "breadcrumbs")
 
 
 def _is_external(destination: str, internal_host: str) -> bool:

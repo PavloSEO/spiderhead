@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**204 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**210 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -23,6 +23,12 @@ python scripts/generate_checks_reference.py
 | `NON_INDEXABLE_LINKED` | notice | SF-derived | Internally linked page is non-indexable | Decide whether the page should be indexable; otherwise remove unnecessary internal links and account for crawl-budget impact. |
 | `IMPORTANT_URL_BLOCKED_BY_ROBOTS` | warning | SF-derived | Live page is blocked by robots.txt despite receiving internal links | robots.txt blocks crawling, not indexing, so link discovery is lost. Make the URL crawlable with a more specific Allow rule than the matching Disallow, and control indexing with canonical or noindex. A common case is pagination such as /blog?page=N blocked by Disallow: /*?. |
 | `ROBOTS_BLOCKS_RESOURCES` | notice | sitemap | robots.txt blocks JavaScript or CSS resources required for rendering | Do not block .js, .css, or _next/static resources in robots.txt; otherwise Google may render the page incompletely. |
+| `URL_INTERNAL_SEARCH` | notice | SF-derived | URL is a recognized internal search route | Review whether internal search results should be linked or indexable; apply the intended crawl and indexing policy. |
+| `INTERNAL_LINK_NO_ANCHOR` | warning | crawl:retained_links | Internal hyperlink has empty anchor text | Add descriptive text to the internal link, or provide an accessible label for an intentional image or icon link. |
+| `EXTERNAL_NO_RESPONSE` | warning | crawl:external_checks | An explicitly checked external destination did not answer | Review the recorded timeout or connection failure and update or remove the link after confirming the destination is unavailable. |
+| `SITEMAP_URL_NON_CANONICAL` | warning | crawl:sitemap_membership | Sitemap URL declares another canonical URL | List the canonical destination in the sitemap and remove the non-canonical URL. |
+| `SITEMAP_URL_BLOCKED_ROBOTS` | warning | crawl:robots_policy | Sitemap URL is blocked by the retained robots policy | Remove the intentionally blocked URL from the sitemap or allow crawling if the URL should be indexed. |
+| `INTERNALLY_LINKED_ROBOTS_BLOCKED` | warning | crawl:robots_policy | An internally linked URL is blocked by robots.txt | Review the observed internal links and the blocking rule; allow crawling when this page should be discovered and indexed. |
 
 ## 7.B — links & DOM localization
 

@@ -106,10 +106,39 @@ def _drop_retained_only_checks(audit: dict) -> dict:
     # The security-header checks (#1013, and the repeated-header check) read each page's stored
     # response headers, which the legacy graph never keeps: the same retained-only shape as
     # BROKEN_BOOKMARK.
+    # The retained membership/robots and target-response passes (#1306) now have
+    # evidence the legacy in-memory graph never retains. Their contracts are
+    # tested in test_native_sitemap_retained and test_retained_link_findings;
+    # this comparison stays strict for shared graph calculations and findings.
     retained_only = {
         "BROKEN_BOOKMARK",
         "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
         *security_headers.CHECK_IDS,
+        "BROKEN_INTERNAL_LINK",
+        "LINK_TO_5XX",
+        "INTERNAL_LINK_TO_REDIRECT",
+        "REDIRECT_CHAIN",
+        "REDIRECT_LOOP",
+        "INTERNAL_LINK_NO_ANCHOR",
+        "EXTERNAL_NO_RESPONSE",
+        "BROKEN_EXTERNAL_LINK",
+        "EXTERNAL_LINK_TO_REDIRECT",
+        "SITEMAP_URL_3XX",
+        "SITEMAP_URL_4XX_5XX",
+        "SITEMAP_URL_NON_INDEXABLE",
+        "SITEMAP_URL_NON_CANONICAL",
+        "SITEMAP_URL_BLOCKED_ROBOTS",
+        "INTERNALLY_LINKED_ROBOTS_BLOCKED",
+        "ROBOTS_BLOCKS_RESOURCES",
+        "SITEMAP_NOT_IN_ROBOTS",
+        "SITEMAP_FETCH_INCOMPLETE",
+        "SITEMAP_TOO_MANY_URLS",
+        "SITEMAP_TOO_LARGE",
+        "SITEMAP_URL_DUPLICATED",
+        "SITEMAP_STALE_LASTMOD",
+        "SITEMAP_ORPHAN",
+        "URL_NOT_IN_SITEMAP",
+        "SITEMAP_DESYNC",
     }
     document = copy.deepcopy(audit)
     summary = document.get("summary") if isinstance(document.get("summary"), dict) else {}
@@ -117,6 +146,7 @@ def _drop_retained_only_checks(audit: dict) -> dict:
     # Disclosure replays the retained document; token counts use shared graph evidence.
     if isinstance(summary.get("link_rel"), dict):
         summary["link_rel"].pop("disclosure", None)
+    summary.pop("sitemap", None)
 
     removed_ids = {
         issue["id"] for issue in document.get("issues", []) if issue.get("check") in retained_only

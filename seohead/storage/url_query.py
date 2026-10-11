@@ -34,7 +34,7 @@ DEFAULT_COUNT_BUDGET_SECONDS = 1.0
 PROGRESS_OPS = 1000  # SQLite VM steps between deadline checks
 ISSUE_SEVERITIES = ("critical", "warning", "notice")
 MAX_ISSUE_CHECKS = 50
-_ISSUE_CHECK = re.compile(r"[a-z0-9][a-z0-9_.-]{0,99}")
+_ISSUE_CHECK = re.compile(r"[a-z0-9][a-z0-9_.-]{0,99}", re.I)
 
 
 class QueryError(Exception):
@@ -624,20 +624,6 @@ def _query(
     where = (" WHERE " + conditions) if conditions else ""
     join = " JOIN urls u ON u.url_id=p.url_id" if needs_url else ""
     facet_ids = _facet_ids(facets)
-    if issue_filtered:
-        # No per-issue URL index is written yet, so the filter cannot be answered from this scan.
-        return {
-            "ok": True,
-            "state": "unavailable",
-            "format": FORMAT,
-            "reason_code": "issue_index_missing",
-            "reason": "this scan has no per-issue URL index; the issue filter is not applied",
-            "columns": columns,
-            "rows": [],
-            "total": None,
-            "filtered_total": None,
-            "filters": filters,
-        }
     if input_path.lower().endswith(".json"):
         return {
             "ok": True,
@@ -649,6 +635,41 @@ def _query(
     con, source, status_index = _open(input_path)
     budget = _Budget(con)
     try:
+        if issue_filtered:
+            from . import ScanError
+            from .audit_v2 import AuditReadTimeout
+            from .issue_selection import UnmeasuredChecks, materialize
+
+            budget.start(PAGE_BUDGET_SECONDS)
+            try:
+                materialize(
+                    con,
+                    input_path,
+                    checks=issue_check,
+                    severity=issue_severity,
+                    timeout_seconds=PAGE_BUDGET_SECONDS,
+                )
+            except (ScanError, ValueError) as exc:
+                return {
+                    "ok": True,
+                    "state": "unavailable",
+                    "format": FORMAT,
+                    "reason_code": "issue_selection_timeout"
+                    if isinstance(exc, AuditReadTimeout)
+                    else "issue_check_unmeasured"
+                    if isinstance(exc, UnmeasuredChecks)
+                    else "issue_index_missing",
+                    "reason": "saved findings are unavailable: " + str(exc),
+                    "columns": columns,
+                    "rows": [],
+                    "total": None,
+                    "filtered_total": None,
+                    "filters": filters,
+                }
+            conditions = " AND ".join(
+                filter(None, (conditions, "p.url_id IN (SELECT url_id FROM temp.issue_urls)"))
+            )
+            where = " WHERE " + conditions
         _click_depth_check(con, {*columns, *([sort] if sort else []), *_filter_names(filters)})
         indexed = {n for n, c in COLUMNS.items() if c.indexed} | (
             {"status_code"} if status_index else set()

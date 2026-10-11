@@ -23,6 +23,65 @@ from seohead.storage.status import scan_status as _scan_status
 _EFFECTIVE_LOOKUP_SECONDS = 0.5
 
 
+def scan_graph(
+    input_path: str,
+    positions: list[str] | str | None = None,
+    section: str | None = None,
+    around: str | None = None,
+    depth: int = 2,
+    aggregate: str = "none",
+    representation: str = "all",
+    node_offset: int = 0,
+    edge_offset: int = 0,
+    node_limit: int = 1000,
+    edge_limit: int = 2000,
+    max_nodes: int = 5000,
+    max_edges: int = 20000,
+    compare_to: str | None = None,
+    timeout_seconds: float = 1.0,
+    max_bytes: int = 8 * 1024 * 1024,
+) -> dict[str, Any]:
+    """Read bounded graph chunks or SQL differences; never fetch or mutate a scan."""
+    from seohead.storage.scan_graph import scan_graph as core
+
+    try:
+        if type(max_bytes) is not int or not 4096 <= max_bytes <= 8 * 1024 * 1024:
+            raise ValueError("max_bytes must be 4096..8388608")
+        result = core(
+            _path(input_path, "scan"),
+            positions=positions,
+            section=section,
+            around=around,
+            depth=depth,
+            aggregate=aggregate,
+            representation=representation,
+            node_offset=node_offset,
+            edge_offset=edge_offset,
+            node_limit=node_limit,
+            edge_limit=edge_limit,
+            max_nodes=max_nodes,
+            max_edges=max_edges,
+            compare_to=compare_to,
+            timeout_seconds=timeout_seconds,
+        )
+        if len(json.dumps(result, ensure_ascii=False).encode("utf-8")) > max_bytes:
+            return {
+                "ok": False,
+                "format": result["format"],
+                "state": "limit_reached",
+                "reason_code": "output_byte_limit_exceeded",
+                "max_bytes": max_bytes,
+            }
+        return result
+    except (ValueError, OSError, sqlite3.Error, TypeError) as exc:
+        return {
+            "ok": False,
+            "state": "unavailable",
+            "error": str(exc),
+            "reason_code": getattr(exc, "reason_code", "invalid_graph_request"),
+        }
+
+
 def scan_link_inspect(
     input_path: str,
     view: str = "path",

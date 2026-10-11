@@ -1158,3 +1158,32 @@ For streamed PDF output, explicitly pass `pdf_policy="overview-v1"` (CLI
 `--pdf-policy overview-v1`). It creates a bounded PDF view with complete JSON/CSV
 companions and a hashed manifest; no policy is selected by default. See
 [PDF_OVERVIEW.md](PDF_OVERVIEW.md) for counts, limits and publication guarantees.
+
+## Offline link positions, graph and sitemap output
+
+```bash
+seohead scan-graph --scan scan.sqlite --section /catalog/ --positions content,breadcrumbs
+seohead scan-graph --scan scan.sqlite --around https://example.com/product/ --depth 2
+seohead scan-graph --scan after.sqlite --compare-to before.sqlite --aggregate sections
+seohead scan-reanalyze --scan old.sqlite --out batch-1.sqlite --step links.position --max-documents 100
+seohead scan-reanalyze --scan batch-1.sqlite --out batch-2.sqlite --step links.position --max-documents 100
+seohead scan-sitemap-generate --scan scan.sqlite --out-dir generated-sitemaps \
+  --sitemap-base-url https://example.com/ --include-images --exclude '*[?]*'
+```
+
+Graph results are versioned JSON chunks with explicit totals, node/edge budgets and clipping.
+`not_classified` is a retained position state, not evidence that a link belongs to body content.
+Position backfill only updates the new derived scan; complete batches can be resumed by using
+the previous output as the next source. A process interruption before atomic publication requires
+restarting that unpublished batch. The frozen `scan.v1` schema is unchanged.
+
+Sitemap generation writes local files into a new directory and refuses existing destinations.
+Deployment URL scope determines eligible page URLs; the sitemap index contains absolute URLs
+for the generated files. Unknown modification dates are omitted, and optional image coverage
+reports unavailable/truncated bodies and unmeasured image responses. Known non-200
+resource responses are excluded even when no crawled page row exists.
+
+Graph comparison applies section, position and representation filters across both scans.
+The `around` option limits the displayed current graph; it does not narrow comparison scope.
+
+Graph diff additions and new orphans belong to the input scan relative to `--compare-to`.

@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**186 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 195 in total.
+**188 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 197 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -70,6 +70,8 @@ Reparse retained HTML/DOM and rerun existing checks without network.
 | `input_path` | `str` | `required` |
 | `out` | `str` | `required` |
 | `producer_build` | `str | None` | `None` |
+| `step` | `Literal['all', 'links.position']` | `'all'` |
+| `max_documents` | `int | None` | `None` |
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
@@ -80,6 +82,64 @@ parent UUID and current analyzer provenance. The source is unchanged;
 an existing output is refused. Missing required bodies produce named
 unavailable errors. Missing live-only context remains skipped. No HTTP,
 DNS, browser, provider, or cache-miss fallback is permitted.
+
+### `scan-sitemap-generate`
+
+MCP name: `seo_scan_sitemap_generate`
+
+Write local XML sitemap files from retained indexable, canonical 200 responses.
+
+| Argument | Type | Default |
+|---|---|---|
+| `input_path` | `str` | `required` |
+| `out_dir` | `str` | `required` |
+| `sitemap_base_url` | `str` | `required` |
+| `include_images` | `bool` | `False` |
+| `exclude` | `list[str] | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+Requires a fresh output directory and a same-origin deployment base URL.
+Splits at 50,000 URLs and 50 MiB uncompressed, writes a sitemap index, and
+optionally includes images parsed from complete retained bodies. lastmod
+uses observed modification evidence, never the capture or generation time.
+Exclusion patterns and skipped evidence are reported. No network or deployment.
+
+### `scan-graph`
+
+MCP name: `seo_scan_graph`
+
+Read versioned chunks of a retained internal-link graph without network.
+
+| Argument | Type | Default |
+|---|---|---|
+| `input_path` | `str` | `required` |
+| `positions` | `list[str] | str | None` | `None` |
+| `section` | `str | None` | `None` |
+| `around` | `str | None` | `None` |
+| `depth` | `int` | `2` |
+| `aggregate` | `str` | `'none'` |
+| `representation` | `str` | `'all'` |
+| `node_offset` | `int` | `0` |
+| `edge_offset` | `int` | `0` |
+| `node_limit` | `int` | `1000` |
+| `edge_limit` | `int` | `2000` |
+| `max_nodes` | `int` | `5000` |
+| `max_edges` | `int` | `20000` |
+| `compare_to` | `str | None` | `None` |
+| `timeout_seconds` | `float` | `1.0` |
+| `max_bytes` | `int` | `8388608` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Filter by position or URL section, expand around a URL by depth, aggregate
+sections, or compare two scans. At most 5,000 nodes and 20,000 edges are
+admitted; totals, clipping, coverage and unavailable reasons are explicit.
+Orphan and component counts describe the admitted graph scope.
 
 ### `crawl-site`
 
@@ -3285,8 +3345,11 @@ most 100,000 rows (else reason_code sort_not_indexed). Returns total, filtered_t
 with state capped when the count exceeds count_timeout_seconds) and at most 200 rows of the
 requested columns. facets (a list of group ids, or "all") adds facets: {group: count} over
 the same filters, with facets_state exact or capped. issue_check (1..50 check ids) and
-issue_severity (critical|warning|notice) filter by audit issue; until the per-issue index
-exists they return state unavailable with reason_code issue_index_missing.
+issue_severity (critical|warning|notice) filter by saved audit findings, including grouped
+URLs. Check ids are case-insensitive. Missing saved findings return state unavailable
+with reason_code issue_index_missing. Skipped, disabled or absent saved checks return
+issue_check_unmeasured; a bounded audit read can return issue_selection_timeout.
+No unfiltered result is substituted.
 
 ### `scan-link-inspect`
 

@@ -42,7 +42,7 @@ arbitrary plugin runtime or autonomous code rewriting.
 
 ### One local interface for an agent
 
-The CLI and MCP server share the same 186 handlers, and five additional MCP tools cover the
+The CLI and MCP server share the same 188 handlers, and five additional MCP tools cover the
 Screaming Frog audit workflow. A registration test prevents a command from existing in only one
 interface.
 
@@ -78,7 +78,7 @@ or configuration evidence retain their normal warnings and classifications.
 
 ### Deep analysis of existing crawl data
 
-Export mode evaluates Screaming Frog CSV/XLSX data against a 204-check registry without crawling
+Export mode evaluates Screaming Frog CSV/XLSX data against a 210-check registry without crawling
 again. It is useful when the crawl was taken by another specialist, came from CI, or must remain
 offline. Missing exports become explicit skipped checks rather than silent zeroes.
 
