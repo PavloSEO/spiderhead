@@ -54,3 +54,21 @@ def spider_icon(size=16):
 
 def app_icon():
     return QIcon(logo_path())
+
+
+def set_application_identity(app):
+    """Apply the native SpiderHead app name and bundled icon to the current process."""
+    app.setApplicationName("SpiderHead")
+    app.setApplicationDisplayName("SpiderHead")
+    icon = app_icon()
+    app.setWindowIcon(icon)
+
+    # Cocoa uses NSApp for the Dock tile on source launches; the frozen bundle also
+    # declares SpiderHead in Info.plist so the Switcher has the same identity.
+    try:
+        from AppKit import NSApplication, NSImage
+    except ImportError:
+        return
+    image = NSImage.alloc().initWithContentsOfFile_(str(ROOT / "assets/app/seohead-1024.png"))
+    if image is not None:
+        NSApplication.sharedApplication().setApplicationIconImage_(image)

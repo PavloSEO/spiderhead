@@ -29,7 +29,7 @@ SCHEMA = ()
 
 
 LICENSES = (
-    ("SEOHEAD Desktop", "GPL v3+"),
+    ("SpiderHead Desktop", "GPL v3+"),
     ("PyQt5 5.15", "GPL v3"),
     ("Qt 5.15", "LGPL v3"),
     ("seohead (ядро)", "MIT"),
@@ -95,8 +95,8 @@ def _header(version):
     logo = QLabel()
     logo.setPixmap(
         brand.render(brand.lockup_path(), 240)
-    )  # brandbook: About = lockup (mark + name); the product is «SEOHEAD Tools»
-    logo.setAccessibleName("SEOHEAD Tools")
+    )  # About uses the SpiderHead mark and wordmark.
+    logo.setAccessibleName("SpiderHead")
     layout.addWidget(logo, 0, Qt.AlignLeft)
     core = _core_version()
     parts = [trf("Desktop · версия {version}", version=version)]

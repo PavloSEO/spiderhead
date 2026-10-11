@@ -16,6 +16,7 @@ from seohead_desktop.screens.base import SLOTS
 from seohead_desktop.screens.issues import (
     IssuesScreen,
     check_name,
+    issue_summary_arguments,
     message_ru,
     sample_checks,
     skip_reason,
@@ -110,7 +111,26 @@ class IssuesTests(IssuesBase):
 
     def test_unknown_reason_and_check_are_not_shown_raw(self):
         self.assertEqual(skip_reason("something unexpected"), "причина не указана ядром")
-        self.assertEqual(check_name("BRAND_NEW_CHECK"), "Другая проверка")
+        self.assertEqual(check_name("BRAND_NEW_CHECK"), "Brand New Check")
+
+    def test_issue_summary_read_is_bounded_and_does_not_use_sample_rows_for_counts(self):
+        self.assertEqual(
+            issue_summary_arguments("scan.sqlite"),
+            [
+                "scan-url-query",
+                "--scan",
+                "scan.sqlite",
+                "--columns",
+                "url",
+                "--limit",
+                "1",
+                "--offset",
+                "0",
+                "--include-check-counts",
+            ],
+        )
+        with self.assertRaises(ValueError):
+            issue_summary_arguments("")
 
     def test_every_check_of_the_core_registry_has_a_name(self):
         registry = Path(__file__).resolve().parents[2] / "seohead" / "sf" / "core" / "registry.py"
@@ -121,7 +141,7 @@ class IssuesTests(IssuesBase):
         spec.loader.exec_module(module)
         self.assertGreater(len(module.CHECKS), 100)
         self.assertEqual(
-            [code for code in module.CHECKS if check_name(code) == "Другая проверка"], []
+            [code for code in module.CHECKS if not check_name(code)], []
         )
 
     def test_no_issue_numbers_and_no_service_footer_on_screen(self):

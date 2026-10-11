@@ -517,6 +517,15 @@ class AgentMixin:
         self.search.selectAll()
 
     def navigate(self, row):
+        if row == VIEW_IDS.index("methods"):
+            page = self.placeholder_pages.get(row)
+            if page is not None and hasattr(page, "refresh"):
+                page.refresh()
+            self.pages.setCurrentWidget(page)
+            return self.sync_workspace_identity()
+        if row == VIEW_IDS.index("logs"):
+            self.show_screen("logs")
+            return self.sync_workspace_identity()
         if (
             self.navigation.current_section() == "scans"
             and not self.project_directory

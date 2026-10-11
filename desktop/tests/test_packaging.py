@@ -37,8 +37,8 @@ MANIFEST = load_script("bundle_manifest.py")
 class PackagingTests(unittest.TestCase):
     def test_macos_relative_core_resolution(self):
         with tempfile.TemporaryDirectory() as directory:
-            app = Path(directory) / "SEOHEAD Desktop.app"
-            executable = app / "Contents" / "MacOS" / "SEOHEAD Desktop"
+            app = Path(directory) / "SpiderHead.app"
+            executable = app / "Contents" / "MacOS" / "SpiderHead"
             resources = app / "Contents" / "Resources"
             core = resources / "core" / "seohead" / "seohead"
             executable.parent.mkdir(parents=True)
@@ -73,8 +73,8 @@ class PackagingTests(unittest.TestCase):
 
     def test_core_hash_mismatch_is_not_accepted(self):
         with tempfile.TemporaryDirectory() as directory:
-            app = Path(directory) / "SEOHEAD Desktop.app"
-            executable = app / "Contents" / "MacOS" / "SEOHEAD Desktop"
+            app = Path(directory) / "SpiderHead.app"
+            executable = app / "Contents" / "MacOS" / "SpiderHead"
             resources = app / "Contents" / "Resources"
             core = resources / "core" / "seohead" / "seohead"
             executable.parent.mkdir(parents=True)
@@ -100,8 +100,8 @@ class PackagingTests(unittest.TestCase):
 
     def test_internal_payload_tampering_is_not_accepted(self):
         with tempfile.TemporaryDirectory() as directory:
-            app = Path(directory) / "SEOHEAD Desktop.app"
-            executable = app / "Contents" / "MacOS" / "SEOHEAD Desktop"
+            app = Path(directory) / "SpiderHead.app"
+            executable = app / "Contents" / "MacOS" / "SpiderHead"
             resources = app / "Contents" / "Resources"
             core = resources / "core" / "seohead" / "seohead"
             internal = core.parent / "_internal" / "data.bin"
@@ -142,8 +142,8 @@ class PackagingTests(unittest.TestCase):
 
     def test_non_hex_commit_is_not_accepted(self):
         with tempfile.TemporaryDirectory() as directory:
-            app = Path(directory) / "SEOHEAD Desktop.app"
-            executable = app / "Contents" / "MacOS" / "SEOHEAD Desktop"
+            app = Path(directory) / "SpiderHead.app"
+            executable = app / "Contents" / "MacOS" / "SpiderHead"
             resources = app / "Contents" / "Resources"
             core = resources / "core" / "seohead" / "seohead"
             executable.parent.mkdir(parents=True)
@@ -169,8 +169,8 @@ class PackagingTests(unittest.TestCase):
 
     def test_core_path_cannot_escape_resources(self):
         with tempfile.TemporaryDirectory() as directory:
-            app = Path(directory) / "SEOHEAD Desktop.app"
-            executable = app / "Contents" / "MacOS" / "SEOHEAD Desktop"
+            app = Path(directory) / "SpiderHead.app"
+            executable = app / "Contents" / "MacOS" / "SpiderHead"
             resources = app / "Contents" / "Resources"
             executable.parent.mkdir(parents=True)
             resources.mkdir(parents=True)

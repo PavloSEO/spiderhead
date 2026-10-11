@@ -62,7 +62,7 @@ class ShellMixin:
         )
         self.pages.addWidget(self.scans_placeholder)
         from .screens.crawler import CrawlerScreen
-        from .screens.tool_redirects import ToolRedirectsScreen
+        from .screens.methods import MethodsWorkspace
 
         # The link graph screen is kept for its own tests; the graph section is GraphScreen (below)
         self.link_graph_screen = LinkGraphScreen(self)
@@ -71,7 +71,7 @@ class ShellMixin:
             if view == "crawler":
                 page = CrawlerScreen()
             elif view == "methods":
-                page = ToolRedirectsScreen(self)
+                page = MethodsWorkspace(self)
             else:
                 page = QWidget()
                 layout = QVBoxLayout(page)

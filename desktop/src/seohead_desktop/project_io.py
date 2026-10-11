@@ -155,7 +155,7 @@ class ProjectMixin:
         label = site.get("label") or site.get("host") or "Подключённый проект"
         self.remember_project(label, self.project_directory)
         self.fill_project_picker(label, site.get("host"))
-        self.setWindowTitle(f"SEOHEAD · {label}")
+        self.setWindowTitle(f"SpiderHead · {label}")
         if self.monitor is not None:
             self.monitor.sync_context()
         self.source_badge.setText("Локальный проект · сохранённые данные")
@@ -529,7 +529,7 @@ class ProjectMixin:
         self.project_picker.addItem("Открыть проект…", {"action": "open"})
         self.project_picker.blockSignals(False)
         self.source_badge.setText("Локальное рабочее пространство")
-        self.setWindowTitle("SEOHEAD")
+        self.setWindowTitle("SpiderHead")
         if not self.navigation.setCurrentRow(0):
             self.navigation.select_section("work")
         self.show_start()

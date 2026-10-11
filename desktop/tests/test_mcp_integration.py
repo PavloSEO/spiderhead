@@ -145,7 +145,7 @@ class PanelTests(unittest.TestCase):
         switch = panel.findChildren(Switch)[0]
         switch.click()
         wait_for(lambda: not panel.busy)
-        self.assertIn(["disable", "--actor", "SEOHEAD Desktop"], calls)
+        self.assertIn(["disable", "--actor", "SpiderHead Desktop"], calls)
         panel.close()
 
     def test_only_the_newest_verified_backup_of_a_client_is_restorable(self):

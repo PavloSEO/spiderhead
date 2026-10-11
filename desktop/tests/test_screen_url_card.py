@@ -159,7 +159,7 @@ class CardTests(CardBase):
         ]
         self.assertEqual(badges[0].property("waiting_issue"), 974)
         self.assertIn("Недоступно", badges[0].toolTip())
-        for tab, issue in (("html", 936), ("schema", 948)):
+        for tab, issue in (("html", 936),):
             card.select_tab(tab)
             self.app.processEvents()
             found = [

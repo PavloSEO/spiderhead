@@ -155,9 +155,7 @@ class ShellV2Tests(unittest.TestCase):
         texts = [label.text() for label in top.findChildren(QLabel)]
         self.assertNotIn("SEOHEAD", texts)
         self.assertFalse(hasattr(self.window, "brand"))
-        self.assertEqual(
-            self.window.windowTitle(), "SEOHEAD"
-        )  # the brand stays in the window title
+        self.assertEqual(self.window.windowTitle(), "SpiderHead")
 
     def test_top_bar_height_and_labels(self):
         top = self.window.findChild(type(self.window.centralWidget()), "topbar")

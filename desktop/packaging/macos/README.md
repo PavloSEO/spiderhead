@@ -1,10 +1,10 @@
-# Personal macOS installer
+# SpiderHead macOS installer
 
 Build only, never run the installer as part of validation:
 
 ```bash
 python packaging/macos/build.py --core-source /path/to/seohead-tools --python /path/to/build-venv/bin/python
-pkgutil --payload-files dist/SEOHEAD-Desktop.pkg
+pkgutil --payload-files dist/SpiderHead.pkg
 ```
 
 PyInstaller is used because the existing, verified `scripts/build_macos.sh` already
@@ -16,9 +16,9 @@ must be installed in that environment. Generated files stay in ignored `dist/`.
 No paid certificate, Developer ID signature or notarization is used. PyInstaller
 and the existing bundler apply local ad-hoc signatures required by macOS runtime.
 
-The pkg payload places the app in `/Applications/SEOHEAD Desktop.app` and its
+The pkg payload places the app in `/Applications/SpiderHead.app` and its
 same-version CLI wrapper in `/usr/local/bin/seohead`. The preinstall refuses symlinks and a foreign CLI, and verifies timestamped
-backups of an existing SEOHEAD wrapper/app before replacement. The postinstall only checks
+backups of an existing SEOHEAD wrapper or legacy app before replacement. The postinstall only checks
 the installed payload and wrapper mode, respects the destination volume, and
 starts no processes. It writes no agent configuration. Inspect the scripts before
 manual installation. `SEOHEAD_APP_PATH` lets wrapper smoke tests point at the app
@@ -27,7 +27,7 @@ in the build directory; it is unnecessary after installation.
 Pavel installs the package manually, with macOS administrator authorization:
 
 ```bash
-sudo installer -pkg dist/SEOHEAD-Desktop.pkg -target /
+sudo installer -pkg dist/SpiderHead.pkg -target /
 ```
 
 For a DMG, add `--dmg`. The first-run screen offers **Install command line tool**:

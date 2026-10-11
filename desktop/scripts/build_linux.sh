@@ -23,20 +23,20 @@ trap 'rm -rf "$scratch"' EXIT HUP INT TERM
     --paths "$project_dir/src" \
     --collect-data seohead_desktop --collect-data mcp --distpath "$scratch/agent-dist" \
     --workpath "$scratch/agent-work" --specpath "$scratch" "$project_dir/scripts/control_entrypoint.py"
-"$python_bin" -m PyInstaller --clean --noconfirm --onedir --windowed --name "SEOHEAD Desktop" \
+"$python_bin" -m PyInstaller --clean --noconfirm --onedir --windowed --name "SpiderHead" \
     --paths "$project_dir/src" \
     --collect-data seohead_desktop \
     --distpath "$scratch/app-dist" --workpath "$scratch/app-work" --specpath "$scratch" \
     "$project_dir/scripts/entrypoint.py"
 
-bundle="$scratch/app-dist/SEOHEAD Desktop"
+bundle="$scratch/app-dist/SpiderHead"
 resources="$bundle/resources"
 mkdir -p "$resources/core" "$resources/agent"
 cp -R "$scratch/core-dist/seohead" "$resources/core/seohead"
 cp -R "$scratch/agent-dist/seohead-desktop-agent" "$resources/agent/seohead-desktop-agent"
 cp "$project_dir/src/seohead_desktop/assets/app/seohead.svg" "$bundle/seohead.svg"
 mkdir -p "$resources/licenses"
-cp "$project_dir/LICENSE" "$resources/licenses/SEOHEAD-Desktop-GPL-3.0-or-later.txt"
+cp "$project_dir/LICENSE" "$resources/licenses/SpiderHead-Desktop-GPL-3.0-or-later.txt"
 cp "$project_dir/THIRD_PARTY_NOTICES.md" "$resources/licenses/THIRD_PARTY_NOTICES.md"
 cp "$core_source/LICENSE" "$resources/licenses/SEOHEAD-Tools-MIT.txt"
 cp "$core_source/THIRD_PARTY_NOTICES.md" "$resources/licenses/SEOHEAD-Tools-THIRD_PARTY_NOTICES.md"

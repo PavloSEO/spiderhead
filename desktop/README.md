@@ -1,6 +1,6 @@
-# SEOHEAD Desktop
+# SpiderHead Desktop
 
-Native desktop app for the SEOHEAD toolkit, written in **Python + PyQt5 (Qt Widgets) + QSS**.
+Native desktop app for SpiderHead, written in **Python + PyQt5 (Qt Widgets) + QSS**.
 No web view, no Electron, no JavaScript framework: every screen is a Qt widget, styled by one
 QSS theme generated from design tokens. The app is a *presentation adapter* — crawling,
 analysis, projects and tasks live in the core (`../seohead`) and are reached through the
@@ -25,7 +25,7 @@ same CLI/MCP contracts the agents use.
 | `src/seohead_desktop/bundle.py` | Locates the bundled core inside a frozen app |
 | `tests/` | Offscreen Qt tests (`QT_QPA_PLATFORM=offscreen`) |
 | `examples/qa-site/` | Local loopback SEO test site with profiles `broken`, `clean`, `fix-delta`, `tracking` — the only site real scans are tested on |
-| `packaging/`, `scripts/build_*.sh/.ps1`, `SEOHEAD Desktop.spec` | PyInstaller bundle that ships app + compatible core + `seohead` CLI together |
+| `packaging/`, `scripts/build_*.sh/.ps1`, `SpiderHead.spec` | PyInstaller bundle that ships app + compatible core + `seohead` CLI together |
 | `docs/` | User guide, workspace/tab contracts, local control, packaging, source install |
 | `ROADMAP.md` | Development priorities and release gates |
 | `docs/canvas-tokens.md` | Shared native component tokens |
@@ -42,8 +42,10 @@ python3.12 -m venv .venv-desktop
 ```
 
 Tests (run from `desktop/`, the suite imports its helpers as `tests.*`):
-`cd desktop && ../.venv-desktop/bin/python scripts/run_tests.py` (offscreen Qt; leaves via os._exit, see CLAUDE.md).
-Bundle (macOS): `desktop/scripts/build_macos.sh` → `desktop/dist/SEOHEAD Desktop.app` (ignored by git).
+`cd desktop && ../.venv-desktop/bin/python scripts/run_tests.py`; add `-v` for streaming test names,
+`-p test_screen_*.py` to narrow discovery, or `--durations 10` to print the slowest tests.
+The runner uses offscreen Qt and exits through `os._exit` to avoid PyQt finalization crashes.
+Bundle (macOS): `desktop/scripts/build_macos.sh` → `desktop/dist/SpiderHead.app` (ignored by git).
 
 `desktop/` is excluded from the core's ruff/pytest/packaging; it has its own toolchain. Lint: `cd desktop && ../.venv-desktop/bin/ruff check .` (config in `desktop/pyproject.toml`).
 `packaging/source-install.json` still pins a core commit from the time this was a separate
@@ -57,7 +59,10 @@ project, enter URL → Start). One 52 px top bar, workspace tabs, 200/64 px navi
 profile/settings button bottom-left, honest data states ("not measured" ≠ "0"), 17 statuses,
 3 themes (light, dark, high contrast), RU/EN, local MCP server switch shared with the CLI
 (`seohead mcp status`), installer that puts the app and the `seohead` CLI on the machine
-together. See [shared tokens](docs/canvas-tokens.md) and [native component contracts](design/tab-contracts.md).
+together. The Methods area includes the core playbook catalogue, an offline snippet-task editor,
+and the redirect generator. Server logs are imported into the selected project; bot DNS checks
+require a separate confirmation. See [shared tokens](docs/canvas-tokens.md) and [native component
+contracts](design/tab-contracts.md).
 
 ## Licence
 

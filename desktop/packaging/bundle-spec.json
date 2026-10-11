@@ -1,6 +1,6 @@
 {
   "schema": "seohead.desktop.bundle-spec.v1",
-  "distribution": "SEOHEAD Desktop",
+  "distribution": "SpiderHead Desktop",
   "source_install_contract": "packaging/source-install.json",
   "core": {
     "distribution": "seohead-seotools",
@@ -10,19 +10,19 @@
   },
   "platforms": {
     "macos": {
-      "bundle": "SEOHEAD Desktop.app",
+      "bundle": "SpiderHead.app",
       "resources": "Contents/Resources",
       "core_cli": "core/seohead/seohead",
       "icon_source": "src/seohead_desktop/assets/app/seohead.icns"
     },
     "linux": {
-      "bundle": "SEOHEAD Desktop",
+      "bundle": "SpiderHead",
       "resources": "resources",
       "core_cli": "core/seohead/seohead",
       "icon_source": "src/seohead_desktop/assets/app/seohead.svg"
     },
     "windows": {
-      "bundle": "SEOHEAD Desktop",
+      "bundle": "SpiderHead",
       "resources": "resources",
       "core_cli": "core/seohead/seohead.exe",
       "icon_source": "src/seohead_desktop/assets/app/seohead.ico"
