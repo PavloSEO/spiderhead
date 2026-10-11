@@ -129,38 +129,38 @@ COLUMNS: dict[str, Column] = {
     ),
     "resource_count": Column(
         "(SELECT COUNT(*) FROM resource_graph_occurrences r "
-        "WHERE r.source_document_id=p.document_id)",
+        "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id)",
         "int",
     ),
     "resource_images": Column(
         "(SELECT COUNT(*) FROM resource_graph_occurrences r "
-        "WHERE r.source_document_id=p.document_id AND r.kind='image')",
+        "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind='image')",
         "int",
     ),
     "resource_scripts": Column(
         "(SELECT COUNT(*) FROM resource_graph_occurrences r "
-        "WHERE r.source_document_id=p.document_id AND r.kind IN ('script','module'))",
+        "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind IN ('script','module'))",
         "int",
     ),
     "resource_stylesheets": Column(
         "(SELECT COUNT(*) FROM resource_graph_occurrences r "
-        "WHERE r.source_document_id=p.document_id AND r.kind='stylesheet')",
+        "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind='stylesheet')",
         "int",
     ),
     "resource_bytes": Column(
         "(SELECT CASE WHEN COUNT(*)=0 THEN 0 "
-        "WHEN SUM(f.state='complete')<COUNT(*) THEN NULL ELSE SUM(f.bytes_received) END "
+        "WHEN COALESCE(SUM(f.state='complete'),0)<COUNT(*) THEN NULL ELSE SUM(f.bytes_received) END "
         "FROM (SELECT DISTINCT resolved_url FROM resource_graph_occurrences "
-        "WHERE source_document_id=p.document_id) q "
+        "WHERE page_url_id=p.url_id AND source_document_id=p.document_id) q "
         "LEFT JOIN resource_graph_fetches f USING(resolved_url))",
         "int",
     ),
     "resource_bytes_state": Column(
         "(SELECT CASE WHEN COUNT(*)=0 THEN 'exact' "
-        "WHEN SUM(f.state='complete')=COUNT(*) THEN 'exact' "
-        "WHEN SUM(f.state='complete')=0 THEN 'unavailable' ELSE 'partial' END "
+        "WHEN COALESCE(SUM(f.state='complete'),0)=COUNT(*) THEN 'exact' "
+        "WHEN COALESCE(SUM(f.state='complete'),0)=0 THEN 'unavailable' ELSE 'partial' END "
         "FROM (SELECT DISTINCT resolved_url FROM resource_graph_occurrences "
-        "WHERE source_document_id=p.document_id) q "
+        "WHERE page_url_id=p.url_id AND source_document_id=p.document_id) q "
         "LEFT JOIN resource_graph_fetches f USING(resolved_url))",
         "text",
     ),
@@ -300,10 +300,10 @@ FACET_GROUPS: dict[str, str] = {
     "canonical_self": "(p.canonical<>'' AND p.canonical=u.url)",
     "in_sitemap": "EXISTS (SELECT 1 FROM context_items s WHERE s.kind='sitemap_declared_url' AND CAST(json_extract(s.payload_json,'$.url_id') AS INTEGER)=p.url_id)",
     "with_inlinks": "EXISTS (SELECT 1 FROM links l WHERE l.destination_url_id=p.url_id)",
-    "with_resources": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.source_document_id=p.document_id)",
-    "with_images": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.source_document_id=p.document_id AND r.kind='image')",
-    "with_scripts": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.source_document_id=p.document_id AND r.kind IN ('script','module'))",
-    "with_stylesheets": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.source_document_id=p.document_id AND r.kind='stylesheet')",
+    "with_resources": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id)",
+    "with_images": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind='image')",
+    "with_scripts": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind IN ('script','module'))",
+    "with_stylesheets": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind='stylesheet')",
 }
 _OPS = {
     "int": {"eq", "ne", "gt", "gte", "lt", "lte", "between", "in", "not_in", "is_null", "not_null"},
@@ -459,7 +459,7 @@ def _resource_filter_clause(name: str, op: Any, value: Any, case_sensitive: bool
         marks = ",".join("?" for _ in values)
         return (
             "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
-            "WHERE r.source_document_id=p.document_id "
+            "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id "
             f"AND r.{column} IN ({marks}))",
             values,
             False,
@@ -468,7 +468,8 @@ def _resource_filter_clause(name: str, op: Any, value: Any, case_sensitive: bool
         value = _scalar("text", value, name)
         return (
             "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
-            "WHERE r.source_document_id=p.document_id AND r.resolved_url=?)",
+            "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id "
+            "AND r.resolved_url=?)",
             [value],
             False,
         )
@@ -479,7 +480,8 @@ def _resource_filter_clause(name: str, op: Any, value: Any, case_sensitive: bool
         marks = ",".join("?" for _ in values)
         return (
             "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
-            f"WHERE r.source_document_id=p.document_id AND r.resolved_url IN ({marks}))",
+            f"WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id "
+            f"AND r.resolved_url IN ({marks}))",
             values,
             False,
         )
@@ -491,7 +493,8 @@ def _resource_filter_clause(name: str, op: Any, value: Any, case_sensitive: bool
         prefix = value if case_sensitive else _ascii_lower(value)
         return (
             "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
-            f"WHERE r.source_document_id=p.document_id AND {expr}>=? AND {expr}<?)",
+            f"WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id "
+            f"AND {expr}>=? AND {expr}<?)",
             [prefix, prefix + _TOP],
             False,
         )
@@ -499,7 +502,8 @@ def _resource_filter_clause(name: str, op: Any, value: Any, case_sensitive: bool
     needle = value if case_sensitive else _ascii_lower(value)
     return (
         "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
-        f"WHERE r.source_document_id=p.document_id AND instr({expr},?)>0)",
+        f"WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id "
+        f"AND instr({expr},?)>0)",
         [needle],
         False,
     )
@@ -652,9 +656,11 @@ def _facet_counts(
     where: str,
     params: list[Any],
     timeout: float,
+    resource_graph_state: str | None = None,
 ) -> tuple[dict[str, int | None], dict[str, str]]:
     """Count requested groups in one pass and retain an explicit state per group."""
     unavailable = set()
+    capped_groups = set()
     if {"internal", "external"} & set(ids) and not con.execute(
         "SELECT 1 FROM scan WHERE singleton=1 AND start_url IS NOT NULL AND start_url<>''"
     ).fetchone():
@@ -663,13 +669,13 @@ def _facet_counts(
         unavailable.add("in_sitemap")
     if "with_inlinks" in ids and not _links_measured(con):
         unavailable.add("with_inlinks")
-    if {"with_resources", "with_images", "with_scripts", "with_stylesheets"} & set(ids) and not _resource_graph_measured(con):
-        unavailable.update(
-            {"with_resources", "with_images", "with_scripts", "with_stylesheets"} & set(ids)
-        )
-    active = [group for group in ids if group not in unavailable]
-    counts: dict[str, int | None] = {group: None for group in unavailable}
+    resource_facets = {"with_resources", "with_images", "with_scripts", "with_stylesheets"} & set(ids)
+    if resource_facets and resource_graph_state != "complete":
+        (capped_groups if resource_graph_state == "capped" else unavailable).update(resource_facets)
+    active = [group for group in ids if group not in unavailable and group not in capped_groups]
+    counts: dict[str, int | None] = {group: None for group in unavailable | capped_groups}
     states = {group: "unavailable" for group in unavailable}
+    states.update({group: "capped" for group in capped_groups})
     if not active:
         return counts, states
     exprs = ",".join(
@@ -711,9 +717,10 @@ def _links_measured(con: sqlite3.Connection) -> bool:
     return state in {"complete", "empty"}
 
 
-def _resource_graph_measured(con: sqlite3.Connection) -> bool:
+def _resource_graph_state(con: sqlite3.Connection, budget: _Budget) -> str:
+    """Validate full source-document coverage under a bounded SQLite query."""
     if con.execute("PRAGMA user_version").fetchone()[0] != 2:
-        return False
+        return "unavailable"
     tables = {
         row[0]
         for row in con.execute(
@@ -722,12 +729,19 @@ def _resource_graph_measured(con: sqlite3.Connection) -> bool:
         )
     }
     if tables != {"resource_graph_occurrences", "resource_graph_fetches"}:
-        return False
-    return con.execute(
-        "SELECT 1 FROM pages p LEFT JOIN context_items c ON c.kind='resource_graph_coverage' "
-        "AND c.item_key='document:'||p.document_id "
-        "WHERE p.document_id IS NULL OR c.completeness IS NOT 'complete' LIMIT 1"
-    ).fetchone() is None
+        return "unavailable"
+    budget.start(PAGE_BUDGET_SECONDS)
+    try:
+        missing = con.execute(
+            "SELECT 1 FROM pages p LEFT JOIN context_items c ON c.kind='resource_graph_coverage' "
+            "AND c.item_key='document:'||p.document_id "
+            "WHERE p.document_id IS NULL OR c.completeness IS NOT 'complete' LIMIT 1"
+        ).fetchone()
+    except sqlite3.OperationalError as exc:
+        if "interrupt" not in str(exc).lower():
+            raise
+        return "capped"
+    return "unavailable" if missing else "complete"
 
 
 def _prepare_transport_phase_projection(con: sqlite3.Connection) -> None:
@@ -1000,11 +1014,19 @@ def _query(
             "resource_url",
             "resource_kind",
         }
-        if requested_names & resource_names and not _resource_graph_measured(con):
+        resource_facets = {"with_resources", "with_images", "with_scripts", "with_stylesheets"}
+        needs_resource_state = bool(requested_names & resource_names or set(facet_ids) & resource_facets)
+        resource_graph_state = (
+            _resource_graph_state(con, budget) if needs_resource_state else None
+        )
+        if requested_names & resource_names and resource_graph_state != "complete":
+            capped = resource_graph_state == "capped"
             raise QueryError(
-                "resource_graph_unavailable",
-                "complete retained resource declarations are unavailable for every page",
-                "unavailable",
+                "resource_graph_coverage_capped" if capped else "resource_graph_unavailable",
+                "resource declaration coverage could not be validated within the query budget"
+                if capped
+                else "complete retained resource declarations are unavailable for every page",
+                "capped" if capped else "unavailable",
             )
         if requested_names & set(_TRANSPORT_COLUMNS):
             _prepare_transport_phase_projection(con)
@@ -1036,7 +1058,14 @@ def _query(
         facet_counts, facets_state = None, None
         if facet_ids:
             facet_counts, facet_states = _facet_counts(
-                con, budget, facet_ids, join, where, params, float(count_timeout)
+                con,
+                budget,
+                facet_ids,
+                join,
+                where,
+                params,
+                float(count_timeout),
+                resource_graph_state,
             )
             distinct_facet_states = set(facet_states.values())
             facets_state = (
