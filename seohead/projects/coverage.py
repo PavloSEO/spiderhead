@@ -713,18 +713,111 @@ def _task_comment_shape(value: Any) -> None:
             _text(reference["scan_id"], "comment reference scan_id", 128)
 
 
-def _affected_url_count(measurement: dict | None) -> dict[str, Any]:
-    """Expose an exact count only when the retained measurement enumerates affected URLs."""
+def _affected_url_count(
+    root: Path,
+    definition: dict,
+    measurement: dict | None,
+    cache: dict[str, tuple[Path | None, str | None]],
+    count_cache: dict[tuple[str, str], dict[str, Any]],
+) -> dict[str, Any]:
+    """Use retained affected-URL evidence or W07's saved issue selection, never the crawl total."""
     urls = (measurement or {}).get("affected_urls")
     if isinstance(urls, list) and all(isinstance(url, str) and url for url in urls):
         return {
             "count": len(set(urls)),
             "state": "measured",
+            "scope_state": "measured_population",
+            "source": "retained_task_measurement",
             "reason": None,
         }
+    reference = definition.get("finding_ref")
+    if isinstance(reference, dict):
+        scan_id, finding_id = reference.get("scan_id"), reference.get("finding_id")
+        if isinstance(scan_id, str) and isinstance(finding_id, str):
+            scan_path, unavailable = cache.get(scan_id, (None, None))
+            if scan_id not in cache:
+                from seohead.storage.history import list_scans
+
+                offset = 0
+                while True:
+                    page = list_scans(root / "scans", offset=offset, limit=100)
+                    if page.get("errors"):
+                        unavailable = "saved scan history contains unreadable entries"
+                        break
+                    found = next(
+                        (row for row in page["items"] if row.get("uuid") == scan_id), None
+                    )
+                    if found is not None:
+                        scan_path = Path(found["path"])
+                        break
+                    offset += len(page["items"])
+                    if not page["has_more"]:
+                        unavailable = "referenced scan is not retained in this project"
+                        break
+                cache[scan_id] = (scan_path, unavailable)
+            if scan_path is not None:
+                check_id = finding_id.removeprefix("check:")
+                if re.fullmatch(r"[a-z0-9][a-z0-9_.-]{0,99}", check_id, re.I):
+                    count_key = (scan_id, check_id)
+                    if count_key in count_cache:
+                        return dict(count_cache[count_key])
+                    try:
+                        from seohead.storage.url_query import scan_url_query
+
+                        selection = scan_url_query(
+                            str(scan_path),
+                            issue_check=check_id,
+                            columns=["url"],
+                            offset=0,
+                            limit=1,
+                            count_timeout_seconds=5.0,
+                            max_bytes=4096,
+                        )
+                    except (OSError, ValueError) as exc:
+                        unavailable = f"saved finding selection is unavailable: {exc}"
+                    else:
+                        count = selection.get("filtered_total")
+                        if (
+                            selection.get("ok") is True
+                            and selection.get("filtered_total_state") == "exact"
+                            and type(count) is int
+                            and (selection.get("source") or {}).get("scan_uuid") == scan_id
+                        ):
+                            source = selection.get("source") or {}
+                            scan_state = (
+                                "partial"
+                                if source.get("crawl_partial") or source.get("corpus_partial")
+                                else "complete"
+                            )
+                            counted = {
+                                "count": count,
+                                "state": "measured",
+                                "scope_state": scan_state,
+                                "source": "saved_issue_selection",
+                                "scan_uuid": scan_id,
+                                "check_id": check_id,
+                                "reason": None,
+                            }
+                            count_cache[count_key] = counted
+                            return dict(counted)
+                        unavailable = (
+                            selection.get("reason")
+                            or "saved issue count was capped, unavailable, or from a different scan"
+                        )
+                else:
+                    unavailable = "finding_ref.finding_id is not a supported saved check identifier"
+            return {
+                "count": None,
+                "state": "not_measured",
+                "scope_state": "unknown",
+                "source": "finding_ref",
+                "reason": unavailable or "saved affected-URL evidence is unavailable",
+            }
     return {
         "count": None,
         "state": "not_measured",
+        "scope_state": "unknown",
+        "source": "none",
         "reason": "the retained task measurement does not enumerate affected URLs",
     }
 
@@ -1388,6 +1481,8 @@ def _status(
     agreement = (plan or {}).get("tasks") or {"kind": "all_agreed"}
     agreed = set(agreement["ids"]) if agreement["kind"] == "selection" else None
     rows = {}
+    affected_count_cache: dict[str, tuple[Path | None, str | None]] = {}
+    affected_result_cache: dict[tuple[str, str], dict[str, Any]] = {}
     digests = {}
     exclusions = []
     for item_id, item in document["items"].items():
@@ -1457,7 +1552,9 @@ def _status(
             "attempt_status": record.get("status", "not_run"),
             "actor": record.get("actor") or record.get("reviewer"),
             "measurement": record.get("measurement"),
-            "affected_urls": _affected_url_count(measurement),
+            "affected_urls": _affected_url_count(
+                root, definition, measurement, affected_count_cache, affected_result_cache
+            ),
             "task": {
                 "assignee": definition.get("assignee"),
                 "description": definition.get("description"),

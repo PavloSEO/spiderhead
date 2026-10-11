@@ -27,6 +27,11 @@ and this decision makes no backend migration.
 | `project-activity` | Project directory (`directory`) | — |
 | `project-checklist-page` | Project directory (`directory`)<br>Selector (`offset, limit, query, kind, state, sort, descending, states`) | — |
 | `project-task-detail` | Project directory (`directory`)<br>Selector (`item_id`) | — |
+| `project-export-start` | Project directory (`directory`)<br>Local output name (`output`)<br>Selector (`dataset, fmt, compare_manifest, job_id, wait`) | `dataset` is `tasks`, `task_comments`, `task_history`, or `compare`; `compare_manifest` is required for `dataset=compare`; output is a new file under project `reports/`. |
+| `project-export-status` / `project-export-cancel` | Project directory (`directory`)<br>Selector (`job_id`) | Status is read-only; cancel is an explicit local request. |
+| `project-exports-page` | Project directory (`directory`)<br>Selector (`offset, limit`) | Reads bounded export history. |
+| `project-competitors-scan` | Project directory (`directory`)<br>Task identity (`task_id, expected_revision`)<br>Selector (`confirm, concurrency, approve_large_crawl, producer_build`) | Current task and registered child workspace identities are validated before bounded scans. |
+| `project-competitors-scan-status` / `project-competitors-scan-cancel` | Project directory (`directory`)<br>Selector (`run_id`) | Status reads retained state; cancel is a durable checkpointed request. |
 | `project-scans` | Project directory (`directory`)<br>Selector (`offset, limit`) | — |
 | `provider-auth` | Inline JSON (`provider, action, grant_file, confirm`) | GSC private grant import/status/refresh; cancel a pending browser flow; confirmed disconnect or remote revoke. No secret values returned. |
 | `provider-replay` | Scan artifact (`input_path`); requires `evidence_file, out_dir` | Offline join with a private saved provider envelope; raw joins remain in restricted output. |

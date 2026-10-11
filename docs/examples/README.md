@@ -35,8 +35,9 @@ reports coverage counts rather than an uninitialized state. Regenerate that file
 
 `project-task-update.json` and `project-task-comment.json` show synthetic custom-task metadata,
 per-competitor URL caps, optimistic revision writes and an attributed comment linked to a retained
-finding identity. The reference is illustrative metadata; the example does not assert that the
-synthetic scan or finding exists. The reserved example hosts are not contacted.
+finding identity. The task finding reference names the `TITLE_MISSING` saved-scan check used for
+exact affected-URL counts; the synthetic scan UUID is not present in the fixture project, so the
+example correctly remains unmeasured. The reserved example hosts are not contacted.
 
 ## Shop test site
 

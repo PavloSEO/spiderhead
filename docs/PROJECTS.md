@@ -472,6 +472,60 @@ filters. A BI cohort selection is a different dataset and does not replace a fin
 scope and measurement in a human report without fetching or rerunning the audit. The
 original JSON audit remains unchanged, and `--out` still controls the destination.
 
+### Owner tasks, exports, and competitor scans
+
+Custom project tasks retain optional assignee, description, acceptance criterion, typed
+finding/method references, per-competitor URL caps, comments, and revisioned execution history.
+Task writes use the checklist revision returned by `project-checklist-page` or
+`project-task-detail`. Clear optional text, finding, or method fields with `null`; clear the
+competitor list with `[]`. A measured affected-URL count is populated only from an exact saved-scan
+selection for its finding reference. Unsupported, capped, missing, or stale evidence remains
+explicitly unmeasured; it is not inferred from a sample.
+
+Accepted goals can become stable custom tasks through the local owner workflow. MCP can submit
+or triage proposals, but cannot accept a goal or provide owner signoff. A caller-supplied actor
+or reviewer name is attribution, not proof of owner identity. Ordinary task metadata and
+comments remain revision-checked local writes.
+
+Project exports are local artifacts under `reports/` with bounded, newest-first history in
+`exports.json`. Separate `tasks`, `task_comments`, and `task_history` datasets preserve every
+checklist item actually stored in the project, every attributed custom-task comment, and the
+append-only definition/attempt history. Task rows retain `kind`, catalogue `source_hash`, and
+`operation` separately, and never synthesize catalogue items absent from the project. All three
+datasets are available in JSON, CSV, and XLSX without packing unbounded history into one cell.
+Compare exports preserve the compare.v2 rows and source identities. Long exports expose job
+progress and a cancel request, and history records the artifact receipt. XLSX output is subject
+to the spreadsheet format's row limit; no overflow policy is inferred here. Export status and
+history reads do not create files.
+
+```bash
+seohead project export --directory ./shop-project --dataset task_comments \
+  --format csv --output task-comments.csv
+seohead project export --directory ./shop-project --dataset task_history \
+  --format xlsx --output task-history.xlsx
+```
+
+Task-scoped competitor scans accept only a current custom task and registered competitor
+workspaces. Each child scan obeys its per-site cap and selected bounded concurrency. This is an
+explicit one-shot action independent of persisted cadence and does not modify scheduler state.
+Progress and per-child result identities are retained locally so interrupted runs can resume
+unfinished children without restarting completed scans.
+
+```bash
+seohead project competitors-scan --directory ./shop-project \
+  --task-id custom:competitor-review --expected-revision 4 --confirm \
+  --run-id 00000000-0000-4000-8000-000000000002
+seohead project competitors-scan-status --directory ./shop-project \
+  --run-id 00000000-0000-4000-8000-000000000002
+seohead project competitors-scan-cancel --directory ./shop-project \
+  --run-id 00000000-0000-4000-8000-000000000002
+```
+
+Delivery adapters remain opt-in and require configured credentials/authorization. A delivery
+that may have reached its provider but lacks a durable receipt is marked uncertain for status
+reconciliation; it is never blindly retried. Local export generation and copy-link preparation
+do not deliver or publish an artifact.
+
 ### Definitions, evidence, and reusable templates
 
 The [synthetic ecommerce template](examples/ecommerce-checklist.json) is a

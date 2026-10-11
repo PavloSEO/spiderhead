@@ -2860,6 +2860,48 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         return _checked(handlers.project_competitors_remove(directory, url=url))
 
     @mcp.tool(annotations=create_files_from_web, structured_output=True)
+    def seo_project_competitors_scan(
+        directory: str,
+        task_id: str,
+        expected_revision: int,
+        confirm: bool,
+        concurrency: int = 3,
+        approve_large_crawl: bool = False,
+        producer_build: str | None = None,
+        run_id: str | None = None,
+        consumer: str | None = None,
+    ) -> dict[str, Any]:
+        """Run a task's structured competitor scans with per-site URL caps.
+
+        This contacts only the registered competitor workspaces listed on the current custom
+        task. Each task entry supplies its own max_urls cap. Concurrency is limited to three
+        sites, and each crawl also has bounded request and one-hour time budgets. A fresh
+        confirm=true and the current checklist revision are required. This is a one-shot scan,
+        independent of the schedule engine; no competitor cadence is started or changed.
+        """
+        result = handlers.project_competitors_scan(
+            directory=directory,
+            task_id=task_id,
+            expected_revision=expected_revision,
+            confirm=confirm,
+            concurrency=concurrency,
+            approve_large_crawl=approve_large_crawl,
+            producer_build=producer_build,
+            run_id=run_id,
+        )
+        return _checked(with_project_notice(result, directory, consumer))
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_competitors_scan_status(directory: str, run_id: str) -> dict[str, Any]:
+        """Read durable per-site progress for one explicitly started competitor scan run."""
+        return _checked(handlers.project_competitors_scan_status(directory, run_id))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_competitors_scan_cancel(directory: str, run_id: str) -> dict[str, Any]:
+        """Request a durable stop for one active competitor scan at its next crawl checkpoint."""
+        return _checked(handlers.project_competitors_scan_cancel(directory, run_id))
+
+    @mcp.tool(annotations=create_files_from_web, structured_output=True)
     def seo_project_prepare(
         directory: str,
         template: dict | None = None,
@@ -3229,6 +3271,52 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 directory,
                 None,
             )
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_export_start(
+        directory: str,
+        dataset: Literal["tasks", "task_comments", "task_history", "compare"],
+        fmt: str,
+        output: str,
+        compare_manifest: str | None = None,
+        job_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Start a complete task, task-comments, task-history or compare.v2 export under reports/.
+
+        The job returns immediately with an ID; use project_export_status to read bounded
+        progress and project_export_cancel to request cancellation. Successful outputs are
+        recorded in project export history. No network request is made.
+        """
+        return _checked(
+            handlers.project_export_start(
+                directory=directory,
+                dataset=dataset,
+                fmt=fmt,
+                output=output,
+                compare_manifest=compare_manifest,
+                job_id=job_id,
+                wait=False,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_export_status(directory: str, job_id: str) -> dict[str, Any]:
+        """Read progress and completion state for one local project export job."""
+        return _checked(handlers.project_export_status(directory=directory, job_id=job_id))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_export_cancel(directory: str, job_id: str) -> dict[str, Any]:
+        """Request cancellation of a running local project export job."""
+        return _checked(handlers.project_export_cancel(directory=directory, job_id=job_id))
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_exports_page(
+        directory: str, offset: int = 0, limit: int = 50
+    ) -> dict[str, Any]:
+        """Read the bounded newest-first project export history."""
+        return _checked(
+            handlers.project_exports_page(directory=directory, offset=offset, limit=limit)
         )
 
     @mcp.tool(annotations=read_files, structured_output=True)

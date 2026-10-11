@@ -31,6 +31,7 @@ Formats are separated by operational purpose, not personal preference:
 
 from __future__ import annotations
 
+import contextlib
 import json
 import pathlib
 from collections import Counter
@@ -596,7 +597,53 @@ def build_report(
         from seohead.projects.journal import note
 
         target = result.get("path") or result.get("outputs") or path or ""
+        output = result.get("path")
         note(project, source="agent", actor="agent", text=f"report {fmt} built: {target}")
+        try:
+            import hashlib
+            from pathlib import Path
+
+            from seohead.projects.exports import record_export
+
+            output_path = Path(output) if isinstance(output, str) else None
+            digest = None
+            if output_path is not None and output_path.is_file() and not output_path.is_symlink():
+                checksum = hashlib.sha256()
+                with output_path.open("rb") as stream:
+                    for block in iter(lambda: stream.read(1024 * 1024), b""):
+                        checksum.update(block)
+                digest = checksum.hexdigest()
+            record_export(
+                project,
+                dataset="audit",
+                fmt=fmt,
+                path=str(output or target),
+                row_count=int(result.get("findings", 0)),
+                byte_count=int(result.get("bytes", 0)),
+                sha256=digest,
+                source={
+                    "view": view,
+                    "finding_count": result.get("findings"),
+                    "page_count": result.get("pages"),
+                    "path_state": "local_output" if output else "unknown",
+                },
+            )
+        except Exception as exc:
+            result["export_history"] = {
+                "state": "unavailable",
+                "reason": f"{type(exc).__name__}: {exc}",
+            }
+        else:
+            result["export_history"] = {"state": "recorded"}
+        with contextlib.suppress(Exception):
+            from seohead.projects.action_log import record_interface_action
+
+            record_interface_action(
+                project,
+                action="report-build",
+                outcome="applied",
+                detail=f"format={fmt}; output={output or 'unavailable'}",
+            )
     return result
 
 

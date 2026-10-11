@@ -188,6 +188,13 @@ COMMANDS = (
     "project-competitors-add",
     "project-competitors-list",
     "project-competitors-remove",
+    "project-competitors-scan",
+    "project-competitors-scan-status",
+    "project-competitors-scan-cancel",
+    "project-export",
+    "project-export-status",
+    "project-export-cancel",
+    "project-exports-page",
     "skill-list",
     "skill-show",
     "scenario-list",
@@ -770,6 +777,13 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         "project-competitors-add",
         "project-competitors-list",
         "project-competitors-remove",
+        "project-competitors-scan",
+        "project-competitors-scan-status",
+        "project-competitors-scan-cancel",
+        "project-export",
+        "project-export-status",
+        "project-export-cancel",
+        "project-exports-page",
     }:
         for name in ("directory", "target", "label", "expected_site"):
             value = getattr(args, name, None)
@@ -784,6 +798,27 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             kw["max_urls"] = args.max_urls
         if getattr(args, "item_id", None) is not None:
             kw["item_id"] = args.item_id
+        if getattr(args, "task_id", None) is not None:
+            kw["task_id"] = args.task_id
+        if getattr(args, "concurrency", None) is not None:
+            kw["concurrency"] = args.concurrency
+        if cmd == "project-competitors-scan":
+            kw["confirm"] = bool(getattr(args, "confirm", False))
+            if getattr(args, "run_id", None) is not None:
+                kw["run_id"] = args.run_id
+        if cmd in {"project-competitors-scan-status", "project-competitors-scan-cancel"}:
+            kw["run_id"] = args.run_id
+        if cmd == "project-export":
+            for name in ("dataset", "fmt", "output", "compare_manifest", "job_id"):
+                value = getattr(args, name, None)
+                if value is not None:
+                    kw[name] = value
+            kw["wait"] = True
+        if cmd in {"project-export-status", "project-export-cancel"}:
+            kw["job_id"] = args.job_id
+        if cmd == "project-exports-page":
+            kw["offset"] = args.offset
+            kw["limit"] = args.limit
         if cmd in {"project-priorities", "project-policy", "project-facts"} and getattr(
             args, "apply", False
         ):
@@ -2877,10 +2912,44 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "project-competitors-add",
         "project-competitors-list",
         "project-competitors-remove",
+        "project-competitors-scan",
+        "project-competitors-scan-status",
+        "project-competitors-scan-cancel",
+        "project-export",
+        "project-export-status",
+        "project-export-cancel",
+        "project-exports-page",
     }:
         _source_flag(sub, "--directory", help="project directory")
     if cmd == "project-competitors-remove":
         sub.add_argument("--url", required=True, help="recorded competitor URL to remove")
+    if cmd == "project-competitors-scan":
+        sub.add_argument(
+            "--task-id", required=True, help="current custom task with structured competitor limits"
+        )
+        sub.add_argument("--expected-revision", type=int, required=True)
+        sub.add_argument("--confirm", action="store_true", help="explicitly start competitor crawls")
+        sub.add_argument("--concurrency", type=int, default=3, help="parallel sites, 1..3")
+        sub.add_argument("--run-id", help="stable UUID for polling, cancellation and safe resume")
+    if cmd in {"project-competitors-scan-status", "project-competitors-scan-cancel"}:
+        _source_flag(sub, "--run-id", required=True, help="competitor scan run UUID")
+    if cmd == "project-export":
+        _source_flag(
+            sub,
+            "--dataset",
+            choices=("tasks", "task_comments", "task_history", "compare"),
+            required=True,
+            help="complete project dataset",
+        )
+        sub.add_argument("--format", dest="fmt", choices=("json", "csv", "xlsx"), required=True)
+        _source_flag(sub, "--output", required=True, help="new filename under project reports/")
+        _source_flag(sub, "--compare-manifest", help="compare.v2 manifest for dataset=compare")
+        sub.add_argument("--job-id", help="optional caller-generated UUID for later cancellation")
+    if cmd in {"project-export-status", "project-export-cancel"}:
+        _source_flag(sub, "--job-id", help="project export job UUID")
+    if cmd == "project-exports-page":
+        sub.add_argument("--offset", type=int, default=0)
+        sub.add_argument("--limit", type=int, default=50)
     if cmd == "project-policy":
         sub.add_argument(
             "--expected-revision", type=int, help="current policy revision, zero for a new policy"
@@ -2891,7 +2960,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             type=int,
             help="URL cap for a new preparation crawl: 1..1,000,000; reuses a suitable saved scan first",
         )
-    if cmd in {"project-prepare", "project-start"}:
+    if cmd in {"project-prepare", "project-start", "project-competitors-scan"}:
         sub.add_argument("--approve-large-crawl", action="store_true")
         sub.add_argument(
             "--producer-build", help="explicit producer revision when working outside a clean build"
@@ -3343,6 +3412,13 @@ def build_parser() -> argparse.ArgumentParser:
         "policy",
         "prepare",
         "start",
+        "competitors-scan",
+        "competitors-scan-status",
+        "competitors-scan-cancel",
+        "export",
+        "export-status",
+        "export-cancel",
+        "exports-page",
         "sources-link",
         "sources-unlink",
         "sources-list",

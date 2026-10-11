@@ -195,6 +195,13 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-scans` | Read a bounded page of retained project scans with evidence metadata. | offline, read-only |
 | `project-task-detail` | Read one project task definition, evidence and bounded history. | offline, read-only |
 | `project-task-comment` | Append an attributed comment to a custom task with an optional retained scan/finding reference. | writes |
+| `project-competitors-scan` | Start bounded one-shot scans for the registered competitors and URL caps on one current task. | network, writes |
+| `project-competitors-scan-status` | Read durable progress and per-site results for a competitor scan run. | offline, read-only |
+| `project-competitors-scan-cancel` | Request stop at the next per-site crawl checkpoint. | writes |
+| `project-export` | Export the complete task, task-comments, task-history or compare.v2 dataset as JSON, CSV or XLSX. | writes |
+| `project-export-status` | Read a project export job's progress and recovery state. | offline, read-only |
+| `project-export-cancel` | Request cancellation at a project export checkpoint. | writes |
+| `project-exports-page` | Read a bounded page of export receipts and artifact hashes. | offline, read-only |
 | `project-checklist-init` | Initialize or reconcile a local checklist without executing a check, skill, or scenario. | writes |
 | `project-checklist-update` | Add or update one local checklist definition without executing it. | writes |
 | `project-checklist-record` | Record supplied evidence for one checklist item without executing its operation. | writes |

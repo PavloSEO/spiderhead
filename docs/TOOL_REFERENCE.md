@@ -2976,7 +2976,9 @@ sort is one of id (stored order, default), priority, state or updated; states
 keeps up to 8 display states. Each item carries updated, the newest record time.
 Reads saved local evidence with metadata-only receipt status; this is not
 fresh byte verification. Missing historical receipts remain unverified.
-Does not collect, fetch or modify evidence.
+Does not collect, fetch or modify evidence. Custom-task detail returns up to 20 newest attempts
+and comments, with total and truncation fields; use the separate task-history or task-comments
+export dataset when the complete retained ledger is needed.
 
 ### `project-task-detail`
 
@@ -3022,6 +3024,94 @@ fetched or verified. The command makes no network request.
 
 Only current custom checklist tasks accept comments. A stale expected revision, invalid actor/text,
 or invalid scan/finding reference is refused without changing the checklist.
+
+### `project-export-start`
+
+MCP name: `seo_project_export_start`
+
+Export the complete task dataset, every task comment, append-only definition/attempt history, or
+every row in a validated compare.v2 dataset to a new file under the project's `reports/`
+directory. Task comments and history are separate datasets so CSV/XLSX never hide unbounded
+related records inside one task cell. A compare export requires the manifest path and validates
+the manifest-declared data files before rendering. The MCP call returns an export job identifier;
+CLI can run synchronously or accept a caller-supplied identifier for safe recovery.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `dataset` | `str` | `required` (`tasks`, `task_comments`, `task_history` or `compare`) |
+| `fmt` | `str` | `required` (`json`, `csv` or `xlsx`) |
+| `output` | `str` | `required` (new name within `reports/`) |
+| `compare_manifest` | `str | None` | `None` |
+| `job_id` | `str | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: yes with the same job ID and request · spends money: no
+
+**Behavior and failure modes**
+
+`task_comments` emits `task_id`, `comment_ordinal`, `created_at`, `actor`, `text`, and optional
+`reference`. `task_history` emits `task_id`, event type/ordinal/time, revision, actor, status, and
+the validated source entry JSON; definition versions and execution attempts remain distinguishable.
+The `tasks` dataset includes every item in the project's validated coverage store, with `kind`,
+catalogue `source_hash`, and `operation` as distinct fields. It does not add global catalogue
+definitions missing from that project.
+The read-only `project-task-detail` view exposes the newest 20 comments and attempts with totals
+and truncation flags, while the dataset exports preserve all validated related rows.
+
+The job exposes bounded progress and a cancellation request at output checkpoints. Completed
+artifacts are retained and their receipt is recorded in project export history even if history
+recording itself is unavailable. A job interrupted by process exit is reported as recoverable;
+resume requires the same job ID and matching request, and reuses only a verified partial or
+published artifact. XLSX overflow remains an explicit product policy decision.
+
+### `project-export-status`, `project-export-cancel`, and `project-exports-page`
+
+MCP names: `seo_project_export_status`, `seo_project_export_cancel`, and
+`seo_project_exports_page`.
+
+Status reads one job without creating project files. Cancel requests a checkpointed stop and does
+not remove already published output. History is a bounded page of artifact receipts with hashes,
+formats, source identities, and job identity when present. Legacy entries remain readable.
+
+### `project-competitors-scan`
+
+MCP name: `seo_project_competitors_scan`
+
+Run the competitors declared on one current custom task in their registered child workspaces.
+Every target is validated before work begins. Each child uses the task's own URL ceiling and
+bounded request/time budgets, with at most three sites in flight. The operation is a confirmed
+one-shot action; it does not start, alter, or share scheduler cadence or state. Completed child
+results are retained so a resumed operation does not repeat successful scans.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `task_id` | `str` | `required` |
+| `expected_revision` | `int` | `required` |
+| `confirm` | `bool` | `required` (`true`) |
+| `concurrency` | `int` | `3` (1..3) |
+| `approve_large_crawl` | `bool` | `False` |
+| `producer_build` | `str | None` | `None` |
+| `run_id` | `str | None` | `None` (caller UUID for status, cancellation and safe resume) |
+
+**Cost** — network: yes · writes files: yes · idempotent: resumes retained run · spends money: no
+
+### `project-competitors-scan-status` and `project-competitors-scan-cancel`
+
+MCP names: `seo_project_competitors_scan_status` and `seo_project_competitors_scan_cancel`.
+
+Pass the `run_id` returned by the start call. Status reads the durable per-site result manifest,
+including `runner_active` and `cancel_requested`; cancel writes a local request that the active
+crawl observes at its next progress callback.
+Cancellation does not delete completed child scans. Reusing the same UUID in a start call resumes
+only unfinished children after checking task revision and scan inputs.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `run_id` | `str` | `required` |
+
+**Cost** — status: network no, writes no · cancel: network no, writes yes · spends money: no
 
 ### `project-scans`
 

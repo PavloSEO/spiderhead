@@ -5984,6 +5984,82 @@ def project_competitors_remove(directory: str, url: str) -> dict[str, Any]:
     return remove_competitor(directory, url)
 
 
+def project_competitors_scan(
+    directory: str,
+    task_id: str,
+    expected_revision: int,
+    confirm: bool,
+    concurrency: int = 3,
+    approve_large_crawl: bool = False,
+    producer_build: str | None = None,
+    run_id: str | None = None,
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_competitors_scan as core
+
+    return core(
+        directory=directory,
+        task_id=task_id,
+        expected_revision=expected_revision,
+        confirm=confirm,
+        concurrency=concurrency,
+        approve_large_crawl=approve_large_crawl,
+        producer_build=producer_build,
+        run_id=run_id,
+    )
+
+
+def project_competitors_scan_status(directory: str, run_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_competitors_scan_status as core
+
+    return core(directory=directory, run_id=run_id)
+
+
+def project_competitors_scan_cancel(directory: str, run_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_competitors_scan_cancel as core
+
+    return core(directory=directory, run_id=run_id)
+
+
+def project_export_start(
+    directory: str,
+    dataset: str,
+    fmt: str,
+    output: str,
+    compare_manifest: str | None = None,
+    job_id: str | None = None,
+    wait: bool = True,
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_export_start as core
+
+    return core(
+        directory=directory,
+        dataset=dataset,
+        fmt=fmt,
+        output=output,
+        compare_manifest=compare_manifest,
+        job_id=job_id,
+        wait=wait,
+    )
+
+
+def project_export_status(directory: str, job_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_export_status as core
+
+    return core(directory=directory, job_id=job_id)
+
+
+def project_export_cancel(directory: str, job_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_export_cancel as core
+
+    return core(directory=directory, job_id=job_id)
+
+
+def project_exports_page(directory: str, offset: int = 0, limit: int = 50) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_exports_page as core
+
+    return core(directory=directory, offset=offset, limit=limit)
+
+
 def project_start(
     directory: str,
     target: str,
@@ -7300,6 +7376,13 @@ _RAW_HANDLERS = {
     "project_competitors_add": project_competitors_add,
     "project_competitors_list": project_competitors_list,
     "project_competitors_remove": project_competitors_remove,
+    "project_competitors_scan": project_competitors_scan,
+    "project_competitors_scan_status": project_competitors_scan_status,
+    "project_competitors_scan_cancel": project_competitors_scan_cancel,
+    "project_export_start": project_export_start,
+    "project_export_status": project_export_status,
+    "project_export_cancel": project_export_cancel,
+    "project_exports_page": project_exports_page,
     "project_start": project_start,
     "skill_list": skill_list,
     "skill_show": skill_show,
