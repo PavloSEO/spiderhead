@@ -31,6 +31,88 @@ def project_open(directory: str, expected_site: str | None = None) -> dict[str, 
     return open_project(directory, expected_site=expected_site)
 
 
+def project_update(directory: str, label: str, expected_revision: int) -> dict[str, Any]:
+    from seohead.projects.project_settings import update_label
+
+    return update_label(directory, label, expected_revision=expected_revision, client="cli")
+
+
+def project_delete(directory: str) -> dict[str, Any]:
+    from seohead.projects.project_settings import delete_project
+
+    return delete_project(directory, client="cli")
+
+
+def project_settings(directory: str) -> dict[str, Any]:
+    from seohead.projects.project_settings import read_settings
+
+    return read_settings(directory)
+
+
+def project_settings_propose(
+    directory: str, changes: dict[str, Any], expected_revision: int | None = None
+) -> dict[str, Any]:
+    from seohead.projects.project_settings import propose_settings
+
+    return propose_settings(
+        directory, changes, client="mcp", expected_revision=expected_revision
+    )
+
+
+def project_settings_proposals(
+    directory: str, offset: int = 0, limit: int = 50
+) -> dict[str, Any]:
+    from seohead.projects.project_settings import list_proposals
+
+    return list_proposals(directory, offset=offset, limit=limit)
+
+
+def project_settings_review(
+    directory: str, proposal_id: str, decision: str, expected_revision: int
+) -> dict[str, Any]:
+    from seohead.projects.project_settings import review_proposal
+
+    return review_proposal(
+        directory,
+        proposal_id,
+        decision,
+        expected_revision=expected_revision,
+        client="cli",
+    )
+
+
+def project_action_log(
+    directory: str,
+    offset: int = 0,
+    limit: int = 50,
+    client: str | None = None,
+    outcome: str | None = None,
+    query: str = "",
+) -> dict[str, Any]:
+    from seohead.projects.action_log import page
+
+    return page(
+        directory,
+        offset=offset,
+        limit=limit,
+        client=client,
+        outcome=outcome,
+        query=query,
+    )
+
+
+def project_agent_heartbeat(directory: str) -> dict[str, Any]:
+    from seohead.projects.action_log import record_interface_action
+
+    result = record_interface_action(
+        directory,
+        action="agent.heartbeat",
+        outcome="applied",
+        detail="MCP client reported activity",
+    )
+    return {"ok": True, "last_seen_at": result["action"]["occurred_at"], "connected": None}
+
+
 def _with_inbox_notice(
     result: dict[str, Any], directory: str, consumer: str | None
 ) -> dict[str, Any]:
@@ -154,8 +236,19 @@ def project_inbox_unread(directory: str, consumer: str, limit: int = 10) -> dict
 
 def project_event_append(directory: str, source: str, actor: str, text: str) -> dict[str, Any]:
     from seohead.projects.journal import record
+    from seohead.projects.action_log import record_interface_action
 
-    return record(directory, source=source, actor=actor, text=text)
+    result = record(directory, source=source, actor=actor, text=text)
+    try:
+        record_interface_action(
+            directory,
+            action="project.event.append",
+            outcome="applied",
+            detail=f"Recorded {source}/{actor} event {result['event']['sequence']}",
+        )
+    except (OSError, ValueError):
+        pass
+    return result
 
 
 def project_event_page(

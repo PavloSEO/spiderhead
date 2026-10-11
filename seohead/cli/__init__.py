@@ -132,6 +132,12 @@ COMMANDS = (
     "scan-body-diff",
     "project-new",
     "project-open",
+    "project-update",
+    "project-delete",
+    "project-settings",
+    "project-settings-proposals",
+    "project-settings-review",
+    "project-action-log",
     "project-status",
     "project-progress",
     "project-sources-link",
@@ -756,6 +762,11 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     elif cmd in {
         "project-new",
         "project-open",
+        "project-update",
+        "project-delete",
+        "project-settings",
+        "project-settings-proposals",
+        "project-settings-review",
         "project-status",
         "project-progress",
         "project-facts",
@@ -777,6 +788,12 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         if cmd == "project-progress":
             kw["limit"] = args.limit
             kw["offset"] = args.offset
+        if cmd == "project-settings-proposals":
+            kw["limit"] = args.limit
+            kw["offset"] = args.offset
+        if cmd == "project-settings-review":
+            kw["proposal_id"] = args.proposal_id
+            kw["decision"] = args.decision
         if getattr(args, "expected_revision", None) is not None:
             kw["expected_revision"] = args.expected_revision
         if cmd == "project-prepare" and args.max_urls is not None:
@@ -841,6 +858,11 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "project-action-log":
+        for name in ("directory", "offset", "limit", "client", "outcome", "query"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "project-observe":
         for name in ("directory", "consumer", "scan_limit", "run_offset", "run_limit"):
             if getattr(args, name, None) is not None:
@@ -2638,6 +2660,34 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument(
             "--wait-seconds", type=int, default=30, help="maximum follow wait, 0..30 (default: 30)"
         )
+    if cmd in {
+        "project-update",
+        "project-delete",
+        "project-settings",
+        "project-settings-proposals",
+        "project-settings-review",
+        "project-action-log",
+    }:
+        _source_flag(sub, "--directory", help="validated local project workspace")
+    if cmd == "project-update":
+        sub.add_argument("--label", required=True, help="new project label, up to 128 characters")
+        sub.add_argument("--expected-revision", type=int, required=True)
+    if cmd == "project-settings-proposals":
+        sub.add_argument("--offset", type=int, default=0)
+        sub.add_argument("--limit", type=int, default=50)
+    if cmd == "project-settings-review":
+        sub.add_argument("--proposal-id", required=True)
+        sub.add_argument("--decision", required=True, choices=("approve", "deny"))
+        sub.add_argument("--expected-revision", type=int, required=True)
+    if cmd == "project-action-log":
+        sub.add_argument("--offset", type=int, default=0)
+        sub.add_argument("--limit", type=int, default=50)
+        sub.add_argument("--client", choices=("cli", "mcp", "system"))
+        sub.add_argument(
+            "--outcome",
+            choices=("pending", "applied", "approved", "denied", "stale", "refused", "deleted"),
+        )
+        sub.add_argument("--query", default="")
     if cmd == "project-inbox-submit":
         _source_flag(sub, "--text", help="specialist note, proposed goal or question text")
         sub.add_argument(
@@ -3318,6 +3368,12 @@ def build_parser() -> argparse.ArgumentParser:
     for action in (
         "new",
         "open",
+        "update",
+        "delete",
+        "settings",
+        "settings-proposals",
+        "settings-review",
+        "action-log",
         "status",
         "progress",
         "observe",

@@ -185,6 +185,12 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-competitors-list` | Read the recorded competitor candidates and their workspaces. | — |
 | `project-competitors-remove` | Drop one recorded competitor from the shortlist; its workspace stays on disk. | writes |
 | `project-open` | Open a local project workspace without executing template references. | offline, read-only |
+| `project-update` | Update the project label with an expected settings revision. | writes |
+| `project-delete` | Move a project with its scans and exports into a sibling `Trash/` directory; active runs are refused. | writes |
+| `project-settings` | Read project settings and their revision. | offline, read-only |
+| `project-settings-proposals` | Read a bounded page of pending and decided setting proposals. | offline, read-only |
+| `project-settings-review` | Apply or deny a setting proposal against its stored revision. | writes |
+| `project-action-log` | Read bounded action history with interface, outcome and text filters. | offline, read-only |
 | `project-status` | Show project scan history and named pending checklist/preparation states. | offline, read-only |
 | `project-sources-link` | Bind a provider resource ID to a project in `sources.json`; no provider call. | writes |
 | `project-sources-unlink` | Remove one resource binding from `sources.json`; no provider call. | writes |
@@ -200,7 +206,7 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-checklist-page` | Read a bounded searchable page of project checklist evidence. | offline, read-only |
 | `project-facts` | Preview or record project stack facts that stack-aware priorities then read. | network, writes |
 | `project-priorities` | Preview stack-aware project priorities from saved facts without network requests. | writes |
-| `project-policy` | Read or explicitly update operator crawl defaults and project admission thresholds. | writes |
+| `project-policy` | Read or update crawl defaults and admission thresholds; MCP agents must submit proposals for owner review. | writes |
 | `project-view-list` | List saved declarative finding views and the current project view-config revision. | offline, read-only |
 | `project-view-show` | Read one saved finding view with its stable identity, schema version and revision. | offline, read-only |
 | `project-view-save` | Create or revise a bounded declarative finding view using an expected config revision. | writes |

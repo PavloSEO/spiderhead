@@ -79,6 +79,28 @@ Unknown formats/versions refuse; opening never upgrades or rewrites the file.
 Existing project directories are never overwritten. Move the entire directory to
 preserve the relative artifact references.
 
+Project settings live in revisioned `project-settings.json`; read them with
+`seohead project-settings --directory DIR` or `seo_project_settings`. Label changes require
+`--expected-revision`. A project delete refuses while a run is live, then moves the entire
+directory into a sibling `Trash/` folder so scans and exports remain recoverable.
+
+MCP agents can submit a proposal for a project label or crawl policy with
+`seo_project_settings_propose`. Proposals capture the target store revision; an owner reviews
+them with `seohead project-settings-review --directory DIR --proposal-id ID --decision DECISION --expected-revision REV` (DECISION is `approve` or `deny`). A stale proposal is recorded as stale and is not applied. Use
+`seohead project-settings-proposals` to inspect the queue. The append-only `actions.jsonl` records
+the interface, action, outcome and proposal reference; `project-action-log` and
+`seo_project_action_log` provide bounded pages filtered by client, outcome or text.
+An MCP client may call `seo_project_agent_heartbeat` to record a timestamped activity report.
+Status shows its source but never claims that the client remains connected.
+After a terminal run, the core stores a bounded byte/count measurement for regular files directly
+inside `scans/`; project-status reads that cached record instead of walking the directory. Nested
+scan directories or unsafe entries produce an unavailable state with a reason.
+
+This MCP permission policy is an application workflow boundary, not an operating-system sandbox.
+This local stdio server has no trusted per-caller owner identity, so MCP owner-only changes fail
+closed; local CLI commands provide the explicit review path. The `client` field records which
+interface wrote an action and does not establish who controlled that interface.
+
 Local portability: the project archive action writes one zip (a manifest with SHA-256 and size for
 each member, plus project.json, log.md, scans/, reports/ and the top-level SQLite stores, which are
 snapshotted through the SQLite backup API). A dry-run reports the file list, skipped entries and a

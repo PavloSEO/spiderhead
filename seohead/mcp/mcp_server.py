@@ -53,6 +53,21 @@ def _checked(result: Any) -> Any:
     return result
 
 
+def _refuse_owner_action(directory: str, action: str) -> None:
+    """Log and reject an owner-only call when this MCP server has no trusted principal."""
+    from seohead.projects.action_log import record as record_action
+    from seohead.projects.permissions import require_mcp_allowed
+
+    record_action(
+        directory,
+        client="mcp",
+        action=action,
+        outcome="refused",
+        detail="Owner-only action is unavailable without a trusted MCP principal",
+    )
+    require_mcp_allowed(action)
+
+
 def build_server(profile: str = "full", progress_notifications: bool = False):  # -> FastMCP
     runlog.set_interface("mcp")
     from mcp.server.fastmcp import FastMCP
@@ -2121,6 +2136,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         expected_revision: int | None = None,
     ) -> dict[str, Any]:
         """Explicitly accept or complete a stored proposed goal; no executor is launched."""
+        if state == "accepted":
+            _refuse_owner_action(directory, "project.goal.accept")
         return _checked(handlers.project_inbox_goal(directory, entry_id, state, expected_revision))
 
     @mcp.tool(annotations=create_files, structured_output=True)
@@ -2682,6 +2699,15 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         "reviewer", "artifact" or "evidence"}``, which otherwise stays ``pending_exclusion``
         inside the denominator. This never makes a network request.
         """
+        if isinstance(record, dict) and (
+            record.get("signoff") is True or record.get("review") == "approved"
+        ):
+            action = (
+                "project.checklist.signoff"
+                if record.get("signoff") is True
+                else "project.checklist.review"
+            )
+            _refuse_owner_action(directory, action)
         return _checked(
             with_project_notice(
                 handlers.project_checklist_record(
@@ -2830,6 +2856,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         consumer: str | None = None,
     ) -> dict[str, Any]:
         """Read or explicitly update operator crawl defaults and project admission thresholds."""
+        if apply:
+            _refuse_owner_action(directory, "project.policy.apply")
         return _checked(
             with_project_notice(
                 handlers.project_policy(
@@ -2839,6 +2867,90 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 consumer,
             )
         )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_settings(directory: str) -> dict[str, Any]:
+        """Read current project settings and their optimistic-concurrency revision."""
+        return _checked(handlers.project_settings(directory))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_update(directory: str, label: str, expected_revision: int) -> dict[str, Any]:
+        """Update the project label; owner-only changes are unavailable through this MCP server."""
+        _refuse_owner_action(directory, "project.settings.update")
+        return _checked(handlers.project_update(directory, label, expected_revision))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_delete(directory: str) -> dict[str, Any]:
+        """Move a project to Trash; owner-only deletion is unavailable through this MCP server."""
+        _refuse_owner_action(directory, "project.delete")
+        return _checked(handlers.project_delete(directory))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_settings_propose(
+        directory: str,
+        changes: dict[str, Any],
+        expected_revision: int | None = None,
+    ) -> dict[str, Any]:
+        """Submit a label or crawl-policy proposal for explicit owner review; it is not applied."""
+        return _checked(
+            handlers.project_settings_propose(
+                directory, changes=changes, expected_revision=expected_revision
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_settings_proposals(
+        directory: str, offset: int = 0, limit: int = 50
+    ) -> dict[str, Any]:
+        """Read a bounded newest-first page of project setting proposals."""
+        return _checked(handlers.project_settings_proposals(directory, offset=offset, limit=limit))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_settings_review(
+        directory: str,
+        proposal_id: str,
+        decision: Literal["approve", "deny"],
+        expected_revision: int,
+    ) -> dict[str, Any]:
+        """Review a setting proposal; owner approval is unavailable through this MCP server."""
+        _refuse_owner_action(directory, "project.settings.review")
+        return _checked(
+            handlers.project_settings_review(
+                directory,
+                proposal_id=proposal_id,
+                decision=decision,
+                expected_revision=expected_revision,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_action_log(
+        directory: str,
+        offset: int = 0,
+        limit: int = 50,
+        client: Literal["cli", "mcp", "system"] | None = None,
+        outcome: Literal[
+            "pending", "applied", "approved", "denied", "stale", "refused", "deleted"
+        ]
+        | None = None,
+        query: str = "",
+    ) -> dict[str, Any]:
+        """Read a bounded project action log, filtering by interface, outcome or text."""
+        return _checked(
+            handlers.project_action_log(
+                directory,
+                offset=offset,
+                limit=limit,
+                client=client,
+                outcome=outcome,
+                query=query,
+            )
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_agent_heartbeat(directory: str) -> dict[str, Any]:
+        """Record a bounded MCP activity timestamp; it does not establish connectivity or identity."""
+        return _checked(handlers.project_agent_heartbeat(directory))
 
     @mcp.tool(annotations=create_files, structured_output=True)
     def seo_project_competitors_add(
@@ -3804,6 +3916,12 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         project: str | None = None,
     ) -> dict[str, Any]:
         """Preview candidates by default; deletion requires apply plus the reviewed plan."""
+        if apply:
+            if project:
+                _refuse_owner_action(project, "scan.delete")
+            from seohead.projects.permissions import require_mcp_allowed
+
+            require_mcp_allowed("scan.delete")
         return _checked(
             handlers.scan_prune(
                 directory=directory,
