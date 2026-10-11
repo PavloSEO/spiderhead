@@ -11,17 +11,13 @@ permissions:
 
 jobs:
   quality:
-    name: Python ${{ matrix.python-version }}
+    name: Python 3.15
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.15"
           cache: pip
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev,mcp,cluster,reports,remote]"
@@ -44,7 +40,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.15"
           cache: pip
       - run: python -m pip install -e ".[dev,mcp,reports]"
       - name: Verify OS locks, Unicode paths, native retry, and real stdio MCP
@@ -56,7 +52,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.15"
           cache: pip
       - run: python -m pip install --upgrade pip
       # dev brings pytest, which the boundary check below now runs.
@@ -127,7 +123,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.15"
           cache: pip
       - run: python -m pip install --upgrade pip build twine
       - run: python -m build
@@ -144,7 +140,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.15"
           cache: pip
       - run: python -m pip install --upgrade pip build
       # Every supported extra installs so each documented dependency profile
@@ -177,12 +173,16 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.15"
           cache: pip
       - uses: astral-sh/setup-uv@v7
         with:
           version: "0.11.26"
           enable-cache: false
+      - name: Install XML headers for locked release source builds
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libxml2-dev libxslt1-dev
       - name: Choose the previous revision
         id: base
         env:
@@ -223,7 +223,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.15"
           cache: pip
       - run: python -m pip install -e ".[dev,reports,pdf]"
       - run: google-chrome --version
@@ -237,7 +237,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.15"
       - name: Exercise owned loopback TLS and recovery fixture
         run: >
           python scripts/disposable_service_profile.py
@@ -259,7 +259,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.15"
           cache: pip
       - name: Install the isolated worker fixture dependencies
         run: python -m pip install -e ".[dev,remote,reports,render]"
