@@ -169,7 +169,7 @@ def register(mcp, _checked: Callable[[Any], Any]):  # pragma: no cover - needs t
         period: str,
         sources: list[str] | None = None,
     ) -> dict[str, Any]:
-        """Read weekly GSC, Metrika and Webmaster evidence by cluster and evaluate explicit rules.
+        """Read weekly GSC, Metrika and Webmaster evidence by cluster and bound resource, and evaluate rules.
         Reads local provider history and project bindings only; never fetches providers. Missing
         values stay null with a reason."""
         from seohead.semantics.runner import run_quiet

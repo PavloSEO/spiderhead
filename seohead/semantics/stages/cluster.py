@@ -156,7 +156,7 @@ def run(store, cfg, limit=0, top=10, method="serp"):
     receipts = {
         r["phrase_norm"]: r
         for r in store.db.execute(
-            "SELECT phrase_norm,state FROM serp_fetches WHERE region=? AND top=?",
+            "SELECT phrase_norm,state,fetched_at FROM serp_fetches WHERE region=? AND top=?",
             (str(region), top),
         )
     }
@@ -175,6 +175,8 @@ def run(store, cfg, limit=0, top=10, method="serp"):
                 (r["norm"], str(region), top),
             ).fetchone()[0]
             docs = json.loads(raw)["docs"][:top]
+            if not cached:
+                store.add_serp(r["norm"], docs, fetched_at=receipt["fetched_at"])
             doms[r["norm"]] = {url_key(d["url"]) for d in docs if d.get("url")}
         elif cached and r["norm"] not in has_receipt:
             # Legacy SERP has no region receipt; retain it until an explicit new fetch is recorded.

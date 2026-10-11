@@ -108,6 +108,9 @@ def _now():
     return time.strftime("%Y-%m-%d %H:%M:%S")
 
 
+_DEFAULT_FETCH_TIME = object()
+
+
 class Store:
     def __init__(self, db_path, readonly=False):
         self.path = str(db_path)
@@ -400,12 +403,14 @@ class Store:
             "SELECT url,domain,pos FROM serp WHERE phrase_norm=? ORDER BY pos", (phrase_norm,)
         ).fetchall()
 
-    def add_serp(self, phrase_norm, docs):
+    def add_serp(self, phrase_norm, docs, *, fetched_at=_DEFAULT_FETCH_TIME):
         self.db.execute("DELETE FROM serp WHERE phrase_norm=?", (phrase_norm,))
+        if fetched_at is _DEFAULT_FETCH_TIME:
+            fetched_at = _now()
         for d in docs:
             self.db.execute(
                 "INSERT INTO serp(phrase_norm,pos,url,domain,title,fetched_at) VALUES(?,?,?,?,?,?)",
-                (phrase_norm, d.get("pos"), d.get("url"), d.get("domain"), d.get("title"), _now()),
+                (phrase_norm, d.get("pos"), d.get("url"), d.get("domain"), d.get("title"), fetched_at),
             )
 
     # ---------- provider units ----------

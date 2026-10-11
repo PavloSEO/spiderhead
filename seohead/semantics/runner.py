@@ -87,20 +87,41 @@ def paid_estimate(stage: str, project: str | Path, **options: Any) -> dict[str, 
             seed_file = directory / cfg.get("seeds_file", "seeds.txt")
             seeds = [line.strip() for line in seed_file.read_text(encoding="utf-8").splitlines() if line.strip()] if seed_file.exists() else []
             expanded = {r[0] for r in store.db.execute("SELECT seed_norm FROM expansions")}
+            has_attempts = store.db.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='collect_attempts'"
+            ).fetchone()
+            attempts = store.db.execute("SELECT seed,state,depth FROM collect_attempts").fetchall() if has_attempts else []
             blocked = {
                 r[0] for r in store.db.execute(
                     "SELECT seed FROM collect_attempts WHERE state IN ('submitting','unknown')"
                 )
-            } if store.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='collect_attempts'").fetchone() else set()
-            from seohead.semantics.norm import normalize
+            } if has_attempts else set()
+            from seohead.semantics.norm import Filters, normalize
 
-            initial = {normalize(seed) for seed in seeds} - expanded - blocked - {""}
+            candidates = {normalize(seed) for seed in seeds}
+            if options.get("resume"):
+                candidates.update(normalize(row["seed"]) for row in attempts if row["state"] == "retryable")
+                filters = Filters.from_config(cfg)
+                floor, max_depth = cfg.get("reexpand_floor", 40), cfg.get("max_depth", 3)
+                for row in store.db.execute(
+                    "SELECT norm,depth FROM phrases WHERE base>=? AND status IN ('new','kept')",
+                    (floor,),
+                ):
+                    phrase, depth = row["norm"], row["depth"] or 0
+                    if depth <= max_depth and not filters.is_stop(phrase) and filters.has_intent(phrase) and len(phrase.split()) >= 2:
+                        candidates.add(normalize(phrase))
+            initial = candidates - expanded - blocked - {""}
             count = len(initial)
             limit = int(options.get("max_seeds", 0) or 0)
             if limit:
                 count = min(count, limit)
-            capacity = max(0, int(options.get("max_phrases", 100000)) - store.counts()["_total"])
-            maximum = min(limit, capacity) if limit else capacity
+            max_phrases = int(options.get("max_phrases", 100000))
+            total_phrases = store.counts()["_total"]
+            maximum = (
+                0
+                if total_phrases >= max_phrases
+                else min(limit, max_phrases) if limit else max_phrases
+            )
             count = min(count, maximum)
             provider, unit, tasks = "yandex_wordstat", "requests", count
         elif stage == "synonyms":
@@ -139,7 +160,7 @@ def paid_estimate(stage: str, project: str | Path, **options: Any) -> dict[str, 
                     "WHERE p.status='kept'"
                 )
             } - all_receipts
-            count = max(0, rows - len(complete | legacy)) if options.get("method", "serp") == "serp" else 0
+            count = max(0, rows - len(complete | legacy))
             if blocked_items:
                 count = 0
             limit = int(options.get("limit", 0) or 0)
@@ -161,8 +182,11 @@ def paid_estimate(stage: str, project: str | Path, **options: Any) -> dict[str, 
             if has_tasks:
                 from seohead.semantics.norm import normalize
 
+                region_id = int(str((cfg.get("regions") or [225])[0]))
                 for task in store.db.execute(
-                    "SELECT payload_json FROM provider_tasks WHERE provider='arsenkin' AND stage='exact'"
+                    "SELECT payload_json FROM provider_tasks WHERE provider='arsenkin' "
+                    "AND stage='exact' AND region=?",
+                    (region_id,),
                 ):
                     claimed.update(normalize(value) for value in json.loads(task[0]).get("queries", []))
             count = sum(not claimed.intersection(members) for members in groups.values())
@@ -213,10 +237,7 @@ def execute(stage: str, project: str | Path, **options: Any) -> dict[str, Any]:
     directory = config.data_dir(project)
     if stage in PAID_STAGES:
         estimate = paid_estimate(stage, project, **options)
-        estimate_count = (estimate.get("request_estimate") or {}).get("count")
-        if getattr(args, "dry_run", False) or (
-            not getattr(args, "confirm_paid", False) and estimate_count != 0
-        ):
+        if getattr(args, "dry_run", False) or not getattr(args, "confirm_paid", False):
             return {
                 "contract": "seohead.semantics.operation.v1",
                 "mode": "estimate" if getattr(args, "dry_run", False) else "confirmation_required",
@@ -392,22 +413,17 @@ def run_quiet(
     if stage in PAID_STAGES and not confirm_paid:
         try:
             estimate = paid_estimate(stage, project, **options)
-            if options.get("dry_run"):
-                return {"ok": True, "result": {"stage": stage, "paid": True, "estimate": estimate, "requires_confirmation": True, "paid_calls_made": 0}, "logs": ""}
-            if (estimate.get("request_estimate") or {}).get("count") == 0:
-                confirm_paid = False
-            else:
-                return {
-                    "ok": True,
-                    "result": {
-                        "stage": stage,
-                        "paid": True,
-                        "estimate": estimate,
-                        "requires_confirmation": True,
-                        "paid_calls_made": 0,
-                    },
-                    "logs": "",
-                }
+            return {
+                "ok": True,
+                "result": {
+                    "stage": stage,
+                    "paid": True,
+                    "estimate": estimate,
+                    "requires_confirmation": True,
+                    "paid_calls_made": 0,
+                },
+                "logs": "",
+            }
         except (OSError, ValueError, sqlite3.Error) as exc:
             return {"ok": False, "error": str(exc), "paid": True}
     options.setdefault("json", True)

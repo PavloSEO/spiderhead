@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 import sqlite3
 from collections import defaultdict
@@ -274,6 +275,37 @@ def _week(value):
     return (day - timedelta(days=day.weekday())).isoformat()
 
 
+def _week_coverage(source_status, week_start, period_start, period_end):
+    if source_status["state"] == "unavailable":
+        return "unavailable", source_status.get("reason") or "provider history is unavailable"
+    if source_status["state"] == "partial":
+        return "partial", source_status.get("reason") or "provider history is truncated"
+    monday = date.fromisoformat(week_start)
+    days = [monday + timedelta(days=offset) for offset in range(7)]
+    if days[0] < period_start or days[-1] > period_end:
+        return "partial", "requested period does not include the full Monday-to-Sunday week"
+    resources = source_status.get("resources") or []
+    if not resources:
+        return "unavailable", "no project resource is bound to this source"
+    gaps = []
+    states = ("partial", "failed", "pending", "lagged", "unrequested")
+    for resource in resources:
+        coverage = source_status.get("coverage", {}).get(resource, {})
+        measured = set(coverage.get("complete", [])) | set(coverage.get("empty", []))
+        state_by_day = {
+            day: state
+            for state in states
+            for day in coverage.get(state, [])
+        }
+        for day in days:
+            value = day.isoformat()
+            if value not in measured:
+                gaps.append(f"{resource}:{value}:{state_by_day.get(value, 'missing')}")
+    if gaps:
+        return "partial", "provider coverage has incomplete days: " + ", ".join(gaps[:10])
+    return "complete", None
+
+
 def _source_rows(root, source, start, end):
     path = root / "sources.sqlite"
     if not path.is_file():
@@ -349,9 +381,7 @@ def _metric_value(source, metric, rows):
     if not values:
         return {"value": None, "unavailable_reason": "no matched, complete provider measurements for this week"}
     if metric == "users" and source == "metrika":
-        if len(rows) == 1 and len(values) == 1:
-            return {"value": values[0], "aggregation": "single_observation"}
-        return {"value": None, "unavailable_reason": "Metrika users are non-additive across landing pages and traffic sources"}
+        return {"value": None, "unavailable_reason": "Metrika history is daily and distinct users cannot be summed into weekly distinct users"}
     if metric in {"position", "show_position", "click_position", "ctr", "bounce_rate"}:
         weight_name = "impressions" if source == "gsc" else "shows" if source == "webmaster" and metric == "show_position" else "clicks" if source == "webmaster" else "visits"
         weighted = [(row.get(metric), row.get(weight_name)) for row in rows if row.get(metric) is not None and row.get(weight_name) is not None]
@@ -399,36 +429,51 @@ def insights(store, project, period, sources):
         ]
         signals = {}
         for source in selected:
-            grouped = defaultdict(list)
-            for row in provider_rows[source]:
-                if not _matches(source, row, phrases, landing_url):
-                    continue
-                if row.get("coverage_state") != "complete":
-                    continue
-                grouped[_week(row["date"])].append(row)
-            weeks, cursor = [], start - timedelta(days=start.weekday())
-            while cursor <= end:
-                matched = grouped.get(cursor.isoformat(), [])
-                metrics = {
-                    metric: (
-                        {"value": None, "unavailable_reason": source_status[source]["reason"]}
-                        if source_status[source]["state"] == "partial"
-                        else _metric_value(source, metric, matched)
-                    )
-                    for metric in SOURCE_METRICS[source]
+            resource_weeks = {}
+            for resource in source_status[source].get("resources", []):
+                resource_status = {
+                    **source_status[source],
+                    "resources": [resource],
+                    "coverage": {resource: source_status[source].get("coverage", {}).get(resource, {})},
                 }
-                weeks.append({
-                    "week_start": cursor.isoformat(),
-                    "row_count": len(matched),
-                    "coverage_state": "partial" if source_status[source]["state"] == "partial" else "complete" if matched else "unavailable",
-                    "unavailable_reason": source_status[source]["reason"] if source_status[source]["state"] == "partial" else None if matched else "no matched rows; absence is not a measured zero",
-                    "metrics": metrics,
-                })
-                cursor += timedelta(days=7)
+                grouped = defaultdict(list)
+                for row in provider_rows[source]:
+                    if row.get("resource") != resource or not _matches(source, row, phrases, landing_url):
+                        continue
+                    grouped[_week(row["date"])].append(row)
+                weeks, cursor = [], start - timedelta(days=start.weekday())
+                while cursor <= end:
+                    matched = grouped.get(cursor.isoformat(), [])
+                    coverage_state, coverage_reason = _week_coverage(
+                        resource_status, cursor.isoformat(), start, end
+                    )
+                    measured_rows = [row for row in matched if row.get("coverage_state") == "complete"]
+                    metrics = {
+                        metric: (
+                            {"value": None, "unavailable_reason": coverage_reason}
+                            if coverage_state != "complete"
+                            else _metric_value(source, metric, measured_rows)
+                        )
+                        for metric in SOURCE_METRICS[source]
+                    }
+                    weeks.append({
+                        "week_start": cursor.isoformat(),
+                        "row_count": len(matched),
+                        "measured_row_count": len(measured_rows),
+                        "coverage_state": coverage_state,
+                        "unavailable_reason": coverage_reason,
+                        "metrics": metrics,
+                    })
+                    cursor += timedelta(days=7)
+                resource_weeks[resource] = {"weeks": weeks}
             signals[source] = {
                 "source_state": source_status[source]["state"],
                 "source_unavailable_reason": source_status[source]["reason"],
-                "weeks": weeks,
+                "resources": resource_weeks,
+                "weeks": next(iter(resource_weeks.values()))["weeks"] if len(resource_weeks) == 1 else None,
+                "weeks_unavailable_reason": "no bound resource or multiple resources are kept separate"
+                if len(resource_weeks) != 1
+                else None,
             }
         try:
             candidates = [
@@ -441,7 +486,13 @@ def insights(store, project, period, sources):
             ]
         except sqlite3.OperationalError:
             candidates = []
-        cluster_result = {"id": cluster["id"], "name": cluster["name"], "landing_url": landing_url, "signals": signals}
+        phrase_identity = json.dumps(
+            {"name": cluster["name"], "queries": sorted(phrase["norm"] for phrase in phrases)},
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+        identity = hashlib.sha256(phrase_identity.encode("utf-8")).hexdigest()[:12]
+        cluster_result = {"id": cluster["id"], "identity": identity, "name": cluster["name"], "landing_url": landing_url, "signals": signals}
         cluster_result["landing_url_state"] = "measured" if landing_column_available else "unavailable"
         cluster_result["landing_url_unavailable_reason"] = None if landing_column_available else "landing URLs are unavailable in this legacy database"
         cluster_result["landing_candidates"] = candidates
@@ -488,11 +539,12 @@ def _evaluate_rules(cluster):
         if not signal:
             continue
         click_key, impression_key = ("clicks", "impressions") if source == "gsc" else ("clicks", "shows")
-        for week in signal["weeks"]:
-            clicks = week["metrics"][click_key]["value"]
-            impressions = week["metrics"][impression_key]["value"]
-            if clicks is not None and impressions is not None:
-                measured.append({"source": source, "week_start": week["week_start"], "clicks": clicks, "impressions": impressions})
+        for resource, resource_signal in signal.get("resources", {}).items():
+            for week in resource_signal["weeks"]:
+                clicks = week["metrics"][click_key]["value"]
+                impressions = week["metrics"][impression_key]["value"]
+                if clicks is not None and impressions is not None:
+                    measured.append({"source": source, "resource": resource, "week_start": week["week_start"], "clicks": clicks, "impressions": impressions})
     if any(row["impressions"] > 0 and row["clicks"] == 0 for row in measured):
         results.append({
             "rule_id": "search.impressions_without_clicks",
@@ -560,7 +612,7 @@ def create_insight_tasks(
             state = rule["state"] if rule else "unknown_rule"
             raise ValueError(f"selected rule {rule_id} is not matched for cluster {cluster_id}: {state}")
         slug = re.sub(r"[^a-z0-9._/-]+", "-", rule_id.lower()).strip("-./")
-        task_id = f"custom:semantic-{slug}-cluster-{cluster_id}"
+        task_id = f"custom:semantic-{slug}-cluster-{cluster_id}-{cluster['identity']}"
         rule_evidence = rule.get("evidence")
         if isinstance(rule_evidence, list):
             evidence = {
@@ -584,6 +636,7 @@ def create_insight_tasks(
         evidence = {
             "rule_id": rule_id,
             "cluster_id": cluster["id"],
+            "cluster_identity": cluster["identity"],
             "cluster": str(cluster["name"])[:256],
             "period": insight["period"],
             "sources": list(sources),

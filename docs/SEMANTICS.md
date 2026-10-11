@@ -49,8 +49,9 @@ seohead semantics cluster --project ./my-core --confirm-paid
 Plans name the selected region, engine and query source, estimate provider requests or tasks, and
 keep money as `null` with a reason when the provider price cannot be established. Collection has a
 bounded range because each Wordstat response can discover more phrases. No provider client is
-constructed by a plan. MCP returns the same plan from `seo_semantics_paid`; a later call must set
-`confirm_paid=true` to send work.
+constructed by a plan. `--confirm-paid` is required even when the estimate is zero, because a
+stage such as Louvain clustering can still fetch missing SERPs. MCP returns the same plan from
+`seo_semantics_paid`; a later call must set `confirm_paid=true` to send work.
 
 CSV remains supported. XLSX imports read one selected sheet (the active sheet by default), map
 fields by header when unambiguous, and show the applied mapping before writing:
@@ -64,8 +65,15 @@ seohead semantics import --project ./my-core --file phrases.xlsx --sheet Queries
 Supported mappings are `query`, `frequency`, `group`, `subgroup`, `url` and `comment`, with the
 existing `base`, `quoted`, `exact`, `impr`, `pos_y` and `pos_g` fields retained. A `Category /
 Cluster` path is split into group and subgroup. `add` preserves existing phrases, `update` applies
-provided fields, and `replace` explicitly replaces the phrase pool. The preview reports new and
-existing counts, input duplicates, group counts and sample rows. No rows are changed by a preview.
+provided fields, and `replace` explicitly replaces a non-empty phrase pool while clearing its
+derived clusters, domain aggregates and landing scores. Paid provider receipts and expansion
+history remain retained to prevent duplicate charges; cached SERPs are restored from their receipt
+when needed. An empty replacement is refused. The preview reports new and existing counts, input
+duplicates, group counts and sample rows. No rows are changed by a preview.
+
+Imports are bounded to 32 MiB per source file, 100,000 data rows, 128 columns, 16 KiB per cell and
+16 MiB total cell text. Exceeding any bound rejects the whole input before a replace can mutate the
+core.
 
 `export` and `excel` accept `--cluster NAME` or `--scope no-landing`. Their JSON dry-runs return
 the exact planned file paths and row counts:
@@ -92,9 +100,12 @@ the selection and an audit record.
 
 `insights --period YYYY-MM-DD..YYYY-MM-DD --sources gsc,metrika,webmaster` reads local
 `sources.sqlite` and project bindings. It makes no provider calls. It returns weekly cluster
-signals, binding and coverage states, nullable measurements, and versioned rules with thresholds
-and evidence references. Non-additive values are weighted only where provider measures provide a
-valid weight; otherwise they remain unavailable.
+signals by bound resource (never sums multiple properties/counters together), binding and coverage
+states, nullable measurements, and versioned rules with thresholds and evidence references. A
+week is complete only when all seven days are recorded complete or empty; a partial edge week or
+any missing, failed, pending, lagged or partial day withholds the weekly metrics. Non-additive
+values are weighted only where provider measures provide a valid weight; daily Metrika distinct
+users remain unavailable as a weekly total.
 
 Selected matched rule/cluster pairs can be previewed and then written to the existing project
 checklist. This creates manual checklist items and never executes them:

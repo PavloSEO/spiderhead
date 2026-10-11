@@ -192,3 +192,25 @@ def test_insights_keep_missing_source_metrics_null_with_reason(sem_store, tmp_pa
     result = insights(sem_store, tmp_path, "2026-09-01..2026-09-07", ["gsc", "metrika", "webmaster"])
     assert result["provider_calls_made"] == 0
     assert all(item["state"] == "unavailable" for item in result["sources"].values())
+
+
+def test_week_coverage_requires_all_seven_measured_days_and_metrika_users_stay_unavailable():
+    from datetime import date, timedelta
+
+    from seohead.semantics.read_model import _metric_value, _week_coverage
+
+    start = date(2026, 9, 7)
+    days = [(start + timedelta(days=offset)).isoformat() for offset in range(7)]
+    status = {
+        "state": "available",
+        "resources": ["counter-1"],
+        "coverage": {"counter-1": {"complete": days, "empty": [], "partial": [], "failed": [], "pending": [], "lagged": [], "unrequested": []}},
+    }
+    assert _week_coverage(status, start.isoformat(), start, start + timedelta(days=6)) == ("complete", None)
+    status["coverage"]["counter-1"]["failed"] = [days[3]]
+    status["coverage"]["counter-1"]["complete"].remove(days[3])
+    state, reason = _week_coverage(status, start.isoformat(), start, start + timedelta(days=6))
+    assert state == "partial" and "failed" in reason
+    users = _metric_value("metrika", "users", [{"users": 12, "date": days[0]}])
+    assert users["value"] is None
+    assert "weekly distinct users" in users["unavailable_reason"]

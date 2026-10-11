@@ -11,6 +11,11 @@ from seohead.semantics.demand import has_observed_demand
 from seohead.semantics.norm import normalize
 
 _FIELDS = ("query", "frequency", "group", "subgroup", "url", "comment")
+MAX_IMPORT_BYTES = 32 * 1024 * 1024
+MAX_IMPORT_ROWS = 100_000
+MAX_IMPORT_COLUMNS = 128
+MAX_IMPORT_CELL_BYTES = 16_384
+MAX_IMPORT_TEXT_BYTES = 16 * 1024 * 1024
 _DEFAULTS = {
     "query": ("norm", "phrase", "query", "фраза", "запрос"),
     "frequency": ("frequency", "base", "частотность", "частота"),
@@ -22,6 +27,43 @@ _DEFAULTS = {
     "pos_y": ("pos_y", "yandex_pos", "позиция_яндекс"),
     "pos_g": ("pos_g", "google_pos", "позиция_google"),
 }
+
+
+def _collect_rows(source_rows, headers, *, source, strict_width):
+    if not 1 <= len(headers) <= MAX_IMPORT_COLUMNS:
+        raise ValueError(f"import must have between 1 and {MAX_IMPORT_COLUMNS} columns")
+    rows, text_bytes = [], 0
+    for header in headers:
+        size = len(header.encode("utf-8"))
+        if size > MAX_IMPORT_CELL_BYTES:
+            raise ValueError(f"column header exceeds the {MAX_IMPORT_CELL_BYTES}-byte cell limit")
+        text_bytes += size
+    if text_bytes > MAX_IMPORT_TEXT_BYTES:
+        raise ValueError(f"import exceeds the {MAX_IMPORT_TEXT_BYTES}-byte text limit")
+    for line, raw in enumerate(source_rows, 2):
+        if line > MAX_IMPORT_ROWS + 1:
+            raise ValueError(f"import exceeds the {MAX_IMPORT_ROWS}-row limit")
+        if isinstance(raw, dict):
+            if None in raw or strict_width and any(raw.get(header) is None for header in headers):
+                raise ValueError(f"wrong column count on {source} row {line}")
+            values = [raw.get(header) for header in headers]
+        else:
+            if len(raw) > len(headers):
+                raise ValueError(f"wrong column count on {source} row {line}")
+            values = list(raw) + [None] * (len(headers) - len(raw))
+        if any(not header and value not in (None, "") for header, value in zip(headers, values)):
+            raise ValueError(f"non-empty cell has no column header on {source} row {line}")
+        for value in values:
+            if value is None:
+                continue
+            size = len(str(value).encode("utf-8"))
+            if size > MAX_IMPORT_CELL_BYTES:
+                raise ValueError(f"cell exceeds the {MAX_IMPORT_CELL_BYTES}-byte limit on {source} row {line}")
+            text_bytes += size
+            if text_bytes > MAX_IMPORT_TEXT_BYTES:
+                raise ValueError(f"import exceeds the {MAX_IMPORT_TEXT_BYTES}-byte text limit")
+        rows.append(dict(zip(headers, values)))
+    return rows
 
 
 def _read_table(path: Path, sheet: str | None):
@@ -43,7 +85,7 @@ def _read_table(path: Path, sheet: str | None):
             headers = [str(h).strip() if h is not None else "" for h in headers]
             if len({h.casefold() for h in headers if h}) != len([h for h in headers if h]):
                 raise ValueError("worksheet headers must be unique")
-            rows = [dict(zip(headers, row)) for row in values]
+            rows = _collect_rows(values, headers, source=f"worksheet {ws.title}", strict_width=False)
             return headers, rows
         finally:
             workbook.close()
@@ -64,12 +106,9 @@ def _read_table(path: Path, sheet: str | None):
             raise ValueError("CSV headers must be unique")
         reader.fieldnames = headers
         try:
-            rows = list(reader)
+            rows = _collect_rows(reader, headers, source="CSV", strict_width=True)
         except csv.Error as error:
             raise ValueError(f"malformed CSV: {error}") from error
-        for line, row in enumerate(rows, 2):
-            if None in row or any(value is None for value in row.values()):
-                raise ValueError(f"wrong column count on CSV line {line}")
         return headers, rows
 
 
@@ -104,6 +143,8 @@ def _parse(file, sheet=None, mapping=None):
     path = Path(file)
     if not path.is_file():
         raise FileNotFoundError(f"import file not found: {path}")
+    if path.stat().st_size > MAX_IMPORT_BYTES:
+        raise ValueError(f"import file exceeds the {MAX_IMPORT_BYTES}-byte limit")
     headers, source_rows = _read_table(path, sheet)
     applied = _mapping(headers, mapping)
     parsed, seen = [], set()
@@ -151,9 +192,17 @@ def _parse(file, sheet=None, mapping=None):
 
 
 def plan(store, cfg, file, *, sheet=None, mapping=None, merge="add"):
+    rows, applied, input_rows = _parse(file, sheet, mapping)
+    return _plan_rows(
+        store, file, sheet=sheet, merge=merge, rows=rows, applied=applied, input_rows=input_rows
+    )
+
+
+def _plan_rows(store, file, *, sheet, merge, rows, applied, input_rows):
     if merge not in {"add", "update", "replace"}:
         raise ValueError("merge policy must be add, update, or replace")
-    rows, applied, input_rows = _parse(file, sheet, mapping)
+    if merge == "replace" and not rows:
+        raise ValueError("replace import contains no valid queries; refusing to clear the semantic core")
     current = {r[0] for r in store.db.execute("SELECT norm FROM phrases")}
     existing = [item for item in rows if item["query"] in current]
     new = [item for item in rows if item["query"] not in current]
@@ -182,14 +231,20 @@ def plan(store, cfg, file, *, sheet=None, mapping=None, merge="add"):
 
 
 def run(store, cfg, file, *, sheet=None, mapping=None, merge="add"):
-    preview = plan(store, cfg, file, sheet=sheet, mapping=mapping, merge=merge)
-    rows, _, _ = _parse(file, sheet, mapping)
+    rows, applied, input_rows = _parse(file, sheet, mapping)
+    preview = _plan_rows(
+        store, file, sheet=sheet, merge=merge, rows=rows, applied=applied, input_rows=input_rows
+    )
     if merge == "replace":
         store.db.execute("DELETE FROM edges")
         store.db.execute("DELETE FROM serp")
+        store.db.execute("DELETE FROM domains")
         store.db.execute("DELETE FROM clusters")
-        store.db.execute("DELETE FROM expansions")
         store.db.execute("DELETE FROM phrases")
+        if store.db.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='landing_candidates'"
+        ).fetchone():
+            store.db.execute("DELETE FROM landing_candidates")
     added = updated = skipped = 0
     region = str((cfg.get("regions") or [225])[0])
     for item in rows:
