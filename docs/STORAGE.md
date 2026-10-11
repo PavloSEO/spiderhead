@@ -1180,7 +1180,8 @@ restarting that unpublished batch. The frozen `scan.v1` schema is unchanged.
 Sitemap generation writes local files into a new directory and refuses existing destinations.
 Deployment URL scope determines eligible page URLs; the sitemap index contains absolute URLs
 for the generated files. Unknown modification dates are omitted, and optional image coverage
-reports unavailable/truncated bodies rather than treating them as empty pages.
+reports unavailable/truncated bodies and unmeasured image responses. Known non-200
+resource responses are excluded even when no crawled page row exists.
 
 Graph comparison applies section, position and representation filters across both scans.
 The `around` option limits the displayed current graph; it does not narrow comparison scope.

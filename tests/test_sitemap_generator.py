@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import socket
+import sqlite3
 import xml.etree.ElementTree as ET
 from dataclasses import replace
 
@@ -29,16 +30,17 @@ def offline(monkeypatch):
     monkeypatch.setattr(socket, "create_connection", deny)
 
 
-def _scan(tmp_path, records, *, finished=True):
+def _scan(tmp_path, records, *, finished=True, format_version="scan.v1"):
     path = tmp_path / "scan.sqlite"
     metadata = _metadata(
         **{
+            "storage.format_version": format_version,
             "storage.body_mode": "captured_entity_bytes",
             "storage.max_body_bytes": 2 * 1024 * 1024,
             "storage.max_body_store_bytes": 8 * 1024 * 1024,
         }
     )
-    with NativeScan.create(path, **metadata) as scan:
+    with NativeScan.create(path, format_version=format_version, **metadata) as scan:
         scan.enqueue([(record["url"], 0) for record in records])
         for values in records:
             values = dict(values)
@@ -406,3 +408,55 @@ def test_invalid_source_fails_without_creating_scan_or_output(tmp_path):
     result = generator.generate_sitemaps(str(path), str(out), ROOT)
     assert not result["ok"]
     assert not path.exists() and not out.exists()
+
+
+def test_image_sitemap_excludes_resource_only_error_and_keeps_unknown_explicit(tmp_path):
+    path = _scan(
+        tmp_path,
+        [
+            {
+                "url": ROOT + "page",
+                "body": b'<html><body><img src="/broken.jpg"><img src="/healthy.jpg"><img src="/unknown.jpg"></body></html>',
+            }
+        ],
+        format_version="scan.v2",
+    )
+    with sqlite3.connect(path) as con:
+        for name, status, state in [
+            ("broken.jpg", 404, "failed"),
+            ("healthy.jpg", 200, "complete"),
+            ("unknown.jpg", None, "failed"),
+        ]:
+            con.execute(
+                "INSERT INTO resource_graph_fetches(resolved_url,state,reason,status_code,content_type,bytes_received,origin_host,redirects,nesting_depth) VALUES(?,?,?,?,?,32,'example.test',0,0)",
+                (ROOT + name, state, "fixture", status, "image/jpeg"),
+            )
+    before = hashlib.sha256(path.read_bytes()).hexdigest()
+    out = tmp_path / "sitemaps"
+    result = generate_scan_sitemaps(str(path), str(out), ROOT, include_images=True)
+    assert result["ok"], result
+    images = [
+        node.text
+        for node in ET.parse(out / "image-sitemap-0001.xml").findall(
+            "sm:url/image:image/image:loc", NS
+        )
+    ]
+    assert ROOT + "broken.jpg" not in images
+    assert images == [ROOT + "healthy.jpg", ROOT + "unknown.jpg"]
+    assert result["coverage"]["images"]["state"] == "partial"
+    assert result["coverage"]["images"]["counts"]["resource_non_200_image"] == 1
+    assert result["coverage"]["images"]["counts"]["image_response_unavailable"] == 1
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == before
+
+
+def test_unfetched_image_responses_are_not_claimed_complete(tmp_path):
+    path = _scan(
+        tmp_path, [{"url": ROOT, "body": b'<html><body><img src="/unfetched.jpg"></body></html>'}]
+    )
+    result = generate_scan_sitemaps(
+        str(path), str(tmp_path / "sitemaps"), ROOT, include_images=True
+    )
+    assert result["ok"], result
+    assert result["counts"]["images"] == 1
+    assert result["coverage"]["images"]["state"] == "partial"
+    assert result["coverage"]["images"]["counts"]["image_response_unavailable"] == 1

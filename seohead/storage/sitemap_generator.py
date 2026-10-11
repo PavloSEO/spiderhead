@@ -235,6 +235,12 @@ def _images(
     coverage["bodies_read"] += 1
     images: list[str] = []
     seen: set[str] = set()
+    has_resource_status = (
+        con.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='resource_graph_fetches'"
+        ).fetchone()
+        is not None
+    )
     for source in sources:
         if source["tag"] not in {"img", "source"}:
             continue  # CSS URLs can name fonts and other non-image resources.
@@ -263,10 +269,22 @@ def _images(
         ):
             coverage["excluded_image"] += 1
             continue
+        resource = (
+            con.execute(
+                "SELECT status_code FROM resource_graph_fetches WHERE resolved_url=?", (image,)
+            ).fetchone()
+            if has_resource_status
+            else None
+        )
+        resource_status = resource[0] if resource else None
+        if resource_status is not None and resource_status != 200:
+            coverage["excluded_image"] += 1
+            coverage["resource_non_200_image"] += 1
+            continue
         if len(images) >= MAX_IMAGES:
             coverage["image_limit_omitted"] += 1
             continue
-        if not row or row["status_code"] is None:
+        if (not row or row["status_code"] is None) and resource_status is None:
             coverage["image_response_unavailable"] += 1
         images.append(image)
     if not images:
@@ -429,10 +447,12 @@ def generate_sitemaps(
                         else "unavailable"
                         if emitted and gaps == emitted
                         else "partial"
-                        if gaps or image_coverage["image_limit_omitted"]
+                        if gaps
+                        or image_coverage["image_limit_omitted"]
+                        or image_coverage["image_response_unavailable"]
                         else "complete"
                     ),
-                    "evidence": "retained HTML references; unfetched image responses are not verified",
+                    "evidence": "retained HTML references; images without an observed HTTP status remain unverified",
                     "counts": dict(sorted(image_coverage.items())),
                 },
             },
