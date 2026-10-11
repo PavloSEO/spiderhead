@@ -374,12 +374,63 @@ class _BrowserWeight:
         }
 
 
+class _BrowserNetworkEvidence:
+    """Bounded network-log facts that explain resources rejected by the guard."""
+
+    CAP = 100
+
+    def __init__(self) -> None:
+        self.resources: list[dict[str, Any]] = []
+        self.omitted = 0
+        self.active = False
+
+    def begin(self) -> None:
+        self.active = True
+
+    def blocked(self, request: Any, reason: str) -> None:
+        if len(self.resources) >= self.CAP:
+            self.omitted += 1
+            return
+        parts = urlsplit(str(getattr(request, "url", "")))
+        # Query strings and fragments can carry credentials or personal data.
+        safe_url = f"{parts.scheme}://{parts.netloc}{parts.path}" if parts.hostname else ""
+        self.resources.append(
+            {
+                "url": safe_url[:2048],
+                "resource_type": str(getattr(request, "resource_type", "unknown"))[:32],
+                "reason": reason[:160],
+            }
+        )
+
+    def http_failure(self, request: Any, status_code: int) -> None:
+        before = len(self.resources)
+        self.blocked(request, f"HTTP response status {status_code}")
+        if len(self.resources) > before:
+            self.resources[-1]["status_code"] = status_code
+
+    def finish(self) -> dict[str, Any]:
+        return {
+            "state": "unavailable" if not self.active else "partial" if self.omitted else "complete",
+            "reason": (
+                "browser network log was not started"
+                if not self.active
+                else "blocked resource log reached its 100-entry limit"
+                if self.omitted
+                else ""
+            ),
+            "resources": self.resources,
+            "omitted": self.omitted,
+            "policy": "pinned_http",
+        }
+
+
 def _pinned_browser_route(
     client: Any,
     *,
     request_gate: Callable[[], None] | None = None,
     max_response_bytes: int = _BROWSER_RESPONSE_BYTES,
     weight_observer: _BrowserWeight | None = None,
+    network_observer: _BrowserNetworkEvidence | None = None,
 ) -> tuple[Callable[[Any], None], list[str]]:
     """Build a Playwright fulfiller backed by the shared pinned HTTP transport."""
     if type(max_response_bytes) is not int or max_response_bytes < 1:
@@ -388,6 +439,8 @@ def _pinned_browser_route(
     policy = client_network_policy(client)
 
     def abort(route: Any, reason: str) -> None:
+        if network_observer is not None:
+            network_observer.blocked(route.request, reason)
         if weight_observer is not None:
             weight_observer.omit(
                 "pinned-browser request failed or was aborted", completed_request=True
@@ -487,6 +540,8 @@ def _pinned_browser_route(
                 route.fulfill(
                     status=response.status_code, headers=response_headers, body=bytes(body)
                 )
+                if network_observer is not None and response.status_code >= 400:
+                    network_observer.http_failure(request, response.status_code)
                 if weight_observer is not None:
                     weight_observer.delivered(
                         request,
@@ -927,7 +982,7 @@ def detect_empty_shell(html: str) -> str | None:
     return None
 
 
-def _snapshot(html: str, url: str) -> dict[str, Any]:
+def _snapshot(html: str, url: str, representation: str = "unknown") -> dict[str, Any]:
     """Build an identical, comparable snapshot for raw HTML and rendered DOM."""
     from seohead.checks.page_facts import extract
 
@@ -942,9 +997,14 @@ def _snapshot(html: str, url: str) -> dict[str, Any]:
         "images": images,
         "title": facts.get("title") or "",
         "h1": facts.get("h1") or "",
+        "description": facts.get("description") or "",
         "canonical": facts.get("canonical") or "",
+        "meta_robots": facts.get("meta_robots") or "",
         "jsonld_types": _jsonld_types(html),
         "html_bytes": len(html or ""),
+        "dom_bytes": len((html or "").encode("utf-8")),
+        "line_count": (html or "").count("\n") + (1 if html else 0),
+        "representation": representation,
     }
 
 
@@ -1263,6 +1323,8 @@ def render_check(
     weight = _BrowserWeight(target)
     asset_evidence = {"source": "native-render", "weight": weight.finish()}
     transport_info["asset_evidence"] = asset_evidence
+    network_evidence = _BrowserNetworkEvidence()
+    transport_info["network_evidence"] = network_evidence.finish()
     coverage = None
     render_completed = False
 
@@ -1358,8 +1420,12 @@ def render_check(
                 context = open_context(browser, endpoint, context_options)
                 context.add_init_script(_CLS_INIT_JS)
                 route_handler, limitations = _pinned_browser_route(
-                    browser_client, request_gate=request_gate, weight_observer=weight
+                    browser_client,
+                    request_gate=request_gate,
+                    weight_observer=weight,
+                    network_observer=network_evidence,
                 )
+                network_evidence.begin()
                 context.route("**/*", route_handler)
                 # WebSockets are not HTTP requests and page.route() never sees
                 # them either; route_web_socket is the separate interception
@@ -1391,6 +1457,15 @@ def render_check(
                             **transport_info,
                         }
                     raise RuntimeError("; ".join(limitations))
+                if size["width"] <= 600 or is_mobile:
+                    from seohead.checks.mobile_layout import measure_mobile_layout
+
+                    transport_info["mobile_layout"] = measure_mobile_layout(page)
+                    if wait_reached != wait:
+                        transport_info["mobile_layout"] = {
+                            "state": "unavailable",
+                            "reason": "requested navigation milestone was not reached",
+                        }
                 asset_evidence.update(_render_asset_evidence(page, coverage, weight))
                 render_completed = wait_reached == wait
             finally:
@@ -1423,16 +1498,17 @@ def render_check(
             "viewport": viewport,
             "viewport_size": size,
             "user_agent": selected_user_agent,
-            "raw": _snapshot(raw_html, final_url),
+            "raw": _snapshot(raw_html, final_url, "raw"),
             **transport_info,
         }
     finally:
         navigation.finish(success=render_completed)
+        transport_info["network_evidence"] = network_evidence.finish()
         if browser_client is not None:
             browser_client.close()
 
-    raw = _snapshot(raw_html, final_url)
-    rendered = _snapshot(rendered_html, rendered_url)
+    raw = _snapshot(raw_html, final_url, "raw")
+    rendered = _snapshot(rendered_html, rendered_url, "rendered")
     # Merge in what only getComputedStyle can see: a background-image an
     # external stylesheet declares, absent from both HTML strings above.
     rendered["images"] = sorted(set(rendered["images"]) | set(computed_backgrounds))
@@ -1458,6 +1534,9 @@ def render_check(
             "error": RENDER_UNAVAILABLE.format(reason=incomplete),
             "raw": raw,
             "rendered": rendered,
+            "element_diff_state": "unavailable",
+            "element_diff_reason": incomplete,
+            "element_diffs": [],
             "empty_shell": shell,
             "wait": wait,
             "wait_reached": wait_reached,
@@ -1468,6 +1547,12 @@ def render_check(
             **transport_info,
         }
     findings = compare(raw, rendered, raw_html, shell)
+    from seohead.checks.element_diff import classify_diffs, diff_elements
+
+    element_diffs = diff_elements(raw, rendered, rendered_ok=wait_reached == wait)
+    element_rules = [
+        {"rule": rule, "diff": dict(item)} for rule, item in classify_diffs(element_diffs)
+    ]
     # Keep the summary aligned with findings: five widget words do not make a
     # page JavaScript-dependent, while findings use a 30% materiality threshold.
     js_dependent: bool | None = findings != [ALL_CLEAR]
@@ -1511,6 +1596,10 @@ def render_check(
         "user_agent": selected_user_agent,
         "raw": raw,
         "rendered": rendered,
+        "element_diff_state": "complete" if wait_reached == wait else "unavailable",
+        "element_diff_reason": "" if wait_reached == wait else "requested navigation milestone was not reached",
+        "element_diffs": element_diffs,
+        "element_rules": element_rules,
         "empty_shell": shell,
         # Which milestone the rendered snapshot actually came from: a site with
         # long-polling scripts never reaches networkidle, and a report should be
@@ -1620,7 +1709,15 @@ def rendered_html(
                                 "error": _RENDER_CANCELLED,
                             }
                         raise RuntimeError("; ".join(limitations))
-                    result = {"ok": True, "url": page.url, "html": page.content()}
+                    html = page.content()
+                    result = {
+                        "ok": True,
+                        "url": page.url,
+                        "representation": "rendered",
+                        "html": html,
+                        "dom_bytes": len(html.encode("utf-8")),
+                        "line_count": html.count("\n") + (1 if html else 0),
+                    }
                     if endpoint is not None:
                         result["browser_transport"] = transport_facts
                     return result
@@ -1832,6 +1929,7 @@ def render_document(
         "navigation": {},
         "settings": {
             "viewport": viewport,
+            "user_agent": user_agent or UA,
             "device_pixel_ratio": float(browser_cfg.get("device_pixel_ratio", 1.0) or 1.0),
             "mobile_emulation": bool(browser_cfg.get("mobile_emulation")),
             "touch_emulation": bool(browser_cfg.get("touch_emulation")),
@@ -1841,6 +1939,7 @@ def render_document(
                 browser_cfg.get("resize_to_content_max_height_px", 15000)
             ),
             "persistent_profile": bool(browser_cfg.get("persistent_profile")),
+            "screenshot_mode": str(artifacts_cfg.get("screenshot_mode", "full_page")),
         },
         "transforms": {
             "flatten_shadow_dom_requested": bool(browser_cfg.get("flatten_shadow_dom")),
@@ -1858,6 +1957,8 @@ def render_document(
         renderer["transport"] = transport_facts
     browser_limitations: list[str] = []
     weight = _BrowserWeight(target)
+    network_evidence = _BrowserNetworkEvidence()
+    renderer["network_evidence"] = network_evidence.finish()
     renderer["settings"]["asset_evidence"] = {"source": "native-render", "weight": weight.finish()}
     coverage = None
     navigation = NavigationCapture(target, browser_cfg.get("wait_until", "load"), nav_timeout)
@@ -1961,8 +2062,12 @@ def render_document(
             renderer["engine_version"] = str(getattr(actual_browser, "version", "unknown"))
             try:
                 route_handler, browser_limitations = _pinned_browser_route(
-                    network_client, request_gate=request_gate, weight_observer=weight
+                    network_client,
+                    request_gate=request_gate,
+                    weight_observer=weight,
+                    network_observer=network_evidence,
                 )
+                network_evidence.begin()
                 context.route("**/*", route_handler)
                 context.route_web_socket(
                     "**/*",
@@ -1985,6 +2090,12 @@ def render_document(
                 script_timeout = float(browser_cfg.get("script_timeout_seconds", 0) or 0)
                 if script_timeout > 0:
                     page.wait_for_timeout(script_timeout * 1000)
+                action_cfg = rendering_config.get("actions", [])
+                preset_cfg = rendering_config.get("presets", [])
+                if action_cfg or preset_cfg:
+                    from seohead.checks.page_actions import run_actions
+
+                    renderer["page_actions"] = run_actions(page, action_cfg, preset_cfg)
                 if browser_cfg.get("resize_to_content"):
                     cap = int(browser_cfg.get("resize_to_content_max_height_px", 15000))
                     content_height = int(page.evaluate("document.documentElement.scrollHeight"))
@@ -1995,6 +2106,10 @@ def render_document(
                     shadow_flattened = int(page.evaluate(_FLATTEN_SHADOW_DOM_JS) or 0)
                 if browser_cfg.get("flatten_iframes"):
                     iframe_flattened = int(page.evaluate(_FLATTEN_IFRAMES_JS) or 0)
+                if viewport["width"] <= 600 or browser_cfg.get("mobile_emulation"):
+                    from seohead.checks.mobile_layout import measure_mobile_layout
+
+                    renderer["mobile_layout"] = measure_mobile_layout(page)
                 if max_html_bytes is None:
                     html = page.content()
                     dom = {"complete": True, "bytes": len(html.encode("utf-8")), "html": html}
@@ -2005,7 +2120,11 @@ def render_document(
                 if artifacts_cfg.get("screenshots") and artifacts_dir:
                     staged = _staged_screenshot_path(artifacts_dir, target)
                     try:
-                        page.screenshot(path=staged, full_page=True)
+                        page.screenshot(
+                            path=staged,
+                            full_page=artifacts_cfg.get("screenshot_mode", "full_page")
+                            == "full_page",
+                        )
                         screenshot_path = staged
                         screenshot_state = "staged"
                     except Exception as exc:
@@ -2066,6 +2185,7 @@ def render_document(
         }
     finally:
         navigation.finish(success=render_completed)
+        renderer["network_evidence"] = network_evidence.finish()
         if network_client is not None:
             network_client.close()
 
@@ -2088,8 +2208,10 @@ def render_document(
         "ok": True,
         "url": target,
         "final_url": final_url,
+        "representation": "rendered",
         "html": dom["html"],
         "dom_bytes": dom.get("bytes"),
+        "line_count": dom["html"].count("\n") + (1 if dom["html"] else 0),
         "dom_state": "complete",
         "renderer": renderer,
         "console_errors": console_errors,

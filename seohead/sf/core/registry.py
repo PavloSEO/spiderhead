@@ -1046,6 +1046,91 @@ CHECKS: dict[str, dict[str, Any]] = {
         "fix": "Give the mobile alternate link an `href` pointing at the mobile URL, or remove "
         'the `<link rel="alternate" media=...>` tag.',
     },
+    "MOBILE_CONTENT_OVERFLOW": {
+        "severity": "warning",
+        "source": "native rendered mobile layout",
+        "message": "Rendered content extends beyond the mobile viewport width",
+        "fix": "Constrain the overflowing element or provide a mobile-width layout.",
+    },
+    "MOBILE_TEXT_TOO_SMALL": {
+        "severity": "notice",
+        "source": "native rendered mobile layout",
+        "message": "Rendered text uses a computed font size below 12 CSS pixels",
+        "fix": "Use a readable mobile text size and verify the page at its target viewport.",
+    },
+    "MOBILE_TARGET_TOO_SMALL": {
+        "severity": "notice",
+        "source": "native rendered mobile layout",
+        "message": "Rendered interactive target is smaller than 48 CSS pixels in at least one dimension",
+        "fix": "Increase the interactive target's hit area and verify spacing at the target viewport.",
+    },
+    "NOINDEX_ONLY_IN_RAW_HTML": {
+        "severity": "warning",
+        "source": "native raw/rendered element comparison",
+        "message": "Noindex appears in the original HTML but not in the rendered DOM",
+        "fix": "Keep indexing directives consistent in the original response and rendered document.",
+    },
+    "NOFOLLOW_ONLY_IN_RAW_HTML": {
+        "severity": "warning",
+        "source": "native raw/rendered element comparison",
+        "message": "Nofollow appears in the original HTML but not in the rendered DOM",
+        "fix": "Keep link-following directives consistent in the original response and rendered document.",
+    },
+    "CANONICAL_MISMATCH": {
+        "severity": "warning",
+        "source": "native raw/rendered element comparison",
+        "message": "Canonical URL changes after JavaScript rendering",
+        "fix": "Declare one stable canonical URL in the original response.",
+    },
+    "CANONICAL_ONLY_IN_RENDERED_HTML": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "Canonical URL is present only after JavaScript rendering",
+        "fix": "Declare the canonical URL in the original response.",
+    },
+    "PAGE_TITLE_ONLY_IN_RENDERED_HTML": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "Page title is present only after JavaScript rendering",
+        "fix": "Serve the page title in the original HTML response.",
+    },
+    "PAGE_TITLE_UPDATED_BY_JAVASCRIPT": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "Page title changes after JavaScript rendering",
+        "fix": "Keep the initial and rendered page title aligned.",
+    },
+    "META_DESCRIPTION_ONLY_IN_RENDERED_HTML": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "Meta description is present only after JavaScript rendering",
+        "fix": "Serve the meta description in the original HTML response.",
+    },
+    "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "Meta description changes after JavaScript rendering",
+        "fix": "Keep the initial and rendered meta description aligned.",
+    },
+    "H1_ONLY_IN_RENDERED_HTML": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "H1 is present only after JavaScript rendering",
+        "fix": "Serve the primary page heading in the original HTML response.",
+    },
+    "H1_UPDATED_BY_JAVASCRIPT": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "H1 changes after JavaScript rendering",
+        "fix": "Keep the initial and rendered primary page heading aligned.",
+    },
+    "RENDER_RESOURCE_BLOCKED": {
+        "severity": "warning",
+        "source": "native rendered network log",
+        "message": "A rendered page resource was refused or returned an HTTP error",
+        "fix": "Review the recorded request reason and make required page resources available "
+        "to the renderer.",
+    },
     "UNSUPPORTED_PLUGIN": {
         "severity": "warning",
         "source": "crawl:plugin_elements",

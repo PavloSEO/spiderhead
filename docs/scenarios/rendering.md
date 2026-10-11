@@ -36,6 +36,26 @@ Two URLs per detected template pattern are probed raw-versus-rendered; only patt
 actually differ are escalated. Rendering every page of a 3000-URL site to find the one template
 that hydrates its links costs an order of magnitude more for the same answer.
 
+Desktop mode labels map to crawl settings as **Off** = `rendering.mode: raw`, **Auto** =
+`rendering.mode: js` with `rendering.escalation.policy: auto`, and **Always** = `js` with
+`policy: full`. URL and time budgets still bound Auto and Always. For a mobile pass, select the
+`mobile` viewport or a custom width of 600 CSS pixels or less; the retained renderer provenance
+then carries overflow, computed text-size and interactive-target measurements. Checks stay
+unavailable when no mobile render was captured.
+
+Page actions run only when the project opts into them. They use bounded selectors and values, and
+the named presets expand-tabs, load-more, and read-dataLayer never accept caller JavaScript:
+
+```json
+{"rendering":{"mode":"js","presets":["expand_tabs","load_more"],
+ "actions":[{"action":"wait_for_selector","selector":".product-list","timeout_ms":5000},
+            {"action":"extract","selector":"a.product","attribute":"href"}],
+ "artifacts":{"screenshots":true,"screenshot_mode":"first_screen"}}}
+```
+
+Action results and the bounded pinned-network rejection log are stored with each rendered
+document's renderer evidence. `screenshot_mode` accepts `first_screen` or `full_page`.
+
 `browser.engine` chooses the headless engine — `chromium` (the default), `firefox` or
 `webkit`; an uninstalled browser fails with an install hint, never a silent fallback.
 `browser.viewport_width`/`viewport_height` replace the `desktop`/`mobile` preset's

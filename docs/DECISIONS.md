@@ -117,15 +117,16 @@ with no conflict raised (#638).
 continuously in sync with the fragments would put both branches back into the same file and
 rebuild the conflict this removes.
 
-## Page actions in rendered crawls: proposed policy (#1011, not accepted)
+## Page actions in rendered crawls (#1011)
 
-Status: proposal. The owner has not decided it, so it does not change behavior. Child 1 of #1011
-stays open until the decision is recorded here as accepted or rejected.
+The bounded data-only baseline is implemented for explicit project configuration. The open owner
+decisions are whether to accept arbitrary JavaScript inside `extract` and which agent callers may
+run actions under the permission model (#977); neither is enabled by this implementation.
 
 - Actions are a closed set: `click`, `scroll`, `wait_for_selector`, `wait_ms`, and `extract`,
   where `extract` returns JSON-serialisable values only.
 - Named presets (for example `expand_tabs`, `load_more`, `read_datalayer`) are the reusable form.
-  A raw JavaScript string is accepted only inside `extract`, and only if the owner accepts that.
+  `extract` is limited to selector-based text, `href`, and `value`; arbitrary JavaScript is rejected.
 - Any action rule must stay within `settings.py` `evidence.extraction_rules` limits: no regular
   expressions inside actions, and no executable code beyond the accepted extract form.
 - Actions do not run under `persistent_profile`, because page storage and cookies could then leak
@@ -136,6 +137,8 @@ stays open until the decision is recorded here as accepted or rejected.
 - Network access during actions stays inside the existing pinned route guard.
 - Who may run actions depends on the agent permission model (#977). Until #977 is decided, the
   contract is recorded without permissions.
-- Implementation status: `seohead.checks.page_actions` validates the closed set above (`click`,
-  `scroll`, `wait_for_selector`, `wait_ms`) with a static time budget. It is not wired into rendering,
-  and `extract` and raw JavaScript are still undecided. Behavior is unchanged.
+- Implementation status: the closed data-only actions (`click`, `scroll`, `wait_for_selector`,
+  `wait_ms`, and selector-based `extract`) and fixed presets are wired into rendering behind
+  explicit project configuration; they have bounded per-step output and a 60-second static budget.
+  The `read_datalayer` preset uses a fixed serializer. Arbitrary JavaScript remains rejected. The
+  actor permission policy remains open under #977, so this does not add an agent permission model.

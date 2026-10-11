@@ -410,6 +410,11 @@ DEFAULTS: dict[str, Any] = {
             # normal frontier after scope/depth/query validation.
             "crawl": False,
         },
+        # Page interactions are an explicit project opt-in. They run only in
+        # the already pinned render context and are persisted with per-URL
+        # renderer provenance.
+        "actions": [],
+        "presets": [],
         "browser": {
             # Which headless engine Playwright launches. "chromium" keeps the
             # historical behaviour; each supported name reaches its matching
@@ -478,6 +483,7 @@ DEFAULTS: dict[str, Any] = {
             # not audit findings, so they never change what is found.
             "screenshots": False,
             "console_errors": False,
+            "screenshot_mode": "full_page",  # full_page | first_screen
         },
     },
 }
@@ -596,6 +602,8 @@ RESULTS_AFFECTING: frozenset[str] = frozenset(
         # docstring on why raw and rendered numbers are not comparable
         # unless the settings that produced each are recorded.
         "rendering.mode",
+        "rendering.actions",
+        "rendering.presets",
         "rendering.escalation.policy",
         "rendering.escalation.sample_per_pattern",
         "rendering.escalation.max_render_urls",
@@ -884,6 +892,13 @@ DESCRIPTIONS: dict[str, str] = {
         "Admit eligible rendered-link candidates through the normal bounded crawl frontier; "
         "independent of rendered route evidence storage."
     ),
+    "rendering.actions": (
+        "Bounded declarative page actions (click, scroll, wait_for_selector, wait_ms, extract); "
+        "extract reads selector-based text or href/value fields; no user-supplied JavaScript."
+    ),
+    "rendering.presets": (
+        "Opt-in named page-action presets: expand_tabs, load_more, read_datalayer."
+    ),
     "rendering.browser.script_timeout_seconds": (
         "How long JavaScript may keep running after the page and its subresources have "
         "loaded, before the DOM is captured."
@@ -939,7 +954,10 @@ DESCRIPTIONS: dict[str, str] = {
         "Directory for the persistent profile; required when persistent_profile is true, "
         "and never a computed default."
     ),
-    "rendering.artifacts.screenshots": "Save a full-page screenshot per rendered URL.",
+    "rendering.artifacts.screenshots": "Save one screenshot per rendered URL.",
+    "rendering.artifacts.screenshot_mode": (
+        "Capture the full page or only the initial viewport when screenshots are enabled."
+    ),
     "rendering.artifacts.console_errors": "Capture browser console error messages per rendered URL.",
 }
 
@@ -1418,7 +1436,22 @@ def _validate_rendering(rendering: dict[str, Any]) -> None:
             f"rendering.mode must be one of {RENDER_MODES}, got {rendering['mode']!r}"
         )
 
+    from seohead.checks.page_actions import preset_actions, validate_actions
+
+    try:
+        actions, action_budget = validate_actions(rendering.get("actions", []))
+        presets, preset_budget = preset_actions(rendering.get("presets", []))
+        if len(actions) + len(presets) > 20 or action_budget + preset_budget > 60_000:
+            raise ValueError("page actions exceed the combined step or time budget")
+    except ValueError as exc:
+        raise ConfigError(f"rendering page actions: {exc}") from exc
+
     escalation = rendering["escalation"]
+    if rendering["artifacts"].get("screenshot_mode", "full_page") not in {
+        "full_page",
+        "first_screen",
+    }:
+        raise ConfigError("rendering.artifacts.screenshot_mode must be full_page or first_screen")
     if type(rendering["rendered_links"]["store"]) is not bool:
         raise ConfigError("rendering.rendered_links.store must be a boolean")
     if type(rendering["rendered_links"]["crawl"]) is not bool:
