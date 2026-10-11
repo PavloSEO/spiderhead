@@ -65,6 +65,26 @@ def validate_context(
         raise ScanError("native scan context payload is invalid JSON") from exc
     from . import sitemaps
 
+    if item["kind"] == "analysis_asset_thresholds":
+        from seohead.crawl.settings import DEFAULTS
+
+        if (
+            item["item_key"] != "run"
+            or item["completeness"] != "complete"
+            or item["reason"]
+            or not isinstance(payload, dict)
+            or set(payload) != {"schema_version", "thresholds"}
+            or payload["schema_version"] != "analysis_asset_thresholds.v1"
+            or not isinstance(payload["thresholds"], dict)
+            or set(payload["thresholds"]) != set(DEFAULTS["analysis"]["asset_thresholds"])
+            or any(
+                type(value) is not int or not 0 < value < 2**63
+                for value in payload["thresholds"].values()
+            )
+        ):
+            raise ScanError("native analysis asset thresholds context is invalid")
+        return
+
     if item["kind"] == "links.position":
         from .link_positions import validate_checkpoint
 

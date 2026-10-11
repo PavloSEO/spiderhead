@@ -374,6 +374,11 @@ def resume_inputs(scan_path: str) -> dict[str, Any]:
     from seohead.storage import open_scan
 
     with closing(open_scan(scan_path, require_audit=False)) as con:
+        from seohead.storage.native_scan import read_effective_config
+
+        settings.setdefault("analysis", {})["asset_thresholds"] = read_effective_config(con)[
+            "analysis"
+        ]["asset_thresholds"]
         list_mode = is_list_scan(con)
     return {
         "start_url": header["start_url"],
@@ -981,7 +986,9 @@ def reanalyze_scan(
         shutil.copyfile(scan_in, work_copy)
         with NativeScan.open(work_copy) as scan:
             snapshot = scan.resume_snapshot()
-            config = json.loads(snapshot["scan"]["config_json"])
+            from seohead.storage.native_scan import read_effective_config
+
+            config = read_effective_config(scan.con)
             start_url = snapshot["scan"]["start_url"]
             result = _rebuild_page_result(scan)
             result.start_page_evidence = {}

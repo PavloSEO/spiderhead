@@ -47,7 +47,9 @@ def reanalyze_scan(
         runtime_versions=runtime,
     ) as (scan, source):
         parent = dict(source.execute("SELECT * FROM scan WHERE singleton=1").fetchone())
-        settings = json.loads(parent["config_json"])
+        from seohead.storage.native_scan import read_effective_config
+
+        settings = read_effective_config(source)
         captured_settings = settings
         list_mode = is_list_scan(source)
         count = source.execute("SELECT COUNT(*) FROM pages").fetchone()[0]

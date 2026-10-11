@@ -21,7 +21,7 @@ from seohead.sf.core.asset_checks import (
 )
 from seohead.sf.core.context import AuditContext
 from seohead.sf.core.loader import LoadedExports
-from seohead.storage import open_scan
+from seohead.storage import ScanError, open_scan
 from seohead.storage.native_scan import NativeScan
 from seohead.storage.resource_graph import capture
 from tests.test_batch_resource_graph import (
@@ -1138,3 +1138,86 @@ def test_unicode_font_samples_fit_retained_envelope_and_scan_reopens(tmp_path):
         finding = next(i for i in ctx.issues if i.check == "FONT_DISPLAY_MISSING")
         assert finding.details["font_faces_count"] == 100
         assert finding.details["font_faces_omitted"] == 100 - len(finding.details["font_faces"])
+
+
+@pytest.mark.parametrize("resource_limit", [2 * 1024 * 1024, 12345])
+def test_native_asset_thresholds_keep_frozen_header_and_roundtrip(tmp_path, resource_limit):
+    import copy
+
+    from seohead.crawl.settings import fingerprint
+    from seohead.mcp.scan_handlers import resume_inputs
+    from seohead.storage.native_scan import NativeScan, read_effective_config
+    from tests.test_scan_native import _metadata
+
+    metadata = _metadata(**{"analysis.asset_thresholds.resource_max_bytes": resource_limit})
+    expected = copy.deepcopy(metadata["config"])
+    thresholds = expected["analysis"].pop("asset_thresholds")
+    path = tmp_path / "scan.sqlite"
+    with NativeScan.create(path, **metadata) as scan:
+        header = dict(scan.con.execute("SELECT * FROM scan").fetchone())
+        assert json.loads(header["config_json"]) == expected
+        assert header["config_fingerprint"] == fingerprint(expected)
+        assert read_effective_config(scan.con)["analysis"]["asset_thresholds"] == thresholds
+    assert resume_inputs(str(path))["settings"]["analysis"]["asset_thresholds"] == thresholds
+    with NativeScan.open(path, expected_config=metadata["config"]):
+        pass
+    mismatch = copy.deepcopy(metadata["config"])
+    mismatch["analysis"]["asset_thresholds"]["resource_max_bytes"] = resource_limit + 1
+    with pytest.raises(ScanError, match="configuration differs"):
+        NativeScan.open(path, expected_config=mismatch)
+
+
+@pytest.mark.parametrize("payload", [
+    {"schema_version": "analysis_asset_thresholds.v0", "thresholds": {}},
+    {"schema_version": "analysis_asset_thresholds.v1", "thresholds": {"resource_max_bytes": 5}},
+    {"schema_version": "analysis_asset_thresholds.v1", "thresholds": {"resource_max_bytes": True, "page_weight_max_bytes": 5}},
+])
+def test_native_asset_threshold_adjunct_rejects_malformed_payload(tmp_path, payload):
+    import sqlite3
+
+    from seohead.storage import open_scan_mode
+    from seohead.storage.native_scan import NativeScan
+    from tests.test_scan_native import _metadata
+
+    path = tmp_path / "scan.sqlite"
+    with NativeScan.create(path, **_metadata()):
+        pass
+    with sqlite3.connect(path) as con:
+        con.execute(
+            "UPDATE context_items SET payload_json=? WHERE kind='analysis_asset_thresholds'",
+            (json.dumps(payload),),
+        )
+    with pytest.raises(ScanError, match="asset thresholds context"):
+        open_scan_mode(path, require_audit=False, light=True)
+
+
+def test_offline_reanalysis_reuses_asset_threshold_adjunct(tmp_path, monkeypatch):
+    from seohead.mcp import handlers
+    from seohead.mcp.reanalysis_handlers import reanalyze_scan
+    from seohead.storage import open_scan
+    from seohead.storage.native_scan import read_effective_config
+    from tests import test_scan_reanalysis_integration as fixture
+
+    settings = fixture._settings()
+    settings["analysis"]["asset_thresholds"]["resource_max_bytes"] = 12345
+    monkeypatch.setattr(fixture, "_settings", lambda **_kwargs: settings)
+    source = tmp_path / "source.sqlite"
+    derived = tmp_path / "derived.sqlite"
+    fixture._source(source)
+    attempts = fixture._forbid_network(monkeypatch, [])
+    original = handlers._audit_crawl_result
+    observed = []
+
+    def audit(result, **kwargs):
+        observed.append(kwargs["settings"]["analysis"]["asset_thresholds"])
+        return original(result, **kwargs)
+
+    monkeypatch.setattr(handlers, "_audit_crawl_result", audit)
+    reanalyze_scan(str(source), str(derived), producer_build="b" * 40)
+    assert observed == [settings["analysis"]["asset_thresholds"]]
+    assert attempts == {}
+    con = open_scan(derived)
+    try:
+        assert read_effective_config(con)["analysis"]["asset_thresholds"] == observed[0]
+    finally:
+        con.close()

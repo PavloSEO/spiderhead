@@ -228,6 +228,37 @@ def _native_config(value: Any, *, recorded: bool = False) -> dict[str, Any]:
     return config
 
 
+def _frozen_header_config(config: dict[str, Any]) -> dict[str, Any]:
+    """Keep scan.v1's original config shape; additive analysis lives in a run context."""
+    header = copy.deepcopy(config)
+    header.get("analysis", {}).pop("asset_thresholds", None)
+    return header
+
+
+def read_effective_config(con: sqlite3.Connection) -> dict[str, Any]:
+    """Restore validated analysis thresholds without changing the frozen header."""
+    config = json.loads(con.execute("SELECT config_json FROM scan WHERE singleton=1").fetchone()[0])
+    items = list(con.execute(
+        "SELECT * FROM context_items WHERE kind='analysis_asset_thresholds' LIMIT 2"
+    ))
+    if len(items) > 1:
+        raise ScanError("native analysis asset thresholds context is duplicated")
+    item = items[0] if items else None
+    if item is not None:
+        from .native_context import validate_context
+
+        validate_context(con, dict(item))
+        thresholds = json.loads(item["payload_json"])["thresholds"]
+        if config.get("analysis", {}).get("asset_thresholds", thresholds) != thresholds:
+            raise ScanError("native analysis asset thresholds context disagrees with the header")
+        config.setdefault("analysis", {})["asset_thresholds"] = thresholds
+    else:
+        config.setdefault("analysis", {}).setdefault(
+            "asset_thresholds", copy.deepcopy(DEFAULTS["analysis"]["asset_thresholds"])
+        )
+    return config
+
+
 def _resume_fingerprint(expected_config: Any, recorded_config: Any) -> str:
     """Compare a current request using the recorded artifact's known option shape."""
     expected = _native_config(expected_config)
@@ -684,6 +715,8 @@ class NativeScan:
         derived_fingerprint = crawl_config_fingerprint(effective)
         if config_fingerprint is not None and config_fingerprint != derived_fingerprint:
             raise ScanError("native scan configuration fingerprint disagrees with effective config")
+        header_config = _frozen_header_config(effective)
+        header_fingerprint = crawl_config_fingerprint(header_config)
         target = Path(path).absolute()
         if os.path.lexists(target):
             raise ScanError(f"native scan output already exists: {target}")
@@ -752,8 +785,8 @@ class NativeScan:
                     "source_kind": "native",
                     "parent_scan_uuid": None,
                     "start_url": start_url,
-                    "config_json": _dump(effective),
-                    "config_fingerprint": derived_fingerprint,
+                    "config_json": _dump(header_config),
+                    "config_fingerprint": header_fingerprint,
                     "lifecycle": "running",
                     "finish_reason": "running",
                     "crawl_partial": 0,
@@ -789,6 +822,23 @@ class NativeScan:
                             "requests_used": 0,
                         }
                     ),
+                },
+            )
+            _insert(
+                con,
+                "context_items",
+                {
+                    "kind": "analysis_asset_thresholds",
+                    "item_key": "run",
+                    "payload_version": "scan_context.v1",
+                    "payload_json": _dump(
+                        {
+                            "schema_version": "analysis_asset_thresholds.v1",
+                            "thresholds": effective["analysis"]["asset_thresholds"],
+                        }
+                    ),
+                    "completeness": "complete",
+                    "reason": "",
                 },
             )
             if "storage" in effective:
@@ -903,10 +953,6 @@ class NativeScan:
                 and scan["writer_revision"] != expected_writer_revision
             ):
                 raise ScanError("native scan producing build differs; refusing mixed-build resume")
-            if expected_config is not None and scan["config_fingerprint"] != _resume_fingerprint(
-                expected_config, json.loads(scan["config_json"])
-            ):
-                raise ScanError("native scan configuration differs; refusing unsafe resume")
             # Credential references/values never enter the artifact. A local,
             # per-scan verifier detects a changed explicit context on resume.
             legacy_anonymous_session = False
@@ -914,6 +960,23 @@ class NativeScan:
                 from . import open_scan
 
                 with contextlib.closing(open_scan(path, require_audit=False)) as reader:
+                    effective = read_effective_config(reader)
+                    expected_header = copy.deepcopy(expected_config)
+                    if (
+                        "asset_thresholds" not in json.loads(scan["config_json"]).get("analysis", {})
+                        and reader.execute(
+                            "SELECT 1 FROM context_items WHERE kind='analysis_asset_thresholds' AND item_key='run'"
+                        ).fetchone()
+                    ):
+                        expected_header["analysis"]["asset_thresholds"] = copy.deepcopy(
+                            DEFAULTS["analysis"]["asset_thresholds"]
+                        )
+                    if scan["config_fingerprint"] != _resume_fingerprint(
+                        expected_header, json.loads(scan["config_json"])
+                    ) or expected_config["analysis"]["asset_thresholds"] != effective["analysis"][
+                        "asset_thresholds"
+                    ]:
+                        raise ScanError("native scan configuration differs; refusing unsafe resume")
                     row = reader.execute(
                         "SELECT payload_json FROM context_items WHERE kind='credential_context' AND item_key='run'"
                     ).fetchone()
@@ -1139,6 +1202,7 @@ class NativeScan:
                 json.loads(scan[name])
         except (TypeError, ValueError, KeyError) as exc:
             raise ScanError("native scan header metadata is invalid") from exc
+        read_effective_config(con)
         if scan["config_fingerprint"] != fingerprint:
             raise ScanError("native scan configuration fingerprint disagrees with effective config")
         if con.execute("SELECT COUNT(*) FROM resume_state").fetchone()[0] != 1:

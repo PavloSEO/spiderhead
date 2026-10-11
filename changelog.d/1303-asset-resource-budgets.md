@@ -13,3 +13,8 @@
   layout-shift culprits, image delivery, forced reflow and script execution findings, with
   capture provenance and input hashes. No Lighthouse process, paid provider or field-CWV
   inference is added. Refresh registry, SF coverage and generated reference documentation.
+
+- Keep additive asset thresholds out of the frozen native scan header and store
+  their exact values in a validated, versioned run context. Resume compares these
+  values separately, and offline reanalysis restores them from retained evidence;
+  older light readers can still inspect the unchanged header configuration shape.
