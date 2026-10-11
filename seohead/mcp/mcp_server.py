@@ -3456,12 +3456,18 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_scan_structured_blocks(
-        input_path: str, url: str, representation: str = "static"
+        input_path: str,
+        url: str,
+        representation: str = "static",
+        variant_key: str | None = None,
     ) -> dict[str, Any]:
-        """Describe one retained page's JSON-LD blocks: line, state, graph findings and source JSON, offline."""
+        """Read bounded retained structured data and offline Schema.org validation for one exact URL."""
         return _checked(
             handlers.scan_structured_blocks(
-                input_path=input_path, url=url, representation=representation
+                input_path=input_path,
+                url=url,
+                representation=representation,
+                variant_key=variant_key,
             )
         )
 

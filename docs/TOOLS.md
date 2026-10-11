@@ -483,6 +483,7 @@ without deleting its scan. The exact arguments and defaults are in the generated
 | `scan-prune` | Produces a retention plan by default. Deletion needs `--apply` and the exact reviewed plan. | deletes only with `--apply` |
 | `scan-body-diff` | Compares matching retained body hashes from two validated scans; optional text output is bounded and only applies to compatible textual evidence. A changed body is not an SEO score or verdict. | — |
 | `scan-evidence` | Reads one bounded saved-evidence section: capabilities, corpus, structured data, rendered routes, resources, or timeline. It never fetches or replays a scan. | — |
+| `scan-structured-blocks` | Reads one exact retained URL and representation, returning bounded JSON-LD source blocks, per-format JSON-LD/Microdata/RDFa results, retained structured/language evidence, and local offline Schema.org validation. Use `--variant-key` when the saved URL has multiple HTTP variants. | — |
 | `scan-extract` | Applies closed declarative extraction rules to retained complete bodies only. It is offline, body-retention limited, and does not persist the ad-hoc result. | — |
 | `scan-content-search` | Searches all retained complete textual documents offline for a literal string (or a Python regular expression with `kind="regex"`; a document over the regex time budget is unavailable, never absent), including HEAD, raw HTML, body text, or CSS-selected markup. Static/rendered coverage is explicit: unavailable bodies stay unknown, never absent. GTM/GA4/analytics tags are useful audit inputs; a tag's presence does not prove it fired. | writes a new indexed local result package |
 | `scan-content-search-page` | Reads at most 100 rows of that derived package using validated offsets and integrity checks, with unchanged global coverage counters. This operation never reopens or fetches the site. | — |
@@ -541,6 +542,7 @@ seohead scan-body-diff --left before.sqlite --right after.sqlite --url https://e
 
 # read retained evidence or make an ad-hoc offline extraction; neither fetches a URL
 seohead scan evidence --scan native.sqlite --section structured
+seohead scan-structured-blocks --scan native.sqlite --url https://example.test/page --representation static
 seohead scan extract --scan native.sqlite --input '{"rules":[{"id":"product-name","kind":"text","selector":"h1","operator":"matches","value":"Product *","max_matches":1}]}'
 ```
 

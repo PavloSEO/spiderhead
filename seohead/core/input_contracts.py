@@ -1329,6 +1329,8 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         "scan_structured_blocks",
         _form("scan_artifact", "input_path"),
         _form("selector", "url", note="Exact retained logical URL."),
+        _form("selector", "representation", note="static, rendered, or legacy_fragment source."),
+        _form("selector", "variant_key", note="Optional exact retained HTTP variant key."),
     ),
     _command(
         "scan-fragment-links",

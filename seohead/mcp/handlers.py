@@ -7059,11 +7059,14 @@ def scan_extract(
 
 
 def scan_structured_blocks(
-    input_path: str, url: str, representation: str = "static"
+    input_path: str,
+    url: str,
+    representation: str = "static",
+    variant_key: str | None = None,
 ) -> dict[str, Any]:
     from seohead.mcp.evidence_handlers import scan_structured_blocks as core
 
-    return core(input_path, url, representation=representation)
+    return core(input_path, url, representation=representation, variant_key=variant_key)
 
 
 def marketing_inventory(

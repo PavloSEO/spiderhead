@@ -498,6 +498,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "urls_file",
             "url",
             "representation",
+            "variant_key",
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
@@ -1938,6 +1939,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "scan-structured-blocks":
         _source_flag(sub, "--url", help="exact retained logical URL")
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
+        sub.add_argument("--variant-key", help="exact retained HTTP variant key when required")
     if cmd == "scan-extract":
         _source_flag(sub, "--url", help="optional exact logical URL")
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
