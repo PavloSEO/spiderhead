@@ -1,0 +1,1 @@
+- Run the full toolkit suite once on Python 3.15 instead of an older-version matrix, retaining four verified test groups and combined coverage. Use the same stable Python version for CI and release-build bootstraps.
