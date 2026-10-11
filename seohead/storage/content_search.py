@@ -1,4 +1,4 @@
-"""Stream literal content-presence evidence from one retained scan.v1 artifact.
+"""Stream occurrence-level content evidence from one retained scan.v1 artifact.
 
 The module deliberately reads only retained bytes.  It never fetches a URL,
 recovers an omitted body, or treats a missing/corrupt body as an absence.  A
@@ -12,6 +12,7 @@ import hashlib
 import json
 import re
 import sqlite3
+from bisect import bisect_right
 from collections import Counter
 from collections.abc import Callable, Iterable
 from contextlib import closing
@@ -28,6 +29,12 @@ from .bodies import read_document
 MAX_QUERY_CHARS = 512
 MAX_DOCUMENT_BYTES = 5 * 1024 * 1024
 MAX_SNIPPET_CHARS = 320
+MAX_OCCURRENCES_PER_DOCUMENT = 10_000
+MAX_MATCH_WINDOW_CHARS = 4_000
+_REDACTION_PATTERN = (
+    r"(?i)\b(authorization|bearer|token|api[_-]?key|secret|password)\s*([:=])\s*"
+    r"(?:bearer\s+)?(?:'[^']*'|\"[^\"]*\"|[^\s<'\">]+)"
+)
 _SCOPES = {"raw_html", "head_markup", "body_text", "selector_markup"}
 _REPRESENTATIONS = {"static", "rendered"}
 _MODES = {"contains", "not_contains"}
@@ -99,11 +106,7 @@ def _snippet(
     right = min(len(target), end + MAX_SNIPPET_CHARS * 2 // 3)
     value = " ".join(target[left:right].split())
     # The result is evidence for a literal marker, never a credential dump.
-    value = re.sub(
-        r"(?i)\b(authorization|bearer|token|api[_-]?key|secret|password)\s*([:=])\s*(?:'[^']*'|\"[^\"]*\"|[^\s<'\">]+)",
-        r"\1\2[REDACTED]",
-        value,
-    )
+    value = re.sub(_REDACTION_PATTERN, r"\1\2[REDACTED]", value)
     return value[:MAX_SNIPPET_CHARS]
 
 
@@ -120,7 +123,82 @@ def _source(header: dict[str, Any], query: str, *, active: bool) -> dict[str, An
     }
 
 
-def _row_stream(con, representations: tuple[str, ...]):
+def _occurrence_spans(
+    target: str,
+    query: str,
+    *,
+    case_sensitive: bool,
+    pattern: re.Pattern[str] | None,
+) -> tuple[list[tuple[int, int]], int, bool, bool]:
+    """Return bounded offsets, total count, output-cap state, and timeout state."""
+    spans: list[tuple[int, int]] = []
+    total = 0
+    matcher = pattern or re.compile(
+        f"(?=({re.escape(query)}))", 0 if case_sensitive else re.IGNORECASE
+    )
+
+    def collect() -> int:
+        nonlocal total
+        for match in matcher.finditer(target):
+            total += 1
+            if len(spans) < MAX_OCCURRENCES_PER_DOCUMENT:
+                spans.append(match.span(1) if pattern is None else match.span())
+        return total
+
+    _, timed_out = _run_with_budget(collect, timeout_seconds=DEFAULT_TIMEOUT_SECONDS)
+    return spans, total, total > MAX_OCCURRENCES_PER_DOCUMENT, timed_out
+
+
+def _line_starts(target: str) -> list[int]:
+    starts = [0]
+    index = 0
+    while index < len(target):
+        if target[index] == "\r":
+            index += 2 if target[index : index + 2] == "\r\n" else 1
+            starts.append(index)
+        elif target[index] == "\n":
+            index += 1
+            starts.append(index)
+        else:
+            index += 1
+    return starts
+
+
+def _match_window(
+    target: str, starts: list[int], span: tuple[int, int]
+) -> tuple[int, str, bool]:
+    """Return a six-line context window and its one-based first line."""
+    match_line = bisect_right(starts, span[0])
+    start_line = max(1, match_line - 3)
+    end_line = min(len(starts), start_line + 5)
+    if end_line - start_line < 5:
+        start_line = max(1, end_line - 5)
+    start = starts[start_line - 1]
+    end = starts[end_line] if end_line < len(starts) else len(target)
+    if end_line < len(starts):
+        end -= 2 if target[end - 2 : end] == "\r\n" else 1
+    value = target[start:end]
+    match_offset = span[0] - start
+    value = re.sub(_REDACTION_PATTERN, r"\1\2[REDACTED]", value)
+    if match_offset > 0:
+        match_offset = len(
+            re.sub(
+                _REDACTION_PATTERN,
+                r"\1\2[REDACTED]",
+                target[start : start + match_offset],
+            )
+        )
+    truncated = len(value) > MAX_MATCH_WINDOW_CHARS
+    if truncated:
+        content_chars = MAX_MATCH_WINDOW_CHARS - 2
+        left = max(0, match_offset - content_chars // 2)
+        right = min(len(value), left + content_chars)
+        left = max(0, right - content_chars)
+        value = ("…" if left else "") + value[left:right] + ("…" if right < len(value) else "")
+    return start_line, value, truncated
+
+
+def _row_stream(con, representations: tuple[str, ...], url: str | None = None):
     requested = ",".join("(?)" for _ in representations)
     # The newest retained document wins per URL and representation.  A former
     # static document may remain after a rendered capture, but it is not the
@@ -140,7 +218,7 @@ def _row_stream(con, representations: tuple[str, ...]):
             FROM latest l JOIN urls u USING(url_id)
             LEFT JOIN pages p USING(url_id)
             LEFT JOIN responses r ON r.response_id=l.source_response_id
-            WHERE l.position=1
+            WHERE l.position=1 AND (? IS NULL OR u.url=?)
             UNION ALL
             SELECT NULL,p.url_id,requested.representation,'unavailable',
                    CASE requested.representation
@@ -152,7 +230,7 @@ def _row_stream(con, representations: tuple[str, ...]):
                    'unavailable','unknown','not_applicable',u.url,p.page_ordinal,
                    p.status_code,p.content_type
             FROM pages p JOIN urls u USING(url_id) CROSS JOIN requested
-            WHERE NOT EXISTS (
+            WHERE (? IS NULL OR u.url=?) AND NOT EXISTS (
                 SELECT 1 FROM documents d
                 WHERE d.url_id=p.url_id AND d.representation=requested.representation
             )
@@ -160,7 +238,7 @@ def _row_stream(con, representations: tuple[str, ...]):
         SELECT * FROM observations
         ORDER BY page_ordinal IS NULL,page_ordinal,url,representation
     """
-    return con.execute(sql, representations)
+    return con.execute(sql, (*representations, url, url, url, url))
 
 
 def search_scan(
@@ -176,6 +254,7 @@ def search_scan(
     include_snippets: bool = False,
     on_record: Callable[[dict[str, Any]], None] | None = None,
     kind: str = "literal",
+    url: str | None = None,
 ) -> dict[str, Any]:
     """Search a closed retained scan without materializing its corpus.
 
@@ -196,12 +275,15 @@ def search_scan(
         or type(include_snippets) is not bool
     ):
         raise ValueError("case_sensitive, allow_active, and include_snippets must be boolean")
+    if url is not None and (type(url) is not str or not url.strip()):
+        raise ValueError("url must be a nonempty exact logical URL when supplied")
     pattern = re.compile(query, 0 if case_sensitive else re.IGNORECASE) if kind == "regex" else None
     scan_path = Path(scan)
     if not scan_path.is_file():
         raise ValueError(f"scan does not exist: {scan_path}")
 
     measured = present = absent = filter_matches = unavailable = non_html = documents = 0
+    occurrence_truncated = 0
     url_pages = 0
     reasons: Counter[str] = Counter()
     previous_url: str | None = None
@@ -240,6 +322,10 @@ def search_scan(
                 "integrity_error": str(exc),
                 "stream_error": None,
                 "body_byte_limit": MAX_DOCUMENT_BYTES,
+                "occurrence_output_limit_per_document": MAX_OCCURRENCES_PER_DOCUMENT,
+                "window_character_limit": MAX_MATCH_WINDOW_CHARS,
+                "occurrence_truncated_documents": 0,
+                "url_filter": url,
             },
             "absence_confirmed": False,
         }
@@ -253,7 +339,7 @@ def search_scan(
         capabilities = json.loads(header["capabilities_json"])
         source = _source(header, query, active=active)
         try:
-            cursor = _row_stream(con, selected)
+            cursor = _row_stream(con, selected, url)
         except sqlite3.Error as exc:
             cursor = iter(())
             stream_error = f"SQLite read deadline or query failure: {exc}"
@@ -279,6 +365,11 @@ def search_scan(
                 "capture_mode": item["representation"],
                 "status_code": item["status_code"],
                 "presence": None,
+                "occurrence_count": None,
+                "occurrence_truncated": None,
+                "occurrences": [],
+                "offset_unit": "unicode_codepoint_zero_based_end_exclusive",
+                "line_numbering": "one_based",
                 "status": "unavailable",
                 "reason": "",
             }
@@ -304,16 +395,13 @@ def search_scan(
                         }[scope],
                         selector,
                     )
-                    if pattern is None:
-                        match, timed_out = None, False
-                        found = (
-                            query in target if case_sensitive else query.lower() in target.lower()
-                        )
-                    else:
-                        match, timed_out = _run_with_budget(
-                            pattern.search, target, timeout_seconds=DEFAULT_TIMEOUT_SECONDS
-                        )
-                        found = match is not None
+                    spans, occurrence_count, occurrences_truncated, timed_out = _occurrence_spans(
+                        target,
+                        query,
+                        case_sensitive=case_sensitive,
+                        pattern=pattern,
+                    )
+                    found = occurrence_count > 0
                     # A replacement character or legacy re-encoded body can
                     # prove a positive marker, never a clean site-wide absence.
                     uncertain_absence = not found and (
@@ -323,13 +411,41 @@ def search_scan(
                     )
                     if timed_out:
                         unavailable += 1
-                        record["reason"] = "regex_budget_exceeded"
+                        record["reason"] = (
+                            "regex_budget_exceeded" if kind == "regex" else "match_budget_exceeded"
+                        )
                     elif uncertain_absence:
                         unavailable += 1
                         record["reason"] = "decode_fidelity_unavailable_for_absence"
                     else:
                         measured += 1
                         record["presence"] = found
+                        record["occurrence_count"] = occurrence_count
+                        record["occurrence_truncated"] = occurrences_truncated
+                        if occurrences_truncated:
+                            occurrence_truncated += 1
+                        if found:
+                            line_starts = _line_starts(target)
+                            occurrence_rows = []
+                            for match_index, span in enumerate(spans, start=1):
+                                occurrence = {
+                                    "match_index": match_index,
+                                    "match_total": occurrence_count,
+                                    "offset_start": span[0],
+                                    "offset_end": span[1],
+                                    "line": bisect_right(line_starts, span[0]),
+                                }
+                                if include_snippets:
+                                    line_start, window, window_truncated = _match_window(
+                                        target, line_starts, span
+                                    )
+                                    occurrence.update(
+                                        window_start_line=line_start,
+                                        window=window,
+                                        window_truncated=window_truncated,
+                                    )
+                                occurrence_rows.append(occurrence)
+                            record["occurrences"] = occurrence_rows
                         if found:
                             present += 1
                         else:
@@ -343,7 +459,7 @@ def search_scan(
                                     target,
                                     query,
                                     case_sensitive=case_sensitive,
-                                    span=match.span() if match is not None else None,
+                                    span=spans[0] if spans else None,
                                 )
                 except ScanError as exc:
                     unavailable += 1
@@ -367,6 +483,10 @@ def search_scan(
         partial_reasons.append(stream_error)
     if documents == 0:
         partial_reasons.append("no selected URL pages")
+    if occurrence_truncated:
+        partial_reasons.append(
+            f"occurrence offsets capped at {MAX_OCCURRENCES_PER_DOCUMENT} per document"
+        )
     if unavailable or non_html or partial_reasons:
         coverage = "unavailable" if measured == 0 else "partial"
     else:
@@ -394,6 +514,10 @@ def search_scan(
             "partial_reasons": partial_reasons,
             "stream_error": stream_error or None,
             "body_byte_limit": MAX_DOCUMENT_BYTES,
+            "occurrence_output_limit_per_document": MAX_OCCURRENCES_PER_DOCUMENT,
+            "window_character_limit": MAX_MATCH_WINDOW_CHARS,
+            "occurrence_truncated_documents": occurrence_truncated,
+            "url_filter": url,
         },
         "absence_confirmed": absence_confirmed,
     }

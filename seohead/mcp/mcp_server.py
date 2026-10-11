@@ -3388,6 +3388,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         case_sensitive: bool = False,
         include_snippets: bool = False,
         kind: Literal["literal", "regex"] = "literal",
+        url: str | None = None,
     ) -> dict[str, Any]:
         """Search one closed retained scan offline and create an indexed local NDJSON package.
 
@@ -3410,8 +3411,20 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 case_sensitive=case_sensitive,
                 include_snippets=include_snippets,
                 kind=kind,
+                url=url,
             )
         )
+
+    @mcp.tool(annotations=pure, structured_output=True)
+    def seo_custom_extract_sample(
+        html: str, extractors: list[dict], url: str = ""
+    ) -> dict[str, Any]:
+        """Preview declared extractors against supplied HTML without fetching a URL.
+
+        ``url`` is an output label only. Pass the HTML already held locally and
+        an explicit extractor list; this tool has no network path.
+        """
+        return _checked(handlers.custom_extract_sample(html, extractors, url=url))
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_scan_content_search_page(

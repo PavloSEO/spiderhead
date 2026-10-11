@@ -6736,6 +6736,7 @@ def scan_content_search(
     *,
     progress: Callable[[int], None] | None = None,
     kind: str = "literal",
+    url: str | None = None,
 ) -> dict[str, Any]:
     """Search one finished retained scan and write a complete local NDJSON package.
 
@@ -6799,6 +6800,7 @@ def scan_content_search(
                 include_snippets=include_snippets,
                 on_record=emit,
                 kind=kind,
+                url=url,
             )
         manifest = {
             "format": "seohead.retained-content-search.v1",
@@ -6809,6 +6811,7 @@ def scan_content_search(
             "kind": summary["kind"],
             "representations": summary["representations"],
             "coverage": summary["coverage"],
+            "url_filter": url,
             "absence_confirmed": summary["absence_confirmed"],
             "records": {
                 "file": records_path.name,
@@ -6850,6 +6853,15 @@ def scan_content_search(
         "search_completed": summary["search_completed"],
         "capabilities": {"retained_content_search": True},
     }
+
+
+def custom_extract_sample(
+    html: str, extractors: list[dict[str, Any]], url: str = ""
+) -> dict[str, Any]:
+    """Run declared extractors against supplied HTML; never fetches the URL label."""
+    from seohead.checks.custom_extract import check_sample
+
+    return check_sample(html, extractors, url=url)
 
 
 def scan_content_search_page(
@@ -7209,6 +7221,7 @@ _RAW_HANDLERS = {
     "scan_evidence": scan_evidence,
     "scan_content_search": scan_content_search,
     "scan_content_search_page": scan_content_search_page,
+    "custom_extract_sample": custom_extract_sample,
     "scan_extract": scan_extract,
     "scan_structured_blocks": scan_structured_blocks,
     "marketing_inventory": marketing_inventory,

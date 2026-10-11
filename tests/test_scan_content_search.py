@@ -129,6 +129,74 @@ def test_content_search_streams_markup_scope_and_never_fetches(tmp_path, monkeyp
     assert hashlib.sha256(scan.read_bytes()).hexdigest() == original
 
 
+def test_content_search_returns_bounded_occurrences_windows_and_exact_url_scope(tmp_path):
+    selected_url = "https://example.test/selected"
+    html = "\n".join(
+        [
+            "<html>",
+            "<head>",
+            "<title>Example</title>",
+            "</head>",
+            "<body>",
+            "first MATCH",  # match 1
+            "authorization: private-value",
+            "middle",
+            "MATCH again",  # match 2
+            "last",
+            "</body>",
+            "</html>",
+        ]
+    )
+    scan = _scan(
+        tmp_path / "scan",
+        [
+            (selected_url, html),
+            ("https://example.test/other", "<html><body>MATCH</body></html>"),
+        ],
+    )
+    records = []
+    result = search_scan(
+        scan,
+        query="MATCH",
+        url=selected_url,
+        include_snippets=True,
+        on_record=records.append,
+    )
+
+    assert result["coverage"]["url_pages_selected"] == 1
+    assert result["coverage"]["url_filter"] == selected_url
+    assert len(records) == 1
+    record = records[0]
+    assert record["occurrence_count"] == 2
+    assert record["occurrence_truncated"] is False
+    assert [match["match_index"] for match in record["occurrences"]] == [1, 2]
+    assert [match["match_total"] for match in record["occurrences"]] == [2, 2]
+    assert [match["offset_start"] for match in record["occurrences"]] == [
+        html.index("MATCH"),
+        html.index("MATCH", html.index("MATCH") + 1),
+    ]
+    assert [match["line"] for match in record["occurrences"]] == [6, 9]
+    assert all(len(match["window"].splitlines()) == 6 for match in record["occurrences"])
+    assert "private-value" not in record["occurrences"][0]["window"]
+    assert "[REDACTED]" in record["occurrences"][0]["window"]
+
+
+def test_content_search_counts_matches_past_the_explicit_offset_output_limit(tmp_path):
+    count = 10_001
+    scan = _scan(
+        tmp_path / "scan",
+        [("https://example.test/repeated", "<html><body>" + "x" * count + "</body></html>")],
+    )
+    records = []
+    result = search_scan(scan, query="x", scope="body_text", on_record=records.append)
+
+    assert records[0]["occurrence_count"] == count
+    assert records[0]["occurrence_truncated"] is True
+    assert len(records[0]["occurrences"]) == 10_000
+    assert result["coverage"]["state"] == "partial"
+    assert result["coverage"]["occurrence_truncated_documents"] == 1
+
+
 def test_content_search_keeps_static_and_rendered_absence_separate(tmp_path):
     scan = _scan_with_rendered_and_no_store(tmp_path)
     static = search_scan(scan, query="GTM-RENDERED", scope="head_markup")
@@ -368,6 +436,32 @@ def test_content_search_cli_mcp_package_and_indexed_pagination(tmp_path, capsys)
     server = build_server()
     tool = server._tool_manager.get_tool("seo_scan_content_search_page")
     assert tool.fn(package=str(package), offset=100, limit=100) == second
+
+    selected_url = "https://example.test/50"
+    filtered_package = tmp_path / "filtered-package"
+    assert (
+        cli.main(
+            [
+                "scan-content-search",
+                "--scan",
+                str(scan),
+                "--query",
+                "GTM-PAGE",
+                "--scope",
+                "head_markup",
+                "--out-dir",
+                str(filtered_package),
+                "--url",
+                selected_url,
+            ]
+        )
+        == 0
+    )
+    filtered_result = json.loads(capsys.readouterr().out)
+    assert filtered_result["records"] == 1
+    assert filtered_result["coverage"]["url_pages_selected"] == 1
+    filtered_record = handlers.scan_content_search_page(str(filtered_package))["records"][0]
+    assert filtered_record["url"] == selected_url
 
     records_path = package / "records.ndjson"
     records_path.write_bytes(
