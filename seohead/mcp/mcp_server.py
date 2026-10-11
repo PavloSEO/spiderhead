@@ -2012,6 +2012,62 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             )
         )
 
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_schedule_show(directory: str, consumer: str | None = None) -> dict[str, Any]:
+        """Read a project's scheduled-scan settings, last run, and next due window."""
+        return _checked(with_project_notice(handlers.schedule_show(directory), directory, consumer))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_schedule_set(
+        directory: str,
+        expected_revision: int,
+        settings: dict | None = None,
+        consumer: str | None = None,
+    ) -> dict[str, Any]:
+        """Merge a partial update into the project's schedule settings; starts nothing."""
+        return _checked(
+            with_project_notice(
+                handlers.schedule_set(directory, expected_revision, settings=settings),
+                directory,
+                consumer,
+            )
+        )
+
+    @mcp.tool(annotations=create_files_from_web, structured_output=True)
+    def seo_schedule_run_due(directory: str, consumer: str | None = None) -> dict[str, Any]:
+        """Run the project's scheduled scans now if they are due; crawls over the network."""
+        return _checked(
+            with_project_notice(handlers.schedule_run_due(directory), directory, consumer)
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_schedule_install(
+        directory: str,
+        kind: str,
+        dest: str | None = None,
+        python: str | None = None,
+        consumer: str | None = None,
+    ) -> dict[str, Any]:
+        """Write a launchd plist, cron line, or Task Scheduler command; never loads it."""
+        return _checked(
+            with_project_notice(
+                handlers.schedule_install(directory, kind, dest=dest, python=python),
+                directory,
+                consumer,
+            )
+        )
+
+    @mcp.tool(annotations=rewrite_files, structured_output=True)
+    def seo_schedule_uninstall(
+        directory: str, kind: str, dest: str | None = None, consumer: str | None = None
+    ) -> dict[str, Any]:
+        """Remove the trigger file written by seo_schedule_install; does not unload it."""
+        return _checked(
+            with_project_notice(
+                handlers.schedule_uninstall(directory, kind, dest=dest), directory, consumer
+            )
+        )
+
     @mcp.tool(annotations=create_files_from_web, structured_output=True)
     def seo_monitor_collect(
         directory: str, expected_revision: int, apply: bool = False

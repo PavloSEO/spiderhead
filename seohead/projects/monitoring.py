@@ -23,6 +23,7 @@ from typing import Any
 
 from seohead.core.common import utc_iso_z as _now
 from seohead.core.filesystem import atomic_write_bytes
+from seohead.crawl.user_agents import DEFAULT_USER_AGENT
 
 from .runtime import read_document, write_document
 from .workspace import _load as _workspace_load
@@ -892,7 +893,7 @@ def collect_once(
                 cache=cache,
                 throttle=throttle,
                 wait=gate.wait_turn,
-                user_agent="SEOHEAD-monitor/1",
+                user_agent=DEFAULT_USER_AGENT,
             )
             source = _source_artifacts(root, preview["claim_id"], record, parsed, transport)
             client.cookies.clear()

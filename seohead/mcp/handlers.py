@@ -875,11 +875,14 @@ def crawl_site(
         from seohead.projects.runtime import admission, project_policy
 
         base_overrides = project_policy(str(project_root))["policy"]["crawl_overrides"]
-    if user_agent == "googlebot":
-        resolved_overrides["http.user_agent"] = (
-            "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-        )
-        resolved_overrides.setdefault("robots.user_agent_token", "Googlebot")
+    if user_agent is not None and user_agent != "":
+        # A preset name or one custom string sets the request identity and the robots token
+        # together, so the rules matched are the rules of the crawler the site sees.
+        from seohead.crawl.user_agents import resolve as resolve_user_agent
+
+        identity, token = resolve_user_agent(user_agent)
+        resolved_overrides["http.user_agent"] = identity
+        resolved_overrides.setdefault("robots.user_agent_token", token)
     settings = crawl_config.load(
         config, overrides=resolved_overrides, base_overrides=base_overrides
     )
@@ -4891,6 +4894,47 @@ def monitor_status(directory: str) -> dict[str, Any]:
     return status(directory)
 
 
+def schedule_show(directory: str) -> dict[str, Any]:
+    """Read the project's scheduled-scan settings, last run and next due time."""
+    from seohead.projects.schedule import show
+
+    return show(directory)
+
+
+def schedule_set(
+    directory: str,
+    expected_revision: int,
+    settings: dict | None = None,
+    **fields: Any,
+) -> dict[str, Any]:
+    """Merge a partial update into the project's schedule settings (revisioned)."""
+    from seohead.projects.schedule import configure
+
+    return configure(directory, expected_revision=expected_revision, settings=settings, **fields)
+
+
+def schedule_run_due(directory: str) -> dict[str, Any]:
+    """Run this project's scheduled scans if they are due; refuses overlap and out-of-window runs."""
+    from seohead.projects.schedule import run_due
+
+    return run_due(directory, scan=crawl_site)
+
+
+def schedule_install(
+    directory: str, kind: str, dest: str | None = None, python: str | None = None
+) -> dict[str, Any]:
+    """Write a launchd plist, cron line or Task Scheduler command for run-due. Explicit only."""
+    from seohead.projects.schedule_install import install
+
+    return install(directory, kind=kind, dest=dest, python=python)
+
+
+def schedule_uninstall(directory: str, kind: str, dest: str | None = None) -> dict[str, Any]:
+    from seohead.projects.schedule_install import uninstall
+
+    return uninstall(directory, kind=kind, dest=dest)
+
+
 def monitor_schedule(directory: str, action: str, expected_revision: int) -> dict[str, Any]:
     """Record a local monitor runner claim without starting a background service."""
     from seohead.projects.monitoring import schedule
@@ -6627,6 +6671,11 @@ _RAW_HANDLERS = {
     "monitor_local_deliver": monitor_local_deliver,
     "monitor_status": monitor_status,
     "monitor_schedule": monitor_schedule,
+    "schedule_show": schedule_show,
+    "schedule_set": schedule_set,
+    "schedule_run_due": schedule_run_due,
+    "schedule_install": schedule_install,
+    "schedule_uninstall": schedule_uninstall,
     "remediation_cases": remediation_cases,
     "remediation_transition": remediation_transition,
     "remediation_record_verification": remediation_record_verification,

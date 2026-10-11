@@ -245,7 +245,7 @@ DEFAULTS: dict[str, Any] = {
     },
     "http": {
         "timeout_seconds": 15.0,
-        "user_agent": "",  # empty = the toolkit's identifiable default
+        "user_agent": "",  # empty = SpiderHeadBot/<version>, resolved in load()
         "headers": {},
         "retry_on_timeout": 0,
         # Empty is direct. Credentials may appear only in an env:VARIABLE URL.
@@ -269,7 +269,7 @@ DEFAULTS: dict[str, Any] = {
         # respect: obey. report_only: fetch, report what would be blocked, crawl
         # anyway — the honest audit setting. ignore: do not fetch it at all.
         "policy": "respect",  # respect | report_only | ignore
-        "user_agent_token": "SEOHEAD-Tools",
+        "user_agent_token": "",  # empty = the token of the resolved user agent (SpiderHeadBot)
         "unavailable_means_stop": True,
     },
     "speed": {
@@ -1609,6 +1609,9 @@ def load(
         )
     except ValueError as exc:
         raise ConfigError(f"analysis.finding_exclusions: {exc}") from exc
+    from seohead.crawl.user_agents import apply_defaults as _apply_user_agent
+
+    _apply_user_agent(config["http"], config["robots"])
     validate(config)
     route = resolve_proxy(config)
     config["http"]["proxy_identity"] = route.identity if route else ""

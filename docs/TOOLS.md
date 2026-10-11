@@ -16,7 +16,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 `{"ok": false, "error": "..."}` instead of raising. An unreachable site is
 data, not an accident.
 
-The current registry has 178 commands and 187 callable tools,
+The current registry has 183 commands and 192 callable tools,
 with 202 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
@@ -54,7 +54,7 @@ and inputs remain in the nearby route sections and generated tool reference.
 `scan-import-urls` · `scan-inspect` · `scan-link-inspect` · `scan-list` · `scan-navigation` · `scan-pin` ·
 `scan-prune` · `scan-reanalyze` · `scan-rendered-routes` · `scan-requeue` · `scan-snapshot` · `scan-status` ·
 `scan-structured-blocks` · `scan-url-detail` · `scan-url-history` · `scan-url-query` · `scenario-list` ·
-`scenario-show` · `schema-build` · `schema-check` · `security-check` · `segment-diff` · `semantic-inputs` ·
+`scenario-show` · `schedule-install` · `schedule-run-due` · `schedule-set` · `schedule-show` · `schedule-uninstall` · `schema-build` · `schema-check` · `security-check` · `segment-diff` · `semantic-inputs` ·
 `semantic-similarity` · `serp-fetch` · `site-audit` · `sitemap-crawl` · `skill-list` · `skill-show` ·
 `social-meta-check` · `soft404-check` · `sources-doctor` · `sources-export` · `sources-status` ·
 `sources-sync` · `spend-report` · `tech-detect` · `tool-catalog` · `topvisor-read` · `verify-fixes` ·
@@ -755,7 +755,7 @@ turns on automatically for crawl modes (`--crawl`, `--crawl-list`, `--load-crawl
 `--sitemap` is given; pass `--no-live-recheck` to keep it off.
 
 **MCP.** The same set under the `seo_*` names plus the `sf_*` audit tools and the
-`seo_semantics_*` tools (178 + 5 + 4):
+`seo_semantics_*` tools (183 + 5 + 4):
 
 ```bash
 seohead mcp        # stdio

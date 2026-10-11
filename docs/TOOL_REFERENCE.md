@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**178 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 187 in total.
+**183 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 192 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -1826,6 +1826,78 @@ Claim or recover a local run; no timer, crawl, or delivery starts here.
 | `consumer` | `str | None` | `None` |
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `schedule-show`
+
+MCP name: `seo_schedule_show`
+
+Read a project's scheduled-scan settings, last run, and next due window.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `consumer` | `str | None` | `None` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `schedule-set`
+
+MCP name: `seo_schedule_set`
+
+Merge a partial update into the project's schedule settings; starts nothing.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `expected_revision` | `int` | `required` |
+| `settings` | `dict | None` | `None` |
+| `consumer` | `str | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `schedule-run-due`
+
+MCP name: `seo_schedule_run_due`
+
+Run the project's scheduled scans now if they are due; crawls over the network.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `consumer` | `str | None` | `None` |
+
+**Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
+
+### `schedule-install`
+
+MCP name: `seo_schedule_install`
+
+Write a launchd plist, cron line, or Task Scheduler command; never loads it.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `kind` | `str` | `required` |
+| `dest` | `str | None` | `None` |
+| `python` | `str | None` | `None` |
+| `consumer` | `str | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `schedule-uninstall`
+
+MCP name: `seo_schedule_uninstall`
+
+Remove the trigger file written by seo_schedule_install; does not unload it.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `kind` | `str` | `required` |
+| `dest` | `str | None` | `None` |
+| `consumer` | `str | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no · can overwrite/remove existing data
 
 ### `monitor-collect`
 

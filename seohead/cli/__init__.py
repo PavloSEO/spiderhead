@@ -157,6 +157,11 @@ COMMANDS = (
     "monitor-local-deliver",
     "monitor-status",
     "monitor-schedule",
+    "schedule-show",
+    "schedule-set",
+    "schedule-run-due",
+    "schedule-install",
+    "schedule-uninstall",
     "project-facts",
     "project-checklist-init",
     "project-checklist-update",
@@ -629,6 +634,17 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         if getattr(args, "all_pages", False):
             kw["only_indexable"] = False
         # items[] is intentionally accepted through --input JSON.
+    elif cmd in {
+        "schedule-show",
+        "schedule-set",
+        "schedule-run-due",
+        "schedule-install",
+        "schedule-uninstall",
+    }:
+        for name in ("directory", "expected_revision", "kind", "dest", "python"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd in {"monitor-collect", "monitor-local-deliver"}:
         for name in ("directory", "expected_revision", "scan_id", "apply"):
             value = getattr(args, name, None)
@@ -1423,11 +1439,16 @@ def _crawl_overrides(kwargs: dict[str, Any]) -> dict[str, Any]:
         ("speed.min_delay_seconds", kwargs.get("min_delay")),
         ("speed.concurrency", kwargs.get("concurrency")),
         ("robots.policy", kwargs.get("robots")),
-        ("http.user_agent", kwargs.get("user_agent")),
         ("output.dir", kwargs.get("out_dir")),
     ):
         if value is not None:
             overrides[path] = value
+    if kwargs.get("user_agent") not in (None, ""):
+        from seohead.crawl.user_agents import resolve as resolve_user_agent
+
+        identity, token = resolve_user_agent(kwargs["user_agent"])
+        overrides["http.user_agent"] = identity
+        overrides.setdefault("robots.user_agent_token", token)
     return overrides
 
 
@@ -1743,7 +1764,10 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             action="store_true",
             help="approve exceeding project budgets",
         )
-        sub.add_argument("--user-agent", help="request identity or googlebot diagnostic preset")
+        sub.add_argument(
+            "--user-agent",
+            help="user agent preset or custom string",
+        )
         sub.add_argument(
             "--observer-run-id",
             help=argparse.SUPPRESS,
@@ -2400,6 +2424,21 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--directory", help="project directory")
     if cmd in {"monitor-collect", "monitor-local-deliver"}:
         sub.add_argument("--expected-revision", type=int, help="current monitoring revision")
+    if cmd in {
+        "schedule-show",
+        "schedule-set",
+        "schedule-run-due",
+        "schedule-install",
+        "schedule-uninstall",
+    }:
+        _source_flag(sub, "--directory", help="project directory")
+    if cmd == "schedule-set":
+        sub.add_argument("--expected-revision", type=int, help="current schedule revision")
+    if cmd in {"schedule-install", "schedule-uninstall"}:
+        sub.add_argument("--kind", choices=["launchd", "cron", "windows"], required=True)
+        sub.add_argument("--dest", help="file to write (launchd default: ~/Library/LaunchAgents)")
+    if cmd == "schedule-install":
+        sub.add_argument("--python", help="interpreter for the trigger (default: this one)")
     if cmd == "monitor-collect":
         sub.add_argument(
             "--apply",
