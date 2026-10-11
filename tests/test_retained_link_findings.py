@@ -342,3 +342,30 @@ def test_new_cli_scan_flags_reach_shared_handlers(monkeypatch, capsys):
         "include_images": True,
         "exclude": ["*?*"],
     }
+
+
+def test_retained_only_findings_are_unmeasured_on_export_input():
+    from seohead.sf.core.rules import run_rules
+
+    exports = LoadedExports()
+    exports.frames["internal_all"] = pd.DataFrame(
+        [
+            {
+                "Address": ROOT + "/",
+                "Status Code": 200,
+                "Content Type": "text/html",
+                "Indexability": "Indexable",
+            }
+        ]
+    )
+    ctx = AuditContext(exports, load_config(None))
+    run_rules(ctx)
+    skipped = {row.id: row.reason for row in ctx.skipped}
+    for check in (
+        "INTERNAL_LINK_NO_ANCHOR",
+        "EXTERNAL_NO_RESPONSE",
+        "SITEMAP_URL_NON_CANONICAL",
+        "SITEMAP_URL_BLOCKED_ROBOTS",
+        "INTERNALLY_LINKED_ROBOTS_BLOCKED",
+    ):
+        assert skipped[check] == "this check requires retained native scan evidence"

@@ -3406,5 +3406,14 @@ def run_rules(ctx: AuditContext) -> None:
         ctx.skip("INTERNAL_ALL", "Internal:All export not loaded")
         return
     _declare_unparsed_body_skips(ctx)
+    if ctx.scan_con is None:
+        for check_id in (
+            "INTERNAL_LINK_NO_ANCHOR",
+            "EXTERNAL_NO_RESPONSE",
+            "SITEMAP_URL_NON_CANONICAL",
+            "SITEMAP_URL_BLOCKED_ROBOTS",
+            "INTERNALLY_LINKED_ROBOTS_BLOCKED",
+        ):
+            ctx.skip(check_id, "this check requires retained native scan evidence")
     for check in ALL_CHECKS:
         check(ctx)
