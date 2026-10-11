@@ -3627,6 +3627,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         facets: list[str] | str | None = None,
         issue_check: str | list[str] | None = None,
         issue_severity: str | None = None,
+        include_check_counts: bool = False,
     ) -> dict[str, Any]:
         """Filter, sort and paginate the page table of one saved scan across the whole scan.
 
@@ -3641,6 +3642,9 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         URLs. Check ids are case-insensitive. Missing saved findings return state unavailable
         with reason_code issue_index_missing. Skipped, disabled or absent saved checks return
         issue_check_unmeasured; a bounded audit read can return issue_selection_timeout.
+        Set include_check_counts to include exact saved whole-scan severity/check totals and
+        registry-wide fired, silent, skipped, disabled or unavailable states. Missing summary
+        data returns issue_summary.state=unavailable, never zero counters.
         No unfiltered result is substituted.
         """
         return _checked(
@@ -3658,6 +3662,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 preset=preset,
                 issue_check=issue_check,
                 issue_severity=issue_severity,
+                include_check_counts=include_check_counts,
             )
         )
 

@@ -539,6 +539,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "export_max_rows",
             "issue_check",
             "issue_severity",
+            "include_check_counts",
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
@@ -2509,6 +2510,11 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             "--issue-severity",
             dest="issue_severity",
             choices=("critical", "warning", "notice"),
+        )
+        sub.add_argument(
+            "--include-check-counts",
+            action="store_true",
+            help="include exact saved whole-scan severity totals and registry-wide check states",
         )
     if cmd == "scan-url-history":
         _source_flag(sub, "--project", help="project directory whose scans/ directory is read")

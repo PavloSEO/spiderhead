@@ -5073,6 +5073,7 @@ def scan_url_query(
     export_max_rows: int | None = None,
     issue_check: str | list[str] | None = None,
     issue_severity: str | None = None,
+    include_check_counts: bool = False,
 ) -> dict[str, Any]:
     """Filter, sort and paginate the whole page table of one saved scan, read-only.
 
@@ -5102,6 +5103,7 @@ def scan_url_query(
         count_timeout_seconds=count_timeout_seconds,
         issue_check=issue_check,
         issue_severity=issue_severity,
+        include_check_counts=include_check_counts,
         max_bytes=max_bytes,
         facets=facets,
         preset=preset,
