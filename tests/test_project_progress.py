@@ -109,6 +109,7 @@ def test_state_view_distinguishes_running_blocked_unavailable_stale_review_and_d
         ("custom:unavailable", "Unavailable task"),
         ("custom:stale", "Stale manual review"),
         ("custom:review", "Manual review"),
+        ("custom:not-run", "Never attempted manual check"),
         ("custom:deliverable", "Deliverable review"),
     ):
         _edit(root, id=item_id, title=title)
@@ -128,6 +129,7 @@ def test_state_view_distinguishes_running_blocked_unavailable_stale_review_and_d
         "custom:unavailable",
         "custom:stale",
         "custom:review",
+        "custom:not-run",
         "custom:deliverable",
         "custom:blocked",
     ]
@@ -155,14 +157,15 @@ def test_state_view_distinguishes_running_blocked_unavailable_stale_review_and_d
     assert row_states["custom:running"] == "running"
     assert row_states["custom:unavailable"] == "unavailable"
     assert row_states["custom:stale"] == "stale"
-    assert row_states["custom:review"] == "review"
+    assert row_states["custom:review"] == "not_run"
+    assert row_states["custom:not-run"] == "not_run"
     assert row_states["custom:deliverable"] == "deliverable"
     assert row_states["custom:blocked"] == "blocked"
     assert result["state_counts"]["running"] == 1
     assert result["state_counts"]["blocked"] >= 1
     assert result["state_counts"]["unavailable"] == 1
     assert result["state_counts"]["stale"] == 1
-    assert result["state_counts"]["review"] >= 1
+    assert result["state_counts"]["not_run"] >= 2
     assert result["state_counts"]["deliverable"] == 1
 
 

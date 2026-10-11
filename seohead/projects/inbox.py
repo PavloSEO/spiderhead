@@ -33,6 +33,7 @@ MAX_ENTRIES = 10_000
 MAX_PAGE = 100
 _CONSUMER = re.compile(r"[a-z][a-z0-9._/-]{0,127}\Z")
 _REFERENCE = re.compile(r"(?:goal|task|scan|finding|section):[A-Za-z0-9._/-]{1,128}\Z")
+_GOAL_ID = re.compile(r"inbox:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z")
 
 
 def _text(value: Any, name: str, maximum: int = MAX_TEXT) -> str:
@@ -50,7 +51,7 @@ def _consumer(value: Any) -> str:
 def _reference(value: Any) -> bool:
     if type(value) is not str:
         return False
-    if _REFERENCE.fullmatch(value):
+    if _REFERENCE.fullmatch(value) or _GOAL_ID.fullmatch(value):
         return True
     if not value.startswith("task:") or len(value) > 256:
         return False
