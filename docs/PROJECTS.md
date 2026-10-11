@@ -524,9 +524,9 @@ append-only definition/attempt history. Task rows retain `kind`, catalogue `sour
 `operation` separately, and never synthesize catalogue items absent from the project. All three
 datasets are available in JSON, CSV, and XLSX without packing unbounded history into one cell.
 Compare exports preserve the compare.v2 rows and source identities. Long exports expose job
-progress and a cancel request, and history records the artifact receipt. XLSX output is subject
-to the spreadsheet format's row limit; no overflow policy is inferred here. Export status and
-history reads do not create files.
+progress and a cancel request, and history records the artifact receipt. XLSX output above
+1,048,575 data rows is refused; any overflow alternative remains an owner decision. Export
+status and history reads do not create files.
 
 ```bash
 seohead project export --directory ./shop-project --dataset task_comments \
