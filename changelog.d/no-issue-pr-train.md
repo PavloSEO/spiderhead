@@ -1,0 +1,1 @@
+Consolidate retained audit checks and native desktop improvements. Preserve resource-budget settings without changing the frozen scan header, retain safe offline reanalysis and resume, and share native project-settings components, theme tokens and bundled fonts. Remove private design inputs from the distributed tree.

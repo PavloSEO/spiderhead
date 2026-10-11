@@ -164,7 +164,7 @@ way round.
   server in Claude Code, Claude Desktop, Codex or Cursor only after a permission dialog that lists
   the files and lines it will change, with backups.
 - **Installers** — macOS `.pkg`, Windows setup and Linux tarball put the app and the `seohead`
-  command on the machine together. Light, dark and high-contrast themes; English and Russian.
+  command on the machine together. Light, dark and high-contrast themes; English UI.
 
 <table>
 <tr>
