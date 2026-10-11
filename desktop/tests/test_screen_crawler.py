@@ -11,7 +11,13 @@ from PyQt5.QtWidgets import QApplication, QFrame, QLabel, QPushButton, QTabWidge
 from seohead_desktop import i18n
 from seohead_desktop.app import load_theme
 from seohead_desktop.qt import app as qt_app
-from seohead_desktop.screens.crawler import CHECK_TABS, DETAIL_TABS, OVERVIEW, WAITING_ISSUE, CrawlerScreen
+from seohead_desktop.screens.crawler import (
+    CHECK_TABS,
+    DETAIL_TABS,
+    OVERVIEW,
+    WAITING_ISSUE,
+    CrawlerScreen,
+)
 from seohead_desktop.ui.kit import StatePanel, UnavailableBadge
 from tests._qt import sweep_widgets
 
@@ -58,7 +64,6 @@ class CrawlerScreenTests(unittest.TestCase):
         dashes = [label for label in self.screen.findChildren(QLabel) if label.text() == "—"]
         self.assertEqual(len(dashes), len(OVERVIEW))
 
-
     def test_temporary_results_banner_is_hidden_until_results_exist(self):
         banner = next(f for f in self.screen.findChildren(QFrame) if f.property("note") == "info")
         self.assertTrue(banner.isHidden())
@@ -69,26 +74,40 @@ class CrawlerScreenTests(unittest.TestCase):
         self.assertIn("Без проекта · данные во временной папке до закрытия окна", texts)
         self.screen.set_temporary_results(False)
         self.assertTrue(banner.isHidden())
-        self.assertIn("Сведения появятся, когда будет выбран адрес краула", [label.text() for label in self.screen.findChildren(QLabel)])
+        self.assertIn(
+            "Сведения появятся, когда будет выбран адрес краула",
+            [label.text() for label in self.screen.findChildren(QLabel)],
+        )
 
     def test_every_overview_leaf_has_an_icon_asset(self):
-        icons_dir = Path(__file__).resolve().parents[1] / "src" / "seohead_desktop" / "assets" / "icons"
-        missing = [name for name, _text, _depth in OVERVIEW if not (icons_dir / f"{name}.svg").is_file()]
+        icons_dir = (
+            Path(__file__).resolve().parents[1] / "src" / "seohead_desktop" / "assets" / "icons"
+        )
+        missing = [
+            name for name, _text, _depth in OVERVIEW if not (icons_dir / f"{name}.svg").is_file()
+        ]
         self.assertEqual(missing, [])
 
     def test_detail_tabs_are_empty_until_a_row_is_selected(self):
         tabs = self.screen.findChild(QTabWidget)
         self.assertEqual(tabs.count(), len(DETAIL_TABS))
         self.assertFalse(tabs.isEnabled())
-        self.assertIn("Сведения появятся", " ".join(label.text() for label in self.screen.findChildren(QLabel)))
+        self.assertIn(
+            "Сведения появятся",
+            " ".join(label.text() for label in self.screen.findChildren(QLabel)),
+        )
 
     def test_tune_action_is_present_and_waiting(self):
-        tune = next(b for b in self.screen.findChildren(QToolButton) if b.toolTip() == "Настройки скана")
+        tune = next(
+            b for b in self.screen.findChildren(QToolButton) if b.toolTip() == "Настройки скана"
+        )
         self.assertFalse(tune.isEnabled())
 
     def test_narrow_toolbar_moves_clear_and_save_into_overflow(self):
         clear = next(b for b in self.screen.findChildren(QPushButton) if b.text() == "Очистить")
-        save = next(b for b in self.screen.findChildren(QPushButton) if b.text() == "Сохранить как проект")
+        save = next(
+            b for b in self.screen.findChildren(QPushButton) if b.text() == "Сохранить как проект"
+        )
         self.screen.resize(800, 800)
         QApplication.sendEvent(self.screen, QResizeEvent(QSize(800, 800), QSize(640, 480)))
         self.assertTrue(clear.isHidden() and save.isHidden())

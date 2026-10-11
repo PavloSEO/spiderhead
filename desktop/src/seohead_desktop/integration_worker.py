@@ -1,4 +1,5 @@
 """Small lifetime-safe worker bridge for integration dialogs."""
+
 from PyQt5 import sip
 from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
 
@@ -25,10 +26,12 @@ class Job(QRunnable):
 
 def run_background(pool, function, callback, owner):
     signals = Signals(owner)
+
     def deliver(value):
         if sip.isdeleted(owner) or sip.isdeleted(signals):
             return
         signals.deleteLater()
         callback(value)
+
     signals.done.connect(deliver, Qt.QueuedConnection)
     pool.start(Job(function, signals))

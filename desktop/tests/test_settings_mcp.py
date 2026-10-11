@@ -14,11 +14,27 @@ from seohead_desktop.ui.settings.context import SettingsContext
 from seohead_desktop.ui.settings.dialog import SettingsDialog
 
 UNAVAILABLE = "Недоступно в этой сборке"
-STATUS = {"enabled": True, "tools": 180, "profile": "full", "by": "SEOHEAD Desktop",
-          "clients": {"claude-code": {"registered": True, "last_seen": "3 мин назад"}, "codex": {"registered": False}}}
+STATUS = {
+    "enabled": True,
+    "tools": 180,
+    "profile": "full",
+    "by": "SEOHEAD Desktop",
+    "clients": {
+        "claude-code": {"registered": True, "last_seen": "3 мин назад"},
+        "codex": {"registered": False},
+    },
+}
 
 
-BACKUPS = [{"client": "cursor", "path": "/x/mcp.json.seohead-1.bak", "created_at": "2026-10-02T09:12:00+00:00", "reason": "install", "verified": True}]
+BACKUPS = [
+    {
+        "client": "cursor",
+        "path": "/x/mcp.json.seohead-1.bak",
+        "created_at": "2026-10-02T09:12:00+00:00",
+        "reason": "install",
+        "verified": True,
+    }
+]
 
 
 class McpSettingsTests(unittest.TestCase):
@@ -45,7 +61,10 @@ class McpSettingsTests(unittest.TestCase):
 
     def test_defaults(self):
         self.make()
-        self.assertEqual({s.key: self.store.get(s.key) for s in mcp.SCHEMA}, {"mcp.enabled": True, "mcp.profile": "full", "mcp.journal": True})
+        self.assertEqual(
+            {s.key: self.store.get(s.key) for s in mcp.SCHEMA},
+            {"mcp.enabled": True, "mcp.profile": "full", "mcp.journal": True},
+        )
         self.assertEqual(self.row("Профиль инструментов").control.value(), "full")
         self.assertTrue(self.row("Писать журнал вызовов").control.isChecked())
 
@@ -60,7 +79,9 @@ class McpSettingsTests(unittest.TestCase):
         self.assertIsInstance(self.row("Профиль инструментов").control, Segmented)
         self.row("Профиль инструментов").control._buttons["quick-check"].click()
         self.assertEqual(self.store.get("mcp.profile"), "quick-check")
-        self.assertFalse(self.row("Писать журнал вызовов").control.isEnabled())  # the core has no call journal yet
+        self.assertFalse(
+            self.row("Писать журнал вызовов").control.isEnabled()
+        )  # the core has no call journal yet
 
     def test_server_switch_stores_and_notifies_application(self):
         calls = []
@@ -74,16 +95,26 @@ class McpSettingsTests(unittest.TestCase):
         self.make()
         self.assertIn("нет данных", self.badges())
         self.assertNotIn("включён", self.badges())
-        self.assertEqual(self.row("Локальный MCP-сервер").description.text(), "stdio · без сети")  # no invented tool count
+        self.assertEqual(
+            self.row("Локальный MCP-сервер").description.text(), "stdio · без сети"
+        )  # no invented tool count
         console = next(lb.text() for lb in self.labels() if "seohead mcp status" in lb.text())
         self.assertIn("Нет данных", console)
 
     def test_state_from_application(self):
         self.make(mcp_status=lambda: STATUS, mcp_backups=lambda: BACKUPS)
-        self.assertEqual(self.row("Локальный MCP-сервер").description.text(), "stdio · без сети · 180 инструментов в профиле full")
+        self.assertEqual(
+            self.row("Локальный MCP-сервер").description.text(),
+            "stdio · без сети · 180 инструментов в профиле full",
+        )
         self.assertEqual(self.badges().count("включён"), 1)
-        self.assertEqual(sorted(b for b in self.badges() if b != "нет данных"), ["включён", "не прописано", "прописано"])
-        self.assertEqual(self.badges().count("нет данных"), 2)  # Claude Desktop and Cursor are not in the status
+        self.assertEqual(
+            sorted(b for b in self.badges() if b != "нет данных"),
+            ["включён", "не прописано", "прописано"],
+        )
+        self.assertEqual(
+            self.badges().count("нет данных"), 2
+        )  # Claude Desktop and Cursor are not in the status
         console = next(lb.text() for lb in self.labels() if "seohead mcp status" in lb.text())
         self.assertIn("клиенты: Claude Code", console)
         self.assertNotIn("Codex", console)
@@ -95,7 +126,9 @@ class McpSettingsTests(unittest.TestCase):
     def test_client_and_backup_buttons_are_disabled_with_tooltip(self):
         self.make(mcp_status=lambda: STATUS, mcp_backups=lambda: BACKUPS)
         names = [b.text() for b in self.page.findChildren(QPushButton)]
-        self.assertEqual(sorted(names), ["Восстановить", "Изменить…", "Прописать…", "Прописать…", "Прописать…"])
+        self.assertEqual(
+            sorted(names), ["Восстановить", "Изменить…", "Прописать…", "Прописать…", "Прописать…"]
+        )
         for button in self.page.findChildren(QPushButton):
             self.assertFalse(button.isEnabled(), button.text())
             self.assertEqual(button.toolTip(), UNAVAILABLE)
@@ -109,7 +142,13 @@ class McpSettingsTests(unittest.TestCase):
 
     def test_no_demo_wording(self):
         self.make(mcp_status=lambda: STATUS)
-        self.assertFalse([w.text() for w in self.page.findChildren((QLabel, QPushButton)) if "демо" in w.text().lower()])
+        self.assertFalse(
+            [
+                w.text()
+                for w in self.page.findChildren((QLabel, QPushButton))
+                if "демо" in w.text().lower()
+            ]
+        )
 
     def test_dialog_reset_and_search(self):
         self.store = AppSettings(schema=full_schema())
@@ -117,7 +156,9 @@ class McpSettingsTests(unittest.TestCase):
         self.store.set("mcp.profile", "audit")
         self.store.set("mcp.enabled", False)
         dialog.reset_section()
-        self.assertEqual((self.store.get("mcp.profile"), self.store.get("mcp.enabled")), ("full", True))
+        self.assertEqual(
+            (self.store.get("mcp.profile"), self.store.get("mcp.enabled")), ("full", True)
+        )
         dialog.search.setText("журнал вызовов")
         self.assertFalse(dialog._nav["mcp"].isHidden())
         self.assertTrue(dialog._nav["scan"].isHidden())

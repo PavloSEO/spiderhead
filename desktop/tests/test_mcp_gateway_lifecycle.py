@@ -15,7 +15,7 @@ from PyQt5.QtCore import Qt
 from seohead_desktop.mcp_gateway import TOOL_ALLOWLIST, PersistentMcpGateway
 from seohead_desktop.qt import app as qt_app
 
-PEER = r'''
+PEER = r"""
 import json
 import os
 from pathlib import Path
@@ -82,7 +82,7 @@ for line in sys.stdin:
     else:
         result = {}
     print(json.dumps({"jsonrpc": "2.0", "id": identifier, "result": result}), flush=True)
-'''
+"""
 
 
 def process_exists(pid):
@@ -147,11 +147,19 @@ class McpGatewayLifecycleTests(unittest.TestCase):
         peer = self.root / "peer.py"
         peer.write_text(f"#!{sys.executable}\n" + PEER)
         peer.chmod(0o700)
-        (self.root / "peer.json").write_text(json.dumps({
-            "mode": mode, "tools": sorted(TOOL_ALLOWLIST), **peer_config,
-        }))
+        (self.root / "peer.json").write_text(
+            json.dumps(
+                {
+                    "mode": mode,
+                    "tools": sorted(TOOL_ALLOWLIST),
+                    **peer_config,
+                }
+            )
+        )
         self.gateway = PersistentMcpGateway(
-            str(peer), startup_timeout=startup_timeout, read_timeout=read_timeout,
+            str(peer),
+            startup_timeout=startup_timeout,
+            read_timeout=read_timeout,
             tool_timeouts=tool_timeouts,
         )
         for signal, target in (
@@ -188,7 +196,8 @@ class McpGatewayLifecycleTests(unittest.TestCase):
     def assert_hung_shutdown(self, mode):
         sentinel = subprocess.Popen(
             [sys.executable, "-c", "import time; time.sleep(30)"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
         try:
             self.start(mode)
@@ -263,8 +272,11 @@ class McpGatewayLifecycleTests(unittest.TestCase):
 
     def test_tool_override_allows_slow_comparison_and_keeps_one_session(self):
         gateway = self.start(
-            "slow", read_timeout=0.1, tool_timeouts={"seo_compare_crawls": 3},
-            delay_tool="seo_compare_crawls", delay=1.1,
+            "slow",
+            read_timeout=0.1,
+            tool_timeouts={"seo_compare_crawls": 3},
+            delay_tool="seo_compare_crawls",
+            delay=1.1,
         )
         (self.root / "project.json").write_text("{}")
         scans = self.root / "scans"
@@ -272,10 +284,16 @@ class McpGatewayLifecycleTests(unittest.TestCase):
         for name in ("before", "after"):
             (scans / name).touch()
         gateway.set_project_scope(str(self.root))
-        gateway.submit("compare", "seo_compare_crawls", {
-            "before": str(scans / "before"), "after": str(scans / "after"),
-            "out_dir": str(self.root / "reports" / "compare"),
-        }, 1)
+        gateway.submit(
+            "compare",
+            "seo_compare_crawls",
+            {
+                "before": str(scans / "before"),
+                "after": str(scans / "after"),
+                "out_dir": str(self.root / "reports" / "compare"),
+            },
+            1,
+        )
         self.wait_for(lambda: self.results, "comparison inherited short read timeout")
         self.submit("next-read")
         self.wait_for(lambda: len(self.results) == 2, "persistent session was not reusable")
@@ -313,12 +331,22 @@ class McpGatewayLifecycleTests(unittest.TestCase):
         self.start("disconnect")
         (self.root / "project.json").write_text("{}")
         self.gateway.set_project_scope(str(self.root))
-        self.gateway.submit("unconfirmed-note", "seo_project_inbox_submit", {
-            "directory": str(self.root), "text": "Synthetic note", "kind": "note",
-            "author_role": "specialist", "expected_revision": 0,
-        }, 1)
+        self.gateway.submit(
+            "unconfirmed-note",
+            "seo_project_inbox_submit",
+            {
+                "directory": str(self.root),
+                "text": "Synthetic note",
+                "kind": "note",
+                "author_role": "specialist",
+                "expected_revision": 0,
+            },
+            1,
+        )
         self.submit("latest", 2)
-        self.wait_for(lambda: self.results, "peer did not recover after losing the write acknowledgement")
+        self.wait_for(
+            lambda: self.results, "peer did not recover after losing the write acknowledgement"
+        )
         self.assertEqual([item[0] for item in self.results], ["latest"])
         self.assertEqual([item[0] for item in self.failures], ["unconfirmed-note"])
         self.assertEqual([item["text"] for item in self.events("note_written")], ["Synthetic note"])

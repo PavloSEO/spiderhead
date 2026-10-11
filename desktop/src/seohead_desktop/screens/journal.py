@@ -35,9 +35,19 @@ from .base import Screen
 from .scan_common import CODES, EVENT_ICONS, PHASES, parse_time
 
 LIMIT = 200
-KIND_NAMES = {"native": "встроенный краулер", "sitemap": "карта сайта", "screaming_frog": "Screaming Frog"}
+KIND_NAMES = {
+    "native": "встроенный краулер",
+    "sitemap": "карта сайта",
+    "screaming_frog": "Screaming Frog",
+}
 ICON_ROLES = {"started": "success", "failed": "error", "finished": "success"}
-FILTERS = (("all", "apps", "Все"), ("scan", "manage_search", "Сканы"), ("agent", "smart_toy", "Агент"), ("me", "person", "Вы"), ("app", "desktop_windows", "Приложение"))
+FILTERS = (
+    ("all", "apps", "Все"),
+    ("scan", "manage_search", "Сканы"),
+    ("agent", "smart_toy", "Агент"),
+    ("me", "person", "Вы"),
+    ("app", "desktop_windows", "Приложение"),
+)
 AVAILABLE_SOURCES = {"all", "scan"}
 COLUMNS = ("Время", "Источник", "Событие", "Запуск скана")
 UNAVAILABLE_SOURCE = "Источник не указан: ядро не записывает действия агента, ваши действия и события приложения в журнал. Недоступно в этой версии ядра"
@@ -73,7 +83,11 @@ class ElidedLabel(QLabel):
 
     def _elide(self):
         width = self.width()
-        self.setText(self.fontMetrics().elidedText(self.full_text, Qt.ElideRight, width) if width > 0 else self.full_text)
+        self.setText(
+            self.fontMetrics().elidedText(self.full_text, Qt.ElideRight, width)
+            if width > 0
+            else self.full_text
+        )
 
 
 class Event:
@@ -93,17 +107,27 @@ class Event:
     def text(self):
         if self.message:
             return self.message
-        text = trf("{code} · {phase}", code=CODES.get(self.code, "событие"), phase=PHASES.get(self.phase, "этап не указан"))
+        text = trf(
+            "{code} · {phase}",
+            code=CODES.get(self.code, "событие"),
+            phase=PHASES.get(self.phase, "этап не указан"),
+        )
         return text[:1].upper() + text[1:]
 
     def when(self, today):
         if self.at is None:
             return None
         local = self.at.astimezone()
-        return local.strftime("%H:%M:%S") if local.date() == today else local.strftime("%d.%m %H:%M:%S")
+        return (
+            local.strftime("%H:%M:%S")
+            if local.date() == today
+            else local.strftime("%d.%m %H:%M:%S")
+        )
 
     def haystack(self, today):
-        return " ".join(part for part in (self.when(today), self.source, self.text, self.run_id) if part).lower()
+        return " ".join(
+            part for part in (self.when(today), self.source, self.text, self.run_id) if part
+        ).lower()
 
 
 def collect_events(runs):
@@ -117,7 +141,12 @@ def group_events(events):
     """Fold consecutive identical events of one run («Обновление счётчиков · сбор страниц» ×42) into one group."""
     groups = []
     for event in events:
-        if groups and groups[-1][0].run_id == event.run_id and groups[-1][0].source == event.source and groups[-1][0].text == event.text:
+        if (
+            groups
+            and groups[-1][0].run_id == event.run_id
+            and groups[-1][0].source == event.source
+            and groups[-1][0].text == event.text
+        ):
             groups[-1].append(event)
         else:
             groups.append([event])
@@ -180,7 +209,11 @@ class EventModel(QAbstractTableModel):
         return len(COLUMNS)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
-        return tr(COLUMNS[section]) if orientation == Qt.Horizontal and role == Qt.DisplayRole else None
+        return (
+            tr(COLUMNS[section])
+            if orientation == Qt.Horizontal and role == Qt.DisplayRole
+            else None
+        )
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
@@ -188,8 +221,17 @@ class EventModel(QAbstractTableModel):
         event, group, kind = self.rows[index.row()]
         column = index.column()
         if role == Qt.DisplayRole:
-            text = self.head_text(group) if kind == "head" else ("    " + event.text if kind == "child" else event.text)
-            return (event.when(self.today) or tr("Нет данных"), event.source, text, short_run_id(event.run_id) or tr("Нет данных"))[column]
+            text = (
+                self.head_text(group)
+                if kind == "head"
+                else ("    " + event.text if kind == "child" else event.text)
+            )
+            return (
+                event.when(self.today) or tr("Нет данных"),
+                event.source,
+                text,
+                short_run_id(event.run_id) or tr("Нет данных"),
+            )[column]
         if role == Qt.DecorationRole and column == 1:
             colour = theming.roles()[ICON_ROLES.get(event.code, "text_2")]
             return material_icon(EVENT_ICONS.get(event.code, "info"), colour)
@@ -245,7 +287,9 @@ class JournalScreen(Screen):
         self.search.setPlaceholderText(tr("Поиск в журнале…"))
         self.search.setAccessibleName(tr("Поиск в журнале"))
         self.search.setClearButtonEnabled(True)
-        self.search.addAction(material_icon("search", theming.roles()["text_3"]), QLineEdit.LeadingPosition)
+        self.search.addAction(
+            material_icon("search", theming.roles()["text_3"]), QLineEdit.LeadingPosition
+        )
         self.search.setMinimumWidth(200)
         self.search.setMaximumWidth(280)
         self.search.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -325,17 +369,46 @@ class JournalScreen(Screen):
 
     def refresh(self):
         host = self.host
-        self.events, self.total = collect_events(host.observed_runs) if host.project_directory else ([], 0)
+        self.events, self.total = (
+            collect_events(host.observed_runs) if host.project_directory else ([], 0)
+        )
         today = scan_common.now().astimezone().date()
-        shown = [event for event in self.events if not self.query or self.query in event.haystack(today)]
+        shown = [
+            event for event in self.events if not self.query or self.query in event.haystack(today)
+        ]
         if not host.project_directory:
-            kind, build = "noproject", lambda: no_project_panel(host, "Откройте проект, чтобы увидеть события его запусков.")
+            kind, build = (
+                "noproject",
+                lambda: no_project_panel(
+                    host, "Откройте проект, чтобы увидеть события его запусков."
+                ),
+            )
         elif not self.events and host._project_loading:
-            kind, build = "loading", lambda: StatePanel("loading", "Чтение проекта", "События запусков появятся после чтения.")
+            kind, build = (
+                "loading",
+                lambda: StatePanel(
+                    "loading", "Чтение проекта", "События запусков появятся после чтения."
+                ),
+            )
         elif not self.events:
-            kind, build = "empty", lambda: StatePanel("empty", "Событий запусков нет", "Ядро не вернуло запусков проекта: события появятся после первого скана.")
+            kind, build = (
+                "empty",
+                lambda: StatePanel(
+                    "empty",
+                    "Событий запусков нет",
+                    "Ядро не вернуло запусков проекта: события появятся после первого скана.",
+                ),
+            )
         elif not shown:
-            kind, build = "nomatch", lambda: StatePanel("empty", "Ничего не найдено", "В загруженных событиях нет совпадений с поиском.", action=("Сбросить поиск", self.search.clear))
+            kind, build = (
+                "nomatch",
+                lambda: StatePanel(
+                    "empty",
+                    "Ничего не найдено",
+                    "В загруженных событиях нет совпадений с поиском.",
+                    action=("Сбросить поиск", self.search.clear),
+                ),
+            )
         else:
             kind, build = None, None
         if kind != self.state:
@@ -343,8 +416,17 @@ class JournalScreen(Screen):
         self.model.set_rows(shown, today)
         loaded = len(self.events)
         self.foot_text.set_full_text(
-            trf("Показаны последние {n} событий: постраничное чтение журнала ещё не поддержано ядром", n=loaded) if loaded
-            else tr("Журнал проекта читается только как события запусков"))
+            trf(
+                "Показаны последние {n} событий: постраничное чтение журнала ещё не поддержано ядром",
+                n=loaded,
+            )
+            if loaded
+            else tr("Журнал проекта читается только как события запусков")
+        )
         log_directory = app_logs_directory()
         self.open_folder.setEnabled(log_directory is not None)
-        self.open_folder.setToolTip(str(log_directory) if log_directory is not None else tr("Путь журнала запуска не передан приложению или файл недоступен"))
+        self.open_folder.setToolTip(
+            str(log_directory)
+            if log_directory is not None
+            else tr("Путь журнала запуска не передан приложению или файл недоступен")
+        )

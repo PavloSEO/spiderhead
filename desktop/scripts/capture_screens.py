@@ -33,7 +33,9 @@ from seohead_desktop.ui.settings.context import SettingsContext
 from seohead_desktop.ui.settings.dialog import SettingsDialog
 
 OPTIONS = {}
-SEMIMPORT_SAMPLE = Path(__file__).resolve().parents[1] / "tests" / "core_fixtures" / "semimport_sample.csv"
+SEMIMPORT_SAMPLE = (
+    Path(__file__).resolve().parents[1] / "tests" / "core_fixtures" / "semimport_sample.csv"
+)
 
 
 def open_project(window, directory, timeout=60):
@@ -47,7 +49,12 @@ def open_project(window, directory, timeout=60):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         QApplication.processEvents()
-        if window.project_result is not None and not window._project_loading and not window.requests and window._workspace_restore is None:
+        if (
+            window.project_result is not None
+            and not window._project_loading
+            and not window.requests
+            and window._workspace_restore is None
+        ):
             break
         time.sleep(0.05)
     for _ in range(40):  # let queued follow-up reads (scans, tasks, observer) land
@@ -64,7 +71,9 @@ def render_modal(dialog, width, height, theme, lang):
     window = MainWindow(persistent=False)
     window.prefs.set("view.theme", theme)
     window.prefs.set("view.language", lang)
-    window.prefs.set("shell.onboarding_done", True)  # clean background: no first-run wizard behind the dialog
+    window.prefs.set(
+        "shell.onboarding_done", True
+    )  # clean background: no first-run wizard behind the dialog
     window.show_startup_workspace()
     if OPTIONS.get("project"):
         open_project(window, OPTIONS["project"])
@@ -171,8 +180,12 @@ def sourcekey_dialog(pid, theme, lang):
     """Settings → Источники данных → one provider, answered by the real core CLI (read-only; the project is optional)."""
     from seohead_desktop.app import MainWindow
 
-    if OPTIONS.get("core"):  # the status bar and the core service look the CLI up on PATH when the window is built
-        os.environ["PATH"] = os.pathsep.join([str(Path(OPTIONS["core"]).parent), os.environ.get("PATH", "")])
+    if OPTIONS.get(
+        "core"
+    ):  # the status bar and the core service look the CLI up on PATH when the window is built
+        os.environ["PATH"] = os.pathsep.join(
+            [str(Path(OPTIONS["core"]).parent), os.environ.get("PATH", "")]
+        )
     window = MainWindow(persistent=False)
     window.prefs.set("view.theme", theme)
     window.prefs.set("view.language", lang)
@@ -180,7 +193,9 @@ def sourcekey_dialog(pid, theme, lang):
     if OPTIONS.get("project"):
         open_project(window, OPTIONS["project"])
     dialog = SettingsDialog(window.prefs, window.settings_context(), None, "sources")
-    dialog._owner_window = window  # keeps the window (and its core service) alive while the dialog is captured
+    dialog._owner_window = (
+        window  # keeps the window (and its core service) alive while the dialog is captured
+    )
     page = dialog._pages["sources"][1]
     wait_until(lambda: page.loaded)
     page.show_detail(pid)
@@ -191,7 +206,16 @@ def sourcekey_dialog(pid, theme, lang):
 
 # modal:<id> — one capture per modal dialog of the Modals board; scan modals reuse the scan captures.
 MODAL_SCREENS = {"new-scan": "newscan", "scan-settings": "scanset:speed", "quick-scan": "quickscan"}
-MODAL_DIALOGS = ("settings", "project-settings", "help", "action-finder", "tab-config", "new-project", "crawl-config", "permission")
+MODAL_DIALOGS = (
+    "settings",
+    "project-settings",
+    "help",
+    "action-finder",
+    "tab-config",
+    "new-project",
+    "crawl-config",
+    "permission",
+)
 
 
 def modal_dialog(arg, width, height, theme, lang):
@@ -227,6 +251,7 @@ def modal_dialog(arg, width, height, theme, lang):
         return PermissionDialog(OPTIONS.get("core") or "seohead", ("claude-code",), window)
     if arg == "crawl-config":
         from seohead_desktop.ui.crawl_configuration_dialog import CrawlConfigurationDialog
+
         sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
         from tests._screens_core import fixture
 
@@ -253,11 +278,20 @@ def url_tab(window, tab, path="", timeout=120):
 
     index = 0
     if path:
-        index = next((i for i, row in enumerate(screen.rows) if urlsplit(row.get("url", "")).path == path), None)
+        index = next(
+            (i for i, row in enumerate(screen.rows) if urlsplit(row.get("url", "")).path == path),
+            None,
+        )
         if index is None:
             raise SystemExit(f"URL path {path!r} was not found in the loaded page of saved URLs")
     screen.table.selectRow(index)
-    wait(lambda: screen.detail_job.busy or screen._select_timer.isActive() or screen.detail_data is not None)
+    wait(
+        lambda: (
+            screen.detail_job.busy
+            or screen._select_timer.isActive()
+            or screen.detail_data is not None
+        )
+    )
     wait(lambda: not screen.detail_job.busy and not screen._select_timer.isActive())
     screen._open_tab(tab)
     wait(lambda: not screen.bottom.history.busy if tab == "hist" else True)
@@ -309,7 +343,13 @@ def build(name, width, height, store, theme="light", lang="ru"):
         else:
             window.prefs.set("shell.onboarding_done", True)
             if arg == "banner":
-                window.recent_projects = [{"label": "Старый блог", "path": "/nonexistent/old-blog", "opened_at": "2026-10-10T09:00+03:00"}]
+                window.recent_projects = [
+                    {
+                        "label": "Старый блог",
+                        "path": "/nonexistent/old-blog",
+                        "opened_at": "2026-10-10T09:00+03:00",
+                    }
+                ]
             window.show_startup_workspace()
         return window
     if kind == "shell":
@@ -318,7 +358,9 @@ def build(name, width, height, store, theme="light", lang="ru"):
         window = MainWindow(persistent=False)
         window.prefs.set("view.theme", theme)
         window.prefs.set("view.language", lang)
-        window.prefs.set("shell.onboarding_done", True)  # captures show the workspace, not the first-run wizard
+        window.prefs.set(
+            "shell.onboarding_done", True
+        )  # captures show the workspace, not the first-run wizard
         if arg == "simple" or OPTIONS.get("display") == "simple":
             window.set_display("simple", remember=False)
         window.show_startup_workspace()
@@ -326,7 +368,9 @@ def build(name, width, height, store, theme="light", lang="ru"):
             open_project(window, OPTIONS["project"])
         if arg and arg != "simple":
             window.navigation.select_section(arg)
-        if arg == "issues" and OPTIONS.get("check"):  # --check CODE: open one check's evidence table
+        if arg == "issues" and OPTIONS.get(
+            "check"
+        ):  # --check CODE: open one check's evidence table
             window.screens["issues"]._select(OPTIONS["check"])
         return window
     if kind == "help":
@@ -341,7 +385,9 @@ def build(name, width, height, store, theme="light", lang="ru"):
         window.show_screen("help")
         if arg:
             screen = window.extra_screens["help"]
-            view = {"url-section": "url"}.get(arg, arg)  # NAME help:url-section → the URL guide section
+            view = {"url-section": "url"}.get(
+                arg, arg
+            )  # NAME help:url-section → the URL guide section
             index = next(i for i, item in enumerate(ITEMS) if item[4] == view)
             screen._show(index)
         return window
@@ -393,6 +439,7 @@ def build(name, width, height, store, theme="light", lang="ru"):
         return window
     if kind == "gallery":
         from seohead_desktop.ui.theme_gallery import build_board
+
         return build_board(width, height)
     raise SystemExit(f"unknown screen: {name}")
 
@@ -404,17 +451,34 @@ def main(argv=None):
     parser.add_argument("--theme", default="light", choices=theming.THEMES)
     parser.add_argument("--lang", default="ru", choices=i18n.LANGUAGES)
     parser.add_argument("--sizes", default="1440x900,800x800")
-    parser.add_argument("--project", type=Path, help="existing project directory to open through the core (read-only)")
-    parser.add_argument("--core", help="seohead CLI executable (default: .venv-desktop/bin/seohead next to the repo)")
+    parser.add_argument(
+        "--project",
+        type=Path,
+        help="existing project directory to open through the core (read-only)",
+    )
+    parser.add_argument(
+        "--core",
+        help="seohead CLI executable (default: .venv-desktop/bin/seohead next to the repo)",
+    )
     parser.add_argument("--display", choices=("agent", "simple"), default="agent")
-    parser.add_argument("--check", help="shell:issues only: select this finding check (e.g. DESC_MISSING) before the capture")
+    parser.add_argument(
+        "--check",
+        help="shell:issues only: select this finding check (e.g. DESC_MISSING) before the capture",
+    )
     args = parser.parse_args(argv)
     if args.project is None and os.environ.get("SEOHEAD_QA_PROJECT"):
         args.project = Path(os.environ["SEOHEAD_QA_PROJECT"])
     if any(name.startswith("shell:graph") for name in args.names) and args.project is None:
-        parser.error("shell:graph needs a QA project with a saved scan: pass --project DIR or set SEOHEAD_QA_PROJECT")
+        parser.error(
+            "shell:graph needs a QA project with a saved scan: pass --project DIR or set SEOHEAD_QA_PROJECT"
+        )
     default_core = Path(__file__).resolve().parents[2] / ".venv-desktop/bin/seohead"
-    OPTIONS.update(project=args.project, display=args.display, check=args.check, core=args.core or (str(default_core) if default_core.exists() else None))
+    OPTIONS.update(
+        project=args.project,
+        display=args.display,
+        check=args.check,
+        core=args.core or (str(default_core) if default_core.exists() else None),
+    )
     os.environ.setdefault("SEOHEAD_ALLOW_PRIVATE_HOSTS", "crawl.localhost,127.0.0.1")
     app = qt.app(sys.argv[:1])
     app.setStyle("Fusion")
@@ -426,8 +490,15 @@ def main(argv=None):
             width, height = (int(v) for v in size.split("x"))
             widget = build(name, width, height, store, args.theme, args.lang)
             suffix = "" if args.lang == "ru" else f"-{args.lang}"
-            path = args.out_dir / f"{name.replace(':', '-').replace('/', '_')}-{args.theme}-{size}{suffix}.png"
-            if name.startswith(("settings", "tabsettings", "projsources", "projschedule", "sources", "sourcekey")) or isinstance(widget, QDialog):  # settings, sources, project settings and every modal:<id> dialog
+            path = (
+                args.out_dir
+                / f"{name.replace(':', '-').replace('/', '_')}-{args.theme}-{size}{suffix}.png"
+            )
+            if name.startswith(
+                ("settings", "tabsettings", "projsources", "projschedule", "sources", "sourcekey")
+            ) or isinstance(
+                widget, QDialog
+            ):  # settings, sources, project settings and every modal:<id> dialog
                 image = render_modal(widget, width, height, args.theme, args.lang)
                 image.save(str(path))
             elif hasattr(widget, "render_image"):
@@ -446,7 +517,9 @@ def main(argv=None):
             else:
                 widget.show()
                 app.processEvents()
-                widget.resize(widget.sizeHint())  # a popup taller than the 800x600 offscreen screen is clamped otherwise
+                widget.resize(
+                    widget.sizeHint()
+                )  # a popup taller than the 800x600 offscreen screen is clamped otherwise
                 app.processEvents()
                 image = QPixmap(widget.size())
                 widget.render(image)

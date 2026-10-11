@@ -1,4 +1,5 @@
 """Installer script contracts use only a disposable destination volume."""
+
 import os
 import subprocess
 import tempfile
@@ -40,11 +41,15 @@ class InstallerTests(unittest.TestCase):
             core.parent.mkdir(parents=True)
             core.write_text("#!/bin/sh\nexit 0\n")
             core.chmod(0o755)
-            (app / "Contents/Resources/core-manifest.json").write_text('{"schema":"seohead.desktop.core-manifest.v1"}')
+            (app / "Contents/Resources/core-manifest.json").write_text(
+                '{"schema":"seohead.desktop.core-manifest.v1"}'
+            )
             wrapper = root / "usr/local/bin/seohead"
             wrapper.parent.mkdir(parents=True)
             wrapper.write_bytes(WRAPPER.read_bytes())
-            subprocess.run(["sh", str(SCRIPTS / "postinstall"), "package", "location", str(root)], check=True)
+            subprocess.run(
+                ["sh", str(SCRIPTS / "postinstall"), "package", "location", str(root)], check=True
+            )
             self.assertTrue(os.access(wrapper, os.X_OK))
             subprocess.run(["sh", str(SCRIPTS / "uninstall.sh"), "--yes", str(root)], check=True)
             self.assertFalse(wrapper.exists())
@@ -52,7 +57,10 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(len(list(app.parent.glob("*.uninstalled-*"))), 1)
 
     def test_source_launch_cannot_request_administrator_authorization(self):
-        with patch.object(cli_install, "verified_bundled_core_identity", return_value=None), patch.object(cli_install.subprocess, "run") as run:
+        with (
+            patch.object(cli_install, "verified_bundled_core_identity", return_value=None),
+            patch.object(cli_install.subprocess, "run") as run,
+        ):
             with self.assertRaises(ValueError):
                 cli_install.install_cli()
             run.assert_not_called()

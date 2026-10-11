@@ -87,7 +87,10 @@ class SourceRow(QFrame):
         head.addWidget(title, 1)
         texts.addLayout(head)
         if paid:  # in the sub line, so a narrow window keeps the row without a sideways scroll
-            sub = joined(" · ", [p for p in ("платный" if paid == "paid" else "платный по желанию", sub) if p])
+            sub = joined(
+                " · ",
+                [p for p in ("платный" if paid == "paid" else "платный по желанию", sub) if p],
+            )
         meta = QLabel(sub)
         meta.setProperty("text_style", "meta")
         meta.setWordWrap(True)
@@ -127,7 +130,11 @@ def back_header(title, back_text, on_back, subtitle="", pid=None, actions=(), pa
     heading.setSpacing(8)
     heading.addWidget(head)
     if paid:
-        heading.addWidget(badge("warn", tr("платный" if paid == "paid" else "платный по желанию"), "payments"), 0, Qt.AlignVCenter)
+        heading.addWidget(
+            badge("warn", tr("платный" if paid == "paid" else "платный по желанию"), "payments"),
+            0,
+            Qt.AlignVCenter,
+        )
     heading.addStretch(1)
     texts.addLayout(heading)
     if subtitle:
@@ -164,7 +171,12 @@ class _Model(QAbstractTableModel):
         value = self.rows[index.row()][index.column()]
         if role in (Qt.DisplayRole, Qt.ToolTipRole):
             return tr("Нет данных") if value is None else i18n.convert(str(value))
-        if role == Qt.TextAlignmentRole and index.column() > 0 and isinstance(value, str) and value[:1].isdigit():
+        if (
+            role == Qt.TextAlignmentRole
+            and index.column() > 0
+            and isinstance(value, str)
+            and value[:1].isdigit()
+        ):
             return int(Qt.AlignRight | Qt.AlignVCenter)
         return None
 

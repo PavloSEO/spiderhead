@@ -14,10 +14,32 @@ from seohead_desktop.ui.work_monitor import WorkMonitor
 
 def observed(identity="native-run", **changes):
     row = {
-        "id": identity, "kind": "native", "state": "running", "artifact": "scans/synthetic.sqlite",
-        "collector": {"origin": "synthetic.test", "mode": "spider", "max_urls": 100, "max_requests_per_second": 2},
-        "counters": {"fetched": 20, "queued": 40, "inflight": 2, "excluded": 3, "rate_per_second": 99},
-        "telemetry": {"state": "fresh", "current_rate_per_second": 1.25, "unit": "pages", "sampled_at": "2026-10-07T16:00:00Z", "age_seconds": 2, "rate_window_seconds": 5, "queue_semantics": "separate"},
+        "id": identity,
+        "kind": "native",
+        "state": "running",
+        "artifact": "scans/synthetic.sqlite",
+        "collector": {
+            "origin": "synthetic.test",
+            "mode": "spider",
+            "max_urls": 100,
+            "max_requests_per_second": 2,
+        },
+        "counters": {
+            "fetched": 20,
+            "queued": 40,
+            "inflight": 2,
+            "excluded": 3,
+            "rate_per_second": 99,
+        },
+        "telemetry": {
+            "state": "fresh",
+            "current_rate_per_second": 1.25,
+            "unit": "pages",
+            "sampled_at": "2026-10-07T16:00:00Z",
+            "age_seconds": 2,
+            "rate_window_seconds": 5,
+            "queue_semantics": "separate",
+        },
         "events": [{"at": "2026-10-07T16:00:00Z", "phase": "collection", "code": "progress"}],
     }
     return {**row, **changes}
@@ -43,7 +65,9 @@ class WorkMonitorTests(unittest.TestCase):
 
     def test_exact_core_identity_survives_reordering_and_missing_selected_run(self):
         seen = QSignalSpy(self.monitor.runSelected)
-        self.monitor.set_observation([observed("first"), observed("second")], {}, "2026-10-07T16:00:02Z")
+        self.monitor.set_observation(
+            [observed("first"), observed("second")], {}, "2026-10-07T16:00:02Z"
+        )
         self.monitor.set_selected_run("second")
         self.monitor.set_observation([observed("second"), observed("first")], {}, None)
         self.assertTrue(self.monitor.run_cards["second"].isChecked())
@@ -54,13 +78,25 @@ class WorkMonitorTests(unittest.TestCase):
         self.assertFalse(self.monitor.result_button.isEnabled())
 
     def test_owned_queue_joins_reserved_id_without_fabricating_measurements(self):
-        owner = {"id": "manager-id", "observer_run_id": "reserved-core-id", "core_run_id": None, "owned": True, "state": "queued", "kind": "crawl", "max_urls": 30}
+        owner = {
+            "id": "manager-id",
+            "observer_run_id": "reserved-core-id",
+            "core_run_id": None,
+            "owned": True,
+            "state": "queued",
+            "kind": "crawl",
+            "max_urls": 30,
+        }
         self.monitor.set_observation({"items": [], "owned": [owner]}, {}, None)
         self.assertEqual(list(self.monitor.run_cards), ["reserved-core-id"])
-        self.assertIn("Очередь этого окна", self.monitor.run_cards["reserved-core-id"].activity.text())
+        self.assertIn(
+            "Очередь этого окна", self.monitor.run_cards["reserved-core-id"].activity.text()
+        )
         self.assertEqual(self.monitor.metric_values["fetched"].text(), "—")
         self.assertFalse(self.monitor.result_button.isEnabled())
-        self.monitor.set_observation({"items": [observed("reserved-core-id")], "owned": [owner]}, {}, None)
+        self.monitor.set_observation(
+            {"items": [observed("reserved-core-id")], "owned": [owner]}, {}, None
+        )
         self.assertEqual(len(self.monitor.run_cards), 1)
         self.assertEqual(self.monitor.metric_values["fetched"].text(), "20")
         self.assertEqual(self.monitor.selected_badge.text(), "Выполняется")
@@ -97,13 +133,18 @@ class WorkMonitorTests(unittest.TestCase):
         self.assertEqual(self.monitor.phase_label.text(), "Этап ещё не сообщён")
 
     def test_plan_percentage_needs_measured_denominator_and_budget_is_not_completion(self):
-        partial = observed(state="partial", counters={"fetched": 100, "queued": 0, "inflight": 0, "excluded": 0})
+        partial = observed(
+            state="partial", counters={"fetched": 100, "queued": 0, "inflight": 0, "excluded": 0}
+        )
         self.monitor.set_observation([partial], {}, None)
         self.assertFalse(self.monitor.plan_progress.isVisible())
         self.assertIn("URL: 100", self.monitor.budget_label.text())
         self.assertIn("размер сайта не измерен", self.monitor.queue_label.text())
         self.assertEqual(self.monitor.selected_badge.text(), "Частичный результат")
-        plan = {"audit_task_completion": {"state": "measured", "numerator": 3, "denominator": 12}, "counts": {"remaining": 9, "stale": 0}}
+        plan = {
+            "audit_task_completion": {"state": "measured", "numerator": 3, "denominator": 12},
+            "counts": {"remaining": 9, "stale": 0},
+        }
         self.monitor.set_observation([partial], plan, None)
         self.assertEqual(self.monitor.plan_progress.value(), 250)
         self.assertIn("3 из 12 согласованных задач", self.monitor.plan_label.text())
@@ -117,10 +158,12 @@ class WorkMonitorTests(unittest.TestCase):
         row = observed(events=events)
         original = deepcopy(row)
         consumed = []
+
         def rows():
             for index in range(1000000):
                 consumed.append(index)
                 yield observed(str(index), events=events)
+
         self.monitor.set_observation(rows(), {}, None)
         self.assertEqual(len(consumed), 101)
         self.assertEqual(len(self.monitor.run_cards), 6)
@@ -136,7 +179,10 @@ class WorkMonitorTests(unittest.TestCase):
         self.assertEqual(row, original)
 
     def test_overview_caps_widgets_but_keeps_all_supplied_runs_selectable(self):
-        rows = [observed(str(index), state="finished", finished_at="2026-10-07T16:00:00Z") for index in range(50)]
+        rows = [
+            observed(str(index), state="finished", finished_at="2026-10-07T16:00:00Z")
+            for index in range(50)
+        ]
         rows[-1]["state"] = "running"
         self.monitor.set_observation({"items": rows, "active_total": 1, "total": 50}, {}, None)
         self.assertEqual(len(self.monitor.run_cards), 6)
@@ -148,8 +194,19 @@ class WorkMonitorTests(unittest.TestCase):
         self.assertIn("Незавершённых: 1", self.monitor.observation.text())
 
     def test_unobserved_terminal_owners_cannot_displace_external_active_run(self):
-        owners = [{"id": str(index), "core_run_id": "old-" + str(index), "state": "finished", "kind": "crawl", "owned": True} for index in range(100)]
-        self.monitor.set_observation({"items": [observed("external-active")], "owned": owners}, {}, None)
+        owners = [
+            {
+                "id": str(index),
+                "core_run_id": "old-" + str(index),
+                "state": "finished",
+                "kind": "crawl",
+                "owned": True,
+            }
+            for index in range(100)
+        ]
+        self.monitor.set_observation(
+            {"items": [observed("external-active")], "owned": owners}, {}, None
+        )
         self.assertIn("external-active", self.monitor.runs)
         self.assertEqual(list(self.monitor.run_cards), ["external-active"])
 
@@ -161,7 +218,14 @@ class WorkMonitorTests(unittest.TestCase):
 
     def test_wrapped_overview_rows_keep_natural_height_after_resize(self):
         for count in (3, 6):
-            self.monitor.set_observation([observed(str(index), state="finished", finished_at="2026-10-07T16:00:00Z") for index in range(count)], {}, None)
+            self.monitor.set_observation(
+                [
+                    observed(str(index), state="finished", finished_at="2026-10-07T16:00:00Z")
+                    for index in range(count)
+                ],
+                {},
+                None,
+            )
             for width in (1440, 740, 685, 1440, 740):
                 self.monitor.resize(width, 740)
                 QTest.qWait(20)
@@ -172,14 +236,23 @@ class WorkMonitorTests(unittest.TestCase):
                     gap = cards[columns].y() - first_bottom - 1
                     self.assertLessEqual(gap, self.monitor.cards.verticalSpacing() + 1)
                     self.assertGreaterEqual(gap, 0)
-                self.assertLessEqual(self.monitor.cards_scroll.height(), 2 * max(card.height() for card in cards) + self.monitor.cards.verticalSpacing() + 1)
+                self.assertLessEqual(
+                    self.monitor.cards_scroll.height(),
+                    2 * max(card.height() for card in cards)
+                    + self.monitor.cards.verticalSpacing()
+                    + 1,
+                )
 
     def test_unknown_plan_is_one_line_but_measured_zero_task_counts_remain(self):
-        self.monitor.set_observation([observed()], {"counts": {"complete": None, "remaining": None, "stale": None}}, None)
+        self.monitor.set_observation(
+            [observed()], {"counts": {"complete": None, "remaining": None, "stale": None}}, None
+        )
         self.assertFalse(self.monitor.plan_note.isVisible())
         self.assertIn("не измерено", self.monitor.plan_label.text())
         self.assertIn("согласованный план", self.monitor.plan_label.toolTip())
-        self.monitor.set_observation([observed()], {"counts": {"complete": 0, "remaining": 0, "stale": 0}}, None)
+        self.monitor.set_observation(
+            [observed()], {"counts": {"complete": 0, "remaining": 0, "stale": 0}}, None
+        )
         self.assertTrue(self.monitor.plan_note.isVisible())
         self.assertIn("Завершено: 0", self.monitor.plan_note.text())
 
@@ -219,7 +292,9 @@ class WorkMonitorTests(unittest.TestCase):
             self.monitor.resize(width, 720)
             QTest.qWait(40)
             self.assertEqual(self.monitor.width(), width)
-            self.assertEqual(self.monitor._columns, 4 if width == 1440 else 3 if width == 1024 else 2)
+            self.assertEqual(
+                self.monitor._columns, 4 if width == 1440 else 3 if width == 1024 else 2
+            )
             for card in self.monitor.run_cards.values():
                 self.assertTrue(self.monitor.cards_widget.rect().contains(card.geometry()))
                 self.assertGreater(card.width(), 220)

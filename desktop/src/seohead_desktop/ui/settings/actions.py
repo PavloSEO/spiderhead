@@ -22,7 +22,9 @@ def action_button(text, context, action, icon=None, role=None, parent=None):
     if role:
         button.setProperty("role", role)
     if icon:
-        color = theming.roles()["error" if role == "danger" else "primary" if role == "text" else "text_2"]
+        color = theming.roles()[
+            "error" if role == "danger" else "primary" if role == "text" else "text_2"
+        ]
         button.setIcon(material_icon(icon, color))
     if context.can(action):
         button.clicked.connect(lambda: context.request(action))

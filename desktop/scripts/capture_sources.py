@@ -40,7 +40,9 @@ def dialog(state, store=None):
     elif state == "loading":
         pending = []
     hook = sources_hook(overrides, pending)
-    context = SettingsContext(project_directory=PROJECT, actions={} if state == "noactions" else {"sources": hook})
+    context = SettingsContext(
+        project_directory=PROJECT, actions={} if state == "noactions" else {"sources": hook}
+    )
     dlg = SettingsDialog(store or AppSettings(schema=full_schema()), context, section="sources")
     page = dlg._pages["sources"][1]
     if state == "doctor":

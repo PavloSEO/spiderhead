@@ -110,7 +110,9 @@ class JournalTests(unittest.TestCase):
         self.assertGreater(shown[0].at, shown[-1].at)
         self.feed([many])
         self.assertEqual(sum(len(group) for group in self.screen.model.groups), LIMIT)
-        self.assertTrue(self.screen.foot_text.full_text.startswith(ui("Показаны последние 200 событий")))
+        self.assertTrue(
+            self.screen.foot_text.full_text.startswith(ui("Показаны последние 200 событий"))
+        )
 
     def test_identical_events_in_a_row_fold_into_one_unfoldable_row(self):
         many = run(
@@ -143,7 +145,10 @@ class JournalTests(unittest.TestCase):
 
     def test_footer_limit_note_is_a_single_line_and_the_button_opens_app_logs(self):
         self.feed([run()])
-        self.assertEqual(self.screen.foot_text.full_text, ui("Показаны последние 4 событий: постраничное чтение журнала ещё не поддержано ядром"))
+        self.assertEqual(
+            self.screen.foot_text.full_text,
+            ui("Показаны последние 4 событий: постраничное чтение журнала ещё не поддержано ядром"),
+        )
         self.assertEqual(self.screen.open_folder.text(), ui("Открыть папку логов"))
         self.screen.resize(800, 800)
         self.app.processEvents()
@@ -176,7 +181,10 @@ class JournalTests(unittest.TestCase):
         self.assertEqual(self.screen.model.rowCount(), 4)
         self.feed([run(), live_run()])
         self.assertEqual(self.screen.model.rowCount(), 8)
-        with tempfile.TemporaryDirectory() as home, patch("seohead_desktop.screens.journal.app_logs_directory", return_value=Path(home)):
+        with (
+            tempfile.TemporaryDirectory() as home,
+            patch("seohead_desktop.screens.journal.app_logs_directory", return_value=Path(home)),
+        ):
             self.screen.refresh()
             with patch("seohead_desktop.screens.journal.QDesktopServices.openUrl") as opened:
                 self.screen.open_folder.click()

@@ -7,7 +7,7 @@ The catalogue has no categories and no project-scope flag yet (core issue 998), 
 
 from __future__ import annotations
 
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PyQt5.QtCore import QAbstractTableModel, Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
     QButtonGroup,
@@ -19,7 +19,6 @@ from PyQt5.QtWidgets import (
     QStackedWidget,
     QTableView,
     QVBoxLayout,
-    QWidget,
 )
 
 from ..i18n import tr, trf
@@ -32,7 +31,9 @@ CATALOG_LIMIT = 50  # the core accepts 1..50; the 50 registered tools fit in one
 CATALOG_ISSUE = 998  # core gap: categories and project-aware flag in tool-catalog
 FILTERS = (("all", "Все"), ("paid", "Платные ₽"), ("writes", "Пишут файлы"))
 COLUMNS = ("Команда", "Описание", "Сеть", "Запись", "Оплата")
-WAITING_HINT = "Группы по категориям и фильтр «Работает с проектом» появятся, когда каталог ядра их отдаст"
+WAITING_HINT = (
+    "Группы по категориям и фильтр «Работает с проектом» появятся, когда каталог ядра их отдаст"
+)
 COLUMN_WIDTHS = {0: 220, 2: 84, 3: 150, 4: 84}
 
 
@@ -72,7 +73,9 @@ class ToolsModel(QAbstractTableModel):
                 return False
             if mode == "writes" and not (tool.get("writes") or tool.get("destructive")):
                 return False
-            text = " ".join(str(tool.get(key) or "") for key in ("name", "command", "summary")).casefold()
+            text = " ".join(
+                str(tool.get(key) or "") for key in ("name", "command", "summary")
+            ).casefold()
             return all(word in text for word in words)
 
         self.beginResetModel()
@@ -80,11 +83,11 @@ class ToolsModel(QAbstractTableModel):
         self.endResetModel()
         return len(self.rows)
 
-    def rowCount(self, parent=QModelIndex()):
-        return 0 if parent.isValid() else len(self.rows)
+    def rowCount(self, parent=None):
+        return 0 if parent is not None and parent.isValid() else len(self.rows)
 
-    def columnCount(self, parent=QModelIndex()):
-        return 0 if parent.isValid() else len(COLUMNS)
+    def columnCount(self, parent=None):
+        return 0 if parent is not None and parent.isValid() else len(COLUMNS)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
@@ -178,24 +181,44 @@ class ToolsScreen(Screen):
         error = self.host.screen_errors.get(CATALOG_OPERATION)
         if error:
             self.pending = False
-            self._show_state(StatePanel("error", "Каталог не загрузился", error, action=("Повторить", self.request)))
+            self._show_state(
+                StatePanel(
+                    "error", "Каталог не загрузился", error, action=("Повторить", self.request)
+                )
+            )
             return
         if not self.pending:
             self.request()
 
     def request(self):
         if not getattr(self.host, "core_executable", None):
-            self._show_state(StatePanel("error", "CLI ядра не найден", "Укажите --core-cli, чтобы показать каталог инструментов."))
+            self._show_state(
+                StatePanel(
+                    "error",
+                    "CLI ядра не найден",
+                    "Укажите --core-cli, чтобы показать каталог инструментов.",
+                )
+            )
             return
         self.pending = True
-        self._show_state(StatePanel("loading", "Читаем каталог ядра…", "Список инструментов придёт из ядра через MCP."))
-        self.host.start_command(CATALOG_OPERATION, CATALOG_TOOL, {"limit": CATALOG_LIMIT}, self.loaded)
+        self._show_state(
+            StatePanel(
+                "loading", "Читаем каталог ядра…", "Список инструментов придёт из ядра через MCP."
+            )
+        )
+        self.host.start_command(
+            CATALOG_OPERATION, CATALOG_TOOL, {"limit": CATALOG_LIMIT}, self.loaded
+        )
 
     def loaded(self, result):
         self.pending = False
         items = (result or {}).get("items")
         if not isinstance(items, list):
-            self._show_state(StatePanel("error", "Каталог не загрузился", "Ядро ответило без списка инструментов."))
+            self._show_state(
+                StatePanel(
+                    "error", "Каталог не загрузился", "Ядро ответило без списка инструментов."
+                )
+            )
             return
         self.items = [tool for tool in items if isinstance(tool, dict) and tool.get("name")]
         self.total = (result or {}).get("total", len(self.items))
@@ -213,12 +236,27 @@ class ToolsScreen(Screen):
         shown = self.model.apply(query, self.mode)
         self.header.set_meta(trf("{total} инструментов ядра", total=len(self.items)))
         self.footer.setText(trf("Показано {shown} из {total}", shown=shown, total=len(self.items)))
-        command = f'seohead tool-catalog --query "{query}"' if query else f"seohead tool-catalog --limit {CATALOG_LIMIT}"
+        command = (
+            f'seohead tool-catalog --query "{query}"'
+            if query
+            else f"seohead tool-catalog --limit {CATALOG_LIMIT}"
+        )
         self.cli_line.setText(f"~ $ {command}   # {tr('тот же каталог из терминала')}")
         if not self.items:
-            self._show_state(StatePanel("empty", "Каталог пуст", "Ядро не вернуло ни одного инструмента."))
+            self._show_state(
+                StatePanel("empty", "Каталог пуст", "Ядро не вернуло ни одного инструмента.")
+            )
         elif shown == 0:
-            self._show_state(StatePanel("empty", "Ничего не нашлось", trf("По запросу «{query}» инструментов нет. Сбросьте фильтр или поищите по команде, например robots.", query=query)))
+            self._show_state(
+                StatePanel(
+                    "empty",
+                    "Ничего не нашлось",
+                    trf(
+                        "По запросу «{query}» инструментов нет. Сбросьте фильтр или поищите по команде, например robots.",
+                        query=query,
+                    ),
+                )
+            )
         else:
             self._show_state(None)
 

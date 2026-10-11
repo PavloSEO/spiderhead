@@ -15,11 +15,19 @@ from seohead_desktop.ui.comparison_summary import ComparisonSummary
 
 def payload():
     return {
-        "state": "ready", "offset": 0, "total": 145,
+        "state": "ready",
+        "offset": 0,
+        "total": 145,
         "rows": [{} for _ in range(100)],
         "summary": {
             "delta": {"left": 29, "entered": 40, "appeared": 0, "unchanged": 76, "disappeared": 0},
-            "verified_page": {"resolved": 13, "persisting": 22, "changed": 5, "not_verifiable": 20, "new": 40},
+            "verified_page": {
+                "resolved": 13,
+                "persisting": 22,
+                "changed": 5,
+                "not_verifiable": 20,
+                "new": 40,
+            },
         },
         "before": {"scan_uuid": "synthetic-before", "urls_crawled": 20},
         "after": {"scan_uuid": "synthetic-after", "urls_crawled": 20},
@@ -50,10 +58,19 @@ class ComparisonSummaryTests(unittest.TestCase):
         self.app.processEvents()
 
     def test_loading_and_unavailable_states_show_the_core_reason(self):
-        self.summary.set_payload({"state": "loading", "rows": [], "reason": "Ядро сравнивает два сохранённых скана"})
+        self.summary.set_payload(
+            {"state": "loading", "rows": [], "reason": "Ядро сравнивает два сохранённых скана"}
+        )
         self.assertTrue(self.summary.state_line.isVisibleTo(self.summary))
         self.assertEqual(self.summary.state_line.text(), "Ядро сравнивает два сохранённых скана")
-        self.summary.set_payload({"state": "unavailable", "rows": [], "reason": "Ядро не сохранило compare.v2", "summary": {}})
+        self.summary.set_payload(
+            {
+                "state": "unavailable",
+                "rows": [],
+                "reason": "Ядро не сохранило compare.v2",
+                "summary": {},
+            }
+        )
         self.assertEqual(self.summary.state_line.text(), "Ядро не сохранило compare.v2")
         self.assertTrue(self.summary.state_line.isVisibleTo(self.summary))
         self.summary.set_payload(payload())
@@ -87,11 +104,15 @@ class ComparisonSummaryTests(unittest.TestCase):
         self.assertEqual(self.summary.metric_buttons["changed"].value.text(), "—")
         data["summary"].pop("verified_page")
         self.summary.set_payload(data)
-        self.assertTrue(all(card.value.text() == "—" for card in self.summary.metric_buttons.values()))
+        self.assertTrue(
+            all(card.value.text() == "—" for card in self.summary.metric_buttons.values())
+        )
         data.update(rows=[], total=0, offset=0)
         data["summary"]["verified_page"] = {}
         self.summary.set_payload(data)
-        self.assertTrue(all(card.value.text() == "0" for card in self.summary.metric_buttons.values()))
+        self.assertTrue(
+            all(card.value.text() == "0" for card in self.summary.metric_buttons.values())
+        )
 
     def test_filter_is_explicit_keyboard_operable_and_never_runs_core(self):
         seen = QSignalSpy(self.summary.filterRequested)
@@ -106,7 +127,9 @@ class ComparisonSummaryTests(unittest.TestCase):
                 self.assertEqual(seen[-1], [state])
                 self.assertTrue(card.isChecked())
                 self.assertIn("1–100 из 145", card.accessibleName())
-                self.assertEqual(sum(item.isChecked() for item in self.summary.metric_buttons.values()), 1)
+                self.assertEqual(
+                    sum(item.isChecked() for item in self.summary.metric_buttons.values()), 1
+                )
         self.summary.set_active_filter("all")
         self.assertFalse(any(card.isChecked() for card in self.summary.metric_buttons.values()))
         self.assertEqual(len(seen), 5)
@@ -144,8 +167,12 @@ class ComparisonSummaryTests(unittest.TestCase):
         self.summary.set_payload({"state": "loading", "rows": [], "reason": "Reading page"})
         self.assertFalse(self.summary.details.isVisible())
         self.assertEqual(self.summary.coverage_badge.text(), "Покрытие не измерено")
-        self.assertTrue(all(not card.isEnabled() and not card.isChecked() and card.value.text() == "—"
-                            for card in self.summary.metric_buttons.values()))
+        self.assertTrue(
+            all(
+                not card.isEnabled() and not card.isChecked() and card.value.text() == "—"
+                for card in self.summary.metric_buttons.values()
+            )
+        )
 
 
 if __name__ == "__main__":

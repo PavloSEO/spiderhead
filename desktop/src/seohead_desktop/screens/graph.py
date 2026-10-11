@@ -31,9 +31,16 @@ class GraphScreen(QWidget):
         body_layout.setContentsMargins(0, 0, 0, 0)
         body_layout.setSpacing(12)
         body_layout.addLayout(stats)
-        body_layout.addWidget(StatePanel("waiting", "Граф ссылок ещё не отдаёт ядро",
-                                         "Здесь появится граф сайта из сохранённого скана проекта.",
-                                         issue=GRAPH_ISSUE, hint=GRAPH_HINT), 1)
+        body_layout.addWidget(
+            StatePanel(
+                "waiting",
+                "Граф ссылок ещё не отдаёт ядро",
+                "Здесь появится граф сайта из сохранённого скана проекта.",
+                issue=GRAPH_ISSUE,
+                hint=GRAPH_HINT,
+            ),
+            1,
+        )
         self.gate = Gate(body, self._state, host.choose_project)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

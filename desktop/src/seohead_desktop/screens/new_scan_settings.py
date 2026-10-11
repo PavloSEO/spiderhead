@@ -85,7 +85,9 @@ class ScanSettingsDialog(QDialog):
         title = QLabel(tr("Настройки скана"))
         title.setProperty("text_style", "dialog")
         layout.addWidget(title)
-        self.header_meta = ElidedLabel(trf("{host} · новый скан", host=self.draft.host or tr("Нет данных")))
+        self.header_meta = ElidedLabel(
+            trf("{host} · новый скан", host=self.draft.host or tr("Нет данных"))
+        )
         self.header_meta.setProperty("text_style", "meta")
         layout.addWidget(self.header_meta, 1)
         self.profile_button = QPushButton()
@@ -101,7 +103,9 @@ class ScanSettingsDialog(QDialog):
         save.setIcon(icon("bookmark_add"))
         save.setAccessibleName(tr("Сохранить как профиль"))
         save.setEnabled(False)
-        save.setToolTip(f"{tr('Недоступно в этой версии ядра')}: {tr('ядро не хранит именованные профили скана')}")
+        save.setToolTip(
+            f"{tr('Недоступно в этой версии ядра')}: {tr('ядро не хранит именованные профили скана')}"
+        )
         self.save_profile = save
         self._save_text = tr("Сохранить как профиль")
         layout.addWidget(save)
@@ -196,7 +200,9 @@ class ScanSettingsDialog(QDialog):
         reset.setObjectName("scanSettingsReset")
         reset.setProperty("role", "text")
         reset.setIcon(icon("restart_alt"))
-        reset.setToolTip(tr("Вернуть умолчания: профиль проекта, затем настройки приложения, затем ядро"))
+        reset.setToolTip(
+            tr("Вернуть умолчания: профиль проекта, затем настройки приложения, затем ядро")
+        )
         reset.clicked.connect(lambda: self.draft.reset())
         layout.addWidget(reset)
         hint = QLabel(tr("Параметры уходят в команду запуска; ядро проверит их ещё раз"))
@@ -230,14 +236,18 @@ class ScanSettingsDialog(QDialog):
             self.nav_frame.setFixedWidth(232 if wide else 60)
             for page_id, title, _glyph, _build in PAGES:
                 button = self.nav[page_id]
-                button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon if wide else Qt.ToolButtonIconOnly)
+                button.setToolButtonStyle(
+                    Qt.ToolButtonTextBesideIcon if wide else Qt.ToolButtonIconOnly
+                )
                 button.setToolTip("" if wide else tr(title))
 
     def _elide_profile(self):
         """The profile name elides to the room the header leaves it."""
         full = getattr(self, "_profile_full", "")
         room = max(60, self.profile_button.width() - 40)
-        self.profile_button.setText(self.profile_button.fontMetrics().elidedText(full, Qt.ElideRight, room))
+        self.profile_button.setText(
+            self.profile_button.fontMetrics().elidedText(full, Qt.ElideRight, room)
+        )
 
     def show_page(self, page_id):
         if page_id not in self.pages:
@@ -258,11 +268,25 @@ class ScanSettingsDialog(QDialog):
         chain = tr("профиль проекта") if draft.project_layer else tr("настройки приложения")
         self._profile_full = trf("Профиль: {name}", name=chain)
         self._elide_profile()
-        self.apply.setEnabled(not any(k in problems for k in problems if k not in ("source", "list", "sitemap")))
+        self.apply.setEnabled(
+            not any(k in problems for k in problems if k not in ("source", "list", "sitemap"))
+        )
         rate = draft.rps()
-        limit = trf("лимит {n} URL", n=grouped(draft.url_limit)) if draft.limit_enabled else tr("без лимита URL")
-        self.load.setText(trf("{rate} · потоков {threads} · {limit}", rate=trf("до {n} запросов/с", n=f"{rate:g}".replace(".", ",")) if rate else tr("скорость не задана"),
-                              threads=draft.value("speed.concurrency", "—"), limit=limit))
+        limit = (
+            trf("лимит {n} URL", n=grouped(draft.url_limit))
+            if draft.limit_enabled
+            else tr("без лимита URL")
+        )
+        self.load.setText(
+            trf(
+                "{rate} · потоков {threads} · {limit}",
+                rate=trf("до {n} запросов/с", n=f"{rate:g}".replace(".", ","))
+                if rate
+                else tr("скорость не задана"),
+                threads=draft.value("speed.concurrency", "—"),
+                limit=limit,
+            )
+        )
         from .new_scan import summary_rows
 
         while self.summary.count():
@@ -281,6 +305,10 @@ class ScanSettingsDialog(QDialog):
         self.changed_label.setText(trf("Изменено полей: {n}", n=len(edited)))
         self.changed_label.setToolTip(", ".join(edited))
         command = draft.command_text()
-        self.command.setText(command.split(" --input")[0] + " …" if command else tr("Команда появится, когда поля заполнены верно"))
+        self.command.setText(
+            command.split(" --input")[0] + " …"
+            if command
+            else tr("Команда появится, когда поля заполнены верно")
+        )
         if command:
             self.command.setToolTip(command)

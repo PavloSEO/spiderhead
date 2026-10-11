@@ -61,7 +61,9 @@ class Switch(QAbstractButton):
             track = r["primary"] if self.isChecked() else r["outline"]
         painter.setBrush(QColor(track))
         painter.drawRoundedRect(QRectF(0, 0, 36, 20), 10, 10)
-        painter.setBrush(QColor(r["on_primary"] if self.isChecked() and self.isEnabled() else r["base"]))
+        painter.setBrush(
+            QColor(r["on_primary"] if self.isChecked() and self.isEnabled() else r["base"])
+        )
         painter.drawEllipse(QRectF(18 if self.isChecked() else 2, 2, 16, 16))
 
 
@@ -117,7 +119,9 @@ class SettingRow(QFrame):
         self.title.setWordWrap(True)
         self.title.setMinimumWidth(200)
         text.addWidget(self.title)
-        self.later_badge = QLabel("Заработает позже")   # under the label: a badge beside it squeezes the label
+        self.later_badge = QLabel(
+            "Заработает позже"
+        )  # under the label: a badge beside it squeezes the label
         self.later_badge.setProperty("later", True)
         self.later_badge.hide()
         text.addWidget(self.later_badge)
@@ -170,8 +174,16 @@ class Note(QFrame):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(12, 10, 12, 10)
         layout.setSpacing(10)
-        layout.addWidget(MaterialIconLabel(icon or self.ICONS[kind], 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop)
-        body = QLabel(trf("<b>{title}</b> {text}", title=title, text=text) if text else trf("<b>{title}</b>", title=title))
+        layout.addWidget(
+            MaterialIconLabel(icon or self.ICONS[kind], 20, color=theming.roles()["text_2"]),
+            0,
+            Qt.AlignTop,
+        )
+        body = QLabel(
+            trf("<b>{title}</b> {text}", title=title, text=text)
+            if text
+            else trf("<b>{title}</b>", title=title)
+        )
         body.setTextFormat(Qt.RichText)
         body.setWordWrap(True)
         layout.addWidget(body, 1)
@@ -186,7 +198,9 @@ class KeyValue(QWidget):
         super().__init__(parent)
         grid = QGridLayout(self)
         grid.setContentsMargins(0, 0, 0, 0)
-        grid.setHorizontalSpacing(0)  # gap lives in the key padding so each row's divider runs unbroken
+        grid.setHorizontalSpacing(
+            0
+        )  # gap lives in the key padding so each row's divider runs unbroken
         grid.setVerticalSpacing(0)
         grid.setColumnMinimumWidth(0, 148)
         grid.setColumnStretch(1, 1)

@@ -18,7 +18,12 @@ from ..ui.icons import material_icon
 from ..ui.kit import StatePanel, no_project_panel
 from .base import Screen
 
-KPIS = (("IP с User-Agent ботов", "select_all"), ("подтверждено", "verified"), ("подделки", "gpp_bad"), ("не проверено", "help"))
+KPIS = (
+    ("IP с User-Agent ботов", "select_all"),
+    ("подтверждено", "verified"),
+    ("подделки", "gpp_bad"),
+    ("не проверено", "help"),
+)
 FILTERS = (("all", "Все"), ("ok", "Подтверждён"), ("fake", "Подделка"), ("left", "Не проверен"))
 BOT_GROUPS = (("Google", "Google"), ("Yandex", "Яндекс"), ("Bing", "Bing"), ("ai", "AI-боты"))
 UNAVAILABLE_TIP_TEXT = "Проверка по IP появится, когда ядро отдаст вердикт по каждому адресу лога. Недоступно в этой версии ядра"
@@ -111,15 +116,24 @@ class LogsBotsScreen(Screen):
     def refresh(self):
         if not self.project_open:
             self.scope_text.setText(tr("Проект не открыт"))
-            self._set_panel(no_project_panel(self.host, tr("Откройте проект, чтобы проверить ботов по логам сервера.")))
+            self._set_panel(
+                no_project_panel(
+                    self.host, tr("Откройте проект, чтобы проверить ботов по логам сервера.")
+                )
+            )
             self.foot_text.setText(tr("Лог сервера не подключён"))
             return
         self.scope_text.setText(tr("Лог сервера не загружен"))
         # The core verifies bots per family (one sample IP each); it has no per-IP verdicts to list.
-        self._set_panel(StatePanel(
-            "waiting", "Проверка ботов по логу не загружена",
-            tr("Ядро проверяет подлинность ботов по обратному и прямому DNS, но отдаёт вердикт по семейству ботов, "
-               "а не по каждому IP. Таблица IP, подсетей и цепочка проверки появятся с этим ответом ядра."),
-            hint=UNAVAILABLE_TIP_TEXT,
-        ))
+        self._set_panel(
+            StatePanel(
+                "waiting",
+                "Проверка ботов по логу не загружена",
+                tr(
+                    "Ядро проверяет подлинность ботов по обратному и прямому DNS, но отдаёт вердикт по семейству ботов, "
+                    "а не по каждому IP. Таблица IP, подсетей и цепочка проверки появятся с этим ответом ядра."
+                ),
+                hint=UNAVAILABLE_TIP_TEXT,
+            )
+        )
         self.foot_text.setText(tr("Журнал сервера не подключён в этой версии ядра"))

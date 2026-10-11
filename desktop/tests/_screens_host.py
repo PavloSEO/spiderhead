@@ -46,6 +46,7 @@ class FakeHost(QObject):
     def _record(name):
         def call(self, *args):
             self.calls.append((name, *args))
+
         return call
 
     scan_preview = _record("scan_preview")

@@ -46,12 +46,16 @@ class LocalValidationTests(unittest.TestCase):
         self.assertEqual(project_create.target_host("Shop.Example.test/path"), "shop.example.test")
 
     def test_suggested_directory_comes_from_the_host(self):
-        self.assertEqual(suggest_directory(self.base, "shop.example.test"), str(self.base / "shop-example-test"))
+        self.assertEqual(
+            suggest_directory(self.base, "shop.example.test"), str(self.base / "shop-example-test")
+        )
         self.assertEqual(suggest_directory(self.base, "", ""), "")
 
     def test_validation_names_the_first_problem(self):
         self.assertEqual(validate("", TARGET)[0], "directory")
-        self.assertEqual(validate(str(self.base / "no" / "deep"), TARGET)[0], "directory")  # parent is missing
+        self.assertEqual(
+            validate(str(self.base / "no" / "deep"), TARGET)[0], "directory"
+        )  # parent is missing
         (self.base / "taken").mkdir()
         self.assertEqual(validate(str(self.base / "taken"), TARGET)[0], "directory")
         self.assertEqual(validate(str(self.base / "new"), "")[0], "target")
@@ -60,8 +64,10 @@ class LocalValidationTests(unittest.TestCase):
         self.assertIsNone(validate(str(self.base / "new"), "shop.example.test"))
 
     def test_core_reason_is_taken_from_stderr(self):
-        self.assertEqual(error_text("seohead: project-new\nerror: target must have a valid public hostname\n"),
-                         "target must have a valid public hostname")
+        self.assertEqual(
+            error_text("seohead: project-new\nerror: target must have a valid public hostname\n"),
+            "target must have a valid public hostname",
+        )
         self.assertEqual(error_text("noise"), "Ядро не создало проект")
 
 
@@ -94,7 +100,9 @@ class CoreRunTests(unittest.TestCase):
         written = json.loads((directory / "project.json").read_text(encoding="utf-8"))
         site = written["site"]
         self.assertEqual((site["host"], site["target"]), ("crawl.localhost", TARGET))
-        self.assertEqual(unicodedata.normalize("NFC", site["label"]), "Локальный стенд")  # the core may store another Unicode form
+        self.assertEqual(
+            unicodedata.normalize("NFC", site["label"]), "Локальный стенд"
+        )  # the core may store another Unicode form
         self.assertEqual(answer["project"]["project_uuid"], written["project_uuid"])
         self.assertTrue((directory / "scans").is_dir())
 
@@ -131,7 +139,7 @@ class CoreRunTests(unittest.TestCase):
 
     def test_a_second_start_while_running_is_ignored(self):
         script = self.base / "slow-core"
-        script.write_text("#!/bin/sh\nsleep 0.3\necho '{\"ok\": true, \"path\": \"/p\"}'\n")
+        script.write_text('#!/bin/sh\nsleep 0.3\necho \'{"ok": true, "path": "/p"}\'\n')
         script.chmod(0o755)
         self.creator.start(str(script), str(self.base / "x"), TARGET)
         self.assertTrue(self.creator.running)

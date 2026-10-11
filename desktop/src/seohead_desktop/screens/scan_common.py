@@ -25,12 +25,34 @@ SORT_ISSUES = (927, 933)
 OWNED_ACTIVE = {"queued", "starting", "running", "stop_requested", "awaiting_core_status"}
 
 KIND_TITLES = {"native": "Скан", "sitemap": "Sitemap", "screaming_frog": "Импорт Screaming Frog"}
-KIND_SOURCES = {"native": "Сайт целиком", "sitemap": "По sitemap", "screaming_frog": "Screaming Frog"}
+KIND_SOURCES = {
+    "native": "Сайт целиком",
+    "sitemap": "По sitemap",
+    "screaming_frog": "Screaming Frog",
+}
 MODES = {"spider": "Сайт целиком", "list": "Список URL", "sitemap": "По sitemap"}
-PHASES = {"admission": "проверка лимитов", "collection": "сбор страниц", "render": "рендеринг", "external": "внешний процесс",
-          "analysis": "анализ", "finalizing": "сохранение результата"}
-CODES = {"started": "запуск принят", "entered": "вход в этап", "progress": "обновление счётчиков", "finished": "завершено", "failed": "ошибка"}
-EVENT_ICONS = {"started": "play_arrow", "entered": "subdirectory_arrow_right", "progress": "travel_explore", "finished": "check_circle", "failed": "error"}
+PHASES = {
+    "admission": "проверка лимитов",
+    "collection": "сбор страниц",
+    "render": "рендеринг",
+    "external": "внешний процесс",
+    "analysis": "анализ",
+    "finalizing": "сохранение результата",
+}
+CODES = {
+    "started": "запуск принят",
+    "entered": "вход в этап",
+    "progress": "обновление счётчиков",
+    "finished": "завершено",
+    "failed": "ошибка",
+}
+EVENT_ICONS = {
+    "started": "play_arrow",
+    "entered": "subdirectory_arrow_right",
+    "progress": "travel_explore",
+    "finished": "check_circle",
+    "failed": "error",
+}
 
 
 def now():
@@ -77,7 +99,12 @@ def ago(seconds):
     if seconds is None:
         return None
     seconds = max(0, int(seconds))
-    return trf("{n} назад", n=duration(seconds) if seconds < 3600 else trf("{h} ч {m} мин", h=seconds // 3600, m=seconds % 3600 // 60))
+    return trf(
+        "{n} назад",
+        n=duration(seconds)
+        if seconds < 3600
+        else trf("{h} ч {m} мин", h=seconds // 3600, m=seconds % 3600 // 60),
+    )
 
 
 def number(value):
@@ -87,13 +114,19 @@ def number(value):
 
 def selected_scan(host):
     path = getattr(host, "selected_scan_path", None)
-    return next((row for row in host.scan_model.rows if row.get("path") == path), None) if path else None
+    return (
+        next((row for row in host.scan_model.rows if row.get("path") == path), None)
+        if path
+        else None
+    )
 
 
 def megabytes(value):
     if not isinstance(value, (int, float)) or isinstance(value, bool):
         return None
-    return trf("{n} МБ", n=f"{value / 1_048_576:.1f}".replace(".", ",") if value >= 104_858 else "< 0,1")
+    return trf(
+        "{n} МБ", n=f"{value / 1_048_576:.1f}".replace(".", ",") if value >= 104_858 else "< 0,1"
+    )
 
 
 class RunRow:
@@ -103,7 +136,13 @@ class RunRow:
         self.run, self.owned, self.scan = run, owned, scan
         self.observed_at = parse_time(observed_at) if isinstance(observed_at, str) else observed_at
         run_id = (run or {}).get("id")
-        self.key = f"run:{run_id}" if run_id else f"owned:{owned['id']}" if owned else f"scan:{(scan or {}).get('uuid') or (scan or {}).get('path')}"
+        self.key = (
+            f"run:{run_id}"
+            if run_id
+            else f"owned:{owned['id']}"
+            if owned
+            else f"scan:{(scan or {}).get('uuid') or (scan or {}).get('path')}"
+        )
         self.id = run_id or (owned or {}).get("observer_run_id") or (scan or {}).get("uuid") or ""
         if run:
             self.kind = run.get("kind")
@@ -113,21 +152,45 @@ class RunRow:
             self.kind = (scan or {}).get("source_kind")
         collector = (run or {}).get("collector") or {}
         self.collector = collector
-        self.mode = MODES.get(collector.get("mode"), collector.get("mode")) if collector.get("mode") else None
+        self.mode = (
+            MODES.get(collector.get("mode"), collector.get("mode"))
+            if collector.get("mode")
+            else None
+        )
         self.host_name = (scan or {}).get("host") or collector.get("origin")
         counters = (run or {}).get("counters") or {}
         telemetry = (run or {}).get("telemetry") or {}
         self.telemetry = telemetry
-        self.fetched, self.queued, self.inflight, self.excluded = (counters.get(key) if isint(counters.get(key)) else None
-                                                                    for key in ("fetched", "queued", "inflight", "excluded"))
-        self.found = self.fetched + self.queued + self.inflight + self.excluded if None not in (self.fetched, self.queued, self.inflight, self.excluded) else None
+        self.fetched, self.queued, self.inflight, self.excluded = (
+            counters.get(key) if isint(counters.get(key)) else None
+            for key in ("fetched", "queued", "inflight", "excluded")
+        )
+        self.found = (
+            self.fetched + self.queued + self.inflight + self.excluded
+            if None not in (self.fetched, self.queued, self.inflight, self.excluded)
+            else None
+        )
         rate = counters.get("rate_per_second")
-        self.rate = rate if telemetry.get("state") == "fresh" and isinstance(rate, (int, float)) and not isinstance(rate, bool) else None
+        self.rate = (
+            rate
+            if telemetry.get("state") == "fresh"
+            and isinstance(rate, (int, float))
+            and not isinstance(rate, bool)
+            else None
+        )
         self.rate_unit = telemetry.get("unit")
-        done = ((scan or {}).get("evidence") or {}).get("frontier", {}).get("counts", {}).get("done") if scan else None
+        done = (
+            ((scan or {}).get("evidence") or {}).get("frontier", {}).get("counts", {}).get("done")
+            if scan
+            else None
+        )
         self.saved_urls = done if isint(done) else None
-        self.started = parse_time((run or {}).get("started_at")) or parse_time((scan or {}).get("created_at"))
-        self.finished = parse_time((run or {}).get("finished_at")) or parse_time((scan or {}).get("finished_at"))
+        self.started = parse_time((run or {}).get("started_at")) or parse_time(
+            (scan or {}).get("created_at")
+        )
+        self.finished = parse_time((run or {}).get("finished_at")) or parse_time(
+            (scan or {}).get("finished_at")
+        )
         self.events = list((run or {}).get("events") or [])
         self.pid_state = (run or {}).get("pid_state")
         self.state = self._state()
@@ -192,18 +255,38 @@ class RunRow:
         age = self.telemetry.get("age_seconds")
         if not isinstance(age, (int, float)) or isinstance(age, bool):
             return None
-        since = max(0.0, ((at or now()) - self.observed_at).total_seconds()) if self.observed_at else 0.0
+        since = (
+            max(0.0, ((at or now()) - self.observed_at).total_seconds())
+            if self.observed_at
+            else 0.0
+        )
         return age + since
 
     def observation_age(self, at=None):
-        return max(0.0, ((at or now()) - self.observed_at).total_seconds()) if self.observed_at else None
+        return (
+            max(0.0, ((at or now()) - self.observed_at).total_seconds())
+            if self.observed_at
+            else None
+        )
 
     def state_label(self, at=None):
         age = self.sample_age(at) if self.group == "stale" else None
-        names = {"running": "Идёт", "stop_requested": "Остановка запрошена", "queued": "В очереди", "starting": "Запускается",
-                 "awaiting_core_status": "Ожидание статуса ядра", "failed": "Ошибка", "rejected": "Отклонён",
-                 "status_unavailable": "Статус не подтверждён", "interrupted": "Прерван", "partial": "Частичный",
-                 "cancelled": "Отменён", "cancelled_before_start": "Отменён до старта", "finished": "Завершён", "complete": "Завершён"}
+        names = {
+            "running": "Идёт",
+            "stop_requested": "Остановка запрошена",
+            "queued": "В очереди",
+            "starting": "Запускается",
+            "awaiting_core_status": "Ожидание статуса ядра",
+            "failed": "Ошибка",
+            "rejected": "Отклонён",
+            "status_unavailable": "Статус не подтверждён",
+            "interrupted": "Прерван",
+            "partial": "Частичный",
+            "cancelled": "Отменён",
+            "cancelled_before_start": "Отменён до старта",
+            "finished": "Завершён",
+            "complete": "Завершён",
+        }
         if self.group == "stale":
             return trf("Устарело · {age}", age=duration(age)) if age is not None else tr("Устарело")
         if self.group == "pending" and self.state == "running":
@@ -215,7 +298,11 @@ class RunRow:
     @property
     def urls_text(self):
         if self.active and self.fetched is not None:
-            return f"{number(self.fetched)} / {number(self.found)}" if self.found is not None else number(self.fetched)
+            return (
+                f"{number(self.fetched)} / {number(self.found)}"
+                if self.found is not None
+                else number(self.fetched)
+            )
         value = self.saved_urls if self.saved_urls is not None else self.fetched
         return number(value)
 
@@ -241,10 +328,24 @@ class RunRow:
 
     def partial_resumable(self):
         scan = self.scan or {}
-        return bool(scan.get("path")) and (scan.get("lifecycle") == "interrupted" or scan.get("crawl_partial") is True or self.state in ("interrupted", "partial"))
+        return bool(scan.get("path")) and (
+            scan.get("lifecycle") == "interrupted"
+            or scan.get("crawl_partial") is True
+            or self.state in ("interrupted", "partial")
+        )
 
     def signature(self):
-        return (self.key, self.group, self.badge_kind, self.urls_text, self.completeness, self.source, self.title, self.state_label(), self.started_text)
+        return (
+            self.key,
+            self.group,
+            self.badge_kind,
+            self.urls_text,
+            self.completeness,
+            self.source,
+            self.title,
+            self.state_label(),
+            self.started_text,
+        )
 
 
 def build_rows(host):
@@ -252,7 +353,9 @@ def build_rows(host):
     if not host.project_directory:
         return []
     scans = list(host.scan_model.rows)
-    by_artifact = {os.path.basename(scan["path"]): scan for scan in scans if isinstance(scan.get("path"), str)}
+    by_artifact = {
+        os.path.basename(scan["path"]): scan for scan in scans if isinstance(scan.get("path"), str)
+    }
     owned_runs = host.owned_runs_for_project()
     owned_by_core = {}
     for owned in owned_runs:
@@ -277,7 +380,11 @@ def build_rows(host):
         if scan:
             used_scans.add(scan.get("path"))
         rows.append(RunRow(None, owned, scan, host.observed_at))
-    rows.extend(RunRow(None, None, scan, host.observed_at) for scan in scans if scan.get("path") not in used_scans)
+    rows.extend(
+        RunRow(None, None, scan, host.observed_at)
+        for scan in scans
+        if scan.get("path") not in used_scans
+    )
     rows.sort(key=lambda row: row.started.timestamp() if row.started else 0.0, reverse=True)
     return rows
 
@@ -293,9 +400,18 @@ def active_scan_summary(host):
     if row.group == "pending" and row.state != "running":
         text = tr("Скан запускается")
     elif done is not None and total:
-        text = trf("{kind} · {done} / {total} URL", kind=row.title.split(" · ")[0], done=number(done), total=number(total))
+        text = trf(
+            "{kind} · {done} / {total} URL",
+            kind=row.title.split(" · ")[0],
+            done=number(done),
+            total=number(total),
+        )
     elif row.fetched is not None:
-        text = trf("{kind} · получено {done} URL, объём не измерен", kind=row.title.split(" · ")[0], done=number(row.fetched))
+        text = trf(
+            "{kind} · получено {done} URL, объём не измерен",
+            kind=row.title.split(" · ")[0],
+            done=number(row.fetched),
+        )
     else:
         text = tr("Скан идёт · число страниц не измерено")
     if stale:
@@ -320,8 +436,18 @@ def events_text(row):
     lines = []
     for event in reversed(row.events[-4:]):
         stamp = parse_time(event.get("at"))
-        label = trf("{code} · {phase}", code=CODES.get(event.get("code"), "событие"), phase=PHASES.get(event.get("phase"), "этап не указан"))
-        lines.append(trf("{time}  {label}", time=stamp.astimezone().strftime("%H:%M:%S") if stamp else "--:--:--", label=label))
+        label = trf(
+            "{code} · {phase}",
+            code=CODES.get(event.get("code"), "событие"),
+            phase=PHASES.get(event.get("phase"), "этап не указан"),
+        )
+        lines.append(
+            trf(
+                "{time}  {label}",
+                time=stamp.astimezone().strftime("%H:%M:%S") if stamp else "--:--:--",
+                label=label,
+            )
+        )
     return joined("\n", lines) if lines else tr("События ядра не получены")
 
 

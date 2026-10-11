@@ -66,9 +66,7 @@ class DesktopControlIntegrationTests(unittest.TestCase):
             self.app.processEvents()
             time.sleep(0.005)
         thread.join(0.1)
-        self.assertFalse(
-            thread.is_alive(), "Separate control peer exceeded its deadline"
-        )
+        self.assertFalse(thread.is_alive(), "Separate control peer exceeded its deadline")
         if failures:
             raise failures[0]
         return result[0]
@@ -174,17 +172,13 @@ class DesktopControlIntegrationTests(unittest.TestCase):
                 original_tab = window._active_workspace_id
                 retained_uuid = window.current_project_uuid
                 endpoint = window.start_agent_control(Path(runtime).resolve())
-                self.assertEqual(
-                    window.start_agent_control(Path(runtime).resolve()), endpoint
-                )
+                self.assertEqual(window.start_agent_control(Path(runtime).resolve()), endpoint)
                 before = self.cli(endpoint, "status")
                 self.assertEqual(before["project_uuid"], retained_uuid)
                 self.assertEqual(before["tab_id"], original_tab)
                 tabs = self.cli(endpoint, "tabs")
                 self.assertEqual(tabs["active_tab_id"], original_tab)
-                scans = self.cli(
-                    endpoint, "project-scans", "--project-uuid", retained_uuid
-                )
+                scans = self.cli(endpoint, "project-scans", "--project-uuid", retained_uuid)
                 self.assertEqual(len(scans["items"]), 3)
                 self.assertTrue(all("path" not in row for row in scans["items"]))
                 ordered = sorted(scans["items"], key=lambda item: item["created_at"])
@@ -379,9 +373,7 @@ class DesktopControlIntegrationTests(unittest.TestCase):
                         self.assertEqual(len(tools.tools), 11)
                         status = await client.call_tool("desktop_status", {})
                         self.assertFalse(status.isError)
-                        self.assertEqual(
-                            status.structuredContent["project_uuid"], project_uuid
-                        )
+                        self.assertEqual(status.structuredContent["project_uuid"], project_uuid)
                         found = await client.call_tool("desktop_tabs", {})
                         self.assertFalse(found.isError)
                         admitted = await client.call_tool(
@@ -418,10 +410,7 @@ class DesktopControlIntegrationTests(unittest.TestCase):
                     self,
                     lambda: (
                         manager.detail(owned_id)["artifact"]
-                        and snapshot(manager.detail(owned_id)["artifact"]).get(
-                            "pages", 0
-                        )
-                        > 0
+                        and snapshot(manager.detail(owned_id)["artifact"]).get("pages", 0) > 0
                     ),
                     lambda: json.dumps(manager.detail(owned_id)),
                 )
@@ -454,9 +443,7 @@ class DesktopControlIntegrationTests(unittest.TestCase):
                 )
                 owned_scan = manager.detail(owned_id)["artifact"]
                 self.assertNotEqual(Path(owned_scan), external_scan)
-                self.assertEqual(
-                    snapshot(owned_scan)["scan"]["lifecycle"], "interrupted"
-                )
+                self.assertEqual(snapshot(owned_scan)["scan"]["lifecycle"], "interrupted")
                 self.assertIsNone(
                     external.poll(),
                     "Stopping the owned scan stopped an external process",
@@ -466,15 +453,12 @@ class DesktopControlIntegrationTests(unittest.TestCase):
                 wait_for(
                     self,
                     lambda: any(
-                        row.get("path") == owned_scan
-                        and row.get("lifecycle") == "interrupted"
+                        row.get("path") == owned_scan and row.get("lifecycle") == "interrupted"
                         for row in window.scan_model.rows
                     ),
                     "Core did not expose the interrupted saved artifact",
                 )
-                resumed = self.cli(
-                    endpoint, "resume-run", "--run-id", owned_id, "--approve"
-                )
+                resumed = self.cli(endpoint, "resume-run", "--run-id", owned_id, "--approve")
                 resumed_id = resumed["run_id"]
                 self.assertNotEqual(resumed_id, owned_id)
                 self.assertEqual(manager.detail(resumed_id)["resume_path"], owned_scan)
@@ -490,9 +474,7 @@ class DesktopControlIntegrationTests(unittest.TestCase):
                 self.assertIs(window.mcp_gateway, gateway)
                 self.assertEqual(gateway_constructor.call_count, 1)
                 final = self.cli(endpoint, "status")
-                self.assertEqual(
-                    {row["id"] for row in final["owned_runs"]}, {owned_id, resumed_id}
-                )
+                self.assertEqual({row["id"] for row in final["owned_runs"]}, {owned_id, resumed_id})
                 receipt.update(
                     {
                         "same_gateway_and_manager": True,
@@ -507,20 +489,14 @@ class DesktopControlIntegrationTests(unittest.TestCase):
                     }
                 )
                 close_window(self, window)
-                self.assertIsNone(
-                    external.poll(), "Closing Desktop affected the external process"
-                )
+                self.assertIsNone(external.poll(), "Closing Desktop affected the external process")
                 self.assertFalse(
                     endpoint.exists(),
                     "Accepted Desktop close retained its private descriptor",
                 )
                 receipt["desktop_close_kept_external_alive"] = True
-                self.assertEqual(
-                    file_hashes(canonical, "scans/*.sqlite"), canonical_hashes
-                )
-                self.assertEqual(
-                    file_hashes(retained_copy, "scans/*.sqlite"), canonical_hashes
-                )
+                self.assertEqual(file_hashes(canonical, "scans/*.sqlite"), canonical_hashes)
+                self.assertEqual(file_hashes(retained_copy, "scans/*.sqlite"), canonical_hashes)
                 receipt["successful"] = True
             finally:
                 if window is not None and window.isVisible():
@@ -530,9 +506,7 @@ class DesktopControlIntegrationTests(unittest.TestCase):
                     external.wait(timeout=30)
                 if log:
                     log.close()
-                receipt["canonical_sqlite_after"] = file_hashes(
-                    canonical, "scans/*.sqlite"
-                )
+                receipt["canonical_sqlite_after"] = file_hashes(canonical, "scans/*.sqlite")
                 receipt["canonical_sqlite_unchanged"] = (
                     receipt["canonical_sqlite_after"] == canonical_hashes
                 )
@@ -545,9 +519,7 @@ class DesktopControlIntegrationTests(unittest.TestCase):
                     destination.mkdir(parents=True)
                     shutil.copytree(project, destination / "project")
                     if (root / "external-cli.log").exists():
-                        shutil.copy2(
-                            root / "external-cli.log", destination / "external-cli.log"
-                        )
+                        shutil.copy2(root / "external-cli.log", destination / "external-cli.log")
                     (destination / "receipt.json").write_text(
                         json.dumps(receipt, ensure_ascii=False, indent=2)
                     )

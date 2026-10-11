@@ -35,8 +35,12 @@ class ParseCandidatesTests(unittest.TestCase):
 
         self.assertEqual(parsed["accepted"], ["https://ok.example.test"])
         reasons = dict(parsed["refused"])
-        self.assertEqual(reasons["ftp://files.example.test"], "only http and https URLs can be scanned")
-        self.assertEqual(reasons["https://user:pw@x.example.test/"], "credentials and fragments are not accepted")
+        self.assertEqual(
+            reasons["ftp://files.example.test"], "only http and https URLs can be scanned"
+        )
+        self.assertEqual(
+            reasons["https://user:pw@x.example.test/"], "credentials and fragments are not accepted"
+        )
         self.assertEqual(reasons["localhost"], "the host name is missing or incomplete")
 
     def test_existing_urls_and_project_limit_are_refused_before_the_core_call(self):
@@ -51,7 +55,9 @@ class ParseCandidatesTests(unittest.TestCase):
         self.assertEqual(parsed["refused"][1][1], "the project limit is 2 competitors")
 
     def test_same_site_with_a_trailing_slash_is_a_duplicate(self):
-        parsed = parse_candidates("https://one.example.test", existing=["https://one.example.test/"])
+        parsed = parse_candidates(
+            "https://one.example.test", existing=["https://one.example.test/"]
+        )
 
         self.assertEqual(parsed["accepted"], [])
         self.assertEqual(parsed["refused"][0][1], "already in the list")
@@ -102,7 +108,9 @@ class UrlCapTests(unittest.TestCase):
 
     def test_scan_budget_is_explicit_and_inside_the_core_default_thresholds(self):
         # Core defaults: requests 3000, seconds 600. Zero is unbounded and would be refused without approval.
-        self.assertEqual(scan_budget(50), {"limits.max_requests": 150, "limits.max_crawl_seconds": 600})
+        self.assertEqual(
+            scan_budget(50), {"limits.max_requests": 150, "limits.max_crawl_seconds": 600}
+        )
         for cap in (1, 50, 1000):
             budget = scan_budget(cap)
             self.assertGreater(budget["limits.max_requests"], 0)
@@ -123,7 +131,12 @@ def _site(url, directory, *scans, state="candidate; audit not run"):
 
 class CompetitorRowsTests(unittest.TestCase):
     def test_unscanned_competitor_keeps_the_candidate_note(self):
-        rows = competitor_rows([{"role": "primary", "site": {"target": "https://own.example.test/"}}, _site("https://one.example.test/", "competitors/a")])
+        rows = competitor_rows(
+            [
+                {"role": "primary", "site": {"target": "https://own.example.test/"}},
+                _site("https://one.example.test/", "competitors/a"),
+            ]
+        )
 
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["state"], "candidate; audit not run")
@@ -131,7 +144,11 @@ class CompetitorRowsTests(unittest.TestCase):
         self.assertEqual(rows[0]["scan_count"], 0)
 
     def test_finished_scan_changes_state_and_partial_is_said(self):
-        scan = {"lifecycle": "finished", "crawl_partial": True, "finished_at": "2026-10-11T10:00:00Z"}
+        scan = {
+            "lifecycle": "finished",
+            "crawl_partial": True,
+            "finished_at": "2026-10-11T10:00:00Z",
+        }
         rows = competitor_rows([_site("https://one.example.test/", "competitors/a", scan)])
 
         self.assertEqual(rows[0]["state"], "scanned, partial")
@@ -142,7 +159,11 @@ class CompetitorRowsTests(unittest.TestCase):
         rows = competitor_rows(
             [
                 _site("https://one.example.test/", "competitors/a", {"lifecycle": "running"}),
-                _site("https://two.example.test/", "competitors/b", {"lifecycle": "interrupted", "finished_at": None}),
+                _site(
+                    "https://two.example.test/",
+                    "competitors/b",
+                    {"lifecycle": "interrupted", "finished_at": None},
+                ),
             ]
         )
 

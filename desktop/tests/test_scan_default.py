@@ -7,7 +7,13 @@ from seohead_desktop.scans_urls import default_scan_index
 
 
 def _scan(path, *, lifecycle="finished", crawl_partial=False, corpus_partial=False, size=100):
-    return {"path": path, "lifecycle": lifecycle, "crawl_partial": crawl_partial, "corpus_partial": corpus_partial, "bytes": size}
+    return {
+        "path": path,
+        "lifecycle": lifecycle,
+        "crawl_partial": crawl_partial,
+        "corpus_partial": corpus_partial,
+        "bytes": size,
+    }
 
 
 class DefaultScanTests(unittest.TestCase):
@@ -24,11 +30,17 @@ class DefaultScanTests(unittest.TestCase):
         self.assertEqual(default_scan_index(rows), 0)
 
     def test_interrupted_or_corpus_partial_scans_are_not_complete(self):
-        rows = [_scan("stopped", lifecycle="interrupted", size=900), _scan("corpus", corpus_partial=True, size=800), _scan("full", size=10)]
+        rows = [
+            _scan("stopped", lifecycle="interrupted", size=900),
+            _scan("corpus", corpus_partial=True, size=800),
+            _scan("full", size=10),
+        ]
         self.assertEqual(default_scan_index(rows), 2)
 
     def test_without_a_complete_scan_the_newest_row_is_used(self):
-        self.assertEqual(default_scan_index([_scan("a", crawl_partial=True), _scan("b", crawl_partial=True)]), 0)
+        self.assertEqual(
+            default_scan_index([_scan("a", crawl_partial=True), _scan("b", crawl_partial=True)]), 0
+        )
         self.assertEqual(default_scan_index([]), 0)
 
 

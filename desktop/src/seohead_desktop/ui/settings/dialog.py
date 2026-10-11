@@ -162,8 +162,14 @@ class SettingsDialog(QDialog):
         for module in self._sections:
             if module.ID not in self._pages:
                 self._build(module)
-            rows = [r.title.text().lower() for r in self._pages[module.ID][1].findChildren(SettingRow)]
-            hit = not needle or needle in i18n.tr(module.TITLE).lower() or any(needle in r for r in rows)
+            rows = [
+                r.title.text().lower() for r in self._pages[module.ID][1].findChildren(SettingRow)
+            ]
+            hit = (
+                not needle
+                or needle in i18n.tr(module.TITLE).lower()
+                or any(needle in r for r in rows)
+            )
             self._nav[module.ID].setVisible(hit)
             if hit and first is None:
                 first = module.ID

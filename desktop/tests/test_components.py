@@ -34,21 +34,37 @@ from seohead_desktop.ui.tabcatalogue import (
 from tests._screens_core import fixture
 
 
-def _row(path, status=200, kind="text/html", indexability="Indexable", title="Page", issues=0, depth=1):
-    return {"url": "https://catalog.example.test" + path, "status": status, "type": kind,
-            "indexability": indexability, "title": title, "issues": issues, "crawl_depth": depth}
+def _row(
+    path, status=200, kind="text/html", indexability="Indexable", title="Page", issues=0, depth=1
+):
+    return {
+        "url": "https://catalog.example.test" + path,
+        "status": status,
+        "type": kind,
+        "indexability": indexability,
+        "title": title,
+        "issues": issues,
+        "crawl_depth": depth,
+    }
 
 
 # Rows in the shape scans_urls builds from the core's URL page; scans and tasks are real core answers.
 ROWS = [
-    _row("/", title="Catalog", depth=0), _row("/chairs/", issues=1), _row("/chairs/oak/", depth=2),
+    _row("/", title="Catalog", depth=0),
+    _row("/chairs/", issues=1),
+    _row("/chairs/oak/", depth=2),
     _row("/journal/care/", title="", issues=1, depth=2),
     _row("/archive/desk/", 301, indexability="Non-Indexable", title=None, issues=1, depth=2),
     _row("/search/?q=chair", indexability="Non-Indexable", title="Search results"),
-    _row("/images/chair.webp", kind="image/webp", indexability=None, title=None, issues=None, depth=2),
+    _row(
+        "/images/chair.webp", kind="image/webp", indexability=None, title=None, issues=None, depth=2
+    ),
     _row("/discontinued/", 404, indexability="Non-Indexable", issues=1, depth=2),
 ]
-SCANS = [dict(fixture("scan_row.json"), uuid=f"scan-{n}", finished_at=f"2026-10-0{n}T10:00:00Z") for n in (2, 1)]
+SCANS = [
+    dict(fixture("scan_row.json"), uuid=f"scan-{n}", finished_at=f"2026-10-0{n}T10:00:00Z")
+    for n in (2, 1)
+]
 TASKS = fixture("checklist_page.json")["items"][:2]
 
 
@@ -74,14 +90,10 @@ class ComponentTests(unittest.TestCase):
         self.app.processEvents()
 
     def test_catalogue_covers_observed_panes_with_unique_ids(self):
-        self.assertEqual(
-            (len(MAIN_TABS), len(DETAIL_TABS), len(RIGHT_TABS)), (21, 12, 6)
-        )
+        self.assertEqual((len(MAIN_TABS), len(DETAIL_TABS), len(RIGHT_TABS)), (21, 12, 6))
         self.assertEqual(len(ALL_TABS), len(TAB_BY_ID))
         self.assertEqual(len(ALL_TABS), 54)
-        self.assertTrue(
-            all(tab.columns and tab.filters and tab.evidence for tab in ALL_TABS)
-        )
+        self.assertTrue(all(tab.columns and tab.filters and tab.evidence for tab in ALL_TABS))
 
     def test_model_bounded_generator_and_atomic_rejection(self):
         model = PageModel((("value", "Value"),))
@@ -126,9 +138,7 @@ class ComponentTests(unittest.TestCase):
     def test_pagination_emits_bounded_intent_without_core_calls(self):
         panel = self.own(TablePanel(TAB_BY_ID["tasks"]))
         seen = QSignalSpy(panel.intent_requested)
-        panel.set_page(
-            TASKS, total=400, offset=100, has_more=True, source="Core fixture"
-        )
+        panel.set_page(TASKS, total=400, offset=100, has_more=True, source="Core fixture")
         panel.next_button.click()
         self.assertEqual(
             seen[-1][1],
@@ -306,16 +316,12 @@ class ComponentTests(unittest.TestCase):
     def test_every_catalogue_panel_can_render_empty_and_unavailable_states(self):
         audit = self.own(AuditWorkspace())
         projects = self.own(ProjectPanels())
-        with patch(
-            "subprocess.run", side_effect=AssertionError("UI cannot invoke core")
-        ):
+        with patch("subprocess.run", side_effect=AssertionError("UI cannot invoke core")):
             for spec in ALL_TABS:
                 owner = projects if spec.pane == "project" else audit
                 owner.set_page(spec.id, [], total=0, source="Measured empty fixture")
                 self.assertEqual(owner.panel(spec.id).state, "ready")
-                owner.set_page(
-                    spec.id, [], state="unavailable", reason="No retained evidence"
-                )
+                owner.set_page(spec.id, [], state="unavailable", reason="No retained evidence")
                 self.assertEqual(owner.panel(spec.id).model.rowCount(), 0)
         self.assertEqual(len(audit.findChildren(QTableView)), 39)
         self.assertEqual(len(projects.findChildren(QTableView)), 15)
@@ -338,6 +344,7 @@ class ComponentTests(unittest.TestCase):
         QTest.keyClick(window.main.tabbar, Qt.Key_Right)
         self.assertEqual(window.main.current_id, "external")
         self.assertEqual(window.panel("url_details").state, "unavailable")
+
 
 if __name__ == "__main__":
     unittest.main()

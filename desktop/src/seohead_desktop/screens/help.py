@@ -27,7 +27,11 @@ from ..ui.workspace import VIEW_IDS
 from .base import Screen
 
 GROUPS = (("Быстрый старт", START), ("Разделы и настройки", SECTIONS))
-ITEMS = tuple((group, icon, heading, text, view) for group, entries in GROUPS for icon, heading, text, view in entries)
+ITEMS = tuple(
+    (group, icon, heading, text, view)
+    for group, entries in GROUPS
+    for icon, heading, text, view in entries
+)
 ARTICLE_WIDTH = 760
 NAV_WIDTH = 320
 COMPACT_WIDTH = 1100  # below it the states column is hidden (canvas: compact window)
@@ -180,6 +184,7 @@ class HelpScreen(Screen):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.aside.setVisible(event.size().width() >= COMPACT_WIDTH)
+
     def refresh(self):
         """Static content: nothing to reload when the window's data change."""
 
@@ -195,7 +200,9 @@ class HelpScreen(Screen):
         self.article_text.setText(text)
         self.open_button.setVisible(view is not None)
         self.open_button.setEnabled(view is not None and view in VIEW_IDS)
-        self.open_button.setToolTip("" if view is None else "Перейти к разделу, без запуска операций")
+        self.open_button.setToolTip(
+            "" if view is None else "Перейти к разделу, без запуска операций"
+        )
 
     def _open_view(self):
         view = ITEMS[self.current][4]
@@ -203,7 +210,9 @@ class HelpScreen(Screen):
             return
         row = VIEW_IDS.index(view)
         self.host.navigation.setCurrentRow(row)
-        self.host.navigate(row)  # the row may already be current: the sidebar signal then stays silent
+        self.host.navigate(
+            row
+        )  # the row may already be current: the sidebar signal then stays silent
 
     def _filter(self, query):
         needle = query.strip().lower()
@@ -217,6 +226,8 @@ class HelpScreen(Screen):
         for caption in self.group_labels.values():
             caption.setVisible(caption in visible_groups)
         if not self.group.button(self.current) or not self.group.button(self.current).isVisible():
-            first = next((index for index, button, _caption in self.entries if button.isVisible()), None)
+            first = next(
+                (index for index, button, _caption in self.entries if button.isVisible()), None
+            )
             if first is not None:
                 self._show(first)

@@ -66,7 +66,10 @@ class SemanticRunGatewayTests(unittest.TestCase):
     def test_tool_is_declared_and_init_import_pass(self):
         self.assertIn("seo_semantics_run", TOOL_ALLOWLIST)
         self.gateway._validate("seo_semantics_run", {"stage": "init", "project": str(self.project)})
-        self.gateway._validate("seo_semantics_run", {"stage": "import", "project": str(self.project), "file": str(self.csv)})
+        self.gateway._validate(
+            "seo_semantics_run",
+            {"stage": "import", "project": str(self.project), "file": str(self.csv)},
+        )
 
     def test_paid_export_and_foreign_project_are_refused(self):
         for arguments in (
@@ -75,8 +78,16 @@ class SemanticRunGatewayTests(unittest.TestCase):
             {"stage": "init", "project": str(self.project), "out": "/tmp"},
             {"stage": "init", "project": str(self.project.parent)},
             {"stage": "init", "project": str(self.project), "file": str(self.csv)},
-            {"stage": "import", "project": str(self.project), "file": str(self.project / "missing.csv")},
-            {"stage": "import", "project": str(self.project), "file": str(self.project / "phrases.xlsx")},
+            {
+                "stage": "import",
+                "project": str(self.project),
+                "file": str(self.project / "missing.csv"),
+            },
+            {
+                "stage": "import",
+                "project": str(self.project),
+                "file": str(self.project / "phrases.xlsx"),
+            },
         ):
             with self.subTest(arguments=arguments), self.assertRaises(ValueError):
                 self.gateway._validate("seo_semantics_run", arguments)

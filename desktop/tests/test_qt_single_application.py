@@ -11,7 +11,9 @@ class SingleApplicationTests(unittest.TestCase):
         offenders = []
         for folder in ("tests", "scripts", "src"):
             for path in (ROOT / folder).rglob("*.py"):
-                if (path.name == "qt.py" and path.parent.name == "seohead_desktop") or path == Path(__file__).resolve():
+                if (path.name == "qt.py" and path.parent.name == "seohead_desktop") or path == Path(
+                    __file__
+                ).resolve():
                     continue
                 for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
                     if CREATES.search(line) and not line.lstrip().startswith("#"):
@@ -23,7 +25,13 @@ class SingleApplicationTests(unittest.TestCase):
         import sys
 
         code = "import seohead_desktop; from PyQt5 import sip; print(sip.getdestroyonexit() if hasattr(sip, 'getdestroyonexit') else 'n/a')"
-        out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=ROOT / "src", check=False)
+        out = subprocess.run(
+            [sys.executable, "-c", code],
+            capture_output=True,
+            text=True,
+            cwd=ROOT / "src",
+            check=False,
+        )
         self.assertEqual(out.returncode, 0, out.stderr)
         self.assertIn(out.stdout.strip(), ("False", "n/a"))
 

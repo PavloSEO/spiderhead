@@ -19,7 +19,9 @@ class StackBar(QWidget):
         self.setFixedHeight(height)
 
     def set_parts(self, parts):
-        self.parts = [(count, colour) for count, colour in parts if type(count) is int and count > 0]
+        self.parts = [
+            (count, colour) for count, colour in parts if type(count) is int and count > 0
+        ]
         self.update()
 
     def paintEvent(self, event):

@@ -48,14 +48,18 @@ class KitTests(unittest.TestCase):
         self.assertEqual(kpi.number.text(), "0")  # a measured zero is a real zero
 
     def test_waiting_state_names_the_core_issue_and_has_no_numbers(self):
-        panel = StatePanel("waiting", "Журнал по страницам", "Показаны последние 200 событий", issue=923)
+        panel = StatePanel(
+            "waiting", "Журнал по страницам", "Показаны последние 200 событий", issue=923
+        )
         self.assertEqual(panel.issue_label.text(), "Недоступно в этой версии ядра")
         self.assertNotIn("923", panel.issue_label.text() + panel.issue_label.toolTip())
         self.assertEqual(panel.issue_label.property("waiting_issue"), 923)
 
     def test_state_panel_action_is_wired(self):
         seen = []
-        panel = StatePanel("empty", "Нет проектов", action=("Открыть проект", lambda: seen.append(1)))
+        panel = StatePanel(
+            "empty", "Нет проектов", action=("Открыть проект", lambda: seen.append(1))
+        )
         panel.findChild(QPushButton).click()
         self.assertEqual(seen, [1])
 
@@ -76,7 +80,9 @@ class KitTests(unittest.TestCase):
         image = QPixmap(table.size())
         table.render(image)
         self.assertFalse(image.isNull())
-        self.assertEqual(table.verticalHeader().defaultSectionSize(), theming.metrics()["row"]["standard"])
+        self.assertEqual(
+            table.verticalHeader().defaultSectionSize(), theming.metrics()["row"]["standard"]
+        )
 
     def test_texts_follow_the_language(self):
         try:

@@ -40,14 +40,41 @@ from .work import RowsModel, build_table, clear_layout, local_stamp, number, pro
 
 MAX_TEXT = 4000
 KINDS = {"note": ("info", "Заметка"), "proposed_goal": ("goal", "Цель")}
-OUTCOMES = {"task": "Задача создана", "goal": "Цель принята", "competitor": "Конкуренты найдены", "blocked": "Заблокировано", "rejected": "Отклонено"}
-REFERENCE_ICONS = {"scan": ("history", "Скан"), "task": ("checklist", "Задача"), "goal": ("flag", "Цель"), "finding": ("rule", "Находка"), "section": ("description", "Раздел")}
-REFERENCE_SECTIONS = {"scan": "scans", "task": "work", "goal": "work", "finding": "issues", "section": "url"}
-FILTERS = (("all", "Все", "Все"), ("unread", "Не прочитаны", "Новые"), ("goal", "Цели", "Цели"), ("done", "Обработаны", "Готово"))
+OUTCOMES = {
+    "task": "Задача создана",
+    "goal": "Цель принята",
+    "competitor": "Конкуренты найдены",
+    "blocked": "Заблокировано",
+    "rejected": "Отклонено",
+}
+REFERENCE_ICONS = {
+    "scan": ("history", "Скан"),
+    "task": ("checklist", "Задача"),
+    "goal": ("flag", "Цель"),
+    "finding": ("rule", "Находка"),
+    "section": ("description", "Раздел"),
+}
+REFERENCE_SECTIONS = {
+    "scan": "scans",
+    "task": "work",
+    "goal": "work",
+    "finding": "issues",
+    "section": "url",
+}
+FILTERS = (
+    ("all", "Все", "Все"),
+    ("unread", "Не прочитаны", "Новые"),
+    ("goal", "Цели", "Цели"),
+    ("done", "Обработаны", "Готово"),
+)
 
 
 def is_processed(entry):
-    return bool(entry.get("triage")) or bool(entry.get("acknowledged_at")) or entry.get("goal_state") in ("accepted", "completed")
+    return (
+        bool(entry.get("triage"))
+        or bool(entry.get("acknowledged_at"))
+        or entry.get("goal_state") in ("accepted", "completed")
+    )
 
 
 def outcome(entry):
@@ -76,7 +103,15 @@ def first_line(text):
 
 def entry_columns():
     return (
-        ("Тип", lambda e: tr(KINDS.get(e.get("kind"), ("mut", e.get("kind") or "—"))[1]), lambda e: (KINDS.get(e.get("kind"), ("mut", ""))[0], tr(KINDS.get(e.get("kind"), ("mut", e.get("kind") or "—"))[1])), None),
+        (
+            "Тип",
+            lambda e: tr(KINDS.get(e.get("kind"), ("mut", e.get("kind") or "—"))[1]),
+            lambda e: (
+                KINDS.get(e.get("kind"), ("mut", ""))[0],
+                tr(KINDS.get(e.get("kind"), ("mut", e.get("kind") or "—"))[1]),
+            ),
+            None,
+        ),
         ("Запись", lambda e: first_line(e.get("text")), None, lambda e: e.get("text") or ""),
         ("Стадия", lambda e: tr(outcome(e) or "Сохранено"), None, None),
     )
@@ -98,7 +133,13 @@ class EntryDelegate(QStyledItemDelegate):
         entry = index.model().rows[index.row()]
         painter.save()
         painter.setRenderHint(QPainter.Antialiasing)
-        fill = palette["selected"] if option.state & QStyle.State_Selected else palette["hover_row"] if option.state & QStyle.State_MouseOver else palette["base"]
+        fill = (
+            palette["selected"]
+            if option.state & QStyle.State_Selected
+            else palette["hover_row"]
+            if option.state & QStyle.State_MouseOver
+            else palette["base"]
+        )
         painter.fillRect(option.rect, QColor(fill))
         painter.setPen(QColor(palette["divider_inner"]))
         painter.drawLine(option.rect.bottomLeft(), option.rect.bottomRight())
@@ -110,7 +151,9 @@ class EntryDelegate(QStyledItemDelegate):
         badge_font.setPixelSize(12)
         badge_font.setWeight(QFont.Medium)
         painter.setFont(badge_font)
-        badge = QRectF(rect.left(), rect.top(), painter.fontMetrics().horizontalAdvance(label) + 16, 20)
+        badge = QRectF(
+            rect.left(), rect.top(), painter.fontMetrics().horizontalAdvance(label) + 16, 20
+        )
         painter.setPen(Qt.NoPen)
         painter.setBrush(QColor(background))
         painter.drawRoundedRect(badge, 6, 6)
@@ -123,16 +166,28 @@ class EntryDelegate(QStyledItemDelegate):
         painter.setFont(stamp_font)
         stamp_width = painter.fontMetrics().horizontalAdvance(stamp)
         painter.setPen(QColor(palette["text_3"]))
-        painter.drawText(QRectF(rect.right() - stamp_width, rect.top(), stamp_width, 20), Qt.AlignVCenter | Qt.AlignRight, stamp)
+        painter.drawText(
+            QRectF(rect.right() - stamp_width, rect.top(), stamp_width, 20),
+            Qt.AlignVCenter | Qt.AlignRight,
+            stamp,
+        )
 
         title_font = QFont(option.font)
         title_font.setPixelSize(13)
         title_font.setWeight(QFont.Medium)
         painter.setFont(title_font)
         title_left = badge.right() + 8
-        title = painter.fontMetrics().elidedText(index.model().index(index.row(), 1).data() or "", Qt.ElideRight, int(rect.right() - stamp_width - 8 - title_left))
+        title = painter.fontMetrics().elidedText(
+            index.model().index(index.row(), 1).data() or "",
+            Qt.ElideRight,
+            int(rect.right() - stamp_width - 8 - title_left),
+        )
         painter.setPen(QColor(palette["text"]))
-        painter.drawText(QRectF(title_left, rect.top(), rect.right() - title_left - stamp_width - 8, 20), Qt.AlignVCenter | Qt.AlignLeft, title)
+        painter.drawText(
+            QRectF(title_left, rect.top(), rect.right() - title_left - stamp_width - 8, 20),
+            Qt.AlignVCenter | Qt.AlignLeft,
+            title,
+        )
 
         stage_font = QFont(option.font)
         stage_font.setPixelSize(11)
@@ -170,12 +225,26 @@ class StageChain(QWidget):
             row = QHBoxLayout(cell)
             row.setContentsMargins(0, 0, 0, 0)
             row.setSpacing(6)
-            row.addWidget(MaterialIconLabel(icon if measurable or done else "help", 16, color="role:success" if done else "role:text_muted"))
+            row.addWidget(
+                MaterialIconLabel(
+                    icon if measurable or done else "help",
+                    16,
+                    color="role:success" if done else "role:text_muted",
+                )
+            )
             text = QLabel(tr(label))
             text.setProperty("text_style", "meta")
             text.setWordWrap(True)
             row.addWidget(text, 1)
-            cell.setToolTip(tr("Стадия подтверждена ядром") if done else tr("Ядро не различает получателей записи: чтение агентом не измеряется") + " · " + tr("Недоступно в этой версии ядра") if not measurable else tr("Ядро не записало этой стадии"))
+            cell.setToolTip(
+                tr("Стадия подтверждена ядром")
+                if done
+                else tr("Ядро не различает получателей записи: чтение агентом не измеряется")
+                + " · "
+                + tr("Недоступно в этой версии ядра")
+                if not measurable
+                else tr("Ядро не записало этой стадии")
+            )
             layout.addWidget(cell, index // 2, index % 2)
         layout.setColumnStretch(0, 1)
         layout.setColumnStretch(1, 1)
@@ -221,7 +290,10 @@ class Composer(QFrame):
         top.setSpacing(6)
         self.kind_group = QButtonGroup(self)
         self.kind_buttons = {}
-        for kind, icon, label in (("note", "edit_note", "Заметка"), ("proposed_goal", "flag", "Цель")):
+        for kind, icon, label in (
+            ("note", "edit_note", "Заметка"),
+            ("proposed_goal", "flag", "Цель"),
+        ):
             button = QToolButton()
             button.setProperty("pill", "group")
             button.setCheckable(True)
@@ -230,7 +302,9 @@ class Composer(QFrame):
             button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
             self.kind_group.addButton(button)
             self.kind_buttons[kind] = button
-            button.setToolTip(tr("Предложить цель проекта") if kind == "proposed_goal" else tr("Заметка агенту"))
+            button.setToolTip(
+                tr("Предложить цель проекта") if kind == "proposed_goal" else tr("Заметка агенту")
+            )
             button.clicked.connect(lambda _c=False: self._changed())
             top.addWidget(button)
         self.kind_buttons["note"].setChecked(True)
@@ -240,7 +314,11 @@ class Composer(QFrame):
         self.question.setIcon(material_icon("help"))
         self.question.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.question.setEnabled(False)
-        self.question.setToolTip(tr("Ядро пока принимает только заметки и цели") + " · " + tr("Недоступно в этой версии ядра"))
+        self.question.setToolTip(
+            tr("Ядро пока принимает только заметки и цели")
+            + " · "
+            + tr("Недоступно в этой версии ядра")
+        )
         top.addWidget(self.question)
         top.addStretch(1)
         layout.addLayout(top)
@@ -278,7 +356,11 @@ class Composer(QFrame):
         error_layout.addWidget(self.error_text, 1)
         self.error.hide()
         layout.addWidget(self.error)
-        self.hint = QLabel(tr("Черновик хранится, пока приложение открыто: ошибка записи и смена проекта его не стирают · Ctrl+Enter"))
+        self.hint = QLabel(
+            tr(
+                "Черновик хранится, пока приложение открыто: ошибка записи и смена проекта его не стирают · Ctrl+Enter"
+            )
+        )
         self.hint.setProperty("text_style", "meta")
         self.hint.setWordWrap(True)
         self.counter = QLabel()
@@ -307,7 +389,9 @@ class Composer(QFrame):
 
     # ---- draft API used by the host ------------------------------------------------------------------------------
     def kind(self):
-        return next((kind for kind, button in self.kind_buttons.items() if button.isChecked()), "note")
+        return next(
+            (kind for kind, button in self.kind_buttons.items() if button.isChecked()), "note"
+        )
 
     def draft(self):
         return (self.text.toPlainText().strip(), self.kind(), tuple(self.references))
@@ -334,7 +418,9 @@ class Composer(QFrame):
     def show_error(self, text):
         self.error.setVisible(bool(text))
         if text:
-            self.error_text.setText(f"<b>{tr('Не удалось сохранить заметку.')}</b> {text} {tr('Текст остаётся в форме.')}")
+            self.error_text.setText(
+                f"<b>{tr('Не удалось сохранить заметку.')}</b> {text} {tr('Текст остаётся в форме.')}"
+            )
 
     # ---- behaviour -----------------------------------------------------------------------------------------------
     def _refresh_send(self):
@@ -349,7 +435,9 @@ class Composer(QFrame):
     def _fill_menu(self):
         self.context_menu.clear()
         host = self.screen.host
-        scan = next((r for r in host.scan_model.rows if r.get("path") == host.selected_scan_path), None)
+        scan = next(
+            (r for r in host.scan_model.rows if r.get("path") == host.selected_scan_path), None
+        )
         work = host.screens.get("work")
         task = getattr(work, "selected_id", None) or host.task_detail_requested
         options = []
@@ -424,7 +512,9 @@ class InboxScreen(Screen):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.tabs = QTabBar()
-        self.tabs.setUsesScrollButtons(True)  # labels keep their full text at narrow widths: the bar scrolls
+        self.tabs.setUsesScrollButtons(
+            True
+        )  # labels keep their full text at narrow widths: the bar scrolls
         self.tabs.setElideMode(Qt.ElideNone)
         self.tabs.setProperty("tabs", "underline")
         self.tabs.setDrawBase(False)
@@ -440,7 +530,9 @@ class InboxScreen(Screen):
         self.table.horizontalHeader().hide()
         self.table.setColumnHidden(1, True)
         self.table.setColumnHidden(2, True)
-        self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)  # the delegate's sizeHint sets the row; the density setting does not override it
+        self.table.verticalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents
+        )  # the delegate's sizeHint sets the row; the density setting does not override it
         self.table.selectionModel().currentRowChanged.connect(self._row_changed)
         layout.addWidget(self.table, 1)
         self.status = QLabel()
@@ -489,13 +581,29 @@ class InboxScreen(Screen):
 
     # ---- list ---------------------------------------------------------------------------------------------------
     def _matches(self, entry):
-        return {"all": True, "unread": not entry.get("read_at"), "goal": entry.get("kind") == "proposed_goal", "done": is_processed(entry)}[self.filter]
+        return {
+            "all": True,
+            "unread": not entry.get("read_at"),
+            "goal": entry.get("kind") == "proposed_goal",
+            "done": is_processed(entry),
+        }[self.filter]
 
     def _label_tabs(self):
         narrow = self.content.widget(0).width() < 440
         for index, (key, label, short) in enumerate(FILTERS):
-            count = sum(1 for e in self.all_rows if {"all": True, "unread": not e.get("read_at"), "goal": e.get("kind") == "proposed_goal", "done": is_processed(e)}[key])
-            self.tabs.setTabText(index, trf("{name} · {n}", name=tr(short if narrow else label), n=count))
+            count = sum(
+                1
+                for e in self.all_rows
+                if {
+                    "all": True,
+                    "unread": not e.get("read_at"),
+                    "goal": e.get("kind") == "proposed_goal",
+                    "done": is_processed(e),
+                }[key]
+            )
+            self.tabs.setTabText(
+                index, trf("{name} · {n}", name=tr(short if narrow else label), n=count)
+            )
             self.tabs.setTabToolTip(index, tr(label))
 
     def _filter_changed(self, index):
@@ -509,9 +617,15 @@ class InboxScreen(Screen):
             self._fill_detail()
 
     def _fill_rows(self):
-        rows = sorted((e for e in self.all_rows if self._matches(e)), key=lambda e: e.get("created_at") or "", reverse=True)
+        rows = sorted(
+            (e for e in self.all_rows if self._matches(e)),
+            key=lambda e: e.get("created_at") or "",
+            reverse=True,
+        )
         self.model.set_rows(rows)
-        index = next((i for i, r in enumerate(rows) if r.get("id") == self.selected_id), 0 if rows else None)
+        index = next(
+            (i for i, r in enumerate(rows) if r.get("id") == self.selected_id), 0 if rows else None
+        )
         if index is not None:
             self.table.selectRow(index)
             self.selected_id = rows[index].get("id")
@@ -523,10 +637,20 @@ class InboxScreen(Screen):
         host = self.host
         status, _text = project_state(host, errors=("observer",))
         if status == "none":
-            show_empty(self.empty_holder, self.content, no_project_panel(host, "Откройте проект, чтобы увидеть входящие и писать заметки"))
+            show_empty(
+                self.empty_holder,
+                self.content,
+                no_project_panel(host, "Откройте проект, чтобы увидеть входящие и писать заметки"),
+            )
             return
         if status == "loading":
-            show_empty(self.empty_holder, self.content, StatePanel("loading", "Загрузка проекта…", "Читаем сохранённые данные проекта из ядра"))
+            show_empty(
+                self.empty_holder,
+                self.content,
+                StatePanel(
+                    "loading", "Загрузка проекта…", "Читаем сохранённые данные проекта из ядра"
+                ),
+            )
             return
         show_empty(self.empty_holder, self.content, None)
         self.all_rows = list(host.inbox_model.rows)
@@ -534,20 +658,41 @@ class InboxScreen(Screen):
         clear_layout(self.list_state)
         error = host.screen_errors.get("observer")
         if error:
-            self.list_state.addWidget(StatePanel("error", "Не удалось получить входящие", error, action=("Повторить", host.refresh_project)))
+            self.list_state.addWidget(
+                StatePanel(
+                    "error",
+                    "Не удалось получить входящие",
+                    error,
+                    action=("Повторить", host.refresh_project),
+                )
+            )
         elif host.inbox_revision is None:
             self.list_state.addWidget(StatePanel("loading", "Загрузка входящих…"))
         elif not self.all_rows:
-            self.list_state.addWidget(StatePanel("empty", "Во входящих пока пусто", "Запись появится после явного нажатия «Сохранить во входящие»"))
+            self.list_state.addWidget(
+                StatePanel(
+                    "empty",
+                    "Во входящих пока пусто",
+                    "Запись появится после явного нажатия «Сохранить во входящие»",
+                )
+            )
         shown = not error and host.inbox_revision is not None and bool(self.all_rows)
         self.table.setVisible(shown)
         self._fill_rows()
         unread = host.inbox_unread
-        text = trf("Не прочитано: {n}", n=number(unread)) if unread is not None else tr("Непрочитанные не измерены")
+        text = (
+            trf("Не прочитано: {n}", n=number(unread))
+            if unread is not None
+            else tr("Непрочитанные не измерены")
+        )
         if len(self.all_rows) >= 100:
             text += " · " + tr("показаны последние 100 записей")
         self.status.setText(text)
-        self.status.setToolTip(tr("Считает ядро по получателю этого окна; чтение записи агентом оно пока не различает") + " · " + tr("Недоступно в этой версии ядра"))
+        self.status.setToolTip(
+            tr("Считает ядро по получателю этого окна; чтение записи агентом оно пока не различает")
+            + " · "
+            + tr("Недоступно в этой версии ядра")
+        )
         self.composer.show_error(host.screen_errors.get("inbox-submit"))
 
     # ---- detail -------------------------------------------------------------------------------------------------
@@ -556,7 +701,11 @@ class InboxScreen(Screen):
         entry = next((e for e in self.model.rows if e.get("id") == self.selected_id), None)
         layout = self.detail_layout
         if entry is None:
-            layout.addWidget(StatePanel("empty", "Выберите запись", "Здесь появятся текст, стадии и разбор записи"))
+            layout.addWidget(
+                StatePanel(
+                    "empty", "Выберите запись", "Здесь появятся текст, стадии и разбор записи"
+                )
+            )
             layout.addStretch(1)
             return
         kind, label = KINDS.get(entry.get("kind"), ("mut", entry.get("kind") or "—"))
@@ -583,7 +732,11 @@ class InboxScreen(Screen):
                 icon, text = reference_label(reference)
                 button = QPushButton(text)
                 button.setIcon(material_icon(icon))
-                button.clicked.connect(lambda _c=False, r=reference: self.host.navigation.select_section(REFERENCE_SECTIONS.get(r.partition(":")[0], "work")))
+                button.clicked.connect(
+                    lambda _c=False, r=reference: self.host.navigation.select_section(
+                        REFERENCE_SECTIONS.get(r.partition(":")[0], "work")
+                    )
+                )
                 chips.addWidget(button)
             chips.addStretch(1)
             layout.addLayout(chips)
@@ -593,12 +746,18 @@ class InboxScreen(Screen):
         layout.addWidget(section)
         triage = entry.get("triage") or []
         if not triage:
-            hint = QLabel(tr("Разбора пока нет: его записывает агент через MCP, окно показывает его без перезапуска."))
+            hint = QLabel(
+                tr(
+                    "Разбора пока нет: его записывает агент через MCP, окно показывает его без перезапуска."
+                )
+            )
             hint.setProperty("text_style", "meta")
             hint.setWordWrap(True)
             layout.addWidget(hint)
         for receipt in triage:
-            row = QLabel(f"{local_stamp(receipt.get('recorded_at'), True) or ''} · {tr(OUTCOMES.get(receipt.get('kind'), receipt.get('kind') or ''))} · {receipt.get('actor') or ''}\n{receipt.get('reason') or ''}")
+            row = QLabel(
+                f"{local_stamp(receipt.get('recorded_at'), True) or ''} · {tr(OUTCOMES.get(receipt.get('kind'), receipt.get('kind') or ''))} · {receipt.get('actor') or ''}\n{receipt.get('reason') or ''}"
+            )
             row.setWordWrap(True)
             row.setTextInteractionFlags(Qt.TextSelectableByMouse)
             layout.addWidget(row)
@@ -609,5 +768,11 @@ class InboxScreen(Screen):
         reply.addWidget(waiting_badge(944))
         reply.addStretch(1)
         layout.addLayout(reply)
-        layout.addWidget(Note("info", tr("«Сохранено» не значит «агент работает»."), tr("Стадии ставит агент через MCP; текстового ответа ядро пока не хранит.")))
+        layout.addWidget(
+            Note(
+                "info",
+                tr("«Сохранено» не значит «агент работает»."),
+                tr("Стадии ставит агент через MCP; текстового ответа ядро пока не хранит."),
+            )
+        )
         layout.addStretch(1)

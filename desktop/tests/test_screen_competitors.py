@@ -49,7 +49,7 @@ class FakeHost(QObject):
         self.refreshed = 0
 
     def choose_project(self):
-        self.commands.append(('choose_project',))
+        self.commands.append(("choose_project",))
 
     def ensure_scan_manager(self):
         return self.manager
@@ -67,7 +67,11 @@ def _site(host, directory, scans=()):
         "site": {"target": f"https://{host}/"},
         "directory": directory,
         "project_uuid": "uuid-" + host,
-        "candidate": {"state": "candidate; audit not run", "source": "desktop", "observed_at": None},
+        "candidate": {
+            "state": "candidate; audit not run",
+            "source": "desktop",
+            "observed_at": None,
+        },
         "scans": {"items": list(scans)},
     }
 
@@ -100,7 +104,13 @@ class CompetitorsScreenTests(unittest.TestCase):
         window = MainWindow(persistent=False, core_executable=shutil.which("python3"))
         try:
             window.prefs.set("general.projects_folder", base.name)
-            actions = [action for menu in window.menuBar().actions() if menu.menu() for action in menu.menu().actions() if action.text() == "Конкуренты…"]
+            actions = [
+                action
+                for menu in window.menuBar().actions()
+                if menu.menu()
+                for action in menu.menu().actions()
+                if action.text() == "Конкуренты…"
+            ]
             self.assertEqual(len(actions), 1)
             actions[0].trigger()
             self.app.processEvents()
@@ -119,8 +129,17 @@ class CompetitorsScreenTests(unittest.TestCase):
         self.assertEqual(host.commands, [])
 
     def test_rows_show_finished_scan_state_from_observer_snapshot(self):
-        done = {"lifecycle": "finished", "crawl_partial": False, "finished_at": "2026-10-11T10:00:00Z"}
-        host = FakeHost(sites=[_site("one.example.test", "competitors/a", [done]), _site("two.example.test", "competitors/b")])
+        done = {
+            "lifecycle": "finished",
+            "crawl_partial": False,
+            "finished_at": "2026-10-11T10:00:00Z",
+        }
+        host = FakeHost(
+            sites=[
+                _site("one.example.test", "competitors/a", [done]),
+                _site("two.example.test", "competitors/b"),
+            ]
+        )
 
         screen = self.screen(host)
 
@@ -138,7 +157,9 @@ class CompetitorsScreenTests(unittest.TestCase):
         request_id, tool, arguments, handler = host.commands[-1]
         self.assertEqual((request_id, tool), ("competitors-add", "seo_project_competitors_add"))
         self.assertEqual(arguments["directory"], "/owner")
-        self.assertEqual([item["url"] for item in arguments["competitors"]], ["https://two.example.test"])
+        self.assertEqual(
+            [item["url"] for item in arguments["competitors"]], ["https://two.example.test"]
+        )
         self.assertEqual(arguments["competitors"][0]["source"], "desktop manual entry")
         self.assertIn("already in the list", screen.status.text())
         handler({"ok": True, "competitors": [{}, {}]})
@@ -169,16 +190,20 @@ class CompetitorsScreenTests(unittest.TestCase):
         self.assertIn("В тексте нет адресов", screen.status.text())
 
     def test_scans_start_each_competitor_with_the_cap_and_skip_busy_or_unlocated_ones(self):
-        host = FakeHost(sites=[
-            _site("one.example.test", "competitors/a"),
-            _site("busy.example.test", "competitors/busy"),
-            {**_site("nodir.example.test", None)},
-        ])
+        host = FakeHost(
+            sites=[
+                _site("one.example.test", "competitors/a"),
+                _site("busy.example.test", "competitors/busy"),
+                {**_site("nodir.example.test", None)},
+            ]
+        )
         screen = self.screen(host)
         screen.cap.setValue(120)
         preview = {"overrides": {"limits.max_urls": 120, "rendering.mode": "raw"}}
 
-        with patch("seohead_desktop.screens.competitors.preview_configuration", return_value=preview) as configured:
+        with patch(
+            "seohead_desktop.screens.competitors.preview_configuration", return_value=preview
+        ) as configured:
             screen.start_scans()
 
         self.assertEqual(configured.call_args.args[1]["limits.max_urls"], 120)
@@ -197,7 +222,10 @@ class CompetitorsScreenTests(unittest.TestCase):
         host.manager.runs = [{"project": "/owner/competitors/a", "state": "running"}]
         screen = self.screen(host)
 
-        with patch("seohead_desktop.screens.competitors.preview_configuration", return_value={"overrides": {}}):
+        with patch(
+            "seohead_desktop.screens.competitors.preview_configuration",
+            return_value={"overrides": {}},
+        ):
             screen.start_scans()
 
         self.assertEqual(host.manager.submitted, [])

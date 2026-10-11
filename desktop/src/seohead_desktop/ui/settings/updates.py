@@ -33,16 +33,38 @@ def build_page(store, context):
     if not context.can("check_updates"):
         left += [Note("info", "Проверка обновлений недоступна в этой сборке."), spacer(12)]
     left += [
-        key_values([("Установлено", context.app_version), ("Ядро", _core_version()), ("Последняя проверка", None)]),
-        segmented_row(store, "updates.channel", "Канал", "beta — раньше на неделю, возможны ошибки",
-                      [("stable", "stable"), ("beta", "beta")]),
-        switch_row(store, "updates.auto_check", "Проверять автоматически", "Раз в день; без загрузки без вашего согласия"),
-        switch_row(store, "updates.background_download", "Загружать в фоне", "Установка — только по кнопке"),
+        key_values(
+            [
+                ("Установлено", context.app_version),
+                ("Ядро", _core_version()),
+                ("Последняя проверка", None),
+            ]
+        ),
+        segmented_row(
+            store,
+            "updates.channel",
+            "Канал",
+            "beta — раньше на неделю, возможны ошибки",
+            [("stable", "stable"), ("beta", "beta")],
+        ),
+        switch_row(
+            store,
+            "updates.auto_check",
+            "Проверять автоматически",
+            "Раз в день; без загрузки без вашего согласия",
+        ),
+        switch_row(
+            store, "updates.background_download", "Загружать в фоне", "Установка — только по кнопке"
+        ),
         button_row(action_button("Проверить сейчас", context, "check_updates", icon="refresh")),
     ]
     right = [
         group_label("История изменений"),
         button_row(waiting_badge(CHANGELOG_GAP)),
-        Note("info", "Что это меняет.", "Приложение и ядро — вместе. Обновление ставит совместимое ядро; CLI в PATH тоже обновится."),
+        Note(
+            "info",
+            "Что это меняет.",
+            "Приложение и ядро — вместе. Обновление ставит совместимое ядро; CLI в PATH тоже обновится.",
+        ),
     ]
     return page(Columns(left, right))

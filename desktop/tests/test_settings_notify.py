@@ -15,7 +15,15 @@ from seohead_desktop.ui.settings.context import SettingsContext
 from seohead_desktop.ui.settings.dialog import SettingsDialog
 
 # event -> (window, system, sound) as on sheet SetNotify
-SHEET = {"done": (1, 1, 0), "err": (1, 1, 1), "agent": (1, 0, 0), "pay": (1, 1, 1), "stale": (1, 0, 0), "exp": (1, 0, 0), "upd": (1, 0, 0)}
+SHEET = {
+    "done": (1, 1, 0),
+    "err": (1, 1, 1),
+    "agent": (1, 0, 0),
+    "pay": (1, 1, 1),
+    "stale": (1, 0, 0),
+    "exp": (1, 0, 0),
+    "upd": (1, 0, 0),
+}
 
 
 def switch_named(page, name):
@@ -43,12 +51,17 @@ class NotifySectionTests(unittest.TestCase):
             self.assertEqual(got, flags, event)
         self.assertEqual([e[0] for e in notify.EVENTS], list(SHEET))
         self.assertIs(self.store.get("notify.quiet"), True)
-        self.assertEqual((self.store.get("notify.quiet_from"), self.store.get("notify.quiet_to")), ("20:00", "08:00"))
+        self.assertEqual(
+            (self.store.get("notify.quiet_from"), self.store.get("notify.quiet_to")),
+            ("20:00", "08:00"),
+        )
 
     def test_matrix_reflects_store_and_writes_back(self):
         self.store.set("notify.err_z", False)
         page = notify.build_page(self.store, SettingsContext())
-        self.assertEqual(len([s for s in page.findChildren(Switch) if " — " in s.accessibleName()]), 21)
+        self.assertEqual(
+            len([s for s in page.findChildren(Switch) if " — " in s.accessibleName()]), 21
+        )
         sound = switch_named(page, "Ошибка ядра или скана — звук")
         self.assertFalse(sound.isChecked())
         sound.click()
@@ -68,13 +81,13 @@ class NotifySectionTests(unittest.TestCase):
             self.assertFalse(row._error_box.isHidden(), bad)
             self.assertEqual(row._error.text(), "Время в формате ЧЧ:ММ")
             self.assertTrue(fields["Конец"].property("invalid"))
-            self.assertEqual(self.store.get("notify.quiet_to"), "08:00", bad)   # nothing written
+            self.assertEqual(self.store.get("notify.quiet_to"), "08:00", bad)  # nothing written
         fields["Конец"].setText("7:45")
         fields["Конец"].editingFinished.emit()
         self.assertTrue(row._error_box.isHidden())
         self.assertFalse(fields["Конец"].property("invalid"))
         self.assertEqual(self.store.get("notify.quiet_to"), "07:45")
-        self.assertEqual(fields["Конец"].text(), "07:45")                       # normalised
+        self.assertEqual(fields["Конец"].text(), "07:45")  # normalised
         fields["Начало"].setText("23:59")
         fields["Начало"].editingFinished.emit()
         self.assertEqual(self.store.get("notify.quiet_from"), "23:59")
@@ -86,19 +99,28 @@ class NotifySectionTests(unittest.TestCase):
 
     def test_preview_button_is_unavailable_without_hook(self):
         page = notify.build_page(self.store, SettingsContext())
-        button = next(b for b in page.findChildren(QPushButton) if b.text() == "Как выглядят уведомления")
+        button = next(
+            b for b in page.findChildren(QPushButton) if b.text() == "Как выглядят уведомления"
+        )
         self.assertFalse(button.isEnabled())
         self.assertEqual(button.toolTip(), "Недоступно в этой сборке")
         calls = []
-        page = notify.build_page(self.store, SettingsContext(actions={"show_notification_preview": lambda: calls.append(1)}))
-        button = next(b for b in page.findChildren(QPushButton) if b.text() == "Как выглядят уведомления")
+        page = notify.build_page(
+            self.store,
+            SettingsContext(actions={"show_notification_preview": lambda: calls.append(1)}),
+        )
+        button = next(
+            b for b in page.findChildren(QPushButton) if b.text() == "Как выглядят уведомления"
+        )
         self.assertTrue(button.isEnabled())
         button.click()
         self.assertEqual(calls, [1])
 
     def test_no_demo_wording(self):
         page = notify.build_page(self.store, SettingsContext())
-        self.assertFalse([w.text() for w in page.findChildren(QLabel) if "демо" in w.text().lower()])
+        self.assertFalse(
+            [w.text() for w in page.findChildren(QLabel) if "демо" in w.text().lower()]
+        )
 
     def test_reset_section_and_search(self):
         self.store.set("notify.done_z", True)

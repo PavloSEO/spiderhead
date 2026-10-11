@@ -36,7 +36,9 @@ from ..ui.kit import UNAVAILABLE, StatePanel
 WAITING_ISSUE = (
     942  # core gap: project-less crawl run log and per-host rate limit (code only, never shown)
 )
-COMPACT_WIDTH = 1000  # below this the toolbar moves Очистить and Сохранить как проект into the overflow menu
+COMPACT_WIDTH = (
+    1000  # below this the toolbar moves Очистить and Сохранить как проект into the overflow menu
+)
 CHECK_TABS = (
     "Внутренние",
     "Внешние",
@@ -85,7 +87,16 @@ COLUMNS = (
     ("Глубина", 72),
 )
 COLUMN_MIN = 80  # stretch columns never shrink below this; the header scrolls sideways instead
-DETAIL_TABS = ("Сведения", "Входящие", "Исходящие", "Изображения", "Ресурсы", "Сниппет", "Исходник", "HTTP-заголовки")
+DETAIL_TABS = (
+    "Сведения",
+    "Входящие",
+    "Исходящие",
+    "Изображения",
+    "Ресурсы",
+    "Сниппет",
+    "Исходник",
+    "HTTP-заголовки",
+)
 DETAIL_FIELDS = (("Адрес", "Код ответа", "Индексация"), ("Title", "Глубина", "Время ответа"))
 DEFAULT_DETAILS = "Сведения появятся, когда будет выбран адрес краула"
 DEFAULT_STATUS = "Без проекта · данные краула недоступны"
@@ -207,7 +218,9 @@ class CrawlerScreen(QWidget):
         row = QHBoxLayout(self._note)
         row.setContentsMargins(12, 10, 12, 10)
         row.setSpacing(10)
-        row.addWidget(MaterialIconLabel("info", 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop)
+        row.addWidget(
+            MaterialIconLabel("info", 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop
+        )
         text = QLabel(
             trf(
                 "<b>{title}</b> {text}",
@@ -322,7 +335,9 @@ class CrawlerScreen(QWidget):
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll.setWidget(header)
-        scroll.setFixedHeight(header.sizeHint().height() + scroll.horizontalScrollBar().sizeHint().height())
+        scroll.setFixedHeight(
+            header.sizeHint().height() + scroll.horizontalScrollBar().sizeHint().height()
+        )
         return scroll
 
     def _overview(self):

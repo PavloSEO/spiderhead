@@ -10,7 +10,16 @@ from __future__ import annotations
 from pathlib import Path
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QStackedWidget, QToolButton, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QStackedWidget,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .. import theming
 from ..i18n import tr
@@ -55,7 +64,9 @@ class SemImportScreen(Screen):
         root.addWidget(self._build_bar())
         self.stack = QStackedWidget()
         root.addWidget(self.stack, 1)
-        self.empty = no_project_panel(host, "Откройте проект, чтобы импортировать или выгрузить его семантическое ядро.")
+        self.empty = no_project_panel(
+            host, "Откройте проект, чтобы импортировать или выгрузить его семантическое ядро."
+        )
         self.body = QWidget()
         body = QHBoxLayout(self.body)
         body.setContentsMargins(0, 0, 0, 0)
@@ -88,7 +99,10 @@ class SemImportScreen(Screen):
         layout.addWidget(title)
         layout.addSpacing(12)
         self.mode_buttons = {}
-        for key, icon, label in (("import", "upload_file", "Импорт"), ("export", "download", "Экспорт")):
+        for key, icon, label in (
+            ("import", "upload_file", "Импорт"),
+            ("export", "download", "Экспорт"),
+        ):
             button = QToolButton()
             button.setProperty("pill", "group")
             button.setCheckable(True)
@@ -115,25 +129,41 @@ class SemImportScreen(Screen):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(12)
         layout.addWidget(_overline("Файл"))
-        layout.addWidget(_waiting_line("CSV (UTF-8 / cp1251, «;» или «,») или XLSX. Выбор файла пока недоступен.", ""))
+        layout.addWidget(
+            _waiting_line(
+                "CSV (UTF-8 / cp1251, «;» или «,») или XLSX. Выбор файла пока недоступен.", ""
+            )
+        )
         layout.addWidget(_overline("Сопоставление колонок"))
-        layout.addWidget(_waiting_line("Колонки сопоставляются после того, как ядро разберёт файл.", ""))
+        layout.addWidget(
+            _waiting_line("Колонки сопоставляются после того, как ядро разберёт файл.", "")
+        )
         layout.addStretch(1)
         self.import_preview = StatePanel(
-            "waiting", "Превью недоступно",
-            "Ядро пока не возвращает разобранные строки файла до импорта.", issue=IO_ISSUE,
-            hint="Разбор файла и превью импорта, сопоставление колонок, сводка дублей до записи")
+            "waiting",
+            "Превью недоступно",
+            "Ядро пока не возвращает разобранные строки файла до импорта.",
+            issue=IO_ISSUE,
+            hint="Разбор файла и превью импорта, сопоставление колонок, сводка дублей до записи",
+        )
         self.export_side = QWidget()
         export = QVBoxLayout(self.export_side)
         export.setContentsMargins(0, 0, 0, 0)
         export.setSpacing(12)
         export.addWidget(_overline("Что выгрузить"))
-        export.addWidget(_waiting_line("Формат, объём и состав файла выбираются, когда ядро отдаст счётчики.", ""))
+        export.addWidget(
+            _waiting_line(
+                "Формат, объём и состав файла выбираются, когда ядро отдаст счётчики.", ""
+            )
+        )
         export.addStretch(1)
         self.export_preview = StatePanel(
-            "waiting", "Структура файла недоступна",
-            "Ядро пока не возвращает состав и число строк выгрузки до записи файла.", issue=IO_ISSUE,
-            hint="Выгрузка по объёму и формату со счётчиками до записи")
+            "waiting",
+            "Структура файла недоступна",
+            "Ядро пока не возвращает состав и число строк выгрузки до записи файла.",
+            issue=IO_ISSUE,
+            hint="Выгрузка по объёму и формату со счётчиками до записи",
+        )
         self.project_line = QLabel()
         self.project_line.setProperty("text_style", "meta")
         self.side_layout.addWidget(self.import_side)

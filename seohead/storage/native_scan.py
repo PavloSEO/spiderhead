@@ -238,9 +238,9 @@ def _frozen_header_config(config: dict[str, Any]) -> dict[str, Any]:
 def read_effective_config(con: sqlite3.Connection) -> dict[str, Any]:
     """Restore validated analysis thresholds without changing the frozen header."""
     config = json.loads(con.execute("SELECT config_json FROM scan WHERE singleton=1").fetchone()[0])
-    items = list(con.execute(
-        "SELECT * FROM context_items WHERE kind='analysis_asset_thresholds' LIMIT 2"
-    ))
+    items = list(
+        con.execute("SELECT * FROM context_items WHERE kind='analysis_asset_thresholds' LIMIT 2")
+    )
     if len(items) > 1:
         raise ScanError("native analysis asset thresholds context is duplicated")
     item = items[0] if items else None
@@ -963,7 +963,8 @@ class NativeScan:
                     effective = read_effective_config(reader)
                     expected_header = copy.deepcopy(expected_config)
                     if (
-                        "asset_thresholds" not in json.loads(scan["config_json"]).get("analysis", {})
+                        "asset_thresholds"
+                        not in json.loads(scan["config_json"]).get("analysis", {})
                         and reader.execute(
                             "SELECT 1 FROM context_items WHERE kind='analysis_asset_thresholds' AND item_key='run'"
                         ).fetchone()
@@ -971,11 +972,12 @@ class NativeScan:
                         expected_header["analysis"]["asset_thresholds"] = copy.deepcopy(
                             DEFAULTS["analysis"]["asset_thresholds"]
                         )
-                    if scan["config_fingerprint"] != _resume_fingerprint(
-                        expected_header, json.loads(scan["config_json"])
-                    ) or expected_config["analysis"]["asset_thresholds"] != effective["analysis"][
-                        "asset_thresholds"
-                    ]:
+                    if (
+                        scan["config_fingerprint"]
+                        != _resume_fingerprint(expected_header, json.loads(scan["config_json"]))
+                        or expected_config["analysis"]["asset_thresholds"]
+                        != effective["analysis"]["asset_thresholds"]
+                    ):
                         raise ScanError("native scan configuration differs; refusing unsafe resume")
                     row = reader.execute(
                         "SELECT payload_json FROM context_items WHERE kind='credential_context' AND item_key='run'"

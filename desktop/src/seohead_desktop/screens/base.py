@@ -10,13 +10,23 @@ from __future__ import annotations
 from PyQt5.QtWidgets import QWidget
 
 # page slot -> index in MainWindow.pages (the order the legacy pages were added in)
-SLOTS = {"work": 0, "url": 1, "issues": 2, "project": 3, "tasks": 4, "scans": 5, "inbox": 6, "reports": 7, "journal": 8,
-         "content_search": 9}
+SLOTS = {
+    "work": 0,
+    "url": 1,
+    "issues": 2,
+    "project": 3,
+    "tasks": 4,
+    "scans": 5,
+    "inbox": 6,
+    "reports": 7,
+    "journal": 8,
+    "content_search": 9,
+}
 
 
 class Screen(QWidget):
-    slot = ""            # key of SLOTS this screen occupies
-    watches = ()         # MainWindow.data_changed kinds that trigger refresh()
+    slot = ""  # key of SLOTS this screen occupies
+    watches = ()  # MainWindow.data_changed kinds that trigger refresh()
 
     def __init__(self, host):
         super().__init__()

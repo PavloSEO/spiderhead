@@ -126,9 +126,7 @@ _SECRET_PREFIXES = (
 
 
 def _catalogue(descriptor):
-    if not isinstance(descriptor, Mapping) or not isinstance(
-        descriptor.get("settings"), list
-    ):
+    if not isinstance(descriptor, Mapping) or not isinstance(descriptor.get("settings"), list):
         raise TypeError("crawl-describe-settings must return a settings list")
     result = {}
     for item in descriptor["settings"]:
@@ -155,9 +153,7 @@ def _unavailable_reason(path, item, input_mode, storage_backend):
         return "Core setting type changed; this Desktop editor must be updated"
     if path in _LIST_ONLY and input_mode != "list":
         return "Only available for an explicit URL list; not a site crawl"
-    if (
-        path in _SQLITE_ONLY or path.startswith("storage.")
-    ) and storage_backend != "sqlite":
+    if (path in _SQLITE_ONLY or path.startswith("storage.")) and storage_backend != "sqlite":
         return "Requires the native retained SQLite route"
     return ""
 
@@ -210,14 +206,9 @@ def _validate_value(path, value, expected):
         minimum, maximum = bounds
         if value < minimum or (maximum is not None and value > maximum):
             raise ValueError(f"{path}: outside Desktop admission bounds")
-        if (
-            path in {"http.timeout_seconds", "rendering.browser.device_pixel_ratio"}
-            and value == 0
-        ):
+        if path in {"http.timeout_seconds", "rendering.browser.device_pixel_ratio"} and value == 0:
             raise ValueError(f"{path}: must be positive")
-    if expected == "str" and (
-        len(value) > 4096 or any(char in value for char in "\r\n\x00")
-    ):
+    if expected == "str" and (len(value) > 4096 or any(char in value for char in "\r\n\x00")):
         raise ValueError(f"{path}: requires a bounded single-line value")
     if expected == "list":
         if len(value) > 256 or any(
@@ -269,11 +260,7 @@ def validate_overrides(
             descriptor, input_mode=input_mode, storage_backend=storage_backend
         )
     }
-    values = {
-        path: deepcopy(row["default"])
-        for path, row in fields.items()
-        if row["editable"]
-    }
+    values = {path: deepcopy(row["default"]) for path, row in fields.items() if row["editable"]}
     validated = {}
     for incoming, is_override in ((base_values or {}, False), (overrides, True)):
         for path, value in incoming.items():
@@ -300,21 +287,15 @@ def validate_overrides(
         values.get("rendering.browser.viewport_height", 0),
     )
     if bool(width) != bool(height):
-        raise ValueError(
-            "rendering.browser viewport width and height must be set together"
-        )
+        raise ValueError("rendering.browser viewport width and height must be set together")
     if values.get("rendering.browser.engine") == "firefox" and values.get(
         "rendering.browser.mobile_emulation"
     ):
-        raise ValueError(
-            "rendering.browser.engine firefox cannot enable mobile_emulation"
-        )
+        raise ValueError("rendering.browser.engine firefox cannot enable mobile_emulation")
     if values.get("rendering.rendered_links.crawl") and not values.get(
         "rendering.rendered_links.store"
     ):
-        raise ValueError(
-            "rendering.rendered_links.crawl requires retained route evidence"
-        )
+        raise ValueError("rendering.rendered_links.crawl requires retained route evidence")
     if values.get("resources.fetch") and storage_backend != "sqlite":
         raise ValueError("resources.fetch requires native SQLite retention")
     return validated

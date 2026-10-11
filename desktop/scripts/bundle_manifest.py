@@ -62,9 +62,13 @@ def desktop_identity(source: Path, *, require_clean: bool = True) -> dict:
     dirty = bool(_run("git", "status", "--porcelain", cwd=root))
     if dirty and require_clean:
         raise ValueError("desktop release source must be a clean Git checkout")
-    names = subprocess.check_output(
-        ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], cwd=root
-    ).decode("utf-8").split("\0")
+    names = (
+        subprocess.check_output(
+            ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], cwd=root
+        )
+        .decode("utf-8")
+        .split("\0")
+    )
     entries = []
     for name in sorted(set(filter(None, names))):
         path = root / name
@@ -91,7 +95,9 @@ def verify_import_sources(core_source: Path, desktop_source: Path) -> None:
     for package, path in expected.items():
         spec = importlib.util.find_spec(package)
         if spec is None or spec.origin is None or Path(spec.origin).resolve() != path.resolve():
-            raise ValueError(f"build environment imports {package} from a different source; install the selected checkout into this environment")
+            raise ValueError(
+                f"build environment imports {package} from a different source; install the selected checkout into this environment"
+            )
 
 
 def _sha256_file(path: Path) -> str:
@@ -118,8 +124,12 @@ def _inventory(root: Path) -> list[dict]:
 
 
 def create_manifest(
-    core_source: Path, output: Path, platform: str,
-    desktop_source: Path | None = None, *, preview: bool = False,
+    core_source: Path,
+    output: Path,
+    platform: str,
+    desktop_source: Path | None = None,
+    *,
+    preview: bool = False,
 ) -> dict:
     payload = {
         "schema": "seohead.desktop.core-manifest.v1",
@@ -160,8 +170,10 @@ def finalize_manifest(manifest: Path, cli: Path, agent: Path | None = None) -> d
     payload = json.loads(manifest.read_text(encoding="utf-8"))
     core = _payload(cli.parent, cli, manifest.parent)
     payload["core"].update(
-        cli_relpath=core["executable_relpath"], cli_sha256=core["executable_sha256"],
-        root_relpath=core["root_relpath"], inventory=core["inventory"],
+        cli_relpath=core["executable_relpath"],
+        cli_sha256=core["executable_sha256"],
+        root_relpath=core["root_relpath"],
+        inventory=core["inventory"],
     )
     if agent is not None:
         payload["agent"] = _payload(agent.parent, agent, manifest.parent)
@@ -185,7 +197,11 @@ def cache_key(manifest: Path, component: str) -> str:
     inputs = {"platform": payload["platform"], "environment": payload["build_environment"]}
     inputs["source"] = payload["core"] if component == "core" else payload["desktop"]
     # A build-contract change invalidates every component, including core caches.
-    inputs["packaging"] = [entry for entry in payload["desktop"]["inventory"] if entry["path"].startswith(("scripts/", "packaging/"))]
+    inputs["packaging"] = [
+        entry
+        for entry in payload["desktop"]["inventory"]
+        if entry["path"].startswith(("scripts/", "packaging/"))
+    ]
     return hashlib.sha256(json.dumps(inputs, sort_keys=True).encode("utf-8")).hexdigest()[:24]
 
 
@@ -216,7 +232,9 @@ def main() -> int:
             if args.desktop_source is None:
                 parser.error("--verify-imports requires --desktop-source")
             verify_import_sources(args.core_source, args.desktop_source)
-        create_manifest(args.core_source, args.output, args.platform, args.desktop_source, preview=args.preview)
+        create_manifest(
+            args.core_source, args.output, args.platform, args.desktop_source, preview=args.preview
+        )
     elif args.command == "verify-sources":
         verify_import_sources(args.core_source, args.desktop_source)
         verify_sources(args.manifest, args.core_source, args.desktop_source)

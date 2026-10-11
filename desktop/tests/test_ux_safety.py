@@ -16,7 +16,19 @@ class _OwnedManager:
     active_count = 0
 
     def __init__(self, project):
-        self.rows = [{"id": key, "project": project, "project_uuid": "p", "observer_run_id": "core-" + key, "core_run_id": "core-" + key, "kind": "crawl", "state": "running", "output": "preserved " + key} for key in ("A", "B")]
+        self.rows = [
+            {
+                "id": key,
+                "project": project,
+                "project_uuid": "p",
+                "observer_run_id": "core-" + key,
+                "core_run_id": "core-" + key,
+                "kind": "crawl",
+                "state": "running",
+                "output": "preserved " + key,
+            }
+            for key in ("A", "B")
+        ]
         self.stopped = []
         self.resumed = []
 
@@ -32,7 +44,17 @@ class _OwnedManager:
 
     def resume(self, **arguments):
         self.resumed.append(arguments)
-        self.rows.append({"id": "R", "project": arguments["project"], "project_uuid": "p", "observer_run_id": "core-R", "state": "queued", "resume_path": arguments["artifact"], "kind": "resume"})
+        self.rows.append(
+            {
+                "id": "R",
+                "project": arguments["project"],
+                "project_uuid": "p",
+                "observer_run_id": "core-R",
+                "state": "queued",
+                "resume_path": arguments["artifact"],
+                "kind": "resume",
+            }
+        )
         return "R"
 
     def observe(self, *_args):
@@ -57,11 +79,16 @@ class UXSafetyTests(unittest.TestCase):
     def open_fake_project(self, name):
         self.window.refresh_project = lambda: None
         self.window.load_crawl_descriptor = lambda: None
-        self.window.project_loaded({"path": "/" + name, "project": {"project_uuid": name, "site": {"host": name}}}, self.window.read_generation)
+        self.window.project_loaded(
+            {"path": "/" + name, "project": {"project_uuid": name, "site": {"host": name}}},
+            self.window.read_generation,
+        )
 
     def test_both_inbox_drafts_are_scoped_and_previous_detail_is_cleared(self):
         self.open_fake_project("A")
-        self.window.load_inbox({"revision": 4, "entries": [{"id": "old-A", "text": "only A", "kind": "note"}]})
+        self.window.load_inbox(
+            {"revision": 4, "entries": [{"id": "old-A", "text": "only A", "kind": "note"}]}
+        )
         panel = self.window.project_panels.panel("inbox")
         self.window.note_input.setText("main draft A")
         panel.note.setPlainText("panel draft A")
@@ -96,7 +123,12 @@ class UXSafetyTests(unittest.TestCase):
         panel = self.window.project_panels.panel("inbox")
         self.window.note_input.setText("sent")
         panel.note.setPlainText("other unsent draft")
-        pending = {"key": self.window.note_project_key(), "source": "main", "text": "sent", "kind": "note"}
+        pending = {
+            "key": self.window.note_project_key(),
+            "source": "main",
+            "text": "sent",
+            "kind": "note",
+        }
         self.window._pending_note = pending
         self.window.read_project("/not-opened-while-pending")
         self.assertEqual(self.window.notice.context, "inbox-submit")
@@ -113,9 +145,16 @@ class UXSafetyTests(unittest.TestCase):
         self.window.load_inbox({"revision": 1, "entries": []})
         panel = self.window.project_panels.panel("inbox")
         panel.note.setPlainText("sent from the panel")
-        pending = {"key": self.window.note_project_key(), "source": "project", "text": "sent from the panel", "kind": "note"}
+        pending = {
+            "key": self.window.note_project_key(),
+            "source": "project",
+            "text": "sent from the panel",
+            "kind": "note",
+        }
         self.window._pending_note = pending
-        self.assertEqual(panel.note.toPlainText(), "sent from the panel")  # nothing cleared while the write is pending
+        self.assertEqual(
+            panel.note.toPlainText(), "sent from the panel"
+        )  # nothing cleared while the write is pending
         self.window.note_saved({}, pending)
         self.assertEqual(panel.note.toPlainText(), "")
         self.assertEqual(panel.note_status.text(), "Заметка сохранена ядром")
@@ -126,7 +165,14 @@ class UXSafetyTests(unittest.TestCase):
         manager = self.window.scan_manager = _OwnedManager(self.window.project_directory)
         self.window.managed_scan_changed(manager.rows[-1])
         self.window.choose_owned_run("B")
-        self.window.present_observed_runs([{"id": "core-A", "state": "running"}, {"id": "core-B", "state": "running"}, {"id": "external", "state": "running"}], None)
+        self.window.present_observed_runs(
+            [
+                {"id": "core-A", "state": "running"},
+                {"id": "core-B", "state": "running"},
+                {"id": "external", "state": "running"},
+            ],
+            None,
+        )
         self.window.show_observed_run(self.window.activity_model.index(0, 0), None)
         self.window.cancel_active_work()
         self.assertEqual(manager.stopped, ["A"])
@@ -175,18 +221,31 @@ class UXSafetyTests(unittest.TestCase):
             self.window.load_crawl_descriptor = lambda: None
             self.window.crawl_descriptor = None
             errors = []
+
             def inspect():
                 dialog = self.app.activeModalWidget()
                 try:
                     start = dialog.findChild(QPushButton, "scanStartButton")
                     self.assertFalse(start.isEnabled())
-                    self.window.crawl_descriptor_loaded({**descriptor(), "capabilities": {"sitemap_only_retained": True, "full_site_native_sqlite": True}})
+                    self.window.crawl_descriptor_loaded(
+                        {
+                            **descriptor(),
+                            "capabilities": {
+                                "sitemap_only_retained": True,
+                                "full_site_native_sqlite": True,
+                            },
+                        }
+                    )
                     approval = dialog.findChild(QCheckBox, "scanLargeApproval")
                     approval.click()
                     self.assertTrue(start.isEnabled())
                     dialog.findChild(QToolButton, "scanSource_sitemap").click()
                     field = dialog.findChild(QLineEdit, "scanSitemapUrl")
-                    for value in ("https://fixture.test/sitemap.xml#bad", "https://fixture.test:wrong/sitemap.xml", "https://fixture.test/" + "a" * 4096):
+                    for value in (
+                        "https://fixture.test/sitemap.xml#bad",
+                        "https://fixture.test:wrong/sitemap.xml",
+                        "https://fixture.test/" + "a" * 4096,
+                    ):
                         field.setText(value)
                         field.textEdited.emit(value)
                         approval.setChecked(True)
@@ -202,6 +261,7 @@ class UXSafetyTests(unittest.TestCase):
                     errors.append(exc)
                 finally:
                     dialog.reject()
+
             QTimer.singleShot(20, inspect)
             self.window.scan_preview()
             if errors:

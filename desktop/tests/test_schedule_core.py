@@ -19,10 +19,15 @@ def defaults(**changes):
 
 
 def show_answer(**changes):
-    answer = {"ok": True, "revision": 3, "settings": {**defaults(), "format": "seohead.schedule.v1", "project_uuid": "u"},
-              "state": {"last_window": None, "last_run_at": None, "last_result": None},
-              "resume_artifact": None, "due": {"due": False, "reason": "disabled", "time_zone": "Europe/Minsk"},
-              "next_due_at": None}
+    answer = {
+        "ok": True,
+        "revision": 3,
+        "settings": {**defaults(), "format": "seohead.schedule.v1", "project_uuid": "u"},
+        "state": {"last_window": None, "last_run_at": None, "last_result": None},
+        "resume_artifact": None,
+        "due": {"due": False, "reason": "disabled", "time_zone": "Europe/Minsk"},
+        "next_due_at": None,
+    }
     answer.update(changes)
     return answer
 
@@ -47,9 +52,8 @@ class ValidateTests(unittest.TestCase):
             defaults(user_agent={"preset": "spiderhead", "custom": "bot\nX: 1"}),
         ]
         for value in bad:
-            with self.subTest(value=value):
-                with self.assertRaises(ValueError):
-                    schedule_core.validate(value)
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                schedule_core.validate(value)
 
 
 class UserAgentTests(unittest.TestCase):
@@ -59,8 +63,13 @@ class UserAgentTests(unittest.TestCase):
         self.assertNotIn("screaming", " ".join(schedule_core.USER_AGENT_PRESETS).lower())
 
     def test_custom_text_wins_over_the_preset_label(self):
-        self.assertEqual(schedule_core.user_agent_text({"preset": "bingbot", "custom": "MyAudit/1.0"}), "MyAudit/1.0")
-        self.assertEqual(schedule_core.user_agent_text({"preset": "bingbot", "custom": None}), "Bingbot")
+        self.assertEqual(
+            schedule_core.user_agent_text({"preset": "bingbot", "custom": "MyAudit/1.0"}),
+            "MyAudit/1.0",
+        )
+        self.assertEqual(
+            schedule_core.user_agent_text({"preset": "bingbot", "custom": None}), "Bingbot"
+        )
 
 
 class CommandTests(unittest.TestCase):
@@ -70,12 +79,20 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(args[:1], ["schedule-set"])
         self.assertEqual(args[args.index("--expected-revision") + 1], "3")
         self.assertEqual(args[args.index("--input") + 1], '{"settings": {"enabled": true}}')
-        self.assertEqual(schedule_core.run_due_args("/p"), ["schedule-run-due", "--directory", "/p"])
+        self.assertEqual(
+            schedule_core.run_due_args("/p"), ["schedule-run-due", "--directory", "/p"]
+        )
 
     def test_state_is_read_from_show_output(self):
-        answer = show_answer(revision=4, next_due_at="2026-10-12T01:00:00Z",
-                             state={"last_window": "2026-10-05", "last_run_at": "2026-10-05T01:00:00Z",
-                                    "last_result": [{"ok": True}, {"ok": False}]})
+        answer = show_answer(
+            revision=4,
+            next_due_at="2026-10-12T01:00:00Z",
+            state={
+                "last_window": "2026-10-05",
+                "last_run_at": "2026-10-05T01:00:00Z",
+                "last_result": [{"ok": True}, {"ok": False}],
+            },
+        )
         state = schedule_core.parse_state(answer)
         self.assertEqual(state["revision"], 4)
         self.assertEqual(state["settings"]["crawl"]["mode"], "spider")
@@ -94,7 +111,9 @@ class CommandTests(unittest.TestCase):
             return show_answer(revision=4)
 
         with self.assertRaises(ValueError):
-            schedule_core.save_schedule("seohead", "/p", 3, defaults(crawl={"max_urls": 0}), call=fake)
+            schedule_core.save_schedule(
+                "seohead", "/p", 3, defaults(crawl={"max_urls": 0}), call=fake
+            )
         self.assertEqual(calls, [])
         state = schedule_core.save_schedule("seohead", "/p", 3, defaults(enabled=True), call=fake)
         self.assertEqual(calls[0][0], "schedule-set")
@@ -102,17 +121,19 @@ class CommandTests(unittest.TestCase):
 
     def test_refusal_reports_the_core_line(self):
         import tempfile
-        script = tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False)
-        script.write("#!/bin/sh\necho 'error: schedule revision conflict' >&2\n")
-        script.close()
+
+        with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as script:
+            self.addCleanup(os.unlink, script.name)
+            script.write("#!/bin/sh\necho 'error: schedule revision conflict' >&2\n")
         os.chmod(script.name, 0o755)
-        self.addCleanup(os.unlink, script.name)
         with self.assertRaises(ValueError) as caught:
             schedule_core._call(script.name, ["schedule-set"])
         self.assertEqual(str(caught.exception), "schedule revision conflict")
 
     def test_run_due_keeps_a_failed_run_as_an_answer(self):
-        result = schedule_core.run_due("seohead", "/p", call=lambda e, a, timeout=45: {"ok": False, "ran": True, "reason": ""})
+        result = schedule_core.run_due(
+            "seohead", "/p", call=lambda e, a, timeout=45: {"ok": False, "ran": True, "reason": ""}
+        )
         self.assertEqual(result, {"ran": True, "ok": False, "reason": ""})
 
 
@@ -148,7 +169,9 @@ class RunPassTests(unittest.TestCase):
         def read(executable, directory):
             raise ValueError("unavailable")
 
-        result = tray.run_pass("seohead", ["/x"], Awake(), read=read, run=lambda e, d: {"ran": True})
+        result = tray.run_pass(
+            "seohead", ["/x"], Awake(), read=read, run=lambda e, d: {"ran": True}
+        )
         self.assertEqual(result["unavailable"], 1)
 
 

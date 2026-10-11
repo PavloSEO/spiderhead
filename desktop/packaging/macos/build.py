@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Build unsigned app/pkg artifacts in desktop/dist without installing anything."""
+
 from __future__ import annotations
 
 import argparse
@@ -33,7 +34,16 @@ def main():
     package = dist / "SEOHEAD-Desktop.pkg"
     if bundle.exists() or package.exists():
         parser.error("refusing to overwrite an existing build")
-    run("sh", desktop / "scripts/build_macos.sh", "--core-source", args.core_source.resolve(), "--output", bundle, "--python", args.python)
+    run(
+        "sh",
+        desktop / "scripts/build_macos.sh",
+        "--core-source",
+        args.core_source.resolve(),
+        "--output",
+        bundle,
+        "--python",
+        args.python,
+    )
     with tempfile.TemporaryDirectory(prefix="pkg-", dir=desktop / ".build") as temporary:
         staging = Path(temporary)
         payload, scripts = staging / "payload", staging / "scripts"
@@ -41,18 +51,49 @@ def main():
         (payload / "usr/local/bin").mkdir(parents=True)
         scripts.mkdir()
         run("ditto", bundle, payload / "Applications/SEOHEAD Desktop.app")
-        for name, destination in (("seohead", payload / "usr/local/bin/seohead"), ("postinstall", scripts / "postinstall"), ("preinstall", scripts / "preinstall")):
-            origin = desktop / "src/seohead_desktop/assets/app/seohead-cli.sh" if name == "seohead" else source / name
+        for name, destination in (
+            ("seohead", payload / "usr/local/bin/seohead"),
+            ("postinstall", scripts / "postinstall"),
+            ("preinstall", scripts / "preinstall"),
+        ):
+            origin = (
+                desktop / "src/seohead_desktop/assets/app/seohead-cli.sh"
+                if name == "seohead"
+                else source / name
+            )
             destination.write_bytes(origin.read_bytes())
             destination.chmod(0o755)
-        run("pkgbuild", "--root", payload, "--scripts", scripts, "--identifier", "tech.seohead.desktop", "--version", "0.1.0", "--install-location", "/", package)
+        run(
+            "pkgbuild",
+            "--root",
+            payload,
+            "--scripts",
+            scripts,
+            "--identifier",
+            "tech.seohead.desktop",
+            "--version",
+            "0.1.0",
+            "--install-location",
+            "/",
+            package,
+        )
     run("pkgutil", "--payload-files", package)
     if args.dmg:
         with tempfile.TemporaryDirectory(prefix="dmg-", dir=desktop / ".build") as temporary:
             staging = Path(temporary)
             run("ditto", bundle, staging / bundle.name)
             os.symlink("/Applications", staging / "Applications")
-            run("hdiutil", "create", "-volname", "SEOHEAD Desktop", "-srcfolder", staging, "-format", "UDZO", dist / "SEOHEAD-Desktop.dmg")
+            run(
+                "hdiutil",
+                "create",
+                "-volname",
+                "SEOHEAD Desktop",
+                "-srcfolder",
+                staging,
+                "-format",
+                "UDZO",
+                dist / "SEOHEAD-Desktop.dmg",
+            )
     return 0
 
 

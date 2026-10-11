@@ -10,7 +10,16 @@ from __future__ import annotations
 import shlex
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import (
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ..i18n import tr
 from ..ui.kit import PageHeader, StatePanel, unavailable_tip, waiting_badge
@@ -21,7 +30,9 @@ from .work import scrolled
 TITLES = {"seo_hreflang_check": "Проверка hreflang"}
 # Core issue that brings running from the app, batch sources and results (its hint shows in the tooltip).
 RUN_ISSUE = 998
-RUN_HINT = "Запуск инструмента из приложения, пакетный режим по списку URL и по скану, результат на экране"
+RUN_HINT = (
+    "Запуск инструмента из приложения, пакетный режим по списку URL и по скану, результат на экране"
+)
 
 
 def command_line(item, values):
@@ -74,8 +85,13 @@ class ToolRunScreen(Screen):
         if item is None:
             self.header.title.setText(tr("Инструмент"))
             self.header.set_meta("")
-            self.body.addWidget(StatePanel("empty", "Инструмент не выбран",
-                                           "Выберите инструмент в каталоге: его параметры и команда появятся здесь."))
+            self.body.addWidget(
+                StatePanel(
+                    "empty",
+                    "Инструмент не выбран",
+                    "Выберите инструмент в каталоге: его параметры и команда появятся здесь.",
+                )
+            )
             self.body.addStretch(1)
             return
         self.header.title.setText(tr(TITLES.get(item["name"], item["name"])))
@@ -84,9 +100,15 @@ class ToolRunScreen(Screen):
         self.body.addWidget(self._form(item))
         self.body.addWidget(self._batch_note())
         self.body.addWidget(self._command_card())
-        self.body.addWidget(StatePanel("waiting", "Результат появится после запуска",
-                                       "Запуск из приложения ждёт ядра. Команду можно выполнить в терминале или через MCP-агента.",
-                                       issue=RUN_ISSUE, hint=RUN_HINT))
+        self.body.addWidget(
+            StatePanel(
+                "waiting",
+                "Результат появится после запуска",
+                "Запуск из приложения ждёт ядра. Команду можно выполнить в терминале или через MCP-агента.",
+                issue=RUN_ISSUE,
+                hint=RUN_HINT,
+            )
+        )
         self.body.addStretch(1)
 
     def _clear_body(self):
@@ -137,7 +159,11 @@ class ToolRunScreen(Screen):
         note.setProperty("note", "info")
         layout = QHBoxLayout(note)
         layout.setContentsMargins(12, 8, 12, 8)
-        text = QLabel(tr("Пакетный режим (список URL, скан проекта) и опции проверки пока не работают в приложении."))
+        text = QLabel(
+            tr(
+                "Пакетный режим (список URL, скан проекта) и опции проверки пока не работают в приложении."
+            )
+        )
         text.setWordWrap(True)
         text.setProperty("text_style", "meta")
         layout.addWidget(text, 1)

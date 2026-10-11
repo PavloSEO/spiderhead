@@ -9,7 +9,16 @@ from __future__ import annotations
 
 from PyQt5.QtCore import QPointF, Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QPainter, QPen
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QHeaderView, QLabel, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .. import theming
 from ..i18n import joined, tr, trf
@@ -19,7 +28,7 @@ from .scan_common import number
 from .url_detail import clean, first_response, stamp_text
 from .url_query import CoreJob, detail_arguments, reason_text, seconds_to_ms
 
-MAX_SCANS = 12   # the selected scan and the most recent others; one core call per scan
+MAX_SCANS = 12  # the selected scan and the most recent others; one core call per scan
 COLUMNS = ("Скан", "Дата", "HTTP", "Title", "Слов", "Ответ, мс", "Изменения")
 
 
@@ -33,7 +42,12 @@ def clear_layout(layout):
 def entry_from(payload):
     """One scan's answer as the history needs it; None fields are «Нет данных», not zero."""
     if not isinstance(payload, dict) or payload.get("ok") is not True:
-        return {"state": "error", "text": reason_text(payload) if isinstance(payload, dict) else tr("Ядро не выполнило запрос")}
+        return {
+            "state": "error",
+            "text": reason_text(payload)
+            if isinstance(payload, dict)
+            else tr("Ядро не выполнило запрос"),
+        }
     page = payload.get("page")
     if payload.get("state") == "not_found" or not isinstance(page, dict):
         return {"state": "missing"}
@@ -60,10 +74,20 @@ def changes(entry, previous):
         return tr("Первое появление в выборке")
     parts = []
     if entry["status"] != previous["status"]:
-        parts.append(trf("Ответ {now} (было {was})", now=entry["status"] or tr("Нет данных"), was=previous["status"] or tr("Нет данных")))
+        parts.append(
+            trf(
+                "Ответ {now} (было {was})",
+                now=entry["status"] or tr("Нет данных"),
+                was=previous["status"] or tr("Нет данных"),
+            )
+        )
     if entry["title"] != previous["title"]:
         parts.append(tr("Title изменён"))
-    if entry["words"] is not None and previous["words"] is not None and entry["words"] != previous["words"]:
+    if (
+        entry["words"] is not None
+        and previous["words"] is not None
+        and entry["words"] != previous["words"]
+    ):
         delta = entry["words"] - previous["words"]
         parts.append(trf("{d} слов", d=f"{delta:+,}".replace(",", " ")))
     return joined(" · ", parts) or tr("Без значимых изменений")
@@ -88,7 +112,12 @@ class Sparkline(QWidget):
         low = min(v for _i, v in known)
         span = (max(v for _i, v in known) - low) or 1
         last = len(self.values) - 1 or 1
-        points = {i: QPointF(3 + i * (self.width() - 6) / last, 4 + (self.height() - 8) * (1 - (v - low) / span)) for i, v in known}
+        points = {
+            i: QPointF(
+                3 + i * (self.width() - 6) / last, 4 + (self.height() - 8) * (1 - (v - low) / span)
+            )
+            for i, v in known
+        }
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         pen = QPen(QColor(theming.roles()["primary"]))
@@ -126,7 +155,7 @@ class Metric(QFrame):
 
 
 class HistoryPage(QWidget):
-    counted = pyqtSignal(object)   # number of scans in the history (the tab counter)
+    counted = pyqtSignal(object)  # number of scans in the history (the tab counter)
 
     def __init__(self, ctx, parent=None):
         super().__init__(parent)
@@ -146,8 +175,17 @@ class HistoryPage(QWidget):
         strip = QHBoxLayout(self.strip_box)
         strip.setContentsMargins(0, 0, 0, 0)
         strip.setSpacing(16)
-        self.metrics = {key: Metric(tr(caption), "meta" if key == "in" else "section", sparkline=key in ("words", "ms"))
-                        for key, caption in (("in", "Входящих ссылок"), ("words", "Слов в контенте"), ("ms", "Ответ, мс"), ("stable", "Стабильность"))}
+        self.metrics = {
+            key: Metric(
+                tr(caption), "meta" if key == "in" else "section", sparkline=key in ("words", "ms")
+            )
+            for key, caption in (
+                ("in", "Входящих ссылок"),
+                ("words", "Слов в контенте"),
+                ("ms", "Ответ, мс"),
+                ("stable", "Стабильность"),
+            )
+        }
         for metric in self.metrics.values():
             strip.addWidget(metric, 1)
         self.metrics["in"].value.setText(tr("Недоступно в этой версии ядра"))
@@ -204,7 +242,11 @@ class HistoryPage(QWidget):
 
     def _scans(self):
         rows = getattr(self.ctx.host_ref, "scan_model", None)
-        rows = [row for row in (rows.rows if rows is not None else []) if isinstance(row.get("path"), str)]
+        rows = [
+            row
+            for row in (rows.rows if rows is not None else [])
+            if isinstance(row.get("path"), str)
+        ]
         selected = next((row for row in rows if row["path"] == self.ctx.scan), None)
         if selected is None and self.ctx.scan:
             source = (self.ctx.detail or {}).get("source") or {}
@@ -221,7 +263,10 @@ class HistoryPage(QWidget):
         if len(self.entries) >= len(self.scans):
             return self._render()
         self._render()
-        self.job.start(detail_arguments(self.scans[len(self.entries)]["path"], self.ctx.url), ("hist", self.generation))
+        self.job.start(
+            detail_arguments(self.scans[len(self.entries)]["path"], self.ctx.url),
+            ("hist", self.generation),
+        )
 
     def _done(self, token, payload):
         if token != ("hist", self.generation):
@@ -247,12 +292,22 @@ class HistoryPage(QWidget):
             failed = [entry for entry in self.entries if entry["state"] == "error"]
             if failed and not self.job.busy:
                 return self._show("error", tr("Не удалось прочитать историю"), failed[-1]["text"])
-            return self._show("loading", tr("Читаю историю URL…"), trf("Скан {n} из {total}", n=len(self.entries) + 1, total=len(self.scans)))
+            return self._show(
+                "loading",
+                tr("Читаю историю URL…"),
+                trf("Скан {n} из {total}", n=len(self.entries) + 1, total=len(self.scans)),
+            )
         if not any(entry["state"] == "ok" for entry in self.entries):
             failed = [entry for entry in self.entries if entry["state"] == "error"]
             if failed:
                 return self._show("error", tr("Не удалось прочитать историю"), failed[-1]["text"])
-            return self._show("empty", tr("В прочитанных сканах нет этого URL"), tr("Этот адрес не найден в прочитанных сканах. Другие сканы проекта могли остаться за пределами выборки."))
+            return self._show(
+                "empty",
+                tr("В прочитанных сканах нет этого URL"),
+                tr(
+                    "Этот адрес не найден в прочитанных сканах. Другие сканы проекта могли остаться за пределами выборки."
+                ),
+            )
         self._show("table")
         self._fill_table()
 
@@ -296,9 +351,19 @@ class HistoryPage(QWidget):
         self._set_metrics()
         notes = []
         if self.total_scans > len(self.scans):
-            notes.append(trf("Показано {shown} из {total} сканов: выбранный и самые новые. Изменения сравниваются только внутри этой выборки.", shown=len(self.scans), total=self.total_scans))
-        if any(entry.get("status") is not None and entry["status"] >= 500 for entry in self.entries):
-            notes.append(tr("Ответ 5xx в скане: время и слова там не сохранены — «Нет данных», а не ноль."))
+            notes.append(
+                trf(
+                    "Показано {shown} из {total} сканов: выбранный и самые новые. Изменения сравниваются только внутри этой выборки.",
+                    shown=len(self.scans),
+                    total=self.total_scans,
+                )
+            )
+        if any(
+            entry.get("status") is not None and entry["status"] >= 500 for entry in self.entries
+        ):
+            notes.append(
+                tr("Ответ 5xx в скане: время и слова там не сохранены — «Нет данных», а не ноль.")
+            )
         self.note.setText(joined("\n", notes))
         self.note.setVisible(bool(notes))
 
@@ -310,7 +375,9 @@ class HistoryPage(QWidget):
         last_ms = next((m for m in reversed(ms) if m is not None), None)
         self.metrics["words"].value.setText(number(last_words) or tr("Нет данных"))
         self.metrics["words"].spark.set_values(words)
-        self.metrics["ms"].value.setText(number(round(last_ms)) if last_ms is not None else tr("Нет данных"))
+        self.metrics["ms"].value.setText(
+            number(round(last_ms)) if last_ms is not None else tr("Нет данных")
+        )
         self.metrics["ms"].spark.set_values(ms)
         stable = sum(1 for entry in self.entries if entry.get("status") == 200)
         self.metrics["stable"].value.setText(f"{stable} / {len(self.entries)}")

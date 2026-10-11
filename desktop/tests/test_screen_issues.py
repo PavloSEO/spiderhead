@@ -38,7 +38,9 @@ class IssuesBase(unittest.TestCase):
         i18n.set_language("ru")
         self.host = FakeHost()
         self.host.opened = []
-        self.host.open_url_filtered = lambda label, filters: self.host.opened.append((label, filters))
+        self.host.open_url_filtered = lambda label, filters: self.host.opened.append(
+            (label, filters)
+        )
         self.host.resume_selected_scan = lambda: None
         self.scan = fixture("scan_row_shop_findings.json")
         self.host.scan_model.rows = [self.scan]
@@ -53,7 +55,9 @@ class IssuesBase(unittest.TestCase):
         self.screen.deleteLater()
 
     def texts(self):
-        return [w.text() for w in self.screen.findChildren(QLabel)] + [b.text() for b in self.screen.findChildren(QPushButton)]
+        return [w.text() for w in self.screen.findChildren(QLabel)] + [
+            b.text() for b in self.screen.findChildren(QPushButton)
+        ]
 
 
 class IssuesTests(IssuesBase):
@@ -62,7 +66,9 @@ class IssuesTests(IssuesBase):
         self.assertTrue(findings["truncated"])
         pill, _label = self.screen.pills["critical"]
         self.assertIn(str(findings["by_severity"]["critical"]), pill.text())
-        self.assertIn("4 272", self.screen.pills["all"][0].text().replace("\u202f", " ").replace("\xa0", " "))
+        self.assertIn(
+            "4 272", self.screen.pills["all"][0].text().replace("\u202f", " ").replace("\xa0", " ")
+        )
         self.assertEqual(self.screen.list_waiting.property("waiting_issue"), 981)
 
     def test_list_holds_only_checks_of_the_sample_and_filters_by_severity(self):
@@ -114,13 +120,17 @@ class IssuesTests(IssuesBase):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         self.assertGreater(len(module.CHECKS), 100)
-        self.assertEqual([code for code in module.CHECKS if check_name(code) == "Другая проверка"], [])
+        self.assertEqual(
+            [code for code in module.CHECKS if check_name(code) == "Другая проверка"], []
+        )
 
     def test_no_issue_numbers_and_no_service_footer_on_screen(self):
         self.screen.row_buttons[next(iter(self.screen.row_buttons))].click()
         self.app.processEvents()
         widgets = self.screen.findChildren(QLabel) + self.screen.findChildren(QPushButton)
-        shown = " ".join(w.text() + " " + w.toolTip() for w in widgets) + " " + self.screen.foot.text()
+        shown = (
+            " ".join(w.text() + " " + w.toolTip() for w in widgets) + " " + self.screen.foot.text()
+        )
         self.assertFalse(re.search(r"#\d{3}", shown), shown)
         self.assertNotIn("core:", shown)
         self.assertNotIn(self.scan["uuid"][:8], shown)
@@ -129,8 +139,13 @@ class IssuesTests(IssuesBase):
     def test_core_text_is_translated_and_raw_text_only_in_the_collapsed_block(self):
         findings = self.scan["evidence"]["findings"]
         for item in findings["items"]:
-            self.assertFalse(re.search(r"[A-Za-z]{5,} [a-z]{3,} [a-z]{3,}", message_ru(item["message"])), item["message"])
-        self.assertEqual(message_ru("Page returns a 4xx response (broken page)"), "Битая страница, ответ 4xx")
+            self.assertFalse(
+                re.search(r"[A-Za-z]{5,} [a-z]{3,} [a-z]{3,}", message_ru(item["message"])),
+                item["message"],
+            )
+        self.assertEqual(
+            message_ru("Page returns a 4xx response (broken page)"), "Битая страница, ответ 4xx"
+        )
         self.assertIn("языке ядра", message_ru("Some phrase nobody translated"))
         self.screen.row_buttons["BROKEN_PAGE_4XX"].click()
         self.app.processEvents()
@@ -164,13 +179,22 @@ class IssuesTests(IssuesBase):
         self.assertEqual(panel.kind, "partial")
 
     def test_measured_zero_is_a_good_outcome(self):
-        self.scan["evidence"]["findings"] = {"state": "available", "total": 0, "by_severity": {}, "items": []}
+        self.scan["evidence"]["findings"] = {
+            "state": "available",
+            "total": 0,
+            "by_severity": {},
+            "items": [],
+        }
         self.screen.refresh()
         panel = self.screen.state_holder.findChild(StatePanel)
         self.assertEqual(panel.title.text(), "Проблем не найдено")
         skipped = len(self.scan["evidence"].get("skipped_checks") or [])
-        badges = [label.text() for label in panel.findChildren(QLabel) if label.property("badge") == "mut"]
-        self.assertEqual(badges, [f"{skipped} не измерялось"])  # measured count of checks that did not run, never «0 проблем»
+        badges = [
+            label.text() for label in panel.findChildren(QLabel) if label.property("badge") == "mut"
+        ]
+        self.assertEqual(
+            badges, [f"{skipped} не измерялось"]
+        )  # measured count of checks that did not run, never «0 проблем»
 
     def test_no_project_and_no_scan(self):
         self.host.project_directory = None

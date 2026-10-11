@@ -29,13 +29,9 @@ class IconTests(unittest.TestCase):
         before = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
         for path in paths:
             engine = _SvgEngine(path.read_bytes(), "#49454F")
-            self.assertTrue(
-                all(r.isValid() for r in engine.renderers.values()), path.name
-            )
+            self.assertTrue(all(r.isValid() for r in engine.renderers.values()), path.name)
             for scale in (1, 1.5, 2, 3):
-                pixmap = engine.scaledPixmap(
-                    QSize(24, 24), QIcon.Normal, QIcon.Off, scale
-                )
+                pixmap = engine.scaledPixmap(QSize(24, 24), QIcon.Normal, QIcon.Off, scale)
                 self.assertEqual(pixmap.width(), round(24 * scale))
                 self.assertEqual(pixmap.devicePixelRatio(), scale)
                 image = pixmap.toImage()

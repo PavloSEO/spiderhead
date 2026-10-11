@@ -36,7 +36,22 @@ LAYOUT_SCHEMA = 2
 PANEL_IDS = {"navigation": "Навигация", "overview": "Сводка", "inspector": "Инспектор URL"}
 # "audit" was the id of the page now called «Проблемы»; saved tabs, prefs and agent calls may still carry it.
 VIEW_ALIASES = {"audit": "issues"}
-VIEW_IDS = ("work", "url", "issues", "project", "tasks", "scans", "inbox", "reports", "journal", "compare", "content_search", "crawler", "methods", "graph")
+VIEW_IDS = (
+    "work",
+    "url",
+    "issues",
+    "project",
+    "tasks",
+    "scans",
+    "inbox",
+    "reports",
+    "journal",
+    "compare",
+    "content_search",
+    "crawler",
+    "methods",
+    "graph",
+)
 
 
 def system_reduced_motion(path=None):
@@ -63,16 +78,32 @@ def keep_on_screen(widget, screen=None):
     if not widget.isWindow() or widget.isFullScreen() or widget.isMaximized():
         return
     screens = QApplication.screens()
-    target = next((candidate for candidate in screens if candidate.availableGeometry().contains(widget.frameGeometry().center())), None) or screen or QApplication.primaryScreen()
+    target = (
+        next(
+            (
+                candidate
+                for candidate in screens
+                if candidate.availableGeometry().contains(widget.frameGeometry().center())
+            ),
+            None,
+        )
+        or screen
+        or QApplication.primaryScreen()
+    )
     if target:
         available = target.availableGeometry()
         frame = widget.frameGeometry()
         extra_width = max(0, frame.width() - widget.width())
         extra_height = max(0, frame.height() - widget.height())
-        widget.resize(min(widget.width(), max(1, available.width() - extra_width)), min(widget.height(), max(1, available.height() - extra_height)))
+        widget.resize(
+            min(widget.width(), max(1, available.width() - extra_width)),
+            min(widget.height(), max(1, available.height() - extra_height)),
+        )
         frame = widget.frameGeometry()
-        widget.move(max(available.left(), min(frame.x(), available.right() - frame.width() + 1)), max(available.top(), min(frame.y(), available.bottom() - frame.height() + 1)))
-
+        widget.move(
+            max(available.left(), min(frame.x(), available.right() - frame.width() + 1)),
+            max(available.top(), min(frame.y(), available.bottom() - frame.height() + 1)),
+        )
 
 
 class ProjectMonitor(QDockWidget):
@@ -82,8 +113,14 @@ class ProjectMonitor(QDockWidget):
         super().__init__("Монитор проекта · SEOHEAD", owner)
         self.owner = owner
         self.setObjectName("projectMonitorDock")
-        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea)
-        self.setFeatures(QDockWidget.DockWidgetClosable | QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetFloatable)
+        self.setAllowedAreas(
+            Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea
+        )
+        self.setFeatures(
+            QDockWidget.DockWidgetClosable
+            | QDockWidget.DockWidgetMovable
+            | QDockWidget.DockWidgetFloatable
+        )
         self.setAttribute(Qt.WA_DeleteOnClose, False)
         content = QWidget()
         layout = QVBoxLayout(content)
@@ -96,7 +133,9 @@ class ProjectMonitor(QDockWidget):
         self.progress = QPlainTextEdit()
         self.progress.setReadOnly(True)
         self.progress.setPlainText(owner.progress_text.toPlainText())
-        owner.progress_text.textChanged.connect(lambda: self.progress.setPlainText(owner.progress_text.toPlainText()))
+        owner.progress_text.textChanged.connect(
+            lambda: self.progress.setPlainText(owner.progress_text.toPlainText())
+        )
         self.progress.setAccessibleName("Тот же согласованный план проекта")
         splitter.addWidget(self.progress)
         self.table = QTableView()
@@ -113,11 +152,14 @@ class ProjectMonitor(QDockWidget):
         self.detail = QPlainTextEdit()
         self.detail.setReadOnly(True)
         self.detail.setPlainText(owner.activity_text.toPlainText())
-        owner.activity_text.textChanged.connect(lambda: self.detail.setPlainText(owner.activity_text.toPlainText()))
+        owner.activity_text.textChanged.connect(
+            lambda: self.detail.setPlainText(owner.activity_text.toPlainText())
+        )
         self.detail.setAccessibleName("Те же измерения выбранного запуска")
         splitter.addWidget(self.detail)
         splitter.setSizes([180, 260, 240])
         from .work_monitor import WorkMonitor
+
         self.views = QTabWidget()
         self.work_monitor = WorkMonitor()
         self.work_monitor.set_reduced_motion(owner.reduced_motion)
@@ -172,7 +214,9 @@ class ActionFinder(QDialog):
         self.search.setClearButtonEnabled(True)
         self.search.installEventFilter(self)
         layout.addWidget(self.search)
-        caption = QLabel("Выбор действия открывает нужный вид или план. Запуск скана требует подтверждения в плане.")
+        caption = QLabel(
+            "Выбор действия открывает нужный вид или план. Запуск скана требует подтверждения в плане."
+        )
         caption.setWordWrap(True)
         caption.setObjectName("metadata")
         layout.addWidget(caption)
@@ -200,9 +244,15 @@ class ActionFinder(QDialog):
         QTimer.singleShot(0, self.search.setFocus)
 
     def eventFilter(self, watched, event):
-        if watched is self.search and event.type() == QEvent.KeyPress and event.key() in {Qt.Key_Down, Qt.Key_Up}:
+        if (
+            watched is self.search
+            and event.type() == QEvent.KeyPress
+            and event.key() in {Qt.Key_Down, Qt.Key_Up}
+        ):
             step = 1 if event.key() == Qt.Key_Down else -1
-            self.results.setCurrentRow(max(0, min(self.results.count() - 1, self.results.currentRow() + step)))
+            self.results.setCurrentRow(
+                max(0, min(self.results.count() - 1, self.results.currentRow() + step))
+            )
             self.results.setFocus()
             return True
         return super().eventFilter(watched, event)
@@ -213,17 +263,23 @@ class ActionFinder(QDialog):
         for action in self.actions:
             haystack = (action["title"] + " " + action.get("keywords", "")).casefold()
             if all(term in haystack for term in terms):
-                label = action["title"] + (" · недоступно" if not action.get("enabled", True) else "")
+                label = action["title"] + (
+                    " · недоступно" if not action.get("enabled", True) else ""
+                )
                 item = QListWidgetItem(label)
                 item.setData(Qt.UserRole, action)
                 item.setToolTip(action.get("reason") or action["title"])
                 if not action.get("enabled", True):
-                    item.setForeground(self.palette().color(self.palette().Disabled, self.palette().Text))
+                    item.setForeground(
+                        self.palette().color(self.palette().Disabled, self.palette().Text)
+                    )
                 self.results.addItem(item)
         if self.results.count():
             self.results.setCurrentRow(0)
         else:
-            self.reason.setText("Ничего не найдено. Попробуйте «URL», «сравнение», «окно» или «скан».")
+            self.reason.setText(
+                "Ничего не найдено. Попробуйте «URL», «сравнение», «окно» или «скан»."
+            )
             self.open_button.setEnabled(False)
 
     def update_reason(self):

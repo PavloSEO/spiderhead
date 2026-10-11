@@ -26,13 +26,13 @@ from ...screens.scan_common import StatusBadge
 from ...settings_store import Setting
 from ..controls import Note, SettingRow, Switch
 from ..icons import material_icon
-from .helpers import group_label, keyed, page, column_stack
+from .helpers import column_stack, group_label, keyed, page
 
 ID, ICON, TITLE = "agent", "smart_toy", "Агент"
 HINT = "Что агент видит и что может делать через MCP"
 
 SCHEMA = (
-    Setting("agent.projects", "", str),           # allowed project names, one per line; empty = none
+    Setting("agent.projects", "", str),  # allowed project names, one per line; empty = none
     Setting("agent.run_scans", False, bool),
     Setting("agent.change_tasks", True, bool),
     Setting("agent.show_actions", True, bool),
@@ -40,9 +40,13 @@ SCHEMA = (
 LOG_LIMIT = 5
 UNAVAILABLE = "Недоступно в этой сборке"
 # kind -> (badge tone, label, icon); tones and icons follow the SetAgent canvas status tokens.
-KINDS = {"scan": ("info", "скан", "progress_activity"), "tasks": ("goal", "задачи", "smart_toy"),
-         "wait": ("warn", "ждёт вас", "rate_review"), "task": ("ok", "задача", "verified"),
-         "deny": ("err", "отказ", "block")}
+KINDS = {
+    "scan": ("info", "скан", "progress_activity"),
+    "tasks": ("goal", "задачи", "smart_toy"),
+    "wait": ("warn", "ждёт вас", "rate_review"),
+    "task": ("ok", "задача", "verified"),
+    "deny": ("err", "отказ", "block"),
+}
 
 
 def allowed(store):
@@ -65,7 +69,11 @@ class CheckBox(QToolButton):
         self._icon()
 
     def _icon(self, *_args):
-        self.setIcon(material_icon("check", theming.roles()["on_primary"]) if self.isChecked() else material_icon(""))
+        self.setIcon(
+            material_icon("check", theming.roles()["on_primary"])
+            if self.isChecked()
+            else material_icon("")
+        )
 
 
 class ProjectRow(QFrame):
@@ -119,8 +127,13 @@ def _projects_block(store, context):
         return box
 
     def update_count(*_args):
-        hint.setText(trf("Агент видит только отмеченные · {n} из {total}", n=sum(r.checkbox.isChecked() for r in box.rows),
-                         total=len(box.rows)))
+        hint.setText(
+            trf(
+                "Агент видит только отмеченные · {n} из {total}",
+                n=sum(r.checkbox.isChecked() for r in box.rows),
+                total=len(box.rows),
+            )
+        )
 
     for project in projects:
         row = ProjectRow(store, project)
@@ -217,14 +230,29 @@ def build_page(store, context):
     left = [
         _projects_block(store, context),
         group_label("Права"),
-        keyed(_later_switch("Запускать сканы", "С лимитами и подтверждениями проекта"), "agent.run_scans"),
-        keyed(_later_switch("Менять задачи и статусы", "Иначе — только предлагать во «Входящие»"), "agent.change_tasks"),
+        keyed(
+            _later_switch("Запускать сканы", "С лимитами и подтверждениями проекта"),
+            "agent.run_scans",
+        ),
+        keyed(
+            _later_switch("Менять задачи и статусы", "Иначе — только предлагать во «Входящие»"),
+            "agent.change_tasks",
+        ),
         SettingRow("Платные провайдеры", "Всегда спрашивать о расходе · не отключается", paid),
     ]
     right = [
-        keyed(_later_switch("Показывать действия агента", "Плашка и тосты, когда агент меняет проект"), "agent.show_actions"),
+        keyed(
+            _later_switch(
+                "Показывать действия агента", "Плашка и тосты, когда агент меняет проект"
+            ),
+            "agent.show_actions",
+        ),
         _log_block(context),
-        Note("info", "Что это меняет.", "Границы агента.<br>Права работают в ядре, а не в окне: CLI и любой MCP-клиент получают те же ограничения."),
+        Note(
+            "info",
+            "Что это меняет.",
+            "Границы агента.<br>Права работают в ядре, а не в окне: CLI и любой MCP-клиент получают те же ограничения.",
+        ),
     ]
     right[-1].setContentsMargins(0, 14, 0, 0)
     return page(column_stack(left, right))

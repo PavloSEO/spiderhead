@@ -11,7 +11,20 @@ from __future__ import annotations
 
 from importlib import import_module
 
-SECTION_IDS = ("general", "view", "scan", "core", "mcp", "sources", "agent", "notify", "keys", "data", "updates", "about")
+SECTION_IDS = (
+    "general",
+    "view",
+    "scan",
+    "core",
+    "mcp",
+    "sources",
+    "agent",
+    "notify",
+    "keys",
+    "data",
+    "updates",
+    "about",
+)
 
 
 def sections():
@@ -21,5 +34,8 @@ def sections():
 def full_schema():
     from ...settings_store import Setting
 
-    shell = (Setting("shell.display", "agent", str, choices=("agent", "simple")), Setting("shell.onboarding_done", False, bool))
+    shell = (
+        Setting("shell.display", "agent", str, choices=("agent", "simple")),
+        Setting("shell.onboarding_done", False, bool),
+    )
     return shell + tuple(setting for module in sections() for setting in module.SCHEMA)

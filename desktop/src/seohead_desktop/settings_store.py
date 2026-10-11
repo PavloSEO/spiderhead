@@ -16,11 +16,11 @@ from PyQt5.QtCore import QObject, pyqtSignal
 class Setting:
     key: str
     default: object
-    kind: type = str                # bool | int | float | str
+    kind: type = str  # bool | int | float | str
     minimum: float | None = None
     maximum: float | None = None
     choices: tuple | None = None
-    error: str = ""                 # Russian message shown under the field when validation fails
+    error: str = ""  # Russian message shown under the field when validation fails
 
     def validate(self, value):
         """Return (ok, normalised_value)."""
@@ -32,8 +32,14 @@ class Setting:
             if self.kind in (int, float):
                 if isinstance(value, bool):
                     return False, value
-                number = self.kind(str(value).replace(" ", "").replace(",", ".")) if isinstance(value, str) else self.kind(value)
-                if (self.minimum is not None and number < self.minimum) or (self.maximum is not None and number > self.maximum):
+                number = (
+                    self.kind(str(value).replace(" ", "").replace(",", "."))
+                    if isinstance(value, str)
+                    else self.kind(value)
+                )
+                if (self.minimum is not None and number < self.minimum) or (
+                    self.maximum is not None and number > self.maximum
+                ):
                     return False, value
                 return True, number
             value = str(value)

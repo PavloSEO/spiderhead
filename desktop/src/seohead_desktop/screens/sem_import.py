@@ -36,7 +36,9 @@ PREVIEW_ROWS = 20
 DELIMITERS = ",;\t"
 # Columns the core reads as the phrase (seohead/semantics/stages/import_phrases.py); it picks the first one present
 PHRASE_COLUMNS = ("norm", "phrase", "query", "фраза", "Запрос")
-NO_PHRASE_COLUMN = "В файле нет колонки norm, phrase, query, фраза или Запрос: ядро такой файл не примет"
+NO_PHRASE_COLUMN = (
+    "В файле нет колонки norm, phrase, query, фраза или Запрос: ядро такой файл не примет"
+)
 
 
 @dataclass(frozen=True)
@@ -93,14 +95,21 @@ class SemImportScreen(Screen):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 10, 16, 16)
         layout.setSpacing(16)
-        self.header = PageHeader("Импорт фраз в ядро", "Фразы из CSV добавляются в семантическое ядро проекта; уже накопленные данные сохраняются")
-        self.choose_button = self.header.add_action(QPushButton(icon("folder_open"), tr("Выбрать CSV…")))
+        self.header = PageHeader(
+            "Импорт фраз в ядро",
+            "Фразы из CSV добавляются в семантическое ядро проекта; уже накопленные данные сохраняются",
+        )
+        self.choose_button = self.header.add_action(
+            QPushButton(icon("folder_open"), tr("Выбрать CSV…"))
+        )
         self.choose_button.clicked.connect(self.choose_file)
         layout.addWidget(self.header)
 
         self.body = QStackedWidget()
         layout.addWidget(self.body, 1)
-        self.no_project = no_project_panel(host, tr("Откройте проект, чтобы загрузить фразы в его семантическое ядро"))
+        self.no_project = no_project_panel(
+            host, tr("Откройте проект, чтобы загрузить фразы в его семантическое ядро")
+        )
         self.body.addWidget(self.no_project)
 
         content = QWidget()
@@ -115,8 +124,12 @@ class SemImportScreen(Screen):
         self.preview_caption.setProperty("text_style", "section")
         right.addWidget(self.preview_caption)
         self.preview_stack = QStackedWidget()
-        self.empty = StatePanel("empty", "Файл не выбран", "Выберите CSV с колонкой norm, phrase или query: первые строки появятся здесь.",
-                                action=("Выбрать CSV…", self.choose_file))
+        self.empty = StatePanel(
+            "empty",
+            "Файл не выбран",
+            "Выберите CSV с колонкой norm, phrase или query: первые строки появятся здесь.",
+            action=("Выбрать CSV…", self.choose_file),
+        )
         self.table = QTableWidget(0, 0)
         style_table(self.table)
         self.preview_stack.addWidget(self.empty)
@@ -141,7 +154,11 @@ class SemImportScreen(Screen):
         self.file_meta.setWordWrap(True)
         self.phrase_status = QLabel("")
         self.phrase_status.setWordWrap(True)
-        self.scope_note = QLabel(tr("Ядро читает колонку фраз само: сопоставление колонок, группы из файла, дедупликация и XLSX в нём пока не сделаны."))
+        self.scope_note = QLabel(
+            tr(
+                "Ядро читает колонку фраз само: сопоставление колонок, группы из файла, дедупликация и XLSX в нём пока не сделаны."
+            )
+        )
         self.scope_note.setProperty("text_style", "meta")
         self.scope_note.setWordWrap(True)
         self.load_button = QPushButton(icon("upload"), tr("Загрузить в ядро"))
@@ -150,7 +167,14 @@ class SemImportScreen(Screen):
         self.result = QLabel("")
         self.result.setProperty("text_style", "meta")
         self.result.setWordWrap(True)
-        for widget in (self.file_title, self.file_meta, self.phrase_status, self.scope_note, self.load_button, self.result):
+        for widget in (
+            self.file_title,
+            self.file_meta,
+            self.phrase_status,
+            self.scope_note,
+            self.load_button,
+            self.result,
+        ):
             column.addWidget(widget)
         column.addStretch(1)
         return card
@@ -160,7 +184,9 @@ class SemImportScreen(Screen):
         self._sync_controls()
 
     def choose_file(self):
-        path, _filter = QFileDialog.getOpenFileName(self, tr("Выбрать CSV"), "", tr("CSV (*.csv);;Все файлы (*)"))
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Выбрать CSV"), "", tr("CSV (*.csv);;Все файлы (*)")
+        )
         if path:
             self.load_file(path)
 
@@ -176,7 +202,11 @@ class SemImportScreen(Screen):
         preview = self.preview
         self.file_title.setText(preview.name)
         self.file_meta.setText(trf("CSV · {kb} КБ", kb=f"{preview.size / 1024:.1f}"))
-        self.phrase_status.setText(tr(preview.error) if preview.error else trf("Колонка фраз: {column}", column=preview.phrase_column))
+        self.phrase_status.setText(
+            tr(preview.error)
+            if preview.error
+            else trf("Колонка фраз: {column}", column=preview.phrase_column)
+        )
         self.table.clear()
         self.table.setColumnCount(len(preview.header))
         self.table.setHorizontalHeaderLabels(list(preview.header))
@@ -206,7 +236,13 @@ class SemImportScreen(Screen):
         self.pending = False
         values = import_summary(result)
         if values:
-            self.result.setText(trf("Строк в файле: {rows} · новых фраз: {added}", rows=values["rows"], added=values["added"]))
+            self.result.setText(
+                trf(
+                    "Строк в файле: {rows} · новых фраз: {added}",
+                    rows=values["rows"],
+                    added=values["added"],
+                )
+            )
         else:
             self.result.setText(tr("Ядро приняло файл"))
         self._sync_controls()

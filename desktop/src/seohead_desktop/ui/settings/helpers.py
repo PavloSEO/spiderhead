@@ -69,7 +69,7 @@ def text_row(store, key, title, description, width=260):
 class _Columns(QWidget):
     """Two stacks of rows with equal widths; one stack below SINGLE_BELOW px so a narrow sheet never scrolls sideways."""
 
-    SINGLE_BELOW = 560   # measured: at 1440 the rows get about 605px and two columns fit; at 800 they get about 450px
+    SINGLE_BELOW = 560  # measured: at 1440 the rows get about 605px and two columns fit; at 800 they get about 450px
 
     def __init__(self, left, right):
         super().__init__()
@@ -94,7 +94,7 @@ class _Columns(QWidget):
 
     def _relayout(self):
         while self._grid.count():
-            self._grid.takeAt(0)   # detaches only; the widgets are kept
+            self._grid.takeAt(0)  # detaches only; the widgets are kept
         if self._single:
             self._grid.addWidget(self._boxes[0], 0, 0)
             self._grid.addWidget(self._boxes[1], 1, 0)

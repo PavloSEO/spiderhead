@@ -105,7 +105,11 @@ def probe_project(path):
         host = ""
         if file.stat().st_size <= 1 << 20:
             site = (json.loads(file.read_text(encoding="utf-8")) or {}).get("site")
-            host = site.get("host") if isinstance(site, dict) and isinstance(site.get("host"), str) else ""
+            host = (
+                site.get("host")
+                if isinstance(site, dict) and isinstance(site.get("host"), str)
+                else ""
+            )
         return {"status": "ok", "host": host}
     except (OSError, ValueError, AttributeError):
         return {"status": "missing", "host": ""}
@@ -124,7 +128,7 @@ def initials(label):
 
 def tilde(path):
     home = str(Path.home())
-    return "~" + path[len(home):] if path == home or path.startswith(home + "/") else path
+    return "~" + path[len(home) :] if path == home or path.startswith(home + "/") else path
 
 
 def when_text(stamp, now=None):
@@ -173,10 +177,13 @@ class ProjectModel(QAbstractListModel):
 class ProjectDelegate(QStyledItemDelegate):
     """Paints avatar, name, «host · path», status badge, last-opened time and a chevron; no widget per row."""
 
-    STATUS = {"missing": ("mut", "folder_off", "Папка не найдена"), "not_project": ("warn", "warning", "Нет project.json"),
-              "open": ("info", "check_circle", "Открыт сейчас"),
-              # the core has no per-project status yet (issue #1224): neutral pill, no invented state
-              "waiting": ("mut", "", UNAVAILABLE)}
+    STATUS = {
+        "missing": ("mut", "folder_off", "Папка не найдена"),
+        "not_project": ("warn", "warning", "Нет project.json"),
+        "open": ("info", "check_circle", "Открыт сейчас"),
+        # the core has no per-project status yet (issue #1224): neutral pill, no invented state
+        "waiting": ("mut", "", UNAVAILABLE),
+    }
 
     @classmethod
     def badge_key(cls, row):
@@ -219,7 +226,9 @@ class ProjectDelegate(QStyledItemDelegate):
         # right side, from the edge: chevron, time, status
         right = rect.right() - 16
         icon_rect = QRect(right - 18, rect.center().y() - 9, 18, 18)
-        material_icon("chevron_right", roles["on_selected"] if selected else roles["disabled_icon"]).paint(painter, icon_rect)
+        material_icon(
+            "chevron_right", roles["on_selected"] if selected else roles["disabled_icon"]
+        ).paint(painter, icon_rect)
         right = icon_rect.left() - 14
         small = QFont(option.font)
         small.setPixelSize(12)
@@ -229,8 +238,11 @@ class ProjectDelegate(QStyledItemDelegate):
         if when:
             right -= 120
             painter.setPen(QColor(roles["text_3"]))
-            painter.drawText(QRect(right, rect.top(), 120, rect.height()), Qt.AlignVCenter | Qt.AlignLeft,
-                             painter.fontMetrics().elidedText(when, Qt.ElideRight, 120))
+            painter.drawText(
+                QRect(right, rect.top(), 120, rect.height()),
+                Qt.AlignVCenter | Qt.AlignLeft,
+                painter.fontMetrics().elidedText(when, Qt.ElideRight, 120),
+            )
             right -= 14
         status = self.badge_key(row)
         if status in self.STATUS:
@@ -240,16 +252,26 @@ class ProjectDelegate(QStyledItemDelegate):
             badge_font = QFont(small)
             badge_font.setWeight(QFont.Medium)
             painter.setFont(badge_font)
-            width = min(painter.fontMetrics().horizontalAdvance(text) + inset + 12, max(60, right - rect.left() - 200))
+            width = min(
+                painter.fontMetrics().horizontalAdvance(text) + inset + 12,
+                max(60, right - rect.left() - 200),
+            )
             badge = QRectF(right - width, rect.center().y() - 11, width, 22)
             painter.setPen(Qt.NoPen)
             painter.setBrush(QColor(badges[kind][0]))
             painter.drawRoundedRect(badge, 6, 6)
             if icon_name:
-                material_icon(icon_name, badges[kind][1]).paint(painter, QRect(int(badge.left()) + 6, int(badge.center().y()) - 7, 14, 14))
+                material_icon(icon_name, badges[kind][1]).paint(
+                    painter, QRect(int(badge.left()) + 6, int(badge.center().y()) - 7, 14, 14)
+                )
             painter.setPen(QColor(badges[kind][1]))
-            painter.drawText(QRectF(badge.left() + inset, badge.top(), badge.width() - inset - 4, 22), Qt.AlignVCenter | Qt.AlignLeft,
-                             painter.fontMetrics().elidedText(text, Qt.ElideRight, int(badge.width()) - inset - 4))
+            painter.drawText(
+                QRectF(badge.left() + inset, badge.top(), badge.width() - inset - 4, 22),
+                Qt.AlignVCenter | Qt.AlignLeft,
+                painter.fontMetrics().elidedText(
+                    text, Qt.ElideRight, int(badge.width()) - inset - 4
+                ),
+            )
             right = int(badge.left()) - 14
         # texts
         left = rect.left() + 70
@@ -259,13 +281,19 @@ class ProjectDelegate(QStyledItemDelegate):
         name_font.setWeight(QFont.Medium)
         painter.setFont(name_font)
         painter.setPen(QColor(roles["on_selected"] if selected else roles["text"]))
-        painter.drawText(QRect(left, rect.top() + 10, width, 22), Qt.AlignVCenter | Qt.AlignLeft,
-                         painter.fontMetrics().elidedText(row["label"], Qt.ElideRight, width))
+        painter.drawText(
+            QRect(left, rect.top() + 10, width, 22),
+            Qt.AlignVCenter | Qt.AlignLeft,
+            painter.fontMetrics().elidedText(row["label"], Qt.ElideRight, width),
+        )
         painter.setFont(small)
         painter.setPen(QColor(roles["text_3"]))
         subtitle = " · ".join(part for part in (row["host"], tilde(row["path"])) if part)
-        painter.drawText(QRect(left, rect.top() + 32, width, 20), Qt.AlignVCenter | Qt.AlignLeft,
-                         painter.fontMetrics().elidedText(subtitle, Qt.ElideMiddle, width))
+        painter.drawText(
+            QRect(left, rect.top() + 32, width, 20),
+            Qt.AlignVCenter | Qt.AlignLeft,
+            painter.fontMetrics().elidedText(subtitle, Qt.ElideMiddle, width),
+        )
         painter.restore()
 
 
@@ -345,7 +373,9 @@ class NewProjectDialog(QDialog):
         caption.setProperty("text_style", "control")
         folder_box.addWidget(caption)
         folder_box.addLayout(folder)
-        self.folder_hint = QLabel(tr("Папки ещё нет — ядро создаст её вместе с project.json. Скан не запускается."))
+        self.folder_hint = QLabel(
+            tr("Папки ещё нет — ядро создаст её вместе с project.json. Скан не запускается.")
+        )
         self.folder_hint.setProperty("text_style", "meta")
         self.folder_hint.setWordWrap(True)
         folder_box.addWidget(self.folder_hint)
@@ -409,7 +439,9 @@ class NewProjectDialog(QDialog):
 
     def _suggest(self):
         if not self._directory_edited:
-            self.directory.setText(suggest_directory(self._base, self.target.text(), self.label.text()))
+            self.directory.setText(
+                suggest_directory(self._base, self.target.text(), self.label.text())
+            )
 
     def _normalize(self):
         text = normalize_target(self.target.text())
@@ -417,14 +449,22 @@ class NewProjectDialog(QDialog):
             self.target.setText(text)
 
     def pick_folder(self):
-        parent = QFileDialog.getExistingDirectory(self, tr("Родительская папка нового проекта"), str(self._base))
+        parent = QFileDialog.getExistingDirectory(
+            self, tr("Родительская папка нового проекта"), str(self._base)
+        )
         if parent:
-            name = Path(self.directory.text()).name or Path(suggest_directory(parent, self.target.text(), self.label.text())).name
+            name = (
+                Path(self.directory.text()).name
+                or Path(suggest_directory(parent, self.target.text(), self.label.text())).name
+            )
             self.directory.setText(str(Path(parent) / name) if name else parent)
             self._directory_edited = True
 
     def _set_invalid(self, field, message):
-        for edit, error, key in ((self.target, self.target_error, "target"), (self.directory, self.directory_error, "directory")):
+        for edit, error, key in (
+            (self.target, self.target_error, "target"),
+            (self.directory, self.directory_error, "directory"),
+        ):
             bad = bool(message) and field == key
             edit.setProperty("invalid", bad)
             polish(edit)
@@ -432,7 +472,9 @@ class NewProjectDialog(QDialog):
             error.setVisible(bad)
 
     def _fail(self, text):
-        self.failure_text.setText(f"<b>{html.escape(tr('Проект не создан.'))}</b> {html.escape(tr(text))}")
+        self.failure_text.setText(
+            f"<b>{html.escape(tr('Проект не создан.'))}</b> {html.escape(tr(text))}"
+        )
         self.failure.show()
 
     def submit(self):
@@ -444,7 +486,9 @@ class NewProjectDialog(QDialog):
             return
         self.create.setEnabled(False)
         self.create.setText(tr("Создание…"))
-        self.creator.start(self.host.core_executable, self.directory.text(), self.target.text(), self.label.text())
+        self.creator.start(
+            self.host.core_executable, self.directory.text(), self.target.text(), self.label.text()
+        )
 
     def _created(self, result):
         self.result_info = result
@@ -533,11 +577,16 @@ class StartScreen(Screen):
         self.list = ProjectList()
         self.list.setModel(self.proxy)
         card_layout.addWidget(self.list)
-        self.empty = StatePanel("empty", "Недавних проектов нет",
-                                "Откройте папку с project.json или создайте новый проект — он появится в этом списке.",
-                                action=("Новый проект", self.new_project))
+        self.empty = StatePanel(
+            "empty",
+            "Недавних проектов нет",
+            "Откройте папку с project.json или создайте новый проект — он появится в этом списке.",
+            action=("Новый проект", self.new_project),
+        )
         card_layout.addWidget(self.empty)
-        self.no_match = StatePanel("empty", "Ничего не найдено", "Измените запрос: поиск идёт по имени, домену и пути.")
+        self.no_match = StatePanel(
+            "empty", "Ничего не найдено", "Измените запрос: поиск идёт по имени, домену и пути."
+        )
         card_layout.addWidget(self.no_match)
         body.addWidget(self.card)
         self.banners = QVBoxLayout()
@@ -560,7 +609,9 @@ class StartScreen(Screen):
             self._finish_relocation()
             if self.host.project_directory and self.host.pages.currentWidget() is self:
                 self.host.leave_start()
-        if self.host.pages.currentWidget() is self:  # a hidden list is refreshed when it is shown again
+        if (
+            self.host.pages.currentWidget() is self
+        ):  # a hidden list is refreshed when it is shown again
             super()._data_changed(kind)
 
     def refresh(self):
@@ -570,16 +621,32 @@ class StartScreen(Screen):
         rows = []
         for index, item in enumerate(items):
             probe = known.get(item["path"], {"status": "checking", "host": ""})
-            rows.append({**item, **probe, "_row": index, "current": current is not None and _same(item["path"], current)})
+            rows.append(
+                {
+                    **item,
+                    **probe,
+                    "_row": index,
+                    "current": current is not None and _same(item["path"], current),
+                }
+            )
         self.model.replace(rows)
-        meta = "Открытые ранее" if self.host.display == "simple" else "Открытые ранее · агент работает с теми же проектами через MCP"
+        meta = (
+            "Открытые ранее"
+            if self.host.display == "simple"
+            else "Открытые ранее · агент работает с теми же проектами через MCP"
+        )
         self.meta.setText(tr(meta))
         self._sync_view()
         self._generation += 1
         generation = self._generation
         self.checked = not items
         if items:
-            run_background(self.host.pool, lambda: probe_all(items), lambda result: self._probed(generation, result), self)
+            run_background(
+                self.host.pool,
+                lambda: probe_all(items),
+                lambda result: self._probed(generation, result),
+                self,
+            )
 
     def _probed(self, generation, result):
         if generation != self._generation or isinstance(result, Exception):
@@ -587,7 +654,9 @@ class StartScreen(Screen):
         self._probes = result
         for row in self.model.rows:
             row.update(result.get(row["path"], {}))
-        self.model.dataChanged.emit(self.model.index(0), self.model.index(max(0, len(self.model.rows) - 1)))
+        self.model.dataChanged.emit(
+            self.model.index(0), self.model.index(max(0, len(self.model.rows) - 1))
+        )
         self.checked = True
         self._sync_view()
 
@@ -615,14 +684,19 @@ class StartScreen(Screen):
         for row in bad[:BANNER_LIMIT]:
             self.banners.addWidget(self._banner(row))
         if len(bad) > BANNER_LIMIT:
-            more = QLabel(trf("И ещё проектов с недоступной папкой: {n}", n=len(bad) - BANNER_LIMIT))
+            more = QLabel(
+                trf("И ещё проектов с недоступной папкой: {n}", n=len(bad) - BANNER_LIMIT)
+            )
             more.setProperty("text_style", "meta")
             self.banners.addWidget(more)
 
     def _banner(self, row):
         name, path = html.escape(row["label"]), html.escape(tilde(row["path"]))
         if row["status"] == "missing":
-            title, text = trf("Проект «{name}» не найден по прежнему пути.", name=name), trf("Возможно, папку перенесли: {path}", path=path)
+            title, text = (
+                trf("Проект «{name}» не найден по прежнему пути.", name=name),
+                trf("Возможно, папку перенесли: {path}", path=path),
+            )
         else:
             title, text = trf("В папке проекта «{name}» нет project.json.", name=name), path
         box = QWidget()
@@ -647,7 +721,11 @@ class StartScreen(Screen):
         if not row:
             return
         if row["status"] in ("missing", "not_project"):
-            self.host.statusBar().showMessage(trf("Папка проекта «{name}» недоступна: {path}", name=row["label"], path=row["path"]))
+            self.host.statusBar().showMessage(
+                trf(
+                    "Папка проекта «{name}» недоступна: {path}", name=row["label"], path=row["path"]
+                )
+            )
             return
         self.host.read_project(row["path"])
 
@@ -673,17 +751,25 @@ class StartScreen(Screen):
         menu.exec_(self.list.viewport().mapToGlobal(point))
 
     def relocate(self, old_path):
-        directory = QFileDialog.getExistingDirectory(self, tr("Новая папка проекта"), str(Path(old_path).parent))
+        directory = QFileDialog.getExistingDirectory(
+            self, tr("Новая папка проекта"), str(Path(old_path).parent)
+        )
         if not directory:
             return
         if not (Path(directory) / "project.json").is_file():
-            self.host.notice.show_error("В выбранной папке нет project.json SEOHEAD.", "project-open")
+            self.host.notice.show_error(
+                "В выбранной папке нет project.json SEOHEAD.", "project-open"
+            )
             return
         self._relocate = (old_path, directory)
         self.host.read_project(directory)
 
     def _finish_relocation(self):
-        if self._relocate and self.host.project_directory and _same(self.host.project_directory, self._relocate[1]):
+        if (
+            self._relocate
+            and self.host.project_directory
+            and _same(self.host.project_directory, self._relocate[1])
+        ):
             old, self._relocate = self._relocate[0], None
             if not _same(old, self.host.project_directory):
                 self.host.forget_project(old)

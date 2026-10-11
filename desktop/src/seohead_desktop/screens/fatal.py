@@ -24,7 +24,11 @@ class FatalStatesScreen(Screen):
         root.setSpacing(16)
         title = QLabel(tr("Фатальные состояния"))
         title.setProperty("text_style", "title")
-        subtitle = QLabel(tr("Окно не может работать с данными. Каждое состояние говорит, что случилось и что сделать — без потери сканов."))
+        subtitle = QLabel(
+            tr(
+                "Окно не может работать с данными. Каждое состояние говорит, что случилось и что сделать — без потери сканов."
+            )
+        )
         subtitle.setProperty("text_style", "meta")
         subtitle.setWordWrap(True)
         root.addWidget(title)
@@ -52,10 +56,21 @@ class FatalStatesScreen(Screen):
         }
         clear_layout(self.notice)
         clear_layout(self.grid)
-        self._cards = [FatalCard(condition, actions.get(condition.key, ())) for condition in conditions] + [WaitingCard()]
+        self._cards = [
+            FatalCard(condition, actions.get(condition.key, ())) for condition in conditions
+        ] + [WaitingCard()]
         if not conditions:
-            self.notice.addWidget(StatePanel("empty", "Фатальных состояний нет",
-                                             "Ядро найдено, папка проекта доступна для записи и на диске хватает места.")
-                                  if self.host.project_directory else
-                                  StatePanel("empty", "Проект не открыт", "Состояние папки проекта появится после открытия проекта."))
+            self.notice.addWidget(
+                StatePanel(
+                    "empty",
+                    "Фатальных состояний нет",
+                    "Ядро найдено, папка проекта доступна для записи и на диске хватает места.",
+                )
+                if self.host.project_directory
+                else StatePanel(
+                    "empty",
+                    "Проект не открыт",
+                    "Состояние папки проекта появится после открытия проекта.",
+                )
+            )
         fill_grid(self.grid, self._cards, self.width() or 1440)

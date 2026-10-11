@@ -13,7 +13,6 @@ from PyQt5.QtGui import QColor, QImage, QPainter, QPainterPath, QPen
 from PyQt5.QtSvg import QSvgRenderer
 from PyQt5.QtWidgets import QWidget
 
-
 from .icons import material_icon
 
 ASSET_ROOT = Path(__file__).resolve().parents[1] / "assets" / "brands"

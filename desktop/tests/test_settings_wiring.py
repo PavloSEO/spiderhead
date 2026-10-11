@@ -31,8 +31,12 @@ class WiringTests(unittest.TestCase):
             wiring.status("nonsense.key")
 
     def test_documentation_is_current(self):
-        result = subprocess.run([sys.executable, str(ROOT / "scripts/gen_settings_wiring.py")], capture_output=True, text=True,
-                                env={**os.environ, "QT_QPA_PLATFORM": "offscreen"})
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts/gen_settings_wiring.py")],
+            capture_output=True,
+            text=True,
+            env={**os.environ, "QT_QPA_PLATFORM": "offscreen"},
+        )
         self.assertEqual(result.returncode, 0, result.stderr)
         doc = (ROOT / "docs/spec/settings-wiring.ru.md").read_text()
         for key in wiring.all_keys(full_schema()):
@@ -41,7 +45,11 @@ class WiringTests(unittest.TestCase):
     def test_rows_of_unapplied_settings_carry_the_badge_and_applied_ones_do_not(self):
         store = AppSettings(schema=full_schema())
         dialog = SettingsDialog(store, SettingsContext(), section="view")
-        rows = {r.property("setting_key"): r for r in dialog.findChildren(SettingRow) if r.property("setting_key")}
+        rows = {
+            r.property("setting_key"): r
+            for r in dialog.findChildren(SettingRow)
+            if r.property("setting_key")
+        }
         dialog.show()
         self.app.processEvents()
         self.assertFalse(rows["view.density"].later_badge.isVisible())

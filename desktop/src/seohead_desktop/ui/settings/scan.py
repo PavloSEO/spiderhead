@@ -25,7 +25,14 @@ PROFILES = (
 )
 
 SCHEMA = (
-    Setting("scan.rate", 2.0, float, 0.1, 10, error="Максимум 10 запр/с; больше — только профиль «Свой сайт»"),
+    Setting(
+        "scan.rate",
+        2.0,
+        float,
+        0.1,
+        10,
+        error="Максимум 10 запр/с; больше — только профиль «Свой сайт»",
+    ),
     Setting("scan.url_limit", 1500, int, 1, 1_000_000, error="Введите число от 1 до 1 000 000"),
     Setting("scan.depth", 10, int, 0, 100, error="Введите число от 0 до 100"),
     Setting("scan.robots", True, bool),
@@ -84,7 +91,11 @@ def _sf_path_row(store):
 
     def refresh():
         path = os.path.expanduser(store.get("scan.sf_path"))
-        row.description.setText(tr(base) if path and os.path.exists(path) else trf("{base} · не найден по этому пути", base=base))
+        row.description.setText(
+            tr(base)
+            if path and os.path.exists(path)
+            else trf("{base} · не найден по этому пути", base=base)
+        )
 
     def commit():
         row.set_error(store.set("scan.sf_path", field.text().strip()))
@@ -102,9 +113,22 @@ def _license_row(context):
         description = "Проверка лицензии недоступна в этой сборке"
     else:
         valid = bool(info.get("valid"))
-        control = badge("ok" if valid else "err", "действует" if valid else "не действует", "verified" if valid else "cancel")
-        description = joined(" · ", [p for p in (trf("Проверено {when}", when=info["checked"]) if info.get("checked") else "",
-                                            trf("до {when}", when=info["until"]) if info.get("until") else "") if p]) or tr("Нет данных")
+        control = badge(
+            "ok" if valid else "err",
+            "действует" if valid else "не действует",
+            "verified" if valid else "cancel",
+        )
+        description = joined(
+            " · ",
+            [
+                p
+                for p in (
+                    trf("Проверено {when}", when=info["checked"]) if info.get("checked") else "",
+                    trf("до {when}", when=info["until"]) if info.get("until") else "",
+                )
+                if p
+            ],
+        ) or tr("Нет данных")
     return SettingRow("Лицензия", description, control)
 
 
@@ -128,7 +152,9 @@ def _profiles(store):
                 trailing = badge("info", "по умолчанию", "star")
             else:
                 trailing = action_button("Сделать по умолчанию", role="text", size="pill")
-                trailing.clicked.connect(lambda _c, pid=profile_id: store.set("scan.default_profile", pid))
+                trailing.clicked.connect(
+                    lambda _c, pid=profile_id: store.set("scan.default_profile", pid)
+                )
             layout.addWidget(list_item("tune", name, summary, trailing))
         i18n.retranslate(box)
 
@@ -148,12 +174,40 @@ def _disconnect(store, slot):
 def build_page(store, context):
     left = [
         group_label("Нагрузка на сайт"),
-        _number_row(store, "scan.rate", "Запросов в секунду", "Для боевых сайтов 1–2. Больше 2 — с подтверждением", _rate_text, _rate_precheck),
-        _number_row(store, "scan.url_limit", "Лимит URL", "Защита от бесконечных фильтров и календарей", _spaced),
-        _number_row(store, "scan.depth", "Глубина обхода", "Кликов от стартовой; 0 — без ограничения", str),
-        switch_row(store, "scan.robots", "Соблюдать robots.txt", "Выключение — только для своих сайтов"),
-        switch_row(store, "scan.save_html", "Сохранять HTML страниц", "Поиск в HTML и сравнение текстов · ~ 250 КБ на URL"),
-        segmented_row(store, "scan.parallel", "Одновременных сканов", "Остальные ждут в очереди", [(n, str(n)) for n in (1, 2, 3, 4)]),
+        _number_row(
+            store,
+            "scan.rate",
+            "Запросов в секунду",
+            "Для боевых сайтов 1–2. Больше 2 — с подтверждением",
+            _rate_text,
+            _rate_precheck,
+        ),
+        _number_row(
+            store,
+            "scan.url_limit",
+            "Лимит URL",
+            "Защита от бесконечных фильтров и календарей",
+            _spaced,
+        ),
+        _number_row(
+            store, "scan.depth", "Глубина обхода", "Кликов от стартовой; 0 — без ограничения", str
+        ),
+        switch_row(
+            store, "scan.robots", "Соблюдать robots.txt", "Выключение — только для своих сайтов"
+        ),
+        switch_row(
+            store,
+            "scan.save_html",
+            "Сохранять HTML страниц",
+            "Поиск в HTML и сравнение текстов · ~ 250 КБ на URL",
+        ),
+        segmented_row(
+            store,
+            "scan.parallel",
+            "Одновременных сканов",
+            "Остальные ждут в очереди",
+            [(n, str(n)) for n in (1, 2, 3, 4)],
+        ),
     ]
     doctor = action_button("Диагностика SF", "stethoscope", enabled=context.can("sf_doctor"))
     doctor.clicked.connect(lambda: context.request("sf_doctor"))
@@ -170,5 +224,9 @@ def build_page(store, context):
         _profiles(store),
         buttons_row(add_profile),
     ]
-    note = Note("info", "Что это меняет.", "Подставляется в «Новый скан». Профиль проекта важнее этих значений; уже запущенные сканы не меняются.")
+    note = Note(
+        "info",
+        "Что это меняет.",
+        "Подставляется в «Новый скан». Профиль проекта важнее этих значений; уже запущенные сканы не меняются.",
+    )
     return page(Columns(left, right), note)

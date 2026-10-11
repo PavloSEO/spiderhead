@@ -74,7 +74,9 @@ def _normalize(token: str) -> tuple[str | None, str | None]:
     return candidate, None
 
 
-def candidate_arguments(directory: str, urls, *, source: str, observed_at: str, consumer: str) -> dict:
+def candidate_arguments(
+    directory: str, urls, *, source: str, observed_at: str, consumer: str
+) -> dict:
     """Arguments for ``seo_project_competitors_add``; each candidate carries its provenance."""
     return {
         "directory": directory,
@@ -85,7 +87,10 @@ def candidate_arguments(directory: str, urls, *, source: str, observed_at: str, 
 
 def scan_budget(cap: int) -> dict:
     """Explicit request and time budgets for one competitor scan, inside the core default thresholds."""
-    return {"limits.max_requests": cap * REQUESTS_PER_PAGE, "limits.max_crawl_seconds": MAX_CRAWL_SECONDS}
+    return {
+        "limits.max_requests": cap * REQUESTS_PER_PAGE,
+        "limits.max_crawl_seconds": MAX_CRAWL_SECONDS,
+    }
 
 
 def valid_url_cap(value) -> int | None:
@@ -104,7 +109,9 @@ def competitor_rows(sites) -> list[dict]:
         target = (site.get("site") or {}).get("target") or ""
         candidate = site.get("candidate") or {}
         scans = ((site.get("scans") or {}).get("items")) or []
-        finished = [item for item in scans if isinstance(item, dict) and item.get("lifecycle") in _FINISHED]
+        finished = [
+            item for item in scans if isinstance(item, dict) and item.get("lifecycle") in _FINISHED
+        ]
         latest = finished[0] if finished else None
         rows.append(
             {
@@ -131,4 +138,3 @@ def state_text(candidate: dict, latest: dict | None, scans: list) -> str:
     if any(isinstance(item, dict) and item.get("lifecycle") == "running" for item in scans):
         return "scan running"
     return (candidate or {}).get("state") or "candidate; audit not run"
-

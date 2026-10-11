@@ -43,12 +43,20 @@ class ProjectMixin:
 
     def read_project(self, directory):
         if self._pending_note is not None:
-            self.notice.show_error("Заметка сохраняется в текущий проект. Дождитесь подтверждения перед сменой проекта.", "inbox-submit")
+            self.notice.show_error(
+                "Заметка сохраняется в текущий проект. Дождитесь подтверждения перед сменой проекта.",
+                "inbox-submit",
+            )
             return
         if not (Path(directory) / "project.json").is_file():
             self.statusBar().showMessage("В папке нет project.json SEOHEAD")
-            if self.recent_projects or self.prefs.get("shell.onboarding_done"):  # first-run wizard owns the screen until it is passed
-                self.notice.show_error("В выбранной папке нет project.json SEOHEAD. Выберите сохранённый проект через меню проекта.", "project-open")
+            if self.recent_projects or self.prefs.get(
+                "shell.onboarding_done"
+            ):  # first-run wizard owns the screen until it is passed
+                self.notice.show_error(
+                    "В выбранной папке нет project.json SEOHEAD. Выберите сохранённый проект через меню проекта.",
+                    "project-open",
+                )
             return
         self._project_loading = True
         self.update_note_controls()
@@ -88,8 +96,12 @@ class ProjectMixin:
         self.navigation.card.clear()
         self._work_progress = {}
         self._run_envelope = {}
-        restored_offset = (self._workspace_restore or {}).get("state", {}).get("run_history_offset", 0)
-        self._run_history_offset = restored_offset if type(restored_offset) is int and 0 <= restored_offset <= 100 else 0
+        restored_offset = (
+            (self._workspace_restore or {}).get("state", {}).get("run_history_offset", 0)
+        )
+        self._run_history_offset = (
+            restored_offset if type(restored_offset) is int and 0 <= restored_offset <= 100 else 0
+        )
         self._run_history_supported = False
         self.update_run_history_controls()
         self.clear_work_monitor()
@@ -121,8 +133,14 @@ class ProjectMixin:
             return
         project = result.get("project", {})
         site = project.get("site", {}) if isinstance(project, dict) else {}
-        self.current_project_uuid = project.get("project_uuid") if isinstance(project, dict) else None
-        self._known_projects[str(Path(self.project_directory).resolve())] = {"result": result, "scans": [], "uuid": self.current_project_uuid}
+        self.current_project_uuid = (
+            project.get("project_uuid") if isinstance(project, dict) else None
+        )
+        self._known_projects[str(Path(self.project_directory).resolve())] = {
+            "result": result,
+            "scans": [],
+            "uuid": self.current_project_uuid,
+        }
         self.selected_managed_run_id = None
         self.selected_observed_run_id = None
         self.owned_run_detail.setPlainText("Выберите запуск текущего проекта")
@@ -157,7 +175,9 @@ class ProjectMixin:
     def load_crawl_descriptor(self):
         if self.crawl_descriptor is None and "crawl-settings" not in self.requests:
             self._crawl_descriptor_error = None
-            self.start_command("crawl-settings", "seo_crawl_describe_settings", {}, self.crawl_descriptor_loaded)
+            self.start_command(
+                "crawl-settings", "seo_crawl_describe_settings", {}, self.crawl_descriptor_loaded
+            )
 
     def crawl_descriptor_loaded(self, result):
         try:
@@ -173,7 +193,9 @@ class ProjectMixin:
 
     def refresh_project(self):
         if self._pending_note is not None:
-            self.statusBar().showMessage("Обновление будет доступно после подтверждения сохранения заметки")
+            self.statusBar().showMessage(
+                "Обновление будет доступно после подтверждения сохранения заметки"
+            )
             return
         if not self.project_directory:
             self.statusBar().showMessage("Сначала откройте локальный проект SEOHEAD")
@@ -203,33 +225,67 @@ class ProjectMixin:
         inbox = result.get("inbox") or {}
         run_envelope = result.get("runs")
         pagination = run_envelope.get("pagination") if isinstance(run_envelope, dict) else None
-        if isinstance(pagination, dict) and type(pagination.get("offset")) is int and pagination["offset"] != self._run_history_offset:
+        if (
+            isinstance(pagination, dict)
+            and type(pagination.get("offset")) is int
+            and pagination["offset"] != self._run_history_offset
+        ):
             self._run_history_supported = True
             QTimer.singleShot(0, self.poll_active_scan)
             return
-        runs = run_envelope.get("items", []) if isinstance(run_envelope, dict) else run_envelope if isinstance(run_envelope, list) else []
+        runs = (
+            run_envelope.get("items", [])
+            if isinstance(run_envelope, dict)
+            else run_envelope
+            if isinstance(run_envelope, list)
+            else []
+        )
         signature = (
             progress.get("revision"),
             scans.get("total"),
             tuple(item.get("uuid") for item in scans.get("items") or ()),
             inbox.get("revision"),
-            tuple((item.get("id"), item.get("state"), (item.get("telemetry") or {}).get("sampled_at"), (item.get("telemetry") or {}).get("state")) for item in runs),
+            tuple(
+                (
+                    item.get("id"),
+                    item.get("state"),
+                    (item.get("telemetry") or {}).get("sampled_at"),
+                    (item.get("telemetry") or {}).get("state"),
+                )
+                for item in runs
+            ),
         )
         if self.scan_manager is not None and isinstance(self.current_project_uuid, str):
             self.scan_manager.observe(self.current_project_uuid, runs)
-        previous_progress_revision = self.last_observer_signature[0] if self.last_observer_signature else None
+        previous_progress_revision = (
+            self.last_observer_signature[0] if self.last_observer_signature else None
+        )
         self.set_observer_cadence(runs)
-        if signature == self.last_observer_signature and not self._reload_selected_scan and not self._workspace_restore:
+        if (
+            signature == self.last_observer_signature
+            and not self._reload_selected_scan
+            and not self._workspace_restore
+        ):
             return
         self.last_observer_signature = signature
         self._run_envelope = run_envelope if isinstance(run_envelope, dict) else {"items": runs}
         self.update_run_history_controls()
         self._work_progress = progress
-        if progress.get("revision") != previous_progress_revision and "tasks" not in self.active_commands:
-            self.start_command("tasks", "seo_project_checklist_page", {"directory": self.project_directory, "limit": TASK_PAGE_LIMIT}, self.load_task_page)
+        if (
+            progress.get("revision") != previous_progress_revision
+            and "tasks" not in self.active_commands
+        ):
+            self.start_command(
+                "tasks",
+                "seo_project_checklist_page",
+                {"directory": self.project_directory, "limit": TASK_PAGE_LIMIT},
+                self.load_task_page,
+            )
         self.present_observed_runs(runs, result.get("observed_at"))
         self.load_progress(result.get("progress") or {})
-        self.load_activity({"observed_at": result.get("observed_at"), "sites": result.get("sites") or {}})
+        self.load_activity(
+            {"observed_at": result.get("observed_at"), "sites": result.get("sites") or {}}
+        )
         self.observed_sites = (result.get("sites") or {}).get("items") or []
         self.observed_policy = (result.get("policy") or {}).get("policy")
         self.data_changed.emit("competitors")
@@ -242,26 +298,45 @@ class ProjectMixin:
         counts = result.get("counts") or {}
         completion = result.get("audit_task_completion") or {}
         numerator, denominator = completion.get("numerator"), completion.get("denominator")
-        measured = completion.get("state") == "measured" and isinstance(numerator, (int, float)) and isinstance(denominator, (int, float)) and denominator > 0
+        measured = (
+            completion.get("state") == "measured"
+            and isinstance(numerator, (int, float))
+            and isinstance(denominator, (int, float))
+            and denominator > 0
+        )
         if measured:
-            completion_text = f"{value_text(numerator)} из {value_text(denominator)} согласованных задач"
+            completion_text = (
+                f"{value_text(numerator)} из {value_text(denominator)} согласованных задач"
+            )
         else:
-            reason = completion.get("reason") or "Нет подтверждённого знаменателя согласованного плана."
+            reason = (
+                completion.get("reason") or "Нет подтверждённого знаменателя согласованного плана."
+            )
             if reason == "record an explicit audit plan before reporting a percentage":
                 reason = "Сначала согласуйте и сохраните план аудита."
             completion_text = f"Не измерено — {reason}"
-        lines = ["ПЛАН ПРОЕКТА", "", f"Состояние: {state_text(result.get('state'))}",
-                 f"Завершено: {value_text(counts.get('complete'))}    Осталось: {value_text(counts.get('remaining'))}    Устарело: {value_text(counts.get('stale'))}",
-                 f"Покрытие задач: {completion_text}", "", "СЛЕДУЮЩИЕ ДЕЙСТВИЯ"]
+        lines = [
+            "ПЛАН ПРОЕКТА",
+            "",
+            f"Состояние: {state_text(result.get('state'))}",
+            f"Завершено: {value_text(counts.get('complete'))}    Осталось: {value_text(counts.get('remaining'))}    Устарело: {value_text(counts.get('stale'))}",
+            f"Покрытие задач: {completion_text}",
+            "",
+            "СЛЕДУЮЩИЕ ДЕЙСТВИЯ",
+        ]
         for item in (result.get("next_actions") or [])[:8]:
             if item.get("id") == "scope:initialize":
                 lines.append("Согласовать объём аудита и настроить checklist проекта.")
             else:
-                lines.append(f"{item.get('title') or item.get('id')}: {item.get('action') or 'Действие не задано'}")
+                lines.append(
+                    f"{item.get('title') or item.get('id')}: {item.get('action') or 'Действие не задано'}"
+                )
         if not result.get("next_actions"):
             lines.append("Ядро не объявило следующих действий.")
         self.progress_text.setPlainText("\n".join(lines))
-        self.work_plan_summary.setText("План: " + completion_text if measured else state_text(result.get("state")))
+        self.work_plan_summary.setText(
+            "План: " + completion_text if measured else state_text(result.get("state"))
+        )
         self.work_plan_summary.setToolTip(completion_text)
 
     def update_work_project_state(self):
@@ -283,7 +358,11 @@ class ProjectMixin:
 
     def refresh_work_monitor(self):
         self.update_work_project_state()
-        envelope = {**self._run_envelope, "items": self.observed_runs, "owned": self.owned_runs_for_project()}
+        envelope = {
+            **self._run_envelope,
+            "items": self.observed_runs,
+            "owned": self.owned_runs_for_project(),
+        }
         for monitor in (self.work_monitor, self.monitor.work_monitor if self.monitor else None):
             if monitor is not None:
                 monitor.set_observation(envelope, self._work_progress, self.observed_at)
@@ -296,12 +375,26 @@ class ProjectMixin:
                 monitor.set_selected_run(identity)
 
     def select_observed_identity(self, identity):
-        row = next((index for index, item in enumerate(self.activity_model.rows) if item.get("id") == identity), None)
+        row = next(
+            (
+                index
+                for index, item in enumerate(self.activity_model.rows)
+                if item.get("id") == identity
+            ),
+            None,
+        )
         if row is not None:
             self.activity_table.selectRow(row)
             self.show_observed_run(self.activity_model.index(row, 0), None)
             return
-        owned = next((item for item in self.owned_runs_for_project() if identity in {item.get("core_run_id"), item.get("observer_run_id")}), None)
+        owned = next(
+            (
+                item
+                for item in self.owned_runs_for_project()
+                if identity in {item.get("core_run_id"), item.get("observer_run_id")}
+            ),
+            None,
+        )
         if owned:
             self.choose_owned_run(owned["id"])
         else:
@@ -314,22 +407,42 @@ class ProjectMixin:
             return
         run = next((row for row in self.observed_runs if row.get("id") == identity), None)
         if run is None:
-            run = next((row for row in self.owned_runs_for_project() if identity in {row.get("core_run_id"), row.get("observer_run_id")}), {})
+            run = next(
+                (
+                    row
+                    for row in self.owned_runs_for_project()
+                    if identity in {row.get("core_run_id"), row.get("observer_run_id")}
+                ),
+                {},
+            )
         artifact = run.get("artifact")
         if not isinstance(artifact, str) or not artifact:
             return
         candidate = (Path(self.project_directory) / artifact).resolve()
-        scan = next((row for row in self.scan_model.rows if isinstance(row.get("path"), str) and Path(row["path"]).resolve() == candidate), None)
+        scan = next(
+            (
+                row
+                for row in self.scan_model.rows
+                if isinstance(row.get("path"), str) and Path(row["path"]).resolve() == candidate
+            ),
+            None,
+        )
         if scan is None:
-            self.notice.show_error("Результат этого запуска ещё не входит в загруженную страницу сканов. Откройте список сохранённых сканов и выберите его.")
+            self.notice.show_error(
+                "Результат этого запуска ещё не входит в загруженную страницу сканов. Откройте список сохранённых сканов и выберите его."
+            )
             return
         self.select_project_scan(scan)
         self.navigation.setCurrentRow(1)
 
     def load_activity(self, result):
         sites = (result.get("sites") or {}).get("items") or []
-        self.activity_caption.setText(f"Запуски · {len(self.observed_runs)} в текущем наблюдении · сайтов: {len(sites)}")
-        self.activity_caption.setToolTip("Наблюдение: " + field_text("observed_at", result.get("observed_at")))
+        self.activity_caption.setText(
+            f"Запуски · {len(self.observed_runs)} в текущем наблюдении · сайтов: {len(sites)}"
+        )
+        self.activity_caption.setToolTip(
+            "Наблюдение: " + field_text("observed_at", result.get("observed_at"))
+        )
 
     def present_observed_runs(self, runs, observed_at):
         self.observed_runs = bounded_observed_runs(runs)
@@ -337,10 +450,15 @@ class ProjectMixin:
             self._run_envelope = {**self._run_envelope, "has_more": True}
         self.observed_at = observed_at
         current = self.activity_table.currentIndex()
-        selected = self.selected_observed_run_id or (self.activity_model.rows[current.row()].get("id") if current.isValid() else None)
+        selected = self.selected_observed_run_id or (
+            self.activity_model.rows[current.row()].get("id") if current.isValid() else None
+        )
         self.activity_table.selectionModel().blockSignals(True)
         self.activity_model.replace([run_projection(run) for run in self.observed_runs])
-        row = next((index for index, run in enumerate(self.observed_runs) if run.get("id") == selected), -1 if self.selected_observed_run_id else 0)
+        row = next(
+            (index for index, run in enumerate(self.observed_runs) if run.get("id") == selected),
+            -1 if self.selected_observed_run_id else 0,
+        )
         if self.observed_runs and row >= 0:
             self.activity_table.selectRow(row)
         else:
@@ -350,10 +468,18 @@ class ProjectMixin:
         if self.observed_runs and row >= 0:
             self.show_observed_run(self.activity_model.index(row, 0), None, sync_controls=False)
         else:
-            self.activity_text.setPlainText("В текущем наблюдении ядро не вернуло запусков. Это не измерение скорости или покрытия сайта.")
-        events = [{"run_id": run.get("id"), **event} for run in self.observed_runs for event in (run.get("events") or [])[-20:]][-200:]
+            self.activity_text.setPlainText(
+                "В текущем наблюдении ядро не вернуло запусков. Это не измерение скорости или покрытия сайта."
+            )
+        events = [
+            {"run_id": run.get("id"), **event}
+            for run in self.observed_runs
+            for event in (run.get("events") or [])[-20:]
+        ][-200:]
         self.journal_model.replace(events)
-        self.journal_caption.setText(f"Сохранённых событий в выборке: {len(events)} · последние 20 на запуск, до 200 строк")
+        self.journal_caption.setText(
+            f"Сохранённых событий в выборке: {len(events)} · последние 20 на запуск, до 200 строк"
+        )
         self.update_active_scan_card()
 
     def show_observed_run(self, current, _previous, sync_controls=True):
@@ -363,22 +489,34 @@ class ProjectMixin:
         run = row["_run"]
         if sync_controls:
             self.selected_observed_run_id = run.get("id")
-            owned = next((item for item in self.owned_runs_for_project() if run.get("id") in {item.get("core_run_id"), item.get("observer_run_id")}), None)
+            owned = next(
+                (
+                    item
+                    for item in self.owned_runs_for_project()
+                    if run.get("id") in {item.get("core_run_id"), item.get("observer_run_id")}
+                ),
+                None,
+            )
             self.selected_managed_run_id = owned.get("id") if owned else None
             self.owned_run_picker.blockSignals(True)
-            self.owned_run_picker.setCurrentIndex(max(0, self.owned_run_picker.findData(self.selected_managed_run_id)))
+            self.owned_run_picker.setCurrentIndex(
+                max(0, self.owned_run_picker.findData(self.selected_managed_run_id))
+            )
             self.owned_run_picker.blockSignals(False)
             self.render_owned_run(self.scan_manager.detail(owned["id"]) if owned else None)
         telemetry = run.get("telemetry") or {}
         counters = run.get("counters") or {}
         collector = run.get("collector") or {}
-        lines = [f"{state_text(run.get('state'))} · {state_text(run.get('kind'))} · {run.get('id')}", "",
-                 f"Получено: {value_text(counters.get('fetched'))}    В очереди: {value_text(counters.get('queued'))}    В работе: {value_text(counters.get('inflight'))}    Исключено: {value_text(counters.get('excluded'))}",
-                 f"Сейчас: {row['rate']}    Лимит: {value_text(collector.get('max_requests_per_second'))} запросов/с",
-                 f"Измерение: {field_text('sampled_at', telemetry.get('sampled_at'))} · {state_text(telemetry.get('state'))}",
-                 f"Окно измерения: {value_text(telemetry.get('rate_window_seconds'))} с · Возраст при наблюдении: {value_text(telemetry.get('age_seconds'))} с",
-                 f"Начало: {field_text('started_at', run.get('started_at'))}    Завершение: {field_text('finished_at', run.get('finished_at'))}",
-                 f"Результат: {value_text(run.get('artifact'))}"]
+        lines = [
+            f"{state_text(run.get('state'))} · {state_text(run.get('kind'))} · {run.get('id')}",
+            "",
+            f"Получено: {value_text(counters.get('fetched'))}    В очереди: {value_text(counters.get('queued'))}    В работе: {value_text(counters.get('inflight'))}    Исключено: {value_text(counters.get('excluded'))}",
+            f"Сейчас: {row['rate']}    Лимит: {value_text(collector.get('max_requests_per_second'))} запросов/с",
+            f"Измерение: {field_text('sampled_at', telemetry.get('sampled_at'))} · {state_text(telemetry.get('state'))}",
+            f"Окно измерения: {value_text(telemetry.get('rate_window_seconds'))} с · Возраст при наблюдении: {value_text(telemetry.get('age_seconds'))} с",
+            f"Начало: {field_text('started_at', run.get('started_at'))}    Завершение: {field_text('finished_at', run.get('finished_at'))}",
+            f"Результат: {value_text(run.get('artifact'))}",
+        ]
         self.activity_text.setPlainText("\n".join(lines))
         self.sync_work_selection(run.get("id"))
 
@@ -399,7 +537,10 @@ class ProjectMixin:
 
     def remember_project(self, label, path):
         opened = datetime.now().astimezone().isoformat(timespec="minutes")
-        self.recent_projects = [{"label": label, "path": path, "opened_at": opened}, *[item for item in self.recent_projects if item["path"] != path]][:20]
+        self.recent_projects = [
+            {"label": label, "path": path, "opened_at": opened},
+            *[item for item in self.recent_projects if item["path"] != path],
+        ][:20]
         if self.settings:
             self.settings.setValue("recent_projects", self.recent_projects)
         self.data_changed.emit("recents")
@@ -416,11 +557,15 @@ class ProjectMixin:
         self.project_picker.clear()
         self.project_picker.addItem(label, {"path": self.project_directory})
         if isinstance(host, str) and host and host != label:
-            self.project_picker.setItemData(0, host, Qt.ToolTipRole)  # the picker shows it as the second line
+            self.project_picker.setItemData(
+                0, host, Qt.ToolTipRole
+            )  # the picker shows it as the second line
         for item in self.recent_projects:
             if item["path"] != self.project_directory:
                 self.project_picker.addItem(item["label"], dict(item))
-                self.project_picker.setItemData(self.project_picker.count() - 1, item["path"], Qt.ToolTipRole)
+                self.project_picker.setItemData(
+                    self.project_picker.count() - 1, item["path"], Qt.ToolTipRole
+                )
         self.project_picker.addItem("Открыть другой проект…", {"action": "open"})
         self.project_picker.blockSignals(False)
         self.project_picker.setToolTip(self.project_directory or "Выбрать локальный проект")

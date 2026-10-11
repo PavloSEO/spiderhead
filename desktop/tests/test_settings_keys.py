@@ -31,7 +31,9 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(len(taken), len(set(taken)), "default shortcuts must not conflict")
         for action in shortcuts.ACTIONS:
             if not action.fixed:
-                self.assertEqual(shortcuts.normalise(action.default), (action.default, ""), action.id)
+                self.assertEqual(
+                    shortcuts.normalise(action.default), (action.default, ""), action.id
+                )
                 self.assertEqual(self.store.get(shortcuts.key(action.id)), action.default)
 
     def test_normalise(self):
@@ -65,7 +67,9 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(other.id, "copy_url")
         self.assertIn("«Копировать URL»", message)
         self.assertEqual(self.store.get(shortcuts.key("copy_tsv")), "Ctrl+Alt+C")
-        self.assertEqual(shortcuts.set_binding(self.store, "copy_tsv", "Ctrl+Shift+C", replace=True), (None, ""))
+        self.assertEqual(
+            shortcuts.set_binding(self.store, "copy_tsv", "Ctrl+Shift+C", replace=True), (None, "")
+        )
         self.assertEqual(self.store.get(shortcuts.key("copy_url")), "")
         self.assertEqual(self.store.get(shortcuts.key("copy_tsv")), "Ctrl+Shift+C")
         self.assertEqual(shortcuts.sequences(self.store)["copy_tsv"], QKeySequence("Ctrl+Shift+C"))
@@ -83,7 +87,7 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(fresh.get(shortcuts.key("new_scan")), "Ctrl+Alt+N")
         bad = {"bindings": {"new_scan": "Ctrl+K", "help": "bogus"}}
         self.assertIn("«Справка»", shortcuts.import_bindings(fresh, bad))
-        duplicate = {"bindings": {"new_scan": "Ctrl+K"}}   # Ctrl+K belongs to the palette
+        duplicate = {"bindings": {"new_scan": "Ctrl+K"}}  # Ctrl+K belongs to the palette
         self.assertIn("«Действия и переходы»", shortcuts.import_bindings(fresh, duplicate))
         self.assertEqual(fresh.get(shortcuts.key("new_scan")), "Ctrl+Alt+N")
         self.assertNotEqual(shortcuts.import_bindings(fresh, ["x"]), "")
@@ -114,7 +118,10 @@ class KeysSectionTests(unittest.TestCase):
 
     def test_page_lists_every_action_with_its_shortcut(self):
         self.assertEqual(set(self.page.rows), {a.id for a in shortcuts.ACTIONS})
-        self.assertIn("Новый скан: " + shortcuts.display("Ctrl+N"), self.page.rows["new_scan"].capture.accessibleName())
+        self.assertIn(
+            "Новый скан: " + shortcuts.display("Ctrl+N"),
+            self.page.rows["new_scan"].capture.accessibleName(),
+        )
 
     def test_recording_stores_the_chord(self):
         self.record("new_scan", Qt.Key_L, CTRL | SHIFT)
@@ -136,14 +143,16 @@ class KeysSectionTests(unittest.TestCase):
         self.assertFalse(row._error_box.isHidden())
         self.assertEqual(row._error.text(), shortcuts.NEEDS_MODIFIER)
         self.assertEqual(self.value("new_scan"), "Ctrl+N")
-        self.record("new_scan", Qt.Key_F6)    # an F-key needs none
+        self.record("new_scan", Qt.Key_F6)  # an F-key needs none
         self.assertEqual(self.value("new_scan"), "F6")
         self.assertTrue(row._error_box.isHidden())
 
     def test_conflict_shows_error_then_replace_resolves_it(self):
         row = self.record("copy_tsv", Qt.Key_C, CTRL | SHIFT)
-        self.assertEqual(self.value("copy_tsv"), "Ctrl+Alt+C")           # nothing written yet
-        self.assertEqual(row._error.text(), f"{shortcuts.display('Ctrl+Shift+C')} уже занято: «Копировать URL»")
+        self.assertEqual(self.value("copy_tsv"), "Ctrl+Alt+C")  # nothing written yet
+        self.assertEqual(
+            row._error.text(), f"{shortcuts.display('Ctrl+Shift+C')} уже занято: «Копировать URL»"
+        )
         self.assertFalse(row._error_box.isHidden())
         self.assertFalse(row.replace_button.isHidden())
         self.assertTrue(row.property("conflict"))
@@ -152,7 +161,9 @@ class KeysSectionTests(unittest.TestCase):
         self.assertEqual(self.value("copy_url"), "")
         self.assertTrue(row._error_box.isHidden())
         self.assertTrue(row.replace_button.isHidden())
-        self.assertIn("не задано", self.page.rows["copy_url"].capture.accessibleName())   # other row refreshed
+        self.assertIn(
+            "не задано", self.page.rows["copy_url"].capture.accessibleName()
+        )  # other row refreshed
 
     def test_conflict_with_fixed_shortcut_offers_no_replace(self):
         row = self.record("new_scan", Qt.Key_3, CTRL)
@@ -178,7 +189,9 @@ class KeysSectionTests(unittest.TestCase):
         self.assertEqual(self.value("new_tab"), "Ctrl+T")
 
     def test_reset_displaces_customised_owner_of_the_default(self):
-        shortcuts.set_binding(self.store, "new_tab", "Ctrl+F", replace=True)    # takes Find's shortcut
+        shortcuts.set_binding(
+            self.store, "new_tab", "Ctrl+F", replace=True
+        )  # takes Find's shortcut
         self.assertEqual(self.value("find_in_table"), "")
         self.page.rows["find_in_table"].reset()
         self.assertEqual(self.value("find_in_table"), "Ctrl+F")
@@ -186,7 +199,9 @@ class KeysSectionTests(unittest.TestCase):
 
     def test_external_store_change_refreshes_rows(self):
         self.store.set(shortcuts.key("help"), "Ctrl+Alt+H")
-        self.assertIn(shortcuts.display("Ctrl+Alt+H"), self.page.rows["help"].capture.accessibleName())
+        self.assertIn(
+            shortcuts.display("Ctrl+Alt+H"), self.page.rows["help"].capture.accessibleName()
+        )
 
     def test_fixed_rows_are_disabled_with_tooltip(self):
         capture = self.page.rows["sections"].capture
@@ -201,7 +216,9 @@ class KeysSectionTests(unittest.TestCase):
         self.assertTrue(dialog._nav["scan"].isHidden())
 
     def test_no_demo_wording(self):
-        self.assertFalse([w.text() for w in self.page.findChildren(QLabel) if "демо" in w.text().lower()])
+        self.assertFalse(
+            [w.text() for w in self.page.findChildren(QLabel) if "демо" in w.text().lower()]
+        )
 
 
 if __name__ == "__main__":

@@ -7,7 +7,12 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from seohead_desktop import i18n
 from seohead_desktop.app import load_theme
 from seohead_desktop.qt import app as qt_app
-from seohead_desktop.screens.tool_redirects import EXPORTABLE, ToolRedirectsScreen, classify, parse_rows
+from seohead_desktop.screens.tool_redirects import (
+    EXPORTABLE,
+    ToolRedirectsScreen,
+    classify,
+    parse_rows,
+)
 from tests._qt import sweep_widgets
 from tests._screens_host import FakeHost
 
@@ -19,7 +24,9 @@ class ParseAndClassifyTests(unittest.TestCase):
 
     def test_check_reads_the_list_alone(self):
         pairs = [("/a/", "/b/"), ("/b/", "/c/"), ("/c/", "/c/"), ("/d/", ""), ("/e/", "/f/")]
-        self.assertEqual(classify(pairs), ["chain", "chain", "loop", "none", "ok"])  # /b/ is a source too
+        self.assertEqual(
+            classify(pairs), ["chain", "chain", "loop", "none", "ok"]
+        )  # /b/ is a source too
 
     def test_loops_and_missing_targets_never_become_rules(self):
         self.assertEqual(EXPORTABLE, ("ok", "chain"))
@@ -98,7 +105,7 @@ class ToolRedirectsScreenTests(unittest.TestCase):
                 self.assertTrue(screen.copy_button.isEnabled())
                 self.assertTrue(screen.save_button.isEnabled())
                 cancelled = []
-                screen.job.cancel = lambda: cancelled.append(True)
+                screen.job.cancel = lambda cancelled=cancelled: cancelled.append(True)
                 self.calls.clear()
                 if edit == "input":
                     screen.input.setPlainText("/a/, /c/\n")

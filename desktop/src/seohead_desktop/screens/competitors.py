@@ -103,10 +103,22 @@ class CompetitorsScreen(Screen):
         host = self.host
         status, _text = project_state(host, errors=())
         if status == "none":
-            show_empty(self.empty_holder, self.body, no_project_panel(host, tr("Откройте проект, чтобы добавить конкурентов")))
+            show_empty(
+                self.empty_holder,
+                self.body,
+                no_project_panel(host, tr("Откройте проект, чтобы добавить конкурентов")),
+            )
             return
         if status == "loading":
-            show_empty(self.empty_holder, self.body, StatePanel("loading", tr("Загрузка проекта…"), tr("Читаем сохранённые данные проекта из ядра")))
+            show_empty(
+                self.empty_holder,
+                self.body,
+                StatePanel(
+                    "loading",
+                    tr("Загрузка проекта…"),
+                    tr("Читаем сохранённые данные проекта из ядра"),
+                ),
+            )
             return
         show_empty(self.empty_holder, self.body, None)
         rows = competitor_rows(getattr(host, "observed_sites", []))
@@ -143,7 +155,9 @@ class CompetitorsScreen(Screen):
             return False
         parsed = parse_candidates(text, existing=self._known_urls(), limit=self._limit())
         if parsed["refused"]:
-            details = "; ".join(f"{token or '—'}: {reason}" for token, reason in parsed["refused"][:5])
+            details = "; ".join(
+                f"{token or '—'}: {reason}" for token, reason in parsed["refused"][:5]
+            )
             self.status.setText(tr("Не добавлено") + ": " + details)
         if not parsed["accepted"]:
             if not parsed["refused"]:
@@ -153,7 +167,13 @@ class CompetitorsScreen(Screen):
         host.start_command(
             "competitors-add",
             "seo_project_competitors_add",
-            candidate_arguments(host.project_directory, parsed["accepted"], source=source, observed_at=observed_at, consumer=CONSUMER_ID),
+            candidate_arguments(
+                host.project_directory,
+                parsed["accepted"],
+                source=source,
+                observed_at=observed_at,
+                consumer=CONSUMER_ID,
+            ),
             self._added,
         )
         return True
@@ -180,7 +200,9 @@ class CompetitorsScreen(Screen):
         }
         try:
             draft = {"limits.max_urls": cap, **scan_budget(cap), "rendering.mode": "raw"}
-            overrides = tuple(preview_configuration(host.crawl_descriptor, draft)["overrides"].items())
+            overrides = tuple(
+                preview_configuration(host.crawl_descriptor, draft)["overrides"].items()
+            )
         except ValueError as exc:
             self.status.setText(tr("Конфигурация скана отклонена ядром") + ": " + str(exc))
             return
@@ -209,6 +231,11 @@ class CompetitorsScreen(Screen):
         if started:
             host.scan_poll_timer.start()
         self.status.setText(
-            trf("Запущено сканов: {started} · уже идут: {skipped} · не запущено: {refused}", started=number(started), skipped=number(skipped), refused=number(len(refused)))
+            trf(
+                "Запущено сканов: {started} · уже идут: {skipped} · не запущено: {refused}",
+                started=number(started),
+                skipped=number(skipped),
+                refused=number(len(refused)),
+            )
             + (" · " + "; ".join(refused[:3]) if refused else "")
         )

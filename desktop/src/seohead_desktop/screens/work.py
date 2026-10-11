@@ -59,10 +59,29 @@ TASK_STATES = {  # core display_state -> (badge kind, label, icon)
     "excluded": ("mut", "Исключена", "close"),
 }
 CLOSED_STATES = {"completed", "deliverable", "excluded"}
-TASK_KINDS = {"check": "Проверка", "skill": "Навык", "scenario": "Сценарий", "custom": "Своя задача"}
-RUN_KINDS = {"crawl": "Новый скан", "resume": "Продолжение", "sitemap": "Sitemap", "sf": "Импорт SF"}
-RUN_STATES = {"running": "Идёт", "starting": "Запускается", "queued": "В очереди", "finished": "Завершён", "completed": "Завершён",
-              "partial": "Частичный", "interrupted": "Прерван", "failed": "Ошибка", "cancelled": "Отменён"}
+TASK_KINDS = {
+    "check": "Проверка",
+    "skill": "Навык",
+    "scenario": "Сценарий",
+    "custom": "Своя задача",
+}
+RUN_KINDS = {
+    "crawl": "Новый скан",
+    "resume": "Продолжение",
+    "sitemap": "Sitemap",
+    "sf": "Импорт SF",
+}
+RUN_STATES = {
+    "running": "Идёт",
+    "starting": "Запускается",
+    "queued": "В очереди",
+    "finished": "Завершён",
+    "completed": "Завершён",
+    "partial": "Частичный",
+    "interrupted": "Прерван",
+    "failed": "Ошибка",
+    "cancelled": "Отменён",
+}
 ACTIVE_RUN_STATES = {"running", "starting", "queued"}
 
 
@@ -129,7 +148,9 @@ class RowsModel(QAbstractTableModel):
     def retranslate(self):
         self.headerDataChanged.emit(Qt.Horizontal, 0, max(0, len(self.columns) - 1))
         if self.rows:
-            self.dataChanged.emit(self.index(0, 0), self.index(len(self.rows) - 1, len(self.columns) - 1))
+            self.dataChanged.emit(
+                self.index(0, 0), self.index(len(self.rows) - 1, len(self.columns) - 1)
+            )
 
 
 def task_badge(row):
@@ -139,10 +160,20 @@ def task_badge(row):
 
 def task_columns():
     return (
-        ("Задача", lambda r: r.get("title") or tr("Нет данных"), None, lambda r: f"{r.get('title') or ''}\n{r.get('id') or ''}"),
+        (
+            "Задача",
+            lambda r: r.get("title") or tr("Нет данных"),
+            None,
+            lambda r: f"{r.get('title') or ''}\n{r.get('id') or ''}",
+        ),
         ("Состояние", lambda r: task_badge(r)[1], task_badge, None),
         ("Приоритет", lambda r: r.get("priority") or tr("Нет данных"), None, None),
-        ("Тип", lambda r: tr(TASK_KINDS.get(r.get("kind"), r.get("kind") or "Нет данных")), None, None),
+        (
+            "Тип",
+            lambda r: tr(TASK_KINDS.get(r.get("kind"), r.get("kind") or "Нет данных")),
+            None,
+            None,
+        ),
         ("Причина", lambda r: r.get("reason") or tr("Нет данных"), None, None),
     )
 
@@ -194,13 +225,22 @@ def project_state(host, errors=("observer", "tasks")):
 def task_state_panel(host, rows):
     """StatePanel for the task list when it cannot show rows, else None."""
     if host.screen_errors.get("tasks"):
-        return StatePanel("error", "Не удалось получить задачи", host.screen_errors["tasks"], action=("Повторить", host.refresh_project))
+        return StatePanel(
+            "error",
+            "Не удалось получить задачи",
+            host.screen_errors["tasks"],
+            action=("Повторить", host.refresh_project),
+        )
     if host.task_total is None:
         return StatePanel("loading", "Загрузка задач…", "Читаем чек-лист проекта из ядра")
     if not rows and host.task_total == 0:
         reason = (host._work_progress or {}).get("state")
         if reason == "not_initialized":
-            return StatePanel("empty", "Чек-лист проекта не создан", "Задачи появятся после согласования плана аудита")
+            return StatePanel(
+                "empty",
+                "Чек-лист проекта не создан",
+                "Задачи появятся после согласования плана аудита",
+            )
         return StatePanel("empty", "В проекте пока нет задач")
     return None
 
@@ -210,11 +250,19 @@ def progress_numbers(host):
     progress = host._work_progress or {}
     counts = progress.get("counts") or {}
     completion = progress.get("audit_task_completion") or {}
-    measured = (completion.get("state") == "measured" and type(completion.get("numerator")) is int
-                and type(completion.get("denominator")) is int and completion["denominator"] > 0)
+    measured = (
+        completion.get("state") == "measured"
+        and type(completion.get("numerator")) is int
+        and type(completion.get("denominator")) is int
+        and completion["denominator"] > 0
+    )
     population = progress.get("url_population") or {}
-    pop_measured = (population.get("state") == "measured" and type(population.get("numerator")) is int
-                    and type(population.get("denominator")) is int and population["denominator"] > 0)
+    pop_measured = (
+        population.get("state") == "measured"
+        and type(population.get("numerator")) is int
+        and type(population.get("denominator")) is int
+        and population["denominator"] > 0
+    )
     return {
         "remaining": counts.get("remaining") if type(counts.get("remaining")) is int else None,
         "complete": counts.get("complete") if type(counts.get("complete")) is int else None,
@@ -232,10 +280,15 @@ def goal_entry(host):
     """(entry, accepted_at) of the project goal: the newest accepted proposed goal, else the newest proposed one."""
     goals = [row for row in host.inbox_model.rows if row.get("kind") == "proposed_goal"]
     for wanted in (("accepted", "completed"), ("proposed",)):
-        found = sorted((g for g in goals if g.get("goal_state") in wanted), key=lambda g: g.get("created_at") or "")
+        found = sorted(
+            (g for g in goals if g.get("goal_state") in wanted),
+            key=lambda g: g.get("created_at") or "",
+        )
         if found:
             entry = found[-1]
-            stamps = [t.get("recorded_at") for t in entry.get("triage") or () if t.get("kind") == "goal"]
+            stamps = [
+                t.get("recorded_at") for t in entry.get("triage") or () if t.get("kind") == "goal"
+            ]
             return entry, (stamps[-1] if stamps else None)
     return None, None
 
@@ -315,7 +368,14 @@ class TaskDetail(QFrame):
         badges = QHBoxLayout()
         badges.setSpacing(8)
         badges.addWidget(self._badge(kind, tr(label)))
-        badges.addWidget(self._badge("mut", trf("Тип: {kind}", kind=tr(TASK_KINDS.get(row.get("kind"), row.get("kind") or "—")))))
+        badges.addWidget(
+            self._badge(
+                "mut",
+                trf(
+                    "Тип: {kind}", kind=tr(TASK_KINDS.get(row.get("kind"), row.get("kind") or "—"))
+                ),
+            )
+        )
         badges.addStretch(1)
         self.body_layout.addLayout(badges)
         item = (result or {}).get("item") or {}
@@ -323,7 +383,9 @@ class TaskDetail(QFrame):
         self._text(item.get("reason") or row.get("reason") or tr("Нет данных"))
         if row.get("state") == "blocked":
             blockers = ", ".join(row.get("blocked_by") or []) or tr("Нет данных")
-            self.body_layout.addWidget(Note("error", tr("Заблокирована."), trf("Блокирует: {ids}", ids=blockers)))
+            self.body_layout.addWidget(
+                Note("error", tr("Заблокирована."), trf("Блокирует: {ids}", ids=blockers))
+            )
         self._section("Следующий шаг и исполнитель")
         waiting = QHBoxLayout()
         waiting.addWidget(waiting_badge(922))
@@ -339,16 +401,36 @@ class TaskDetail(QFrame):
             if type(attempts) is int and attempts == 0:
                 self._text(tr("Не запускалась"), "meta")
             else:
-                self._text(trf("Попыток проверки: {n}", n=attempts if type(attempts) is int else tr("Нет данных")))
-            self._text(trf("Измерение: {state}", state=(measurement or {}).get("state") if isinstance(measurement, dict) else tr("не проводилось")))
-            self._text(trf("Подтверждение доказательств: {state}", state=verification.get("state") or tr("Нет данных")), "meta")
+                self._text(
+                    trf(
+                        "Попыток проверки: {n}",
+                        n=attempts if type(attempts) is int else tr("Нет данных"),
+                    )
+                )
+            self._text(
+                trf(
+                    "Измерение: {state}",
+                    state=(measurement or {}).get("state")
+                    if isinstance(measurement, dict)
+                    else tr("не проводилось"),
+                )
+            )
+            self._text(
+                trf(
+                    "Подтверждение доказательств: {state}",
+                    state=verification.get("state") or tr("Нет данных"),
+                ),
+                "meta",
+            )
         self._section("История")
         history = item.get("history") or []
         if result is not None and not history:
             self._text(tr("Записей в истории нет"), "meta")
         for record in history[:8]:
             stamp = local_stamp(record.get("recorded_at"), True) or tr("Нет данных")
-            self._text(f"{stamp} · {record.get('status') or ''} · {record.get('reason') or ''}", "meta")
+            self._text(
+                f"{stamp} · {record.get('status') or ''} · {record.get('reason') or ''}", "meta"
+            )
         if history:
             line = QHBoxLayout()
             line.addWidget(waiting_badge(922))
@@ -373,14 +455,33 @@ class WorkScreen(Screen):
         self.filter = "open"
         self.tasks = RowsModel(task_columns())
         self.all_rows = []
-        self.runs = RowsModel((
-            ("Запуск", lambda r: r.get("label") or tr("Нет данных"), None, None),
-            ("Вид", lambda r: tr(RUN_KINDS.get(r.get("kind"), r.get("kind") or "Нет данных")), None, None),
-            ("Состояние", lambda r: tr(RUN_STATES.get(r.get("state"), r.get("state") or "Нет данных")), lambda r: (
-                "info" if r.get("state") in ACTIVE_RUN_STATES else "err" if r.get("state") in ("failed", "interrupted") else "ok" if r.get("state") in ("finished", "completed") else "mut",
-                tr(RUN_STATES.get(r.get("state"), r.get("state") or "Нет данных"))), None),
-            ("Получено", lambda r: number(r.get("fetched")) or tr("Нет данных"), None, None),
-        ))
+        self.runs = RowsModel(
+            (
+                ("Запуск", lambda r: r.get("label") or tr("Нет данных"), None, None),
+                (
+                    "Вид",
+                    lambda r: tr(RUN_KINDS.get(r.get("kind"), r.get("kind") or "Нет данных")),
+                    None,
+                    None,
+                ),
+                (
+                    "Состояние",
+                    lambda r: tr(RUN_STATES.get(r.get("state"), r.get("state") or "Нет данных")),
+                    lambda r: (
+                        "info"
+                        if r.get("state") in ACTIVE_RUN_STATES
+                        else "err"
+                        if r.get("state") in ("failed", "interrupted")
+                        else "ok"
+                        if r.get("state") in ("finished", "completed")
+                        else "mut",
+                        tr(RUN_STATES.get(r.get("state"), r.get("state") or "Нет данных")),
+                    ),
+                    None,
+                ),
+                ("Получено", lambda r: number(r.get("fetched")) or tr("Нет данных"), None, None),
+            )
+        )
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         self.empty_holder = QVBoxLayout()
@@ -446,7 +547,11 @@ class WorkScreen(Screen):
         row.addLayout(titles, 1)
         self.goal_waiting = waiting_badge(946, "Время принятия цели")
         row.addWidget(self.goal_waiting, 0, Qt.AlignTop)
-        for icon, tip, issue in (("event_repeat", "Расписание сканов", 940), ("ios_share", "Экспорт и отчёты", None), ("settings", "Настройки проекта", 947)):
+        for icon, tip, issue in (
+            ("event_repeat", "Расписание сканов", 940),
+            ("ios_share", "Экспорт и отчёты", None),
+            ("settings", "Настройки проекта", 947),
+        ):
             button = QToolButton()
             button.setProperty("role", "icon")
             button.setIcon(material_icon(icon))
@@ -456,11 +561,15 @@ class WorkScreen(Screen):
                 button.setToolTip(f"{tr(tip)} · {tr('Недоступно в этой версии ядра')}")
             else:
                 button.setToolTip(tr(tip))
-                button.clicked.connect(lambda _c=False: self.host.navigation.select_section("reports"))
+                button.clicked.connect(
+                    lambda _c=False: self.host.navigation.select_section("reports")
+                )
             row.addWidget(button, 0, Qt.AlignBottom)
         self.note_button = QPushButton(tr("Заметка агенту"))
         self.note_button.setIcon(material_icon("edit_note"))
-        self.note_button.clicked.connect(lambda _c=False: self.host.navigation.select_section("inbox"))
+        self.note_button.clicked.connect(
+            lambda _c=False: self.host.navigation.select_section("inbox")
+        )
         row.addWidget(self.note_button, 0, Qt.AlignBottom)
         return row
 
@@ -474,7 +583,9 @@ class WorkScreen(Screen):
         bar = QHBoxLayout()
         bar.setContentsMargins(4, 0, 12, 0)
         self.tabs = QTabBar()
-        self.tabs.setUsesScrollButtons(True)  # labels keep their full text at narrow widths: the bar scrolls
+        self.tabs.setUsesScrollButtons(
+            True
+        )  # labels keep their full text at narrow widths: the bar scrolls
         self.tabs.setElideMode(Qt.ElideNone)
         self.tabs.setProperty("tabs", "underline")
         self.tabs.setDrawBase(False)
@@ -483,10 +594,14 @@ class WorkScreen(Screen):
         self.tabs.currentChanged.connect(lambda index: self.pages.setCurrentIndex(index))
         bar.addWidget(self.tabs)
         bar.addStretch(1)
-        self.view_switch = Segmented([("list", tr("Список")), ("board", tr("Доска"))], "list", tr("Вид задач"))
+        self.view_switch = Segmented(
+            [("list", tr("Список")), ("board", tr("Доска"))], "list", tr("Вид задач")
+        )
         self.view_switch.changed.connect(self._set_view)
         bar.addWidget(self.view_switch)
-        self.filter_switch = Segmented([("open", tr("Открытые")), ("all", tr("Все"))], "open", tr("Фильтр задач"))
+        self.filter_switch = Segmented(
+            [("open", tr("Открытые")), ("all", tr("Все"))], "open", tr("Фильтр задач")
+        )
         self.filter_switch.changed.connect(self._set_filter)
         bar.addWidget(self.filter_switch)
         self.detail_toggle = QToolButton()
@@ -508,7 +623,10 @@ class WorkScreen(Screen):
         tasks_layout.setSpacing(0)
         self.task_state = QVBoxLayout()
         tasks_layout.addLayout(self.task_state)
-        from .task_board import TaskBoard  # local import: task_board reads constants from this module
+        from .task_board import (
+            TaskBoard,  # local import: task_board reads constants from this module
+        )
+
         self.task_views = QStackedWidget()
         self.task_table = build_table(self.tasks, fixed={1: 132, 2: 88, 3: 112, 4: 180}, stretch=0)
         self.task_table.selectionModel().currentRowChanged.connect(self._row_changed)
@@ -525,11 +643,20 @@ class WorkScreen(Screen):
         self.limits.setContentsMargins(12, 6, 12, 6)
         tasks_layout.addWidget(self.limits)
         self.pages.addWidget(tasks_page)
-        self.run_table = build_table(self.runs, badge_column=2, fixed={1: 120, 2: 120, 3: 100}, stretch=0)
+        self.run_table = build_table(
+            self.runs, badge_column=2, fixed={1: 120, 2: 120, 3: 100}, stretch=0
+        )
         self.pages.addWidget(self.run_table)
         activity = QWidget()
         activity_layout = QVBoxLayout(activity)
-        activity_layout.addWidget(StatePanel("waiting", "Журнал активности проекта", "Структурированные события проекта (источник, актор, текст) пока не отдаёт ядро", issue=923))
+        activity_layout.addWidget(
+            StatePanel(
+                "waiting",
+                "Журнал активности проекта",
+                "Структурированные события проекта (источник, актор, текст) пока не отдаёт ядро",
+                issue=923,
+            )
+        )
         self.pages.addWidget(activity)
         return card
 
@@ -550,14 +677,17 @@ class WorkScreen(Screen):
         self.task_table.selectRow(index.row())
         menu = QMenu(self.task_table)
         menu.addSection(tr("Состояние"))
-        fill_menu(menu, [
-            unavailable("rate_review", "На проверке"),
-            unavailable("check_circle", "Выполнено"),
-            entry("verified", "Подтверждено", None, "", False, "Только перепроверкой"),
-            None,
-            unavailable("person_add", "Назначить исполнителя"),
-            unavailable("replay", "Перепроверить URL задачи"),
-        ])
+        fill_menu(
+            menu,
+            [
+                unavailable("rate_review", "На проверке"),
+                unavailable("check_circle", "Выполнено"),
+                entry("verified", "Подтверждено", None, "", False, "Только перепроверкой"),
+                None,
+                unavailable("person_add", "Назначить исполнителя"),
+                unavailable("replay", "Перепроверить URL задачи"),
+            ],
+        )
         menu.exec_(self.task_table.viewport().mapToGlobal(point))
 
     def _set_view(self, value):
@@ -599,7 +729,9 @@ class WorkScreen(Screen):
         if index is None and rows:
             index = 0
         if index is not None:
-            self.task_table.selectRow(index)  # fires _row_changed (selects + requests detail) when the id changed
+            self.task_table.selectRow(
+                index
+            )  # fires _row_changed (selects + requests detail) when the id changed
         else:
             self.selected_id = None
         self._fill_detail()
@@ -608,12 +740,24 @@ class WorkScreen(Screen):
         host = self.host
         row = next((r for r in self.tasks.rows if r.get("id") == self.selected_id), None)
         if row is None:
-            self.detail.show_state(StatePanel("empty", "Выберите задачу", "Здесь появятся состояние, доказательства и история"))
+            self.detail.show_state(
+                StatePanel(
+                    "empty", "Выберите задачу", "Здесь появятся состояние, доказательства и история"
+                )
+            )
             return
         result = host.task_detail_result
-        fresh = result if isinstance(result, dict) and (result.get("item") or {}).get("id") == row.get("id") else None
+        fresh = (
+            result
+            if isinstance(result, dict) and (result.get("item") or {}).get("id") == row.get("id")
+            else None
+        )
         if fresh is None and host.screen_errors.get("task-detail"):
-            self.detail.show_state(StatePanel("error", "Не удалось получить детали задачи", host.screen_errors["task-detail"]))
+            self.detail.show_state(
+                StatePanel(
+                    "error", "Не удалось получить детали задачи", host.screen_errors["task-detail"]
+                )
+            )
             return
         self.detail.show_item(row, fresh)
 
@@ -628,14 +772,16 @@ class WorkScreen(Screen):
         for start in range(0, 4, columns):
             row = QHBoxLayout()
             row.setSpacing(12)
-            for kpi in self.kpis[start:start + columns]:
+            for kpi in self.kpis[start : start + columns]:
                 row.addWidget(kpi, 1)
             self.kpi_grid.addLayout(row)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self._layout_kpis()
-        if not self._detail_user:  # narrow windows start without the side panel; the toggle brings it back
+        if (
+            not self._detail_user
+        ):  # narrow windows start without the side panel; the toggle brings it back
             self._toggle_detail(self.width() >= 1000, user=False)
         self.task_table.setColumnHidden(4, self.task_table.viewport().width() < 700)
         self.task_table.setColumnHidden(3, self.task_table.viewport().width() < 560)
@@ -644,10 +790,20 @@ class WorkScreen(Screen):
         host = self.host
         status, _text = project_state(host)
         if status == "none":
-            show_empty(self.empty_holder, self.content, no_project_panel(host, "Откройте проект, чтобы увидеть цель и задачи"))
+            show_empty(
+                self.empty_holder,
+                self.content,
+                no_project_panel(host, "Откройте проект, чтобы увидеть цель и задачи"),
+            )
             return
         if status == "loading":
-            show_empty(self.empty_holder, self.content, StatePanel("loading", "Загрузка проекта…", "Читаем сохранённые данные проекта из ядра"))
+            show_empty(
+                self.empty_holder,
+                self.content,
+                StatePanel(
+                    "loading", "Загрузка проекта…", "Читаем сохранённые данные проекта из ядра"
+                ),
+            )
             return
         show_empty(self.empty_holder, self.content, None)
         self._layout_kpis(force=True)
@@ -668,9 +824,14 @@ class WorkScreen(Screen):
         self.tabs.setTabText(1, trf("Запуски · {n}", n=len(self.runs.rows)))
         self.tabs.setTabText(2, tr("Активность"))
         shown = len(self.all_rows)
-        self.limits.setText(trf("Показано {shown} из {total}. Исполнитель, описание, комментарии и «следующий шаг» недоступны в этой версии ядра.",
-                                shown=shown, total=number(total) if total is not None else "—"))
-        self.tabs.setTabToolTip(2, tr('Недоступно в этой версии ядра'))
+        self.limits.setText(
+            trf(
+                "Показано {shown} из {total}. Исполнитель, описание, комментарии и «следующий шаг» недоступны в этой версии ядра.",
+                shown=shown,
+                total=number(total) if total is not None else "—",
+            )
+        )
+        self.tabs.setTabToolTip(2, tr("Недоступно в этой версии ядра"))
 
     def _fill_header(self):
         host = self.host
@@ -680,31 +841,55 @@ class WorkScreen(Screen):
         if entry is None:
             self.eyebrow.setText(tr("Цель проекта"))
             self.goal_title.setText(tr("Цель ещё не принята"))
-            self.goal_note.setText(tr("Предложите цель во входящих: она появится здесь, когда будет принята."))
+            self.goal_note.setText(
+                tr("Предложите цель во входящих: она появится здесь, когда будет принята.")
+            )
             self.goal_note.setVisible(True)
             return
         accepted = entry.get("goal_state") in ("accepted", "completed")
         stamp = local_stamp(accepted_at)
         if accepted:
-            self.eyebrow.setText(trf("Принятая цель · {date}", date=stamp) if stamp else tr("Принятая цель"))
+            self.eyebrow.setText(
+                trf("Принятая цель · {date}", date=stamp) if stamp else tr("Принятая цель")
+            )
             self.goal_waiting.setVisible(stamp is None)
         else:
             self.eyebrow.setText(tr("Предложенная цель · ожидает принятия"))
         self.goal_title.setText(entry.get("text") or tr("Нет данных"))
-        self.goal_note.setText(trf("{name} · статус: {state}", name=label or site or "", state=tr("выполнена" if entry.get("goal_state") == "completed" else "принята" if accepted else "предложена")))
+        self.goal_note.setText(
+            trf(
+                "{name} · статус: {state}",
+                name=label or site or "",
+                state=tr(
+                    "выполнена"
+                    if entry.get("goal_state") == "completed"
+                    else "принята"
+                    if accepted
+                    else "предложена"
+                ),
+            )
+        )
         self.goal_note.setVisible(True)
 
     def _fill_kpis(self):
         numbers = progress_numbers(self.host)
         open_kpi, done_kpi, pages_kpi, now_kpi = self.kpis
         total = numbers["total"]
-        open_kpi.set_value(number(numbers["remaining"]), trf("из {total} в чек-листе", total=number(total)) if total is not None else tr("План аудита не согласован"))
+        open_kpi.set_value(
+            number(numbers["remaining"]),
+            trf("из {total} в чек-листе", total=number(total))
+            if total is not None
+            else tr("План аудита не согласован"),
+        )
         if numbers["plan"]:
             done, planned = numbers["plan"]
             done_kpi.set_value(number(done), trf("из {total} согласованных", total=number(planned)))
             self._bar(1, done, planned)
         else:
-            done_kpi.set_value(number(numbers["complete"]), tr("Знаменатель: нет плана аудита · недоступно в этой версии ядра"))
+            done_kpi.set_value(
+                number(numbers["complete"]),
+                tr("Знаменатель: нет плана аудита · недоступно в этой версии ядра"),
+            )
             self._bar(1, None, None)
         self._bar(0, None, None)
         if numbers["pages"]:
@@ -712,7 +897,9 @@ class WorkScreen(Screen):
             pages_kpi.set_value(number(covered), trf("из {total} найденных", total=number(found)))
             self._bar(2, covered, found)
         else:
-            pages_kpi.set_value(None, tr("Нет согласованного набора URL · недоступно в этой версии ядра"))
+            pages_kpi.set_value(
+                None, tr("Нет согласованного набора URL · недоступно в этой версии ядра")
+            )
             self._bar(2, None, None)
         run = active_run(self.host)
         if run is None:
@@ -720,8 +907,10 @@ class WorkScreen(Screen):
         else:
             counters = run.get("counters") or {}
             fetched = number(counters.get("fetched"))
-            now_kpi.set_value(trf("Идёт {id}", id=str(run.get("id") or "")[:10]),
-                              trf("получено {n} URL", n=fetched) if fetched else tr("счётчики не измерены"))
+            now_kpi.set_value(
+                trf("Идёт {id}", id=str(run.get("id") or "")[:10]),
+                trf("получено {n} URL", n=fetched) if fetched else tr("счётчики не измерены"),
+            )
 
     def _observed_line(self):
         stamp = local_stamp(self.host.observed_at, True)

@@ -40,10 +40,12 @@ DATASETS = (
     ("compare", "compare_arrows", "Сравнение", None),
     ("tasks", "checklist", "Задачи", None),
 )
-FORMATS = (("csv", "CSV", "CSV: отдельный файл на каждый тип записи"),
-           ("xlsx", "XLSX", "XLSX: книга Excel"),
-           ("json", "JSON", "JSON: построчно, для скриптов и агентов"),
-           ("xml", "XML", "XML: схема scan_export.v1"))
+FORMATS = (
+    ("csv", "CSV", "CSV: отдельный файл на каждый тип записи"),
+    ("xlsx", "XLSX", "XLSX: книга Excel"),
+    ("json", "JSON", "JSON: построчно, для скриптов и агентов"),
+    ("xml", "XML", "XML: схема scan_export.v1"),
+)
 PDF_NOTE = "PDF-отчёт: недоступно в этой версии ядра"
 
 
@@ -58,7 +60,9 @@ def dataset_count(record, scan):
 
 def selected_scan(host):
     """The scan the page exports: the one the window selected, never a guess."""
-    return next((row for row in host.scan_model.rows if row.get("path") == host.selected_scan_path), None)
+    return next(
+        (row for row in host.scan_model.rows if row.get("path") == host.selected_scan_path), None
+    )
 
 
 def scan_urls(scan):
@@ -117,9 +121,15 @@ class ProjExportScreen(Screen):
         self.stack = QStackedWidget()
         root.addWidget(self.stack, 1)
         self.stack.addWidget(self._content())
-        self.no_scan = StatePanel("empty", "Скан не выбран", "Выберите скан в разделе «Сканы», чтобы выгрузить его данные.")
+        self.no_scan = StatePanel(
+            "empty",
+            "Скан не выбран",
+            "Выберите скан в разделе «Сканы», чтобы выгрузить его данные.",
+        )
         self.stack.addWidget(self.no_scan)
-        self.no_project = no_project_panel(host, tr("Экспорт данных скана доступен после открытия проекта."))
+        self.no_project = no_project_panel(
+            host, tr("Экспорт данных скана доступен после открытия проекта.")
+        )
         self.stack.addWidget(self.no_project)
         self.refresh()
 
@@ -155,7 +165,9 @@ class ProjExportScreen(Screen):
         layout.addWidget(meta(tr("Формат")))
         segment = QFrame()
         segment.setProperty("segmented", "true")
-        segment_layout = QGridLayout(segment)  # 2 x 2: four labels fit the 260 px column without eliding
+        segment_layout = QGridLayout(
+            segment
+        )  # 2 x 2: four labels fit the 260 px column without eliding
         segment_layout.setContentsMargins(3, 3, 3, 3)
         segment_layout.setSpacing(2)
         self.format_group = QButtonGroup(self)
@@ -184,9 +196,14 @@ class ProjExportScreen(Screen):
 
     def _columns_card(self):
         frame, layout = card("Колонки", "view_column")
-        layout.addWidget(StatePanel("waiting", "Выбор колонок пока недоступен",
-                                    "Ядро выгружает записи целиком. Список полей по типам записи в приложении не подключён.",
-                                    hint=tr("Выбор полей записей ядра")))
+        layout.addWidget(
+            StatePanel(
+                "waiting",
+                "Выбор колонок пока недоступен",
+                "Ядро выгружает записи целиком. Список полей по типам записи в приложении не подключён.",
+                hint=tr("Выбор полей записей ядра"),
+            )
+        )
         return frame
 
     def _right_column(self):
@@ -217,9 +234,14 @@ class ProjExportScreen(Screen):
         box.addWidget(self.run)
         layout.addWidget(frame)
         history, history_box = card("Недавние экспорты", "history")
-        history_box.addWidget(StatePanel("waiting", "Журнал экспортов пока недоступен",
-                                         "Ядро не ведёт журнал выгрузок. Список появится, когда он будет.",
-                                         hint=tr("Журнал экспортов ядра")))
+        history_box.addWidget(
+            StatePanel(
+                "waiting",
+                "Журнал экспортов пока недоступен",
+                "Ядро не ведёт журнал выгрузок. Список появится, когда он будет.",
+                hint=tr("Журнал экспортов ядра"),
+            )
+        )
         layout.addWidget(history, 1)
         return column
 
@@ -243,8 +265,13 @@ class ProjExportScreen(Screen):
             return
         self.stack.setCurrentIndex(0)
         urls = scan_urls(scan)
-        self.scan_meta.setText(trf("скан {run} · {count}", run=short_run_id(scan.get("uuid")),
-                                   count=trf("{n} URL", n=number(urls)) if urls is not None else tr("Нет данных")))
+        self.scan_meta.setText(
+            trf(
+                "скан {run} · {count}",
+                run=short_run_id(scan.get("uuid")),
+                count=trf("{n} URL", n=number(urls)) if urls is not None else tr("Нет данных"),
+            )
+        )
         for key, _icon, label, record in DATASETS:
             button = self.dataset_buttons[key]
             button.setEnabled(record is not None)

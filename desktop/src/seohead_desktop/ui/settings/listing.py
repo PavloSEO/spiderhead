@@ -30,7 +30,7 @@ class Mono(str):
 
 def tilde(path):
     home = os.path.expanduser("~")
-    return "~" + path[len(home):] if path and path.startswith(home) else path
+    return "~" + path[len(home) :] if path and path.startswith(home) else path
 
 
 def mono_html(text):
@@ -54,7 +54,9 @@ def action_button(text, icon=None, role=None, size=None, enabled=True, tooltip=N
     """Button whose action has no backend here is disabled with the 'unavailable' tooltip."""
     button = QPushButton(text)
     if icon:
-        button.setIcon(material_icon(icon, theming.roles()["primary" if role in ("text", "tonal") else "text"]))
+        button.setIcon(
+            material_icon(icon, theming.roles()["primary" if role in ("text", "tonal") else "text"])
+        )
     if role:
         button.setProperty("role", role)
     if size:
@@ -100,7 +102,9 @@ def list_item(icon, title, sub="", *trailing, icon_color=None, title_mono=False,
     layout = QHBoxLayout(frame)
     layout.setContentsMargins(0, 8, 0, 8)
     layout.setSpacing(10)
-    layout.addWidget(MaterialIconLabel(icon, 18, color=icon_color or theming.roles()["text_3"]), 0, Qt.AlignTop)
+    layout.addWidget(
+        MaterialIconLabel(icon, 18, color=icon_color or theming.roles()["text_3"]), 0, Qt.AlignTop
+    )
     text = QVBoxLayout()
     text.setSpacing(2)
     head = QLabel(title)
@@ -109,7 +113,9 @@ def list_item(icon, title, sub="", *trailing, icon_color=None, title_mono=False,
         head.setProperty("text_style", "mono")
     text.addWidget(head)
     if sub or sub_mono:
-        parts = ([mono_html(sub_mono)] if sub_mono else []) + ([escape(sub, quote=False)] if sub else [])
+        parts = ([mono_html(sub_mono)] if sub_mono else []) + (
+            [escape(sub, quote=False)] if sub else []
+        )
         line = QLabel(joined(" · ", parts))
         line.setTextFormat(Qt.RichText)
         line.setProperty("text_style", "meta")
@@ -149,7 +155,9 @@ def terminal(command, lines):
     frame.setProperty("terminal", True)
     layout = QVBoxLayout(frame)
     layout.setContentsMargins(14, 10, 14, 10)
-    body = QLabel(joined("<br>", [f"~ $ {escape(command)}", *(escape(line, quote=False) for line in lines)]))
+    body = QLabel(
+        joined("<br>", [f"~ $ {escape(command)}", *(escape(line, quote=False) for line in lines)])
+    )
     body.setTextFormat(Qt.RichText)
     body.setWordWrap(True)
     body.setTextInteractionFlags(Qt.TextSelectableByMouse)

@@ -33,7 +33,11 @@ class _SlowSite(BaseHTTPRequestHandler):
         elif self.path == "/" or self.path.startswith("/page-"):
             if self.path != "/":
                 time.sleep(self.delay)
-            links = "".join(f'<a href="/page-{n}">Page {n}</a>' for n in range(6)) if self.path == "/" else ""
+            links = (
+                "".join(f'<a href="/page-{n}">Page {n}</a>' for n in range(6))
+                if self.path == "/"
+                else ""
+            )
             body = f'<html><head><title>{self.path}</title></head><body><nav>NOISE_NAVIGATION</nav><main><p>OUTSIDE_REGION</p><section id="content"><h1>KEPT_CONTENT</h1><span class="omit">OMITTED_SELECTOR_ONLY</span>{links}</section></main></body></html>'
             media, status = "text/html; charset=utf-8", 200
         else:
@@ -95,8 +99,18 @@ def owned_site():
 def create_project(core, root, server):
     project = root / "project"
     subprocess.run(
-        [core, "project-new", "--directory", str(project), "--target", f"http://crawl.localhost:{server.server_port}/"],
-        check=True, capture_output=True, text=True, timeout=20,
+        [
+            core,
+            "project-new",
+            "--directory",
+            str(project),
+            "--target",
+            f"http://crawl.localhost:{server.server_port}/",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=20,
     )
     return project
 
@@ -110,7 +124,10 @@ def snapshot(scan):
             row = con.execute("SELECT * FROM scan").fetchone()
             if row is None:
                 return {}
-            return {"scan": dict(row), "pages": con.execute("SELECT COUNT(*) FROM pages").fetchone()[0]}
+            return {
+                "scan": dict(row),
+                "pages": con.execute("SELECT COUNT(*) FROM pages").fetchone()[0],
+            }
         except sqlite3.OperationalError as exc:
             if "no such table" in str(exc):
                 return {}
@@ -118,7 +135,11 @@ def snapshot(scan):
 
 
 def retained_pages(project):
-    return {scan: snapshot(scan) for scan in (project / "scans").glob("*.sqlite") if snapshot(scan).get("pages", 0)}
+    return {
+        scan: snapshot(scan)
+        for scan in (project / "scans").glob("*.sqlite")
+        if snapshot(scan).get("pages", 0)
+    }
 
 
 def preserve(root, name, receipt, window=None):
@@ -134,7 +155,9 @@ def preserve(root, name, receipt, window=None):
 
 def close_window(case, window):
     window.close()
-    wait_for(case, lambda: not window.isVisible(), "window did not finish owned shutdown", timeout=35)
+    wait_for(
+        case, lambda: not window.isVisible(), "window did not finish owned shutdown", timeout=35
+    )
     case.assertTrue(window.pool.waitForDone(10000), "MCP worker remained active after closing")
 
 
@@ -166,28 +189,44 @@ class LocalScanRunnerTests(unittest.TestCase):
             for mode in ("raw", "js"):
                 with self.subTest(mode=mode):
                     arguments = crawl_arguments(
-                        str(project), 21, mode,
-                        overrides=(("limits.max_requests", 31), ("limits.max_crawl_seconds", 41),
-                                   ("scope.include_patterns", ["page-[0,12]$"]),
-                                   ("evidence.content_area.include_selector", "main"),
-                                   ("speed.min_delay_seconds", 0.75)),
+                        str(project),
+                        21,
+                        mode,
+                        overrides=(
+                            ("limits.max_requests", 31),
+                            ("limits.max_crawl_seconds", 41),
+                            ("scope.include_patterns", ["page-[0,12]$"]),
+                            ("evidence.content_area.include_selector", "main"),
+                            ("speed.min_delay_seconds", 0.75),
+                        ),
                     )
                     code = (
                         "import json,sys; from seohead.cli import build_parser,_build_kwargs; "
                         "args=build_parser().parse_args(json.loads(sys.argv[1])); "
                         "print(json.dumps(_build_kwargs(args.command,args)[1]))"
                     )
-                    result = json.loads(subprocess.run(
-                        [str(Path(core).parent / "python"), "-c", code, json.dumps(arguments)],
-                        check=True, capture_output=True, text=True, timeout=20,
-                    ).stdout)
+                    result = json.loads(
+                        subprocess.run(
+                            [str(Path(core).parent / "python"), "-c", code, json.dumps(arguments)],
+                            check=True,
+                            capture_output=True,
+                            text=True,
+                            timeout=20,
+                        ).stdout
+                    )
                     self.assertEqual(result["max_urls"], 21)
                     self.assertEqual(result["project"], str(project))
-                    self.assertEqual(result["overrides"], {
-                        "rendering.mode": mode, "limits.max_requests": 31,
-                        "limits.max_crawl_seconds": 41, "scope.include_patterns": ["page-[0,12]$"],
-                        "evidence.content_area.include_selector": "main", "speed.min_delay_seconds": 0.75,
-                    })
+                    self.assertEqual(
+                        result["overrides"],
+                        {
+                            "rendering.mode": mode,
+                            "limits.max_requests": 31,
+                            "limits.max_crawl_seconds": 41,
+                            "scope.include_patterns": ["page-[0,12]$"],
+                            "evidence.content_area.include_selector": "main",
+                            "speed.min_delay_seconds": 0.75,
+                        },
+                    )
 
     def test_owned_loopback_capture_interrupt_and_resume(self):
         core = core_cli(self)
@@ -195,8 +234,16 @@ class LocalScanRunnerTests(unittest.TestCase):
             project = create_project(core, root, server)
             runner = LocalScanProcess(core)
             try:
-                runner.start(str(project), 20, "raw", (("limits.max_requests", 100), ("limits.max_crawl_seconds", 60)), observer_run_id=str(uuid.uuid4()))
-                wait_for(self, lambda: retained_pages(project), "crawl never retained its start page")
+                runner.start(
+                    str(project),
+                    20,
+                    "raw",
+                    (("limits.max_requests", 100), ("limits.max_crawl_seconds", 60)),
+                    observer_run_id=str(uuid.uuid4()),
+                )
+                wait_for(
+                    self, lambda: retained_pages(project), "crawl never retained its start page"
+                )
                 scan = next(iter(retained_pages(project)))
                 runner.request_stop()
                 wait_for(self, lambda: not runner.active, "owned crawl did not stop")
@@ -210,12 +257,18 @@ class LocalScanRunnerTests(unittest.TestCase):
                 completed = snapshot(scan)
                 self.assertEqual(completed["scan"]["lifecycle"], "finished")
                 self.assertEqual(completed["pages"], 7)
-                self.assertEqual(server.hits.count("/"), root_hits, "resume refetched retained start page")
-                preserve(root, "runner-resume", {"interrupted": interrupted, "completed": completed})
+                self.assertEqual(
+                    server.hits.count("/"), root_hits, "resume refetched retained start page"
+                )
+                preserve(
+                    root, "runner-resume", {"interrupted": interrupted, "completed": completed}
+                )
             finally:
                 if runner.active:
                     runner.request_stop()
-                    wait_for(self, lambda: not runner.active, "fixture child remained active", timeout=30)
+                    wait_for(
+                        self, lambda: not runner.active, "fixture child remained active", timeout=30
+                    )
 
     def test_gui_dialog_stops_with_real_checkpoint_and_final_observer(self):
         core = core_cli(self)
@@ -225,16 +278,30 @@ class LocalScanRunnerTests(unittest.TestCase):
             window.show()
             try:
                 window.read_project(str(project))
-                wait_for(self, lambda: window.crawl_descriptor and window.project_directory and not window.requests, "project MCP did not load")
+                wait_for(
+                    self,
+                    lambda: (
+                        window.crawl_descriptor and window.project_directory and not window.requests
+                    ),
+                    "project MCP did not load",
+                )
                 errors = []
 
                 def accept_plan():
                     try:
                         dialog = self.app.activeModalWidget()
                         self.assertIsInstance(dialog, QDialog)
-                        self.assertEqual((dialog.draft.value("limits.max_requests"), dialog.draft.value("limits.max_crawl_seconds")), (0, 0))
+                        self.assertEqual(
+                            (
+                                dialog.draft.value("limits.max_requests"),
+                                dialog.draft.value("limits.max_crawl_seconds"),
+                            ),
+                            (0, 0),
+                        )
                         dialog.findChild(QCheckBox, "scanLargeApproval").click()
-                        QTest.mouseClick(dialog.findChild(QPushButton, "scanStartButton"), Qt.LeftButton)
+                        QTest.mouseClick(
+                            dialog.findChild(QPushButton, "scanStartButton"), Qt.LeftButton
+                        )
                     except BaseException as exc:
                         errors.append(exc)
                         if self.app.activeModalWidget():
@@ -247,11 +314,19 @@ class LocalScanRunnerTests(unittest.TestCase):
                 wait_for(self, lambda: retained_pages(project), "GUI crawl never retained a page")
                 run_id = window.selected_managed_run_id
                 window.cancel_active_work()
-                wait_for(self, lambda: window.scan_manager.detail(run_id)["state"] == "partial", lambda: json.dumps(window.scan_manager.detail(run_id)))
+                wait_for(
+                    self,
+                    lambda: window.scan_manager.detail(run_id)["state"] == "partial",
+                    lambda: json.dumps(window.scan_manager.detail(run_id)),
+                )
                 self.assertEqual(window.scan_manager.active_count, 0)
                 scan = Path(window.scan_manager.detail(run_id)["artifact"])
                 self.assertEqual(snapshot(scan)["scan"]["lifecycle"], "interrupted")
-                wait_for(self, lambda: window.resume_scan_button.isEnabled(), "retained interrupted scan did not offer resume")
+                wait_for(
+                    self,
+                    lambda: window.resume_scan_button.isEnabled(),
+                    "retained interrupted scan did not offer resume",
+                )
                 preserve(root, "gui-stop", window.scan_manager.detail(run_id), window)
             finally:
                 close_window(self, window)

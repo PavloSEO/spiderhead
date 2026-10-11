@@ -30,10 +30,10 @@ from ..ui.controls import Switch
 from ..ui.icons import MaterialIconLabel
 from ..ui.icons import material_icon as icon
 from ..ui.kit import waiting_badge
-from ..ui.presentation import ElidedLabel, run_projection, short_run_id, state_text
+from ..ui.presentation import ElidedLabel, run_projection, short_run_id
 from .new_scan_draft import ISSUE_OTHER, PlanError, ScanDraft, grouped, request_project_policy
 from .new_scan_pages import HelpIcon, Stepper, number_edit
-from .scan_common import RunRow, StatusBadge, number, now
+from .scan_common import RunRow, StatusBadge, now, number
 
 ACTIVE_STATES = {"queued", "starting", "running", "stop_requested", "awaiting_core_status"}
 # (key, icon, name, shortcut text); «list» is shown but cannot be launched from the application
@@ -81,7 +81,11 @@ class QuickScanBar(QFrame):
         self.live_row = self._live()
         outer.addWidget(self.live_row)
         host.crawl_descriptor_changed.connect(self._descriptor_changed)
-        if host.crawl_descriptor is None and hasattr(host, "load_crawl_descriptor") and host.project_directory:
+        if (
+            host.crawl_descriptor is None
+            and hasattr(host, "load_crawl_descriptor")
+            and host.project_directory
+        ):
             host.load_crawl_descriptor()
         self._descriptor_changed()
 
@@ -163,7 +167,9 @@ class QuickScanBar(QFrame):
         self.pause_button = QPushButton(tr("Пауза"))
         self.pause_button.setObjectName("quickScanPause")
         self.pause_button.setEnabled(False)
-        self.pause_button.setToolTip(f"{tr('Недоступно в этой версии ядра')}: {tr('ядро не ставит скан на паузу')}")
+        self.pause_button.setToolTip(
+            f"{tr('Недоступно в этой версии ядра')}: {tr('ядро не ставит скан на паузу')}"
+        )
         self.stop_button = QPushButton(tr("Стоп"))
         self.stop_button.setObjectName("quickScanStop")
         self.stop_button.setProperty("role", "danger")
@@ -235,22 +241,34 @@ class QuickScanBar(QFrame):
 
     # ---- state ---------------------------------------------------------------------------------------------------
     def _site(self):
-        return ((getattr(self.host, "project_result", None) or {}).get("project") or {}).get("site") or {}
+        return ((getattr(self.host, "project_result", None) or {}).get("project") or {}).get(
+            "site"
+        ) or {}
 
     def _descriptor_changed(self):
         host = self.host
         if host.crawl_descriptor is not None and self.draft is None and host.project_directory:
             site = self._site()
-            self.draft = draft = ScanDraft(host.crawl_descriptor, target=site.get("target") or "", host=site.get("host") or "",
-                                           project_directory=host.project_directory or "", prefs=getattr(host, "prefs", None), parent=self)
+            self.draft = draft = ScanDraft(
+                host.crawl_descriptor,
+                target=site.get("target") or "",
+                host=site.get("host") or "",
+                project_directory=host.project_directory or "",
+                prefs=getattr(host, "prefs", None),
+                parent=self,
+            )
             key = host.note_project_key() if hasattr(host, "note_project_key") else None
             draft.restore(getattr(host, "_scan_drafts", {}).get(key))
             self.mode = draft.source if draft.source in ("site", "sitemap") else "site"
             self.url.blockSignals(True)
             self.url.setText(draft.sitemap_url if self.mode == "sitemap" else draft.target)
             self.url.blockSignals(False)
-            self._rps_edit, self._sync_rps = number_edit(draft, "rps", tr("Запросов в секунду"), 0, "quickScanRate")
-            self._limit_edit, self._sync_limit = number_edit(draft, "limit", tr("Лимит URL"), 0, "quickScanLimit")
+            self._rps_edit, self._sync_rps = number_edit(
+                draft, "rps", tr("Запросов в секунду"), 0, "quickScanRate"
+            )
+            self._limit_edit, self._sync_limit = number_edit(
+                draft, "limit", tr("Лимит URL"), 0, "quickScanLimit"
+            )
             draft.changed.connect(self.refresh)
             request_project_policy(self.host, self.draft)
         self.refresh()
@@ -263,7 +281,9 @@ class QuickScanBar(QFrame):
         self.url.blockSignals(True)
         if mode == "sitemap":
             self.url.setText(self.draft.sitemap_url)
-            self.url.setPlaceholderText(tr("Адрес sitemap, например") + f" {self._site().get('target', '')}sitemap.xml")
+            self.url.setPlaceholderText(
+                tr("Адрес sitemap, например") + f" {self._site().get('target', '')}sitemap.xml"
+            )
         else:
             self.url.setText(self.draft.target)
             self.url.setPlaceholderText(tr("Адрес сайта проекта"))
@@ -283,7 +303,11 @@ class QuickScanBar(QFrame):
         if not text:
             return False
         if self.mode == "sitemap":
-            return _site_key(text).split("/")[0] != _site_key(self.draft.target).split("/")[0] if self.draft else True
+            return (
+                _site_key(text).split("/")[0] != _site_key(self.draft.target).split("/")[0]
+                if self.draft
+                else True
+            )
         return _site_key(text) != _site_key(self.draft.target) if self.draft else True
 
     def verdict(self):
@@ -298,11 +322,15 @@ class QuickScanBar(QFrame):
         if self._outside():
             return False, tr(OUTSIDE_REASON)
         if not draft.limit_enabled:
-            return False, tr("Без лимита URL запуск одной строкой недоступен: откройте «Все параметры скана»")
+            return False, tr(
+                "Без лимита URL запуск одной строкой недоступен: откройте «Все параметры скана»"
+            )
         problems = draft.problems()
         if problems:
             return False, next(iter(problems.values()))
-        return True, trf("Запустить скан: GET-запросы к сайту проекта, до {n} URL", n=grouped(draft.url_limit))
+        return True, trf(
+            "Запустить скан: GET-запросы к сайту проекта, до {n} URL", n=grouped(draft.url_limit)
+        )
 
     def refresh(self):
         if self._busy:
@@ -323,7 +351,14 @@ class QuickScanBar(QFrame):
             self.live_bar.setRange(0, row.found)
             self.live_bar.setValue(row.fetched or 0)
             share = round(100 * (row.fetched or 0) / row.found)
-            self.live_counts.setText(trf("{done} / {found} · {share} %", done=number(row.fetched), found=number(row.found), share=share))
+            self.live_counts.setText(
+                trf(
+                    "{done} / {found} · {share} %",
+                    done=number(row.fetched),
+                    found=number(row.found),
+                    share=share,
+                )
+            )
         else:
             self.live_bar.setRange(0, 1)
             self.live_bar.setValue(0)
@@ -348,7 +383,9 @@ class QuickScanBar(QFrame):
         self.mode_button.setIcon(icon(glyph, theming.roles()["primary"]))
         sitemap_declared = bool(draft and draft.capabilities.get("sitemap_only_retained") is True)
         self.mode_actions["sitemap"].setEnabled(sitemap_declared)
-        self.mode_actions["sitemap"].setToolTip("" if sitemap_declared else tr("Возможность не объявлена ядром"))
+        self.mode_actions["sitemap"].setToolTip(
+            "" if sitemap_declared else tr("Возможность не объявлена ядром")
+        )
         enabled = draft is not None
         self.url.setEnabled(enabled)
         self.chip.setEnabled(enabled)
@@ -371,14 +408,20 @@ class QuickScanBar(QFrame):
         if outside:
             text, kind = tr(OUTSIDE_REASON), "badge"
         elif draft is not None and not draft.limit_enabled and self.url.text().strip():
-            text = tr("Без лимита URL запуск одной строкой недоступен: откройте «Все параметры скана»")
+            text = tr(
+                "Без лимита URL запуск одной строкой недоступен: откройте «Все параметры скана»"
+            )
         elif draft is not None and draft.problems() and self.url.text().strip():
             text = next(iter(draft.problems().values()))
-        elif self.host.crawl_descriptor is None and getattr(self.host, "_crawl_descriptor_error", None):
+        elif self.host.crawl_descriptor is None and getattr(
+            self.host, "_crawl_descriptor_error", None
+        ):
             text = tr("Настройки ядра недоступны")
         self.message.setText(text)
         self.message_badge.setVisible(kind == "badge")
-        self.message_icon.set_material_icon("error" if text and kind != "badge" else "info", theming.roles()["text_2"])
+        self.message_icon.set_material_icon(
+            "error" if text and kind != "badge" else "info", theming.roles()["text_2"]
+        )
         self.message_row.setVisible(bool(text))
 
     # ---- actions -------------------------------------------------------------------------------------------------
@@ -460,19 +503,37 @@ class ParamsPopover(QFrame):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 10, 12, 10)
         layout.setSpacing(8)
-        self.rps_edit, self._sync_rps = number_edit(draft, "rps", tr("Запросов в секунду"), 0, "quickScanPopRate")
-        self.limit_edit, self._sync_limit = number_edit(draft, "limit", tr("Лимит URL"), 0, "quickScanPopLimit")
+        self.rps_edit, self._sync_rps = number_edit(
+            draft, "rps", tr("Запросов в секунду"), 0, "quickScanPopRate"
+        )
+        self.limit_edit, self._sync_limit = number_edit(
+            draft, "limit", tr("Лимит URL"), 0, "quickScanPopLimit"
+        )
         self.rps = Stepper(self.rps_edit, lambda: self._step_rps(-1), lambda: self._step_rps(1))
-        self.limit = Stepper(self.limit_edit, lambda: self._step_limit(-500), lambda: self._step_limit(500))
+        self.limit = Stepper(
+            self.limit_edit, lambda: self._step_limit(-500), lambda: self._step_limit(500)
+        )
         self.rps.setFixedWidth(130)
         self.limit.setFixedWidth(130)
-        layout.addLayout(self._line(tr("Запросов/с"), self.rps, tr("Бережно для боевого сайта: не больше 2")))
-        layout.addLayout(self._line(tr("Лимит URL"), self.limit, tr("Скан остановится, когда найдёт столько URL")))
+        layout.addLayout(
+            self._line(tr("Запросов/с"), self.rps, tr("Бережно для боевого сайта: не больше 2"))
+        )
+        layout.addLayout(
+            self._line(
+                tr("Лимит URL"), self.limit, tr("Скан остановится, когда найдёт столько URL")
+            )
+        )
         self.html = Switch(tr("Сохранять HTML"), True)
         self.html.setObjectName("quickScanPopHtml")
-        self.html.toggled.connect(lambda state: draft.set_value("storage.body_mode", "captured_entity_bytes" if state else "off"))
+        self.html.toggled.connect(
+            lambda state: draft.set_value(
+                "storage.body_mode", "captured_entity_bytes" if state else "off"
+            )
+        )
         self.html.setEnabled(draft.has("storage.body_mode"))
-        layout.addLayout(self._line(tr("Сохранять HTML"), self.html, tr("Нужно для поиска в HTML и сравнений")))
+        layout.addLayout(
+            self._line(tr("Сохранять HTML"), self.html, tr("Нужно для поиска в HTML и сравнений"))
+        )
         self.error = QLabel()
         self.error.setObjectName("quickScanPopError")
         self.error.setProperty("field_error", True)
@@ -549,7 +610,11 @@ class QuickScanPopup(QFrame):
         width = max(560, min(host.width() - 40, 1100))
         self.setFixedWidth(width)
         anchor = getattr(host, "project_button", None)
-        top = anchor.mapTo(host, QPoint(0, anchor.height())).y() + 8 if anchor is not None and anchor.isVisible() else 56
+        top = (
+            anchor.mapTo(host, QPoint(0, anchor.height())).y() + 8
+            if anchor is not None and anchor.isVisible()
+            else 56
+        )
         self.move(host.mapToGlobal(QPoint(max(0, (host.width() - width) // 2), top)))
         self.adjustSize()
 

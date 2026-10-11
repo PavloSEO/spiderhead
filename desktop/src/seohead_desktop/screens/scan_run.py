@@ -52,7 +52,7 @@ def tilde(path):
     import os
 
     home = os.path.expanduser("~")
-    return "~" + path[len(home):] if path and path.startswith(home) else path
+    return "~" + path[len(home) :] if path and path.startswith(home) else path
 
 
 def card(title, issue=None):
@@ -122,7 +122,12 @@ class ScanRunPage(Screen):
         root.addWidget(bar)
         self.pages = QStackedWidget()
         root.addWidget(self.pages, 1)
-        self.empty = StatePanel("empty", "Нет выбранного запуска", "Выберите запуск в списке сканов или запустите новый.", action=("К списку сканов", self.back.emit))
+        self.empty = StatePanel(
+            "empty",
+            "Нет выбранного запуска",
+            "Выберите запуск в списке сканов или запустите новый.",
+            action=("К списку сканов", self.back.emit),
+        )
         self.pages.addWidget(self.empty)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -138,7 +143,9 @@ class ScanRunPage(Screen):
         banner_layout = QHBoxLayout(self.banner)
         banner_layout.setContentsMargins(12, 10, 12, 10)
         banner_layout.setSpacing(10)
-        banner_layout.addWidget(MaterialIconLabel("memory", 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop)
+        banner_layout.addWidget(
+            MaterialIconLabel("memory", 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop
+        )
         self.banner_text = QLabel()
         self.banner_text.setWordWrap(True)
         banner_layout.addWidget(self.banner_text, 1)
@@ -166,7 +173,16 @@ class ScanRunPage(Screen):
         main.addWidget(self.age)
         kpis = QHBoxLayout()
         kpis.setSpacing(12)
-        self.kpi = {key: Kpi(caption) for key, caption in (("queued", "В очереди"), ("fetched", "Загружено"), ("errors", "Ошибки"), ("excluded", "Исключено"), ("rate", "Запросов/с"))}
+        self.kpi = {
+            key: Kpi(caption)
+            for key, caption in (
+                ("queued", "В очереди"),
+                ("fetched", "Загружено"),
+                ("errors", "Ошибки"),
+                ("excluded", "Исключено"),
+                ("rate", "Запросов/с"),
+            )
+        }
         for key, widget in self.kpi.items():
             kpis.addWidget(widget)
         self.kpi["errors"].layout().addWidget(waiting_badge(LIVE_ISSUE), 0, Qt.AlignLeft)
@@ -180,7 +196,11 @@ class ScanRunPage(Screen):
         plot.setFixedHeight(120)
         plot_layout = QVBoxLayout(plot)
         plot_layout.setContentsMargins(12, 12, 12, 12)
-        note = QLabel(tr("Ядро не отдаёт ряд скорости за последние минуты; график не рисуется, чтобы не показывать выдуманные значения."))
+        note = QLabel(
+            tr(
+                "Ядро не отдаёт ряд скорости за последние минуты; график не рисуется, чтобы не показывать выдуманные значения."
+            )
+        )
         note.setProperty("text_style", "meta")
         note.setWordWrap(True)
         note.setAlignment(Qt.AlignCenter)
@@ -188,7 +208,11 @@ class ScanRunPage(Screen):
         speed_layout.addWidget(plot)
         main.addWidget(speed)
         urls, urls_layout = card("Последние URL", 933)
-        note = QLabel(tr("Хвост сохранённых страниц с временем получения ядро не отдаёт; сохранённые страницы доступны в разделе «URL»."))
+        note = QLabel(
+            tr(
+                "Хвост сохранённых страниц с временем получения ядро не отдаёт; сохранённые страницы доступны в разделе «URL»."
+            )
+        )
         note.setProperty("text_style", "meta")
         note.setWordWrap(True)
         urls_layout.addWidget(note)
@@ -210,7 +234,9 @@ class ScanRunPage(Screen):
         disk_layout.addWidget(self.disk_hint)
         side.addWidget(disk)
         errors, errors_layout = card("Ошибки", LIVE_ISSUE)
-        text = QLabel(tr("Число ошибок и их список ядро пока не отдаёт; события запуска — в журнале."))
+        text = QLabel(
+            tr("Число ошибок и их список ядро пока не отдаёт; события запуска — в журнале.")
+        )
         text.setProperty("text_style", "meta")
         text.setWordWrap(True)
         errors_layout.addWidget(text)
@@ -278,14 +304,26 @@ class ScanRunPage(Screen):
         at = scan_common.now()
         self.badge.show()
         self.title.setText(row.title.split(" · ")[0])
-        self.ident.setText(" · ".join(part for part in (short_run_id(row.id), row.host_name) if part))
+        self.ident.setText(
+            " · ".join(part for part in (short_run_id(row.id), row.host_name) if part)
+        )
         self.ident.setToolTip(row.id)
         self.badge.set_state(row.badge_kind, row.state_label(at), row.badge_icon)
         self.stop.setEnabled(can_stop(row))
-        self.stop.setToolTip("" if can_stop(row) else tr("Остановка запуска, начатого не этим окном: недоступно в этой версии ядра"))
+        self.stop.setToolTip(
+            ""
+            if can_stop(row)
+            else tr("Остановка запуска, начатого не этим окном: недоступно в этой версии ядра")
+        )
         self.banner_text.setText(tr(BANNER_OWNED if row.owned else BANNER_CORE))
         if row.fetched is not None and row.found:
-            self.progress_text.setText(trf("Обработано {done} из {found} найденных URL", done=number(row.fetched), found=number(row.found)))
+            self.progress_text.setText(
+                trf(
+                    "Обработано {done} из {found} найденных URL",
+                    done=number(row.fetched),
+                    found=number(row.found),
+                )
+            )
             self.percent.setText(f"{round(100 * row.fetched / row.found)}%")
             self.bar.setRange(0, row.found)
             self.bar.setValue(row.fetched)
@@ -295,13 +333,26 @@ class ScanRunPage(Screen):
             self.bar.setRange(0, 1)
             self.bar.setValue(0)
         limit_rps = row.collector.get("max_requests_per_second")
-        self.limit.setText(trf("лимит {n} запр./с", n=f"{limit_rps:g}".replace(".", ",")) if isinstance(limit_rps, (int, float)) and limit_rps > 0 else "")
+        self.limit.setText(
+            trf("лимит {n} запр./с", n=f"{limit_rps:g}".replace(".", ","))
+            if isinstance(limit_rps, (int, float)) and limit_rps > 0
+            else ""
+        )
         if row.group == "stale":
             sample = duration(row.sample_age(at))
-            self.age.setText(trf("Наблюдение устарело · {age}: показаны последние известные значения, скорость не определена", age=sample or tr("возраст неизвестен")))
+            self.age.setText(
+                trf(
+                    "Наблюдение устарело · {age}: показаны последние известные значения, скорость не определена",
+                    age=sample or tr("возраст неизвестен"),
+                )
+            )
         elif row.active:
             seen = duration(row.observation_age(at))
-            self.age.setText(trf("Наблюдение {age} назад", age=seen) if seen else tr("Возраст наблюдения неизвестен"))
+            self.age.setText(
+                trf("Наблюдение {age} назад", age=seen)
+                if seen
+                else tr("Возраст наблюдения неизвестен")
+            )
         else:
             self.age.setText(tr("Запуск завершён: показаны итоговые счётчики"))
         self.kpi["queued"].set_value(number(row.queued))
@@ -309,7 +360,9 @@ class ScanRunPage(Screen):
         self.kpi["errors"].set_value(None)
         self.kpi["excluded"].set_value(number(row.excluded))
         rate = f"{row.rate:.1f}".replace(".", ",") if row.rate is not None else None
-        self.kpi["rate"].set_value(rate, tr("нет свежего измерения") if rate is None and row.active else "")
+        self.kpi["rate"].set_value(
+            rate, tr("нет свежего измерения") if rate is None and row.active else ""
+        )
         started = row.started
         self.pairs.set("Начат", row.started_text)
         if started is not None:
@@ -320,10 +373,21 @@ class ScanRunPage(Screen):
         self.pairs.set("Осталось", tr("Недоступно"), na=True)
         self.pairs.set("Режим", mode_text(row))
         limit = row.collector.get("max_urls")
-        self.pairs.set("Охват", trf("лимит {n} URL", n=number(limit)) if isinstance(limit, int) and limit > 0 else None)
+        self.pairs.set(
+            "Охват",
+            trf("лимит {n} URL", n=number(limit)) if isinstance(limit, int) and limit > 0 else None,
+        )
         self.disk_row.set("База скана", megabytes((row.scan or {}).get("disk_bytes")))
         free = self._free_space()
-        self.disk_hint.setText(trf("Свободно на диске {free} · папка проекта {path}", free=free, path=tilde(self.host.project_directory)) if free else tilde(self.host.project_directory or ""))
+        self.disk_hint.setText(
+            trf(
+                "Свободно на диске {free} · папка проекта {path}",
+                free=free,
+                path=tilde(self.host.project_directory),
+            )
+            if free
+            else tilde(self.host.project_directory or "")
+        )
         self.saved.setEnabled(row.scan is not None)
 
     def _free_space(self):

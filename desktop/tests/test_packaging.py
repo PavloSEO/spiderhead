@@ -111,8 +111,16 @@ class PackagingTests(unittest.TestCase):
             core.write_bytes(b"launcher")
             internal.write_bytes(b"original")
             entries = [
-                {"path": "_internal/data.bin", "kind": "file", "sha256": hashlib.sha256(b"original").hexdigest()},
-                {"path": "seohead", "kind": "file", "sha256": hashlib.sha256(b"launcher").hexdigest()},
+                {
+                    "path": "_internal/data.bin",
+                    "kind": "file",
+                    "sha256": hashlib.sha256(b"original").hexdigest(),
+                },
+                {
+                    "path": "seohead",
+                    "kind": "file",
+                    "sha256": hashlib.sha256(b"launcher").hexdigest(),
+                },
             ]
             (resources / "core-manifest.json").write_text(
                 json.dumps(
@@ -240,9 +248,7 @@ class PackagingTests(unittest.TestCase):
             hashlib.sha256((ROOT / "LICENSE").read_bytes()).hexdigest(),
             "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
         )
-        notices = (ROOT / "scripts" / "copy_runtime_notices.py").read_text(
-            encoding="utf-8"
-        )
+        notices = (ROOT / "scripts" / "copy_runtime_notices.py").read_text(encoding="utf-8")
         for notice in (
             "Qt-LGPL-3.0.txt",
             "PyQt5-sip-LICENSE.txt",

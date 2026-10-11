@@ -48,10 +48,10 @@ LINK_COLUMNS = (
     "target=Target|rel=Rel|status=Status Code|status_text=Status|path_type=Path Type|"
     "link_path=Link Path|position=Link Position|origin=Link Origin"
 )
-NATIVE = (
-    "Bounded retained scan-inspect pages; additional fields require retained evidence."
+NATIVE = "Bounded retained scan-inspect pages; additional fields require retained evidence."
+FINDINGS = (
+    "Retained findings and matched URL evidence; never calculate global findings from a page."
 )
-FINDINGS = "Retained findings and matched URL evidence; never calculate global findings from a page."
 LINKS = "Retained link/resource evidence and direction-aware core query."
 PROJECT = "Existing project CLI projection; no replacement project store."
 
@@ -227,11 +227,7 @@ MAIN_TABS = (
         "directives",
         "Directives",
         "main",
-        URL
-        + "|occurrences=Occurrences|"
-        + ROBOTS
-        + "|meta_refresh=Meta Refresh 1|"
-        + CANONICAL,
+        URL + "|occurrences=Occurrences|" + ROBOTS + "|meta_refresh=Meta Refresh 1|" + CANONICAL,
         "All|Index|Noindex|Follow|Nofollow|None|NoArchive|NoSnippet|Max-Snippet|Max-Image-Preview|Max-Video-Preview|NoODP|NoYDIR|NoImageIndex|NoTranslate|Unavailable_After|Refresh|Outside <head>",
         FINDINGS,
         "select_url",
@@ -303,13 +299,9 @@ MAIN_TABS = (
 )
 
 DETAIL_TABS = (
-    _tab(
-        "url_details", "URL Details", "detail", "name=Name|value=Value", evidence=NATIVE
-    ),
+    _tab("url_details", "URL Details", "detail", "name=Name|value=Value", evidence=NATIVE),
     _tab("inlinks", "Inlinks", "detail", LINK_COLUMNS, "All|Internal|External", LINKS),
-    _tab(
-        "outlinks", "Outlinks", "detail", LINK_COLUMNS, "All|Internal|External", LINKS
-    ),
+    _tab("outlinks", "Outlinks", "detail", LINK_COLUMNS, "All|Internal|External", LINKS),
     _tab(
         "image_details",
         "Image Details",
@@ -317,9 +309,7 @@ DETAIL_TABS = (
         "from_url=From|to_url=To|alt=Alt Text|real_dimensions=Real Dimensions (WxH)|attribute_dimensions=Dimensions in Attributes (WxH)|display_dimensions=Display Dimensions (WxH)|potential_savings=Potential Savings|path_type=Path Type|link_path=Link Path|position=Link Position|origin=Link Origin",
         evidence=LINKS,
     ),
-    _tab(
-        "resources", "Resources", "detail", LINK_COLUMNS, "All|Internal|External", LINKS
-    ),
+    _tab("resources", "Resources", "detail", LINK_COLUMNS, "All|Internal|External", LINKS),
     _tab(
         "serp_snippet",
         "SERP Snippet",
@@ -352,9 +342,7 @@ DETAIL_TABS = (
         "duplicate_details",
         "Duplicate Details",
         "detail",
-        URL
-        + "|near_duplicate_url=Near Duplicate Address|similarity=Similarity|"
-        + INDEX,
+        URL + "|near_duplicate_url=Near Duplicate Address|similarity=Similarity|" + INDEX,
         evidence=FINDINGS,
     ),
     _tab(

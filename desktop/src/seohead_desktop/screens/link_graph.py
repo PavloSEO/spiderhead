@@ -8,7 +8,17 @@ disabled with the reason; no sample graph is drawn and no count is invented.
 from __future__ import annotations
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QStackedWidget, QToolButton, QVBoxLayout
+from PyQt5.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QStackedWidget,
+    QToolButton,
+    QVBoxLayout,
+)
 
 from ..i18n import tr
 from ..ui.icons import material_icon
@@ -38,7 +48,9 @@ def group(buttons, label):
         button.setText(tr(text))
         button.setEnabled(False)
         button.setToolTip(unavailable_tip(UNAVAILABLE_REASON))
-        button.setMinimumWidth(button.sizeHint().width())  # whole words stay readable; the toolbar scrolls instead
+        button.setMinimumWidth(
+            button.sizeHint().width()
+        )  # whole words stay readable; the toolbar scrolls instead
         buttons_row.addWidget(button)
     return buttons_row
 
@@ -80,7 +92,9 @@ class LinkGraphScreen(Screen):
         layout.addLayout(group(COLOR_MODES, "Цвет"))
         layout.addLayout(group(SIZE_MODES, "Размер"))
         layout.addStretch(1)
-        scroll = QScrollArea()  # a narrow window scrolls the toolbar rather than squeezing its labels
+        scroll = (
+            QScrollArea()
+        )  # a narrow window scrolls the toolbar rather than squeezing its labels
         scroll.setFrameShape(QFrame.NoFrame)
         scroll.setWidgetResizable(True)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -156,11 +170,16 @@ class LinkGraphScreen(Screen):
             self.canvas_host.removeWidget(old)
             old.deleteLater()
         if kind == "noproject":
-            panel = no_project_panel(self.host, "Откройте проект, чтобы увидеть граф ссылок его сохранённого скана.")
+            panel = no_project_panel(
+                self.host, "Откройте проект, чтобы увидеть граф ссылок его сохранённого скана."
+            )
         else:
-            panel = StatePanel("waiting", "Граф ссылок пока не показан",
-                               "Ядро не отдаёт граф сохранённого скана целиком. Ссылки одной страницы — в карточке URL.",
-                               hint=GRAPH_HINT)
+            panel = StatePanel(
+                "waiting",
+                "Граф ссылок пока не показан",
+                "Ядро не отдаёт граф сохранённого скана целиком. Ссылки одной страницы — в карточке URL.",
+                hint=GRAPH_HINT,
+            )
         self.canvas_host.addWidget(panel)
         self.state = kind
 

@@ -2,10 +2,10 @@
 
 import unittest
 
+from seohead_desktop.app import load_theme
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.compare_url import PAGE_LIMIT, CompareUrlScreen
 from seohead_desktop.ui.kit import StatePanel
-from seohead_desktop.app import load_theme
 from tests._qt import sweep_widgets
 
 

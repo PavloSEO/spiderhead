@@ -34,7 +34,9 @@ class FatalConditionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as core_dir:
             core = os.path.join(core_dir, "seohead")
             open(core, "w").close()
-            self.assertEqual(fatal_conditions(core, core_dir, free_bytes=50 * GIB, writable=True), [])
+            self.assertEqual(
+                fatal_conditions(core, core_dir, free_bytes=50 * GIB, writable=True), []
+            )
 
     def test_missing_core_is_reported_with_the_configured_path_or_path_hint(self):
         found = fatal_conditions(None, None)
@@ -48,7 +50,9 @@ class FatalConditionTests(unittest.TestCase):
         self.assertEqual(MIN_FREE_BYTES, 10 * GIB)
 
     def test_free_space_exactly_at_the_floor_is_not_fatal(self):
-        self.assertEqual(fatal_conditions("/bin/sh", "/tmp", free_bytes=MIN_FREE_BYTES, writable=True), [])
+        self.assertEqual(
+            fatal_conditions("/bin/sh", "/tmp", free_bytes=MIN_FREE_BYTES, writable=True), []
+        )
 
     def test_unmeasured_disk_is_not_reported_as_full(self):
         with patch("seohead_desktop.ui.fatal.shutil.disk_usage", side_effect=OSError):
@@ -67,10 +71,14 @@ class FatalScreenTests(unittest.TestCase):
         host = Host(None, None)
         screen = FatalStatesScreen(host)
         texts = [label.text() for label in screen.findChildren(QLabel)]
-        self.assertTrue(any("Ядро не найдено" == text for text in texts))
+        self.assertTrue(any(text == "Ядро не найдено" for text in texts))
         for text in texts + [badge.toolTip() for badge in screen.findChildren(QLabel)]:
             self.assertNotIn("#", text)
-        issues = sorted(badge.property("waiting_issue") for badge in screen.findChildren(QLabel) if badge.property("waiting_issue"))
+        issues = sorted(
+            badge.property("waiting_issue")
+            for badge in screen.findChildren(QLabel)
+            if badge.property("waiting_issue")
+        )
         self.assertEqual(issues, [979, 1163])
 
     def test_primary_action_of_core_state_opens_the_installer_screen(self):
@@ -87,11 +95,17 @@ class FatalScreenTests(unittest.TestCase):
             open(core, "w").close()
             host = Host(core, core_dir)
             usage = type("Usage", (), {"free": 2 * GIB})()
-            with patch("seohead_desktop.ui.fatal.shutil.disk_usage", return_value=usage), \
-                    patch("seohead_desktop.ui.fatal.os.access", return_value=True):
+            with (
+                patch("seohead_desktop.ui.fatal.shutil.disk_usage", return_value=usage),
+                patch("seohead_desktop.ui.fatal.os.access", return_value=True),
+            ):
                 screen = FatalStatesScreen(host)
             self.assertEqual([c.property("fatal") for c in screen._cards], ["disk_low", "waiting"])
             fill_grid(screen.grid, screen._cards, 600)
-            self.assertEqual(screen.grid.getItemPosition(screen.grid.indexOf(screen._cards[1]))[:2], (1, 0))
+            self.assertEqual(
+                screen.grid.getItemPosition(screen.grid.indexOf(screen._cards[1]))[:2], (1, 0)
+            )
             fill_grid(screen.grid, screen._cards, 1440)
-            self.assertEqual(screen.grid.getItemPosition(screen.grid.indexOf(screen._cards[1]))[:2], (0, 1))
+            self.assertEqual(
+                screen.grid.getItemPosition(screen.grid.indexOf(screen._cards[1]))[:2], (0, 1)
+            )

@@ -46,9 +46,7 @@ class LocalControlTests(unittest.TestCase):
             self.assertEqual(QThread.currentThread(), self.app.thread())
             self.calls.append((operation, arguments))
             if operation == "stop_run" and arguments["run_id"] != "owned-run":
-                raise ControlError(
-                    "not_owned", "Only this Desktop's owned runs can be stopped"
-                )
+                raise ControlError("not_owned", "Only this Desktop's owned runs can be stopped")
             if operation == "new_scan":
                 return {"state": "queued", "run_id": "owned-run"}
             return {"operation": operation, "arguments": arguments, "state": "ready"}
@@ -84,9 +82,7 @@ class LocalControlTests(unittest.TestCase):
 
     def call(self, operation="status", arguments=None, **kwargs):
         return self.worker(
-            lambda: request(
-                self.endpoint.descriptor_path, operation, arguments, **kwargs
-            )
+            lambda: request(self.endpoint.descriptor_path, operation, arguments, **kwargs)
         )
 
     def frame(self, **changes):
@@ -114,9 +110,7 @@ class LocalControlTests(unittest.TestCase):
             while b"\n" not in received and time.monotonic() < deadline:
                 received.extend(bytes(socket.readAll()))
                 if b"\n" not in received:
-                    socket.waitForReadyRead(
-                        max(1, int((deadline - time.monotonic()) * 1000))
-                    )
+                    socket.waitForReadyRead(max(1, int((deadline - time.monotonic()) * 1000)))
             socket.abort()
             return json.loads(received)
 
@@ -197,12 +191,8 @@ class LocalControlTests(unittest.TestCase):
                 self.assertEqual(
                     stat.S_IMODE(endpoint.descriptor_path.parent.stat().st_mode), 0o700
                 )
-                self.assertEqual(
-                    stat.S_IMODE(endpoint.descriptor_path.stat().st_mode), 0o600
-                )
-                result = self.worker(
-                    lambda: request(endpoint.descriptor_path, "status")
-                )
+                self.assertEqual(stat.S_IMODE(endpoint.descriptor_path.stat().st_mode), 0o600)
+                result = self.worker(lambda: request(endpoint.descriptor_path, "status"))
                 self.assertEqual(result, {"boundary": 100})
             finally:
                 server.close()
@@ -237,9 +227,7 @@ class LocalControlTests(unittest.TestCase):
     def test_multiple_frames_and_duplicate_keys_are_rejected(self):
         response = self.raw(self.frame() + self.frame(id="two"))
         self.assertEqual(response["error"]["code"], "invalid_request")
-        duplicate = self.frame().replace(
-            b'"id": "probe"', b'"id": "probe", "id": "second"'
-        )
+        duplicate = self.frame().replace(b'"id": "probe"', b'"id": "probe", "id": "second"')
         self.assertEqual(self.raw(duplicate)["error"]["code"], "invalid_request")
         self.assertEqual(self.calls, [])
 
@@ -320,9 +308,7 @@ class LocalControlTests(unittest.TestCase):
     def test_mutation_receipt_prevents_duplicate_admission_and_id_reuse(self):
         arguments = {"run_id": "owned-run", "approved": True}
         first = self.call("stop_run", arguments, request_id="same-mutation")
-        self.assertEqual(
-            self.call("stop_run", arguments, request_id="same-mutation"), first
-        )
+        self.assertEqual(self.call("stop_run", arguments, request_id="same-mutation"), first)
         self.assertEqual(len(self.calls), 1)
         with self.assertRaises(ControlError) as caught:
             self.call("resume_run", arguments, request_id="same-mutation")
@@ -371,9 +357,7 @@ class LocalControlTests(unittest.TestCase):
                 status = await client.call_tool("desktop_status", {})
                 self.assertFalse(status.isError)
                 self.assertEqual(status.structuredContent["operation"], "status")
-                refused = await client.call_tool(
-                    "desktop_stop_run", {"run_id": "owned-run"}
-                )
+                refused = await client.call_tool("desktop_stop_run", {"run_id": "owned-run"})
                 self.assertTrue(refused.isError)
                 coerced = await client.call_tool(
                     "desktop_stop_run", {"run_id": "owned-run", "approved": "true"}

@@ -52,7 +52,16 @@ class _MetricCard(QPushButton):
         layout.setContentsMargins(12, 8, 12, 8)
         layout.setHorizontalSpacing(6)
         layout.setVerticalSpacing(3)
-        self.symbol = MaterialIconLabel(icon, size=18, parent=self, color=theme_tokens()["colors"][{"success": "success", "warning": "on_warning_container", "active": "primary"}.get(tone, "on_surface_variant")])
+        self.symbol = MaterialIconLabel(
+            icon,
+            size=18,
+            parent=self,
+            color=theme_tokens()["colors"][
+                {"success": "success", "warning": "on_warning_container", "active": "primary"}.get(
+                    tone, "on_surface_variant"
+                )
+            ],
+        )
         has_icon = (ASSET_ROOT / f"{icon}.svg").is_file()
         self.symbol.setFixedSize(18, 18)
         self.symbol.setVisible(has_icon)
@@ -82,8 +91,13 @@ class _MetricCard(QPushButton):
         self.setAccessibleName(f"{self.title}: {measured}. {scope}. {self.note}")
         self.setToolTip(
             f"{self.note}. {scope}.\n"
-            + ("Показать этот статус в текущей странице таблицы" if count else
-               "На этой странице нет таких находок" if count == 0 else "Результат ещё не измерен")
+            + (
+                "Показать этот статус в текущей странице таблицы"
+                if count
+                else "На этой странице нет таких находок"
+                if count == 0
+                else "Результат ещё не измерен"
+            )
         )
         self.setEnabled(count is not None and count > 0)
 
@@ -170,7 +184,9 @@ class ComparisonSummary(QWidget):
 
     def set_compact(self, compact):
         self.raw_summary.hide()
-        self.details_toggle.setToolButtonStyle(Qt.ToolButtonIconOnly if compact else Qt.ToolButtonTextBesideIcon)
+        self.details_toggle.setToolButtonStyle(
+            Qt.ToolButtonIconOnly if compact else Qt.ToolButtonTextBesideIcon
+        )
         self.details_toggle.setToolTip("Как читать сравнение: полная сводка и ограничения")
 
     def minimumSizeHint(self):
@@ -185,11 +201,18 @@ class ComparisonSummary(QWidget):
         narrow = width < 650
         if narrow != self._narrow:
             self._narrow = narrow
-            for widget in (self.whole_scope, self.coverage_badge, self.details_toggle, self.raw_summary):
+            for widget in (
+                self.whole_scope,
+                self.coverage_badge,
+                self.details_toggle,
+                self.raw_summary,
+            ):
                 self.delta_layout.removeWidget(widget)
             self.delta_layout.addWidget(self.whole_scope, 0, 0, 1, 3 if narrow else 1)
             self.delta_layout.addWidget(self.coverage_badge, 1 if narrow else 0, 0 if narrow else 1)
-            self.delta_layout.addWidget(self.details_toggle, 1 if narrow else 0, 1 if narrow else 2, 1, 2 if narrow else 1)
+            self.delta_layout.addWidget(
+                self.details_toggle, 1 if narrow else 0, 1 if narrow else 2, 1, 2 if narrow else 1
+            )
             self.delta_layout.addWidget(self.raw_summary, 2 if narrow else 1, 0, 1, 3)
         columns = 5 if width >= 630 else 3 if width >= 400 else 2 if width >= 304 else 1
         if columns == self._columns:
@@ -219,7 +242,8 @@ class ComparisonSummary(QWidget):
         self.details.setVisible(visible)
         self.details_toggle.setIcon(material_icon("chevron_up" if visible else "chevron_down"))
         self.details_toggle.setAccessibleName(
-            ("Свернуть" if visible else "Раскрыть") + " пояснения, ограничения и источники сравнения"
+            ("Свернуть" if visible else "Раскрыть")
+            + " пояснения, ограничения и источники сравнения"
         )
 
     def set_payload(self, payload):
@@ -233,7 +257,11 @@ class ComparisonSummary(QWidget):
         offset = _count(payload.get("offset")) if ready else None
         before, after = (payload.get(key) or {} for key in ("before", "after"))
         source_scope = f"{_number(_count(before.get('urls_crawled')))} → {_number(_count(after.get('urls_crawled')))} URL"
-        self.whole_scope.setText(f"Все наблюдения · {_number(total)} находок · {source_scope}" if ready else "Все наблюдения · ещё не измерено")
+        self.whole_scope.setText(
+            f"Все наблюдения · {_number(total)} находок · {source_scope}"
+            if ready
+            else "Все наблюдения · ещё не измерено"
+        )
         entered, appeared = _count(delta.get("entered")), _count(delta.get("appeared"))
         new = entered + appeared if entered is not None and appeared is not None else None
         self.raw_summary.hide()
@@ -241,38 +269,67 @@ class ComparisonSummary(QWidget):
             f"Не обнаружены: {_number(_count(delta.get('left')))}   ·   Новые: {_number(new)}   ·   "
             f"В обоих: {_number(_count(delta.get('unchanged')))}   ·   На отсутствующих URL: {_number(_count(delta.get('disappeared')))}"
         )
-        extent = f"{offset + 1}–{offset + count}" if count and offset is not None else "0" if count == 0 else "—"
+        extent = (
+            f"{offset + 1}–{offset + count}"
+            if count and offset is not None
+            else "0"
+            if count == 0
+            else "—"
+        )
         scope = f"Строки {extent} из {_number(total)}; только текущая страница"
-        self.page_scope.setText("Перепроверка · " + scope if ready else "Перепроверка страницы · ещё не измерено")
+        self.page_scope.setText(
+            "Перепроверка · " + scope if ready else "Перепроверка страницы · ещё не измерено"
+        )
         complete = (
-            isinstance(verified, Mapping) and count is not None
+            isinstance(verified, Mapping)
+            and count is not None
             and all(_count(value) is not None for value in verified.values())
             and sum(verified.values()) == count
         )
         for state, button in self.metric_buttons.items():
-            value = _count(verified.get(state, 0 if complete else None)) if isinstance(verified, Mapping) else None
+            value = (
+                _count(verified.get(state, 0 if complete else None))
+                if isinstance(verified, Mapping)
+                else None
+            )
             button.set_count(value, scope if ready else "Текущая страница ещё не измерена")
-        other = sum(value for key, value in verified.items() if key not in self.metric_buttons) if complete else 0
+        other = (
+            sum(value for key, value in verified.items() if key not in self.metric_buttons)
+            if complete
+            else 0
+        )
         if other:
             self.page_scope.setText(self.page_scope.text() + f" · Другие статусы: {_number(other)}")
         self.set_active_filter("all")
         reason = str(payload.get("reason") or "").strip()[:800]
         self.state_line.setText(reason)
         self.state_line.setVisible(not ready and bool(reason))
-        warnings = [str(item)[:800] for item in (payload.get("warnings") or [])[:20]] if ready else []
+        warnings = (
+            [str(item)[:800] for item in (payload.get("warnings") or [])[:20]] if ready else []
+        )
         compatibility = payload.get("compatibility") or [] if ready else []
-        partial = warnings or any(source.get("crawl_partial") or source.get("corpus_partial") for source in (before, after))
-        compatible = bool(compatibility) and all(item.get("state") == "compatible" for item in compatibility)
+        partial = warnings or any(
+            source.get("crawl_partial") or source.get("corpus_partial")
+            for source in (before, after)
+        )
+        compatible = bool(compatibility) and all(
+            item.get("state") == "compatible" for item in compatibility
+        )
         badge_state, badge_text = (
-            ("unknown", "Покрытие не измерено") if not ready else
-            ("partial", "Охват ограничен") if partial else
-            ("retained", "Совместимость подтверждена") if compatible else
-            ("review", "Совместимость не подтверждена")
+            ("unknown", "Покрытие не измерено")
+            if not ready
+            else ("partial", "Охват ограничен")
+            if partial
+            else ("retained", "Совместимость подтверждена")
+            if compatible
+            else ("review", "Совместимость не подтверждена")
         )
         self.coverage_badge.set_state(badge_state)
         self.coverage_badge.setText(badge_text)
         self.coverage_badge.setAccessibleName(badge_text)
-        self.coverage_badge.setToolTip("Ограничения и исходные сведения доступны в «Как читать сравнение»")
+        self.coverage_badge.setToolTip(
+            "Ограничения и исходные сведения доступны в «Как читать сравнение»"
+        )
         explanation = (
             "Все наблюдения — находки в сравнении двух сохранённых сканов. «Не обнаружены» не означает «исправлены».\n\n"
             "Карточки показывают результаты перепроверки только загруженной страницы. Нажатие фильтрует эту страницу. "
@@ -280,9 +337,18 @@ class ComparisonSummary(QWidget):
             "Ноль — измеренное отсутствие; тире — результат не измерен.\n\n"
             f"Новые на известных URL: {_number(entered)}. На новых URL: {_number(appeared)}.\n\n"
         )
-        source = {"До": before, "После": after, "Совместимость": compatibility,
-                  "Пакет сравнения": payload.get("package") if ready else None}
-        self.details.setPlainText(self.raw_summary.text() + "\n\n" + explanation + ("Ограничения охвата\n" + "\n\n".join(warnings) + "\n\n" if warnings else "")
-                                  + readable_record(source, heading="Источники", max_lines=45))
+        source = {
+            "До": before,
+            "После": after,
+            "Совместимость": compatibility,
+            "Пакет сравнения": payload.get("package") if ready else None,
+        }
+        self.details.setPlainText(
+            self.raw_summary.text()
+            + "\n\n"
+            + explanation
+            + ("Ограничения охвата\n" + "\n\n".join(warnings) + "\n\n" if warnings else "")
+            + readable_record(source, heading="Источники", max_lines=45)
+        )
         self.details_toggle.setChecked(False)
         self._show_details(False)

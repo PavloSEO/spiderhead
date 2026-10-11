@@ -17,8 +17,16 @@ from ..ui.kit import StatePanel, no_project_panel, waiting_badge
 from .base import Screen
 
 PROFILE_ISSUE = 999
-FILTERS = (("all", "Все"), ("follow", "Обычные"), ("nofollow", "nofollow"), ("sponsored", "Платные (sponsored)"), ("ugc", "ugc"))
-UNAVAILABLE_FILTER_TIP = tr("Группы ссылок появятся с профилем внешних ссылок проекта. Недоступно в этой версии ядра")
+FILTERS = (
+    ("all", "Все"),
+    ("follow", "Обычные"),
+    ("nofollow", "nofollow"),
+    ("sponsored", "Платные (sponsored)"),
+    ("ugc", "ugc"),
+)
+UNAVAILABLE_FILTER_TIP = tr(
+    "Группы ссылок появятся с профилем внешних ссылок проекта. Недоступно в этой версии ядра"
+)
 
 
 class BacklinksScreen(Screen):
@@ -84,13 +92,22 @@ class BacklinksScreen(Screen):
 
     def refresh(self):
         if not self.project_open:
-            self._set_panel(no_project_panel(self.host, tr("Откройте проект, чтобы увидеть его внешние ссылки.")))
+            self._set_panel(
+                no_project_panel(
+                    self.host, tr("Откройте проект, чтобы увидеть его внешние ссылки.")
+                )
+            )
             self.foot_text.setText(tr("Профиль ссылок проекта не загружен"))
             return
         # The core has no backlink profile yet: say so instead of showing an empty table as a real zero.
-        self._set_panel(StatePanel(
-            "waiting", "Профиль внешних ссылок не загружен",
-            tr("Ядро пока не хранит ссылающиеся домены и ссылки проекта. Проверка доноров по списку работает отдельно."),
-            issue=PROFILE_ISSUE,
-        ))
+        self._set_panel(
+            StatePanel(
+                "waiting",
+                "Профиль внешних ссылок не загружен",
+                tr(
+                    "Ядро пока не хранит ссылающиеся домены и ссылки проекта. Проверка доноров по списку работает отдельно."
+                ),
+                issue=PROFILE_ISSUE,
+            )
+        )
         self.foot_text.setText(tr("Источники ссылок проекта не подключены в этой версии"))

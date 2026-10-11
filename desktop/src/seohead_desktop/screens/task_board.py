@@ -51,7 +51,9 @@ class TaskCard(QFrame):
         top.setSpacing(6)
         dot = QLabel()
         dot.setFixedSize(8, 8)
-        dot.setStyleSheet(f"background: {resolve_color(priority_colour(row.get('priority')))}; border-radius: 4px;")
+        dot.setStyleSheet(
+            f"background: {resolve_color(priority_colour(row.get('priority')))}; border-radius: 4px;"
+        )
         meta = QLabel(f"{row.get('priority') or tr('Нет данных')} · {self.item_id}")
         meta.setProperty("text_style", "meta")
         meta.setToolTip(self.item_id)
@@ -170,5 +172,9 @@ class TaskBoard(QWidget):
             placed += len(chosen)
             column.fill(chosen, self.card_picked.emit)
         rest = len(rows) - placed
-        self.outside.setText(trf("Вне колонок: {n} (не согласованы, недоступны или исключены)", n=number(rest)) if rest else "")
+        self.outside.setText(
+            trf("Вне колонок: {n} (не согласованы, недоступны или исключены)", n=number(rest))
+            if rest
+            else ""
+        )
         self.outside.setVisible(bool(rest))

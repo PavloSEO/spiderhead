@@ -50,7 +50,9 @@ class AboutSectionTests(unittest.TestCase):
     def test_copy_info_goes_to_clipboard(self):
         _store, _dialog, page = make("about", SettingsContext(app_version="4.5.6"))
         QApplication.clipboard().clear()
-        next(b for b in page.findChildren(QPushButton) if b.text() == "Скопировать сведения").click()
+        next(
+            b for b in page.findChildren(QPushButton) if b.text() == "Скопировать сведения"
+        ).click()
         copied = QApplication.clipboard().text()
         self.assertIn("Приложение: 4.5.6", copied)
         self.assertIn("MCP-протокол: Нет данных", copied)

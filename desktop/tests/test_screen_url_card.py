@@ -21,7 +21,13 @@ class CardBase(UrlBase):
         super().wait(timeout)
         card = self.screen.bottom
         end = time.monotonic() + timeout
-        while time.monotonic() < end and (card.links.job.busy or card.links.counter.busy or card.redirects.job.busy or card.history.busy or card.links.timer.isActive()):
+        while time.monotonic() < end and (
+            card.links.job.busy
+            or card.links.counter.busy
+            or card.redirects.job.busy
+            or card.history.busy
+            or card.links.timer.isActive()
+        ):
             self.app.processEvents()
             time.sleep(0.01)
         self.app.processEvents()
@@ -43,7 +49,9 @@ class CardBase(UrlBase):
 
 class ArgumentTests(unittest.TestCase):
     def test_links_arguments_follow_the_core_contract(self):
-        args = links_arguments("/s.sqlite", "http://x/", direction="in", offset=100, contains="кат", nofollow=True)
+        args = links_arguments(
+            "/s.sqlite", "http://x/", direction="in", offset=100, contains="кат", nofollow=True
+        )
         self.assertEqual(args[:2], ["scan-link-inspect", "--scan"])
         self.assertEqual(args[args.index("--view") + 1], "links")
         self.assertEqual(args[args.index("--direction") + 1], "in")
@@ -58,7 +66,9 @@ class ArgumentTests(unittest.TestCase):
 
 class CardTests(CardBase):
     def test_tabs_follow_the_url_sheets(self):
-        self.assertEqual(TAB_ORDER[:8], ("info", "hdr", "links", "html", "res", "redir", "hist", "schema"))
+        self.assertEqual(
+            TAB_ORDER[:8], ("info", "hdr", "links", "html", "res", "redir", "hist", "schema")
+        )
         self.assertEqual(self.screen.bottom.tabs.count(), len(TAB_ORDER))
 
     def test_headers_come_from_the_saved_response_and_are_counted(self):
@@ -66,9 +76,18 @@ class CardTests(CardBase):
         fixture_headers = fixture("scan_url_detail.json")["responses"]["items"][0]
         total = len(fixture_headers["request_headers"]) + len(fixture_headers["response_headers"])
         self.assertIn(str(total), card.tabs.tabText(TAB_ORDER.index("hdr")))
-        text = " ".join(label.text() for label in card.headers.findChildren(type(card.scan_caption)))
+        text = " ".join(
+            label.text() for label in card.headers.findChildren(type(card.scan_caption))
+        )
         self.assertIn("content-type", text.lower())
-        self.assertIn("Недоступно", " ".join(w.text() for w in card.headers.findChildren(type(card.scan_caption)) if w.property("badge")))
+        self.assertIn(
+            "Недоступно",
+            " ".join(
+                w.text()
+                for w in card.headers.findChildren(type(card.scan_caption))
+                if w.property("badge")
+            ),
+        )
 
     def test_links_load_both_directions_with_totals_from_the_core(self):
         card = self.open_tab("links")
@@ -76,7 +95,9 @@ class CardTests(CardBase):
         self.assertTrue(calls)
         first = calls[0]
         self.assertEqual(first[first.index("--view") + 1], "links")
-        self.assertEqual(card.links.model.rowCount(), len(fixture("link_inspect_out.json")["items"]))
+        self.assertEqual(
+            card.links.model.rowCount(), len(fixture("link_inspect_out.json")["items"])
+        )
         incoming = fixture("link_inspect_in.json")["total"]
         self.assertEqual(card.links.totals["in"], incoming)
         self.assertIn("/", card.tabs.tabText(TAB_ORDER.index("links")))
@@ -97,7 +118,9 @@ class CardTests(CardBase):
         card = self.open_tab("links")
         card.links.nofollow.setChecked(True)
         self.wait()
-        filtered = [c for c in self.calls("scan-link-inspect", skip_counts=False) if "--follow" in c]
+        filtered = [
+            c for c in self.calls("scan-link-inspect", skip_counts=False) if "--follow" in c
+        ]
         self.assertEqual(filtered[-1][filtered[-1].index("--follow") + 1], "nofollow")
         self.assertEqual(card.links.model.rowCount(), 0)
         self.assertEqual(card.links.stack.currentIndex(), 1)
@@ -105,7 +128,14 @@ class CardTests(CardBase):
     def test_redirect_chain_is_followed_through_saved_pages(self):
         card = self.open_tab("redir", REDIRECT)
         page = card.redirects
-        self.assertEqual([hop.url for hop in page.hops], [REDIRECT, "http://shop.example.test:18431/tovar/stol-007/", "http://shop.example.test:18431/catalog/stoly/"])
+        self.assertEqual(
+            [hop.url for hop in page.hops],
+            [
+                REDIRECT,
+                "http://shop.example.test:18431/tovar/stol-007/",
+                "http://shop.example.test:18431/catalog/stoly/",
+            ],
+        )
         self.assertEqual([hop.status for hop in page.hops], [301, 301, 200])
         self.assertEqual(page.verdict, "end")
         self.assertLessEqual(len(page.hops), MAX_HOPS)
@@ -122,13 +152,21 @@ class CardTests(CardBase):
 
     def test_tabs_without_core_data_say_so_and_show_known_facts(self):
         card = self.open_tab("res")
-        badges = [w for w in card.facts["res"].findChildren(type(card.scan_caption)) if w.property("waiting_issue")]
+        badges = [
+            w
+            for w in card.facts["res"].findChildren(type(card.scan_caption))
+            if w.property("waiting_issue")
+        ]
         self.assertEqual(badges[0].property("waiting_issue"), 974)
         self.assertIn("Недоступно", badges[0].toolTip())
         for tab, issue in (("html", 936), ("schema", 948)):
             card.select_tab(tab)
             self.app.processEvents()
-            found = [w.property("waiting_issue") for w in card.facts[tab].findChildren(type(card.scan_caption)) if w.property("waiting_issue")]
+            found = [
+                w.property("waiting_issue")
+                for w in card.facts[tab].findChildren(type(card.scan_caption))
+                if w.property("waiting_issue")
+            ]
             self.assertEqual(found, [issue])
 
     def test_history_reads_the_url_in_every_saved_scan_and_marks_missing_ones(self):
@@ -158,8 +196,14 @@ class CardTests(CardBase):
 
         card = self.open_tab("hist")
         page = card.history
-        scans = [{"path": f"/project/shop/scans/history-{i}.sqlite", "uuid": f"scan-{i:04d}",
-                  "created_at": f"2026-10-{i + 1:02d}T00:00:00Z"} for i in range(13)]
+        scans = [
+            {
+                "path": f"/project/shop/scans/history-{i}.sqlite",
+                "uuid": f"scan-{i:04d}",
+                "created_at": f"2026-10-{i + 1:02d}T00:00:00Z",
+            }
+            for i in range(13)
+        ]
         self.host.scan_model.rows = scans
         page.ctx.scan = scans[0]["path"]
         page.scans = page._scans()

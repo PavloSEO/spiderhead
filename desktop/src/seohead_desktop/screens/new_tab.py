@@ -7,7 +7,16 @@ not read by this build, so the section says the list is not connected yet instea
 from __future__ import annotations
 
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QScrollArea, QSizePolicy, QToolButton, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import (
+    QFrame,
+    QGridLayout,
+    QLabel,
+    QScrollArea,
+    QSizePolicy,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .. import i18n
 from ..ui.icons import material_icon
@@ -21,7 +30,12 @@ OPTIONS = (
     ("url", "table_view", "URL скана", "Таблица, фильтры, детали URL"),
     ("issues", "rule", "Проблемы", "Проверки, затронутые URL, перепроверка"),
     ("compare", "compare_arrows", "Сравнение", "Два скана: что улучшилось и что сломалось"),
-    ("content_search", "find_in_page", "Поиск в HTML", "Текст или фрагмент кода по сохранённым страницам"),
+    (
+        "content_search",
+        "find_in_page",
+        "Поиск в HTML",
+        "Текст или фрагмент кода по сохранённым страницам",
+    ),
     ("scans", "sensors", "Наблюдение", "Идущий скан: счётчики, скорость, события"),
     ("reports", "description", "Отчёт", "Задачи программисту, SEO и контенту"),
 )
@@ -48,8 +62,10 @@ class NewTabScreen(Screen):
         body.setContentsMargins(48, 40, 48, 40)
         body.setSpacing(24)
 
-        self.header = PageHeader("Что открыть в новой вкладке",
-                                 tr("Вкладка запоминает раздел, запуск, фильтры и выделение."))
+        self.header = PageHeader(
+            "Что открыть в новой вкладке",
+            tr("Вкладка запоминает раздел, запуск, фильтры и выделение."),
+        )
         body.addWidget(self.header)
 
         grid = QGridLayout()
@@ -73,8 +89,13 @@ class NewTabScreen(Screen):
         heading = QLabel(tr("Сохранённые виды"))
         heading.setProperty("text_style", "section")
         body.addWidget(heading)
-        body.addWidget(StatePanel("waiting", "Виды проекта",
-                                  "Список сохранённых видов открытого проекта в этой сборке не подключён."))
+        body.addWidget(
+            StatePanel(
+                "waiting",
+                "Виды проекта",
+                "Список сохранённых видов открытого проекта в этой сборке не подключён.",
+            )
+        )
         body.addStretch(1)
 
     def open_section(self, section):

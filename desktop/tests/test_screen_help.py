@@ -52,7 +52,7 @@ class HelpScreenTests(unittest.TestCase):
     def test_selecting_an_item_shows_its_article_and_no_data(self):
         button = self.screen.entries[2][1]
         QTest.mouseClick(button, Qt.LeftButton)
-        group, _icon, heading, text, view = ITEMS[2]
+        group, _icon, heading, text, _view = ITEMS[2]
         self.assertEqual(self.screen.article_title.text(), heading)
         self.assertEqual(self.screen.article_text.text(), text)
         self.assertIn(group, self.screen.crumb.text())
@@ -76,7 +76,9 @@ class HelpScreenTests(unittest.TestCase):
         self.screen.search.setText("агент")
         shown = [index for index, button, _caption in self.screen.entries if button.isVisible()]
         self.assertTrue(shown)
-        self.assertTrue(all("агент" in (ITEMS[index][2] + ITEMS[index][3]).lower() for index in shown))
+        self.assertTrue(
+            all("агент" in (ITEMS[index][2] + ITEMS[index][3]).lower() for index in shown)
+        )
         self.assertTrue(self.screen.group.button(self.screen.current).isVisible())
         self.screen.search.setText("zzz-no-match")
         self.assertTrue(all(button.isHidden() for _index, button, _caption in self.screen.entries))

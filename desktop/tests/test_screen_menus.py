@@ -40,11 +40,14 @@ class MenuRowTests(unittest.TestCase):
         i18n.set_language("ru")
 
     def test_shortcut_is_text_after_a_tab_and_unavailable_rows_stay_disabled(self):
-        menu = fill_menu(QMenu(), [
-            entry("info", "Подробности", lambda: None, "↵"),
-            None,
-            unavailable("tab", "В новой вкладке", "⌘↵"),
-        ])
+        menu = fill_menu(
+            QMenu(),
+            [
+                entry("info", "Подробности", lambda: None, "↵"),
+                None,
+                unavailable("tab", "В новой вкладке", "⌘↵"),
+            ],
+        )
         actions = menu.actions()
         self.assertEqual(actions[0].text(), "Подробности\t↵")
         self.assertTrue(actions[0].isEnabled())
@@ -59,7 +62,9 @@ class MenuRowTests(unittest.TestCase):
 
     def test_triggering_a_row_calls_its_action(self):
         calls = []
-        menu = fill_menu(QMenu(), [entry("content_copy", "Копировать", lambda: calls.append(1), "⌘C")])
+        menu = fill_menu(
+            QMenu(), [entry("content_copy", "Копировать", lambda: calls.append(1), "⌘C")]
+        )
         menu.actions()[0].trigger()
         self.assertEqual(calls, [1])
 
@@ -81,16 +86,19 @@ class UrlMenuTests(UrlBase):
 
     def test_row_menu_lists_the_board_rows_in_order(self):
         labels = [label(a) for a in rows_of(self.row_menu())]
-        self.assertEqual(labels, [
-            "Подробности",
-            "Открыть сайт в браузере",
-            "Развернуть карточку",
-            "В новой вкладке",
-            "Копировать URL",
-            "Копировать строку TSV",
-            "Заметка агенту",
-            "Перепроверить выбранные",
-        ])
+        self.assertEqual(
+            labels,
+            [
+                "Подробности",
+                "Открыть сайт в браузере",
+                "Развернуть карточку",
+                "В новой вкладке",
+                "Копировать URL",
+                "Копировать строку TSV",
+                "Заметка агенту",
+                "Перепроверить выбранные",
+            ],
+        )
 
     def test_open_in_browser_is_enabled_only_for_web_addresses(self):
         menu = self.row_menu()
@@ -106,7 +114,10 @@ class UrlMenuTests(UrlBase):
         next(a for a in rows_of(menu) if label(a) == "Копировать строку TSV").trigger()
         text = QApplication.clipboard().text()
         self.assertIn(self.screen.rows[0]["url"], text)
-        self.assertEqual(text.count("\t") + 1, sum(not self.screen.table.isColumnHidden(c) for c in range(len(url_module.COLUMNS))))
+        self.assertEqual(
+            text.count("\t") + 1,
+            sum(not self.screen.table.isColumnHidden(c) for c in range(len(url_module.COLUMNS))),
+        )
 
     def test_header_menu_hides_only_non_key_columns_and_sorts_by_core_columns(self):
         header = self.screen.table.horizontalHeader()
@@ -121,8 +132,12 @@ class UrlMenuTests(UrlBase):
 
     def test_header_menu_sort_is_unavailable_for_columns_the_core_does_not_sort(self):
         header = self.screen.table.horizontalHeader()
-        column = next(c for c, spec in enumerate(url_module.COLUMNS) if spec[3] is None)  # «Входящих»
-        self.screen.table.setColumnHidden(column, False)  # the width rule may hide it; the menu must still answer
+        column = next(
+            c for c, spec in enumerate(url_module.COLUMNS) if spec[3] is None
+        )  # «Входящих»
+        self.screen.table.setColumnHidden(
+            column, False
+        )  # the width rule may hide it; the menu must still answer
         point = QPoint(header.sectionViewportPosition(column) + 4, header.height() // 2)
         self.screen._header_menu(point)
         actions = {label(a): a for a in rows_of(Recorder.shown[-1])}

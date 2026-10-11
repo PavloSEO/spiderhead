@@ -65,19 +65,12 @@ def _checked_path(path, *, directory=False, private=False):
     path = Path(path)
     try:
         info = path.lstat()
-        correct_type = (
-            stat.S_ISDIR(info.st_mode) if directory else stat.S_ISREG(info.st_mode)
-        )
-        if (
-            not path.is_absolute()
-            or not correct_type
-            or path.resolve(strict=True) != path
-        ):
+        correct_type = stat.S_ISDIR(info.st_mode) if directory else stat.S_ISREG(info.st_mode)
+        if not path.is_absolute() or not correct_type or path.resolve(strict=True) != path:
             raise ValueError
         if os.name != "nt" and (
             info.st_uid != os.geteuid()
-            or (private
-            and stat.S_IMODE(info.st_mode) != (0o700 if directory else 0o600))
+            or (private and stat.S_IMODE(info.st_mode) != (0o700 if directory else 0o600))
         ):
             raise ValueError
     except (OSError, ValueError):
@@ -97,9 +90,7 @@ def prepare_endpoint(runtime_directory) -> ControlEndpoint:
     root, _ = _checked_path(runtime_directory, directory=True)
     instance_id = uuid.uuid4().hex
     private = root / ("d-" + instance_id[:16])
-    socket_name = (
-        "seohead-desktop-" + instance_id if os.name == "nt" else str(private / "ipc")
-    )
+    socket_name = "seohead-desktop-" + instance_id if os.name == "nt" else str(private / "ipc")
     if os.name != "nt" and len(os.fsencode(socket_name)) > 100:
         raise ControlError(
             "endpoint_path_too_long",
@@ -145,14 +136,10 @@ def read_endpoint(descriptor_path) -> ControlEndpoint:
         with os.fdopen(descriptor, "rb") as stream:
             opened = os.fstat(stream.fileno())
             if (opened.st_dev, opened.st_ino) != (info.st_dev, info.st_ino):
-                raise ControlError(
-                    "unsafe_endpoint", "Endpoint descriptor changed while opening"
-                )
+                raise ControlError("unsafe_endpoint", "Endpoint descriptor changed while opening")
             raw = stream.read(MAX_DESCRIPTOR_BYTES + 1)
         if len(raw) > MAX_DESCRIPTOR_BYTES:
-            raise ControlError(
-                "unsafe_endpoint", "Endpoint descriptor exceeds its size limit"
-            )
+            raise ControlError("unsafe_endpoint", "Endpoint descriptor exceeds its size limit")
         payload = _decode(raw)
         _object(payload, {"protocol", "instance_id", "endpoint", "token"})
         instance = payload["instance_id"]
@@ -164,33 +151,21 @@ def read_endpoint(descriptor_path) -> ControlEndpoint:
             or not isinstance(token, str)
             or not re.fullmatch(r"[a-f0-9]{64}", token)
         ):
-            raise ControlError(
-                "unsafe_endpoint", "Invalid endpoint descriptor identity"
-            )
-        expected = (
-            "seohead-desktop-" + instance
-            if os.name == "nt"
-            else str(path.parent / "ipc")
-        )
+            raise ControlError("unsafe_endpoint", "Invalid endpoint descriptor identity")
+        expected = "seohead-desktop-" + instance if os.name == "nt" else str(path.parent / "ipc")
         if payload["endpoint"] != expected:
             raise ControlError(
                 "unsafe_endpoint",
                 "Endpoint must belong to its private instance directory",
             )
-        return ControlEndpoint(
-            path, expected, instance, token, (info.st_dev, info.st_ino)
-        )
+        return ControlEndpoint(path, expected, instance, token, (info.st_dev, info.st_ino))
     except OSError:
-        raise ControlError(
-            "unavailable", "Cannot read the Desktop endpoint descriptor"
-        ) from None
+        raise ControlError("unavailable", "Cannot read the Desktop endpoint descriptor") from None
 
 
 def _identifier(value, label):
     if not isinstance(value, str) or not _IDENTIFIER.fullmatch(value):
-        raise ControlError(
-            "invalid_request", f"{label} must be a bounded identifier, not a path"
-        )
+        raise ControlError("invalid_request", f"{label} must be a bounded identifier, not a path")
     return value
 
 
@@ -210,9 +185,7 @@ def _json_tree(value, depth=0):
         return
     if type(value) in {int, float}:
         if abs(value) > 2**63 - 1 or (type(value) is float and not math.isfinite(value)):
-            raise ControlError(
-                "invalid_request", "JSON numbers must be finite and bounded"
-            )
+            raise ControlError("invalid_request", "JSON numbers must be finite and bounded")
     elif type(value) is str:
         if len(value) > 4096 or "\x00" in value:
             raise ControlError("invalid_request", "JSON text exceeds the control limit")
@@ -231,9 +204,7 @@ def _json_tree(value, depth=0):
 def validate_arguments(operation: str, arguments: dict) -> dict:
     """Validate IPC shape; owner callback additionally admits IDs and core settings."""
     if not isinstance(operation, str) or operation not in _FIELDS:
-        raise ControlError(
-            "unsupported_operation", "This Desktop control operation is not allowed"
-        )
+        raise ControlError("unsupported_operation", "This Desktop control operation is not allowed")
     _object(arguments, *_FIELDS[operation])
     _json_tree(arguments)
     for key, value in arguments.items():
@@ -256,22 +227,14 @@ def validate_arguments(operation: str, arguments: dict) -> dict:
             ("max_seconds", 2**31 - 1),
         ):
             if type(config[key]) is not int or not 0 <= config[key] <= maximum:
-                raise ControlError(
-                    "invalid_request", f"config.{key} is outside Desktop bounds"
-                )
-        if not isinstance(config["rendering_mode"], str) or config[
-            "rendering_mode"
-        ] not in {"raw", "js"}:
-            raise ControlError(
-                "invalid_request", "config.rendering_mode must be raw or js"
-            )
-        if (
-            "approve_large_crawl" in config
-            and type(config["approve_large_crawl"]) is not bool
-        ):
-            raise ControlError(
-                "invalid_request", "config.approve_large_crawl must be boolean"
-            )
+                raise ControlError("invalid_request", f"config.{key} is outside Desktop bounds")
+        if not isinstance(config["rendering_mode"], str) or config["rendering_mode"] not in {
+            "raw",
+            "js",
+        }:
+            raise ControlError("invalid_request", "config.rendering_mode must be raw or js")
+        if "approve_large_crawl" in config and type(config["approve_large_crawl"]) is not bool:
+            raise ControlError("invalid_request", "config.approve_large_crawl must be boolean")
         if "configuration_overrides" in config:
             overrides = config["configuration_overrides"]
             if type(overrides) is not dict or any(
@@ -323,16 +286,14 @@ def _decode(raw):
             parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)),
         )
     except (UnicodeError, ValueError, RecursionError):
-        raise ControlError(
-            "invalid_request", "Expected one UTF-8 JSON object"
-        ) from None
+        raise ControlError("invalid_request", "Expected one UTF-8 JSON object") from None
 
 
 def _encode(payload):
     return (
-        json.dumps(
-            payload, ensure_ascii=False, allow_nan=False, separators=(",", ":")
-        ).encode("utf-8")
+        json.dumps(payload, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode(
+            "utf-8"
+        )
         + b"\n"
     )
 
@@ -387,9 +348,7 @@ class DesktopControlServer(QObject):
         # which can overflow sockaddr_un even when the final path fits. Keep the
         # native user-only named-pipe ACL on Windows.
         self.server.setSocketOptions(
-            QLocalServer.UserAccessOption
-            if os.name == "nt"
-            else QLocalServer.SocketOptions(0)
+            QLocalServer.UserAccessOption if os.name == "nt" else QLocalServer.SocketOptions(0)
         )
         self.server.setMaxPendingConnections(max_clients)
         self.server.newConnection.connect(self._accept)
@@ -405,15 +364,12 @@ class DesktopControlServer(QObject):
             or self.thread() != application.thread()
             or QThread.currentThread() != self.thread()
         ):
-            raise RuntimeError(
-                "Desktop control must start in the Qt application thread"
-            )
+            raise RuntimeError("Desktop control must start in the Qt application thread")
         if self.server.isListening():
             return
         current = read_endpoint(self.endpoint.descriptor_path)
-        if (
-            current.instance_id != self.endpoint.instance_id
-            or not secrets.compare_digest(current.token, self.endpoint.token)
+        if current.instance_id != self.endpoint.instance_id or not secrets.compare_digest(
+            current.token, self.endpoint.token
         ):
             raise ControlError("unsafe_endpoint", "Prepared endpoint identity changed")
         if self.endpoint.socket_name in _ACTIVE_ENDPOINTS or (
@@ -424,9 +380,7 @@ class DesktopControlServer(QObject):
                 "Endpoint already has an owner or an existing path; choose a new explicit instance location",
             )
         if not self.server.listen(self.endpoint.socket_name):
-            reason = " ".join(self.server.errorString().replace("\x00", "").split())[
-                :160
-            ]
+            reason = " ".join(self.server.errorString().replace("\x00", "").split())[:160]
             raise ControlError(
                 "endpoint_unavailable",
                 f"Endpoint cannot listen (Qt {int(self.server.serverError())}: {reason or 'no reason supplied'}; "
@@ -466,9 +420,7 @@ class DesktopControlServer(QObject):
                 socket.write(
                     _encode(
                         self._with_identity(
-                            _error(
-                                None, "busy", "Desktop control connection limit reached"
-                            )
+                            _error(None, "busy", "Desktop control connection limit reached")
                         )
                     )
                 )
@@ -547,9 +499,7 @@ class DesktopControlServer(QObject):
                     or not re.fullmatch(r"[a-f0-9]{64}", request["token"])
                     or not secrets.compare_digest(request["token"], self.endpoint.token)
                 ):
-                    raise ControlError(
-                        "unauthorized", "Desktop endpoint authentication failed"
-                    )
+                    raise ControlError("unauthorized", "Desktop endpoint authentication failed")
                 operation = request["operation"]
                 if not isinstance(operation, str):
                     raise ControlError("invalid_request", "operation must be text")
@@ -601,9 +551,7 @@ class DesktopControlServer(QObject):
             except (ControlError, TypeError, OverflowError) as exc:
                 self._answer(
                     socket,
-                    _error(
-                        request_id, getattr(exc, "code", "invalid_request"), str(exc)
-                    ),
+                    _error(request_id, getattr(exc, "code", "invalid_request"), str(exc)),
                 )
 
     def _answer(self, socket, response):
@@ -668,27 +616,20 @@ def request(
         while True:
             data.extend(bytes(socket.readAll()))
             if len(data) > MAX_RESPONSE_BYTES:
-                raise ControlError(
-                    "response_too_large", "Desktop response exceeds 1 MiB"
-                )
+                raise ControlError("response_too_large", "Desktop response exceeds 1 MiB")
             if b"\n" in data:
                 frame, tail = bytes(data).split(b"\n", 1)
                 if tail:
-                    raise ControlError(
-                        "invalid_response", "Expected one Desktop response"
-                    )
+                    raise ControlError("invalid_response", "Expected one Desktop response")
                 response = _decode(frame)
                 if (
                     type(response) is not dict
                     or response.get("protocol") != PROTOCOL
                     or response.get("instance_id") != identity.instance_id
-                    or (response.get("id") != request_id
-                    and response.get("id") is not None)
+                    or (response.get("id") != request_id and response.get("id") is not None)
                     or type(response.get("ok")) is not bool
                 ):
-                    raise ControlError(
-                        "invalid_response", "Desktop response identity is invalid"
-                    )
+                    raise ControlError("invalid_response", "Desktop response identity is invalid")
                 if response["ok"] is not True:
                     error = response.get("error") or {}
                     if (
@@ -696,20 +637,13 @@ def request(
                         or not isinstance(error.get("code"), str)
                         or not isinstance(error.get("message"), str)
                     ):
-                        raise ControlError(
-                            "invalid_response", "Desktop error response is invalid"
-                        )
+                        raise ControlError("invalid_response", "Desktop error response is invalid")
                     raise ControlError(
                         str(error.get("code", "rejected")),
                         str(error.get("message", "Desktop rejected the request")),
                     )
-                if (
-                    response["id"] != request_id
-                    or type(response.get("result")) is not dict
-                ):
-                    raise ControlError(
-                        "invalid_response", "Desktop response result is invalid"
-                    )
+                if response["id"] != request_id or type(response.get("result")) is not dict:
+                    raise ControlError("invalid_response", "Desktop response result is invalid")
                 return response["result"]
             if not remaining() or not socket.waitForReadyRead(remaining()):
                 raise ControlError(

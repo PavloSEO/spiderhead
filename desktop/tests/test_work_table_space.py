@@ -32,9 +32,16 @@ class WorkTableSpaceTests(unittest.TestCase):
         self.addCleanup(self.window.close)
 
     def test_measured_plan_updates_compact_summary_without_opening_inspector(self):
-        self.window.load_progress({"state": "available", "audit_task_completion": {
-            "state": "measured", "numerator": 3, "denominator": 12,
-        }})
+        self.window.load_progress(
+            {
+                "state": "available",
+                "audit_task_completion": {
+                    "state": "measured",
+                    "numerator": 3,
+                    "denominator": 12,
+                },
+            }
+        )
         self.assertIn("3 из 12", self.window.work_plan_summary.text())
         self.assertTrue(self.window.work_inspector.isHidden())
         monitor = self.window.ensure_monitor()
@@ -44,15 +51,20 @@ class WorkTableSpaceTests(unittest.TestCase):
         self.assertEqual(monitor.detail.toPlainText(), "Updated retained run")
 
     def test_same_display_labels_keep_exact_full_identity_and_tooltips(self):
-        runs = [{"id": "12345678" + suffix, "state": "partial",
-                 "started_at": "2026-10-08T17:45:12Z"} for suffix in ("aaaa", "bbbb")]
+        runs = [
+            {"id": "12345678" + suffix, "state": "partial", "started_at": "2026-10-08T17:45:12Z"}
+            for suffix in ("aaaa", "bbbb")
+        ]
         self.window.present_observed_runs(runs, None)
         model = self.window.activity_model
         self.assertEqual(model.data(model.index(0, 0)), model.data(model.index(1, 0)))
         for index, run in enumerate(runs):
             cell = model.index(index, 0)
-            QTest.mouseClick(self.window.activity_table.viewport(), Qt.LeftButton,
-                            pos=self.window.activity_table.visualRect(cell).center())
+            QTest.mouseClick(
+                self.window.activity_table.viewport(),
+                Qt.LeftButton,
+                pos=self.window.activity_table.visualRect(cell).center(),
+            )
             self.assertEqual(self.window.selected_observed_run_id, run["id"])
             self.assertIn(run["id"], model.data(model.index(index, 0), Qt.ToolTipRole))
             self.assertIn(run["id"], self.window.activity_text.toPlainText())

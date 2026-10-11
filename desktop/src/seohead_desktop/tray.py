@@ -81,11 +81,20 @@ class TrayMode(QObject):
             self.icon.setToolTip(tr("Расписание: нет проектов или ядра"))
             return
         self.busy = True
-        self.jobs.submit(lambda: run_pass(executable, directories, self.keep_awake), self._report, self._failed, self)
+        self.jobs.submit(
+            lambda: run_pass(executable, directories, self.keep_awake),
+            self._report,
+            self._failed,
+            self,
+        )
 
     def _report(self, result):
         self.busy = False
-        text = trf("Запусков по расписанию: {n}", n=result["ran"]) if result["ran"] else tr("Расписание: запусков сейчас нет")
+        text = (
+            trf("Запусков по расписанию: {n}", n=result["ran"])
+            if result["ran"]
+            else tr("Расписание: запусков сейчас нет")
+        )
         self.icon.setToolTip(text)
 
     def _failed(self, _text):

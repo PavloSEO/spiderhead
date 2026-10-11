@@ -47,7 +47,13 @@ class DataSectionTests(unittest.TestCase):
 
     def test_actions_disabled_with_tooltip(self):
         _store, _dialog, page = make("data")
-        for caption in ("Очистить кэш", "Очистить логи", "Сбросить все панели", "Экспорт настроек…", "Импорт…"):
+        for caption in (
+            "Очистить кэш",
+            "Очистить логи",
+            "Сбросить все панели",
+            "Экспорт настроек…",
+            "Импорт…",
+        ):
             button = next(b for b in page.findChildren(QPushButton) if b.text() == caption)
             self.assertFalse(button.isEnabled(), caption)
             self.assertEqual(button.toolTip(), "Недоступно в этой сборке")
@@ -71,7 +77,9 @@ class DataSectionTests(unittest.TestCase):
             logs = Path(tmp, "logs")
             logs.mkdir()
             (logs / "a.log").write_bytes(b"x" * 3 * 1024 * 1024)
-            context = SettingsContext(log_directory=str(logs), data_directory=str(Path(tmp, "missing")))
+            context = SettingsContext(
+                log_directory=str(logs), data_directory=str(Path(tmp, "missing"))
+            )
             _store, _dialog, page = make("data", context)
             QThreadPool.globalInstance().waitForDone()
             self.app.processEvents()
@@ -88,13 +96,18 @@ class DataSectionTests(unittest.TestCase):
 
     def test_reset_all_panels_is_not_clipped_in_its_own_row(self):
         _store, _dialog, page = make("data")
-        button = next(b for b in page.findChildren(QPushButton) if b.text() == "Сбросить все панели")
-        self.assertEqual(button.parentWidget().layout().count(), 2)  # button + stretch, alone in its row
+        button = next(
+            b for b in page.findChildren(QPushButton) if b.text() == "Сбросить все панели"
+        )
+        self.assertEqual(
+            button.parentWidget().layout().count(), 2
+        )  # button + stretch, alone in its row
 
     def test_format_size(self):
         from seohead_desktop.ui.settings.actions import format_size
+
         self.assertEqual(format_size(420 * 1024 * 1024), "420 МБ")
-        self.assertEqual(format_size(int(6.1 * 1024 ** 3)), "6,1 ГБ")
+        self.assertEqual(format_size(int(6.1 * 1024**3)), "6,1 ГБ")
 
     def test_schema_keys_are_prefixed(self):
         self.assertTrue(all(s.key.startswith("data.") for s in data.SCHEMA))

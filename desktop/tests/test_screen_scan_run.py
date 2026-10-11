@@ -18,7 +18,11 @@ from tests._screens_host import FakeHost
 
 
 def waiting(widget):
-    return sorted(label.property("waiting_issue") for label in widget.findChildren(QLabel) if label.property("waiting_issue"))
+    return sorted(
+        label.property("waiting_issue")
+        for label in widget.findChildren(QLabel)
+        if label.property("waiting_issue")
+    )
 
 
 class ScanRunTests(unittest.TestCase):
@@ -64,11 +68,22 @@ class ScanRunTests(unittest.TestCase):
         self.assertEqual(page.progress_text.text(), "Обработано 5 из 18 найденных URL")
         self.assertEqual((page.bar.maximum(), page.bar.value()), (18, 5))
         kpi = {key: widget.number.text() for key, widget in page.kpi.items()}
-        self.assertEqual(kpi, {"queued": "13", "fetched": "5", "errors": "Нет данных", "excluded": "0", "rate": "1,0"})
+        self.assertEqual(
+            kpi,
+            {
+                "queued": "13",
+                "fetched": "5",
+                "errors": "Нет данных",
+                "excluded": "0",
+                "rate": "1,0",
+            },
+        )
         self.assertTrue(page.kpi["errors"].number.property("na"))
         self.assertEqual(page.badge.text(), "Идёт")
         self.assertEqual(page.age.text(), "Наблюдение 0 с назад")
-        self.assertEqual(page.pairs.values["Осталось"].text(), "Недоступно")  # no ETA, no percentage
+        self.assertEqual(
+            page.pairs.values["Осталось"].text(), "Недоступно"
+        )  # no ETA, no percentage
         self.assertEqual(page.pairs.values["Прошло"].text(), "8 с")
         self.assertEqual(page.pairs.values["Охват"].text(), "лимит 60 URL")
         self.assertIn(921, waiting(page))
@@ -96,7 +111,9 @@ class ScanRunTests(unittest.TestCase):
         self.assertTrue(self.page.stop.isEnabled())
         self.assertIn("при закрытии окна он будет остановлен", self.page.banner_text.text())
         self.page.stop.click()
-        self.assertEqual(self.host.calls[-2:], [("choose_owned_run", owned()["id"]), ("cancel_active_work",)])
+        self.assertEqual(
+            self.host.calls[-2:], [("choose_owned_run", owned()["id"]), ("cancel_active_work",)]
+        )
         self.host.calls.clear()
         self.feed(runs=[live_run()], owned=[])
         self.assertFalse(self.page.stop.isEnabled())
@@ -117,16 +134,28 @@ class ScanRunTests(unittest.TestCase):
             self.assertFalse(bar.minimum() == bar.maximum() == 0)
 
     def test_unmeasured_counters_give_no_progress_numbers(self):
-        self.feed(runs=[live_run(counters=dict.fromkeys(("fetched", "queued", "inflight", "excluded", "rate_per_second")))])
+        self.feed(
+            runs=[
+                live_run(
+                    counters=dict.fromkeys(
+                        ("fetched", "queued", "inflight", "excluded", "rate_per_second")
+                    )
+                )
+            ]
+        )
         self.screen.show_monitor()
-        self.assertEqual(self.page.progress_text.text(), "Число обработанных и найденных URL не измерено")
+        self.assertEqual(
+            self.page.progress_text.text(), "Число обработанных и найденных URL не измерено"
+        )
         self.assertEqual(self.page.kpi["queued"].number.text(), "Нет данных")
         self.assertEqual(self.page.bar.value(), 0)
 
     def test_back_returns_to_the_list_and_saved_result_opens_the_url_table(self):
         self.feed(runs=[live_run()], scans=[scan(artifact="scans/live.sqlite")])
         self.screen.show_monitor()
-        self.assertFalse(self.page.saved.isEnabled())  # the live run has no saved scan in the loaded page
+        self.assertFalse(
+            self.page.saved.isEnabled()
+        )  # the live run has no saved scan in the loaded page
         self.page.back_button.click()
         self.assertEqual(self.screen.stack.currentIndex(), 0)
         finished = run(artifact="scans/live.sqlite", identity=live_run()["id"], state="finished")
@@ -144,7 +173,9 @@ class ScanRunTests(unittest.TestCase):
         self.assertEqual(self.page.progress_text.text(), "Обработано 5 из 18 найденных URL")
         self.feed(runs=[live_run(counters={"fetched": 9, "queued": 9})])
         self.assertEqual(self.page.progress_text.text(), "Обработано 9 из 18 найденных URL")
-        self.feed(runs=[run(identity=live_run()["id"])])  # the same run finished: the monitor keeps showing its final counters
+        self.feed(
+            runs=[run(identity=live_run()["id"])]
+        )  # the same run finished: the monitor keeps showing its final counters
         self.assertEqual(self.page.age.text(), "Запуск завершён: показаны итоговые счётчики")
         self.assertFalse(self.page.stop.isEnabled())
 
@@ -153,8 +184,12 @@ class ScanRunTests(unittest.TestCase):
         self.screen.show_monitor()
         i18n.set_language("en")
         i18n.retranslate(self.screen)
-        texts = [label.text() for label in self.page.findChildren(QLabel)] + [b.text() for b in self.page.findChildren(QPushButton)]
-        leftovers = [t for t in texts if re.search("[\u0400-\u04ff]", t) and not t.startswith("Недоступно")]  # kit badges are not retranslated
+        texts = [label.text() for label in self.page.findChildren(QLabel)] + [
+            b.text() for b in self.page.findChildren(QPushButton)
+        ]
+        leftovers = [
+            t for t in texts if re.search("[\u0400-\u04ff]", t) and not t.startswith("Недоступно")
+        ]  # kit badges are not retranslated
         self.assertEqual(leftovers, [])
 
 

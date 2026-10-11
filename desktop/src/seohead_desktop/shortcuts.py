@@ -26,7 +26,7 @@ class Action:
     title: str
     group: str
     default: str
-    fixed: tuple = ()   # not editable; ``default`` is only the label and ``fixed`` lists the sequences it occupies
+    fixed: tuple = ()  # not editable; ``default`` is only the label and ``fixed`` lists the sequences it occupies
 
 
 ACTIONS = (
@@ -34,7 +34,9 @@ ACTIONS = (
     Action("new_scan", "Новый скан", "Навигация", "Ctrl+N"),
     Action("new_tab", "Новая вкладка", "Навигация", "Ctrl+T"),
     Action("close_tab", "Закрыть вкладку", "Навигация", "Ctrl+W"),
-    Action("sections", "Разделы 1–4", "Навигация", "Ctrl+1…4", tuple(f"Ctrl+{n}" for n in range(1, 5))),  # Работа · Сканы · URL · Проблемы
+    Action(
+        "sections", "Разделы 1–4", "Навигация", "Ctrl+1…4", tuple(f"Ctrl+{n}" for n in range(1, 5))
+    ),  # Работа · Сканы · URL · Проблемы
     Action("settings", "Настройки", "Навигация", "Ctrl+,"),
     Action("stop_scan", "Остановить скан", "Сканы", "Ctrl+Backspace"),
     Action("pause_scan", "Приостановить / продолжить", "Сканы", "Ctrl+."),
@@ -42,7 +44,9 @@ ACTIONS = (
     Action("find_in_table", "Найти в таблице", "Таблицы", "Ctrl+F"),
     Action("expand_table", "Развернуть таблицу", "Таблицы", "Ctrl+Alt+Return"),
     Action("copy_tsv", "Копировать как TSV", "Таблицы", "Ctrl+Alt+C"),
-    Action("columns", "Колонки", "Таблицы", ""),   # unassigned: the design's Ctrl+Shift+C is already copy_url's default
+    Action(
+        "columns", "Колонки", "Таблицы", ""
+    ),  # unassigned: the design's Ctrl+Shift+C is already copy_url's default
     Action("copy_url", "Копировать URL", "Таблицы", "Ctrl+Shift+C"),
     Action("url_history", "Назад / вперёд по URL", "Таблицы", "Ctrl+[ ]", ("Ctrl+[", "Ctrl+]")),
     Action("help", "Справка", "Справка", "F1"),
@@ -83,7 +87,9 @@ class ShortcutSetting(Setting):
 
 
 def schema():
-    return tuple(ShortcutSetting(key(a.id), a.default, str, error=INVALID) for a in ACTIONS if not a.fixed)
+    return tuple(
+        ShortcutSetting(key(a.id), a.default, str, error=INVALID) for a in ACTIONS if not a.fixed
+    )
 
 
 def bindings(store):
@@ -93,8 +99,11 @@ def bindings(store):
 
 def sequences(store):
     """action id -> QKeySequence for the shell to attach to QShortcut (fixed and unassigned skipped)."""
-    return {a.id: QKeySequence(store.get(key(a.id)), QKeySequence.PortableText) for a in ACTIONS
-            if not a.fixed and store.get(key(a.id))}
+    return {
+        a.id: QKeySequence(store.get(key(a.id)), QKeySequence.PortableText)
+        for a in ACTIONS
+        if not a.fixed and store.get(key(a.id))
+    }
 
 
 def conflict(store, action_id, portable):
@@ -118,7 +127,9 @@ def set_binding(store, action_id, portable, replace=False):
     other = conflict(store, action_id, normal)
     if other is not None:
         if not replace or other.fixed:
-            return other, trf("{keys} уже занято: «{title}»", keys=display(normal), title=other.title)
+            return other, trf(
+                "{keys} уже занято: «{title}»", keys=display(normal), title=other.title
+            )
         store.set(key(other.id), "")
     store.set(key(action_id), normal)
     return None, ""
@@ -171,8 +182,12 @@ def import_bindings(store, data):
     for action_id, sequence in merged.items():
         other = fixed.get(sequence) or (BY_ID[taken[sequence]] if sequence in taken else None)
         if sequence and other is not None:
-            return trf("{keys} занято дважды: «{first}» и «{second}»", keys=display(sequence), first=BY_ID[action_id].title,
-                       second=other.title)
+            return trf(
+                "{keys} занято дважды: «{first}» и «{second}»",
+                keys=display(sequence),
+                first=BY_ID[action_id].title,
+                second=other.title,
+            )
         taken[sequence] = action_id
     for action_id, sequence in merged.items():
         store.set(key(action_id), sequence)

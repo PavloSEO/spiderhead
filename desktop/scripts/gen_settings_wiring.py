@@ -28,7 +28,9 @@ def render():
     set_language("en")
     lines = [HEAD.rstrip("\n")]
     for key, step, reason in wiring.table(full_schema()):
-        lines.append(f"| `{key}` | {'Applied' if step is None else 'Stored only'} | {step or '—'} | {(tr(reason) + (f' (#{wiring.ISSUES[key]})' if key in wiring.ISSUES else '')) if reason else '—'} |")
+        lines.append(
+            f"| `{key}` | {'Applied' if step is None else 'Stored only'} | {step or '—'} | {(tr(reason) + (f' (#{wiring.ISSUES[key]})' if key in wiring.ISSUES else '')) if reason else '—'} |"
+        )
     return "\n".join(lines) + "\n"
 
 

@@ -31,7 +31,9 @@ def scan_texts(combo, index, run_ids=None, compact=False):
     row = combo.itemData(index) if index >= 0 else None
     if not isinstance(row, dict):
         return tr(combo.itemText(index)) if index >= 0 else "", "", ""
-    rows = [(i, combo.itemData(i)) for i in range(combo.count()) if isinstance(combo.itemData(i), dict)]
+    rows = [
+        (i, combo.itemData(i)) for i in range(combo.count()) if isinstance(combo.itemData(i), dict)
+    ]
     order = sorted(rows, key=lambda pair: (str(pair[1].get("created_at") or ""), -pair[0]))
     ordinal = next((n for n, (i, _r) in enumerate(order, 1) if i == index), 1)
     full_id = str((run_ids or {}).get(row.get("path")) or row.get("uuid") or "")
@@ -39,7 +41,9 @@ def scan_texts(combo, index, run_ids=None, compact=False):
     if compact:
         title = trf("№{n} · {id}", n=ordinal, id=run_id) if run_id else trf("№{n}", n=ordinal)
     else:
-        title = trf("Скан №{n} · {id}", n=ordinal, id=run_id) if run_id else trf("Скан №{n}", n=ordinal)
+        title = (
+            trf("Скан №{n} · {id}", n=ordinal, id=run_id) if run_id else trf("Скан №{n}", n=ordinal)
+        )
     from .screens.scan_common import number, parse_time
 
     stamp = parse_time(row.get("finished_at") or row.get("created_at"))
@@ -104,11 +108,20 @@ class ChromeMixin:
         self.scan_button = PickerButton("manage_search", "Выбрать сохранённый запуск")
         self.scan_button.setMinimumWidth(250)
         self.scan_button.setMaximumWidth(340)
-        self.project_button.clicked.connect(lambda: self.show_picker_menu(self.project_picker, self.project_button))
-        self.scan_button.clicked.connect(lambda: self.show_picker_menu(self.scan_picker, self.scan_button))
-        for combo, button in ((self.project_picker, self.project_button), (self.scan_picker, self.scan_button)):
+        self.project_button.clicked.connect(
+            lambda: self.show_picker_menu(self.project_picker, self.project_button)
+        )
+        self.scan_button.clicked.connect(
+            lambda: self.show_picker_menu(self.scan_picker, self.scan_button)
+        )
+        for combo, button in (
+            (self.project_picker, self.project_button),
+            (self.scan_picker, self.scan_button),
+        ):
             combo.currentIndexChanged.connect(lambda _i, c=combo, b=button: self.sync_picker(c, b))
-            combo.model().rowsInserted.connect(lambda *_a, c=combo, b=button: self.sync_picker(c, b))
+            combo.model().rowsInserted.connect(
+                lambda *_a, c=combo, b=button: self.sync_picker(c, b)
+            )
             combo.model().rowsRemoved.connect(lambda *_a, c=combo, b=button: self.sync_picker(c, b))
             combo.model().modelReset.connect(lambda c=combo, b=button: self.sync_picker(c, b))
             combo.model().dataChanged.connect(lambda *_a, c=combo, b=button: self.sync_picker(c, b))
@@ -143,7 +156,9 @@ class ChromeMixin:
         self.cancel_button = _HideWhenDisabled("Отменить чтение")
         self.cancel_button.setProperty("role", "danger")
         self.cancel_button.setIcon(icon("stop", theming.roles()["error"]))
-        self.cancel_button.setAccessibleName("Отменить чтение или остановить выбранный собственный запуск")
+        self.cancel_button.setAccessibleName(
+            "Отменить чтение или остановить выбранный собственный запуск"
+        )
         self.cancel_button.clicked.connect(self.cancel_active_work)
         self.cancel_button.setEnabled(False)
         self.cancel_button.hide()
@@ -157,7 +172,9 @@ class ChromeMixin:
         self.action_finder_button.layout().setContentsMargins(0, 0, 8, 0)
         self.action_finder_button.layout().addStretch(1)
         self.finder_hint = QLabel("Ctrl+K" if sys.platform != "darwin" else "⌘K")
-        self.finder_hint.setProperty("kbd_badge", True)  # a small badge inside the pill: no border, no divider
+        self.finder_hint.setProperty(
+            "kbd_badge", True
+        )  # a small badge inside the pill: no border, no divider
         self.finder_hint.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.finder_hint.setFixedHeight(20)
         self.action_finder_button.layout().addWidget(self.finder_hint, 0, Qt.AlignVCenter)
@@ -165,7 +182,9 @@ class ChromeMixin:
         self.action_finder_button.setAccessibleName("Найти действие или раздел")
         self.action_finder_button.clicked.connect(self.show_action_finder)
         layout.addWidget(self.action_finder_button)
-        self.refresh_button = icon_button("refresh", "Обновить данные проекта", "Перечитать сохранённые данные проекта")
+        self.refresh_button = icon_button(
+            "refresh", "Обновить данные проекта", "Перечитать сохранённые данные проекта"
+        )
         self.refresh_button.clicked.connect(self.refresh_project)
         self.refresh_button.setEnabled(False)
         layout.addWidget(self.refresh_button)
@@ -182,7 +201,9 @@ class ChromeMixin:
         """Mirror the hidden combo (current text, optional subtitle in the tooltip role, enabled) on its button."""
         index = combo.currentIndex()
         if combo is self.scan_picker:
-            title, subtitle, full_id = scan_texts(combo, index, self.scan_run_ids(), bool(getattr(button, "_compact", False)))
+            title, subtitle, full_id = scan_texts(
+                combo, index, self.scan_run_ids(), bool(getattr(button, "_compact", False))
+            )
         else:
             title = tr(combo.itemText(index)) if index >= 0 else ""
             subtitle = combo.itemData(index, Qt.ToolTipRole) if index >= 0 else ""
@@ -205,11 +226,15 @@ class ChromeMixin:
         menu = QMenu(button)
         for index in range(combo.count()):
             if combo is self.scan_picker:
-                title, subtitle, _full = scan_texts(combo, index, self.scan_run_ids())  # the list always carries the date
+                title, subtitle, _full = scan_texts(
+                    combo, index, self.scan_run_ids()
+                )  # the list always carries the date
                 action = menu.addAction(f"{title}  ·  {subtitle}" if subtitle else title)
             else:
                 action = menu.addAction(combo.itemText(index))
-            action.setCheckable(index != combo.count() - 1 or combo.itemData(index) != {"action": "open"})
+            action.setCheckable(
+                index != combo.count() - 1 or combo.itemData(index) != {"action": "open"}
+            )
             action.setChecked(index == combo.currentIndex())
             action.triggered.connect(lambda _checked, i=index: self._pick(combo, i))
         if combo is self.project_picker:

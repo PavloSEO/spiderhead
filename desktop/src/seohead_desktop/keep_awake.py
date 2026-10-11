@@ -21,8 +21,12 @@ class KeepAwake:
         if wanted and not self.active:
             binary = self._which("caffeinate")
             if binary:
-                self._process = self._popen([binary, "-i"], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                                            stderr=subprocess.DEVNULL)
+                self._process = self._popen(
+                    [binary, "-i"],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
         elif not wanted:
             self.stop()
 

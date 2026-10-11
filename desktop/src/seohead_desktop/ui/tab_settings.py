@@ -76,7 +76,9 @@ class TabSettingsDialog(QDialog):
         self.search.textChanged.connect(self._filter)
         left.addWidget(self.search)
         hint = QLabel(
-            tr("Отмеченные показываются в этом порядке. Источник без данных покажет «Нет измерения», а не пустую таблицу.")
+            tr(
+                "Отмеченные показываются в этом порядке. Источник без данных покажет «Нет измерения», а не пустую таблицу."
+            )
         )
         hint.setWordWrap(True)
         left.addWidget(hint)
@@ -91,7 +93,10 @@ class TabSettingsDialog(QDialog):
         side_layout = QVBoxLayout(side)
         side_layout.addWidget(self._caption(tr("Порядок")))
         order = QHBoxLayout()
-        for label, icon, step in ((tr("Выше"), "arrow_upward", -1), (tr("Ниже"), "arrow_downward", 1)):
+        for label, icon, step in (
+            (tr("Выше"), "arrow_upward", -1),
+            (tr("Ниже"), "arrow_downward", 1),
+        ):
             button = QPushButton(material_icon(icon), label)
             button.clicked.connect(lambda _checked=False, step=step: self._move(step))
             order.addWidget(button)
@@ -187,12 +192,16 @@ class TabSettingsDialog(QDialog):
         self.list.setCurrentRow(target)
 
     def _reset_area(self):
-        self._rows[self._area] = [[spec.id, True] for spec in next(s for k, _, s in AREAS if k == self._area)]
+        self._rows[self._area] = [
+            [spec.id, True] for spec in next(s for k, _, s in AREAS if k == self._area)
+        ]
         self._show_area(self._area)
 
     def _reset_all(self):
         for area, _, _ in AREAS:
-            self._rows[area] = [[spec.id, True] for spec in next(s for k, _, s in AREAS if k == area)]
+            self._rows[area] = [
+                [spec.id, True] for spec in next(s for k, _, s in AREAS if k == area)
+            ]
         self.right_check.setChecked(True)
         self.detail_check.setChecked(True)
         self._show_area(self._area)

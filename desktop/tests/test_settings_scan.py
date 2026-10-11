@@ -50,15 +50,32 @@ class ScanSettingsTests(unittest.TestCase):
     def test_defaults(self):
         self.make()
         got = {s.key: self.store.get(s.key) for s in scan.SCHEMA}
-        self.assertEqual(got, {"scan.rate": 2.0, "scan.url_limit": 1500, "scan.depth": 10, "scan.robots": True, "scan.save_html": True,
-                               "scan.parallel": 3, "scan.sf_path": "/Applications/Screaming Frog SEO Spider.app", "scan.default_profile": "quick"})
+        self.assertEqual(
+            got,
+            {
+                "scan.rate": 2.0,
+                "scan.url_limit": 1500,
+                "scan.depth": 10,
+                "scan.robots": True,
+                "scan.save_html": True,
+                "scan.parallel": 3,
+                "scan.sf_path": "/Applications/Screaming Frog SEO Spider.app",
+                "scan.default_profile": "quick",
+            },
+        )
         self.assertEqual(self.row("Запросов в секунду").control.text(), "2")
         self.assertEqual(self.row("Лимит URL").control.text(), "1 500")
         self.assertEqual(self.row("Одновременных сканов").control.value(), 3)
 
     def test_rate_validation_shows_error_and_stores_nothing(self):
         self.make()
-        for bad, message in (("12", RATE_ERROR), ("10,5", RATE_ERROR), ("0", "Не меньше 0,1 запр/с"), ("abc", "Введите число от 0,1 до 10"), ("nan", "Введите число от 0,1 до 10")):
+        for bad, message in (
+            ("12", RATE_ERROR),
+            ("10,5", RATE_ERROR),
+            ("0", "Не меньше 0,1 запр/с"),
+            ("abc", "Введите число от 0,1 до 10"),
+            ("nan", "Введите число от 0,1 до 10"),
+        ):
             field = self.type_into("Запросов в секунду", bad)
             row = self.row("Запросов в секунду")
             self.assertTrue(row._error_box.isVisibleTo(self.page), bad)
@@ -80,13 +97,20 @@ class ScanSettingsTests(unittest.TestCase):
 
     def test_limit_and_depth_validation(self):
         self.make()
-        for title, key, bad, good, parsed in (("Лимит URL", "scan.url_limit", ("0", "1 000 001", "1.5"), "2 500", 2500),
-                                              ("Глубина обхода", "scan.depth", ("-1", "101", "x"), "0", 0)):
+        for title, key, bad, good, parsed in (
+            ("Лимит URL", "scan.url_limit", ("0", "1 000 001", "1.5"), "2 500", 2500),
+            ("Глубина обхода", "scan.depth", ("-1", "101", "x"), "0", 0),
+        ):
             for value in bad:
                 self.type_into(title, value)
                 self.assertTrue(self.row(title)._error_box.isVisibleTo(self.page), value)
                 self.assertFalse(self.store.is_set(key), value)
-            self.assertEqual(self.row(title)._error.text(), "Введите число от 1 до 1 000 000" if key == "scan.url_limit" else "Введите число от 0 до 100")
+            self.assertEqual(
+                self.row(title)._error.text(),
+                "Введите число от 1 до 1 000 000"
+                if key == "scan.url_limit"
+                else "Введите число от 0 до 100",
+            )
             self.type_into(title, good)
             self.assertEqual(self.store.get(key), parsed)
             self.assertFalse(self.row(title)._error_box.isVisibleTo(self.page))
@@ -117,11 +141,31 @@ class ScanSettingsTests(unittest.TestCase):
 
     def test_default_profile_switch(self):
         self.make()
-        self.assertEqual(len([b for b in self.page.findChildren(QPushButton) if b.text() == "Сделать по умолчанию"]), 3)
+        self.assertEqual(
+            len(
+                [
+                    b
+                    for b in self.page.findChildren(QPushButton)
+                    if b.text() == "Сделать по умолчанию"
+                ]
+            ),
+            3,
+        )
         self.button("Сделать по умолчанию").click()  # first non-default profile = «Полный краул»
         self.assertEqual(self.store.get("scan.default_profile"), "full")
-        self.assertEqual(len([b for b in self.page.findChildren(QPushButton) if b.text() == "Сделать по умолчанию"]), 3)
-        badges = [label for label in self.page.findChildren(QLabel) if label.property("badge") == "info"]
+        self.assertEqual(
+            len(
+                [
+                    b
+                    for b in self.page.findChildren(QPushButton)
+                    if b.text() == "Сделать по умолчанию"
+                ]
+            ),
+            3,
+        )
+        badges = [
+            label for label in self.page.findChildren(QLabel) if label.property("badge") == "info"
+        ]
         self.assertEqual([b.text() for b in badges], ["по умолчанию"])
 
     def test_actions_without_backend_are_disabled_with_tooltip(self):
@@ -142,14 +186,20 @@ class ScanSettingsTests(unittest.TestCase):
     def test_license_unknown_is_not_reported_as_valid(self):
         self.make()
         row = self.row("Лицензия")
-        self.assertEqual([b.text() for b in row.findChildren(QLabel) if b.property("badge")], ["нет данных"])
+        self.assertEqual(
+            [b.text() for b in row.findChildren(QLabel) if b.property("badge")], ["нет данных"]
+        )
         self.assertIn("недоступна", row.description.text())
 
     def test_license_from_application(self):
-        self.make(sf_license=lambda: {"valid": True, "checked": "сегодня 09:12", "until": "14.03.2027"})
+        self.make(
+            sf_license=lambda: {"valid": True, "checked": "сегодня 09:12", "until": "14.03.2027"}
+        )
         row = self.row("Лицензия")
         self.assertEqual(row.description.text(), "Проверено сегодня 09:12 · до 14.03.2027")
-        self.assertEqual([b.text() for b in row.findChildren(QLabel) if b.property("badge")], ["действует"])
+        self.assertEqual(
+            [b.text() for b in row.findChildren(QLabel) if b.property("badge")], ["действует"]
+        )
 
     def test_sf_path_reports_missing_file(self):
         self.make()
@@ -164,7 +214,9 @@ class ScanSettingsTests(unittest.TestCase):
     def test_no_demo_wording_and_no_inline_colours(self):
         self.make()
         self.assertFalse([t for t in texts(self.page) if "демо" in t.lower()])
-        self.assertFalse([w for w in self.page.findChildren(QLineEdit) if "color" in w.styleSheet()])
+        self.assertFalse(
+            [w for w in self.page.findChildren(QLineEdit) if "color" in w.styleSheet()]
+        )
 
     def test_two_columns_fold_when_narrow(self):
         page = self.make()

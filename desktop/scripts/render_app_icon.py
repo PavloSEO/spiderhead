@@ -31,7 +31,9 @@ def source_for(size: int, source: Path, small: Path) -> Path:
 
 
 def render(source: Path, output: Path, small: Path) -> list[Path]:
-    renderers = {path: QSvgRenderer(str(path)) for path in {source_for(s, source, small) for s in SIZES}}
+    renderers = {
+        path: QSvgRenderer(str(path)) for path in {source_for(s, source, small) for s in SIZES}
+    }
     if not all(renderer.isValid() for renderer in renderers.values()):
         raise ValueError("invalid SEOHEAD source SVG")
     output.mkdir(parents=True, exist_ok=True)
@@ -49,17 +51,13 @@ def render(source: Path, output: Path, small: Path) -> list[Path]:
 
     # ICO supports PNG payloads; keep every size rather than upscaling one bitmap.
     frames = [
-        (size, (output / f"seohead-{size}.png").read_bytes())
-        for size in SIZES
-        if size <= 256
+        (size, (output / f"seohead-{size}.png").read_bytes()) for size in SIZES if size <= 256
     ]
     offset = 6 + 16 * len(frames)
     directory = []
     for size, data in frames:
         directory.append(
-            struct.pack(
-                "<BBBBHHII", size % 256, size % 256, 0, 0, 1, 32, len(data), offset
-            )
+            struct.pack("<BBBBHHII", size % 256, size % 256, 0, 0, 1, 32, len(data), offset)
         )
         offset += len(data)
     ico = output / "seohead.ico"
@@ -113,7 +111,10 @@ def main() -> int:
     shutil.copyfile(source, ASSETS / "app" / "seohead.svg")
     shutil.copyfile(small, ASSETS / "app" / "seohead-small.svg")
     paths = render(source, args.output.resolve(), small)
-    paths += [ASSETS / "app" / "seohead.svg", ASSETS / "app" / "seohead-small.svg"]  # copies of the brandbook sources
+    paths += [
+        ASSETS / "app" / "seohead.svg",
+        ASSETS / "app" / "seohead-small.svg",
+    ]  # copies of the brandbook sources
     if args.output.resolve() == (ASSETS / "app").resolve():
         manifest_path = ASSETS / "asset-manifest.json"
         entries = json.loads(manifest_path.read_text(encoding="utf-8"))

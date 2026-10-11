@@ -42,8 +42,6 @@ from ..ui.kit import (
 )
 from ..ui.presentation import short_run_id
 from .scan_common import Pairs, number
-from .url_graph import GraphPage
-from .url_history import HistoryPage
 from .url_detail import (
     OverviewPage,
     SnippetPage,
@@ -57,6 +55,8 @@ from .url_detail import (
     source_text,
     stamp_text,
 )
+from .url_graph import GraphPage
+from .url_history import HistoryPage
 from .url_query import (
     CoreJob,
     detail_arguments,
@@ -66,18 +66,57 @@ from .url_query import (
     split_url,
 )
 
-TAB_ORDER = ("info", "hdr", "links", "html", "res", "redir", "hist", "schema", "graph", "snip", "checks")
-TAB_LABELS = {"info": "Обзор", "hdr": "Заголовки", "links": "Ссылки", "html": "HTML", "res": "Ресурсы", "redir": "Редиректы", "hist": "История",
-              "schema": "Schema", "graph": "Граф", "snip": "Сниппет", "checks": "Проверки"}
+TAB_ORDER = (
+    "info",
+    "hdr",
+    "links",
+    "html",
+    "res",
+    "redir",
+    "hist",
+    "schema",
+    "graph",
+    "snip",
+    "checks",
+)
+TAB_LABELS = {
+    "info": "Обзор",
+    "hdr": "Заголовки",
+    "links": "Ссылки",
+    "html": "HTML",
+    "res": "Ресурсы",
+    "redir": "Редиректы",
+    "hist": "История",
+    "schema": "Schema",
+    "graph": "Граф",
+    "snip": "Сниппет",
+    "checks": "Проверки",
+}
 # tab -> (title, text, core issue) of the tabs whose data the core does not give yet
 UNAVAILABLE = {
-    "res": ("Ресурсы страницы", "Изображения, CSS, JS и шрифты страницы со статусом и весом ядро по одному URL не отдаёт; ниже — счётчики со страницы.", 974),
-    "schema": ("Структурированные данные", "Содержимое блоков JSON-LD, microdata и ошибки разметки по URL ядро не отдаёт; ниже — что найдено на странице.", 948),
-    "checks": ("Проверки выбранного URL", "Находки по одному URL ядро пока не отдаёт: в скане они есть только списком проверок.", 980),
+    "res": (
+        "Ресурсы страницы",
+        "Изображения, CSS, JS и шрифты страницы со статусом и весом ядро по одному URL не отдаёт; ниже — счётчики со страницы.",
+        974,
+    ),
+    "schema": (
+        "Структурированные данные",
+        "Содержимое блоков JSON-LD, microdata и ошибки разметки по URL ядро не отдаёт; ниже — что найдено на странице.",
+        948,
+    ),
+    "checks": (
+        "Проверки выбранного URL",
+        "Находки по одному URL ядро пока не отдаёт: в скане они есть только списком проверок.",
+        980,
+    ),
 }
 MAX_HOPS = 10
-HEADER_NOTES = (("x-robots-tag", "visibility_off", "X-Robots"), ("cache-control", "cached", "Кэш"), ("content-encoding", "compress", "Сжатие"),
-                ("strict-transport-security", "lock", "HSTS"))
+HEADER_NOTES = (
+    ("x-robots-tag", "visibility_off", "X-Robots"),
+    ("cache-control", "cached", "Кэш"),
+    ("content-encoding", "compress", "Сжатие"),
+    ("strict-transport-security", "lock", "HSTS"),
+)
 LINK_COLUMNS = ("Адрес", "Анкор", "rel", "Позиция", "HTTP цели")
 
 
@@ -215,13 +254,26 @@ class HeadersPage(QWidget):
             clear(box.layout())
         request = response.get("request_headers")
         status = response.get("status_code")
-        req_pairs = [(str(a), str(b)) for a, b in request if isinstance(request, list)] if isinstance(request, list) else []
+        req_pairs = (
+            [(str(a), str(b)) for a, b in request if isinstance(request, list)]
+            if isinstance(request, list)
+            else []
+        )
         self.request_box.layout().addWidget(section_label(trf("Запрос · {n}", n=len(req_pairs))))
         if response:
             start = f"{response.get('method') or 'GET'}  {split_url(response.get('request_url'))[1] or ''}"
             self.request_box.layout().addWidget(label_row(start, mono=True))
-        self.request_box.layout().addWidget(kv_block(req_pairs) if req_pairs else label_row(tr("Нет данных"), na=True))
-        self.request_box.layout().addWidget(note("info", tr("Заголовки запроса — как отправил краулер. Повторный запрос с вкладки не выполняется.")))
+        self.request_box.layout().addWidget(
+            kv_block(req_pairs) if req_pairs else label_row(tr("Нет данных"), na=True)
+        )
+        self.request_box.layout().addWidget(
+            note(
+                "info",
+                tr(
+                    "Заголовки запроса — как отправил краулер. Повторный запрос с вкладки не выполняется."
+                ),
+            )
+        )
         self.request_box.layout().addStretch(1)
         headers = response.get("response_headers")
         pairs = [(str(a), str(b)) for a, b in headers] if isinstance(headers, list) else []
@@ -233,15 +285,25 @@ class HeadersPage(QWidget):
         copy.setProperty("size", "sm")
         copy.setIcon(material_icon("content_copy"))
         copy.setEnabled(bool(pairs))
-        copy.clicked.connect(lambda _c=False: QApplication.clipboard().setText(headers_text(self.detail) or ""))
+        copy.clicked.connect(
+            lambda _c=False: QApplication.clipboard().setText(headers_text(self.detail) or "")
+        )
         head.addWidget(copy)
         self.response_box.layout().addLayout(head)
         if type(status) is int:
             self.response_box.layout().addWidget(label_row(f"HTTP {status}", mono=True))
-        self.response_box.layout().addWidget(kv_block(pairs) if pairs else label_row(tr("Ядро не сохранило заголовки этого ответа."), na=True))
+        self.response_box.layout().addWidget(
+            kv_block(pairs)
+            if pairs
+            else label_row(tr("Ядро не сохранило заголовки этого ответа."), na=True)
+        )
         self.response_box.layout().addStretch(1)
         ms = seconds_to_ms(response.get("response_time"))
-        self.side_box.layout().addWidget(section_label(trf("Тайминги · всего {ms} мс", ms=number(ms)) if ms is not None else "Тайминги"))
+        self.side_box.layout().addWidget(
+            section_label(
+                trf("Тайминги · всего {ms} мс", ms=number(ms)) if ms is not None else "Тайминги"
+            )
+        )
         line = QHBoxLayout()
         line.addWidget(label_row(tr("DNS, соединение, TLS, TTFB, загрузка"), wrap=True), 1)
         line.addWidget(waiting_badge(956))
@@ -254,7 +316,9 @@ class HeadersPage(QWidget):
             badge = QLabel(tr(label))
             badge.setProperty("badge", "ok" if value else "mut")
             row.addWidget(badge, 0, Qt.AlignTop)
-            row.addWidget(label_row(value if value else tr("не задан"), mono=bool(value), na=not value), 1)
+            row.addWidget(
+                label_row(value if value else tr("не задан"), mono=bool(value), na=not value), 1
+            )
             self.side_box.layout().addLayout(row)
         self.side_box.layout().addStretch(1)
 
@@ -262,7 +326,9 @@ class HeadersPage(QWidget):
         response = first_response(self.detail)
         headers = response.get("response_headers")
         request = response.get("request_headers")
-        total = (len(headers) if isinstance(headers, list) else 0) + (len(request) if isinstance(request, list) else 0)
+        total = (len(headers) if isinstance(headers, list) else 0) + (
+            len(request) if isinstance(request, list) else 0
+        )
         return total or None
 
 
@@ -310,7 +376,8 @@ class LinkModel(QAbstractTableModel):
         text = {
             0: self.other(link),
             1: link.get("anchor") or tr("[без текста]"),
-            2: joined(", ", [name for name in ("nofollow", "sponsored", "ugc") if link.get(name)]) or "—",
+            2: joined(", ", [name for name in ("nofollow", "sponsored", "ugc") if link.get(name)])
+            or "—",
             3: link.get("position") or None,
             4: None,
         }[column]
@@ -323,7 +390,13 @@ class LinkModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             return text if text else tr("Нет данных")
         if role == Qt.ToolTipRole:
-            return self.other(link) if column == 0 else unavailable_tip("Позиция ссылки на странице") if column == 3 and not text else None
+            return (
+                self.other(link)
+                if column == 0
+                else unavailable_tip("Позиция ссылки на странице")
+                if column == 3 and not text
+                else None
+            )
         if role == Qt.TextAlignmentRole and column == 4:
             return int(Qt.AlignRight | Qt.AlignVCenter)
         if role == Qt.FontRole and (text is None or (column == 1 and not link.get("anchor"))):
@@ -379,7 +452,14 @@ class LinksPage(QWidget):
         external_body = QWidget()
         external_layout = QVBoxLayout(external_body)
         external_layout.setContentsMargins(24, 14, 24, 14)
-        external_layout.addWidget(StatePanel("waiting", "Внешние ссылки доноров", "База внешних ссылок проекта (Вебмастер, Bing, GSC) ещё не подключена к ядру.", issue=999))
+        external_layout.addWidget(
+            StatePanel(
+                "waiting",
+                "Внешние ссылки доноров",
+                "База внешних ссылок проекта (Вебмастер, Bing, GSC) ещё не подключена к ядру.",
+                issue=999,
+            )
+        )
         external_layout.addStretch(1)
         self.external = scrolled(external_body)
         self.external.hide()
@@ -453,7 +533,9 @@ class LinksPage(QWidget):
     def _labels(self):
         for key, button in self.buttons.items():
             total = self.totals[key]
-            button.setText(f"{tr('Входящие' if key == 'in' else 'Исходящие')} · {number(total) if total is not None else '…'}")
+            button.setText(
+                f"{tr('Входящие' if key == 'in' else 'Исходящие')} · {number(total) if total is not None else '…'}"
+            )
             button.setMinimumWidth(button.sizeHint().width())
 
     def retranslate(self):
@@ -486,7 +568,10 @@ class LinksPage(QWidget):
         self.job.cancel()
         self.counter.cancel()
         self.timer.stop()
-        for widget, reset in ((self.search, lambda: self.search.setText("")), (self.nofollow, lambda: self.nofollow.setChecked(False))):
+        for widget, reset in (
+            (self.search, lambda: self.search.setText("")),
+            (self.nofollow, lambda: self.nofollow.setChecked(False)),
+        ):
             widget.blockSignals(True)
             reset()
             widget.blockSignals(False)
@@ -513,8 +598,14 @@ class LinksPage(QWidget):
         self.offset = offset
         self.revision += 1
         try:
-            arguments = links_arguments(self.ctx.scan, self.ctx.url, direction=self.direction, offset=offset, contains=self.search.text(),
-                                        nofollow=self.nofollow.isChecked())
+            arguments = links_arguments(
+                self.ctx.scan,
+                self.ctx.url,
+                direction=self.direction,
+                offset=offset,
+                contains=self.search.text(),
+                nofollow=self.nofollow.isChecked(),
+            )
         except ValueError as exc:
             return self._show_state("error", str(exc))
         self._show_state("loading", "")
@@ -525,7 +616,11 @@ class LinksPage(QWidget):
         if kind is None:
             self.stack.setCurrentIndex(0)
             return
-        title = {"loading": "Читаю ссылки…", "error": "Не удалось прочитать ссылки", "empty": "Ссылок нет"}[kind]
+        title = {
+            "loading": "Читаю ссылки…",
+            "error": "Не удалось прочитать ссылки",
+            "empty": "Ссылок нет",
+        }[kind]
         panel = StatePanel(kind, title, text)
         panel.layout().setContentsMargins(24, 6, 24, 6)
         self.state_layout.addWidget(panel)
@@ -535,30 +630,65 @@ class LinksPage(QWidget):
         if token != ("links", self.revision, self.ctx.url):
             return
         if payload.get("ok") is not True:
-            return self._show_state("error", payload.get("error") or payload.get("reason_code") or tr("Ядро не выполнило запрос"))
+            return self._show_state(
+                "error",
+                payload.get("error")
+                or payload.get("reason_code")
+                or tr("Ядро не выполнило запрос"),
+            )
         direction = payload.get("direction") or self.direction
         rows = payload.get("items") or []
         total = payload.get("total") if type(payload.get("total")) is int else None
-        filtered = payload.get("filtered_total") if payload.get("filtered_total_state") == "exact" else None
+        filtered = (
+            payload.get("filtered_total")
+            if payload.get("filtered_total_state") == "exact"
+            else None
+        )
         if not self.search.text().strip() and not self.nofollow.isChecked():
             self.totals[direction] = total
         self.model.set_rows(rows, direction)
         self._labels()
         if not rows:
-            self._show_state("empty", tr("Под условия ничего не подошло") if self.search.text().strip() or self.nofollow.isChecked() else tr("Ядро не нашло ссылок этой страницы в сохранённом скане."))
+            self._show_state(
+                "empty",
+                tr("Под условия ничего не подошло")
+                if self.search.text().strip() or self.nofollow.isChecked()
+                else tr("Ядро не нашло ссылок этой страницы в сохранённом скане."),
+            )
         else:
             self._show_state(None, "")
-        shown = trf("Показаны {a}–{b} из {n}", a=number(self.offset + 1), b=number(self.offset + len(rows)), n=number(filtered)) if rows and filtered is not None else ""
+        shown = (
+            trf(
+                "Показаны {a}–{b} из {n}",
+                a=number(self.offset + 1),
+                b=number(self.offset + len(rows)),
+                n=number(filtered),
+            )
+            if rows and filtered is not None
+            else ""
+        )
         self.caption.setText(shown)
         coverage = (payload.get("coverage") or {}).get("not_retained_attributes") or []
-        self.help.setToolTip(joined("\n", [tr("Позиция ссылки и список внутренних и внешних — по данным скана; «Нет данных» — ядро не сохранило значение, это не ноль."),
-                                          trf("Не сохранено в скане: {a}", a=", ".join(coverage)) if coverage else ""]))
+        self.help.setToolTip(
+            joined(
+                "\n",
+                [
+                    tr(
+                        "Позиция ссылки и список внутренних и внешних — по данным скана; «Нет данных» — ядро не сохранило значение, это не ноль."
+                    ),
+                    trf("Не сохранено в скане: {a}", a=", ".join(coverage)) if coverage else "",
+                ],
+            )
+        )
         self.prev.setEnabled(self.offset > 0)
         self.next.setEnabled(bool(payload.get("has_more")))
         self.counts_changed.emit(self.totals["in"], self.totals["out"])
         other = "in" if direction == "out" else "out"
         if self.totals[other] is None and not self.counter.busy:
-            self.counter.start(links_arguments(self.ctx.scan, self.ctx.url, direction=other, limit=1), ("count", self.ctx.url, other))
+            self.counter.start(
+                links_arguments(self.ctx.scan, self.ctx.url, direction=other, limit=1),
+                ("count", self.ctx.url, other),
+            )
 
     def _counted(self, token, payload):
         if token[1] != self.ctx.url or payload.get("ok") is not True:
@@ -587,7 +717,7 @@ class RedirectsPage(QWidget):
         super().__init__(parent)
         self.ctx = ctx
         self.hops = []
-        self.verdict = None   # None while walking | "end" | "loop" | "limit" | "missing"
+        self.verdict = None  # None while walking | "end" | "loop" | "limit" | "missing"
         self.generation = 0
         self.loaded_for = None
         self.job = CoreJob(ctx.host_ref, self)
@@ -645,7 +775,14 @@ class RedirectsPage(QWidget):
         status = page.get("status_code")
         response = first_response(payload)
         target = clean(page.get("redirect_url"))
-        self.hops.append(Hop(url, status if type(status) is int else None, seconds_to_ms(page.get("response_time")), target))
+        self.hops.append(
+            Hop(
+                url,
+                status if type(status) is int else None,
+                seconds_to_ms(page.get("response_time")),
+                target,
+            )
+        )
         seen = {hop.url for hop in self.hops[:-1]}
         if type(status) is int and 300 <= status < 400 and target:
             if target in seen or target == url:
@@ -655,7 +792,9 @@ class RedirectsPage(QWidget):
                 self.verdict = "limit"
             else:
                 self._render()
-                self.job.start(detail_arguments(self.ctx.scan, target), ("hop", self.generation, target))
+                self.job.start(
+                    detail_arguments(self.ctx.scan, target), ("hop", self.generation, target)
+                )
                 return
         else:
             self.verdict = "end"
@@ -700,37 +839,100 @@ class RedirectsPage(QWidget):
         loop = self.verdict == "loop"
         redirects = [h for h in self.hops if h.target]
         if loop:
-            self.chain.addWidget(note("error", tr("Цикл редиректов. Цепочка вернулась на уже пройденный URL: страница недоступна ни пользователю, ни роботу.")))
+            self.chain.addWidget(
+                note(
+                    "error",
+                    tr(
+                        "Цикл редиректов. Цепочка вернулась на уже пройденный URL: страница недоступна ни пользователю, ни роботу."
+                    ),
+                )
+            )
         elif self.verdict == "limit":
-            self.chain.addWidget(note("warn", trf("Цепочка длиннее {n} переходов — показано {n}; остальные не прочитаны.", n=MAX_HOPS)))
+            self.chain.addWidget(
+                note(
+                    "warn",
+                    trf(
+                        "Цепочка длиннее {n} переходов — показано {n}; остальные не прочитаны.",
+                        n=MAX_HOPS,
+                    ),
+                )
+            )
         elif self.verdict == "missing":
-            self.chain.addWidget(note("warn", tr("Целевой URL не сохранён в этом скане: итог цепочки не известен.")))
+            self.chain.addWidget(
+                note("warn", tr("Целевой URL не сохранён в этом скане: итог цепочки не известен."))
+            )
         elif len(redirects) > 1:
-            self.chain.addWidget(note("warn", trf("{n} перехода вместо 1. Ведите исходный адрес сразу на финальный URL.", n=len(redirects))))
+            self.chain.addWidget(
+                note(
+                    "warn",
+                    trf(
+                        "{n} перехода вместо 1. Ведите исходный адрес сразу на финальный URL.",
+                        n=len(redirects),
+                    ),
+                )
+            )
         elif not redirects and self.verdict == "end":
             self.chain.addWidget(note("success", tr("Редиректов нет: адрес отвечает сам.")))
         self.chain.addStretch(1)
         self.side.addWidget(section_label("Сводка"))
-        pairs = Pairs(("Переходов", "Время цепочки", "Типы", "Смена протокола", "Ссылок на начало", "Лимит цепочки"))
+        pairs = Pairs(
+            (
+                "Переходов",
+                "Время цепочки",
+                "Типы",
+                "Смена протокола",
+                "Ссылок на начало",
+                "Лимит цепочки",
+            )
+        )
         pairs.set("Переходов", number(len(redirects)) if self.verdict else None)
         times = [h.ms for h in self.hops if h.ms is not None]
-        pairs.set("Время цепочки", trf("{ms} мс до итога", ms=number(sum(times))) if times and self.verdict else None)
+        pairs.set(
+            "Время цепочки",
+            trf("{ms} мс до итога", ms=number(sum(times))) if times and self.verdict else None,
+        )
         pairs.set("Типы", " → ".join(str(h.status) for h in self.hops if h.status) or None)
         schemes = [h.url.split(":", 1)[0] for h in self.hops if h.known and h.url]
-        pairs.set("Смена протокола", f"{schemes[0]} → {schemes[-1]}" if len(schemes) > 1 and schemes[0] != schemes[-1] else tr("нет") if schemes and self.verdict else None)
+        pairs.set(
+            "Смена протокола",
+            f"{schemes[0]} → {schemes[-1]}"
+            if len(schemes) > 1 and schemes[0] != schemes[-1]
+            else tr("нет")
+            if schemes and self.verdict
+            else None,
+        )
         pairs.set("Ссылок на начало", None)
         pairs.set("Лимит цепочки", trf("{n} переходов", n=MAX_HOPS))
         self.side.addWidget(pairs)
         line = QHBoxLayout()
         line.addWidget(label_row(tr("Цепочка одним запросом"), wrap=False), 1)
-        line.addWidget(waiting_badge(930, "Цепочка редиректов одного URL одним ответом; сейчас она собирается переходами по сохранённым страницам скана"))
+        line.addWidget(
+            waiting_badge(
+                930,
+                "Цепочка редиректов одного URL одним ответом; сейчас она собирается переходами по сохранённым страницам скана",
+            )
+        )
         self.side.addLayout(line)
         self.side.addWidget(section_label("Цепочка canonical"))
         page = self.ctx.page
         canonical, final = clean(page.get("canonical")), clean(page.get("final_canonical"))
         chain = page.get("canonical_chain_json")
-        self.side.addWidget(label_row(joined(" → ", [self.ctx.url or "", canonical or "", final if final and final != canonical else ""]) if canonical else tr("Canonical не задан"),
-                                      mono=bool(canonical), na=not canonical))
+        self.side.addWidget(
+            label_row(
+                joined(
+                    " → ",
+                    [
+                        self.ctx.url or "",
+                        canonical or "",
+                        final if final and final != canonical else "",
+                    ],
+                )
+                if canonical
+                else tr("Canonical не задан"),
+                mono=bool(canonical),
+                na=not canonical,
+            )
+        )
         if isinstance(chain, list) and chain:
             self.side.addWidget(note("warn", tr("У canonical есть цепочка переходов.")))
         self.side.addStretch(1)
@@ -742,13 +944,19 @@ class RedirectsPage(QWidget):
         layout = QHBoxLayout(frame)
         layout.setContentsMargins(12, 8, 12, 8)
         layout.setSpacing(10)
-        kind, text = http_badge(hop.status) if hop.known and hop.status is not None else ("mut", tr("Нет в скане"))
+        kind, text = (
+            http_badge(hop.status)
+            if hop.known and hop.status is not None
+            else ("mut", tr("Нет в скане"))
+        )
         badge = QLabel(text)
         badge.setProperty("badge", kind)
         layout.addWidget(badge, 0, Qt.AlignTop)
         box = QVBoxLayout()
         box.setSpacing(2)
-        step = trf("шаг {n}", n=index + 1) + (f" · {number(hop.ms)} " + tr("мс") if hop.ms is not None else "")
+        step = trf("шаг {n}", n=index + 1) + (
+            f" · {number(hop.ms)} " + tr("мс") if hop.ms is not None else ""
+        )
         box.addWidget(label_row(step, wrap=False))
         box.itemAt(0).widget().setProperty("text_style", "meta")
         box.addWidget(label_row(hop.url or "", mono=True))
@@ -784,7 +992,10 @@ class FactsPage(QWidget):
         page = self.ctx.page
         rows = []
         if self.tab == "res":
-            rows = [("Изображений на странице", number(page.get("images_total"))), ("Изображений без alt", number(page.get("images_missing_alt_attr")))]
+            rows = [
+                ("Изображений на странице", number(page.get("images_total"))),
+                ("Изображений без alt", number(page.get("images_missing_alt_attr"))),
+            ]
         if rows:
             pairs = Pairs(tuple(key for key, _v in rows))
             for key, value in rows:
@@ -808,7 +1019,11 @@ class HtmlPage(QWidget):
         bar = QHBoxLayout()
         bar.setContentsMargins(20, 8, 12, 8)
         bar.setSpacing(10)
-        self.mode = Segmented((("raw", tr("Исходный")), ("rendered", tr("После рендеринга JS"))), value="raw", accessible_name=tr("Представление HTML"))
+        self.mode = Segmented(
+            (("raw", tr("Исходный")), ("rendered", tr("После рендеринга JS"))),
+            value="raw",
+            accessible_name=tr("Представление HTML"),
+        )
         self.mode.setEnabled(False)
         self.search = QLineEdit()
         self.search.setPlaceholderText(tr("Поиск в HTML"))
@@ -821,9 +1036,12 @@ class HtmlPage(QWidget):
         body = QHBoxLayout()
         body.setContentsMargins(0, 0, 0, 0)
         body.setSpacing(0)
-        self.source = StatePanel("waiting", "Исходник страницы недоступен",
-                                 "Сохранённое тело страницы ядро по одному URL пока не отдаёт: строки, подсветка и поиск появятся после этого.",
-                                 issue=936)
+        self.source = StatePanel(
+            "waiting",
+            "Исходник страницы недоступен",
+            "Сохранённое тело страницы ядро по одному URL пока не отдаёт: строки, подсветка и поиск появятся после этого.",
+            issue=936,
+        )
         body.addWidget(self.source, 1)
         side = QFrame()
         side.setFixedWidth(300)
@@ -831,7 +1049,9 @@ class HtmlPage(QWidget):
         side_layout.setContentsMargins(16, 12, 16, 12)
         side_layout.setSpacing(12)
         side_layout.addWidget(section_label("Сохранённое тело"))
-        self.facts = Pairs(("Тело сохранено", "Размер, байт", "SHA-256", "Представление"), mono=("SHA-256",))
+        self.facts = Pairs(
+            ("Тело сохранено", "Размер, байт", "SHA-256", "Представление"), mono=("SHA-256",)
+        )
         side_layout.addWidget(self.facts)
         side_layout.addStretch(1)
         body.addWidget(side)
@@ -842,10 +1062,18 @@ class HtmlPage(QWidget):
         response = first_response(detail)
         sha = response.get("body_sha256")
         state = response.get("body_state")
-        self.facts.set("Тело сохранено", {"complete": tr("Полностью"), "partial": tr("Частично")}.get(state, clean(state)))
+        self.facts.set(
+            "Тело сохранено",
+            {"complete": tr("Полностью"), "partial": tr("Частично")}.get(state, clean(state)),
+        )
         self.facts.set("Размер, байт", number(response.get("reported_size_bytes")))
-        self.facts.set("SHA-256", f"{sha[:8]}…{sha[-4:]}" if isinstance(sha, str) and len(sha) > 12 else None)
-        self.facts.set("Представление", source_text({"source_kind": (detail or {}).get("source", {}).get("source_kind")}, page))
+        self.facts.set(
+            "SHA-256", f"{sha[:8]}…{sha[-4:]}" if isinstance(sha, str) and len(sha) > 12 else None
+        )
+        self.facts.set(
+            "Представление",
+            source_text({"source_kind": (detail or {}).get("source", {}).get("source_kind")}, page),
+        )
 
 
 class SchemaPage(QWidget):
@@ -870,9 +1098,21 @@ class SchemaPage(QWidget):
         layout.addWidget(self.count)
         columns = QHBoxLayout()
         columns.setSpacing(12)
-        self.blocks = StatePanel("waiting", "Блоки не перечислены", "Названия, позиции и статус каждого блока ядро по URL не отдаёт.")
-        self.tree = StatePanel("waiting", "Содержимое блока не получено", "Дерево свойств появится, когда ядро отдаст разобранный блок.")
-        self.checks = StatePanel("waiting", "Проверка не выполнена", "Ошибки разбора и предупреждения появятся вместе с содержимым блока.")
+        self.blocks = StatePanel(
+            "waiting",
+            "Блоки не перечислены",
+            "Названия, позиции и статус каждого блока ядро по URL не отдаёт.",
+        )
+        self.tree = StatePanel(
+            "waiting",
+            "Содержимое блока не получено",
+            "Дерево свойств появится, когда ядро отдаст разобранный блок.",
+        )
+        self.checks = StatePanel(
+            "waiting",
+            "Проверка не выполнена",
+            "Ошибки разбора и предупреждения появятся вместе с содержимым блока.",
+        )
         for panel, stretch in ((self.blocks, 3), (self.tree, 5), (self.checks, 3)):
             columns.addWidget(panel, stretch)
         layout.addLayout(columns)
@@ -884,8 +1124,20 @@ class SchemaPage(QWidget):
     def activate(self):
         clear(self.facts)
         page = self.ctx.page
-        found, parsed = number(page.get("jsonld_blocks_found")), number(page.get("jsonld_blocks_parsed"))
-        self.count.setText(joined(" · ", [tr("Найдено блоков JSON-LD"), found or tr("Нет данных"), tr("разобрано") + " " + (parsed or tr("Нет данных"))]))
+        found, parsed = (
+            number(page.get("jsonld_blocks_found")),
+            number(page.get("jsonld_blocks_parsed")),
+        )
+        self.count.setText(
+            joined(
+                " · ",
+                [
+                    tr("Найдено блоков JSON-LD"),
+                    found or tr("Нет данных"),
+                    tr("разобрано") + " " + (parsed or tr("Нет данных")),
+                ],
+            )
+        )
         hreflang = page.get("hreflang_json")
         rows = [("Записей hreflang", number(len(hreflang)) if isinstance(hreflang, list) else None)]
         pairs = Pairs(tuple(key for key, _v in rows))
@@ -958,13 +1210,30 @@ class UrlCard(QFrame):
         self.history = HistoryPage(self.ctx)
         self.history.counted.connect(lambda n: self._counter("hist", number(n) if n else ""))
         self.snippet = SnippetPage()
-        self.facts = {tab: HtmlPage(self.ctx) if tab == "html" else SchemaPage(self.ctx) if tab == "schema" else FactsPage(tab, self.ctx) for tab in ("html", *UNAVAILABLE)}
+        self.facts = {
+            tab: HtmlPage(self.ctx)
+            if tab == "html"
+            else SchemaPage(self.ctx)
+            if tab == "schema"
+            else FactsPage(tab, self.ctx)
+            for tab in ("html", *UNAVAILABLE)
+        }
         self.index = {}
-        widgets = {"info": scrolled(self.overview), "hdr": scrolled(self.headers), "links": self.links, "graph": self.graph, "redir": scrolled(self.redirects), "hist": scrolled(self.history),
-                   "snip": self.snippet, **{tab: scrolled(page) for tab, page in self.facts.items()}}
+        widgets = {
+            "info": scrolled(self.overview),
+            "hdr": scrolled(self.headers),
+            "links": self.links,
+            "graph": self.graph,
+            "redir": scrolled(self.redirects),
+            "hist": scrolled(self.history),
+            "snip": self.snippet,
+            **{tab: scrolled(page) for tab, page in self.facts.items()},
+        }
         for tab in TAB_ORDER:
             self.index[tab] = self.pages.addWidget(widgets[tab])
-        self.placeholder = StatePanel("empty", "Выберите URL в таблице", "Детали сохранённого ответа появятся здесь")
+        self.placeholder = StatePanel(
+            "empty", "Выберите URL в таблице", "Детали сохранённого ответа появятся здесь"
+        )
         self.index["none"] = self.pages.addWidget(self.placeholder)
         from .url_detail import RunSummary
 
@@ -1043,13 +1312,16 @@ class UrlCard(QFrame):
         if incoming is None and outgoing is None:
             self._counter("links", "")
         else:
-            self._counter("links", f"{number(incoming) if incoming is not None else '…'} / {number(outgoing) if outgoing is not None else '…'}")
+            self._counter(
+                "links",
+                f"{number(incoming) if incoming is not None else '…'} / {number(outgoing) if outgoing is not None else '…'}",
+            )
 
     # ---- data ----------------------------------------------------------------------------------------------------
     def render(self, row, page, detail, state, text=""):
         """state: none | loading | ready | error. ``row`` is the table row, ``page`` the detail page of the core."""
         had = self.ctx.url
-        scan = (self.host.selected_scan_path if hasattr(self.host, "selected_scan_path") else None)
+        scan = self.host.selected_scan_path if hasattr(self.host, "selected_scan_path") else None
         self.has_row = state != "none"
         self.ctx.scan = scan
         self.ctx.row = row or {}
@@ -1070,7 +1342,16 @@ class UrlCard(QFrame):
             self._counter("hdr", number(count) if count else "")
             source = (detail or {}).get("source") or {}
             uuid = source.get("scan_uuid")
-            self.scan_caption.setText(joined(" · ", [short_run_id(uuid), stamp_text(first_response(detail).get("received_at")), source_text(source, page)]))
+            self.scan_caption.setText(
+                joined(
+                    " · ",
+                    [
+                        short_run_id(uuid),
+                        stamp_text(first_response(detail).get("received_at")),
+                        source_text(source, page),
+                    ],
+                )
+            )
             self.scan_caption.setToolTip(uuid or "")
         else:
             self.head.set_row(None)
@@ -1087,7 +1368,13 @@ class UrlCard(QFrame):
         self.history.retranslate()
 
     def shutdown(self):
-        for job in (self.links.job, self.links.counter, self.graph.job, self.redirects.job, self.history.job):
+        for job in (
+            self.links.job,
+            self.links.counter,
+            self.graph.job,
+            self.redirects.job,
+            self.history.job,
+        ):
             job.shutdown()
 
 

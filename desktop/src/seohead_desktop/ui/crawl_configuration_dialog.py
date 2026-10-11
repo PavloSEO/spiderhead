@@ -66,9 +66,7 @@ class CrawlConfigurationDialog(QDialog):
             "input_mode": input_mode,
             "storage_backend": storage_backend,
         }
-        rows = describe_controls(
-            descriptor, input_mode=input_mode, storage_backend=storage_backend
-        )
+        rows = describe_controls(descriptor, input_mode=input_mode, storage_backend=storage_backend)
         self.controls = {row["path"]: row for row in rows}
         initial = validate_overrides(descriptor, overrides or {}, **self.context)
         self._working = deepcopy(initial)
@@ -147,9 +145,7 @@ class CrawlConfigurationDialog(QDialog):
         layout.addWidget(self.stage_button, 0, Qt.AlignLeft)
         self.override_caption = QLabel()
         layout.addWidget(self.override_caption)
-        self.override_model = PageModel(
-            (("path", "Параметр"), ("value", "Новое значение")), self
-        )
+        self.override_model = PageModel((("path", "Параметр"), ("value", "Новое значение")), self)
         self.override_table = QTableView()
         self.override_table.setObjectName("configurationOverrides")
         self.override_table.setAccessibleName("Изменения параметров")
@@ -160,9 +156,7 @@ class CrawlConfigurationDialog(QDialog):
         self.override_table.verticalHeader().hide()
         self.override_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.override_table.doubleClicked.connect(
-            lambda index: self.select_path(
-                self.override_model.rows[index.row()]["path"]
-            )
+            lambda index: self.select_path(self.override_model.rows[index.row()]["path"])
         )
         layout.addWidget(self.override_table, 1)
         actions = QHBoxLayout()
@@ -184,9 +178,7 @@ class CrawlConfigurationDialog(QDialog):
         self.feedback.setWordWrap(True)
         self.feedback.setTextFormat(Qt.PlainText)
         layout.addWidget(self.feedback)
-        self.buttons = QDialogButtonBox(
-            QDialogButtonBox.Apply | QDialogButtonBox.Cancel
-        )
+        self.buttons = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Cancel)
         self.apply_button = self.buttons.button(QDialogButtonBox.Apply)
         self.apply_button.setText("Применить")
         self.buttons.button(QDialogButtonBox.Cancel).setText("Отмена")
@@ -226,9 +218,7 @@ class CrawlConfigurationDialog(QDialog):
                 continue
             if query and query not in (path + " " + row["description"]).casefold():
                 continue
-            self.path.addItem(
-                path + (" · недоступно" if not row["editable"] else ""), path
-            )
+            self.path.addItem(path + (" · недоступно" if not row["editable"] else ""), path)
         index = self.path.findData(selected)
         self.path.setCurrentIndex(max(index, 0))
         self.path.blockSignals(False)
@@ -332,18 +322,13 @@ class CrawlConfigurationDialog(QDialog):
             self.feedback.setText(str(exc))
             self.apply_button.setEnabled(False)
             return False
-        self.feedback.setText(
-            "Черновик проверен. Применение вернёт параметры в план нового скана."
-        )
+        self.feedback.setText("Черновик проверен. Применение вернёт параметры в план нового скана.")
         self.apply_button.setEnabled(True)
         return True
 
     def _refresh_overrides(self):
         self.override_model.replace(
-            [
-                {"path": path, "value": value}
-                for path, value in sorted(self._working.items())
-            ]
+            [{"path": path, "value": value} for path, value in sorted(self._working.items())]
         )
         self.override_caption.setText(f"Явные изменения: {len(self._working)}")
         self._refresh_validation()
@@ -455,14 +440,9 @@ class CrawlConfigurationDialog(QDialog):
             raise ValueError("Неизвестная структура профиля")
         if payload["schema"] != PROFILE_SCHEMA:
             raise ValueError("Неподдерживаемая версия профиля")
-        if any(
-            payload[key] != self.context[key]
-            for key in ("input_mode", "storage_backend")
-        ):
+        if any(payload[key] != self.context[key] for key in ("input_mode", "storage_backend")):
             raise ValueError("Профиль предназначен для другого режима или хранилища")
-        values = validate_overrides(
-            self.descriptor, payload["overrides"], **self.context
-        )
+        values = validate_overrides(self.descriptor, payload["overrides"], **self.context)
         self._working = deepcopy(values)
         self._dirty = False
         self._refresh_overrides()

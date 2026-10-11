@@ -37,7 +37,17 @@ class HelpGuideTests(unittest.TestCase):
         self.assertEqual(dialog.result(), dialog.Accepted)
 
     def test_supplied_issue_is_plain_bounded_and_replaced_without_inference(self):
-        dialog = self.guide(issue={"title": "Observed issue", "message": "<img src=https://example.test/x>", "reason": "x" * 5000, "recommendation": {"secret": "must not be displayed"}, "code": "UNRECOGNIZED_849", "state": "unrecognized", "token": "not allowlisted"})
+        dialog = self.guide(
+            issue={
+                "title": "Observed issue",
+                "message": "<img src=https://example.test/x>",
+                "reason": "x" * 5000,
+                "recommendation": {"secret": "must not be displayed"},
+                "code": "UNRECOGNIZED_849",
+                "state": "unrecognized",
+                "token": "not allowlisted",
+            }
+        )
         self.assertEqual(dialog.tabs.currentIndex(), 2)
         self.assertEqual(dialog.issue_labels["message"].textFormat(), Qt.PlainText)
         self.assertIn("<img", dialog.issue_labels["message"].text())
@@ -49,7 +59,13 @@ class HelpGuideTests(unittest.TestCase):
         all_text = "\n".join(label.text() for label in dialog.findChildren(QLabel))
         self.assertNotIn("must not be displayed", all_text)
         self.assertNotIn("not allowlisted", all_text)
-        dialog.set_issue({"title": "New context", "message": "Actual message", "recommendation": "Actual recommendation"})
+        dialog.set_issue(
+            {
+                "title": "New context",
+                "message": "Actual message",
+                "recommendation": "Actual recommendation",
+            }
+        )
         self.assertEqual(dialog.issue_labels["reason"].text(), "")
         self.assertEqual(dialog.issue_source.text(), "")
         self.assertTrue(dialog.source_toggle.isHidden())

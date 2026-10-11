@@ -14,8 +14,11 @@ from seohead_desktop.ui.settings import agent, full_schema
 from seohead_desktop.ui.settings.context import SettingsContext
 from seohead_desktop.ui.settings.dialog import SettingsDialog
 
-PROJECTS = [{"name": "shop.example.test", "meta": "· фриланс · 12 сканов"}, {"name": "seohead.tech", "meta": "· своё · 8 сканов"},
-            {"name": "blog.example.test", "meta": "· фриланс · 1 скан"}]
+PROJECTS = [
+    {"name": "shop.example.test", "meta": "· фриланс · 12 сканов"},
+    {"name": "seohead.tech", "meta": "· своё · 8 сканов"},
+    {"name": "blog.example.test", "meta": "· фриланс · 1 скан"},
+]
 
 
 def switch_named(page, name):
@@ -34,13 +37,26 @@ class AgentSectionTests(unittest.TestCase):
     def setUp(self):
         self.store = AppSettings(schema=full_schema())
         self.opened = []
-        self.context = SettingsContext(actions={
-            "agent_projects": lambda: PROJECTS,
-            "agent_log": lambda limit: [
-                {"time": "14:05", "text": "Запустил скан", "project": "shop.example.test", "kind": "scan"},
-                {"time": "11:02", "text": "Отказано", "project": "blog.example.test", "kind": "deny"}][:limit],
-            "open_agent_log": lambda: self.opened.append(1),
-        })
+        self.context = SettingsContext(
+            actions={
+                "agent_projects": lambda: PROJECTS,
+                "agent_log": lambda limit: [
+                    {
+                        "time": "14:05",
+                        "text": "Запустил скан",
+                        "project": "shop.example.test",
+                        "kind": "scan",
+                    },
+                    {
+                        "time": "11:02",
+                        "text": "Отказано",
+                        "project": "blog.example.test",
+                        "kind": "deny",
+                    },
+                ][:limit],
+                "open_agent_log": lambda: self.opened.append(1),
+            }
+        )
 
     def texts(self, page):
         return [w.text() for w in page.findChildren(QLabel)]
@@ -67,7 +83,9 @@ class AgentSectionTests(unittest.TestCase):
         self.store.set("agent.projects", "seohead.tech")
         page = agent.build_page(self.store, self.context)
         checked = {r.name: r.checkbox.isChecked() for r in page.findChildren(agent.ProjectRow)}
-        self.assertEqual(checked, {"shop.example.test": False, "seohead.tech": True, "blog.example.test": False})
+        self.assertEqual(
+            checked, {"shop.example.test": False, "seohead.tech": True, "blog.example.test": False}
+        )
         self.assertIn("Агент видит только отмеченные · 1 из 3", self.texts(page))
         rows = {r.name: r for r in page.findChildren(agent.ProjectRow)}
         rows["blog.example.test"].checkbox.setChecked(True)
@@ -86,7 +104,9 @@ class AgentSectionTests(unittest.TestCase):
 
     def test_configure_button_is_visible_but_unavailable(self):
         page = agent.build_page(self.store, self.context)
-        button = next(b for b in page.findChildren(QPushButton) if b.text() == "Что агент может настраивать")
+        button = next(
+            b for b in page.findChildren(QPushButton) if b.text() == "Что агент может настраивать"
+        )
         self.assertFalse(button.isEnabled())
         self.assertEqual(button.toolTip(), "Недоступно в этой сборке")
 
@@ -99,15 +119,17 @@ class AgentSectionTests(unittest.TestCase):
     def test_no_backend_says_no_data_and_disables_actions(self):
         page = agent.build_page(self.store, SettingsContext())
         texts = self.texts(page)
-        self.assertIn("Нет данных", texts)                                   # log is unknown, not empty
-        self.assertIn("Агент видит только отмеченные · нет данных", texts)   # not "0 из 0"
+        self.assertIn("Нет данных", texts)  # log is unknown, not empty
+        self.assertIn("Агент видит только отмеченные · нет данных", texts)  # not "0 из 0"
         self.assertEqual(page.findChildren(agent.ProjectRow), [])
         button = next(b for b in page.findChildren(QPushButton) if b.text() == "Весь журнал")
         self.assertFalse(button.isEnabled())
         self.assertEqual(button.toolTip(), "Недоступно в этой сборке")
 
     def test_empty_log_is_not_no_data(self):
-        context = SettingsContext(actions={"agent_log": lambda limit: [], "agent_projects": lambda: []})
+        context = SettingsContext(
+            actions={"agent_log": lambda limit: [], "agent_projects": lambda: []}
+        )
         texts = self.texts(agent.build_page(self.store, context))
         self.assertIn("Агент ничего не делал", texts)
         self.assertIn("Проектов пока нет", texts)
@@ -128,7 +150,12 @@ class AgentSectionTests(unittest.TestCase):
         dialog.search.setText("платные провайдеры")
         self.assertFalse(dialog._nav["agent"].isHidden())
         self.assertTrue(dialog._nav["scan"].isHidden())
-        self.assertTrue(any(r.title.text() == "Платные провайдеры" for r in dialog._pages["agent"][1].findChildren(SettingRow)))
+        self.assertTrue(
+            any(
+                r.title.text() == "Платные провайдеры"
+                for r in dialog._pages["agent"][1].findChildren(SettingRow)
+            )
+        )
 
 
 if __name__ == "__main__":

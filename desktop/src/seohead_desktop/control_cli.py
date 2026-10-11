@@ -76,9 +76,7 @@ def create_mcp_server(endpoint: str):
         return await call("tabs")
 
     @server.tool(annotations=read)
-    async def desktop_project_scans(
-        project_uuid: str, tab_id: str | None = None
-    ) -> dict[str, Any]:
+    async def desktop_project_scans(project_uuid: str, tab_id: str | None = None) -> dict[str, Any]:
         """List bounded retained scans of an explicitly opened project."""
         return await call("project_scans", project_uuid=project_uuid, tab_id=tab_id)
 
@@ -92,9 +90,7 @@ def create_mcp_server(endpoint: str):
         )
 
     @server.tool(annotations=ui)
-    async def desktop_select_view(
-        view_id: str, tab_id: str | None = None
-    ) -> dict[str, Any]:
+    async def desktop_select_view(view_id: str, tab_id: str | None = None) -> dict[str, Any]:
         """Select a declared view in the chosen or active tab."""
         return await call("select_view", view_id=view_id, tab_id=tab_id)
 
@@ -134,16 +130,12 @@ def create_mcp_server(endpoint: str):
         )
 
     @server.tool(annotations=stop)
-    async def desktop_stop_run(
-        run_id: str, approved: StrictBool = False
-    ) -> dict[str, Any]:
+    async def desktop_stop_run(run_id: str, approved: StrictBool = False) -> dict[str, Any]:
         """After explicit approval, stop only this Desktop's owned run ID; external runs are rejected."""
         return await call("stop_run", run_id=run_id, approved=approved)
 
     @server.tool(annotations=run)
-    async def desktop_resume_run(
-        run_id: str, approved: StrictBool = False
-    ) -> dict[str, Any]:
+    async def desktop_resume_run(run_id: str, approved: StrictBool = False) -> dict[str, Any]:
         """After explicit approval, resume an owned interrupted run from its trusted retained artifact and existing core policy."""
         return await call("resume_run", run_id=run_id, approved=approved)
 
@@ -151,9 +143,7 @@ def create_mcp_server(endpoint: str):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(
-        description="Control one running native SEOHEAD Desktop"
-    )
+    parser = argparse.ArgumentParser(description="Control one running native SEOHEAD Desktop")
     parser.add_argument(
         "--endpoint",
         required=True,
@@ -196,9 +186,7 @@ def main(argv=None):
         command.add_argument("--run-id", required=True)
         command.add_argument("--approve", action="store_true")
     args = vars(parser.parse_args(argv))
-    endpoint, request_id, command = (
-        args.pop(key) for key in ("endpoint", "request_id", "command")
-    )
+    endpoint, request_id, command = (args.pop(key) for key in ("endpoint", "request_id", "command"))
     if command == "mcp":
         create_mcp_server(endpoint).run(transport="stdio")
         return 0
@@ -210,14 +198,8 @@ def main(argv=None):
             arguments["config"] = _decode(arguments.pop("config_json").encode("utf-8"))
         if "approve" in arguments:
             arguments["approved"] = arguments.pop("approve")
-        result = request(
-            endpoint, command.replace("-", "_"), arguments, request_id=request_id
-        )
-        print(
-            json.dumps(
-                {"ok": True, "result": result}, ensure_ascii=False, allow_nan=False
-            )
-        )
+        result = request(endpoint, command.replace("-", "_"), arguments, request_id=request_id)
+        print(json.dumps({"ok": True, "result": result}, ensure_ascii=False, allow_nan=False))
         return 0
     except (ControlError, ValueError) as exc:
         print(

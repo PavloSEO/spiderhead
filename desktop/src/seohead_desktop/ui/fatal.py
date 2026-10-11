@@ -12,7 +12,7 @@ import shutil
 from dataclasses import dataclass
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
 from ..i18n import tr, trf
 from .icons import MaterialIconLabel
@@ -26,17 +26,17 @@ SCAN_INTEGRITY_ISSUE = 1163  # per-scan integrity status without a full open
 
 @dataclass(frozen=True)
 class FatalCondition:
-    key: str      # "core_missing" | "disk_low" | "no_write_access"
-    icon: str     # Material Symbols name
-    tone: str     # "error" | "warning": colours the icon tile and the icon
+    key: str  # "core_missing" | "disk_low" | "no_write_access"
+    icon: str  # Material Symbols name
+    tone: str  # "error" | "warning": colours the icon tile and the icon
     title: str
     text: str
-    mono: str     # the real path or code the condition is about, copyable, shown as is
+    mono: str  # the real path or code the condition is about, copyable, shown as is
 
 
 def _tilde(path):
     home = os.path.expanduser("~")
-    return "~" + path[len(home):] if path == home or path.startswith(home + os.sep) else path
+    return "~" + path[len(home) :] if path == home or path.startswith(home + os.sep) else path
 
 
 def _gigabytes(size):
@@ -47,10 +47,16 @@ def fatal_conditions(core_executable, project_directory, *, free_bytes=None, wri
     """Real blocking conditions in display order. ``free_bytes``/``writable`` default to measuring the project folder."""
     out = []
     if not core_executable or not os.path.isfile(core_executable):
-        out.append(FatalCondition(
-            "core_missing", "link_off", "error", tr("Ядро не найдено"),
-            tr("Нет исполняемого seohead. Сканы и проекты целы — оболочке не с чем работать."),
-            core_executable or tr("seohead не найден в PATH")))
+        out.append(
+            FatalCondition(
+                "core_missing",
+                "link_off",
+                "error",
+                tr("Ядро не найдено"),
+                tr("Нет исполняемого seohead. Сканы и проекты целы — оболочке не с чем работать."),
+                core_executable or tr("seohead не найден в PATH"),
+            )
+        )
     if project_directory:
         if free_bytes is None:
             try:
@@ -60,16 +66,33 @@ def fatal_conditions(core_executable, project_directory, *, free_bytes=None, wri
         if writable is None:
             writable = os.access(project_directory, os.W_OK)
         if free_bytes is not None and free_bytes < MIN_FREE_BYTES:
-            out.append(FatalCondition(
-                "disk_low", "hard_drive", "warning", tr("Диск заполнен"),
-                trf("Свободно {free} — меньше порога {limit}. Данные проекта не удаляются автоматически.",
-                    free=_gigabytes(free_bytes), limit="10 ГБ"),
-                _tilde(project_directory)))
+            out.append(
+                FatalCondition(
+                    "disk_low",
+                    "hard_drive",
+                    "warning",
+                    tr("Диск заполнен"),
+                    trf(
+                        "Свободно {free} — меньше порога {limit}. Данные проекта не удаляются автоматически.",
+                        free=_gigabytes(free_bytes),
+                        limit="10 ГБ",
+                    ),
+                    _tilde(project_directory),
+                )
+            )
         if not writable:
-            out.append(FatalCondition(
-                "no_write_access", "folder_off", "error", tr("Нет прав на папку"),
-                tr("Нельзя записать в папку проекта. Обычно macOS не выдала доступ к этой папке."),
-                _tilde(project_directory)))
+            out.append(
+                FatalCondition(
+                    "no_write_access",
+                    "folder_off",
+                    "error",
+                    tr("Нет прав на папку"),
+                    tr(
+                        "Нельзя записать в папку проекта. Обычно macOS не выдала доступ к этой папке."
+                    ),
+                    _tilde(project_directory),
+                )
+            )
     return out
 
 
@@ -89,7 +112,9 @@ class FatalCard(QFrame):
         tile.setFixedSize(44, 44)
         tile_layout = QHBoxLayout(tile)
         tile_layout.setContentsMargins(0, 0, 0, 0)
-        tile_layout.addWidget(MaterialIconLabel(condition.icon, 24, color=f"role:{condition.tone}"), 0, Qt.AlignCenter)
+        tile_layout.addWidget(
+            MaterialIconLabel(condition.icon, 24, color=f"role:{condition.tone}"), 0, Qt.AlignCenter
+        )
         layout.addWidget(tile)
         title = QLabel(condition.title)
         title.setProperty("text_style", "section")
@@ -134,17 +159,26 @@ class WaitingCard(QFrame):
         tile.setFixedSize(44, 44)
         tile_layout = QHBoxLayout(tile)
         tile_layout.setContentsMargins(0, 0, 0, 0)
-        tile_layout.addWidget(MaterialIconLabel("schedule", 24, color="role:text_muted"), 0, Qt.AlignCenter)
+        tile_layout.addWidget(
+            MaterialIconLabel("schedule", 24, color="role:text_muted"), 0, Qt.AlignCenter
+        )
         layout.addWidget(tile)
         title = QLabel(tr("Совместимость ядра и база скана"))
         title.setProperty("text_style", "section")
         title.setWordWrap(True)
         layout.addWidget(title)
-        text = QLabel(tr("Версию ядра и целостность баз сканов приложение пока не получает. Эти состояния не показаны, пока ядро их не сообщит."))
+        text = QLabel(
+            tr(
+                "Версию ядра и целостность баз сканов приложение пока не получает. Эти состояния не показаны, пока ядро их не сообщит."
+            )
+        )
         text.setProperty("text_style", "meta")
         text.setWordWrap(True)
         layout.addWidget(text)
-        for issue, label in ((CORE_COMPATIBILITY_ISSUE, "Версия ядра"), (SCAN_INTEGRITY_ISSUE, "Целостность базы скана")):
+        for issue, label in (
+            (CORE_COMPATIBILITY_ISSUE, "Версия ядра"),
+            (SCAN_INTEGRITY_ISSUE, "Целостность базы скана"),
+        ):
             row = QHBoxLayout()
             name = QLabel(tr(label))
             name.setProperty("text_style", "meta")

@@ -21,10 +21,16 @@ class RunHistoryControlTests(unittest.TestCase):
 
     def envelope(self, offset):
         self.window._run_envelope = {
-            "active_total": 2, "retention": {"max_runs": 100},
-            "pagination": {"offset": offset, "limit": 20, "total": 50,
-                           "has_more": offset + 20 < 50,
-                           "next_offset": offset + 20 if offset + 20 < 50 else None}}
+            "active_total": 2,
+            "retention": {"max_runs": 100},
+            "pagination": {
+                "offset": offset,
+                "limit": 20,
+                "total": 50,
+                "has_more": offset + 20 < 50,
+                "next_offset": offset + 20 if offset + 20 < 50 else None,
+            },
+        }
         self.window.update_run_history_controls()
 
     def test_next_previous_route_exact_offsets_and_terminal_counts(self):
@@ -66,15 +72,29 @@ class RunHistoryControlTests(unittest.TestCase):
         scratch = Path(__file__).resolve().parents[1] / ".build"
         scratch.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=scratch, prefix="history-controls-") as directory:
-            root = Path(create_project(Path(directory) / "project", "https://history.example.test/")["path"])
+            root = Path(
+                create_project(Path(directory) / "project", "https://history.example.test/")["path"]
+            )
             terminal = set()
             for number in range(50):
-                row = run_observation.start(root, kind="native", mode="spider", max_urls=1,
-                                            config_fingerprint="synthetic-history", artifact=None)
+                row = run_observation.start(
+                    root,
+                    kind="native",
+                    mode="spider",
+                    max_urls=1,
+                    config_fingerprint="synthetic-history",
+                    artifact=None,
+                )
                 run_observation.finish(root, row["id"], state="finished", reason="synthetic")
                 terminal.add(row["id"])
-            active = run_observation.start(root, kind="native", mode="spider", max_urls=1,
-                                          config_fingerprint="synthetic-history", artifact=None)["id"]
+            active = run_observation.start(
+                root,
+                kind="native",
+                mode="spider",
+                max_urls=1,
+                config_fingerprint="synthetic-history",
+                artifact=None,
+            )["id"]
             self.window.project_directory = str(root)
             observed = set()
 

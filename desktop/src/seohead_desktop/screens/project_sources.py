@@ -26,7 +26,10 @@ SERVICES = (
     ("psi", "PageSpeed / CrUX", ("pagespeed", "crux"), "адрес проекта"),
 )
 CREDENTIALS = {
-    "api_key": "API-ключ", "api_token": "API-токен", "oauth_bearer": "OAuth", "durable_oauth": "OAuth",
+    "api_key": "API-ключ",
+    "api_token": "API-токен",
+    "oauth_bearer": "OAuth",
+    "durable_oauth": "OAuth",
     "service_account": "сервисный аккаунт",
 }
 VERIFIED = {"verified", "ready", "connected"}
@@ -48,12 +51,12 @@ class SourceRow:
     key: str
     service: str
     resource_kind: str
-    state: str | None    # readiness state, None when the core does not report this service
-    kind: str            # badge kind: ok | info | warn | err | mut
+    state: str | None  # readiness state, None when the core does not report this service
+    kind: str  # badge kind: ok | info | warn | err | mut
     text: str
     icon: str
-    access: str          # sub line: credential kinds the core knows
-    providers: tuple     # readiness provider ids behind the row
+    access: str  # sub line: credential kinds the core knows
+    providers: tuple  # readiness provider ids behind the row
 
     @property
     def has_access_settings(self):
@@ -96,14 +99,28 @@ def build_rows(providers):
         kind, text, icon = STATES[state]
         kinds = credential_kinds(entries)
         if len(ids) > 1:  # a combined service: say which of its parts has the access
-            access = joined(" · ", [trf("{name}: {value}", name=NAMES.get(pid, pid),
-                                        value=joined(" / ", credential_kinds([entry])) if readiness_state(entry) != "missing" else "не задан")
-                                    for pid, entry in zip(ids, entries)])
+            access = joined(
+                " · ",
+                [
+                    trf(
+                        "{name}: {value}",
+                        name=NAMES.get(pid, pid),
+                        value=joined(" / ", credential_kinds([entry]))
+                        if readiness_state(entry) != "missing"
+                        else "не задан",
+                    )
+                    for pid, entry in zip(ids, entries)
+                ],
+            )
         elif state == "missing":
-            access = trf("{kinds} не задан", kinds=joined(" / ", kinds)) if kinds else "доступ не задан"
+            access = (
+                trf("{kinds} не задан", kinds=joined(" / ", kinds)) if kinds else "доступ не задан"
+            )
         else:
             access = joined(" / ", kinds) if kinds else "публичный сервис"
-        rows.append(SourceRow(key, service, resource_kind, state, kind, text, icon, access, tuple(ids)))
+        rows.append(
+            SourceRow(key, service, resource_kind, state, kind, text, icon, access, tuple(ids))
+        )
     return rows
 
 

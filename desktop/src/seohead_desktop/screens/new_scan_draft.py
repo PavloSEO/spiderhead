@@ -37,8 +37,15 @@ RPS_SAFE = 2.0
 RPS_MAX = 10.0
 # Always written into the command, so limits and speed are explicit and never silently inherited.
 EXPLICIT = (
-    "limits.max_urls", "limits.max_depth", "limits.max_requests", "limits.max_crawl_seconds",
-    "speed.min_delay_seconds", "speed.concurrency", "rendering.mode", "storage.body_mode", "robots.policy",
+    "limits.max_urls",
+    "limits.max_depth",
+    "limits.max_requests",
+    "limits.max_crawl_seconds",
+    "speed.min_delay_seconds",
+    "speed.concurrency",
+    "rendering.mode",
+    "storage.body_mode",
+    "robots.policy",
 )
 GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 YANDEX_UA = "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)"
@@ -69,15 +76,30 @@ class Num:
 NUMS = {
     "threads": Num("speed.concurrency", True, 1, 1024, "Целое число от 1 до 1024"),
     "limit": Num("limits.max_urls", True, 1, 1_000_000, "Целое число от 1 до 1 000 000"),
-    "depth": Num("limits.max_depth", True, -1, None, "Целое число от −1; −1 — без ограничения глубины"),
-    "requests": Num("limits.max_requests", True, 0, 2_000_000, "Целое число от 0 до 2 000 000; 0 — без лимита"),
-    "minutes": Num("limits.max_crawl_seconds", True, 0, None, "Целое число минут от 0; 0 — без лимита", 60),
+    "depth": Num(
+        "limits.max_depth", True, -1, None, "Целое число от −1; −1 — без ограничения глубины"
+    ),
+    "requests": Num(
+        "limits.max_requests", True, 0, 2_000_000, "Целое число от 0 до 2 000 000; 0 — без лимита"
+    ),
+    "minutes": Num(
+        "limits.max_crawl_seconds", True, 0, None, "Целое число минут от 0; 0 — без лимита", 60
+    ),
     "min_delay": Num("speed.min_delay_seconds", False, 0, None, "Число секунд от 0"),
     "max_delay": Num("speed.max_delay_seconds", False, 0.5, None, "Число секунд от 0,5"),
     "timeouts": Num("speed.stop_after_consecutive_timeouts", True, 1, None, "Целое число от 1"),
-    "script_timeout": Num("rendering.browser.script_timeout_seconds", False, 0, None, "Число секунд от 0"),
+    "script_timeout": Num(
+        "rendering.browser.script_timeout_seconds", False, 0, None, "Число секунд от 0"
+    ),
     "body_mb": Num("storage.max_body_bytes", True, 1, None, "Целое число МБ от 1", 1024**2),
-    "free_gb": Num("storage.min_free_bytes", True, 10, None, "Целое число ГБ не меньше 10: правило приложения", 1024**3),
+    "free_gb": Num(
+        "storage.min_free_bytes",
+        True,
+        10,
+        None,
+        "Целое число ГБ не меньше 10: правило приложения",
+        1024**3,
+    ),
 }
 
 
@@ -143,14 +165,22 @@ def normalize_list(text, host, *, cap=LIST_LINE_CAP):
         except ValueError:
             invalid += 1
             continue
-        if (parts.scheme.lower() not in {"http", "https"} or not parts.hostname or parts.username or parts.password
-                or len(candidate) > 4096 or any(char in candidate for char in " \x00")):
+        if (
+            parts.scheme.lower() not in {"http", "https"}
+            or not parts.hostname
+            or parts.username
+            or parts.password
+            or len(candidate) > 4096
+            or any(char in candidate for char in " \x00")
+        ):
             invalid += 1
             continue
         if host and parts.hostname.lower() != host.lower():
             foreign += 1
             continue
-        key = urlunsplit((parts.scheme.lower(), parts.netloc.lower(), parts.path or "/", parts.query, ""))
+        key = urlunsplit(
+            (parts.scheme.lower(), parts.netloc.lower(), parts.path or "/", parts.query, "")
+        )
         if key in seen:
             duplicates += 1
             continue
@@ -167,7 +197,9 @@ def list_from_file_text(text, suffix):
     """Lines of URLs from a .txt or .csv file; a CSV contributes its url/address column (else the first)."""
     if suffix.lower() != ".csv":
         return text
-    rows = list(csv.reader(io.StringIO(text), delimiter=";" if text.count(";") > text.count(",") else ","))
+    rows = list(
+        csv.reader(io.StringIO(text), delimiter=";" if text.count(";") > text.count(",") else ",")
+    )
     if not rows:
         return ""
     names = {"url", "urls", "address", "адрес", "loc"}
@@ -188,9 +220,13 @@ class PlanError(ValueError):
 def explain(error):
     text = str(error)
     if "Sitemap URL" in text:
-        return tr("Укажите полный HTTP(S)-адрес sitemap без логина, пароля и #фрагмента, до 4096 символов.")
+        return tr(
+            "Укажите полный HTTP(S)-адрес sitemap без логина, пароля и #фрагмента, до 4096 символов."
+        )
     if "port" in text.lower():
-        return tr("В адресе sitemap некорректный порт. Исправьте адрес; остальные настройки сохранены.")
+        return tr(
+            "В адресе sitemap некорректный порт. Исправьте адрес; остальные настройки сохранены."
+        )
     if "selected scan project" in text:
         return tr("Папка проекта недоступна. Настройки сохранены; проверьте расположение проекта.")
     return text
@@ -201,11 +237,17 @@ class ScanDraft(QObject):
 
     changed = pyqtSignal()
 
-    def __init__(self, descriptor, *, target="", host="", project_directory="", prefs=None, parent=None):
+    def __init__(
+        self, descriptor, *, target="", host="", project_directory="", prefs=None, parent=None
+    ):
         super().__init__(parent)
         self.descriptor = descriptor
         self.capabilities = (descriptor or {}).get("capabilities") or {}
-        self.target, self.host, self.project_directory = target or "", (host or "").lower(), project_directory
+        self.target, self.host, self.project_directory = (
+            target or "",
+            (host or "").lower(),
+            project_directory,
+        )
         self.local = is_local_host(self.host)
         rows = {row["path"]: row for row in describe_controls(descriptor)}
         self.rows = rows
@@ -234,16 +276,22 @@ class ScanDraft(QObject):
             layer["limits.max_urls"] = limit
         depth = prefs.get("scan.depth")
         if isinstance(depth, int) and depth >= 0:
-            layer["limits.max_depth"] = depth or -1  # the setting's 0 means «no limit», the core's is −1
+            layer["limits.max_depth"] = (
+                depth or -1
+            )  # the setting's 0 means «no limit», the core's is −1
         layer["robots.policy"] = "respect" if prefs.get("scan.robots") is not False else "ignore"
-        layer["storage.body_mode"] = "captured_entity_bytes" if prefs.get("scan.save_html") is not False else "off"
+        layer["storage.body_mode"] = (
+            "captured_entity_bytes" if prefs.get("scan.save_html") is not False else "off"
+        )
         return {p: v for p, v in layer.items() if p in self.core}
 
     def _start(self, stack=("core", "app", "project")):
         """Layered defaults; request and time budgets are explicitly «no limit» unless a layer above the core sets them."""
         merged = {}
         for name in stack:
-            merged.update({"core": self.core, "app": self.app_layer, "project": self.project_layer}[name])
+            merged.update(
+                {"core": self.core, "app": self.app_layer, "project": self.project_layer}[name]
+            )
         for path in ("limits.max_requests", "limits.max_crawl_seconds"):
             if path in self.core and path not in self.app_layer and path not in self.project_layer:
                 merged[path] = 0
@@ -272,7 +320,11 @@ class ScanDraft(QObject):
                 self.values[path] = deepcopy(value)
                 self.initial[path] = deepcopy(value)
         policy_limit = self.project_layer.get("limits.max_urls")
-        if policy_limit is not None and "limits.max_urls" not in edited and "limit" not in self.errors:
+        if (
+            policy_limit is not None
+            and "limits.max_urls" not in edited
+            and "limit" not in self.errors
+        ):
             self.limit_enabled = policy_limit > 0
             self.url_limit = policy_limit if policy_limit > 0 else self.url_limit
             self.values["limits.max_urls"] = self.url_limit if self.limit_enabled else 0
@@ -348,7 +400,11 @@ class ScanDraft(QObject):
             spec = NUMS[key]
             number = parse_number(text, spec.integer)
             core = None if number is None else number * spec.scale
-            ok = (number is not None and number >= spec.low and (spec.high is None or number <= spec.high))
+            ok = (
+                number is not None
+                and number >= spec.low
+                and (spec.high is None or number <= spec.high)
+            )
             if not ok:
                 self.errors[key] = tr(spec.message)
             else:
@@ -389,15 +445,36 @@ class ScanDraft(QObject):
             if rate > RPS_MAX:
                 found["rps"] = trf("Не больше {max} запросов/с", max=int(RPS_MAX))
             elif rate > RPS_SAFE and not self.local:
-                found["rps"] = tr("Для боевого сайта не больше 2 запросов/с; выше — только для своего стенда (localhost, *.localhost)")
-        if not self.limit_enabled and self.capabilities.get("full_site_native_sqlite") is not True and "limit" not in found:
-            found["limit"] = tr("Это ядро не поддерживает обход без лимита URL. Включите лимит или обновите комплект.")
+                found["rps"] = tr(
+                    "Для боевого сайта не больше 2 запросов/с; выше — только для своего стенда (localhost, *.localhost)"
+                )
+        if (
+            not self.limit_enabled
+            and self.capabilities.get("full_site_native_sqlite") is not True
+            and "limit" not in found
+        ):
+            found["limit"] = tr(
+                "Это ядро не поддерживает обход без лимита URL. Включите лимит или обновите комплект."
+            )
         if self.values.get("robots.policy") == "ignore" and not self.local:
-            found["robots"] = tr("Игнорировать robots.txt на чужом боевом сайте нельзя; только для своего стенда")
-        delay, ceiling = self.values.get("speed.min_delay_seconds"), self.values.get("speed.max_delay_seconds")
-        if delay is not None and ceiling is not None and delay > ceiling and "min_delay" not in found:
+            found["robots"] = tr(
+                "Игнорировать robots.txt на чужом боевом сайте нельзя; только для своего стенда"
+            )
+        delay, ceiling = (
+            self.values.get("speed.min_delay_seconds"),
+            self.values.get("speed.max_delay_seconds"),
+        )
+        if (
+            delay is not None
+            and ceiling is not None
+            and delay > ceiling
+            and "min_delay" not in found
+        ):
             found["min_delay"] = tr("Пауза не может быть больше максимальной паузы при замедлении")
-        width, height = self.values.get("rendering.browser.viewport_width", 0), self.values.get("rendering.browser.viewport_height", 0)
+        width, height = (
+            self.values.get("rendering.browser.viewport_width", 0),
+            self.values.get("rendering.browser.viewport_height", 0),
+        )
         if bool(width) != bool(height):
             found["viewport"] = tr("Ширина и высота окна задаются вместе")
         if self.source == "sitemap":
@@ -407,17 +484,23 @@ class ScanDraft(QObject):
                 found["sitemap"] = tr("Укажите адрес sitemap")
             else:
                 try:
-                    crawl_arguments(self.project_directory, 1, "raw", sitemap_url=self.sitemap_url.strip())
+                    crawl_arguments(
+                        self.project_directory, 1, "raw", sitemap_url=self.sitemap_url.strip()
+                    )
                 except ValueError as exc:
                     if "project is unavailable" not in str(exc):
                         found["sitemap"] = explain(exc)
         elif self.source == "list":
             report = self.list_report()
             if report.truncated:
-                found["list"] = trf("Список длиннее {n} строк: разделите его", n=grouped(LIST_LINE_CAP))
+                found["list"] = trf(
+                    "Список длиннее {n} строк: разделите его", n=grouped(LIST_LINE_CAP)
+                )
             elif not report.usable:
                 found["list"] = tr("В списке нет ни одного подходящего адреса")
-            found["source"] = tr("Запуск списка URL из приложения ждёт ядра: скан списка не попадает в наблюдение проекта")
+            found["source"] = tr(
+                "Запуск списка URL из приложения ждёт ядра: скан списка не попадает в наблюдение проекта"
+            )
         elif self.source == "sf":
             found["source"] = tr("Недоступно в этой сборке")
         return found
@@ -427,10 +510,16 @@ class ScanDraft(QObject):
         explicit["limits.max_urls"] = self.url_limit if self.limit_enabled else 0
         changed = {p: self.values[p] for p in self.edited_paths() if p != "limits.max_urls"}
         merged = {**explicit, **changed}
-        if "storage.min_free_bytes" not in changed and self.effective("storage.min_free_bytes") != self.values.get("storage.min_free_bytes"):
+        if "storage.min_free_bytes" not in changed and self.effective(
+            "storage.min_free_bytes"
+        ) != self.values.get("storage.min_free_bytes"):
             merged["storage.min_free_bytes"] = self.effective("storage.min_free_bytes")
         if merged.get("rendering.mode") != "js":
-            merged = {p: v for p, v in merged.items() if p == "rendering.mode" or not p.startswith("rendering.")}
+            merged = {
+                p: v
+                for p, v in merged.items()
+                if p == "rendering.mode" or not p.startswith("rendering.")
+            }
         return merged
 
     def build_plan(self):
@@ -448,12 +537,25 @@ class ScanDraft(QObject):
             raise PlanError(self._field_of(str(exc)), self._friendly(str(exc))) from exc
         sitemap = self.sitemap_url.strip() if self.source == "sitemap" else None
         try:
-            crawl_arguments(self.project_directory, settings["limits.max_urls"], settings["rendering.mode"],
-                            overrides=tuple(preview.items()), approve_large_crawl=True, sitemap_url=sitemap)
+            crawl_arguments(
+                self.project_directory,
+                settings["limits.max_urls"],
+                settings["rendering.mode"],
+                overrides=tuple(preview.items()),
+                approve_large_crawl=True,
+                sitemap_url=sitemap,
+            )
         except ValueError as exc:
             raise PlanError("sitemap" if sitemap is not None else "source", explain(exc)) from exc
-        return (settings["limits.max_urls"], settings["rendering.mode"], settings.get("limits.max_requests", 0),
-                settings.get("limits.max_crawl_seconds", 0), True, settings, sitemap)
+        return (
+            settings["limits.max_urls"],
+            settings["rendering.mode"],
+            settings.get("limits.max_requests", 0),
+            settings.get("limits.max_crawl_seconds", 0),
+            True,
+            settings,
+            sitemap,
+        )
 
     def command_text(self):
         """The core command this draft would run, with the project folder as <проект>; empty when the draft is invalid."""
@@ -461,11 +563,20 @@ class ScanDraft(QObject):
         try:
             settings = self.overrides()
             checked = validate_overrides(self.descriptor, settings)
-            args = crawl_arguments(self.project_directory, settings["limits.max_urls"], settings["rendering.mode"],
-                                   overrides=tuple(checked.items()), approve_large_crawl=True, sitemap_url=sitemap or None)
+            args = crawl_arguments(
+                self.project_directory,
+                settings["limits.max_urls"],
+                settings["rendering.mode"],
+                overrides=tuple(checked.items()),
+                approve_large_crawl=True,
+                sitemap_url=sitemap or None,
+            )
         except (ValueError, KeyError, OSError):
             return ""
-        shown = [tr("<проект>") if index and args[index - 1] == "--project" else shlex.quote(item) for index, item in enumerate(args)]
+        shown = [
+            tr("<проект>") if index and args[index - 1] == "--project" else shlex.quote(item)
+            for index, item in enumerate(args)
+        ]
         return "seohead " + " ".join(shown)
 
     @staticmethod
@@ -489,14 +600,26 @@ class ScanDraft(QObject):
 
     def signature(self):
         report = self.list_report() if self.source == "list" else None
-        return (self.source, self.sitemap_url.strip(), report.usable if report else None, self.limit_enabled,
-                tuple(sorted((p, repr(v)) for p, v in self.overrides().items())))
+        return (
+            self.source,
+            self.sitemap_url.strip(),
+            report.usable if report else None,
+            self.limit_enabled,
+            tuple(sorted((p, repr(v)) for p, v in self.overrides().items())),
+        )
 
     # ---- persistence -------------------------------------------------------------------------------------------
     def snapshot(self):
-        return {"source": self.source, "sitemap": self.sitemap_url, "list": self.list_text, "rps": self.texts.get("rps", ""),
-                "save_html": self.values.get("storage.body_mode") != "off", "limit_enabled": self.limit_enabled,
-                "limit": self.url_limit, "values": deepcopy(self.values)}
+        return {
+            "source": self.source,
+            "sitemap": self.sitemap_url,
+            "list": self.list_text,
+            "rps": self.texts.get("rps", ""),
+            "save_html": self.values.get("storage.body_mode") != "off",
+            "limit_enabled": self.limit_enabled,
+            "limit": self.url_limit,
+            "values": deepcopy(self.values),
+        }
 
     def restore(self, saved):
         if not isinstance(saved, dict) or "values" not in saved:
@@ -504,14 +627,26 @@ class ScanDraft(QObject):
         self.source = saved.get("source") if saved.get("source") in SOURCES else "site"
         self.sitemap_url, self.list_text = str(saved.get("sitemap", "")), str(saved.get("list", ""))
         self.values.update({p: v for p, v in saved["values"].items() if p in self.core})
-        self.limit_enabled, self.url_limit = bool(saved.get("limit_enabled")), int(saved.get("limit") or self.url_limit)
+        self.limit_enabled, self.url_limit = (
+            bool(saved.get("limit_enabled")),
+            int(saved.get("limit") or self.url_limit),
+        )
         self.values["limits.max_urls"] = self.url_limit if self.limit_enabled else 0
         self.sync_texts()
         self.emit_changed()
 
     def clone(self):
-        other = ScanDraft(self.descriptor, target=self.target, host=self.host, project_directory=self.project_directory)
-        other.app_layer, other.project_layer, other.policy_state = dict(self.app_layer), dict(self.project_layer), self.policy_state
+        other = ScanDraft(
+            self.descriptor,
+            target=self.target,
+            host=self.host,
+            project_directory=self.project_directory,
+        )
+        other.app_layer, other.project_layer, other.policy_state = (
+            dict(self.app_layer),
+            dict(self.project_layer),
+            self.policy_state,
+        )
         other.adopt(self)
         return other
 
@@ -519,7 +654,11 @@ class ScanDraft(QObject):
         """Copy the editable state of ``other`` into this draft (the settings window works on a clone)."""
         self.values, self.initial = deepcopy(other.values), deepcopy(other.initial)
         self.limit_enabled, self.url_limit = other.limit_enabled, other.url_limit
-        self.source, self.sitemap_url, self.list_text = other.source, other.sitemap_url, other.list_text
+        self.source, self.sitemap_url, self.list_text = (
+            other.source,
+            other.sitemap_url,
+            other.list_text,
+        )
         self.texts, self.errors = dict(other.texts), dict(other.errors)
         self.emit_changed()
 

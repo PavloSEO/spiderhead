@@ -18,7 +18,12 @@ SPEC.loader.exec_module(qa)
 
 class QaSiteTests(unittest.TestCase):
     def test_broken_profile_exposes_concrete_statuses_redirects_and_headers(self):
-        for path, expected in {"/missing": 404, "/gone": 410, "/server-error": 503, "/optional/rate-limited": 429}.items():
+        for path, expected in {
+            "/missing": 404,
+            "/gone": 410,
+            "/server-error": 503,
+            "/optional/rate-limited": 429,
+        }.items():
             with self.subTest(path=path):
                 status, _headers, _body = qa._body("broken", path)
                 self.assertEqual(status, expected)
@@ -36,7 +41,10 @@ class QaSiteTests(unittest.TestCase):
     def test_catalogue_is_explicit_about_js_prerequisite_and_known_facts(self):
         scenarios = {item["id"]: item for item in qa.catalogue("broken")["scenarios"]}
         self.assertEqual(scenarios["http-statuses"]["expected"]["/gone"], 410)
-        self.assertEqual(scenarios["content"]["expected"]["duplicate_pair"], ["/broken/duplicate-a", "/broken/duplicate-b"])
+        self.assertEqual(
+            scenarios["content"]["expected"]["duplicate_pair"],
+            ["/broken/duplicate-a", "/broken/duplicate-b"],
+        )
         self.assertIn("renderer", scenarios["rendering"]["prerequisite"])
         self.assertIn("unavailable", scenarios["rendering"]["unavailable_without"])
 
@@ -45,13 +53,21 @@ class QaSiteTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertIn("/clean/alpha", body.decode())
         self.assertNotIn("/missing", body.decode())
-        sitemap = {item["id"]: item for item in qa.catalogue("clean")["scenarios"]}["robots-and-sitemap"]
+        sitemap = {item["id"]: item for item in qa.catalogue("clean")["scenarios"]}[
+            "robots-and-sitemap"
+        ]
         self.assertIsNone(sitemap["expected"]["sitemap_missing"])
 
     def test_fix_delta_keeps_the_broken_frontier_and_repairs_measurable_facts(self):
         _status, _headers, broken_home = qa._body("broken", "/")
         _status, _headers, fixed_home = qa._body("fix-delta", "/")
-        for route in ("/broken/duplicate-a", "/broken/noindex", "/missing", "/server-error", "/optional/rate-limited"):
+        for route in (
+            "/broken/duplicate-a",
+            "/broken/noindex",
+            "/missing",
+            "/server-error",
+            "/optional/rate-limited",
+        ):
             self.assertIn(route, broken_home.decode())
             self.assertIn(route, fixed_home.decode())
         status, _headers, body = qa._body("fix-delta", "/missing")
@@ -92,10 +108,16 @@ class QaSiteTests(unittest.TestCase):
             root = Path(temporary)
             manifest = root / "manifest.json"
             catalogue = root / "catalogue.json"
-            self.assertEqual(qa.main(["manifest", "--profile", "broken", "--output", str(manifest)]), 0)
-            self.assertEqual(qa.main(["catalogue", "--profile", "broken", "--output", str(catalogue)]), 0)
+            self.assertEqual(
+                qa.main(["manifest", "--profile", "broken", "--output", str(manifest)]), 0
+            )
+            self.assertEqual(
+                qa.main(["catalogue", "--profile", "broken", "--output", str(catalogue)]), 0
+            )
             first = json.loads(manifest.read_text())
-            self.assertEqual(qa.main(["manifest", "--profile", "broken", "--output", str(manifest)]), 0)
+            self.assertEqual(
+                qa.main(["manifest", "--profile", "broken", "--output", str(manifest)]), 0
+            )
             self.assertEqual(first, json.loads(manifest.read_text()))
             self.assertEqual(json.loads(catalogue.read_text())["profile"], "broken")
             self.assertEqual(first["source"], "qa_site.py")

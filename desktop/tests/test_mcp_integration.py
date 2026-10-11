@@ -1,4 +1,5 @@
 """Consent and background-only CLI contracts with fake core answers (no CLI, no real configuration)."""
+
 import os
 import threading
 import time
@@ -16,13 +17,31 @@ from seohead_desktop.ui.settings import full_schema
 
 APP = qt_app()
 HOME = os.path.expanduser("~")
-STATUS = {"ok": True, "enabled": True, "profile": "full", "tools": 3, "by": "CLI", "by_label": "CLI · сегодня 10:00",
-          "profiles": [{"id": "full", "label": "все", "tools": 3}, {"id": "audit", "label": "аудит", "tools": 2}],
-          "clients": {"claude-code": {"registered": False, "file": HOME + "/.claude.json"},
-                      "codex": {"registered": True, "file": HOME + "/.codex/config.toml"},
-                      "cursor": {"registered": None, "file": HOME + "/.cursor/mcp.json"}}}
-PLAN = {"ok": True, "file": HOME + "/.claude.json", "block": '{\n  "mcpServers": {"seohead": {}}\n}', "backup": HOME + "/.claude.json.seohead-x.bak",
-        "sha256": "abc", "changed": True}
+STATUS = {
+    "ok": True,
+    "enabled": True,
+    "profile": "full",
+    "tools": 3,
+    "by": "CLI",
+    "by_label": "CLI · сегодня 10:00",
+    "profiles": [
+        {"id": "full", "label": "все", "tools": 3},
+        {"id": "audit", "label": "аудит", "tools": 2},
+    ],
+    "clients": {
+        "claude-code": {"registered": False, "file": HOME + "/.claude.json"},
+        "codex": {"registered": True, "file": HOME + "/.codex/config.toml"},
+        "cursor": {"registered": None, "file": HOME + "/.cursor/mcp.json"},
+    },
+}
+PLAN = {
+    "ok": True,
+    "file": HOME + "/.claude.json",
+    "block": '{\n  "mcpServers": {"seohead": {}}\n}',
+    "backup": HOME + "/.claude.json.seohead-x.bak",
+    "sha256": "abc",
+    "changed": True,
+}
 
 
 def wait_for(predicate):
@@ -42,13 +61,16 @@ def fake_core(calls, threads, status=STATUS, backups=()):
         if arguments[0] == "backups":
             return {"ok": True, "backups": list(backups)}
         return dict(PLAN)
+
     return runner
 
 
 class PermissionTests(unittest.TestCase):
     def test_plan_is_shown_as_added_lines_with_tilde_paths_and_cancel_writes_nothing(self):
         calls, threads = [], []
-        dialog = PermissionDialog("/opt/seohead", ("claude-code",), runner=fake_core(calls, threads))
+        dialog = PermissionDialog(
+            "/opt/seohead", ("claude-code",), runner=fake_core(calls, threads)
+        )
         wait_for(lambda: "claude-code" in dialog.plans and not dialog.busy)
         text = dialog.preview.text()
         self.assertIn('+   "mcpServers"', text)
@@ -61,7 +83,9 @@ class PermissionTests(unittest.TestCase):
 
     def test_allow_writes_every_checked_client_with_the_reviewed_hash(self):
         calls, threads = [], []
-        dialog = PermissionDialog("/opt/seohead", ("claude-code",), runner=fake_core(calls, threads))
+        dialog = PermissionDialog(
+            "/opt/seohead", ("claude-code",), runner=fake_core(calls, threads)
+        )
         wait_for(lambda: "claude-code" in dialog.plans and not dialog.busy)
         dialog.boxes["codex"].setChecked(True)
         wait_for(lambda: "codex" in dialog.plans and not dialog.busy)
@@ -89,7 +113,12 @@ class PermissionTests(unittest.TestCase):
 
 class PanelTests(unittest.TestCase):
     def panel(self, calls, **kwargs):
-        panel = IntegrationPanel("/opt/seohead", AppSettings(schema=full_schema()), runner=fake_core(calls, [], **kwargs), polling=False)
+        panel = IntegrationPanel(
+            "/opt/seohead",
+            AppSettings(schema=full_schema()),
+            runner=fake_core(calls, [], **kwargs),
+            polling=False,
+        )
         panel.show()
         wait_for(lambda: panel.state is not None and not panel.busy)
         return panel
@@ -102,7 +131,11 @@ class PanelTests(unittest.TestCase):
         self.assertIn("Бэкапов ещё нет", texts)
         self.assertNotIn("mcp-state", texts)
         self.assertNotIn(HOME, texts)
-        buttons = sorted(b.text() for b in panel.findChildren(QPushButton) if b.isEnabled() and b.text().endswith("…"))
+        buttons = sorted(
+            b.text()
+            for b in panel.findChildren(QPushButton)
+            if b.isEnabled() and b.text().endswith("…")
+        )
         self.assertEqual(buttons, ["Изменить…", "Прописать…"])
         panel.close()
 
@@ -116,8 +149,22 @@ class PanelTests(unittest.TestCase):
         panel.close()
 
     def test_only_the_newest_verified_backup_of_a_client_is_restorable(self):
-        backups = [{"client": "codex", "path": HOME + "/.codex/config.toml.seohead-2.bak", "created_at": "2026-10-09T10:00:00+00:00", "reason": "install", "verified": True},
-                   {"client": "codex", "path": HOME + "/.codex/config.toml.seohead-1.bak", "created_at": "2026-10-08T10:00:00+00:00", "reason": "install", "verified": True}]
+        backups = [
+            {
+                "client": "codex",
+                "path": HOME + "/.codex/config.toml.seohead-2.bak",
+                "created_at": "2026-10-09T10:00:00+00:00",
+                "reason": "install",
+                "verified": True,
+            },
+            {
+                "client": "codex",
+                "path": HOME + "/.codex/config.toml.seohead-1.bak",
+                "created_at": "2026-10-08T10:00:00+00:00",
+                "reason": "install",
+                "verified": True,
+            },
+        ]
         panel = self.panel([], backups=backups)
         restore = [b for b in panel.findChildren(QPushButton) if b.text() == "Восстановить"]
         self.assertEqual([b.isEnabled() for b in restore], [True, False])

@@ -38,15 +38,20 @@ from .scan_common import number
 from .url_query import CoreJob, links_arguments
 
 MAX_DEPTH = 3
-PANEL_ROWS = 6            # links listed in the side panel; the table sheet lists the rest
+PANEL_ROWS = 6  # links listed in the side panel; the table sheet lists the rest
 DEFAULT_DEPTH = 2
 MAX_NODES = 60
-MAX_EXPANDED = 30          # URLs whose links are read: two core calls each
-PAGE_LIMIT = 200           # core page size per direction; a fuller list is marked as truncated
-RING = 120                 # radial distance between depths
-COLUMN = 190               # horizontal distance between depths (left/right layout)
-ROW = 36                   # vertical distance between nodes of one column
-SECTION_ROLES = ("primary", "warning", "success", "text_3")   # sections get colours in the order they first appear
+MAX_EXPANDED = 30  # URLs whose links are read: two core calls each
+PAGE_LIMIT = 200  # core page size per direction; a fuller list is marked as truncated
+RING = 120  # radial distance between depths
+COLUMN = 190  # horizontal distance between depths (left/right layout)
+ROW = 36  # vertical distance between nodes of one column
+SECTION_ROLES = (
+    "primary",
+    "warning",
+    "success",
+    "text_3",
+)  # sections get colours in the order they first appear
 LAYOUTS = (("lr", "Вход слева · выход справа"), ("radial", "Радиально"))
 
 
@@ -100,8 +105,8 @@ class GraphPage(QWidget):
         self.panel_direction = "in"
         self.revision = 0
         self.loaded_for = None
-        self.cache = {}        # (url, direction) -> core answer
-        self.totals = {}       # (url, direction) -> total links in the scan
+        self.cache = {}  # (url, direction) -> core answer
+        self.totals = {}  # (url, direction) -> total links in the scan
         self.job = CoreJob(ctx.host_ref, self)
         self.job.done.connect(self._done)
         self.job.failed.connect(self._failed)
@@ -145,7 +150,11 @@ class GraphPage(QWidget):
         self.help.setProperty("pill", "group")
         self.help.setText("?")
         self.help.setAccessibleName(tr("Как читать граф"))
-        self.help.setToolTip(tr("Узел — URL скана, линия — ссылка. Цвет узла — HTTP-статус. Граф строится из сохранённых ссылок, только чтение."))
+        self.help.setToolTip(
+            tr(
+                "Узел — URL скана, линия — ссылка. Цвет узла — HTTP-статус. Граф строится из сохранённых ссылок, только чтение."
+            )
+        )
         bar.addWidget(self.help)
         layout.addLayout(bar)
 
@@ -229,7 +238,9 @@ class GraphPage(QWidget):
         self.open_button.setText(tr("Открыть URL"))
         self.table_button.setText(tr("Входящие/исходящие таблицей"))
         self.footer.setText(tr("Локальный граф по сохранённому запуску · только чтение"))
-        self.legend.setText(tr("Цвет — раздел URL. Пунктир — ответ 4xx или 5xx. Анкор — при наведении на ребро."))
+        self.legend.setText(
+            tr("Цвет — раздел URL. Пунктир — ответ 4xx или 5xx. Анкор — при наведении на ребро.")
+        )
         self._update_panel()
 
     def retranslate(self):
@@ -250,8 +261,14 @@ class GraphPage(QWidget):
         clear_layout(self.rows_layout)
         payload = self.cache.get((url, self.panel_direction)) or {}
         for link in (payload.get("items") or [])[:PANEL_ROWS]:
-            other = link.get("target_url") if self.panel_direction == "out" else link.get("source_url")
-            status = link.get("target_status") if self.panel_direction == "out" else link.get("source_status")
+            other = (
+                link.get("target_url") if self.panel_direction == "out" else link.get("source_url")
+            )
+            status = (
+                link.get("target_status")
+                if self.panel_direction == "out"
+                else link.get("source_status")
+            )
             label = QLabel()
             label.setWordWrap(True)
             label.setProperty("text_style", "meta")
@@ -304,16 +321,16 @@ class GraphPage(QWidget):
 
     # ---- walk ----------------------------------------------------------------------------------------------------------
     def _reset_walk(self):
-        self.nodes = {}        # url -> depth
-        self.side = {}         # url -> "center" | "out" | "in" (branch used by the left/right layout)
-        self.status = {}       # url -> HTTP status known from the scan
-        self.edges = {}        # (source, target) -> anchor
+        self.nodes = {}  # url -> depth
+        self.side = {}  # url -> "center" | "out" | "in" (branch used by the left/right layout)
+        self.status = {}  # url -> HTTP status known from the scan
+        self.edges = {}  # (source, target) -> anchor
         self.capped = False
         self.expanded = 0
         self.pending = deque()
         self.reads = deque()
         self.reading = None
-        self.partial = set()   # (url, direction) whose list is longer than one page
+        self.partial = set()  # (url, direction) whose list is longer than one page
 
     def start_walk(self):
         if not self.ctx.scan or not self.ctx.url:
@@ -351,7 +368,10 @@ class GraphPage(QWidget):
                 continue
             self.reading = (url, direction)
             self.caption.setText(trf("Читаю связи: {n} URL", n=number(self.expanded)))
-            self.job.start(links_arguments(self.ctx.scan, url, direction=direction, limit=PAGE_LIMIT), ("graph", self.revision, url, direction))
+            self.job.start(
+                links_arguments(self.ctx.scan, url, direction=direction, limit=PAGE_LIMIT),
+                ("graph", self.revision, url, direction),
+            )
             return
 
     def _absorb(self, url, direction):
@@ -359,9 +379,19 @@ class GraphPage(QWidget):
         level = self.nodes[url]
         for link in payload.get("items") or []:
             if direction == "out":
-                other, status, source, target = link.get("target_url"), link.get("target_status"), url, link.get("target_url")
+                other, status, source, target = (
+                    link.get("target_url"),
+                    link.get("target_status"),
+                    url,
+                    link.get("target_url"),
+                )
             else:
-                other, status, source, target = link.get("source_url"), link.get("source_status"), link.get("source_url"), url
+                other, status, source, target = (
+                    link.get("source_url"),
+                    link.get("source_status"),
+                    link.get("source_url"),
+                    url,
+                )
             if not isinstance(other, str) or not other:
                 continue
             if other not in self.nodes:
@@ -369,24 +399,38 @@ class GraphPage(QWidget):
                     self.capped = True
                     continue
                 self.nodes[other] = level + 1
-                self.side[other] = (direction if url == self.ctx.url else self.side[url])
+                self.side[other] = direction if url == self.ctx.url else self.side[url]
                 self.pending.append(other)
             if type(status) is int:
                 self.status[other] = status
-            if isinstance(source, str) and isinstance(target, str) and source in self.nodes and target in self.nodes:
+            if (
+                isinstance(source, str)
+                and isinstance(target, str)
+                and source in self.nodes
+                and target in self.nodes
+            ):
                 self.edges.setdefault((source, target), link.get("anchor") or "")
-        if payload.get("has_more") or (type(payload.get("total")) is int and payload["total"] > PAGE_LIMIT):
+        if payload.get("has_more") or (
+            type(payload.get("total")) is int and payload["total"] > PAGE_LIMIT
+        ):
             self.partial.add((url, direction))
 
     def _finish(self):
         self.reading = None
         if len(self.nodes) <= 1 and not self.edges:
-            self._show_state("empty", tr("Ссылок нет"), tr("Ядро не нашло ссылок этой страницы в сохранённом скане."))
+            self._show_state(
+                "empty",
+                tr("Ссылок нет"),
+                tr("Ядро не нашло ссылок этой страницы в сохранённом скане."),
+            )
             self.caption.setText("")
             return
         self.stack.setCurrentIndex(0)
         self.draw()
-        parts = [trf("Узлов: {n}", n=number(len(self.nodes))), trf("связей: {n}", n=number(len(self.edges)))]
+        parts = [
+            trf("Узлов: {n}", n=number(len(self.nodes))),
+            trf("связей: {n}", n=number(len(self.edges))),
+        ]
         if self.capped or self.partial:
             parts.append(tr("показано не всё: лимит графа"))
         self.caption.setText(" · ".join(parts))
@@ -397,7 +441,13 @@ class GraphPage(QWidget):
             return
         key = self.reading
         if payload.get("ok") is not True:
-            return self._show_state("error", tr("Не удалось прочитать граф"), payload.get("error") or payload.get("reason_code") or tr("Ядро не выполнило запрос"))
+            return self._show_state(
+                "error",
+                tr("Не удалось прочитать граф"),
+                payload.get("error")
+                or payload.get("reason_code")
+                or tr("Ядро не выполнило запрос"),
+            )
         self.cache[key] = payload
         if type(payload.get("total")) is int:
             self.totals[key] = payload["total"]
@@ -463,7 +513,9 @@ class GraphPage(QWidget):
         for (source, target), anchor in self.edges.items():
             if source not in pos or target not in pos:
                 continue
-            line = EdgeItem(pos[source], pos[target], anchor or tr("[без текста]"), edge_pen, anchor_color)
+            line = EdgeItem(
+                pos[source], pos[target], anchor or tr("[без текста]"), edge_pen, anchor_color
+            )
             self.scene.addItem(line)
         label_font = QFont()
         label_font.setPointSizeF(9.5)
@@ -473,12 +525,22 @@ class GraphPage(QWidget):
             radius = 11 if level == 0 else 8 if level == 1 else 5.5
             section = section_of(url)
             if section not in sections:
-                sections[section] = SECTION_ROLES[len(sections) % len(SECTION_ROLES)] if section != "/" else "text_muted"
+                sections[section] = (
+                    SECTION_ROLES[len(sections) % len(SECTION_ROLES)]
+                    if section != "/"
+                    else "text_muted"
+                )
             fill = QColor(roles[sections[section]])
-            node = QGraphicsEllipseItem(point.x() - radius, point.y() - radius, radius * 2, radius * 2)
+            node = QGraphicsEllipseItem(
+                point.x() - radius, point.y() - radius, radius * 2, radius * 2
+            )
             node.setBrush(QBrush(fill))
             broken = type(self.status.get(url)) is int and self.status[url] >= 400
-            node.setPen(QPen(QColor(roles["error"]), 2, Qt.DashLine) if broken else QPen(QColor(roles["base"]), 1.2))
+            node.setPen(
+                QPen(QColor(roles["error"]), 2, Qt.DashLine)
+                if broken
+                else QPen(QColor(roles["base"]), 1.2)
+            )
             node.setToolTip(url)
             node.setAcceptHoverEvents(True)
             if url == self.ctx.url:
@@ -507,10 +569,15 @@ class GraphPage(QWidget):
         xs = [point.x() for point in pos.values()]
         top = min(point.y() for point in pos.values()) - 36
         url = self.ctx.url or ""
-        heads = ((min(xs) - 40, "in", "← " + tr("Входящие")), (max(xs) + 40, "out", tr("Исходящие") + " →"))
+        heads = (
+            (min(xs) - 40, "in", "← " + tr("Входящие")),
+            (max(xs) + 40, "out", tr("Исходящие") + " →"),
+        )
         for x, direction, text in heads:
             total = self.totals.get((url, direction))
-            item = QGraphicsSimpleTextItem(f"{text} · {number(total)}" if type(total) is int else text)
+            item = QGraphicsSimpleTextItem(
+                f"{text} · {number(total)}" if type(total) is int else text
+            )
             font = QFont()
             font.setPointSizeF(10.5)
             font.setWeight(QFont.Medium)

@@ -27,8 +27,19 @@ class _Host:
 
 
 def _page(offset, count, total, next_offset):
-    items = [{"id": f"check:{n}", "title": f"Task {n}", "kind": "check", "display_state": "remaining"} for n in range(offset, offset + count)]
-    return {"items": items, "pagination": {"total": total, "offset": offset, "limit": TASK_PAGE_LIMIT, "next_offset": next_offset}}
+    items = [
+        {"id": f"check:{n}", "title": f"Task {n}", "kind": "check", "display_state": "remaining"}
+        for n in range(offset, offset + count)
+    ]
+    return {
+        "items": items,
+        "pagination": {
+            "total": total,
+            "offset": offset,
+            "limit": TASK_PAGE_LIMIT,
+            "next_offset": next_offset,
+        },
+    }
 
 
 class WorkTaskPagesTests(unittest.TestCase):
@@ -39,7 +50,9 @@ class WorkTaskPagesTests(unittest.TestCase):
         self.assertEqual(len(host.started), 1)
         operation, tool, arguments, handler = host.started[0]
         self.assertEqual((operation, tool), ("tasks", "seo_project_checklist_page"))
-        self.assertEqual(arguments, {"directory": "/projects/owner", "limit": TASK_PAGE_LIMIT, "offset": 100})
+        self.assertEqual(
+            arguments, {"directory": "/projects/owner", "limit": TASK_PAGE_LIMIT, "offset": 100}
+        )
         self.assertEqual(host.loaded, [])
         handler(_page(100, 100, 277, 200))
         self.assertEqual(host.started[-1][2]["offset"], 200)
@@ -96,10 +109,15 @@ class WorkTaskRowCountTests(unittest.TestCase):
         self.assertEqual(len(host.task_model.rows), 277)
         self.assertEqual(host.task_total, 277)
         name, window, kwargs = host.project_panels.calls[-1]
-        self.assertEqual((name, len(window), kwargs["offset"], kwargs["has_more"]), ("tasks", 100, 0, True))
+        self.assertEqual(
+            (name, len(window), kwargs["offset"], kwargs["has_more"]), ("tasks", 100, 0, True)
+        )
         host.show_task_page(200)
         _name, window, kwargs = host.project_panels.calls[-1]
-        self.assertEqual((window[0]["id"], len(window), kwargs["offset"], kwargs["has_more"]), ("check:200", 77, 200, False))
+        self.assertEqual(
+            (window[0]["id"], len(window), kwargs["offset"], kwargs["has_more"]),
+            ("check:200", 77, 200, False),
+        )
 
     def test_a_row_past_the_panel_page_limit_does_not_raise(self):
         host = _ShownHost()

@@ -31,12 +31,8 @@ def executable(environment: Path, name: str) -> Path:
     )
 
 
-def installation_plan(
-    core_source: Path, environment: Path, *, update: bool = False
-) -> dict:
-    contract = json.loads(
-        (ROOT / "packaging" / "source-install.json").read_text(encoding="utf-8")
-    )
+def installation_plan(core_source: Path, environment: Path, *, update: bool = False) -> dict:
+    contract = json.loads((ROOT / "packaging" / "source-install.json").read_text(encoding="utf-8"))
     core = _core_identity(core_source)
     if (
         core["commit"] != contract["core_commit"]
@@ -88,9 +84,7 @@ def installation_plan(
 
 def install(args) -> int:
     environment = args.venv.resolve()
-    plan = installation_plan(
-        args.core_source.resolve(), environment, update=args.update
-    )
+    plan = installation_plan(args.core_source.resolve(), environment, update=args.update)
     if args.dry_run:
         print(
             json.dumps(
@@ -114,9 +108,7 @@ def install(args) -> int:
     for index, command in enumerate(plan["commands"]):
         subprocess.run(command, cwd=ROOT, env=child_environment, check=True)
         if index == 0:
-            (environment / MARKER).write_text(
-                json.dumps(marker, indent=2) + "\n", encoding="utf-8"
-            )
+            (environment / MARKER).write_text(json.dumps(marker, indent=2) + "\n", encoding="utf-8")
     python = executable(environment, "python")
     subprocess.run([str(executable(environment, "seohead")), "--version"], check=True)
     subprocess.run(
@@ -138,9 +130,7 @@ def install(args) -> int:
         check=True,
     )
     if _core_identity(args.core_source.resolve()) != plan["core"]:
-        raise ValueError(
-            "core source changed while installing; installation was not accepted"
-        )
+        raise ValueError("core source changed while installing; installation was not accepted")
     marker["state"] = "ready"
     marker["installed_distributions"] = json.loads(
         subprocess.check_output(
@@ -152,9 +142,7 @@ def install(args) -> int:
             text=True,
         )
     )
-    (environment / MARKER).write_text(
-        json.dumps(marker, indent=2) + "\n", encoding="utf-8"
-    )
+    (environment / MARKER).write_text(json.dumps(marker, indent=2) + "\n", encoding="utf-8")
     print(
         f"Installed. Launch: {sys.executable} {ROOT / 'scripts' / 'source.py'} run --venv {environment}"
     )
@@ -200,18 +188,14 @@ def run(args) -> int:
     if log is None:
         logs = ROOT / ".build" / "logs"
         logs.mkdir(parents=True, exist_ok=True)
-        log = logs / (
-            "desktop-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f") + ".log"
-        )
+        log = logs / ("desktop-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f") + ".log")
     descriptor = os.open(log, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     with os.fdopen(descriptor, "w", encoding="utf-8") as output:
         output.write(
             json.dumps(
                 {
                     "command": command,
-                    "started_at": datetime.datetime.now(
-                        datetime.timezone.utc
-                    ).isoformat(),
+                    "started_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                 }
             )
             + "\n"
@@ -242,9 +226,7 @@ def main() -> int:
         action="store_true",
         help="Update only an environment previously created by this script",
     )
-    launch = commands.add_parser(
-        "run", help="Fast source preview without a frozen build"
-    )
+    launch = commands.add_parser("run", help="Fast source preview without a frozen build")
     launch.add_argument(
         "--project",
         type=Path,

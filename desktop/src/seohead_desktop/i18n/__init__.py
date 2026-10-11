@@ -41,7 +41,9 @@ def _dictionary():
     global _en
     if _en is None:
         _en = json.loads((_DIR / "en.json").read_text(encoding="utf-8"))
-        for source, english in list(_en.items()):  # overline labels show the upper-case form of a source text
+        for source, english in list(
+            _en.items()
+        ):  # overline labels show the upper-case form of a source text
             if "<" not in source and "{" not in source:
                 _en.setdefault(source.upper(), english.upper())
     return _en
@@ -178,11 +180,23 @@ def _widget(widget):
         _apply((ident, "text"), widget.title(), widget.setTitle)
     elif isinstance(widget, QTabBar):
         for index in range(widget.count()):
-            _apply((ident, "text", index), widget.tabText(index), lambda t, i=index: widget.setTabText(i, t))
-            _apply((ident, "tip", index), widget.tabToolTip(index), lambda t, i=index: widget.setTabToolTip(i, t))
+            _apply(
+                (ident, "text", index),
+                widget.tabText(index),
+                lambda t, i=index: widget.setTabText(i, t),
+            )
+            _apply(
+                (ident, "tip", index),
+                widget.tabToolTip(index),
+                lambda t, i=index: widget.setTabToolTip(i, t),
+            )
     elif isinstance(widget, QComboBox):
         for index in range(widget.count()):
-            _apply((ident, "text", index), widget.itemText(index), lambda t, i=index: widget.setItemText(i, t))
+            _apply(
+                (ident, "text", index),
+                widget.itemText(index),
+                lambda t, i=index: widget.setItemText(i, t),
+            )
     elif isinstance(widget, QListWidget):
         for row in range(widget.count()):
             item = widget.item(row)
@@ -190,7 +204,11 @@ def _widget(widget):
             _apply((ident, "tip", row), item.toolTip(), item.setToolTip)
             spoken = item.data(Qt.AccessibleTextRole)
             if isinstance(spoken, str):
-                _apply((ident, "acc", row), spoken, lambda t, i=item: i.setData(Qt.AccessibleTextRole, t))
+                _apply(
+                    (ident, "acc", row),
+                    spoken,
+                    lambda t, i=item: i.setData(Qt.AccessibleTextRole, t),
+                )
 
 
 def _action(action):

@@ -62,7 +62,11 @@ from .search_results import (
 SEARCH_ISSUE = 939
 PAGE = 100
 PRESET_LABELS = {"gtm": "GTM в head", "ga4": "GA4 / Google tag", "metrika": "Яндекс Метрика"}
-LANES = {"complete": "сохранён полностью", "partial": "сохранён частично", "unavailable": "не сохранён"}
+LANES = {
+    "complete": "сохранён полностью",
+    "partial": "сохранён частично",
+    "unavailable": "не сохранён",
+}
 
 
 CHECK_QUERY = "Проверьте запрос, область поиска и селектор: результат поиска не получен."
@@ -89,7 +93,11 @@ class AddressLabel(QLabel):
         self._fit()
 
     def _fit(self):
-        self.setText(self.fontMetrics().elidedText(getattr(self, "_full", ""), Qt.ElideMiddle, max(40, self.width() - 6)))
+        self.setText(
+            self.fontMetrics().elidedText(
+                getattr(self, "_full", ""), Qt.ElideMiddle, max(40, self.width() - 6)
+            )
+        )
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -130,7 +138,11 @@ class RunningPanel(QFrame):
         row.addStretch(1)
         row.addWidget(waiting(HINT_PROGRESS))
         layout.addLayout(row)
-        text = QLabel(tr("Поиск идёт в отдельном процессе ядра, окно остаётся доступным. Результат появится после его завершения."))
+        text = QLabel(
+            tr(
+                "Поиск идёт в отдельном процессе ядра, окно остаётся доступным. Результат появится после его завершения."
+            )
+        )
         text.setProperty("text_style", "meta")
         text.setWordWrap(True)
         layout.addWidget(text)
@@ -155,7 +167,11 @@ class SearchScreen(Screen):
         self._started = None
         # matched rows before each core page, learnt while paging forward (the core cannot filter its result)
         self._before, self._search_id, self._direction, self._partial = {0: 0}, None, 1, False
-        self.scope, self.mode, self.representation = Choice(SCOPES, self), Choice(MODES, self), Choice(REPRESENTATIONS, self)
+        self.scope, self.mode, self.representation = (
+            Choice(SCOPES, self),
+            Choice(MODES, self),
+            Choice(REPRESENTATIONS, self),
+        )
         # older callers (action finder, workspace tabs) address this page as ``host.content_search_panel``
         host.content_search_panel = self
         root = QVBoxLayout(self)
@@ -189,14 +205,20 @@ class SearchScreen(Screen):
         self.query.setFixedHeight(40)
         self.query.setPlaceholderText(tr("Что искать: GTM-, фрагмент кода или текст"))
         self.query.setAccessibleName(tr("Что искать"))
-        self.query.addAction(material_icon("find_in_page", theming.roles()["text_muted"]), QLineEdit.LeadingPosition)
+        self.query.addAction(
+            material_icon("find_in_page", theming.roles()["text_muted"]), QLineEdit.LeadingPosition
+        )
         self.query.returnPressed.connect(self.request_search)
         self.query.textChanged.connect(self._edited)
         row.addWidget(self.query, 1)
-        self.kind = Segmented((("text", tr("Текст")), ("regex", tr("Regex"))), "text", tr("Тип запроса"))
+        self.kind = Segmented(
+            (("text", tr("Текст")), ("regex", tr("Regex"))), "text", tr("Тип запроса")
+        )
         regex = self.kind._buttons["regex"]
         regex.setEnabled(False)
-        regex.setToolTip(unavailable_tip("Регулярные выражения: поиск идёт только по буквальной строке"))
+        regex.setToolTip(
+            unavailable_tip("Регулярные выражения: поиск идёт только по буквальной строке")
+        )
         row.addWidget(self.kind)
         self.start = QPushButton(tr("Найти"))
         self.start.setObjectName("bodySearchStart")
@@ -227,7 +249,9 @@ class SearchScreen(Screen):
             pill.setCheckable(True)
             pill.setText(tr(label))
             pill.setChecked(value == self.scope.currentData())
-            pill.clicked.connect(lambda _checked=False, v=value: self.scope.setCurrentIndex(self.scope.findData(v)))
+            pill.clicked.connect(
+                lambda _checked=False, v=value: self.scope.setCurrentIndex(self.scope.findData(v))
+            )
             self.pills.append((value, pill))
             where.addWidget(pill)
         where.addStretch(1)
@@ -256,13 +280,28 @@ class SearchScreen(Screen):
         self.rendered.setCheckable(True)
         self.menu.addSeparator()
         for preset in SEARCH_PRESETS:
-            self.menu.addAction(tr(PRESET_LABELS.get(preset["id"], preset["label"])), lambda _checked=False, v=preset["id"]: self.set_preset(v))
+            self.menu.addAction(
+                tr(PRESET_LABELS.get(preset["id"], preset["label"])),
+                lambda _checked=False, v=preset["id"]: self.set_preset(v),
+            )
         self.more.setMenu(self.menu)
         flags.addWidget(self.more)
-        self.not_contains.toggled.connect(lambda on: self.mode.setCurrentIndex(self.mode.findData("not_contains" if on else "contains")))
-        self.rendered.toggled.connect(lambda on: self.representation.setCurrentIndex(self.representation.findData("rendered" if on else "static")))
-        self.mode.changed.connect(lambda: self.not_contains.setChecked(self.mode.currentData() == "not_contains"))
-        self.representation.changed.connect(lambda: self.rendered.setChecked(self.representation.currentData() == "rendered"))
+        self.not_contains.toggled.connect(
+            lambda on: self.mode.setCurrentIndex(
+                self.mode.findData("not_contains" if on else "contains")
+            )
+        )
+        self.rendered.toggled.connect(
+            lambda on: self.representation.setCurrentIndex(
+                self.representation.findData("rendered" if on else "static")
+            )
+        )
+        self.mode.changed.connect(
+            lambda: self.not_contains.setChecked(self.mode.currentData() == "not_contains")
+        )
+        self.representation.changed.connect(
+            lambda: self.rendered.setChecked(self.representation.currentData() == "rendered")
+        )
         self.scope.changed.connect(self._scope_changed)
         self.selector = QLineEdit()
         self.selector.setObjectName("bodySearchSelector")
@@ -308,7 +347,13 @@ class SearchScreen(Screen):
         layout = QVBoxLayout(page)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        self.banner = Note("warn", tr("Просмотрены не все страницы."), tr("Страницы без сохранённого HTML или не проверенные в «нет совпадений» не входят; отсутствие строки во всём скане не подтверждено."))
+        self.banner = Note(
+            "warn",
+            tr("Просмотрены не все страницы."),
+            tr(
+                "Страницы без сохранённого HTML или не проверенные в «нет совпадений» не входят; отсутствие строки во всём скане не подтверждено."
+            ),
+        )
         self.banner_holder = QWidget()
         holder = QVBoxLayout(self.banner_holder)
         holder.setContentsMargins(12, 8, 12, 0)
@@ -345,7 +390,11 @@ class SearchScreen(Screen):
         self.matched.setCheckable(True)
         self.matched.setChecked(True)
         self.matched.setText(tr("Только найденные"))
-        self.matched.setToolTip(tr("Показывать только страницы, где условие выполнено; остальные строки результата скрыты"))
+        self.matched.setToolTip(
+            tr(
+                "Показывать только страницы, где условие выполнено; остальные строки результата скрыты"
+            )
+        )
         self.matched.toggled.connect(self._filter_changed)
         grid.addWidget(self.matched, 0, 1)
         self.folder = QToolButton()
@@ -439,7 +488,10 @@ class SearchScreen(Screen):
         caption.setProperty("text_style", "meta")
         row.addWidget(caption)
         row.addWidget(waiting(HINT_NAVIGATION))
-        for icon, tip in (("keyboard_arrow_up", "Предыдущее совпадение"), ("keyboard_arrow_down", "Следующее совпадение")):
+        for icon, tip in (
+            ("keyboard_arrow_up", "Предыдущее совпадение"),
+            ("keyboard_arrow_down", "Следующее совпадение"),
+        ):
             button = QToolButton()
             button.setProperty("role", "icon")
             button.setIcon(material_icon(icon, theming.roles()["disabled_icon"]))
@@ -502,7 +554,9 @@ class SearchScreen(Screen):
     def _scope_changed(self):
         for value, pill in self.pills:
             pill.setChecked(value == self.scope.currentData())
-        self.selector.setVisible(self.scope.currentData() == "selector_markup" and self.form.isEnabled())
+        self.selector.setVisible(
+            self.scope.currentData() == "selector_markup" and self.form.isEnabled()
+        )
         self._edited()
 
     def _edited(self, *_args):
@@ -512,7 +566,12 @@ class SearchScreen(Screen):
     def _can_search(self):
         content = self.host.project_directory and getattr(self.host, "selected_scan_path", None)
         busy = self.payload.get("state") == "loading"
-        return bool(content and self.view in ("idle", "cancelled", "error", "results", "zero") and not busy and self.query.text().strip())
+        return bool(
+            content
+            and self.view in ("idle", "cancelled", "error", "results", "zero")
+            and not busy
+            and self.query.text().strip()
+        )
 
     def _set_hint(self, text):
         self.hint.setText(text)
@@ -528,9 +587,15 @@ class SearchScreen(Screen):
         if scope == "selector_markup" and not selector:
             self._set_hint(tr("Для поиска в элементе укажите CSS-селектор. Поиск не запущен."))
             return
-        self.values = {"query": self.query.text(), "scope": scope, "mode": self.mode.currentData(),
-                       "representation": self.representation.currentData(), "selector": selector if scope == "selector_markup" else None,
-                       "case_sensitive": self.case_sensitive.isChecked(), "include_snippets": True}
+        self.values = {
+            "query": self.query.text(),
+            "scope": scope,
+            "mode": self.mode.currentData(),
+            "representation": self.representation.currentData(),
+            "selector": selector if scope == "selector_markup" else None,
+            "case_sensitive": self.case_sensitive.isChecked(),
+            "include_snippets": True,
+        }
         self.host.content_search.start(**self.values)
 
     def cancel(self):
@@ -573,7 +638,11 @@ class SearchScreen(Screen):
 
     def _scan(self):
         path = getattr(self.host, "selected_scan_path", None)
-        return next((scan for scan in self.host.scan_model.rows if scan.get("path") == path), None) if path else None
+        return (
+            next((scan for scan in self.host.scan_model.rows if scan.get("path") == path), None)
+            if path
+            else None
+        )
 
     def _decide(self):
         host = self.host
@@ -582,7 +651,9 @@ class SearchScreen(Screen):
             return "noproject"
         if not getattr(host, "selected_scan_path", None):
             return "loading" if host._project_loading else "noscan"
-        lane = (((self._scan() or {}).get("capabilities") or {}).get("html_bodies") or {}).get("state")
+        lane = (((self._scan() or {}).get("capabilities") or {}).get("html_bodies") or {}).get(
+            "state"
+        )
         if lane == "unavailable":
             return "nohtml"
         if controller is None or not controller.available:
@@ -594,7 +665,11 @@ class SearchScreen(Screen):
             return "error"
         if state == "ready":
             coverage = self.payload.get("coverage") or {}
-            return "zero" if coverage.get("filter_matching_documents") == 0 or not self.payload.get("total") else "results"
+            return (
+                "zero"
+                if coverage.get("filter_matching_documents") == 0 or not self.payload.get("total")
+                else "results"
+            )
         return "cancelled" if operation == "cancelled" else "idle"
 
     def _panel(self, view):
@@ -602,37 +677,82 @@ class SearchScreen(Screen):
         reason = self.payload.get("reason") or ""
         scans = ("Открыть «Сканы»", lambda: host.navigation.select_section("scans"))
         if view == "noproject":
-            return no_project_panel(host, "Откройте проект, чтобы искать в сохранённом HTML его сканов.")
+            return no_project_panel(
+                host, "Откройте проект, чтобы искать в сохранённом HTML его сканов."
+            )
         if view == "loading":
-            return StatePanel("loading", "Чтение проекта", "Поиск станет доступен после чтения сканов проекта.")
+            return StatePanel(
+                "loading", "Чтение проекта", "Поиск станет доступен после чтения сканов проекта."
+            )
         if view == "noscan":
-            return StatePanel("empty", "Нет сохранённого скана", "Поиск идёт по HTML выбранного скана. Запустите скан или выберите сохранённый в разделе «Сканы».",
-                              action=scans, secondary=("Новый скан", lambda: host.scan_preview()))
+            return StatePanel(
+                "empty",
+                "Нет сохранённого скана",
+                "Поиск идёт по HTML выбранного скана. Запустите скан или выберите сохранённый в разделе «Сканы».",
+                action=scans,
+                secondary=("Новый скан", lambda: host.scan_preview()),
+            )
         if view == "nohtml":
-            return StatePanel("empty", "HTML страниц не сохранён", "Этот скан шёл с профилем без сохранения тел ответов, поэтому искать в коде нечего. Запустите новый скан с сохранением HTML.",
-                              action=("Новый скан с HTML", lambda: host.scan_preview()), secondary=scans)
+            return StatePanel(
+                "empty",
+                "HTML страниц не сохранён",
+                "Этот скан шёл с профилем без сохранения тел ответов, поэтому искать в коде нечего. Запустите новый скан с сохранением HTML.",
+                action=("Новый скан с HTML", lambda: host.scan_preview()),
+                secondary=scans,
+            )
         if view == "nocore":
-            return StatePanel("partial", "Ядро не поддерживает поиск", "Подключённое ядро не отдаёт поиск по сохранённому HTML. Обновите ядро SEOHEAD.")
+            return StatePanel(
+                "partial",
+                "Ядро не поддерживает поиск",
+                "Подключённое ядро не отдаёт поиск по сохранённому HTML. Обновите ядро SEOHEAD.",
+            )
         if view == "running":
             panel = RunningPanel(self.cancel)
             panel.query.setText(self.payload.get("query") or self.values.get("query") or "")
             return panel
         if view == "error":
-            return StatePanel("error", "Поиск не выполнен", f"{(reason or tr('Ядро не вернуло результат.')).rstrip('.')}. {tr(CHECK_QUERY)}", action=("Повторить", self.request_search))
+            return StatePanel(
+                "error",
+                "Поиск не выполнен",
+                f"{(reason or tr('Ядро не вернуло результат.')).rstrip('.')}. {tr(CHECK_QUERY)}",
+                action=("Повторить", self.request_search),
+            )
         if view == "cancelled":
-            return StatePanel("empty", "Поиск отменён", "Поиск не дошёл до конца, поэтому отсутствие строки в скане не подтверждено.", action=("Искать снова", self.request_search))
+            return StatePanel(
+                "empty",
+                "Поиск отменён",
+                "Поиск не дошёл до конца, поэтому отсутствие строки в скане не подтверждено.",
+                action=("Искать снова", self.request_search),
+            )
         if view == "zero":
-            return StatePanel("empty", "Совпадений нет", self._zero_text(), action=("Изменить запрос", lambda: (self.query.setFocus(), self.query.selectAll())))
-        return StatePanel("empty", "Введите, что искать", "Поиск читает сохранённый HTML выбранного скана и не обращается к сайту. Результат приходит страницами по 100 строк.")
+            return StatePanel(
+                "empty",
+                "Совпадений нет",
+                self._zero_text(),
+                action=("Изменить запрос", lambda: (self.query.setFocus(), self.query.selectAll())),
+            )
+        return StatePanel(
+            "empty",
+            "Введите, что искать",
+            "Поиск читает сохранённый HTML выбранного скана и не обращается к сайту. Результат приходит страницами по 100 строк.",
+        )
 
     def _zero_text(self):
         coverage = self.payload.get("coverage") or {}
         if self.payload.get("absence_confirmed"):
-            return trf("Строка не найдена ни в одном из {n} просмотренных документов: поиск завершён полностью.", n=number(coverage.get("documents_measured")))
-        skipped = (coverage.get("unavailable_documents") or 0) + (coverage.get("non_html_documents") or 0)
+            return trf(
+                "Строка не найдена ни в одном из {n} просмотренных документов: поиск завершён полностью.",
+                n=number(coverage.get("documents_measured")),
+            )
+        skipped = (coverage.get("unavailable_documents") or 0) + (
+            coverage.get("non_html_documents") or 0
+        )
         if not coverage.get("documents_selected"):
             return tr("В скане нет страниц, по которым можно искать.")
-        return trf("В просмотренных документах строки нет, но {n} не просмотрено (нет сохранённого HTML или не HTML): отсутствие во всём скане не подтверждено.", n=number(skipped))
+        return trf(
+            "В просмотренных документах строки нет, но {n} не просмотрено (нет сохранённого HTML или не HTML): отсутствие во всём скане не подтверждено.",
+            n=number(skipped),
+        )
 
     def _render(self):
         view = self.view = self._decide()
@@ -662,9 +782,13 @@ class SearchScreen(Screen):
             self.scan_label.setText("")
             return
         row = RunRow(scan=scan)
-        lane = (((scan.get("capabilities") or {}).get("html_bodies") or {}).get("state"))
+        lane = ((scan.get("capabilities") or {}).get("html_bodies") or {}).get("state")
         checked = (self.payload.get("coverage") or {}).get("documents_measured")
-        parts = [row.title, row.started_text, trf("HTML {state}", state=tr(LANES.get(lane, "не определён")))]
+        parts = [
+            row.title,
+            row.started_text,
+            trf("HTML {state}", state=tr(LANES.get(lane, "не определён"))),
+        ]
         if self.payload.get("state") == "ready" and isinstance(checked, int):
             parts.append(trf("проверено документов: {n}", n=number(checked)))
         self.scan_label.setText(" · ".join(part for part in parts if part))
@@ -679,21 +803,46 @@ class SearchScreen(Screen):
                 self._search_id, self._before, self._direction = search_id, {0: 0}, 1
             offset = payload.get("offset") or 0
             if offset in self._before and rows:
-                self._before.setdefault(offset + len(rows), self._before[offset] + sum(row.get("status") == "matched" for row in rows))
-            self.delegate.query, self.delegate.case_sensitive = payload.get("query") or "", bool(self.values.get("case_sensitive"))
+                self._before.setdefault(
+                    offset + len(rows),
+                    self._before[offset] + sum(row.get("status") == "matched" for row in rows),
+                )
+            self.delegate.query, self.delegate.case_sensitive = (
+                payload.get("query") or "",
+                bool(self.values.get("case_sensitive")),
+            )
             self.model.set_rows(rows)
         matching = coverage.get("filter_matching_documents")
         contains = payload.get("mode", "contains") == "contains"
         selected, measured = coverage.get("documents_selected"), coverage.get("documents_measured")
         self.count.setText(summary_caption(contains, matching, measured))
-        done = f"{round(100 * measured / selected)}%" if isinstance(selected, int) and selected > 0 and isinstance(measured, int) else tr("Нет данных")
-        took = f" · {trf('за {time}', time=duration(self.elapsed))}" if self.elapsed is not None else ""
+        done = (
+            f"{round(100 * measured / selected)}%"
+            if isinstance(selected, int) and selected > 0 and isinstance(measured, int)
+            else tr("Нет данных")
+        )
+        took = (
+            f" · {trf('за {time}', time=duration(self.elapsed))}"
+            if self.elapsed is not None
+            else ""
+        )
         self.coverage.setText(trf("просмотрено {done}", done=done) + took)
-        partial = payload.get("operation_status") in ("partial", "incomplete") or bool(coverage.get("unavailable_documents")) or coverage.get("state") not in (None, "complete")
+        partial = (
+            payload.get("operation_status") in ("partial", "incomplete")
+            or bool(coverage.get("unavailable_documents"))
+            or coverage.get("state") not in (None, "complete")
+        )
         self._partial = partial
         self.banner_holder.setVisible(partial)
-        skipped = (coverage.get("unavailable_documents") or 0) + (coverage.get("non_html_documents") or 0)
-        self.note_text.setText(trf("<b>Поиск идёт по сохранённому HTML этого скана.</b> Страницы без сохранённого HTML ({n}) не просматривались и в «нет совпадений» не входят.", n=number(skipped)))
+        skipped = (coverage.get("unavailable_documents") or 0) + (
+            coverage.get("non_html_documents") or 0
+        )
+        self.note_text.setText(
+            trf(
+                "<b>Поиск идёт по сохранённому HTML этого скана.</b> Страницы без сохранённого HTML ({n}) не просматривались и в «нет совпадений» не входят.",
+                n=number(skipped),
+            )
+        )
         self.folder.setEnabled(bool(payload.get("package")))
         self._after_rows()
 
@@ -709,23 +858,42 @@ class SearchScreen(Screen):
             # rows of the list = pages where the condition holds; the same quantity as the number above the list
             first = (before or 0) + 1
             kind = "found" if payload.get("mode", "contains") == "contains" else "without"
-            text = rows_caption(first, first + shown - 1, matching, kind, self._partial) if shown and before is not None else tr("Нет подходящих строк на этой странице")
+            text = (
+                rows_caption(first, first + shown - 1, matching, kind, self._partial)
+                if shown and before is not None
+                else tr("Нет подходящих строк на этой странице")
+            )
             more = before is not None and (before + shown) < matching
             earlier = bool(before)
         else:
-            text = rows_caption(offset + 1, offset + loaded, total, "checked", self._partial) if loaded and isinstance(total, int) else tr("Нет строк на этой странице")
+            text = (
+                rows_caption(offset + 1, offset + loaded, total, "checked", self._partial)
+                if loaded and isinstance(total, int)
+                else tr("Нет строк на этой странице")
+            )
             more, earlier = bool(payload.get("has_more")), offset > 0
         if busy:
             text = tr("Чтение страницы результата…")
         self.page_label.setText(text)
         self.previous.setEnabled(not busy and earlier)
         self.next.setEnabled(not busy and more)
-        skip = filtered and not busy and payload.get("state") == "ready" and not shown and (payload.get("has_more") if self._direction > 0 else offset > 0)
-        if skip:  # a core page without a single matching row: step over it in the direction of travel
+        skip = (
+            filtered
+            and not busy
+            and payload.get("state") == "ready"
+            and not shown
+            and (payload.get("has_more") if self._direction > 0 else offset > 0)
+        )
+        if (
+            skip
+        ):  # a core page without a single matching row: step over it in the direction of travel
             self._page(self._direction)
             return
         if shown and not self.table.currentIndex().isValid():
-            self.table.selectionModel().setCurrentIndex(self.proxy.index(0, 0), QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows)
+            self.table.selectionModel().setCurrentIndex(
+                self.proxy.index(0, 0),
+                QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows,
+            )
         self._show_row()
 
     def _show_row(self):
@@ -739,13 +907,17 @@ class SearchScreen(Screen):
             self.code.setPlaceholderText(tr("Выберите строку результата"))
         else:
             snippet = record.get("snippet")
-            self.code.setPlainText(snippet or reason_text(record) or tr("Фрагмент не запрошен или не найден"))
+            self.code.setPlainText(
+                snippet or reason_text(record) or tr("Фрагмент не запрошен или не найден")
+            )
             if snippet:
                 background, ink = theming.theme()["badges"]["warn"]
                 marked = QTextCharFormat()
                 marked.setBackground(QColor(background))
                 marked.setForeground(QColor(ink))
-                for start, end in find_ranges(snippet, self.delegate.query, self.delegate.case_sensitive):
+                for start, end in find_ranges(
+                    snippet, self.delegate.query, self.delegate.case_sensitive
+                ):
                     selection = QTextEdit.ExtraSelection()
                     selection.cursor = self.code.textCursor()
                     selection.cursor.setPosition(start)
@@ -759,6 +931,13 @@ class SearchScreen(Screen):
             return
         _kind, label = PRESENCE[record.get("presence")]
         reason = reason_text(record)
-        self.facts.set("Код ответа", str(record["status_code"]) if isinstance(record.get("status_code"), int) else None)
-        self.facts.set("Источник", tr(dict((v, k) for k, v in REPRESENTATIONS).get(record.get("capture_mode"), "")) or None)
+        self.facts.set(
+            "Код ответа",
+            str(record["status_code"]) if isinstance(record.get("status_code"), int) else None,
+        )
+        self.facts.set(
+            "Источник",
+            tr(dict((v, k) for k, v in REPRESENTATIONS).get(record.get("capture_mode"), ""))
+            or None,
+        )
         self.facts.set("Состояние", tr(label) + (f" · {reason}" if reason else ""))

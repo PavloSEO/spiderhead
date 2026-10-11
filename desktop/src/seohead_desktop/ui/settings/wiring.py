@@ -10,10 +10,36 @@ from __future__ import annotations
 from ...i18n import trf
 
 # view.language is applied to the shell and the settings; the screens follow as they are rebuilt (roadmap step 5).
-APPLIED = {"mcp.enabled", "mcp.profile", "view.details_position", "view.mono_urls", "view.status_badges", "view.theme", "view.density", "view.reduce_motion", "view.rail_when_narrow", "shell.display", "view.language",
-           "shell.onboarding_done", "general.projects_folder",
-           "scan.rate", "scan.url_limit", "scan.depth", "scan.robots", "scan.save_html"}
-APPLIED_SHORTCUTS = {"palette", "new_scan", "settings", "stop_scan", "find_in_table", "expand_table", "copy_url", "help"}
+APPLIED = {
+    "mcp.enabled",
+    "mcp.profile",
+    "view.details_position",
+    "view.mono_urls",
+    "view.status_badges",
+    "view.theme",
+    "view.density",
+    "view.reduce_motion",
+    "view.rail_when_narrow",
+    "shell.display",
+    "view.language",
+    "shell.onboarding_done",
+    "general.projects_folder",
+    "scan.rate",
+    "scan.url_limit",
+    "scan.depth",
+    "scan.robots",
+    "scan.save_html",
+}
+APPLIED_SHORTCUTS = {
+    "palette",
+    "new_scan",
+    "settings",
+    "stop_scan",
+    "find_in_table",
+    "expand_table",
+    "copy_url",
+    "help",
+}
 
 # Core issue numbers behind a reason: shown in docs/spec/settings-wiring.ru.md only, never in the UI.
 ISSUES = {"scan.default_profile": 941}
@@ -61,7 +87,13 @@ def apply(page):
         if key:
             step, reason = status(key)
             if step is not None:
-                row.mark_later(trf("Настройка сохраняется, но пока ничего не меняет: {reason} (шаг {step})", reason=reason, step=step))
+                row.mark_later(
+                    trf(
+                        "Настройка сохраняется, но пока ничего не меняет: {reason} (шаг {step})",
+                        reason=reason,
+                        step=step,
+                    )
+                )
 
 
 def all_keys(schema):
@@ -71,4 +103,3 @@ def all_keys(schema):
 def table(schema):
     """Rows (key, step|None, reason) for the documentation."""
     return [(key, *status(key)) for key in all_keys(schema)]
-

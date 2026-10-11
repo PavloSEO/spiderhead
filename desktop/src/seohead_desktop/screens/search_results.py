@@ -29,26 +29,43 @@ from .scan_common import number
 ROW_ROLE = Qt.UserRole + 50
 ROW_HEIGHT = 56
 # label, core scope
-SCOPES = (("Видимый текст", "body_text"), ("HTML-код", "raw_html"), ("Head", "head_markup"), ("Элемент", "selector_markup"))
+SCOPES = (
+    ("Видимый текст", "body_text"),
+    ("HTML-код", "raw_html"),
+    ("Head", "head_markup"),
+    ("Элемент", "selector_markup"),
+)
 REPRESENTATIONS = (("Исходный HTML", "static"), ("Сохранённый DOM", "rendered"))
 MODES = (("Содержит строку", "contains"), ("Не содержит строку", "not_contains"))
-REASONS = (("non_html", "Документ не является HTML"), ("body_absent", "Тело страницы не сохранено"),
-           ("decode_fidelity", "Кодировка не позволяет подтвердить отсутствие строки"), ("body_integrity", "Сохранённое тело повреждено"))
+REASONS = (
+    ("non_html", "Документ не является HTML"),
+    ("body_absent", "Тело страницы не сохранено"),
+    ("decode_fidelity", "Кодировка не позволяет подтвердить отсутствие строки"),
+    ("body_integrity", "Сохранённое тело повреждено"),
+)
 PRESENCE = {True: ("ok", "Найдена"), False: ("mut", "Не найдена"), None: ("warn", "Не проверено")}
 
 
 # (list kind, one row, count ends in 1 but not 11) -> caption of the list footer; literal strings so the dictionary can find them
 ROWS = {
-    ("found", False, False): "Строки {a}–{b} из {n} найденных", ("found", False, True): "Строки {a}–{b} из {n} найденной",
-    ("found", True, False): "Строка {a} из {n} найденных", ("found", True, True): "Строка {a} из {n} найденной",
-    ("checked", False, False): "Строки {a}–{b} из {n} проверенных", ("checked", False, True): "Строки {a}–{b} из {n} проверенной",
-    ("checked", True, False): "Строка {a} из {n} проверенных", ("checked", True, True): "Строка {a} из {n} проверенной",
-    ("without", False, False): "Строки {a}–{b} из {n} без строки", ("without", False, True): "Строки {a}–{b} из {n} без строки",
-    ("without", True, False): "Строка {a} из {n} без строки", ("without", True, True): "Строка {a} из {n} без строки",
+    ("found", False, False): "Строки {a}–{b} из {n} найденных",
+    ("found", False, True): "Строки {a}–{b} из {n} найденной",
+    ("found", True, False): "Строка {a} из {n} найденных",
+    ("found", True, True): "Строка {a} из {n} найденной",
+    ("checked", False, False): "Строки {a}–{b} из {n} проверенных",
+    ("checked", False, True): "Строки {a}–{b} из {n} проверенной",
+    ("checked", True, False): "Строка {a} из {n} проверенных",
+    ("checked", True, True): "Строка {a} из {n} проверенной",
+    ("without", False, False): "Строки {a}–{b} из {n} без строки",
+    ("without", False, True): "Строки {a}–{b} из {n} без строки",
+    ("without", True, False): "Строка {a} из {n} без строки",
+    ("without", True, True): "Строка {a} из {n} без строки",
 }
 SUMMARY = {
-    (True, False): "Найдено на {n} страницах · проверено {m}", (True, True): "Найдено на {n} странице · проверено {m}",
-    (False, False): "Без строки на {n} страницах · проверено {m}", (False, True): "Без строки на {n} странице · проверено {m}",
+    (True, False): "Найдено на {n} страницах · проверено {m}",
+    (True, True): "Найдено на {n} странице · проверено {m}",
+    (False, False): "Без строки на {n} страницах · проверено {m}",
+    (False, True): "Без строки на {n} странице · проверено {m}",
 }
 
 
@@ -59,14 +76,23 @@ def ends_in_one(number):
 
 def rows_caption(first, last, total, kind, partial=False):
     """«Строки 1–100 из 1 326 найденных», «Строка 1 из 1 найденной»; a partial scan adds its note."""
-    text = trf(ROWS[(kind, first == last, ends_in_one(total))], a=number(first), b=number(last), n=number(total))
+    text = trf(
+        ROWS[(kind, first == last, ends_in_one(total))],
+        a=number(first),
+        b=number(last),
+        n=number(total),
+    )
     return text + (" · " + tr("просмотрены не все страницы") if partial else "")
 
 
 def summary_caption(contains, matching, measured):
     """«Найдено на 1 326 страницах · проверено 1 330»; the counts are the core's, absent ones read «Нет данных»."""
     if not isinstance(matching, int) or not isinstance(measured, int):
-        return trf("{what}: {n}", what=tr("Найдено на страницах" if contains else "Без строки на страницах"), n=tr("Нет данных"))
+        return trf(
+            "{what}: {n}",
+            what=tr("Найдено на страницах" if contains else "Без строки на страницах"),
+            n=tr("Нет данных"),
+        )
     return trf(SUMMARY[(contains, ends_in_one(matching))], n=number(matching), m=number(measured))
 
 
@@ -105,7 +131,10 @@ def short_url(url):
 def find_ranges(text, query, case_sensitive):
     if not query or not text:
         return []
-    return [match.span() for match in re.finditer(re.escape(query), text, 0 if case_sensitive else re.IGNORECASE)]
+    return [
+        match.span()
+        for match in re.finditer(re.escape(query), text, 0 if case_sensitive else re.IGNORECASE)
+    ]
 
 
 def snippet_window(text, query, case_sensitive, before=24, after=90):
@@ -149,7 +178,11 @@ class ResultModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             return record.get("url")
         if role == Qt.ToolTipRole:
-            return "\n".join(part for part in (record.get("url"), record.get("snippet"), reason_text(record)) if part)
+            return "\n".join(
+                part
+                for part in (record.get("url"), record.get("snippet"), reason_text(record))
+                if part
+            )
         return None
 
 
@@ -179,7 +212,9 @@ class ResultDelegate(QStyledItemDelegate):
         cell = QStyleOptionViewItem(option)
         self.initStyleOption(cell, index)
         cell.text = ""
-        (option.widget.style() if option.widget else QApplication.style()).drawControl(QStyle.CE_ItemViewItem, cell, painter, option.widget)
+        (option.widget.style() if option.widget else QApplication.style()).drawControl(
+            QStyle.CE_ItemViewItem, cell, painter, option.widget
+        )
         roles, badges = theming.roles(), theming.theme()["badges"]
         selected = bool(option.state & QStyle.State_Selected)
         mono = QFont(theming.substitution()["mono_family"])
@@ -203,20 +238,41 @@ class ResultDelegate(QStyledItemDelegate):
         painter.drawText(badge, Qt.AlignCenter, label)
         painter.setFont(mono)
         painter.setPen(QColor(roles["on_selected"] if selected else roles["primary"]))
-        url = painter.fontMetrics().elidedText(short_url(record.get("url")), Qt.ElideMiddle, int(badge.left() - rect.left() - 10))
-        painter.drawText(QRectF(rect.left(), rect.top(), badge.left() - rect.left() - 10, 18), Qt.AlignLeft | Qt.AlignVCenter, url)
+        url = painter.fontMetrics().elidedText(
+            short_url(record.get("url")), Qt.ElideMiddle, int(badge.left() - rect.left() - 10)
+        )
+        painter.drawText(
+            QRectF(rect.left(), rect.top(), badge.left() - rect.left() - 10, 18),
+            Qt.AlignLeft | Qt.AlignVCenter,
+            url,
+        )
         line = QRectF(rect.left(), rect.top() + 22, rect.width(), 18)
         body = QFont(option.font)
         body.setPixelSize(12)
         painter.setFont(body)
         snippet = record.get("snippet")
         if snippet:
-            text, ranges, left, right = snippet_window(" ".join(snippet.split()), self.query, self.case_sensitive)
-            self._draw_marked(painter, line, ("… " if left else "") + text + (" …" if right else ""), ranges, len("… " if left else ""), roles, badges["warn"], selected)
+            text, ranges, left, right = snippet_window(
+                " ".join(snippet.split()), self.query, self.case_sensitive
+            )
+            self._draw_marked(
+                painter,
+                line,
+                ("… " if left else "") + text + (" …" if right else ""),
+                ranges,
+                len("… " if left else ""),
+                roles,
+                badges["warn"],
+                selected,
+            )
         else:
             painter.setPen(QColor(roles["text_3"]))
             reason = reason_text(record) or tr("Фрагмент не запрошен или не найден")
-            painter.drawText(line, Qt.AlignLeft | Qt.AlignVCenter, painter.fontMetrics().elidedText(reason, Qt.ElideRight, int(line.width())))
+            painter.drawText(
+                line,
+                Qt.AlignLeft | Qt.AlignVCenter,
+                painter.fontMetrics().elidedText(reason, Qt.ElideRight, int(line.width())),
+            )
         painter.restore()
 
     @staticmethod
@@ -238,7 +294,9 @@ class ResultDelegate(QStyledItemDelegate):
                 painter.setPen(Qt.NoPen)
                 painter.setBrush(QColor(mark[0]))
                 painter.drawRoundedRect(box.adjusted(-1, 1, 1, -1), 2, 2)
-            painter.setPen(QColor(mark[1] if marked else roles["on_selected"] if selected else roles["text_2"]))
+            painter.setPen(
+                QColor(mark[1] if marked else roles["on_selected"] if selected else roles["text_2"])
+            )
             painter.drawText(box, Qt.AlignLeft | Qt.AlignVCenter, piece)
             x += width
             if not fit:

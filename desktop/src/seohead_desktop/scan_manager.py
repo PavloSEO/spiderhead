@@ -163,7 +163,9 @@ class LocalScanManager(QObject):
         for managed in self._runs.values():
             if managed.project_uuid != project_uuid or managed.process is None:
                 continue
-            candidate = next((item for item in runs if item.get("id") == managed.observer_run_id), None)
+            candidate = next(
+                (item for item in runs if item.get("id") == managed.observer_run_id), None
+            )
             before = managed.public()
             if candidate is None:
                 if self._reconciliation_expired(managed):
@@ -191,10 +193,15 @@ class LocalScanManager(QObject):
 
     @staticmethod
     def _reconciliation_expired(run: ManagedScan) -> bool:
-        if (run.state == "awaiting_core_status" and run.reconcile_deadline is not None
-                and time.monotonic() >= run.reconcile_deadline):
+        if (
+            run.state == "awaiting_core_status"
+            and run.reconcile_deadline is not None
+            and time.monotonic() >= run.reconcile_deadline
+        ):
             run.state = "status_unavailable"
-            run.status_reason = "Child exited; core did not expose a terminal run record within 10 seconds"
+            run.status_reason = (
+                "Child exited; core did not expose a terminal run record within 10 seconds"
+            )
             return True
         return False
 
@@ -223,9 +230,7 @@ class LocalScanManager(QObject):
             process.started.connect(lambda run=run: self._started(run))
             process.output.connect(lambda text, run=run: self._output(run, text))
             process.failed.connect(lambda text, run=run: self._failed(run, text))
-            process.finished.connect(
-                lambda code, state, run=run: self._finished(run, code, state)
-            )
+            process.finished.connect(lambda code, state, run=run: self._finished(run, code, state))
             try:
                 if run.kind == "resume":
                     process.resume(run.resume_path or "", run.project, run.observer_run_id)

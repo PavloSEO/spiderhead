@@ -85,20 +85,38 @@ COLUMNS = (
 )
 COLUMN_WIDTHS = {1: 68, 2: 74, 3: 132, 5: 112, 6: 88, 7: 66, 8: 92, 9: 82}
 TITLE_WIDTH = 180
-DROP_ORDER = (9, 6, 8, 2, 7, 5, 4)   # columns that give way first when the table is narrow
-COMPACT_COLUMNS = (0, 1, 3)           # canvas Compact (800x800): address, HTTP, indexability only
-COMPACT_WINDOW = 900                  # the same breakpoint at which the navigation becomes a rail
+DROP_ORDER = (9, 6, 8, 2, 7, 5, 4)  # columns that give way first when the table is narrow
+COMPACT_COLUMNS = (0, 1, 3)  # canvas Compact (800x800): address, HTTP, indexability only
+COMPACT_WINDOW = 900  # the same breakpoint at which the navigation becomes a rail
 URL_MIN = 340
-SIDE_COLUMNS = (0, 1, 7, 6, 9)        # MainB: address, HTTP, words, inlinks, issues
+SIDE_COLUMNS = (0, 1, 7, 6, 9)  # MainB: address, HTTP, words, inlinks, issues
 # group id, label, core filters (None: the core cannot filter it), hint issue, tooltip
 GROUPS = (
     ("all", "Все URL", [], None, "Все страницы скана"),
     ("int", "Внутренние", None, 933, "Страницы своего сайта"),
     ("ext", "Внешние", None, 933, "Страницы чужих сайтов"),
-    ("resp", "Ответы", [{"column": "status_class", "op": "ne", "value": "2xx"}], None, "Ответ не 2xx: редиректы, ошибки, без ответа"),
-    ("titles", "Title", [{"column": "title_length", "op": "gt", "value": 60}], None, "Title длиннее 60 знаков"),
+    (
+        "resp",
+        "Ответы",
+        [{"column": "status_class", "op": "ne", "value": "2xx"}],
+        None,
+        "Ответ не 2xx: редиректы, ошибки, без ответа",
+    ),
+    (
+        "titles",
+        "Title",
+        [{"column": "title_length", "op": "gt", "value": 60}],
+        None,
+        "Title длиннее 60 знаков",
+    ),
     ("canon", "Canonical", None, 933, "Canonical на другой URL"),
-    ("dir", "Директивы", [{"column": "meta_robots", "op": "not_empty"}], None, "Есть директивы meta robots"),
+    (
+        "dir",
+        "Директивы",
+        [{"column": "meta_robots", "op": "not_empty"}],
+        None,
+        "Есть директивы meta robots",
+    ),
     ("links", "Ссылки", None, 924, "Страницы по ссылкам"),
     ("sm", "Sitemap", None, 933, "Страницы по присутствию в sitemap"),
 )
@@ -108,26 +126,48 @@ CONDITIONS = (
     ("http_3xx", "http", "HTTP: 3xx", [{"column": "status_class", "op": "eq", "value": "3xx"}]),
     ("http_4xx", "http", "HTTP: 4xx", [{"column": "status_class", "op": "eq", "value": "4xx"}]),
     ("http_5xx", "http", "HTTP: 5xx", [{"column": "status_class", "op": "eq", "value": "5xx"}]),
-    ("http_err", "http", "HTTP: 3xx–5xx", [{"column": "status_class", "op": "in", "value": ["3xx", "4xx", "5xx"]}]),
+    (
+        "http_err",
+        "http",
+        "HTTP: 3xx–5xx",
+        [{"column": "status_class", "op": "in", "value": ["3xx", "4xx", "5xx"]}],
+    ),
     ("depth_1", "depth", "Глубина ≤ 1", [{"column": "crawl_depth", "op": "lte", "value": 1}]),
     ("depth_3", "depth", "Глубина ≤ 3", [{"column": "crawl_depth", "op": "lte", "value": 3}]),
     ("depth_5", "depth", "Глубина > 3", [{"column": "crawl_depth", "op": "gt", "value": 3}]),
     ("idx_yes", "index", "Индексируются", [{"column": "indexable", "op": "eq", "value": True}]),
     ("idx_no", "index", "Не индексируются", [{"column": "indexable", "op": "eq", "value": False}]),
     ("title_empty", "title", "Без title", [{"column": "title", "op": "empty"}]),
-    ("title_long", "title", "Title длиннее 60 знаков", [{"column": "title_length", "op": "gt", "value": 60}]),
+    (
+        "title_long",
+        "title",
+        "Title длиннее 60 знаков",
+        [{"column": "title_length", "op": "gt", "value": 60}],
+    ),
     ("desc_empty", "desc", "Без meta description", [{"column": "meta_description", "op": "empty"}]),
     ("h1_empty", "h1", "Без H1", [{"column": "h1", "op": "empty"}]),
     ("thin", "words", "Слов меньше 200", [{"column": "word_count", "op": "lt", "value": 200}]),
 )
 BUCKETS = {
     "lt200": [{"column": "response_time", "op": "lt", "value": 0.2}],
-    "200_500": [{"column": "response_time", "op": "gte", "value": 0.2}, {"column": "response_time", "op": "lt", "value": 0.5}],
-    "500_1000": [{"column": "response_time", "op": "gte", "value": 0.5}, {"column": "response_time", "op": "lt", "value": 1}],
-    "1000_3000": [{"column": "response_time", "op": "gte", "value": 1}, {"column": "response_time", "op": "lt", "value": 3}],
+    "200_500": [
+        {"column": "response_time", "op": "gte", "value": 0.2},
+        {"column": "response_time", "op": "lt", "value": 0.5},
+    ],
+    "500_1000": [
+        {"column": "response_time", "op": "gte", "value": 0.5},
+        {"column": "response_time", "op": "lt", "value": 1},
+    ],
+    "1000_3000": [
+        {"column": "response_time", "op": "gte", "value": 1},
+        {"column": "response_time", "op": "lt", "value": 3},
+    ],
     "gt3000": [{"column": "response_time", "op": "gte", "value": 3}],
 }
-INDEX_COUNTS = {"indexable_yes": [{"column": "indexable", "op": "eq", "value": True}], "indexable_no": [{"column": "indexable", "op": "eq", "value": False}]}
+INDEX_COUNTS = {
+    "indexable_yes": [{"column": "indexable", "op": "eq", "value": True}],
+    "indexable_no": [{"column": "indexable", "op": "eq", "value": False}],
+}
 
 
 class FitTable(QTableView):
@@ -179,7 +219,6 @@ def _skeleton_bar(width=None):
     return bar
 
 
-
 class UrlPageModel(QAbstractTableModel):
     """One page (≤ 200 rows) of the core answer; never more."""
 
@@ -187,11 +226,13 @@ class UrlPageModel(QAbstractTableModel):
         super().__init__(parent)
         self.rows = []
         self.badges = True
-        self.project_host = None   # hostname of the scan; the host is shown only for other hosts
+        self.project_host = None  # hostname of the scan; the host is shown only for other hosts
 
     def foreign_host(self, url):
         host, _path = split_url(url)
-        name = (host or "").rsplit(":", 1)[0].lower() if host and ":" in host else (host or "").lower()
+        name = (
+            (host or "").rsplit(":", 1)[0].lower() if host and ":" in host else (host or "").lower()
+        )
         return host if host and name != (self.project_host or "").lower() else None
 
     def set_rows(self, rows):
@@ -247,7 +288,11 @@ class UrlPageModel(QAbstractTableModel):
             return split_url(row.get("url"))[1] if key == "url" else None
         text = self.cell_text(row, key)
         if role == BADGE_ROLE and self.badges and key in ("status_code", "indexable"):
-            return (http_badge(row.get("status_code")) if key == "status_code" else index_badge(row.get("status_code"), row.get("indexable")))
+            return (
+                http_badge(row.get("status_code"))
+                if key == "status_code"
+                else index_badge(row.get("status_code"), row.get("indexable"))
+            )
         if role == Qt.DisplayRole:
             return text if text is not None else tr("Нет данных")
         if role == Qt.TextAlignmentRole:
@@ -279,24 +324,38 @@ class UrlDelegate(QStyledItemDelegate):
         cell = QStyleOptionViewItem(option)
         self.initStyleOption(cell, index)
         cell.text = ""
-        (option.widget.style() if option.widget else QApplication.style()).drawControl(QStyle.CE_ItemViewItem, cell, painter, option.widget)
-        font = QFont(theming.substitution()["mono_family"] if self.mono else painter.font().family())
+        (option.widget.style() if option.widget else QApplication.style()).drawControl(
+            QStyle.CE_ItemViewItem, cell, painter, option.widget
+        )
+        font = QFont(
+            theming.substitution()["mono_family"] if self.mono else painter.font().family()
+        )
         font.setPixelSize(12 if self.mono else 13)
         painter.setFont(font)
         metrics = painter.fontMetrics()
-        rect = QRect(option.rect.left() + 10, option.rect.top(), option.rect.width() - 18, option.rect.height())
+        rect = QRect(
+            option.rect.left() + 10,
+            option.rect.top(),
+            option.rect.width() - 18,
+            option.rect.height(),
+        )
         selected = bool(option.state & QStyle.State_Selected)
         roles = theming.roles()
         host_full = host or ""
         host_width = metrics.horizontalAdvance(host_full)
-        room = max(rect.width() - 150, rect.width() * 3 // 10)   # the path keeps at least ~150 px
-        host_text = host_full if host_width <= room else metrics.elidedText(host_full, Qt.ElideRight, room)
+        room = max(rect.width() - 150, rect.width() * 3 // 10)  # the path keeps at least ~150 px
+        host_text = (
+            host_full if host_width <= room else metrics.elidedText(host_full, Qt.ElideRight, room)
+        )
         painter.setPen(QColor(roles["on_selected"] if selected else roles["text_muted"]))
         painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter, host_text)
         used = metrics.horizontalAdvance(host_text)
         painter.setPen(QColor(roles["on_selected"] if selected else roles["text"]))
-        painter.drawText(QRect(rect.left() + used, rect.top(), rect.width() - used, rect.height()), Qt.AlignLeft | Qt.AlignVCenter,
-                         metrics.elidedText(path, Qt.ElideMiddle, rect.width() - used))
+        painter.drawText(
+            QRect(rect.left() + used, rect.top(), rect.width() - used, rect.height()),
+            Qt.AlignLeft | Qt.AlignVCenter,
+            metrics.elidedText(path, Qt.ElideMiddle, rect.width() - used),
+        )
         painter.restore()
 
 
@@ -341,13 +400,13 @@ class UrlScreen(Screen):
         super().__init__(host)
         self.scan_path = None
         self.group = "all"
-        self.chips = {}            # family -> (label, filters, cond id)
-        self.external = None       # (label, filters) from another screen
+        self.chips = {}  # family -> (label, filters, cond id)
+        self.external = None  # (label, filters) from another screen
         self.text = ""
-        self.sort = None           # (core column, direction)
+        self.sort = None  # (core column, direction)
         self.offset = 0
-        self.total = None          # rows of the scan (core)
-        self.filtered = None       # rows of the current filter (core), None when capped
+        self.total = None  # rows of the scan (core)
+        self.filtered = None  # rows of the current filter (core), None when capped
         self.rows = []
         self.revision = 0
         self.history = []
@@ -398,7 +457,12 @@ class UrlScreen(Screen):
         return self.pref("view.details_position", "bottom") == "right" and self.width() >= 1100
 
     def _pref_changed(self, key):
-        if key in ("view.details_position", "view.mono_urls", "view.status_badges", "shell.display"):
+        if key in (
+            "view.details_position",
+            "view.mono_urls",
+            "view.status_badges",
+            "shell.display",
+        ):
             self._apply_prefs()
 
     def _apply_prefs(self):
@@ -476,7 +540,9 @@ class UrlScreen(Screen):
         body.addWidget(self.summary)
         self.detail_hidden = False
         self.summary_hidden = False
-        self.card_forced = False   # the card is opened over a right-hand layout (a chip, a double click)
+        self.card_forced = (
+            False  # the card is opened over a right-hand layout (a chip, a double click)
+        )
         self.card_expanded = False
         copy = QShortcut(QKeySequence.Copy, self.table)
         copy.setContext(Qt.WidgetShortcut)
@@ -545,7 +611,11 @@ class UrlScreen(Screen):
         self.caption.setProperty("text_style", "meta")
         layout.addWidget(self.caption)
         self.help = tool_button("help", "Как работает таблица")
-        self.help.setToolTip(tr("Таблица показывает по 200 строк. Фильтры, сортировка и числа считает ядро по всему скану, а не по загруженной странице. Сортировка по колонке без индекса доступна, когда фильтр оставляет не больше 100 000 строк."))
+        self.help.setToolTip(
+            tr(
+                "Таблица показывает по 200 строк. Фильтры, сортировка и числа считает ядро по всему скану, а не по загруженной странице. Сортировка по колонке без индекса доступна, когда фильтр оставляет не больше 100 000 строк."
+            )
+        )
         layout.addWidget(self.help)
         self.save_view = tool_button("bookmark_add", "Сохранить вид")
         self.save_view.setEnabled(False)
@@ -644,7 +714,9 @@ class UrlScreen(Screen):
         self.bottom.setVisible(show_bottom)
         self.table_box.setVisible(not self.card_expanded)
         self.side.setVisible(show_detail and side and not show_bottom)
-        self.summary.setVisible(wide and not self.summary_hidden and not self.focus_mode and self.scan_path is not None)
+        self.summary.setVisible(
+            wide and not self.summary_hidden and not self.focus_mode and self.scan_path is not None
+        )
         self.bottom.set_summary_tab(not wide and self.scan_path is not None)
         self.caption.setVisible(self.width() >= 1000)
         self.group_dropdown.setVisible(side)
@@ -680,19 +752,34 @@ class UrlScreen(Screen):
             return
         self.table.selectRow(index.row())
         url = self._row_url(index.row())
-        web = urlsplit(url).scheme in ("http", "https")   # crawled addresses are data: only web links leave the app
-        menu = fill_menu(QMenu(self.table), [
-            entry("info", "Подробности", lambda: self._open_tab("info"), "↵"),
-            entry("open_in_new", "Открыть сайт в браузере", lambda: QDesktopServices.openUrl(QUrl(url)), enabled=web),
-            entry("expand", "Развернуть карточку", lambda: (self._open_tab("info"), self.bottom.set_expanded(True, emit=True))),
-            unavailable("tab", "В новой вкладке", "⌘↵"),
-            None,
-            entry("content_copy", "Копировать URL", self.copy_row, "⌘C"),
-            entry("table_rows", "Копировать строку TSV", self.copy_tsv),
-            None,
-            unavailable("edit_note", "Заметка агенту"),
-            unavailable("replay", "Перепроверить выбранные"),
-        ])
+        web = urlsplit(url).scheme in (
+            "http",
+            "https",
+        )  # crawled addresses are data: only web links leave the app
+        menu = fill_menu(
+            QMenu(self.table),
+            [
+                entry("info", "Подробности", lambda: self._open_tab("info"), "↵"),
+                entry(
+                    "open_in_new",
+                    "Открыть сайт в браузере",
+                    lambda: QDesktopServices.openUrl(QUrl(url)),
+                    enabled=web,
+                ),
+                entry(
+                    "expand",
+                    "Развернуть карточку",
+                    lambda: (self._open_tab("info"), self.bottom.set_expanded(True, emit=True)),
+                ),
+                unavailable("tab", "В новой вкладке", "⌘↵"),
+                None,
+                entry("content_copy", "Копировать URL", self.copy_row, "⌘C"),
+                entry("table_rows", "Копировать строку TSV", self.copy_tsv),
+                None,
+                unavailable("edit_note", "Заметка агенту"),
+                unavailable("replay", "Перепроверить выбранные"),
+            ],
+        )
         menu.setMinimumWidth(250)  # canvas Menus.dc.html: row menu width
         menu.exec_(self.table.viewport().mapToGlobal(point))
 
@@ -702,17 +789,41 @@ class UrlScreen(Screen):
         if column < 0:
             return
         core = COLUMNS[column][3]
-        menu = fill_menu(QMenu(header), [
-            entry("arrow_upward", "По возрастанию", lambda: self._sort_by(column, "asc"), enabled=core is not None, tip=unavailable_tip(COLUMNS[column][1]) if core is None else ""),
-            entry("arrow_downward", "По убыванию", lambda: self._sort_by(column, "desc"), enabled=core is not None, tip=unavailable_tip(COLUMNS[column][1]) if core is None else ""),
-            None,
-            unavailable("filter_list", "Фильтр по колонке…"),
-            unavailable("push_pin", "Закрепить слева"),
-            entry("fit_width", "Ширина по содержимому", lambda: self.table.resizeColumnToContents(column)),
-            entry("visibility_off", "Скрыть колонку", lambda: self._toggle_column(column, False), enabled=column != 0),
-            None,
-            entry("view_column", "Все колонки…", self._show_columns),
-        ])
+        menu = fill_menu(
+            QMenu(header),
+            [
+                entry(
+                    "arrow_upward",
+                    "По возрастанию",
+                    lambda: self._sort_by(column, "asc"),
+                    enabled=core is not None,
+                    tip=unavailable_tip(COLUMNS[column][1]) if core is None else "",
+                ),
+                entry(
+                    "arrow_downward",
+                    "По убыванию",
+                    lambda: self._sort_by(column, "desc"),
+                    enabled=core is not None,
+                    tip=unavailable_tip(COLUMNS[column][1]) if core is None else "",
+                ),
+                None,
+                unavailable("filter_list", "Фильтр по колонке…"),
+                unavailable("push_pin", "Закрепить слева"),
+                entry(
+                    "fit_width",
+                    "Ширина по содержимому",
+                    lambda: self.table.resizeColumnToContents(column),
+                ),
+                entry(
+                    "visibility_off",
+                    "Скрыть колонку",
+                    lambda: self._toggle_column(column, False),
+                    enabled=column != 0,
+                ),
+                None,
+                entry("view_column", "Все колонки…", self._show_columns),
+            ],
+        )
         menu.setMinimumWidth(240)  # canvas Menus.dc.html: header menu width
         menu.exec_(header.mapToGlobal(point))
 
@@ -731,10 +842,13 @@ class UrlScreen(Screen):
         index = self.table.currentIndex()
         if not index.isValid():
             return
-        QApplication.clipboard().setText("\t".join(
-            str(index.sibling(index.row(), column).data() or "")
-            for column in range(len(COLUMNS)) if not self.table.isColumnHidden(column)
-        ))
+        QApplication.clipboard().setText(
+            "\t".join(
+                str(index.sibling(index.row(), column).data() or "")
+                for column in range(len(COLUMNS))
+                if not self.table.isColumnHidden(column)
+            )
+        )
 
     def _set_summary_visible(self, visible):
         self.summary_hidden = not visible
@@ -742,13 +856,21 @@ class UrlScreen(Screen):
 
     def _toggle_focus(self):
         self.focus_mode = not self.focus_mode
-        self.focus_button.setIcon(material_icon("fullscreen_exit" if self.focus_mode else "fullscreen"))
-        self.focus_button.setToolTip(tr("Вернуть панели" if self.focus_mode else "Развернуть таблицу"))
+        self.focus_button.setIcon(
+            material_icon("fullscreen_exit" if self.focus_mode else "fullscreen")
+        )
+        self.focus_button.setToolTip(
+            tr("Вернуть панели" if self.focus_mode else "Развернуть таблицу")
+        )
         self._layout_panels()
 
     def _apply_columns(self):
         side = self.side_layout
-        wanted = [c for c in range(len(COLUMNS)) if c not in self.user_hidden and (not side or c in SIDE_COLUMNS)]
+        wanted = [
+            c
+            for c in range(len(COLUMNS))
+            if c not in self.user_hidden and (not side or c in SIDE_COLUMNS)
+        ]
         if self.window().width() < COMPACT_WINDOW:
             wanted = [c for c in wanted if c in COMPACT_COLUMNS]
         width = self.table.viewport().width() or self.width()
@@ -816,15 +938,27 @@ class UrlScreen(Screen):
         if not host.project_directory:
             self._stop_jobs()
             self.scan_path = None
-            return set_panel_state(self, "none", no_project_panel(host, "Откройте проект, чтобы увидеть URL его сканов."))
+            return set_panel_state(
+                self,
+                "none",
+                no_project_panel(host, "Откройте проект, чтобы увидеть URL его сканов."),
+            )
         if scan is None:
             self._stop_jobs()
             self.scan_path = None
             if host._project_loading:
-                return set_panel_state(self, "loading", StatePanel("loading", "Чтение проекта", "URL появятся после чтения сканов."))
-            panel = StatePanel("empty", "В проекте ещё нет сканов",
-                               "URL-инспектор покажет каждую страницу сайта: ответ, индексацию, title, canonical, ссылки. Запустите первый скан — данные появятся по мере обхода.",
-                               action=("Новый скан", host.scan_preview), secondary=("Сканы проекта", lambda: host.navigation.select_section("scans")))
+                return set_panel_state(
+                    self,
+                    "loading",
+                    StatePanel("loading", "Чтение проекта", "URL появятся после чтения сканов."),
+                )
+            panel = StatePanel(
+                "empty",
+                "В проекте ещё нет сканов",
+                "URL-инспектор покажет каждую страницу сайта: ответ, индексацию, title, canonical, ссылки. Запустите первый скан — данные появятся по мере обхода.",
+                action=("Новый скан", host.scan_preview),
+                secondary=("Сканы проекта", lambda: host.navigation.select_section("scans")),
+            )
             return set_panel_state(self, "noscan", panel)
         set_panel_state(self, None)
         self.model.project_host = scan.get("host") or urlsplit(scan.get("start_url") or "").hostname
@@ -883,8 +1017,13 @@ class UrlScreen(Screen):
         self.note.setText(note or "")
         self.note.setVisible(bool(note))
         try:
-            arguments = query_arguments(self.scan_path, filters=self.filters(), sort=self.sort[0] if self.sort else None,
-                                        direction=self.sort[1] if self.sort else "asc", offset=self.offset)
+            arguments = query_arguments(
+                self.scan_path,
+                filters=self.filters(),
+                sort=self.sort[0] if self.sort else None,
+                direction=self.sort[1] if self.sort else "asc",
+                offset=self.offset,
+            )
         except ValueError as exc:
             return self._show_error(str(exc))
         self.job.start(arguments, ("page", self.revision))
@@ -901,25 +1040,56 @@ class UrlScreen(Screen):
                 return self._reload(keep_page=True, note=reason_text(payload))
             return self._show_error(reason_text(payload), payload)
         if payload.get("state") == "unavailable":
-            return self._set_table_state(StatePanel("partial", "Это не скан со страницами", reason_text(payload) if payload.get("reason_code") else payload.get("reason") or ""))
+            return self._set_table_state(
+                StatePanel(
+                    "partial",
+                    "Это не скан со страницами",
+                    reason_text(payload)
+                    if payload.get("reason_code")
+                    else payload.get("reason") or "",
+                )
+            )
         self.rows = payload.get("rows") or []
         self.total = payload.get("total") if type(payload.get("total")) is int else None
-        self.filtered = payload.get("filtered_total") if payload.get("filtered_total_state") == "exact" else None
-        self.foot_text.setToolTip(trf("страница за {s} с · в памяти {n} строк", s=f"{(payload.get('elapsed_ms') or 0) / 1000:.1f}".replace(".", ","), n=len(self.rows)))
+        self.filtered = (
+            payload.get("filtered_total")
+            if payload.get("filtered_total_state") == "exact"
+            else None
+        )
+        self.foot_text.setToolTip(
+            trf(
+                "страница за {s} с · в памяти {n} строк",
+                s=f"{(payload.get('elapsed_ms') or 0) / 1000:.1f}".replace(".", ","),
+                n=len(self.rows),
+            )
+        )
         if payload.get("state") == "partial":
-            self.note.setText(tr("Ядро остановило обход по времени: показаны первые строки, найденные к этому моменту."))
+            self.note.setText(
+                tr(
+                    "Ядро остановило обход по времени: показаны первые строки, найденные к этому моменту."
+                )
+            )
             self.note.show()
         self.model.set_rows(self.rows)
         if not self.rows:
-            empty = StatePanel("empty", "Под условия ничего не подошло" if self.filters() else "В скане нет страниц",
-                               "Уберите условие или смените группу." if self.filters() else "Скан не сохранил ни одной страницы.",
-                               action=("Сбросить условия", self._reset) if self.filters() else None)
+            empty = StatePanel(
+                "empty",
+                "Под условия ничего не подошло" if self.filters() else "В скане нет страниц",
+                "Уберите условие или смените группу."
+                if self.filters()
+                else "Скан не сохранил ни одной страницы.",
+                action=("Сбросить условия", self._reset) if self.filters() else None,
+            )
             self._set_table_state(empty)
             self._clear_detail()
         else:
             self._set_table_state(None)
             target = self.current_url
-            row = next((i for i, r in enumerate(self.rows) if r.get("url") == target), 0) if target else 0
+            row = (
+                next((i for i, r in enumerate(self.rows) if r.get("url") == target), 0)
+                if target
+                else 0
+            )
             self.table.selectRow(row)
         self._update_caption()
         self._update_footer()
@@ -933,9 +1103,13 @@ class UrlScreen(Screen):
     def _show_error(self, text, payload=None):
         self.model.set_rows([])
         self.rows = []
-        panel = StatePanel("error", "Не удалось прочитать данные скана", "Ядро seohead вернуло ошибку при чтении скана. Данные на диске не тронуты — повторите чтение или откройте диагностику окружения.",
-                           action=("Повторить", lambda: self._reload(keep_page=True)),
-                           secondary=("Диагностика", lambda: self.host.open_settings("core")))
+        panel = StatePanel(
+            "error",
+            "Не удалось прочитать данные скана",
+            "Ядро seohead вернуло ошибку при чтении скана. Данные на диске не тронуты — повторите чтение или откройте диагностику окружения.",
+            action=("Повторить", lambda: self._reload(keep_page=True)),
+            secondary=("Диагностика", lambda: self.host.open_settings("core")),
+        )
         panel.layout().setContentsMargins(24, 6, 24, 6)
         panel.layout().setSpacing(4)
         note = QLabel(text)
@@ -959,7 +1133,9 @@ class UrlScreen(Screen):
 
     # ---- counters ------------------------------------------------------------------------------------------------
     def _queue_counts(self, groups):
-        self.count_queue += [(key, filters) for key, filters in groups.items() if key not in self.counts]
+        self.count_queue += [
+            (key, filters) for key, filters in groups.items() if key not in self.counts
+        ]
         self._count_next()
 
     def _count_next(self, skip=False):
@@ -975,7 +1151,11 @@ class UrlScreen(Screen):
             return
         if self.count_queue and self.count_queue[0][0] == token[2]:
             self.count_queue.pop(0)
-        value = payload.get("filtered_total") if payload.get("filtered_total_state") == "exact" else None
+        value = (
+            payload.get("filtered_total")
+            if payload.get("filtered_total_state") == "exact"
+            else None
+        )
         self.counts[token[2]] = value if type(value) is int else None
         self.summary.set_counts(self.counts)
         self.bottom.summary.set_counts(self.counts)
@@ -998,7 +1178,10 @@ class UrlScreen(Screen):
         self.group = gid
         for key, button in self.group_buttons.items():
             button.setChecked(key == gid)
-        self.group_dropdown.setText(f"{tr(next(g[1] for g in GROUPS if g[0] == gid))}" + (f" · {number(self.total)}" if gid == "all" and self.total is not None else ""))
+        self.group_dropdown.setText(
+            f"{tr(next(g[1] for g in GROUPS if g[0] == gid))}"
+            + (f" · {number(self.total)}" if gid == "all" and self.total is not None else "")
+        )
         if reload:
             self._reload()
 
@@ -1018,17 +1201,30 @@ class UrlScreen(Screen):
         self.condition_menu.clear()
         for cid, family, label, filters in CONDITIONS:
             action = self.condition_menu.addAction(tr(label))
-            action.triggered.connect(lambda _c=False, c=cid, f=family, text=label, fl=filters: self._add_chip(f, text, fl, c))
+            action.triggered.connect(
+                lambda _c=False, c=cid, f=family, text=label, fl=filters: self._add_chip(
+                    f, text, fl, c
+                )
+            )
         self.condition_menu.addSeparator()
         action = self.condition_menu.addAction(tr("Раздел сайта: путь начинается с…"))
         action.triggered.connect(self._ask_segment)
-        self.condition_menu.exec_(self.add_condition.mapToGlobal(self.add_condition.rect().bottomLeft()))
+        self.condition_menu.exec_(
+            self.add_condition.mapToGlobal(self.add_condition.rect().bottomLeft())
+        )
 
     def _ask_segment(self):
-        value, ok = QInputDialog.getText(self, tr("Раздел сайта"), tr("Путь содержит, например /blog/"), text="/")
+        value, ok = QInputDialog.getText(
+            self, tr("Раздел сайта"), tr("Путь содержит, например /blog/"), text="/"
+        )
         value = value.strip()
         if ok and value:
-            self._add_chip("segment", trf("Раздел: {path}", path=value), [{"column": "url", "op": "contains", "value": value}], "segment")
+            self._add_chip(
+                "segment",
+                trf("Раздел: {path}", path=value),
+                [{"column": "url", "op": "contains", "value": value}],
+                "segment",
+            )
 
     def _add_chip(self, family, label, filters, cid):
         self.chips[family] = (label, filters, cid)
@@ -1036,7 +1232,12 @@ class UrlScreen(Screen):
         self._reload()
 
     def _class_chip(self, value):
-        self._add_chip("http", f"HTTP: {value}", [{"column": "status_class", "op": "eq", "value": value}], "http_" + value)
+        self._add_chip(
+            "http",
+            f"HTTP: {value}",
+            [{"column": "status_class", "op": "eq", "value": value}],
+            "http_" + value,
+        )
 
     def _remove_chip(self, family):
         self.chips.pop(family, None)
@@ -1054,9 +1255,16 @@ class UrlScreen(Screen):
             if item.widget():
                 drop(item.widget())
         for family, (label, _f, _c) in self.chips.items():
-            self.chip_row.addWidget(Chip(tr(label) if label in i18n._dictionary() else label, lambda _c=False, f=family: self._remove_chip(f)))
+            self.chip_row.addWidget(
+                Chip(
+                    tr(label) if label in i18n._dictionary() else label,
+                    lambda _c=False, f=family: self._remove_chip(f),
+                )
+            )
         if self.external:
-            self.chip_row.addWidget(Chip(self.external[0], lambda _c=False: self._remove_external()))
+            self.chip_row.addWidget(
+                Chip(self.external[0], lambda _c=False: self._remove_external())
+            )
 
     def apply_external(self, label, filters):
         """Another screen opens the table with its own condition (e.g. «Открыть в URL» from «Проблемы»)."""
@@ -1105,7 +1313,9 @@ class UrlScreen(Screen):
         if self.filtered is not None and self.filters():
             self.caption.setText(trf("Фильтр по всему запуску · {n} URL", n=number(self.filtered)))
         elif self.filters():
-            self.caption.setText(tr("Фильтр по всему запуску · число считается дольше бюджета ядра"))
+            self.caption.setText(
+                tr("Фильтр по всему запуску · число считается дольше бюджета ядра")
+            )
         elif self.total is not None:
             self.caption.setText(trf("Без фильтров · {n} URL", n=number(self.total)))
         else:
@@ -1115,17 +1325,27 @@ class UrlScreen(Screen):
         count = self.filtered if self.filtered is not None else None
         if self.rows:
             first, last = self.offset + 1, self.offset + len(self.rows)
-            shown = trf("Строки {a}–{b} из {n}", a=number(first), b=number(last), n=number(count)) if count is not None else trf("Строки {a}–{b}", a=number(first), b=number(last))
+            shown = (
+                trf("Строки {a}–{b} из {n}", a=number(first), b=number(last), n=number(count))
+                if count is not None
+                else trf("Строки {a}–{b}", a=number(first), b=number(last))
+            )
             if self.total is not None:
                 shown += " · " + trf("всего в запуске {n}", n=number(self.total))
         else:
-            shown = trf("Всего в запуске {n}", n=number(self.total)) if self.total is not None else ""
+            shown = (
+                trf("Всего в запуске {n}", n=number(self.total)) if self.total is not None else ""
+            )
         self.foot_text.setText(shown)
         pages = self.pages()
         page = self.offset // PAGE + 1
         self.page_label.setText(f"{page} / {pages}" if pages else "")
         self.prev.setEnabled(self.offset > 0)
-        self.next.setEnabled(bool(self.rows) and (pages is None or page < pages) and (self.filtered is None or self.offset + len(self.rows) < self.filtered))
+        self.next.setEnabled(
+            bool(self.rows)
+            and (pages is None or page < pages)
+            and (self.filtered is None or self.offset + len(self.rows) < self.filtered)
+        )
 
     # ---- detail ----------------------------------------------------------------------------------------------------
     def _row_changed(self, current, _previous):
@@ -1141,12 +1361,16 @@ class UrlScreen(Screen):
             self._select_timer.start()
 
     def _current_row(self):
-        return next((r for r in self.rows if r.get("url") == self.current_url), {"url": self.current_url})
+        return next(
+            (r for r in self.rows if r.get("url") == self.current_url), {"url": self.current_url}
+        )
 
     def _load_detail(self):
         if not self.current_url or not self.scan_path:
             return
-        self.detail_job.start(detail_arguments(self.scan_path, self.current_url), ("detail", self.current_url))
+        self.detail_job.start(
+            detail_arguments(self.scan_path, self.current_url), ("detail", self.current_url)
+        )
 
     def _detail_done(self, token, payload):
         if token != ("detail", self.current_url):
@@ -1165,7 +1389,16 @@ class UrlScreen(Screen):
         page = (self.detail_data or {}).get("page") if self.detail_data else None
         row = self._current_row() if state != "none" else {}
         if page:  # status, title and counts of the answer fill what the table row lacks (a URL opened by history or from another screen)
-            row = {**row, **{key: value for key, value in page.items() if value is not None and key in ("status_code", "title", "word_count", "crawl_depth", "response_time")}}
+            row = {
+                **row,
+                **{
+                    key: value
+                    for key, value in page.items()
+                    if value is not None
+                    and key
+                    in ("status_code", "title", "word_count", "crawl_depth", "response_time")
+                },
+            }
         for view in (self.bottom, self.side):
             view.render(row, page, self.detail_data, state, text)
         self.bottom.back.setEnabled(bool(self.history))

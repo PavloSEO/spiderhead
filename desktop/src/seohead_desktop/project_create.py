@@ -34,7 +34,13 @@ def target_host(text):
 
 def suggest_directory(base, target, label=""):
     """``<base>/<slug>`` from the site host (or the label); an empty string while nothing is known."""
-    slug = re.sub(r"[^\w.-]+", "-", target_host(target) or (label or "").strip().lower(), flags=re.UNICODE).strip("-.").replace(".", "-")
+    slug = (
+        re.sub(
+            r"[^\w.-]+", "-", target_host(target) or (label or "").strip().lower(), flags=re.UNICODE
+        )
+        .strip("-.")
+        .replace(".", "-")
+    )
     return str(Path(base).expanduser() / slug) if slug else ""
 
 
@@ -89,7 +95,13 @@ class ProjectCreator(QObject):
         if not core:
             self.failed.emit("Ядро seohead не найдено")
             return
-        arguments = ["project-new", "--directory", str(Path(directory).expanduser()), "--target", normalize_target(target)]
+        arguments = [
+            "project-new",
+            "--directory",
+            str(Path(directory).expanduser()),
+            "--target",
+            normalize_target(target),
+        ]
         if label.strip():
             arguments += ["--label", label.strip()]
         self._done = False
@@ -120,13 +132,21 @@ class ProjectCreator(QObject):
         out = bytes(self._process.readAllStandardOutput())
         err = bytes(self._process.readAllStandardError()).decode("utf-8", "replace")
         if code != 0:
-            self.failed.emit(error_text(err) if code == 1 else "Ядро завершилось с ошибкой или было остановлено по времени")
+            self.failed.emit(
+                error_text(err)
+                if code == 1
+                else "Ядро завершилось с ошибкой или было остановлено по времени"
+            )
             return
         try:
             result = json.loads(out[:MAX_OUTPUT].decode("utf-8"))
         except ValueError:
             result = None
-        if not isinstance(result, dict) or result.get("ok") is not True or not isinstance(result.get("path"), str):
+        if (
+            not isinstance(result, dict)
+            or result.get("ok") is not True
+            or not isinstance(result.get("path"), str)
+        ):
             self.failed.emit("Ядро вернуло неожиданный ответ")
             return
         self.created.emit(result)

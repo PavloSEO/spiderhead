@@ -8,7 +8,15 @@ rows once a caller has them; nothing here invents values.
 from __future__ import annotations
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel, QToolButton, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import (
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .. import theming
 from ..i18n import tr, trf
@@ -17,7 +25,10 @@ from ..ui.kit import StatePanel, waiting_badge
 from ..ui.presentation import theme_tokens
 
 PAGE_LIMIT = 100  # one comparison page, the same bound as seohead_desktop.comparison.PAGE_LIMIT
-FIELD_WIDTH, DELTA_WIDTH = 170, 110  # canvas columns (delta widened so «добавлен» is not clipped); scans share the rest
+FIELD_WIDTH, DELTA_WIDTH = (
+    170,
+    110,
+)  # canvas columns (delta widened so «добавлен» is not clipped); scans share the rest
 CORE_ISSUE = 972
 HEADERS = ("Поле", "Скан №1", "Скан №2", "Δ")
 
@@ -67,8 +78,10 @@ class CompareUrlScreen(QWidget):
         self.table.setColumnStretch(2, 1)
         root.addWidget(self.table_frame)
         self.waiting = StatePanel(
-            "waiting", "Сравнение полей URL недоступно",
-            "Ядро ещё не отдаёт состояние этого URL в двух сканах.", issue=CORE_ISSUE,
+            "waiting",
+            "Сравнение полей URL недоступно",
+            "Ядро ещё не отдаёт состояние этого URL в двух сканах.",
+            issue=CORE_ISSUE,
         )
         root.addWidget(self.waiting)
 
@@ -91,7 +104,11 @@ class CompareUrlScreen(QWidget):
         label = QLabel(tr(title))
         label.setProperty("text_style", "section")
         layout.addWidget(label)
-        layout.addWidget(waiting_badge(CORE_ISSUE, tr("Исходящие ссылки и текст по двум сканам")), 0, Qt.AlignLeft)
+        layout.addWidget(
+            waiting_badge(CORE_ISSUE, tr("Исходящие ссылки и текст по двум сканам")),
+            0,
+            Qt.AlignLeft,
+        )
         layout.addStretch(1)
         return card
 
@@ -126,7 +143,15 @@ class CompareUrlScreen(QWidget):
         label.setWordWrap(True)
         label.setProperty("text_style", "meta")
         roles = theming.roles()
-        background = roles["raised"] if kind == "section_head" else roles["choice_bg"] if highlight else "transparent"
-        label.setStyleSheet(f"padding: 8px 12px; background: {background};"
-                            + (" font-weight: 500;" if kind == "section_head" else ""))
+        background = (
+            roles["raised"]
+            if kind == "section_head"
+            else roles["choice_bg"]
+            if highlight
+            else "transparent"
+        )
+        label.setStyleSheet(
+            f"padding: 8px 12px; background: {background};"
+            + (" font-weight: 500;" if kind == "section_head" else "")
+        )
         return label

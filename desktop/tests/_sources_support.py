@@ -4,13 +4,22 @@ from seohead_desktop.source_service import load_sources
 from tests._screens_core import fixture
 
 PROJECT = "<project>"
-AUTH = {"ok": True, "configured": False, "access_verified": False}  # real `provider-auth --provider gsc --action status` on a machine without a grant
+AUTH = {
+    "ok": True,
+    "configured": False,
+    "access_verified": False,
+}  # real `provider-auth --provider gsc --action status` on a machine without a grant
 
 
 def core_call(overrides=None):
     """call(executable, args) -> saved answer of that command; ``overrides`` maps a command name to a dict or an exception."""
-    answers = {"provider-registry": "provider_registry.json", "provider-readiness": "provider_readiness.json", "spend-report": "spend_report.json",
-               "sources-doctor": "sources_doctor.json", "sources-status": "sources_status.json"}
+    answers = {
+        "provider-registry": "provider_registry.json",
+        "provider-readiness": "provider_readiness.json",
+        "spend-report": "spend_report.json",
+        "sources-doctor": "sources_doctor.json",
+        "sources-status": "sources_status.json",
+    }
     calls = []
 
     def call(_executable, args):

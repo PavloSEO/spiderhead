@@ -45,7 +45,12 @@ QMenu::item { padding: 8px 16px; border-radius: ${radius_control}px; }
 QMenu::item:selected { background: $primary_container; color: $on_primary_container; }
 QTabBar QToolButton { border: none; border-radius: 0; padding: 0; width: 22px; }
 QFrame[kv_row="true"] { border-bottom: 1px solid $outline_variant; }
-""").substitute({**tokens["colors"], **{key: tokens[key] for key in ("radius_control", "radius_panel", "radius_popup")}})
+""").substitute(
+        {
+            **tokens["colors"],
+            **{key: tokens[key] for key in ("radius_control", "radius_panel", "radius_popup")},
+        }
+    )
 
 
 class SourcePanel(TablePanel):
@@ -97,9 +102,7 @@ class SerpPreviewPanel(TablePanel):
         self.title_edit = QLineEdit()
         self.title_edit.setAccessibleName("Title для локального предпросмотра")
         self.description_edit = QLineEdit()
-        self.description_edit.setAccessibleName(
-            "Description для локального предпросмотра"
-        )
+        self.description_edit.setAccessibleName("Description для локального предпросмотра")
         fields.addRow("Title", self.title_edit)
         fields.addRow("Description", self.description_edit)
         layout.addLayout(fields)
@@ -115,9 +118,7 @@ class SerpPreviewPanel(TablePanel):
         reset = QPushButton("Вернуть сохранённые значения")
         reset.clicked.connect(self.reset_values)
         layout.addWidget(reset, 0, Qt.AlignLeft)
-        note = QLabel(
-            "Локальный предпросмотр. Поисковая выдача и её оформление не измерены."
-        )
+        note = QLabel("Локальный предпросмотр. Поисковая выдача и её оформление не измерены.")
         note.setWordWrap(True)
         note.setObjectName("muted")
         layout.addWidget(note)
@@ -159,7 +160,9 @@ class InboxPanel(TablePanel):
         self.kind.addItem("Заметка", "note")
         self.kind.addItem("Вопрос · недоступно", "question")
         self.kind.model().item(1).setEnabled(False)
-        self.kind.model().item(1).setToolTip("Ядро поддерживает note и proposed_goal; вопрос можно записать как текст заметки.")
+        self.kind.model().item(1).setToolTip(
+            "Ядро поддерживает note и proposed_goal; вопрос можно записать как текст заметки."
+        )
         self.kind.addItem("Предложенная цель", "proposed_goal")
         self.kind.currentIndexChanged.connect(self._validate_note)
         controls.addWidget(self.kind)
@@ -178,20 +181,27 @@ class InboxPanel(TablePanel):
     def set_submission_enabled(self, enabled, reason=""):
         self.submission_enabled = bool(enabled)
         self.note_status.setText(
-            reason
-            or ("Отправка явным действием" if enabled else "Отправка не подключена")
+            reason or ("Отправка явным действием" if enabled else "Отправка не подключена")
         )
         self._validate_note()
 
     def _validate_note(self):
         length = len(self.note.toPlainText().strip())
-        self.submit_button.setEnabled(self.submission_enabled and 0 < length <= 4000 and self.kind.currentData() in {"note", "proposed_goal"})
+        self.submit_button.setEnabled(
+            self.submission_enabled
+            and 0 < length <= 4000
+            and self.kind.currentData() in {"note", "proposed_goal"}
+        )
         if length > 4000:
             self.note_status.setText("Максимум 4 000 символов; текст сохранён в форме")
 
     def submit(self):
         text = self.note.toPlainText().strip()
-        if self.submission_enabled and 0 < len(text) <= 4000 and self.kind.currentData() in {"note", "proposed_goal"}:
+        if (
+            self.submission_enabled
+            and 0 < len(text) <= 4000
+            and self.kind.currentData() in {"note", "proposed_goal"}
+        ):
             self.intent_requested.emit(
                 "submit_note", {"text": text, "kind": self.kind.currentData()}
             )
@@ -208,6 +218,7 @@ class InboxPanel(TablePanel):
 
 class ComparePanel(TablePanel):
     """Retained-pair selectors and separate raw-change/verified-page summaries."""
+
     pair_changed = pyqtSignal()
 
     def __init__(self, spec, parent=None):
@@ -229,7 +240,9 @@ class ComparePanel(TablePanel):
         heading_row = QHBoxLayout()
         heading_row.addWidget(title, 1)
         header_layout.addLayout(heading_row)
-        caption = QLabel("Выберите два сохранённых наблюдения. Исправление подтверждается отдельной проверкой ядра.")
+        caption = QLabel(
+            "Выберите два сохранённых наблюдения. Исправление подтверждается отдельной проверкой ядра."
+        )
         caption.setObjectName("metadata")
         caption.setWordWrap(True)
         caption.hide()
@@ -287,9 +300,18 @@ class ComparePanel(TablePanel):
         header_layout.addLayout(gaps)
         self.filter.currentIndexChanged.disconnect()
         self.filter.clear()
-        for label, state in (("Все на странице", "all"), ("Исправлено", "resolved"), ("Сохранилось", "persisting"), ("Изменилось", "changed"), ("Нельзя подтвердить", "not_verifiable"), ("Новые", "new")):
+        for label, state in (
+            ("Все на странице", "all"),
+            ("Исправлено", "resolved"),
+            ("Сохранилось", "persisting"),
+            ("Изменилось", "changed"),
+            ("Нельзя подтвердить", "not_verifiable"),
+            ("Новые", "new"),
+        ):
             self.filter.addItem(label, state)
-        self.filter.currentIndexChanged.connect(lambda: self.apply_status_filter(self.filter.currentData()))
+        self.filter.currentIndexChanged.connect(
+            lambda: self.apply_status_filter(self.filter.currentData())
+        )
         self.layout().insertWidget(0, header)
         self.before.currentIndexChanged.connect(self._valid_pair)
         self.after.currentIndexChanged.connect(self._valid_pair)
@@ -329,15 +351,22 @@ class ComparePanel(TablePanel):
 
     def set_scans(self, items):
         from .presentation import field_text, short_run_id, state_text
+
         scans = list(islice(iter(items), PAGE_LIMIT + 1))
         if len(scans) > PAGE_LIMIT:
             raise ValueError("Scan chooser is bounded to one page")
         fresh = self.before.currentData() is None and self.after.currentData() is None
-        latest = sorted(scans, key=lambda scan: scan.get("finished_at") or scan.get("created_at") or "", reverse=True)[:2]
+        latest = sorted(
+            scans,
+            key=lambda scan: scan.get("finished_at") or scan.get("created_at") or "",
+            reverse=True,
+        )[:2]
         for combo in (self.before, self.after):
             previous = combo.currentData()
             selected_uuid = previous.get("uuid") if isinstance(previous, dict) else None
-            if selected_uuid is None and fresh and len(latest) == 2:  # first open: the two newest saved scans, before = older
+            if (
+                selected_uuid is None and fresh and len(latest) == 2
+            ):  # first open: the two newest saved scans, before = older
                 selected_uuid = latest[1 if combo is self.before else 0].get("uuid")
             combo.blockSignals(True)
             combo.clear()
@@ -345,17 +374,27 @@ class ComparePanel(TablePanel):
             for scan in scans:
                 label = f"{field_text('finished_at', scan.get('finished_at') or scan.get('created_at'))} · {short_run_id(scan.get('uuid')) or 'ID неизвестен'} · {state_text('partial' if scan.get('crawl_partial') or scan.get('corpus_partial') else scan.get('lifecycle'))}"
                 combo.addItem(label, dict(scan))
-                combo.setItemData(combo.count() - 1, scan.get("path") or scan.get("uuid"), Qt.ToolTipRole)
+                combo.setItemData(
+                    combo.count() - 1, scan.get("path") or scan.get("uuid"), Qt.ToolTipRole
+                )
                 if scan.get("uuid") == selected_uuid:
                     combo.setCurrentIndex(combo.count() - 1)
             combo.blockSignals(False)
         self._valid_pair()
         if fresh and len(latest) == 2 and self.compare_button.isEnabled():
-            self.comparison_status.setText("Выбраны два последних скана: проверьте пару и нажмите «Сравнить сохранённые сканы»")
+            self.comparison_status.setText(
+                "Выбраны два последних скана: проверьте пару и нажмите «Сравнить сохранённые сканы»"
+            )
 
     def _valid_pair(self):
         before, after = self.before.currentData(), self.after.currentData()
-        valid = bool(before and after and before.get("uuid") and after.get("uuid") and before["uuid"] != after["uuid"])
+        valid = bool(
+            before
+            and after
+            and before.get("uuid")
+            and after.get("uuid")
+            and before["uuid"] != after["uuid"]
+        )
         self.compare_button.setEnabled(valid and self.state != "loading")
         if not valid:
             self.comparison_status.setText("Нужны два разных сохранённых скана")
@@ -364,7 +403,14 @@ class ComparePanel(TablePanel):
         state = payload.get("state")
         if state == "unavailable":
             self._valid_pair()
-        self.comparison_status.setText(payload.get("reason") or ("Сравнение сохранено · результаты ниже" if state == "ready" else "Выберите два сохранённых скана"))
+        self.comparison_status.setText(
+            payload.get("reason")
+            or (
+                "Сравнение сохранено · результаты ниже"
+                if state == "ready"
+                else "Выберите два сохранённых скана"
+            )
+        )
         self.comparison_summary.set_payload(payload)
         self.apply_status_filter("all")
         self.comparison_summary.setToolTip(payload.get("package") or "")
@@ -386,10 +432,20 @@ class ComparePanel(TablePanel):
 
     def preview_comparison(self):
         if self.compare_button.isEnabled():
-            self.intent_requested.emit("preview_compare", {"before": self.before.currentData(), "after": self.after.currentData()})
+            self.intent_requested.emit(
+                "preview_compare",
+                {"before": self.before.currentData(), "after": self.after.currentData()},
+            )
 
     def set_page(self, items, **kwargs):
-        kwargs["available_filters"] = ("all", "resolved", "persisting", "changed", "not_verifiable", "new")
+        kwargs["available_filters"] = (
+            "all",
+            "resolved",
+            "persisting",
+            "changed",
+            "not_verifiable",
+            "new",
+        )
         super().set_page(items, **kwargs)
         self.sync_pair_controls()
         if hasattr(self, "compare_button"):
@@ -463,9 +519,7 @@ class AuditWorkspace(QWidget):
 
     def panel(self, id):
         pane = TAB_BY_ID[id].pane
-        return {"main": self.main, "detail": self.detail, "right": self.right}[
-            pane
-        ].panel(id)
+        return {"main": self.main, "detail": self.detail, "right": self.right}[pane].panel(id)
 
     def set_page(self, tab_id, items, **kwargs):
         if TAB_BY_ID[tab_id].pane == "main" and tab_id == self.main.current_id:
@@ -528,9 +582,7 @@ class ProjectPanels(TabDeck):
 
     @staticmethod
     def _factory(spec, parent):
-        return {"inbox": InboxPanel, "compare": ComparePanel}.get(spec.id, TablePanel)(
-            spec, parent
-        )
+        return {"inbox": InboxPanel, "compare": ComparePanel}.get(spec.id, TablePanel)(spec, parent)
 
     def set_page(self, tab_id, items, **kwargs):
         self.panel(tab_id).set_page(items, **kwargs)

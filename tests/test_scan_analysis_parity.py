@@ -506,7 +506,9 @@ def test_sql_graph_audit_matches_legacy_without_building_all_inlinks(
             retained_run["corpus_partial"] = bool(retained_run["corpus_partial"])
             from seohead.storage.native_scan import _frozen_header_config
 
-            assert retained_run["config_fingerprint"] == fingerprint(_frozen_header_config(settings))
+            assert retained_run["config_fingerprint"] == fingerprint(
+                _frozen_header_config(settings)
+            )
             assert retained_run["source_kind"] == "native"
             assert retained_run["corpus_partial"] is run.corpus_partial
 

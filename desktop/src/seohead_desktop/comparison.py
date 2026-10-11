@@ -36,7 +36,12 @@ def retained_pair(project, before, after):
 
 def comparison_page(directory, project, offset=0, limit=PAGE_LIMIT):
     """Page existing core NDJSON without materializing its population."""
-    if type(offset) is not int or offset < 0 or type(limit) is not int or not 1 <= limit <= PAGE_LIMIT:
+    if (
+        type(offset) is not int
+        or offset < 0
+        or type(limit) is not int
+        or not 1 <= limit <= PAGE_LIMIT
+    ):
         raise ValueError("Comparison page requires a nonnegative offset and 1..100 rows")
     root = Path(directory).resolve()
     reports = Path(project).resolve() / "reports"
@@ -74,19 +79,35 @@ def comparison_page(directory, project, offset=0, limit=PAGE_LIMIT):
                     index += 1
                     continue
                 item = json.loads(line)
-                old = item["before"] if kind == "unchanged" else item if kind in {"left", "disappeared"} else {}
-                new = item["after"] if kind == "unchanged" else item if kind in {"entered", "appeared"} else {}
+                old = (
+                    item["before"]
+                    if kind == "unchanged"
+                    else item
+                    if kind in {"left", "disappeared"}
+                    else {}
+                )
+                new = (
+                    item["after"]
+                    if kind == "unchanged"
+                    else item
+                    if kind in {"entered", "appeared"}
+                    else {}
+                )
                 finding = new or old
-                rows.append({
-                    "url": finding.get("target_url") or "Весь скан",
-                    "check": finding.get("check") or "",
-                    "state": "new" if kind in {"entered", "appeared"} else "not_verifiable",
-                    "before": str(old.get("message") or "Нет находки")[:2048],
-                    "after": str(new.get("message") or "Нет находки в новом наблюдении")[:2048],
-                    "reason": "Новое наблюдение ядра; отсутствие в baseline само по себе не доказывает регрессию"
-                    if kind in {"entered", "appeared"} else "Ожидается проверка ядром по новому наблюдению",
-                    "_before_id": old.get("id"), "_partition": kind,
-                })
+                rows.append(
+                    {
+                        "url": finding.get("target_url") or "Весь скан",
+                        "check": finding.get("check") or "",
+                        "state": "new" if kind in {"entered", "appeared"} else "not_verifiable",
+                        "before": str(old.get("message") or "Нет находки")[:2048],
+                        "after": str(new.get("message") or "Нет находки в новом наблюдении")[:2048],
+                        "reason": "Новое наблюдение ядра; отсутствие в baseline само по себе не доказывает регрессию"
+                        if kind in {"entered", "appeared"}
+                        else "Ожидается проверка ядром по новому наблюдению",
+                        "_before_id": old.get("id"),
+                        "_partition": kind,
+                    }
+                )
         remaining = 0
         if len(rows) == limit:
             break
@@ -95,11 +116,15 @@ def comparison_page(directory, project, offset=0, limit=PAGE_LIMIT):
         for item in document.get("compatibility") or []
     ]
     return {
-        "rows": rows, "total": total, "offset": offset, "has_more": offset + len(rows) < total,
+        "rows": rows,
+        "total": total,
+        "offset": offset,
+        "has_more": offset + len(rows) < total,
         "summary": {"delta": document.get("summary") or {}, "verified_page": {}},
         "compatibility": compatibility,
         "warnings": [str(item)[:800] for item in (document.get("warnings") or [])[:20]],
-        "before": document.get("before") or {}, "after": document.get("after") or {},
+        "before": document.get("before") or {},
+        "after": document.get("after") or {},
     }
 
 
@@ -141,8 +166,11 @@ class ComparisonController(QObject):
         self._request = None
 
     def _current(self, revision):
-        return (revision == self.revision and self.generation == self.window.read_generation
-                and self.project == self.window.project_directory)
+        return (
+            revision == self.revision
+            and self.generation == self.window.read_generation
+            and self.project == self.window.project_directory
+        )
 
     def clear(self, reason="Выберите два сохранённых скана"):
         self.revision += 1
@@ -162,12 +190,22 @@ class ComparisonController(QObject):
             if gateway is not self._gateway:
                 gateway.signals.failed.connect(self._command_failed)
                 self._gateway = gateway
-            self.package = str(Path(self.project) / "reports" / f"comparison-{uuid.uuid4().hex}" / "delta")
+            self.package = str(
+                Path(self.project) / "reports" / f"comparison-{uuid.uuid4().hex}" / "delta"
+            )
             self._request = f"comparison:{revision}"
-            self.changed.emit({"state": "loading", "rows": [], "reason": "Ядро сравнивает два сохранённых скана"})
+            self.changed.emit(
+                {"state": "loading", "rows": [], "reason": "Ядро сравнивает два сохранённых скана"}
+            )
             self.window.start_command(
-                self._request, "seo_compare_crawls",
-                {"before": self.pair[0]["path"], "after": self.pair[1]["path"], "force": False, "out_dir": self.package},
+                self._request,
+                "seo_compare_crawls",
+                {
+                    "before": self.pair[0]["path"],
+                    "after": self.pair[1]["path"],
+                    "force": False,
+                    "out_dir": self.package,
+                },
                 lambda result: self._compared(revision, result),
             )
         except (OSError, TypeError, ValueError) as exc:
@@ -213,9 +251,14 @@ class ComparisonController(QObject):
             return
         self._request = f"comparison-verify:{revision}"
         self.window.start_command(
-            self._request, "seo_verify_fixes",
-            {"baseline": self.pair[0]["path"], "after": self.pair[1]["path"], "finding_ids": ids,
-             "out_dir": str(Path(self.package).parent / f"verification-{uuid.uuid4().hex}")},
+            self._request,
+            "seo_verify_fixes",
+            {
+                "baseline": self.pair[0]["path"],
+                "after": self.pair[1]["path"],
+                "finding_ids": ids,
+                "out_dir": str(Path(self.package).parent / f"verification-{uuid.uuid4().hex}"),
+            },
             lambda result: self._verified(revision, page, result),
         )
 
@@ -230,7 +273,12 @@ class ComparisonController(QObject):
                 row["state"] = item.get("status", "not_verifiable")
                 row["reason"] = item.get("reason") or "Статус подтверждён offline verify-fixes ядра"
         page["summary"]["verified_page"] = dict(Counter(row["state"] for row in page["rows"]))
-        page.update(state="ready", reason="", source=f"До {self.pair[0]['uuid']} → после {self.pair[1]['uuid']}", package=self.package)
+        page.update(
+            state="ready",
+            reason="",
+            source=f"До {self.pair[0]['uuid']} → после {self.pair[1]['uuid']}",
+            package=self.package,
+        )
         self.changed.emit(page)
 
     def _page_failed(self, revision, reason):

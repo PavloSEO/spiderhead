@@ -254,9 +254,8 @@ class ShellV2Tests(unittest.TestCase):
 
     def test_new_sections_open_the_placeholder_without_numbers(self):
         from seohead_desktop.screens.graph import GraphScreen
-        from seohead_desktop.ui.kit import StatePanel
-
         from seohead_desktop.screens.tool_redirects import ToolRedirectsScreen
+        from seohead_desktop.ui.kit import StatePanel
 
         self.assertTrue(self.window.navigation.select_section("methods"))
         page = self.window.pages.currentWidget()

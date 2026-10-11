@@ -41,7 +41,9 @@ TOOL_ALLOWLIST = frozenset(
     }
 )
 OPTIONAL_TOOLS = frozenset({"seo_scan_content_search", "seo_scan_content_search_page"})
-_WRITE_TOOLS = frozenset({"seo_project_inbox_submit", "seo_compare_crawls", "seo_verify_fixes", "seo_semantics_run"})
+_WRITE_TOOLS = frozenset(
+    {"seo_project_inbox_submit", "seo_compare_crawls", "seo_verify_fixes", "seo_semantics_run"}
+)
 
 _DIRECTORY_TOOLS = frozenset(
     {
@@ -98,14 +100,18 @@ def payload(response: Any) -> dict[str, Any]:
         result = structured.get("result", structured)
         if isinstance(result, dict):
             if result.get("ok") is False:
-                raise ValueError(str(result.get("error") or result.get("reason") or "core refused request"))
+                raise ValueError(
+                    str(result.get("error") or result.get("reason") or "core refused request")
+                )
             return result
     content = getattr(response, "content", ())
     if content and isinstance(getattr(content[0], "text", None), str):
         result = json.loads(content[0].text)
         if isinstance(result, dict):
             if result.get("ok") is False:
-                raise ValueError(str(result.get("error") or result.get("reason") or "core refused request"))
+                raise ValueError(
+                    str(result.get("error") or result.get("reason") or "core refused request")
+                )
             return result
     raise TypeError("MCP tool returned no object result")
 
@@ -176,7 +182,9 @@ class PersistentMcpGateway(QRunnable):
             self._scope = root
             self._pending.clear()
 
-    def submit(self, request_id: str, tool: str, arguments: dict[str, Any], generation: int) -> None:
+    def submit(
+        self, request_id: str, tool: str, arguments: dict[str, Any], generation: int
+    ) -> None:
         self._validate(tool, arguments)
         request = Request(request_id, tool, dict(arguments), generation)
         with self._condition:
@@ -215,7 +223,9 @@ class PersistentMcpGateway(QRunnable):
             if not isinstance(directory, str) or Path(directory).resolve() != scope:
                 raise ValueError("MCP request is outside the selected local project")
         if tool == "seo_project_policy" and set(arguments) != {"directory"}:
-            raise ValueError("project policy is read-only in Desktop: only the project directory may be passed")
+            raise ValueError(
+                "project policy is read-only in Desktop: only the project directory may be passed"
+            )
         if tool in _SCAN_TOOLS:
             scan = arguments.get("input_path")
             if not isinstance(scan, str):
@@ -229,37 +239,61 @@ class PersistentMcpGateway(QRunnable):
             stage = arguments.get("stage")
             if stage not in ("init", "import") or set(arguments) - {"stage", "project", "file"}:
                 raise ValueError("semantic run in Desktop allows only the init and import stages")
-            if not isinstance(arguments.get("project"), str) or Path(arguments["project"]).resolve() != scope:
+            if (
+                not isinstance(arguments.get("project"), str)
+                or Path(arguments["project"]).resolve() != scope
+            ):
                 raise ValueError("semantic run is outside the selected local project")
             if stage == "init" and "file" in arguments:
                 raise ValueError("semantic init takes no file")
             if stage == "import":
                 source = arguments.get("file")
-                if not isinstance(source, str) or Path(source).suffix.lower() != ".csv" or not Path(source).is_file():
+                if (
+                    not isinstance(source, str)
+                    or Path(source).suffix.lower() != ".csv"
+                    or not Path(source).is_file()
+                ):
                     raise ValueError("semantic import needs a readable CSV file")
 
         if tool in {"seo_compare_crawls", "seo_verify_fixes"}:
             before = arguments.get("before" if tool == "seo_compare_crawls" else "baseline")
             after = arguments.get("after")
             if any(not isinstance(value, str) for value in (before, after)):
-                raise ValueError("comparison requires explicit saved before and after paths; recrawling is unavailable")
+                raise ValueError(
+                    "comparison requires explicit saved before and after paths; recrawling is unavailable"
+                )
             paths = [Path(value).resolve() for value in (before, after)]
             if paths[0] == paths[1] or any(
                 not path.is_relative_to(scope / "scans") or not path.is_file() for path in paths
             ):
-                raise ValueError("comparison requires two retained scans inside the selected project")
+                raise ValueError(
+                    "comparison requires two retained scans inside the selected project"
+                )
             output = arguments.get("out_dir")
-            if not isinstance(output, str) or not Path(output).resolve().is_relative_to(scope / "reports"):
-                raise ValueError("comparison output must remain inside the selected project's reports")
+            if not isinstance(output, str) or not Path(output).resolve().is_relative_to(
+                scope / "reports"
+            ):
+                raise ValueError(
+                    "comparison output must remain inside the selected project's reports"
+                )
             if Path(output).exists() or arguments.get("force"):
-                raise ValueError("comparison cannot overwrite an existing report or force incompatible settings")
-            allowed = ({"before", "after", "force", "out_dir"} if tool == "seo_compare_crawls"
-                       else {"baseline", "after", "finding_ids", "out_dir"})
+                raise ValueError(
+                    "comparison cannot overwrite an existing report or force incompatible settings"
+                )
+            allowed = (
+                {"before", "after", "force", "out_dir"}
+                if tool == "seo_compare_crawls"
+                else {"baseline", "after", "finding_ids", "out_dir"}
+            )
             if set(arguments) - allowed:
                 raise ValueError("comparison arguments exceed the offline Desktop contract")
             if tool == "seo_verify_fixes":
                 ids = arguments.get("finding_ids")
-                if not isinstance(ids, list) or not 1 <= len(ids) <= 100 or any(not isinstance(item, str) or not item for item in ids):
+                if (
+                    not isinstance(ids, list)
+                    or not 1 <= len(ids) <= 100
+                    or any(not isinstance(item, str) or not item for item in ids)
+                ):
                     raise ValueError("offline verification is bounded to 100 selected finding IDs")
 
     async def _next_request(self) -> Request | None:
@@ -295,24 +329,31 @@ class PersistentMcpGateway(QRunnable):
                 parameters = StdioServerParameters(command=self.executable, args=["mcp"])
                 async with (
                     stdio_client(parameters) as (reader, writer),
-                    ClientSession(reader, writer, read_timeout_seconds=timedelta(seconds=timeout)) as session,
+                    ClientSession(
+                        reader, writer, read_timeout_seconds=timedelta(seconds=timeout)
+                    ) as session,
                 ):
                     try:
                         await session.initialize()
                         advertised = {tool.name for tool in (await session.list_tools()).tools}
                         missing = TOOL_ALLOWLIST - advertised
                         if missing:
-                            raise RuntimeError("bundled core misses desktop tools: " + ", ".join(sorted(missing)))
+                            raise RuntimeError(
+                                "bundled core misses desktop tools: " + ", ".join(sorted(missing))
+                            )
                         with self._condition:
                             if not self._stopped:
-                                self.signals.ready.emit(tuple(sorted((TOOL_ALLOWLIST | OPTIONAL_TOOLS) & advertised)))
+                                self.signals.ready.emit(
+                                    tuple(sorted((TOOL_ALLOWLIST | OPTIONAL_TOOLS) & advertised))
+                                )
                         scope.deadline = math.inf
                         while (request := await self._next_request()) is not None:
                             phase = request.tool
                             timeout = self.tool_timeouts.get(request.tool, self.read_timeout)
                             scope.deadline = anyio.current_time() + timeout
                             response = await session.call_tool(
-                                request.tool, request.arguments,
+                                request.tool,
+                                request.arguments,
                                 read_timeout_seconds=timedelta(seconds=timeout),
                             )
                             with self._condition:
@@ -320,9 +361,13 @@ class PersistentMcpGateway(QRunnable):
                                     try:
                                         result = payload(response)
                                     except (ValueError, TypeError) as exc:
-                                        self.signals.failed.emit(request.request_id, str(exc), request.generation)
+                                        self.signals.failed.emit(
+                                            request.request_id, str(exc), request.generation
+                                        )
                                     else:
-                                        self.signals.result.emit(request.request_id, result, request.generation)
+                                        self.signals.result.emit(
+                                            request.request_id, result, request.generation
+                                        )
                                 self._active = None
                                 self._active_cancelled = False
                             scope.deadline = math.inf

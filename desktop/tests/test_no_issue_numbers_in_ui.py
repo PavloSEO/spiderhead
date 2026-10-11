@@ -40,10 +40,19 @@ def string_constants(tree):
     for node in ast.walk(tree):
         if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
             body = node.body
-            if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) and isinstance(body[0].value.value, str):
+            if (
+                body
+                and isinstance(body[0], ast.Expr)
+                and isinstance(body[0].value, ast.Constant)
+                and isinstance(body[0].value.value, str)
+            ):
                 docstrings.add(id(body[0].value))
     for node in ast.walk(tree):
-        if isinstance(node, ast.Constant) and isinstance(node.value, str) and id(node) not in docstrings:
+        if (
+            isinstance(node, ast.Constant)
+            and isinstance(node.value, str)
+            and id(node) not in docstrings
+        ):
             yield node.lineno, node.value
 
 
@@ -108,8 +117,16 @@ class WindowTests(unittest.TestCase):
         for index in range(pages.count()):
             pages.setCurrentIndex(index)
             self.app.processEvents()
-            leaks += [f"page {index}: {text[:90]}" for text in self.visible_texts(pages.widget(index)) if ISSUE_NUMBER.search(text)]
-        leaks += [f"window: {text[:90]}" for text in self.visible_texts(self.window) if ISSUE_NUMBER.search(text)]
+            leaks += [
+                f"page {index}: {text[:90]}"
+                for text in self.visible_texts(pages.widget(index))
+                if ISSUE_NUMBER.search(text)
+            ]
+        leaks += [
+            f"window: {text[:90]}"
+            for text in self.visible_texts(self.window)
+            if ISSUE_NUMBER.search(text)
+        ]
         self.assertEqual(leaks, [])
 
     def test_agent_display_shows_no_issue_numbers(self):

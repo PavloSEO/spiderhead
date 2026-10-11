@@ -80,9 +80,7 @@ class CrawlConfigurationTests(unittest.TestCase):
 
     def test_descriptor_type_drift_and_duplicate_paths_fail_closed(self):
         payload = descriptor()
-        row = next(
-            row for row in payload["settings"] if row["path"] == "limits.max_urls"
-        )
+        row = next(row for row in payload["settings"] if row["path"] == "limits.max_urls")
         row["type"] = "str"
         with self.assertRaisesRegex(ValueError, "type changed"):
             validate_overrides(payload, {"limits.max_urls": 100})
@@ -129,7 +127,10 @@ class CrawlConfigurationTests(unittest.TestCase):
             validate_overrides(descriptor(), {"speed.min_delay_seconds": 2}),
             {"speed.min_delay_seconds": 2.0},
         )
-        self.assertEqual(validate_overrides(descriptor(), {"speed.min_delay_seconds": 0.1}), {"speed.min_delay_seconds": 0.1})
+        self.assertEqual(
+            validate_overrides(descriptor(), {"speed.min_delay_seconds": 0.1}),
+            {"speed.min_delay_seconds": 0.1},
+        )
 
     def test_invalid_enum_regex_suffix_and_media_types_are_rejected(self):
         for path, value in (
@@ -205,23 +206,17 @@ class CrawlConfigurationTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(ValueError, "URL list"):
             validate_overrides(descriptor(), values)
-        self.assertEqual(
-            validate_overrides(descriptor(), values, input_mode="list"), values
-        )
+        self.assertEqual(validate_overrides(descriptor(), values, input_mode="list"), values)
 
     def test_resource_fetch_requires_sqlite_but_metadata_retention_is_separate(self):
         with self.assertRaisesRegex(ValueError, "SQLite"):
-            validate_overrides(
-                descriptor(), {"resources.fetch": True}, storage_backend="json"
-            )
+            validate_overrides(descriptor(), {"resources.fetch": True}, storage_backend="json")
         values = {"resources.fetch": True, "storage.body_mode": "off"}
         self.assertEqual(validate_overrides(descriptor(), values), values)
 
     def test_preview_keeps_explicit_overrides_and_labels_core_validation(self):
         values = {"limits.max_urls": 40, "scope.include_patterns": ["/catalog/"]}
-        with patch(
-            "builtins.open", side_effect=AssertionError("No I/O in draft module")
-        ):
+        with patch("builtins.open", side_effect=AssertionError("No I/O in draft module")):
             preview = preview_configuration(descriptor(), values)
         self.assertEqual(preview["overrides"], values)
         self.assertEqual(preview["state"], "draft")

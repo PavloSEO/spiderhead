@@ -15,8 +15,10 @@ import urllib.request
 from pathlib import Path
 
 ASSETS = Path(__file__).resolve().parents[1] / "src" / "seohead_desktop" / "assets"
-URL = ("https://raw.githubusercontent.com/google/material-design-icons/master/symbols/web/"
-       "{name}/materialsymbolsoutlined/{name}_24px.svg")
+URL = (
+    "https://raw.githubusercontent.com/google/material-design-icons/master/symbols/web/"
+    "{name}/materialsymbolsoutlined/{name}_24px.svg"
+)
 
 
 def main(names):
@@ -40,7 +42,13 @@ def main(names):
             continue
         target.write_bytes(data)
         if target.relative_to(ASSETS).as_posix() not in known:
-            manifest.append({"path": f"icons/{name}.svg", "url": url, "sha256": hashlib.sha256(data).hexdigest()})
+            manifest.append(
+                {
+                    "path": f"icons/{name}.svg",
+                    "url": url,
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                }
+            )
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
     for name, reason in missing:
         print(f"skipped {name}: {reason}", file=sys.stderr)

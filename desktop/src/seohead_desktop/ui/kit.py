@@ -25,7 +25,13 @@ from .. import theming
 from ..i18n import tr, trf
 from .icons import MaterialIconLabel
 
-STATE_ICONS = {"empty": "inbox", "loading": "hourglass_top", "error": "error", "partial": "incomplete_circle", "waiting": "schedule"}
+STATE_ICONS = {
+    "empty": "inbox",
+    "loading": "hourglass_top",
+    "error": "error",
+    "partial": "incomplete_circle",
+    "waiting": "schedule",
+}
 UNAVAILABLE = "Недоступно в этой версии ядра"
 # Core issue number -> what will appear once the core gives it. Numbers live in code only; the UI shows the hint.
 ISSUE_HINTS = {
@@ -81,7 +87,9 @@ class StatePanel(QFrame):
     truthful about why nothing is shown instead of pretending the data is empty. ``issue`` is kept for code only.
     """
 
-    def __init__(self, kind, title, text="", action=None, issue=None, parent=None, secondary=None, hint=""):
+    def __init__(
+        self, kind, title, text="", action=None, issue=None, parent=None, secondary=None, hint=""
+    ):
         super().__init__(parent)
         self.kind = kind
         self.setProperty("state_panel", kind)
@@ -89,7 +97,9 @@ class StatePanel(QFrame):
         layout.setContentsMargins(24, 32, 24, 32)
         layout.setSpacing(8)
         layout.setAlignment(Qt.AlignCenter)
-        layout.addWidget(MaterialIconLabel(STATE_ICONS[kind], 32, color="role:text_muted"), 0, Qt.AlignHCenter)
+        layout.addWidget(
+            MaterialIconLabel(STATE_ICONS[kind], 32, color="role:text_muted"), 0, Qt.AlignHCenter
+        )
         self.title = QLabel(tr(title))
         self.title.setProperty("text_style", "section")
         self.title.setAlignment(Qt.AlignCenter)
@@ -122,8 +132,13 @@ class StatePanel(QFrame):
 
 def no_project_panel(host, text):
     """«Проект не открыт» with both ways forward: open an existing project or create a new one."""
-    return StatePanel("empty", "Проект не открыт", text, action=("Открыть проект…", host.choose_project),
-                      secondary=("Создать проект", lambda: host.extra_screens["start"].new_project()))
+    return StatePanel(
+        "empty",
+        "Проект не открыт",
+        text,
+        action=("Открыть проект…", host.choose_project),
+        secondary=("Создать проект", lambda: host.extra_screens["start"].new_project()),
+    )
 
 
 class Gate(QStackedWidget):
@@ -136,16 +151,27 @@ class Gate(QStackedWidget):
         super().__init__(parent)
         self.content = content
         self._state = state
-        self.open_panel = StatePanel("empty", "Откройте проект", "Данные появятся из сохранённого проекта.",
-                                     action=("Открыть проект…", open_project))
-        self.partial_panel = StatePanel("partial", "Экран переделывается — ждёт шага 5",
-                                        "Сохранённые данные проекта доступны в разделах «Сканы» и «Работа».")
+        self.open_panel = StatePanel(
+            "empty",
+            "Откройте проект",
+            "Данные появятся из сохранённого проекта.",
+            action=("Открыть проект…", open_project),
+        )
+        self.partial_panel = StatePanel(
+            "partial",
+            "Экран переделывается — ждёт шага 5",
+            "Сохранённые данные проекта доступны в разделах «Сканы» и «Работа».",
+        )
         for widget in (content, self.open_panel, self.partial_panel):
             self.addWidget(widget)
         self.refresh()
 
     def refresh(self):
-        self.setCurrentWidget({"open": self.open_panel, "partial": self.partial_panel}.get(self._state(), self.content))
+        self.setCurrentWidget(
+            {"open": self.open_panel, "partial": self.partial_panel}.get(
+                self._state(), self.content
+            )
+        )
 
 
 class UnavailableBadge(QLabel):
@@ -190,7 +216,11 @@ def waiting_badge(issue, hint=""):
     label = UnavailableBadge()
     label.setProperty("waiting_issue", issue)
     hint = hint or ISSUE_HINTS.get(issue, "")
-    label.setToolTip(trf("{state}\n{soon}: {hint}", state=UNAVAILABLE, soon="Появится", hint=hint) if hint else tr(UNAVAILABLE))
+    label.setToolTip(
+        trf("{state}\n{soon}: {hint}", state=UNAVAILABLE, soon="Появится", hint=hint)
+        if hint
+        else tr(UNAVAILABLE)
+    )
     return label
 
 
@@ -280,18 +310,29 @@ class BadgeDelegate(QStyledItemDelegate):
         cell = QStyleOptionViewItem(option)
         self.initStyleOption(cell, index)
         cell.text = ""
-        (option.widget.style() if option.widget else QApplication.style()).drawControl(QStyle.CE_ItemViewItem, cell, painter, option.widget)
+        (option.widget.style() if option.widget else QApplication.style()).drawControl(
+            QStyle.CE_ItemViewItem, cell, painter, option.widget
+        )
         font = QFont(painter.font())
         font.setPixelSize(12)
         font.setWeight(QFont.Medium)
         painter.setFont(font)
         width = painter.fontMetrics().horizontalAdvance(text) + 16
-        rect = QRectF(option.rect.left() + 10, option.rect.center().y() - 11, min(width, option.rect.width() - 20), 22)
+        rect = QRectF(
+            option.rect.left() + 10,
+            option.rect.center().y() - 11,
+            min(width, option.rect.width() - 20),
+            22,
+        )
         painter.setPen(Qt.NoPen)
         painter.setBrush(QColor(background))
         painter.drawRoundedRect(rect, 6, 6)
         painter.setPen(QColor(ink))
-        painter.drawText(rect, Qt.AlignCenter, painter.fontMetrics().elidedText(text, Qt.ElideRight, int(rect.width()) - 8))
+        painter.drawText(
+            rect,
+            Qt.AlignCenter,
+            painter.fontMetrics().elidedText(text, Qt.ElideRight, int(rect.width()) - 8),
+        )
         painter.restore()
 
     def sizeHint(self, option, index):

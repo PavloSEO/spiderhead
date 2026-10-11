@@ -3,6 +3,7 @@
 The core owns the state (``~/.config/seohead/mcp-state.json``), the client registration and the adjacent backups; the
 app shows the core's plan and writes only after an explicit «Разрешить». Paths are shown with ``~``.
 """
+
 from __future__ import annotations
 
 import json
@@ -41,12 +42,21 @@ def call_core(executable, arguments):
     if not executable:
         raise ValueError(tr("CLI ядра seohead не найден"))
     try:
-        completed = subprocess.run([executable, "mcp", *arguments, "--json"], capture_output=True, text=True, timeout=30, check=False)
+        completed = subprocess.run(
+            [executable, "mcp", *arguments, "--json"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
         result = json.loads(completed.stdout)
     except (OSError, subprocess.TimeoutExpired, ValueError):
         raise ValueError(tr("Ядро не отвечает или не поддерживает настройку MCP.")) from None
     if not isinstance(result, dict) or not result.get("ok"):
-        raise ValueError((result.get("error") if isinstance(result, dict) else None) or tr("Ошибка настройки MCP"))
+        raise ValueError(
+            (result.get("error") if isinstance(result, dict) else None)
+            or tr("Ошибка настройки MCP")
+        )
     return result
 
 
@@ -89,7 +99,11 @@ class PermissionDialog(QDialog):
         body = QVBoxLayout()
         body.setContentsMargins(24, 4, 24, 16)
         body.setSpacing(12)
-        intro = QLabel(tr("SEOHEAD изменит файлы настроек выбранных агентов. Перед записью — копия каждого файла рядом (*.seohead-<время>-<хэш>.bak, хэш SHA-256 сверяется); отменить можно в Настройках → MCP-сервер."))
+        intro = QLabel(
+            tr(
+                "SEOHEAD изменит файлы настроек выбранных агентов. Перед записью — копия каждого файла рядом (*.seohead-<время>-<хэш>.bak, хэш SHA-256 сверяется); отменить можно в Настройках → MCP-сервер."
+            )
+        )
         intro.setWordWrap(True)
         body.addWidget(intro)
         self.boxes, self.paths = {}, {}
@@ -120,7 +134,9 @@ class PermissionDialog(QDialog):
         self.preview_scroll = QScrollArea()
         self.preview_scroll.setWidgetResizable(True)
         self.preview_scroll.setFrameShape(QFrame.NoFrame)
-        self.preview_scroll.setMaximumHeight(240)  # several clients: the diff scrolls, the footer stays visible
+        self.preview_scroll.setMaximumHeight(
+            240
+        )  # several clients: the diff scrolls, the footer stays visible
         self.preview_scroll.setWidget(self.preview)
         body.addWidget(self.preview_scroll)
         self.backup_label = QLabel()
@@ -128,7 +144,9 @@ class PermissionDialog(QDialog):
         self.backup_label.setTextFormat(Qt.PlainText)
         self.backup_label.setWordWrap(True)
         body.addWidget(self.backup_label)
-        body.addWidget(Note("info", "Токены и пароли не записываются.", "Остальные строки файлов не меняются."))
+        body.addWidget(
+            Note("info", "Токены и пароли не записываются.", "Остальные строки файлов не меняются.")
+        )
         self.result_label = QLabel(tr("Чтение состояния ядра…"))
         self.result_label.setWordWrap(True)
         self.result_label.setTextFormat(Qt.PlainText)
@@ -157,7 +175,12 @@ class PermissionDialog(QDialog):
     def _run(self, arguments, callback):
         self.busy = True
         self.allow.setEnabled(False)
-        run_background(QThreadPool.globalInstance(), lambda: self.runner(self.executable, arguments), lambda value: self._delivered(value, callback), self)
+        run_background(
+            QThreadPool.globalInstance(),
+            lambda: self.runner(self.executable, arguments),
+            lambda value: self._delivered(value, callback),
+            self,
+        )
 
     def _delivered(self, value, callback):
         self.busy = False
@@ -184,13 +207,20 @@ class PermissionDialog(QDialog):
         self._update()
 
     def _plan_next(self):
-        missing = [cid for cid, box in self.boxes.items() if box.isChecked() and cid not in self.plans and cid not in self.errors]
+        missing = [
+            cid
+            for cid, box in self.boxes.items()
+            if box.isChecked() and cid not in self.plans and cid not in self.errors
+        ]
         if not missing:
             self.result_label.setText(tr("Запись произойдёт только после «Разрешить»."))
             self._update()
             return
         cid = missing[0]
-        self._run(["install", "--client", cid, "--dry-run", "--command", self.executable], lambda plan: self._planned(cid, plan))
+        self._run(
+            ["install", "--client", cid, "--dry-run", "--command", self.executable],
+            lambda plan: self._planned(cid, plan),
+        )
 
     def _planned(self, cid, plan):
         self.plans[cid] = plan
@@ -203,33 +233,67 @@ class PermissionDialog(QDialog):
         for cid, box in self.boxes.items():
             info = ((self.status or {}).get("clients") or {}).get(cid) or {}
             plan = self.plans.get(cid)
-            what = tr("уже прописано") if plan and not plan.get("changed", True) else trf("добавить {key}", key=SERVER_KEY.get(cid, "mcpServers.seohead")) if box.isChecked() else ""
-            self.paths[cid].setText(joined(" · ", [p for p in (tilde(info.get("file") or ""), what) if p]))
+            what = (
+                tr("уже прописано")
+                if plan and not plan.get("changed", True)
+                else trf("добавить {key}", key=SERVER_KEY.get(cid, "mcpServers.seohead"))
+                if box.isChecked()
+                else ""
+            )
+            self.paths[cid].setText(
+                joined(" · ", [p for p in (tilde(info.get("file") or ""), what) if p])
+            )
         chosen = [cid for cid in self.chosen() if self.plans[cid].get("changed", True)]
-        self.preview.setText("\n".join(f"{tilde(self.plans[c]['file'])}\n{diff_lines(self.plans[c]['block'])}" for c in chosen))
+        self.preview.setText(
+            "\n".join(
+                f"{tilde(self.plans[c]['file'])}\n{diff_lines(self.plans[c]['block'])}"
+                for c in chosen
+            )
+        )
         self.preview_scroll.setVisible(bool(chosen))
-        self.backup_label.setText("\n".join(trf("Бэкап: {path}", path=tilde(self.plans[c]["backup"])) for c in chosen))
+        self.backup_label.setText(
+            "\n".join(trf("Бэкап: {path}", path=tilde(self.plans[c]["backup"])) for c in chosen)
+        )
         self.backup_label.setVisible(bool(chosen))
         self.allow.setEnabled(bool(chosen) and not self.busy and not self.done)
         self.adjustSize()
 
     def approve(self):
-        pending = [cid for cid in self.chosen() if self.plans[cid].get("changed", True) and cid not in self.done]
+        pending = [
+            cid
+            for cid in self.chosen()
+            if self.plans[cid].get("changed", True) and cid not in self.done
+        ]
         if not pending or self.busy:
             return
         for box in self.boxes.values():
             box.setEnabled(False)
         self.cancel.setEnabled(False)
         cid, plan = pending[0], self.plans[pending[0]]
-        self._run(["install", "--client", cid, "--yes", "--command", self.executable, "--expected-sha256", plan["sha256"], "--backup", plan["backup"]],
-                  lambda result: self._installed(cid, result))
+        self._run(
+            [
+                "install",
+                "--client",
+                cid,
+                "--yes",
+                "--command",
+                self.executable,
+                "--expected-sha256",
+                plan["sha256"],
+                "--backup",
+                plan["backup"],
+            ],
+            lambda result: self._installed(cid, result),
+        )
 
     def _installed(self, cid, _result):
         self.done.append(cid)
         if [c for c in self.chosen() if self.plans[c].get("changed", True) and c not in self.done]:
             self.approve()
             return
-        self.result_label.setText(trf("MCP прописан: {clients}", clients=", ".join(dict(CLIENTS)[c] for c in self.done)))
+        self.result_label.setText(
+            trf("MCP прописан: {clients}", clients=", ".join(dict(CLIENTS)[c] for c in self.done))
+        )
         self.cancel.setEnabled(True)
         self.cancel.setText(tr("Готово"))
         self.cancel.clicked.disconnect()
@@ -270,7 +334,12 @@ class IntegrationPanel(QWidget):
     def handlers(self):
         if self.state is None:
             return {}
-        return {"toggle": self.toggle, "profile": self.change_profile, "connect": self.connect_client, "restore": self.restore}
+        return {
+            "toggle": self.toggle,
+            "profile": self.change_profile,
+            "connect": self.connect_client,
+            "restore": self.restore,
+        }
 
     def _render(self):
         body = sheet.sections(self.store, self.state, self.backups, self.handlers())
@@ -295,7 +364,12 @@ class IntegrationPanel(QWidget):
         if self.busy:
             return
         self.busy = True
-        run_background(QThreadPool.globalInstance(), function, lambda value: self._received(value, callback), self)
+        run_background(
+            QThreadPool.globalInstance(),
+            function,
+            lambda value: self._received(value, callback),
+            self,
+        )
 
     def _received(self, value, callback):
         self.busy = False
@@ -339,14 +413,29 @@ class IntegrationPanel(QWidget):
         self._change(["enable" if enabled else "disable", "--actor", ACTOR])
 
     def change_profile(self, profile):
-        self._change(["enable" if (self.state or {}).get("enabled") else "disable", "--profile", profile, "--actor", ACTOR])
+        self._change(
+            [
+                "enable" if (self.state or {}).get("enabled") else "disable",
+                "--profile",
+                profile,
+                "--actor",
+                ACTOR,
+            ]
+        )
 
     def connect_client(self, client):
         PermissionDialog(self.executable, (client,), self, self.runner).exec_()
         self.refresh()
 
     def restore(self, client):
-        choice = QMessageBox.question(self, tr("Восстановить конфиг MCP"), tr("Восстановить конфиг клиента из последнего проверенного бэкапа? Запись SEOHEAD будет убрана."),
-                                      QMessageBox.Yes | QMessageBox.Cancel, QMessageBox.Cancel)
+        choice = QMessageBox.question(
+            self,
+            tr("Восстановить конфиг MCP"),
+            tr(
+                "Восстановить конфиг клиента из последнего проверенного бэкапа? Запись SEOHEAD будет убрана."
+            ),
+            QMessageBox.Yes | QMessageBox.Cancel,
+            QMessageBox.Cancel,
+        )
         if choice == QMessageBox.Yes:
             self._change(["uninstall", "--client", client, "--yes"])

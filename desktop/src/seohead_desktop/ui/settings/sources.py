@@ -32,7 +32,13 @@ class SourcesPage(QWidget):
         super().__init__()
         self._context = context
         self.registry, self.readiness, self.spend = {}, {}, None
-        self.status, self.auth, self.verified, self.checked_at, self.doctor_lines = None, None, {}, None, None
+        self.status, self.auth, self.verified, self.checked_at, self.doctor_lines = (
+            None,
+            None,
+            {},
+            None,
+            None,
+        )
         self.range = "month"
         self.view = ("list",)
         self.loaded = self._busy = False
@@ -47,15 +53,26 @@ class SourcesPage(QWidget):
 
     # data
     def _ask(self, operation, callback, on_error=None, **kwargs):
-        self._context.request("sources", operation=operation, callback=callback, on_error=on_error or self._failed, owner=self,
-                              project=self._context.project_directory, **kwargs)
+        self._context.request(
+            "sources",
+            operation=operation,
+            callback=callback,
+            on_error=on_error or self._failed,
+            owner=self,
+            project=self._context.project_directory,
+            **kwargs,
+        )
 
     def _snapshot(self, result):
         self.loaded = True
         self.registry, self.readiness = result.get("registry") or {}, result.get("readiness") or {}
         self.spend, self.errors = result.get("spend"), result.get("errors") or []
         if not self.registry and not self.readiness:
-            self._show(hint("Ядро не вернуло список источников. Проверьте его командой seohead provider-readiness."))
+            self._show(
+                hint(
+                    "Ядро не вернуло список источников. Проверьте его командой seohead provider-readiness."
+                )
+            )
             return
         if self._context.project_directory:
             self._ask("status", self._got_status, on_error=lambda _reason: None)
@@ -93,17 +110,29 @@ class SourcesPage(QWidget):
     def start_verify(self, pid):
         self.verified[pid] = "running"
         self.render()
-        self._ask("verify", lambda r: self._verified(pid, r), on_error=lambda text: self._verified(pid, {"error": text}), provider=pid)
+        self._ask(
+            "verify",
+            lambda r: self._verified(pid, r),
+            on_error=lambda text: self._verified(pid, {"error": text}),
+            provider=pid,
+        )
 
     def _verified(self, pid, result):
         self.verified[pid] = result
         if result.get("verified") and pid in self.readiness:
-            self.readiness[pid]["readiness_state"], self.readiness[pid]["verified"] = "verified", True
+            self.readiness[pid]["readiness_state"], self.readiness[pid]["verified"] = (
+                "verified",
+                True,
+            )
         self.render()
 
     def set_range(self, value):
         self.range = value
-        self._ask("spend", self._got_spend, since=datetime.now().strftime("%Y-%m-01") if value == "month" else None)
+        self._ask(
+            "spend",
+            self._got_spend,
+            since=datetime.now().strftime("%Y-%m-01") if value == "month" else None,
+        )
 
     def _got_spend(self, result):
         self.spend = result.get("spend")
@@ -129,7 +158,12 @@ class SourcesPage(QWidget):
 
     def render(self):
         kind = self.view[0]
-        body = {"list": self._list, "detail": lambda: detail_view(self, self.view[-1]), "howto": lambda: howto_view(self), "spend": lambda: spend_view(self)}[kind]()
+        body = {
+            "list": self._list,
+            "detail": lambda: detail_view(self, self.view[-1]),
+            "howto": lambda: howto_view(self),
+            "spend": lambda: spend_view(self),
+        }[kind]()
         self._show(body)
 
     def _show(self, widget):
@@ -155,15 +189,21 @@ class SourcesPage(QWidget):
         guide.clicked.connect(lambda: self._open(("howto",)))
         spend = action_button("Расходы", icon="payments")
         spend.clicked.connect(lambda: self._open(("spend",)))
-        check = action_button("Проверить все", icon="stethoscope", role="primary", enabled=not self._busy)
+        check = action_button(
+            "Проверить все", icon="stethoscope", role="primary", enabled=not self._busy
+        )
         check.clicked.connect(self.check_all)
         for button in (guide, spend, check):
             head_layout.addWidget(button)
         kpis = QWidget()
         kpi_layout = QHBoxLayout(kpis)
         kpi_layout.setContentsMargins(0, 8, 0, 8)
-        for kpi in (Kpi(trf("подключено и проверено из {total}", total=len(ids)), count("verified")), Kpi("ключ задан, не проверен", count("configured_unverified")),
-                    Kpi("истёк токен / ошибка", count("expired", "revoked", "invalid", "failed")), Kpi("нужен ключ", count("missing", "not_configured"))):
+        for kpi in (
+            Kpi(trf("подключено и проверено из {total}", total=len(ids)), count("verified")),
+            Kpi("ключ задан, не проверен", count("configured_unverified")),
+            Kpi("истёк токен / ошибка", count("expired", "revoked", "invalid", "failed")),
+            Kpi("нужен ключ", count("missing", "not_configured")),
+        ):
             kpi.caption.setWordWrap(True)
             kpi.setMinimumWidth(0)
             kpi_layout.addWidget(kpi)
@@ -175,24 +215,44 @@ class SourcesPage(QWidget):
                 _state, kind, text, icon = described[pid]
                 sub = credential_line(self.registry.get(pid), self.readiness.get(pid), refs=False)
                 if self.checked_at:
-                    sub = (sub + " · " if sub else "") + trf("проверено {time}", time=self.checked_at)
+                    sub = (sub + " · " if sub else "") + trf(
+                        "проверено {time}", time=self.checked_at
+                    )
                 row = SourceRow(pid, paid_kind(self.registry.get(pid)), kind, text, icon, sub)
                 row.opened.connect(self.show_detail)
                 column.append(row)
         right.append(group_label("Другие источники"))
         right.append(_waiting_row())
         lines = self._doctor_text(described)
-        return page(head, kpis, Columns(left, right, breakpoint=1120),
-                    terminal("seohead sources-doctor", lines),
-                    hint("Состояние берётся из локальной настройки ядра. Проверка доступа у самого провайдера выполняется отдельно, в карточке источника."))
+        return page(
+            head,
+            kpis,
+            Columns(left, right, breakpoint=1120),
+            terminal("seohead sources-doctor", lines),
+            hint(
+                "Состояние берётся из локальной настройки ядра. Проверка доступа у самого провайдера выполняется отдельно, в карточке источника."
+            ),
+        )
 
     def _doctor_text(self, described):
         if self.doctor_lines:
             return self.doctor_lines
         if not self.checked_at:
-            return [tr("# «Проверить все»: где ядро нашло ключи · сеть не используется, доступ у провайдера не проверяется")]
-        names = [pid for pid, (state, *_rest) in described.items() if state in {"missing", "not_configured"}]
-        found = sum(1 for state, *_rest in described.values() if state in {"configured_unverified", "verified", "not_required"})
+            return [
+                tr(
+                    "# «Проверить все»: где ядро нашло ключи · сеть не используется, доступ у провайдера не проверяется"
+                )
+            ]
+        names = [
+            pid
+            for pid, (state, *_rest) in described.items()
+            if state in {"missing", "not_configured"}
+        ]
+        found = sum(
+            1
+            for state, *_rest in described.values()
+            if state in {"configured_unverified", "verified", "not_required"}
+        )
         lines = [trf("✓ {n} источников настроено", n=found)]
         if names:
             lines.append(trf("! нужен ключ: {names}", names=", ".join(names)))
@@ -209,7 +269,12 @@ def _waiting_row():
     label = QLabel(tr("Topvisor, DataForSEO SERP, Screaming Frog"))
     label.setProperty("text_style", "meta")
     layout.addWidget(label, 1)
-    layout.addWidget(waiting_badge(OTHER_GAP, "Реестр источников ядра: Topvisor, DataForSEO, Screaming Frog, дата и срок токена"))
+    layout.addWidget(
+        waiting_badge(
+            OTHER_GAP,
+            "Реестр источников ядра: Topvisor, DataForSEO, Screaming Frog, дата и срок токена",
+        )
+    )
     return box
 
 

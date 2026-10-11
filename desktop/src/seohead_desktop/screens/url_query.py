@@ -15,7 +15,17 @@ from PyQt5.QtCore import QCoreApplication, QObject, QProcess, QTimer, pyqtSignal
 from ..i18n import tr
 
 PAGE = 200  # the core allows at most 200 rows per page
-QUERY_COLUMNS = ("url_id", "url", "status_code", "content_type", "indexable", "title", "crawl_depth", "word_count", "response_time")
+QUERY_COLUMNS = (
+    "url_id",
+    "url",
+    "status_code",
+    "content_type",
+    "indexable",
+    "title",
+    "crawl_depth",
+    "word_count",
+    "response_time",
+)
 MAX_OUTPUT = 8 * 1024 * 1024
 TIMEOUT_MS = 60_000
 # reason_code of a rejected query -> Russian explanation; the code itself stays in the tooltip
@@ -29,13 +39,25 @@ REASONS = {
 }
 
 
-def query_arguments(scan, *, filters=(), sort=None, direction="asc", offset=0, limit=PAGE, columns=QUERY_COLUMNS):
+def query_arguments(
+    scan, *, filters=(), sort=None, direction="asc", offset=0, limit=PAGE, columns=QUERY_COLUMNS
+):
     """Argument list of ``scan-url-query``; the filters are a list of {column, op, value} objects of the core contract."""
     if not isinstance(scan, str) or not scan:
         raise ValueError("Выберите сохранённый скан")
     if type(offset) is not int or offset < 0 or type(limit) is not int or not 1 <= limit <= PAGE:
         raise ValueError("Страница: смещение не меньше 0, строк от 1 до 200")
-    arguments = ["scan-url-query", "--scan", scan, "--offset", str(offset), "--limit", str(limit), "--columns", ",".join(columns)]
+    arguments = [
+        "scan-url-query",
+        "--scan",
+        scan,
+        "--offset",
+        str(offset),
+        "--limit",
+        str(limit),
+        "--columns",
+        ",".join(columns),
+    ]
     if filters:
         arguments += ["--filters", json.dumps(list(filters), ensure_ascii=False)]
     if sort:
@@ -43,14 +65,35 @@ def query_arguments(scan, *, filters=(), sort=None, direction="asc", offset=0, l
     return arguments
 
 
-def links_arguments(scan, url, *, direction="out", offset=0, limit=100, contains="", nofollow=False):
+def links_arguments(
+    scan, url, *, direction="out", offset=0, limit=100, contains="", nofollow=False
+):
     """``scan-link-inspect --view links``: outgoing or incoming links of one URL, filtered and paged by the core."""
     if not isinstance(scan, str) or not scan or not isinstance(url, str) or not url:
         raise ValueError("Выберите сохранённый скан и URL")
-    if direction not in ("in", "out") or type(offset) is not int or offset < 0 or type(limit) is not int or not 1 <= limit <= 200:
+    if (
+        direction not in ("in", "out")
+        or type(offset) is not int
+        or offset < 0
+        or type(limit) is not int
+        or not 1 <= limit <= 200
+    ):
         raise ValueError("Страница ссылок: направление in или out, до 200 строк")
-    arguments = ["scan-link-inspect", "--scan", scan, "--view", "links", "--url", url, "--direction", direction,
-                 "--offset", str(offset), "--limit", str(limit)]
+    arguments = [
+        "scan-link-inspect",
+        "--scan",
+        scan,
+        "--view",
+        "links",
+        "--url",
+        url,
+        "--direction",
+        direction,
+        "--offset",
+        str(offset),
+        "--limit",
+        str(limit),
+    ]
     if contains.strip():
         arguments.append("--contains=" + contains.strip())
     if nofollow:
@@ -94,7 +137,9 @@ def http_badge(status):
     """(badge kind, text) of a status code: 2xx ok, 3xx info, 4xx warn, 5xx err; no response is its own muted badge."""
     if type(status) is not int:
         return "mut", tr("Нет ответа")
-    kind = "err" if status >= 500 else "warn" if status >= 400 else "info" if status >= 300 else "ok"
+    kind = (
+        "err" if status >= 500 else "warn" if status >= 400 else "info" if status >= 300 else "ok"
+    )
     return kind, str(status)
 
 
@@ -129,7 +174,15 @@ def type_text(content_type):
     kind = (content_type or "").split(";")[0].strip().lower()
     if not kind:
         return None
-    for needle, name in (("html", "HTML"), ("json", "JSON"), ("image/", "Image"), ("css", "CSS"), ("javascript", "JS"), ("pdf", "PDF"), ("xml", "XML")):
+    for needle, name in (
+        ("html", "HTML"),
+        ("json", "JSON"),
+        ("image/", "Image"),
+        ("css", "CSS"),
+        ("javascript", "JS"),
+        ("pdf", "PDF"),
+        ("xml", "XML"),
+    ):
         if needle in kind:
             return name
     return kind
@@ -137,14 +190,20 @@ def type_text(content_type):
 
 def seconds_to_ms(value):
     """Response time seconds -> whole milliseconds; None when it is not a number."""
-    return round(value * 1000) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+    return (
+        round(value * 1000)
+        if isinstance(value, (int, float)) and not isinstance(value, bool)
+        else None
+    )
 
 
 class CoreJob(QObject):
     """One ``seohead`` process at a time; ``start`` replaces the running one, the stale answer is never delivered."""
 
-    done = pyqtSignal(object, dict)    # token, parsed JSON answer (may carry ok: false)
-    failed = pyqtSignal(object, str)   # token, Russian reason (process error, no JSON, too large, timeout)
+    done = pyqtSignal(object, dict)  # token, parsed JSON answer (may carry ok: false)
+    failed = pyqtSignal(
+        object, str
+    )  # token, Russian reason (process error, no JSON, too large, timeout)
 
     def __init__(self, host, parent=None):
         super().__init__(parent)
@@ -171,7 +230,14 @@ class CoreJob(QObject):
             return
         self.cancel()
         process = QProcess(self)
-        job = {"token": token, "process": process, "stdout": bytearray(), "stderr": bytearray(), "failure": None, "dead": False}
+        job = {
+            "token": token,
+            "process": process,
+            "stdout": bytearray(),
+            "stderr": bytearray(),
+            "failure": None,
+            "dead": False,
+        }
         self._job = job
         process.readyReadStandardOutput.connect(lambda: self._read(job))
         process.readyReadStandardError.connect(lambda: self._read(job))

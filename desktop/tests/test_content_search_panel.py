@@ -41,9 +41,31 @@ class ContentSearchPanelTests(unittest.TestCase):
         self.assertEqual(calls, [])
 
     def test_unknown_evidence_is_not_absence_and_global_counts_survive_empty_page(self):
-        payload = {"state": "ready", "operation_status": "partial", "query": "GTM-", "scope": "head_markup", "representation": "static", "rows": [{"url": "a", "presence": True}, {"url": "b", "presence": False}, {"url": "c", "presence": None}], "coverage": {"present_documents": 1, "absent_documents": 4, "unavailable_documents": 1, "non_html_documents": 0}, "total": 6, "offset": 0}
+        payload = {
+            "state": "ready",
+            "operation_status": "partial",
+            "query": "GTM-",
+            "scope": "head_markup",
+            "representation": "static",
+            "rows": [
+                {"url": "a", "presence": True},
+                {"url": "b", "presence": False},
+                {"url": "c", "presence": None},
+            ],
+            "coverage": {
+                "present_documents": 1,
+                "absent_documents": 4,
+                "unavailable_documents": 1,
+                "non_html_documents": 0,
+            },
+            "total": 6,
+            "offset": 0,
+        }
         self.panel.set_payload(payload)
-        self.assertEqual([row["presence_label"] for row in self.panel.model.rows], ["Найдена", "Не найдена", "Не проверено"])
+        self.assertEqual(
+            [row["presence_label"] for row in self.panel.model.rows],
+            ["Найдена", "Не найдена", "Не проверено"],
+        )
         original = self.panel.coverage.text()
         self.assertIn("Не найдена: 4", original)
         self.assertIn("не подтверждено", self.panel.message.text())
@@ -63,7 +85,15 @@ class ContentSearchPanelTests(unittest.TestCase):
         self.assertTrue(self.panel.start.isEnabled())
         calls = []
         self.panel.pageRequested.connect(calls.append)
-        self.panel.set_payload({"state": "ready", "rows": [{"url": str(i)} for i in range(100)], "offset": 100, "has_more": True, "total": 245})
+        self.panel.set_payload(
+            {
+                "state": "ready",
+                "rows": [{"url": str(i)} for i in range(100)],
+                "offset": 100,
+                "has_more": True,
+                "total": 245,
+            }
+        )
         QTest.mouseClick(self.panel.next, Qt.LeftButton)
         QTest.mouseClick(self.panel.previous, Qt.LeftButton)
         self.assertEqual(calls, [200, 0])

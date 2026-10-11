@@ -14,10 +14,42 @@ from tests._qt import sweep_widgets
 from tests._screens_host import FakeHost
 
 TOOLS = [
-    {"name": "seo_robots_check", "command": "robots-check", "summary": "Parse robots.txt.", "network": True, "writes": False, "destructive": False, "paid": False},
-    {"name": "seo_images_optimize", "command": "images-optimize", "summary": "Compress images.", "network": False, "writes": True, "destructive": False, "paid": False},
-    {"name": "seo_keywords_expand", "command": "keywords-expand", "summary": "Expand a query.", "network": True, "writes": False, "destructive": False, "paid": True},
-    {"name": "seo_wipe_cache", "command": "", "summary": "Remove cache.", "network": False, "writes": True, "destructive": True, "paid": False},
+    {
+        "name": "seo_robots_check",
+        "command": "robots-check",
+        "summary": "Parse robots.txt.",
+        "network": True,
+        "writes": False,
+        "destructive": False,
+        "paid": False,
+    },
+    {
+        "name": "seo_images_optimize",
+        "command": "images-optimize",
+        "summary": "Compress images.",
+        "network": False,
+        "writes": True,
+        "destructive": False,
+        "paid": False,
+    },
+    {
+        "name": "seo_keywords_expand",
+        "command": "keywords-expand",
+        "summary": "Expand a query.",
+        "network": True,
+        "writes": False,
+        "destructive": False,
+        "paid": True,
+    },
+    {
+        "name": "seo_wipe_cache",
+        "command": "",
+        "summary": "Remove cache.",
+        "network": False,
+        "writes": True,
+        "destructive": True,
+        "paid": False,
+    },
 ]
 
 
@@ -73,7 +105,9 @@ class ToolsScreenTests(unittest.TestCase):
         network = model.index(row["seo_robots_check"], 2).data(Qt.UserRole + 40)
         self.assertEqual(network[0], "info")
         self.assertIsNone(model.index(row["seo_robots_check"], 3).data(Qt.UserRole + 40))
-        self.assertEqual(model.index(row["seo_keywords_expand"], 4).data(Qt.UserRole + 40), ("warn", "₽"))
+        self.assertEqual(
+            model.index(row["seo_keywords_expand"], 4).data(Qt.UserRole + 40), ("warn", "₽")
+        )
         self.assertEqual(model.index(row["seo_wipe_cache"], 3).data(Qt.UserRole + 40)[0], "err")
         self.assertEqual(model.index(row["seo_wipe_cache"], 0).data(), "seo_wipe_cache")
 
@@ -82,7 +116,9 @@ class ToolsScreenTests(unittest.TestCase):
         screen.set_mode("paid")
         self.assertEqual([t["name"] for t in screen.model.rows], ["seo_keywords_expand"])
         screen.set_mode("writes")
-        self.assertEqual({t["name"] for t in screen.model.rows}, {"seo_images_optimize", "seo_wipe_cache"})
+        self.assertEqual(
+            {t["name"] for t in screen.model.rows}, {"seo_images_optimize", "seo_wipe_cache"}
+        )
         screen.set_mode("all")
         screen.search.setText("robots")
         self.assertEqual([t["name"] for t in screen.model.rows], ["seo_robots_check"])

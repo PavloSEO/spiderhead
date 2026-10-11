@@ -11,12 +11,15 @@ is invented. ``busy`` needs the project's site to be served locally (the shop st
 
 from __future__ import annotations
 
+import json
 import time
+from pathlib import Path
 
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QColor, QPainter, QPixmap
 from PyQt5.QtWidgets import QApplication, QCheckBox, QLineEdit, QToolButton
 
+FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "core_fixtures"
 
 
 def pump(times=10, pause=0.02):
@@ -69,7 +72,9 @@ class Job:
         try:
             image = QPixmap(width, height)
             window.render(image)
-            return {"newscan": self.dialog, "scanset": self.settings, "quickscan": self.quick}[self.kind](window, image, width, height)
+            return {"newscan": self.dialog, "scanset": self.settings, "quickscan": self.quick}[
+                self.kind
+            ](window, image, width, height)
         finally:
             window.close()
 
@@ -78,7 +83,11 @@ class Job:
         painter = QPainter(image)
         if dim:
             painter.fillRect(image.rect(), QColor(0, 0, 0, 100))
-        painter.drawPixmap((image.width() - shot.width()) // 2 if x is None else x, (image.height() - shot.height()) // 2 if y is None else y, shot)
+        painter.drawPixmap(
+            (image.width() - shot.width()) // 2 if x is None else x,
+            (image.height() - shot.height()) // 2 if y is None else y,
+            shot,
+        )
         painter.end()
         return image
 
@@ -134,10 +143,19 @@ class Job:
 
         site = ((window.project_result or {}).get("project") or {}).get("site") or {}
         descriptor = window.crawl_descriptor
-        if descriptor is None:  # no project: the saved core answer for the settings descriptor (tests/core_fixtures)
-            descriptor = json.loads((FIXTURES / "crawl_describe_settings.json").read_text(encoding="utf-8"))
-        return ScanDraft(descriptor, target=site.get("target") or "", host=site.get("host") or "",
-                         project_directory=window.project_directory or "", prefs=window.prefs)
+        if (
+            descriptor is None
+        ):  # no project: the saved core answer for the settings descriptor (tests/core_fixtures)
+            descriptor = json.loads(
+                (FIXTURES / "crawl_describe_settings.json").read_text(encoding="utf-8")
+            )
+        return ScanDraft(
+            descriptor,
+            target=site.get("target") or "",
+            host=site.get("host") or "",
+            project_directory=window.project_directory or "",
+            prefs=window.prefs,
+        )
 
     # ---- «Быстрый запуск» -----------------------------------------------------------------------------------------
     def quick(self, window, image, width, height):

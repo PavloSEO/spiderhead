@@ -21,8 +21,8 @@ from PyQt5.QtWidgets import (
 )
 
 from .. import i18n
-from ..schedule_core import ScheduleJobs, read_schedule
 from ..i18n import tr, trf
+from ..schedule_core import ScheduleJobs, read_schedule
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import Kpi, StatePanel, clear_layout, no_project_panel, show_empty, waiting_badge
 from .base import Screen
@@ -41,9 +41,20 @@ from .work import (
     task_state_panel,
 )
 
-SEVERITIES = {"critical": "критичных", "error": "ошибок", "warning": "предупреждений", "notice": "замечаний"}
+SEVERITIES = {
+    "critical": "критичных",
+    "error": "ошибок",
+    "warning": "предупреждений",
+    "notice": "замечаний",
+}
 SOURCES = {"native": "Краулер", "sitemap": "Sitemap", "sf": "Импорт SF"}
-LIFECYCLES = {"finished": "Завершён", "running": "Идёт", "interrupted": "Прерван", "failed": "Ошибка", "cancelled": "Отменён"}
+LIFECYCLES = {
+    "finished": "Завершён",
+    "running": "Идёт",
+    "interrupted": "Прерван",
+    "failed": "Ошибка",
+    "cancelled": "Отменён",
+}
 
 
 class LinkKpi(Kpi):
@@ -73,7 +84,9 @@ class QuickAction(QFrame):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(14, 12, 14, 12)
         layout.setSpacing(6)
-        layout.addWidget(MaterialIconLabel(icon, 22, color="role:primary" if enabled else "role:text_muted"))
+        layout.addWidget(
+            MaterialIconLabel(icon, 22, color="role:primary" if enabled else "role:text_muted")
+        )
         name = QLabel(tr(title))
         name.setProperty("text_style", "control")
         layout.addWidget(name)
@@ -95,7 +108,9 @@ class QuickAction(QFrame):
 
 def selected_scan(host):
     rows = host.scan_model.rows
-    return next((r for r in rows if r.get("path") == host.selected_scan_path), rows[0] if rows else None)
+    return next(
+        (r for r in rows if r.get("path") == host.selected_scan_path), rows[0] if rows else None
+    )
 
 
 def scan_urls(scan):
@@ -110,14 +125,47 @@ class SimpleScreen(Screen):
     def __init__(self, host):
         super().__init__(host)
         self.tasks = RowsModel(task_columns()[:3])
-        self.scans = RowsModel((
-            ("Скан", lambda r: local_stamp(r.get("finished_at") or r.get("created_at"), True) or tr("Нет данных"), None, lambda r: r.get("uuid") or ""),
-            ("Состояние", self._scan_state, lambda r: ("ok" if r.get("lifecycle") == "finished" and r.get("crawl_partial") is False and r.get("corpus_partial") is False
-                                                       else "warn" if r.get("lifecycle") == "finished" else "info" if r.get("lifecycle") == "running" else "err" if r.get("lifecycle") in ("failed", "interrupted") else "mut",
-                                                       self._scan_state(r)), None),
-            ("Источник", lambda r: tr(SOURCES.get(r.get("source_kind"), r.get("source_kind") or "Нет данных")), None, None),
-            ("URL", lambda r: number(scan_urls(r)) or tr("Нет данных"), None, None),
-        ))
+        self.scans = RowsModel(
+            (
+                (
+                    "Скан",
+                    lambda r: (
+                        local_stamp(r.get("finished_at") or r.get("created_at"), True)
+                        or tr("Нет данных")
+                    ),
+                    None,
+                    lambda r: r.get("uuid") or "",
+                ),
+                (
+                    "Состояние",
+                    self._scan_state,
+                    lambda r: (
+                        "ok"
+                        if r.get("lifecycle") == "finished"
+                        and r.get("crawl_partial") is False
+                        and r.get("corpus_partial") is False
+                        else "warn"
+                        if r.get("lifecycle") == "finished"
+                        else "info"
+                        if r.get("lifecycle") == "running"
+                        else "err"
+                        if r.get("lifecycle") in ("failed", "interrupted")
+                        else "mut",
+                        self._scan_state(r),
+                    ),
+                    None,
+                ),
+                (
+                    "Источник",
+                    lambda r: tr(
+                        SOURCES.get(r.get("source_kind"), r.get("source_kind") or "Нет данных")
+                    ),
+                    None,
+                    None,
+                ),
+                ("URL", lambda r: number(scan_urls(r)) or tr("Нет данных"), None, None),
+            )
+        )
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         self.empty_holder = QVBoxLayout()
@@ -140,7 +188,12 @@ class SimpleScreen(Screen):
         self.kpi_layout.setContentsMargins(0, 0, 0, 0)
         self.kpi_layout.setSpacing(12)
         center.addWidget(self.kpi_host)
-        self.scan_kpi, self.issues_kpi, self.fixed_kpi, self.tasks_kpi = (LinkKpi("Последний скан"), LinkKpi("Проблемы"), LinkKpi("Исправлено с прошлого скана"), Kpi("Задачи"))
+        self.scan_kpi, self.issues_kpi, self.fixed_kpi, self.tasks_kpi = (
+            LinkKpi("Последний скан"),
+            LinkKpi("Проблемы"),
+            LinkKpi("Исправлено с прошлого скана"),
+            Kpi("Задачи"),
+        )
         self.scan_kpi.clicked.connect(lambda: self.host.navigation.select_section("scans"))
         self.issues_kpi.clicked.connect(lambda: self.host.navigation.select_section("issues"))
         self.fixed_kpi.clicked.connect(lambda: self.host.navigation.select_section("compare"))
@@ -169,7 +222,9 @@ class SimpleScreen(Screen):
     @staticmethod
     def _scan_state(row):
         label = tr(LIFECYCLES.get(row.get("lifecycle"), row.get("lifecycle") or "Нет данных"))
-        if row.get("lifecycle") == "finished" and (row.get("crawl_partial") or row.get("corpus_partial")):
+        if row.get("lifecycle") == "finished" and (
+            row.get("crawl_partial") or row.get("corpus_partial")
+        ):
             return label + " · " + tr("частичный")
         return label
 
@@ -185,7 +240,11 @@ class SimpleScreen(Screen):
         titles.addWidget(self.eyebrow)
         titles.addWidget(title)
         row.addLayout(titles, 1)
-        for icon, tip, issue in (("event_repeat", "Расписание сканов", 940), ("ios_share", "Экспорт и отчёты", None), ("settings", "Настройки проекта", 947)):
+        for icon, tip, issue in (
+            ("event_repeat", "Расписание сканов", 940),
+            ("ios_share", "Экспорт и отчёты", None),
+            ("settings", "Настройки проекта", 947),
+        ):
             button = QToolButton()
             button.setProperty("role", "icon")
             button.setIcon(material_icon(icon))
@@ -195,7 +254,9 @@ class SimpleScreen(Screen):
                 button.setToolTip(f"{tr(tip)} · {tr('Недоступно в этой версии ядра')}")
             else:
                 button.setToolTip(tr(tip))
-                button.clicked.connect(lambda _c=False: self.host.navigation.select_section("reports"))
+                button.clicked.connect(
+                    lambda _c=False: self.host.navigation.select_section("reports")
+                )
             row.addWidget(button, 0, Qt.AlignBottom)
         compare = QPushButton(tr("Сравнить сканы"))
         compare.setIcon(material_icon("compare_arrows"))
@@ -212,10 +273,21 @@ class SimpleScreen(Screen):
         host = self.host
         crawler = host.can_open_crawler()
         tiles = [
-            QuickAction("replay", "Перепроверить URL задач", "Скан списком по открытым задачам", issue=926, enabled=False),
+            QuickAction(
+                "replay",
+                "Перепроверить URL задач",
+                "Скан списком по открытым задачам",
+                issue=926,
+                enabled=False,
+            ),
             QuickAction("description", "Отчёт исполнителям", "DOCX и XLSX из проблем скана"),
             QuickAction("table_view", "Таблица URL", "Фильтры, детали, экспорт"),
-            QuickAction("travel_explore", "Быстрый краул", "Без проекта, как Screaming Frog", enabled=crawler),
+            QuickAction(
+                "travel_explore",
+                "Быстрый краул",
+                "Без проекта, как Screaming Frog",
+                enabled=crawler,
+            ),
         ]
         tiles[1].clicked.connect(lambda: host.navigation.select_section("reports"))
         tiles[2].clicked.connect(lambda: host.navigation.select_section("url"))
@@ -235,7 +307,9 @@ class SimpleScreen(Screen):
         bar = QHBoxLayout()
         bar.setContentsMargins(4, 0, 12, 0)
         self.tabs = QTabBar()
-        self.tabs.setUsesScrollButtons(True)  # labels keep their full text at narrow widths: the bar scrolls
+        self.tabs.setUsesScrollButtons(
+            True
+        )  # labels keep their full text at narrow widths: the bar scrolls
         self.tabs.setElideMode(Qt.ElideNone)
         self.tabs.setProperty("tabs", "underline")
         self.tabs.setDrawBase(False)
@@ -247,7 +321,9 @@ class SimpleScreen(Screen):
         self.from_issue = QPushButton(tr("Задача из проблемы"))
         self.from_issue.setIcon(material_icon("add"))
         self.from_issue.setEnabled(False)
-        self.from_issue.setToolTip(f"{tr('Создание задач из находок')} · {tr('Недоступно в этой версии ядра')}")
+        self.from_issue.setToolTip(
+            f"{tr('Создание задач из находок')} · {tr('Недоступно в этой версии ядра')}"
+        )
         bar.addWidget(self.from_issue)
         layout.addLayout(bar)
         self.pages = QStackedWidget()
@@ -271,7 +347,9 @@ class SimpleScreen(Screen):
         scans_layout.setContentsMargins(0, 0, 0, 0)
         self.scan_state = QVBoxLayout()
         scans_layout.addLayout(self.scan_state)
-        self.scan_table = build_table(self.scans, fixed={1: 190, 2: 110, 3: 90}, stretch=0, badge_column=1)
+        self.scan_table = build_table(
+            self.scans, fixed={1: 190, 2: 110, 3: 90}, stretch=0, badge_column=1
+        )
         self.scan_table.doubleClicked.connect(self._open_scan)
         self.scan_table.selectionModel().currentRowChanged.connect(self._scan_picked)
         scans_layout.addWidget(self.scan_table, 1)
@@ -301,7 +379,7 @@ class SimpleScreen(Screen):
             for start in range(0, 4, columns):
                 row = QHBoxLayout()
                 row.setSpacing(12)
-                for widget in widgets[start:start + columns]:
+                for widget in widgets[start : start + columns]:
                     row.addWidget(widget, 1)
                 layout.addLayout(row)
 
@@ -313,10 +391,20 @@ class SimpleScreen(Screen):
         host = self.host
         status, _text = project_state(host)
         if status == "none":
-            show_empty(self.empty_holder, self.content, no_project_panel(host, "Откройте проект, чтобы увидеть сканы и задачи"))
+            show_empty(
+                self.empty_holder,
+                self.content,
+                no_project_panel(host, "Откройте проект, чтобы увидеть сканы и задачи"),
+            )
             return
         if status == "loading":
-            show_empty(self.empty_holder, self.content, StatePanel("loading", "Загрузка проекта…", "Читаем сохранённые данные проекта из ядра"))
+            show_empty(
+                self.empty_holder,
+                self.content,
+                StatePanel(
+                    "loading", "Загрузка проекта…", "Читаем сохранённые данные проекта из ядра"
+                ),
+            )
             return
         show_empty(self.empty_holder, self.content, None)
         self._layout_grids(force=True)
@@ -336,18 +424,34 @@ class SimpleScreen(Screen):
         self.scans.set_rows(scan_rows)
         clear_layout(self.scan_state)
         if not scan_rows:
-            self.scan_state.addWidget(StatePanel("empty", "В проекте нет сохранённых сканов", "Запустите первый скан кнопкой «Новый скан»", action=("Новый скан", host.scan_preview)))
+            self.scan_state.addWidget(
+                StatePanel(
+                    "empty",
+                    "В проекте нет сохранённых сканов",
+                    "Запустите первый скан кнопкой «Новый скан»",
+                    action=("Новый скан", host.scan_preview),
+                )
+            )
         self.scan_table.setVisible(bool(scan_rows))
         total = host.task_total
         self.tabs.setTabText(0, trf("Задачи · {n}", n=number(total) if total is not None else "—"))
         scans_total = number(len(scan_rows))
         self.tabs.setTabText(1, trf("Сканы · {n}", n=scans_total))
-        self.limits.setText(trf("Показано {shown} из {total}. Исполнитель, URL и время обновления недоступны в этой версии ядра.", shown=len(rows), total=number(total) if total is not None else "—"))
+        self.limits.setText(
+            trf(
+                "Показано {shown} из {total}. Исполнитель, URL и время обновления недоступны в этой версии ядра.",
+                shown=len(rows),
+                total=number(total) if total is not None else "—",
+            )
+        )
         self.task_table.setColumnHidden(2, self.task_table.viewport().width() < 420)
 
     def _request_schedule(self):
         """Next and last scheduled run from the core, read once per opened project (not on every observer poll)."""
-        executable, directory = getattr(self.host, "core_executable", None), getattr(self.host, "project_directory", None)
+        executable, directory = (
+            getattr(self.host, "core_executable", None),
+            getattr(self.host, "project_directory", None),
+        )
         if not executable or not directory:
             self.schedule_line.setText(summary_text(None))
             return
@@ -355,7 +459,12 @@ class SimpleScreen(Screen):
             return
         self._schedule_for = directory
         self.schedule_line.setText(tr("Читаем расписание из ядра…"))
-        self.schedule_jobs.submit(lambda: read_schedule(executable, directory), self._schedule_read, lambda _text: self._schedule_read(None), self)
+        self.schedule_jobs.submit(
+            lambda: read_schedule(executable, directory),
+            self._schedule_read,
+            lambda _text: self._schedule_read(None),
+            self,
+        )
 
     def _schedule_read(self, state):
         self.schedule_line.setText(summary_text(state))
@@ -369,18 +478,34 @@ class SimpleScreen(Screen):
         else:
             urls = number(scan_urls(scan))
             stamp = local_stamp(scan.get("finished_at") or scan.get("created_at"))
-            self.scan_kpi.set_value(stamp or None, " · ".join(part for part in (trf("{n} URL", n=urls) if urls else None, self._scan_state(scan)) if part))
+            self.scan_kpi.set_value(
+                stamp or None,
+                " · ".join(
+                    part
+                    for part in (trf("{n} URL", n=urls) if urls else None, self._scan_state(scan))
+                    if part
+                ),
+            )
             findings = (scan.get("evidence") or {}).get("findings") or {}
             total = findings.get("total")
             if findings.get("state") == "available" and type(total) is int:
-                breakdown = ", ".join(f"{number(n)} {tr(SEVERITIES.get(name, name))}" for name, n in (findings.get("by_severity") or {}).items() if type(n) is int)
+                breakdown = ", ".join(
+                    f"{number(n)} {tr(SEVERITIES.get(name, name))}"
+                    for name, n in (findings.get("by_severity") or {}).items()
+                    if type(n) is int
+                )
                 self.issues_kpi.set_value(number(total), breakdown)
             else:
-                self.issues_kpi.set_value(None, tr("Находки скана не прочитаны · недоступно в этой версии ядра"))
+                self.issues_kpi.set_value(
+                    None, tr("Находки скана не прочитаны · недоступно в этой версии ядра")
+                )
         self.fixed_kpi.set_value(None, tr("Сравнение сканов · недоступно в этой версии ядра"))
         numbers = progress_numbers(host)
         if numbers["complete"] is not None and numbers["total"]:
-            self.tasks_kpi.set_value(f"{number(numbers['complete'])} / {number(numbers['total'])}", tr("пунктов чек-листа выполнено"))
+            self.tasks_kpi.set_value(
+                f"{number(numbers['complete'])} / {number(numbers['total'])}",
+                tr("пунктов чек-листа выполнено"),
+            )
             self.bar.setValue(min(1000, round(1000 * numbers["complete"] / numbers["total"])))
             self.bar.show()
         else:

@@ -98,7 +98,15 @@ class RunModel(QAbstractTableModel):
         if not index.isValid():
             return None
         row, column = self.rows[index.row()], index.column()
-        text = (None, row.title, row.source, row.state_label(), row.urls_text, row.started_text, row.completeness)[column]
+        text = (
+            None,
+            row.title,
+            row.source,
+            row.state_label(),
+            row.urls_text,
+            row.started_text,
+            row.completeness,
+        )[column]
         if role == ROW_ROLE:
             return row
         if role == Qt.DecorationRole and column == 0:
@@ -109,7 +117,9 @@ class RunModel(QAbstractTableModel):
             return text if text else tr("Нет данных")
         if role == Qt.ToolTipRole and column > 0:
             if column == 1:
-                return " · ".join(part for part in (row.id, (row.owned or {}).get("status_reason")) if part)
+                return " · ".join(
+                    part for part in (row.id, (row.owned or {}).get("status_reason")) if part
+                )
             return text if text else tr("Нет данных")
         if role == Qt.ForegroundRole and column > 0 and not text:
             return QColor(theming.roles()["text_3"])
@@ -119,7 +129,13 @@ class RunModel(QAbstractTableModel):
             if column == 3:
                 return GROUP_ORDER.get(row.group, 9)
             if column == 4:
-                value = row.fetched if row.active else row.saved_urls if row.saved_urls is not None else row.fetched
+                value = (
+                    row.fetched
+                    if row.active
+                    else row.saved_urls
+                    if row.saved_urls is not None
+                    else row.fetched
+                )
                 return -1 if value is None else value
             if column == 5:
                 return row.started.timestamp() if row.started else 0.0
@@ -151,7 +167,9 @@ class RunNameDelegate(QStyledItemDelegate):
         cell = QStyleOptionViewItem(option)
         self.initStyleOption(cell, index)
         cell.text = ""
-        (option.widget.style() if option.widget else QApplication.style()).drawControl(QStyle.CE_ItemViewItem, cell, painter, option.widget)
+        (option.widget.style() if option.widget else QApplication.style()).drawControl(
+            QStyle.CE_ItemViewItem, cell, painter, option.widget
+        )
         roles = theming.roles()
         painter.save()
         rect = QRectF(option.rect).adjusted(10, 3, -8, -3)
@@ -159,16 +177,26 @@ class RunNameDelegate(QStyledItemDelegate):
         title_font.setPixelSize(13)
         title_font.setWeight(QFont.Medium)
         painter.setFont(title_font)
-        painter.setPen(QColor(roles["on_selected"] if option.state & QStyle.State_Selected else roles["text"]))
+        painter.setPen(
+            QColor(roles["on_selected"] if option.state & QStyle.State_Selected else roles["text"])
+        )
         half = rect.height() / 2
         title = painter.fontMetrics().elidedText(row.title, Qt.ElideRight, int(rect.width()))
-        painter.drawText(QRectF(rect.left(), rect.top(), rect.width(), half), Qt.AlignLeft | Qt.AlignBottom, title)
+        painter.drawText(
+            QRectF(rect.left(), rect.top(), rect.width(), half),
+            Qt.AlignLeft | Qt.AlignBottom,
+            title,
+        )
         meta_font = QFont(theming.substitution()["mono_family"])
         meta_font.setPixelSize(11)
         painter.setFont(meta_font)
         painter.setPen(QColor(roles["text_3"]))
         meta = painter.fontMetrics().elidedText(row.meta, Qt.ElideRight, int(rect.width()))
-        painter.drawText(QRectF(rect.left(), rect.top() + half, rect.width(), half), Qt.AlignLeft | Qt.AlignTop, meta)
+        painter.drawText(
+            QRectF(rect.left(), rect.top() + half, rect.width(), half),
+            Qt.AlignLeft | Qt.AlignTop,
+            meta,
+        )
         painter.restore()
 
 
@@ -200,7 +228,14 @@ def action_button(text, icon, callback, role=None):
     button = QPushButton(tr(text))
     if role:
         button.setProperty("role", role)
-    button.setIcon(material_icon(icon, theming.roles()["error" if role == "danger" else "primary" if role in ("tonal", "text") else "text"]))
+    button.setIcon(
+        material_icon(
+            icon,
+            theming.roles()[
+                "error" if role == "danger" else "primary" if role in ("tonal", "text") else "text"
+            ],
+        )
+    )
     button.clicked.connect(lambda _checked=False: callback())
     return button
 
@@ -262,7 +297,9 @@ class RunAside(QFrame):
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll.setWidget(self.stack)
         outer.addWidget(scroll, 1)
-        self.empty = StatePanel("empty", "Выберите запуск", "Справа появятся его состояние и счётчики.")
+        self.empty = StatePanel(
+            "empty", "Выберите запуск", "Справа появятся его состояние и счётчики."
+        )
         self.stack.addWidget(self.empty)
         self.stack.addWidget(self._build_live())
         self.stack.addWidget(self._build_stale())
@@ -307,12 +344,22 @@ class RunAside(QFrame):
         grid = QGridLayout()
         grid.setSpacing(8)
         self.cells = {}
-        for index, (key, caption, waiting) in enumerate((("found", "Найдено", None), ("queued", "В очереди", None), ("inflight", "В работе", None),
-                                                          ("fetched", "Сохранено", None), ("excluded", "Исключено", None), ("errors", "Ошибки", LIVE_ISSUE))):
+        for index, (key, caption, waiting) in enumerate(
+            (
+                ("found", "Найдено", None),
+                ("queued", "В очереди", None),
+                ("inflight", "В работе", None),
+                ("fetched", "Сохранено", None),
+                ("excluded", "Исключено", None),
+                ("errors", "Ошибки", LIVE_ISSUE),
+            )
+        ):
             self.cells[key] = CounterCell(caption, waiting)
             grid.addWidget(self.cells[key], index // 3, index % 3)
         layout.addLayout(grid)
-        self.live_pairs = Pairs(("Сейчас, запросов/с", "Лимит запросов/с", "Режим", "Диск запуска", "Связан с задачами"))
+        self.live_pairs = Pairs(
+            ("Сейчас, запросов/с", "Лимит запросов/с", "Режим", "Диск запуска", "Связан с задачами")
+        )
         layout.addWidget(self.live_pairs)
         caption = QLabel(tr("События").upper())
         caption.setProperty("text_style", "overline")
@@ -326,9 +373,17 @@ class RunAside(QFrame):
         buttons.setSpacing(8)
         self.stop_button = action_button("Запросить остановку", "stop_circle", self._stop, "danger")
         buttons.addWidget(self.stop_button, 0, 0)
-        buttons.addWidget(action_button("Открыть наблюдение", "sensors", self.screen.show_monitor), 0, 1)
-        buttons.addWidget(action_button("Журнал", "terminal", lambda: self.host.navigation.select_section("log")), 1, 0)
-        self.live_saved = action_button("Смотреть сохранённое", "table_view", self._open_saved, "tonal")
+        buttons.addWidget(
+            action_button("Открыть наблюдение", "sensors", self.screen.show_monitor), 0, 1
+        )
+        buttons.addWidget(
+            action_button("Журнал", "terminal", lambda: self.host.navigation.select_section("log")),
+            1,
+            0,
+        )
+        self.live_saved = action_button(
+            "Смотреть сохранённое", "table_view", self._open_saved, "tonal"
+        )
         buttons.addWidget(self.live_saved, 1, 1)
         layout.addLayout(buttons)
         layout.addStretch(1)
@@ -341,7 +396,9 @@ class RunAside(QFrame):
         self.stale_pairs = Pairs(("Последний счётчик", "Фаза", "Скорость"))
         layout.addWidget(self.stale_pairs)
         row = QHBoxLayout()
-        row.addWidget(action_button("Повторить чтение", "refresh", lambda: self.host.refresh_project()))
+        row.addWidget(
+            action_button("Повторить чтение", "refresh", lambda: self.host.refresh_project())
+        )
         row.addStretch(1)
         layout.addLayout(row)
         layout.addStretch(1)
@@ -351,20 +408,38 @@ class RunAside(QFrame):
         page, layout = self._page()
         line, self.done_badge, self.done_at = self._status_line()
         layout.addLayout(line)
-        self.done_pairs = Pairs(("URL сохранено", "Полнота", "Источник", "Длительность", "Причина завершения"))
+        self.done_pairs = Pairs(
+            ("URL сохранено", "Полнота", "Источник", "Длительность", "Причина завершения")
+        )
         layout.addWidget(self.done_pairs)
         self.done_reason = QLabel()
         self.done_reason.setProperty("text_style", "meta")
         self.done_reason.setWordWrap(True)
         layout.addWidget(self.done_reason)
-        self.resume_button = action_button("Продолжить с точки остановки", "resume", lambda: self.host.resume_selected_scan())
+        self.resume_button = action_button(
+            "Продолжить с точки остановки", "resume", lambda: self.host.resume_selected_scan()
+        )
         layout.addWidget(self.resume_button, 0, Qt.AlignLeft)
         grid = QGridLayout()
         grid.setSpacing(8)
         self.open_button = action_button("Открыть URL", "table_view", self._open_saved, "tonal")
         grid.addWidget(self.open_button, 0, 0)
-        grid.addWidget(action_button("Сравнить с предыдущим", "compare_arrows", lambda: self.host.navigation.select_section("compare")), 0, 1)
-        grid.addWidget(action_button("Отчёт", "description", lambda: self.host.navigation.select_section("reports")), 1, 0)
+        grid.addWidget(
+            action_button(
+                "Сравнить с предыдущим",
+                "compare_arrows",
+                lambda: self.host.navigation.select_section("compare"),
+            ),
+            0,
+            1,
+        )
+        grid.addWidget(
+            action_button(
+                "Отчёт", "description", lambda: self.host.navigation.select_section("reports")
+            ),
+            1,
+            0,
+        )
         layout.addLayout(grid)
         layout.addStretch(1)
         return page
@@ -387,7 +462,9 @@ class RunAside(QFrame):
             return
         self.name.setText(row.title)
         self.ident.setText(row.id)
-        self.head_icon.set_material_icon(row.badge_icon, theming.theme()["badges"][row.badge_kind][1])
+        self.head_icon.set_material_icon(
+            row.badge_icon, theming.theme()["badges"][row.badge_kind][1]
+        )
         at = scan_common.now()
         if row.group in ("live", "pending"):
             self._fill_live(row, at)
@@ -417,7 +494,13 @@ class RunAside(QFrame):
             self.live_ratio.setText(tr("Нет данных"))
             self.live_bar.setRange(0, 1)
             self.live_bar.setValue(0)
-        for key, value in (("found", row.found), ("queued", row.queued), ("inflight", row.inflight), ("fetched", row.fetched), ("excluded", row.excluded)):
+        for key, value in (
+            ("found", row.found),
+            ("queued", row.queued),
+            ("inflight", row.inflight),
+            ("fetched", row.fetched),
+            ("excluded", row.excluded),
+        ):
             self.cells[key].set_value(value)
         rate_window = row.telemetry.get("rate_window_seconds")
         rate = f"{row.rate:.1f}".replace(".", ",") if row.rate is not None else None
@@ -425,23 +508,41 @@ class RunAside(QFrame):
             rate = trf("{rate} · окно {window} с", rate=rate, window=f"{rate_window:.0f}")
         self.live_pairs.set("Сейчас, запросов/с", rate)
         limit = row.collector.get("max_requests_per_second")
-        self.live_pairs.set("Лимит запросов/с", f"{limit:g}".replace(".", ",") if isinstance(limit, (int, float)) else None)
+        self.live_pairs.set(
+            "Лимит запросов/с",
+            f"{limit:g}".replace(".", ",") if isinstance(limit, (int, float)) else None,
+        )
         self.live_pairs.set("Режим", mode_text(row))
         self.live_pairs.set("Диск запуска", megabytes((row.scan or {}).get("disk_bytes")))
         self.live_pairs.set("Связан с задачами", None)
         self.live_events.setText(events_text(row))
         self.stop_button.setEnabled(can_stop(row))
-        self.stop_button.setToolTip("" if can_stop(row) else tr("Остановка запуска, начатого не этим окном: недоступно в этой версии ядра"))
+        self.stop_button.setToolTip(
+            ""
+            if can_stop(row)
+            else tr("Остановка запуска, начатого не этим окном: недоступно в этой версии ядра")
+        )
         self.live_saved.setEnabled(row.scan is not None)
 
     def _fill_stale(self, row, at):
         age = row.sample_age(at)
-        self.stale_note.setText(trf("<b>Наблюдение устарело · {age}.</b> Процесс не отвечает или не обновляет счётчики; последние данные показаны как были. Анимации нет, пока нет свежего статуса.",
-                                    age=duration(age) if age is not None else tr("возраст неизвестен")))
+        self.stale_note.setText(
+            trf(
+                "<b>Наблюдение устарело · {age}.</b> Процесс не отвечает или не обновляет счётчики; последние данные показаны как были. Анимации нет, пока нет свежего статуса.",
+                age=duration(age) if age is not None else tr("возраст неизвестен"),
+            )
+        )
         sampled = clock(parse_time(row.telemetry.get("sampled_at")), at)
-        self.stale_pairs.set("Последний счётчик", trf("{n} URL · {time}", n=number(row.fetched), time=sampled or tr("время неизвестно")) if row.fetched is not None else None)
+        self.stale_pairs.set(
+            "Последний счётчик",
+            trf("{n} URL · {time}", n=number(row.fetched), time=sampled or tr("время неизвестно"))
+            if row.fetched is not None
+            else None,
+        )
         last = row.events[-1] if row.events else {}
-        self.stale_pairs.set("Фаза", tr(PHASES[last["phase"]]) if last.get("phase") in PHASES else None)
+        self.stale_pairs.set(
+            "Фаза", tr(PHASES[last["phase"]]) if last.get("phase") in PHASES else None
+        )
         self.stale_pairs.set("Скорость", tr("Счётчик недоступен"), na=True)
 
     def _fill_done(self, row):
@@ -450,17 +551,29 @@ class RunAside(QFrame):
         self.done_pairs.set("URL сохранено", row.urls_text)
         self.done_pairs.set("Полнота", row.completeness)
         self.done_pairs.set("Источник", row.source if row.kind else None)
-        seconds = (row.finished - row.started).total_seconds() if row.started and row.finished else None
+        seconds = (
+            (row.finished - row.started).total_seconds() if row.started and row.finished else None
+        )
         self.done_pairs.set("Длительность", duration(seconds))
         reason = (row.run or {}).get("finish_reason") or (row.scan or {}).get("finish_reason")
         self.done_pairs.set("Причина завершения", str(reason) if reason else None)
         status = (row.owned or {}).get("status_reason")
         self.done_reason.setText(status or "")
         self.done_reason.setVisible(bool(status))
-        eligible = row.partial_resumable() and self.host.resume_scan_button.isEnabled() and (row.scan or {}).get("path") == self.host.selected_scan_path
+        eligible = (
+            row.partial_resumable()
+            and self.host.resume_scan_button.isEnabled()
+            and (row.scan or {}).get("path") == self.host.selected_scan_path
+        )
         self.resume_button.setVisible(row.partial_resumable())
         self.resume_button.setEnabled(eligible)
-        self.resume_button.setToolTip("" if eligible else tr("Продолжить можно прерванный скан с сохранённым состоянием; выбор и проверка занимают секунду"))
+        self.resume_button.setToolTip(
+            ""
+            if eligible
+            else tr(
+                "Продолжить можно прерванный скан с сохранённым состоянием; выбор и проверка занимают секунду"
+            )
+        )
         self.open_button.setEnabled(row.scan is not None)
 
 
@@ -499,7 +612,11 @@ class ScansScreen(Screen):
         self.source_button.setLayoutDirection(Qt.RightToLeft)
         self.source_button.setAccessibleName(tr("Фильтр по источнику"))
         self.source_menu = QMenu(self.source_button)
-        self.source_button.clicked.connect(lambda: self.source_menu.exec_(self.source_button.mapToGlobal(self.source_button.rect().bottomLeft())))
+        self.source_button.clicked.connect(
+            lambda: self.source_menu.exec_(
+                self.source_button.mapToGlobal(self.source_button.rect().bottomLeft())
+            )
+        )
         self.header.add_action(self.source_button)
         self.new_scan = QPushButton(tr("Новый скан"))
         self.new_scan.setProperty("role", "primary")
@@ -546,7 +663,9 @@ class ScansScreen(Screen):
         self.foot_text.setProperty("text_style", "meta")
         self.foot_text.setWordWrap(True)
         foot_layout.addWidget(self.foot_text, 1)
-        foot_layout.addWidget(waiting_badge(SORT_ISSUES[0], "Сортировка и фильтры по всем сканам на стороне ядра"))
+        foot_layout.addWidget(
+            waiting_badge(SORT_ISSUES[0], "Сортировка и фильтры по всем сканам на стороне ядра")
+        )
         self.foot_owned = QLabel()
         self.foot_owned.setProperty("text_style", "meta")
         foot_layout.addWidget(self.foot_owned)
@@ -591,7 +710,9 @@ class ScansScreen(Screen):
             self.aside.set_row(row)
 
     def _language_changed(self, _language):
-        self._signature = None  # texts are generated from the data: build them again in the new language
+        self._signature = (
+            None  # texts are generated from the data: build them again in the new language
+        )
         self.refresh()
 
     # state
@@ -639,9 +760,18 @@ class ScansScreen(Screen):
             kind = None
         if kind != self.panel_state:
             panels = {
-                "noproject": lambda: no_project_panel(host, "Откройте проект, чтобы увидеть его запуски и сканы."),
-                "loading": lambda: StatePanel("loading", "Чтение проекта", "Запуски и сканы появятся после чтения."),
-                "empty": lambda: StatePanel("empty", "В проекте нет запусков", "Запустите первый скан: результат сохранится в проект.", action=("Новый скан", host.scan_preview)),
+                "noproject": lambda: no_project_panel(
+                    host, "Откройте проект, чтобы увидеть его запуски и сканы."
+                ),
+                "loading": lambda: StatePanel(
+                    "loading", "Чтение проекта", "Запуски и сканы появятся после чтения."
+                ),
+                "empty": lambda: StatePanel(
+                    "empty",
+                    "В проекте нет запусков",
+                    "Запустите первый скан: результат сохранится в проект.",
+                    action=("Новый скан", host.scan_preview),
+                ),
             }
             self._set_panel(kind, panels[kind]() if kind else None)
         signature = tuple(row.signature() for row in rows)
@@ -690,10 +820,20 @@ class ScansScreen(Screen):
         else:
             meta = trf("{n} запусков в загруженной странице · {k} идёт сейчас", n=total, k=running)
             self.header.set_meta(meta)
-        self.foot_text.setText(trf("Фильтр и сортировка работают только в загруженной странице: показано {shown} из {total}", shown=shown, total=total))
+        self.foot_text.setText(
+            trf(
+                "Фильтр и сортировка работают только в загруженной странице: показано {shown} из {total}",
+                shown=shown,
+                total=total,
+            )
+        )
         manager = self.host.scan_manager
         limit = getattr(manager, "max_parallel", None)
-        self.foot_owned.setText(trf("Запусков этого окна: {n} из {m}", n=manager.active_count, m=limit) if manager is not None and limit else "")
+        self.foot_owned.setText(
+            trf("Запусков этого окна: {n} из {m}", n=manager.active_count, m=limit)
+            if manager is not None and limit
+            else ""
+        )
 
     def _proxy_row(self, key):
         for position in range(self.proxy.rowCount()):
@@ -722,7 +862,14 @@ class ScansScreen(Screen):
             row = next((r for r in self.rows if r.active and self._proxy_row(r.key) >= 0), None)
             if row is None:
                 path = self.host.selected_scan_path
-                row = next((r for r in self.rows if r.scan and r.scan.get("path") == path and self._proxy_row(r.key) >= 0), None)
+                row = next(
+                    (
+                        r
+                        for r in self.rows
+                        if r.scan and r.scan.get("path") == path and self._proxy_row(r.key) >= 0
+                    ),
+                    None,
+                )
             if row is None and self.proxy.rowCount():
                 row = self.proxy.index(0, 0).data(ROW_ROLE)
             self.selected_key = row.key if row else None

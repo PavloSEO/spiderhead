@@ -26,9 +26,7 @@ import source  # noqa: E402
 
 def repository(root: Path) -> None:
     root.mkdir()
-    (root / "pyproject.toml").write_text(
-        '[project]\nname="seohead-seotools"\nversion="3.0.0"\n'
-    )
+    (root / "pyproject.toml").write_text('[project]\nname="seohead-seotools"\nversion="3.0.0"\n')
     subprocess.run(["git", "init", "--quiet", str(root)], check=True)
     subprocess.run(["git", "add", "."], cwd=root, check=True)
     subprocess.run(
@@ -62,11 +60,14 @@ def repository(root: Path) -> None:
 class DeliveryTests(unittest.TestCase):
     def test_build_refuses_package_imports_from_another_checkout(self):
         core, desktop = Path("/selected/core"), Path("/selected/desktop")
-        with patch.object(
-            manifest.importlib.util,
-            "find_spec",
-            return_value=SimpleNamespace(origin="/different/seohead/__init__.py"),
-        ), self.assertRaisesRegex(ValueError, "different source"):
+        with (
+            patch.object(
+                manifest.importlib.util,
+                "find_spec",
+                return_value=SimpleNamespace(origin="/different/seohead/__init__.py"),
+            ),
+            self.assertRaisesRegex(ValueError, "different source"),
+        ):
             manifest.verify_import_sources(core, desktop)
         paths = [
             core / "seohead" / "__init__.py",
@@ -127,12 +128,8 @@ class DeliveryTests(unittest.TestCase):
                 manifest.desktop_identity(root)
             after = manifest.desktop_identity(root, require_clean=False)
             self.assertTrue(after["dirty"])
-            self.assertNotEqual(
-                before["source_tree_sha256"], after["source_tree_sha256"]
-            )
-            self.assertIn(
-                "untracked.py", {entry["path"] for entry in after["inventory"]}
-            )
+            self.assertNotEqual(before["source_tree_sha256"], after["source_tree_sha256"])
+            self.assertIn("untracked.py", {entry["path"] for entry in after["inventory"]})
 
     def test_build_source_changes_are_rejected_and_cache_changes_with_dependencies(
         self,
@@ -142,9 +139,7 @@ class DeliveryTests(unittest.TestCase):
             repository(core)
             repository(desktop)
             path = Path(directory) / "manifest.json"
-            payload = manifest.create_manifest(
-                core, path, "macos", desktop, preview=True
-            )
+            payload = manifest.create_manifest(core, path, "macos", desktop, preview=True)
             manifest.verify_sources(path, core, desktop)
             key = manifest.cache_key(path, "core")
             payload["build_environment"]["python"] = "different"
@@ -223,9 +218,7 @@ class DeliveryTests(unittest.TestCase):
             plan = source.installation_plan(Path(directory) / "core", environment)
             self.assertFalse(environment.exists())
             self.assertEqual(plan["commands"][0][-1], str(environment))
-            self.assertEqual(
-                plan["commands"][1][4], str(source.executable(environment, "python"))
-            )
+            self.assertEqual(plan["commands"][1][4], str(source.executable(environment, "python")))
             self.assertEqual(plan["commands"][1].count("--editable"), 2)
 
     def test_source_launch_logs_output_exit_and_never_overwrites_log(self):

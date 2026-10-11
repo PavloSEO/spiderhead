@@ -20,7 +20,9 @@ from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
 READ_COMMAND = "schedule-show"
 UPDATE_COMMAND = "schedule-set"
 RUN_DUE_COMMAND = "schedule-run-due"
-RUN_TIMEOUT_SECONDS = 6 * 3600  # a run crawls over the network; the core's own lease is six hours too
+RUN_TIMEOUT_SECONDS = (
+    6 * 3600
+)  # a run crawls over the network; the core's own lease is six hours too
 
 # Core field names and values.
 DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")  # datetime.weekday() order
@@ -54,7 +56,9 @@ USER_AGENT_PRESETS = {
     "safari-mobile": "Safari, iPhone",
     "custom": "Своя строка",
 }
-CUSTOM = "custom"  # UI choice only: the core stores it as user_agent.custom with the default preset kept
+CUSTOM = (
+    "custom"  # UI choice only: the core stores it as user_agent.custom with the default preset kept
+)
 MAX_UA_LENGTH = 512
 
 DEFAULT_SETTINGS = {
@@ -94,7 +98,11 @@ def _check(condition, message):
 
 def validate(settings):
     """Check the settings the UI is about to send. The core validates again and is the authority."""
-    _check(isinstance(settings.get("enabled"), bool) and isinstance(settings.get("include_competitors"), bool), "flags")
+    _check(
+        isinstance(settings.get("enabled"), bool)
+        and isinstance(settings.get("include_competitors"), bool),
+        "flags",
+    )
     zone = settings.get("time_zone")
     if zone != AUTO_ZONE:
         _check(isinstance(zone, str) and zone in set(time_zones()), "unknown time zone")
@@ -103,14 +111,22 @@ def validate(settings):
     _check(all(type(day) is int and 1 <= day <= 31 for day in days), "month days 1-31")
     window = settings.get("window") or {}
     for key in ("start", "end"):
-        _check(isinstance(window.get(key), str) and _TIME.fullmatch(window[key]) is not None, "window HH:MM")
+        _check(
+            isinstance(window.get(key), str) and _TIME.fullmatch(window[key]) is not None,
+            "window HH:MM",
+        )
     _check(window["start"] != window["end"], "window start and end differ")
     crawl = settings.get("crawl") or {}
     _check(crawl.get("mode") in MODES, "crawl mode")
     if crawl["mode"] == "sitemap":
         _check(_is_http(crawl.get("sitemap_url")), "sitemap URL")
     urls = crawl.get("urls") or []
-    _check(len(urls) <= LIST_LIMIT and len(set(urls)) == len(urls) and all(_is_http(url) for url in urls), "URL list")
+    _check(
+        len(urls) <= LIST_LIMIT
+        and len(set(urls)) == len(urls)
+        and all(_is_http(url) for url in urls),
+        "URL list",
+    )
     _check(crawl["mode"] != "list" or urls, "list mode needs URLs")
     budget = crawl.get("max_urls")
     _check(type(budget) is int and BUDGET_RANGE[0] <= budget <= BUDGET_RANGE[1], "URL budget")
@@ -120,19 +136,37 @@ def validate(settings):
     agent = settings.get("user_agent") or {}
     if agent.get("custom") is not None:
         text = agent["custom"]
-        _check(isinstance(text, str) and 0 < len(text) <= MAX_UA_LENGTH and not _CONTROL.search(text) and text == text.strip(), "user agent")
+        _check(
+            isinstance(text, str)
+            and 0 < len(text) <= MAX_UA_LENGTH
+            and not _CONTROL.search(text)
+            and text == text.strip(),
+            "user agent",
+        )
     else:
-        _check(agent.get("preset") in USER_AGENT_PRESETS and agent.get("preset") != CUSTOM, "user agent preset")
+        _check(
+            agent.get("preset") in USER_AGENT_PRESETS and agent.get("preset") != CUSTOM,
+            "user agent preset",
+        )
     return settings
 
 
 def _is_http(value):
-    return isinstance(value, str) and value.startswith(("http://", "https://")) and len(value) > 8 and " " not in value
+    return (
+        isinstance(value, str)
+        and value.startswith(("http://", "https://"))
+        and len(value) > 8
+        and " " not in value
+    )
 
 
 def user_agent_text(agent):
     """The label-level preview of what the scan sends; the exact string is the core's (see the CLI)."""
-    return agent["custom"] if agent.get("custom") is not None else USER_AGENT_PRESETS.get(agent.get("preset"), "")
+    return (
+        agent["custom"]
+        if agent.get("custom") is not None
+        else USER_AGENT_PRESETS.get(agent.get("preset"), "")
+    )
 
 
 def read_args(directory):
@@ -140,8 +174,15 @@ def read_args(directory):
 
 
 def update_args(directory, revision, settings):
-    return [UPDATE_COMMAND, "--directory", directory, "--expected-revision", str(revision),
-            "--input", json.dumps({"settings": settings})]
+    return [
+        UPDATE_COMMAND,
+        "--directory",
+        directory,
+        "--expected-revision",
+        str(revision),
+        "--input",
+        json.dumps({"settings": settings}),
+    ]
 
 
 def run_due_args(directory):
@@ -152,21 +193,32 @@ def _stamp(value):
     if not isinstance(value, str):
         return None
     try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone().strftime("%d.%m.%Y %H:%M")
+        return (
+            datetime.fromisoformat(value.replace("Z", "+00:00"))
+            .astimezone()
+            .strftime("%d.%m.%Y %H:%M")
+        )
     except ValueError:
         return None
 
 
 def parse_state(value):
     """What the UI needs from `schedule-show` (or a save answer): settings, revision and the runtime facts."""
-    settings = {key: value["settings"][key] for key in DEFAULT_SETTINGS} if isinstance(value.get("settings"), dict) else None
+    settings = (
+        {key: value["settings"][key] for key in DEFAULT_SETTINGS}
+        if isinstance(value.get("settings"), dict)
+        else None
+    )
     if settings is None:
         raise ValueError("core answer has no settings")
     state = value.get("state") if isinstance(value.get("state"), dict) else {}
     results = state.get("last_result") if isinstance(state.get("last_result"), list) else []
     last = None
     if state.get("last_run_at"):
-        last = {"at": _stamp(state["last_run_at"]), "status": "ok" if results and all(r.get("ok") for r in results) else "failed"}
+        last = {
+            "at": _stamp(state["last_run_at"]),
+            "status": "ok" if results and all(r.get("ok") for r in results) else "failed",
+        }
     due = value.get("due") if isinstance(value.get("due"), dict) else {}
     return {
         "revision": value["revision"] if type(value.get("revision")) is int else 0,
@@ -181,13 +233,22 @@ def parse_state(value):
 
 def _call(executable, arguments, timeout=45):
     """Run one core command. Returns its JSON object; a refusal (no JSON on stdout) raises with the core's own line."""
-    completed = subprocess.run([executable, *arguments], capture_output=True, text=True, timeout=timeout, check=False)
+    completed = subprocess.run(
+        [executable, *arguments], capture_output=True, text=True, timeout=timeout, check=False
+    )
     if len(completed.stdout) > 4 * 1024 * 1024:
         raise ValueError("Core answer too large")
     try:
         value = json.loads(completed.stdout)
     except ValueError as exc:
-        reason = next((line[len("error: "):] for line in completed.stderr.splitlines() if line.startswith("error: ")), "")
+        reason = next(
+            (
+                line[len("error: ") :]
+                for line in completed.stderr.splitlines()
+                if line.startswith("error: ")
+            ),
+            "",
+        )
         raise ValueError(reason or "Core command refused") from exc
     if not isinstance(value, dict):
         raise ValueError("Core answer is not an object")
@@ -208,7 +269,11 @@ def save_schedule(executable, directory, revision, settings, call=_call):
 def run_due(executable, directory, call=_call):
     """One headless pass for a project: the core checks the window and the overlap, then runs due scans."""
     value = call(executable, run_due_args(directory), timeout=RUN_TIMEOUT_SECONDS)
-    return {"ran": value.get("ran") is True, "ok": value.get("ok") is not False, "reason": str(value.get("reason") or "")}
+    return {
+        "ran": value.get("ran") is True,
+        "ok": value.get("ok") is not False,
+        "reason": str(value.get("reason") or ""),
+    }
 
 
 class _Signals(QObject):
@@ -228,7 +293,9 @@ class _Job(QRunnable):
     def run(self):
         try:
             self.signals.done.emit(self.function())
-        except ValueError as exc:  # refusals carry the core's own short line or a validation message
+        except (
+            ValueError
+        ) as exc:  # refusals carry the core's own short line or a validation message
             self.signals.failed.emit(str(exc) or FAILED)
         except (OSError, TypeError, AttributeError, KeyError, subprocess.SubprocessError):
             self.signals.failed.emit(FAILED)

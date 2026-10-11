@@ -11,13 +11,13 @@ from __future__ import annotations
 import json
 from collections import Counter
 
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, QTimer
+from PyQt5.QtCore import QAbstractTableModel, Qt, QTimer
 from PyQt5.QtGui import QColor, QGuiApplication
 from PyQt5.QtWidgets import (
     QFileDialog,
     QFrame,
-    QHeaderView,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QLineEdit,
     QPlainTextEdit,
@@ -35,9 +35,17 @@ from .base import Screen
 from .url_query import CoreJob
 
 MAX_ROWS = 1000  # bounds the argv of one redirects-generate call
-FORMATS = (("nginx", "nginx"), ("apache-rewrite-rule", "Apache"), ("apache-redirect", "Apache Redirect"))
-CHECKS = (("ok", "Без цепочки и петли", "text_2"), ("chain", "Цепочка — цель сама в списке", "warning"),
-          ("loop", "Петля — цель совпадает с адресом", "error"), ("none", "Без цели", "text_muted"))
+FORMATS = (
+    ("nginx", "nginx"),
+    ("apache-rewrite-rule", "Apache"),
+    ("apache-redirect", "Apache Redirect"),
+)
+CHECKS = (
+    ("ok", "Без цепочки и петли", "text_2"),
+    ("chain", "Цепочка — цель сама в списке", "warning"),
+    ("loop", "Петля — цель совпадает с адресом", "error"),
+    ("none", "Без цели", "text_muted"),
+)
 CHECK_LABEL = {key: label for key, label, _role in CHECKS}
 CHECK_ROLE = {key: role for key, _label, role in CHECKS}
 EXPORTABLE = ("ok", "chain")  # loops and rows without a target never become rules
@@ -83,11 +91,11 @@ class MappingModel(QAbstractTableModel):
         self.items = items
         self.endResetModel()
 
-    def rowCount(self, parent=QModelIndex()):
-        return 0 if parent.isValid() else len(self.items)
+    def rowCount(self, parent=None):
+        return 0 if parent is not None and parent.isValid() else len(self.items)
 
-    def columnCount(self, parent=QModelIndex()):
-        return 0 if parent.isValid() else len(self.COLUMNS)
+    def columnCount(self, parent=None):
+        return 0 if parent is not None and parent.isValid() else len(self.COLUMNS)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
@@ -120,8 +128,8 @@ class ToolRedirectsScreen(Screen):
     def __init__(self, host):
         super().__init__(host)
         self.source_text = ""
-        self.edits = {}          # source -> target typed by the user; wins over a target written in the list
-        self.items = []          # (source, target, check) of the current mapping
+        self.edits = {}  # source -> target typed by the user; wins over a target written in the list
+        self.items = []  # (source, target, check) of the current mapping
         self.selected = None
         self.export_format = FORMATS[0][0]
         self.rules_text = ""
@@ -159,7 +167,12 @@ class ToolRedirectsScreen(Screen):
         page = QVBoxLayout(self.content)
         page.setContentsMargins(20, 14, 20, 12)
         page.setSpacing(10)
-        page.addWidget(PageHeader("Генератор 301", tr("Старые адреса → правила перенаправления для сервера · локально, без сети")))
+        page.addWidget(
+            PageHeader(
+                "Генератор 301",
+                tr("Старые адреса → правила перенаправления для сервера · локально, без сети"),
+            )
+        )
         body = QHBoxLayout()
         body.setSpacing(16)
         page.addLayout(body, 1)
@@ -189,11 +202,15 @@ class ToolRedirectsScreen(Screen):
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
         self.table.selectionModel().selectionChanged.connect(self._selection_changed)
         left.addWidget(self.table, 1)
-        self.empty = QLabel(tr("Вставьте старые адреса выше: таблица заполнится по строкам списка."))
+        self.empty = QLabel(
+            tr("Вставьте старые адреса выше: таблица заполнится по строкам списка.")
+        )
         self.empty.setProperty("text_style", "meta")
         self.empty.setAlignment(Qt.AlignCenter)
         left.addWidget(self.empty)
-        hint = QLabel(tr("Цель не подбирается автоматически: укажите её справа или в строке «старый, новый»."))
+        hint = QLabel(
+            tr("Цель не подбирается автоматически: укажите её справа или в строке «старый, новый».")
+        )
         hint.setProperty("text_style", "meta")
         hint.setWordWrap(True)
         left.addWidget(hint)
@@ -254,8 +271,11 @@ class ToolRedirectsScreen(Screen):
         export_caption = QLabel(tr("Выгрузка"))
         export_caption.setProperty("text_style", "section")
         side.addWidget(export_caption)
-        self.format_seg = Segmented([(value, tr(label) if value == "nginx" else label) for value, label in FORMATS],
-                                    value=self.export_format, accessible_name=tr("Формат выгрузки"))
+        self.format_seg = Segmented(
+            [(value, tr(label) if value == "nginx" else label) for value, label in FORMATS],
+            value=self.export_format,
+            accessible_name=tr("Формат выгрузки"),
+        )
         self.format_seg.changed.connect(self._format_changed)
         side.addWidget(self.format_seg)
         self.code = QPlainTextEdit()
@@ -280,7 +300,10 @@ class ToolRedirectsScreen(Screen):
         self.debounce.start()
 
     def _recompute(self):
-        pairs = [(source, self.edits.get(source, target)) for source, target in parse_rows(self.source_text)]
+        pairs = [
+            (source, self.edits.get(source, target))
+            for source, target in parse_rows(self.source_text)
+        ]
         checks = classify(pairs)
         self.items = [(source, target, check) for (source, target), check in zip(pairs, checks)]
         self.model.set_items(self.items)
@@ -289,8 +312,14 @@ class ToolRedirectsScreen(Screen):
         for key, _label, _role in CHECKS:
             self.check_counts[key].setText(str(counts.get(key, 0)))
         exported = sum(1 for check in checks if check in EXPORTABLE)
-        self.summary.setText(trf("Строк: {n} · с целью: {t} · правил в выгрузке: {r}", n=len(pairs),
-                                 t=len(pairs) - counts.get("none", 0), r=exported))
+        self.summary.setText(
+            trf(
+                "Строк: {n} · с целью: {t} · правил в выгрузке: {r}",
+                n=len(pairs),
+                t=len(pairs) - counts.get("none", 0),
+                r=exported,
+            )
+        )
         if self.selected is not None and self.selected >= len(self.items):
             self.selected = None
         self._show_selected()
@@ -308,7 +337,9 @@ class ToolRedirectsScreen(Screen):
             source, target, check = self.items[self.selected]
             if self.sel_to.text() != target:
                 self.sel_to.setText(target)
-            self.sel_hint.setText(tr(CHECK_LABEL[check]) + (tr(" · правка вручную") if source in self.edits else ""))
+            self.sel_hint.setText(
+                tr(CHECK_LABEL[check]) + (tr(" · правка вручную") if source in self.edits else "")
+            )
         else:
             self.sel_to.clear()
             self.sel_hint.setText(tr("Выберите строку в таблице, чтобы задать или поправить цель"))
@@ -337,12 +368,21 @@ class ToolRedirectsScreen(Screen):
 
     def _start_export(self):
         self._invalidate_export()
-        exports = [{"from": source, "to": target} for source, target, check in self.items if check in EXPORTABLE]
+        exports = [
+            {"from": source, "to": target}
+            for source, target, check in self.items
+            if check in EXPORTABLE
+        ]
         if not exports:
             self._show_code("", tr("Нет строк с целью для выгрузки"))
             return
-        arguments = ["redirects-generate", "--input", json.dumps({"redirects": exports}, ensure_ascii=False),
-                     "--format", self.export_format]
+        arguments = [
+            "redirects-generate",
+            "--input",
+            json.dumps({"redirects": exports}, ensure_ascii=False),
+            "--format",
+            self.export_format,
+        ]
         self._show_code("", tr("Правила строятся…"))
         self.job.start(arguments, self.generation)
 
@@ -374,11 +414,15 @@ class ToolRedirectsScreen(Screen):
     def _save(self):
         if not self.rules_text:
             return
-        path, _filter = QFileDialog.getSaveFileName(self, tr("Сохранить правила"), f"redirects-{self.export_format}.txt")
+        path, _filter = QFileDialog.getSaveFileName(
+            self, tr("Сохранить правила"), f"redirects-{self.export_format}.txt"
+        )
         if not path:
             return
         try:
             with open(path, "w", encoding="utf-8") as handle:
                 handle.write(self.rules_text + "\n")
         except OSError as error:
-            self.status.setText(trf("Не удалось сохранить файл: {reason}", reason=error.strerror or str(error)))
+            self.status.setText(
+                trf("Не удалось сохранить файл: {reason}", reason=error.strerror or str(error))
+            )

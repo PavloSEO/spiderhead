@@ -156,9 +156,7 @@ class ConfigurationDialogTests(unittest.TestCase):
         dialog.stage_current()
         self.assertIn("Изменение в черновике", dialog.availability.text())
         dialog.apply_button.click()
-        self.assertEqual(
-            dialog.get_overrides(), {"scope.include_patterns": ["[a-z]", "/catalog/"]}
-        )
+        self.assertEqual(dialog.get_overrides(), {"scope.include_patterns": ["[a-z]", "/catalog/"]})
 
     def test_invalid_regex_and_numeric_values_do_not_apply(self):
         dialog = self.dialog()

@@ -45,7 +45,9 @@ class FakeCore:
         page.job.start = self.start
 
     def start(self, arguments, token):
-        self.calls.append((arguments[arguments.index("--url") + 1], arguments[arguments.index("--direction") + 1]))
+        self.calls.append(
+            (arguments[arguments.index("--url") + 1], arguments[arguments.index("--direction") + 1])
+        )
         payload = self.answers.get(token[2:], None) or self.answer(arguments)
         self.page._done(token, payload)
 
@@ -53,8 +55,16 @@ class FakeCore:
     def answer(arguments):
         url = arguments[arguments.index("--url") + 1]
         direction = arguments[arguments.index("--direction") + 1]
-        items = [{"source_url": s, "target_url": t, "anchor": a, "source_status": 200, "target_status": 200}
-                 for s, t, a in LINKS.get((url, direction), [])]
+        items = [
+            {
+                "source_url": s,
+                "target_url": t,
+                "anchor": a,
+                "source_status": 200,
+                "target_status": 200,
+            }
+            for s, t, a in LINKS.get((url, direction), [])
+        ]
         return {"ok": True, "items": items, "total": len(items), "has_more": False}
 
 
@@ -122,7 +132,9 @@ class GraphWalkTests(unittest.TestCase):
         page.layout_mode = "radial"
         pos = page.positions()
         self.assertEqual((pos["A"].x(), pos["A"].y()), (0, 0))
-        self.assertAlmostEqual(((pos["E"].x() ** 2) + (pos["E"].y() ** 2)) ** 0.5, url_graph.RING * 2, places=6)
+        self.assertAlmostEqual(
+            ((pos["E"].x() ** 2) + (pos["E"].y() ** 2)) ** 0.5, url_graph.RING * 2, places=6
+        )
 
     def test_left_right_layout_puts_incoming_links_left(self):
         page, _core = self.page(depth=1)

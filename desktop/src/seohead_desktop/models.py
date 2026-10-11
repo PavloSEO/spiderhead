@@ -74,10 +74,20 @@ class RecordModel(QAbstractTableModel):
             return field_text(key, value)
         if role == Qt.ToolTipRole:
             return self.rows[index.row()].get(key + "_tooltip", value_text(value))
-        if role == Qt.TextAlignmentRole and isinstance(value, (int, float)) and not isinstance(value, bool):
+        if (
+            role == Qt.TextAlignmentRole
+            and isinstance(value, (int, float))
+            and not isinstance(value, bool)
+        ):
             return int(Qt.AlignRight | Qt.AlignVCenter)
         if role == Qt.ForegroundRole and key in {"state", "lifecycle"}:
-            color = "error" if value in {"failed", "error", "rejected"} else "primary" if value in {"running", "starting", "queued"} else "on_surface_variant"
+            color = (
+                "error"
+                if value in {"failed", "error", "rejected"}
+                else "primary"
+                if value in {"running", "starting", "queued"}
+                else "on_surface_variant"
+            )
             return QColor(theme_tokens()["colors"][color])
         return None
 

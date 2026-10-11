@@ -62,16 +62,15 @@ def display_value(value, depth=0):
         if depth > 1:
             return "{…}"
         parts = [
-            f"{key}: {display_value(item, depth + 1)}"
-            for key, item in islice(value.items(), 10)
+            f"{key}: {display_value(item, depth + 1)}" for key, item in islice(value.items(), 10)
         ]
         return "; ".join(parts)[:512] + (" …" if len(value) > 10 else "")
     if isinstance(value, (list, tuple)):
         if depth > 1:
             return "[…]"
-        return ", ".join(display_value(item, depth + 1) for item in value[:10])[
-            :512
-        ] + (" …" if len(value) > 10 else "")
+        return ", ".join(display_value(item, depth + 1) for item in value[:10])[:512] + (
+            " …" if len(value) > 10 else ""
+        )
     text = str(value)
     return text[:512] + (" …" if len(text) > 512 else "")
 
@@ -87,9 +86,7 @@ class PageModel(QAbstractTableModel):
     def replace(self, rows):
         page = list(islice(iter(rows), PAGE_LIMIT + 1))
         if len(page) > PAGE_LIMIT:
-            raise ValueError(
-                f"A presentation page may contain at most {PAGE_LIMIT} rows"
-            )
+            raise ValueError(f"A presentation page may contain at most {PAGE_LIMIT} rows")
         if any(not isinstance(row, Mapping) for row in page):
             raise TypeError("Presentation rows must be mappings")
         self.beginResetModel()
@@ -114,11 +111,23 @@ class PageModel(QAbstractTableModel):
             return display_value(value)
         if role == Qt.DisplayRole:
             key = self.columns[index.column()][0]
-            return field_text(key, value) if value is not None and key in {"state", "lifecycle", "kind", "phase", "source_kind", "finished_at", "created_at"} else display_value(value)
-        if role == Qt.UserRole:
             return (
-                value if isinstance(value, (str, float, int)) else display_value(value)
+                field_text(key, value)
+                if value is not None
+                and key
+                in {
+                    "state",
+                    "lifecycle",
+                    "kind",
+                    "phase",
+                    "source_kind",
+                    "finished_at",
+                    "created_at",
+                }
+                else display_value(value)
             )
+        if role == Qt.UserRole:
+            return value if isinstance(value, (str, float, int)) else display_value(value)
         if (
             role == Qt.TextAlignmentRole
             and isinstance(value, (float, int))
@@ -128,11 +137,7 @@ class PageModel(QAbstractTableModel):
         return None
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if (
-            role == Qt.DisplayRole
-            and orientation == Qt.Horizontal
-            and section < len(self.columns)
-        ):
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal and section < len(self.columns):
             return self.columns[section][1]
         return None
 
@@ -145,7 +150,10 @@ class PageProxy(QSortFilterProxyModel):
         self.invalidateFilter()
 
     def filterAcceptsRow(self, row, parent):
-        matches_state = self.state_filter is None or self.sourceModel().rows[row].get("state") == self.state_filter
+        matches_state = (
+            self.state_filter is None
+            or self.sourceModel().rows[row].get("state") == self.state_filter
+        )
         return matches_state and super().filterAcceptsRow(row, parent)
 
     def lessThan(self, left, right):
@@ -218,7 +226,9 @@ class TablePanel(QWidget):
         self.source_label.setTextFormat(Qt.PlainText)
         self.source_label.setWordWrap(False)
         layout.addWidget(self.source_label)
-        self.model = PageModel(tuple((key, COLUMN_LABELS.get(label, label)) for key, label in spec.columns), self)
+        self.model = PageModel(
+            tuple((key, COLUMN_LABELS.get(label, label)) for key, label in spec.columns), self
+        )
         self.proxy = PageProxy(self)
         self.proxy.setSourceModel(self.model)
         self.proxy.setFilterKeyColumn(-1)
@@ -291,9 +301,7 @@ class TablePanel(QWidget):
             action.setCheckable(True)
             action.setChecked(True)
             action.toggled.connect(
-                lambda shown, column=column: self.table.setColumnHidden(
-                    column, not shown
-                )
+                lambda shown, column=column: self.table.setColumnHidden(column, not shown)
             )
         self.columns_button.setMenu(menu)
         self.copy_shortcut = QShortcut(QKeySequence.Copy, self.table)
@@ -369,9 +377,7 @@ class TablePanel(QWidget):
             item = self.filter.model().item(index)
             enabled = self.filter.itemData(index) in supported and state == "ready"
             item.setEnabled(enabled)
-            item.setToolTip(
-                "" if enabled else "Фильтр недоступен в текущем сохранённом источнике"
-            )
+            item.setToolTip("" if enabled else "Фильтр недоступен в текущем сохранённом источнике")
         if self.filter.currentData() not in supported:
             for index in range(self.filter.count()):
                 if self.filter.itemData(index) in supported:
@@ -381,9 +387,7 @@ class TablePanel(QWidget):
         self.filter.setEnabled(state == "ready")
         self.search.setEnabled(state == "ready")
         self.previous_button.setEnabled(state == "ready" and offset > 0)
-        self.next_button.setEnabled(
-            state == "ready" and self.has_more and bool(self.model.rows)
-        )
+        self.next_button.setEnabled(state == "ready" and self.has_more and bool(self.model.rows))
         messages = {
             "ready": "В сохранённой выборке нет записей.",
             "loading": "Загрузка сохранённых данных…",
@@ -445,7 +449,11 @@ class TablePanel(QWidget):
             self.intent_requested.emit("clear_url", {"tab_id": self.spec.id})
         if self.state == "ready":
             empty = self.proxy.rowCount() == 0
-            self.message.setText("По вашему поиску нет строк в этой странице" if text else "В сохранённой выборке нет записей.")
+            self.message.setText(
+                "По вашему поиску нет строк в этой странице"
+                if text
+                else "В сохранённой выборке нет записей."
+            )
             self.stack.setCurrentIndex(1 if empty else 0)
         self._update_count()
 
@@ -492,10 +500,16 @@ class TablePanel(QWidget):
         if not current.isValid():
             return
         menu = QMenu(self)
-        url_column = next((index for index, (key, label) in enumerate(self.model.columns) if key == "url"), None)
+        url_column = next(
+            (index for index, (key, label) in enumerate(self.model.columns) if key == "url"), None
+        )
         if url_column is not None:
             url = str(self.proxy.index(current.row(), url_column).data())
-            menu.addAction(material_icon("content_copy"), "Копировать URL", lambda: QApplication.clipboard().setText(url))
+            menu.addAction(
+                material_icon("content_copy"),
+                "Копировать URL",
+                lambda: QApplication.clipboard().setText(url),
+            )
         menu.addAction("Копировать строку (TSV)", self.copy_selection)
         menu.exec_(self.table.viewport().mapToGlobal(point))
 
@@ -524,9 +538,7 @@ class TabConfigurationDialog(QDialog):
             search = QLineEdit()
             search.setPlaceholderText("Найти вкладку")
             search.setAccessibleName(f"Поиск: {title.lower()}")
-            search.textChanged.connect(
-                lambda text, view=view: self._filter_list(view, text)
-            )
+            search.textChanged.connect(lambda text, view=view: self._filter_list(view, text))
             column.addWidget(search)
             column.addWidget(view, 1)
             body.addLayout(column, 1)
@@ -601,8 +613,7 @@ class TabConfigurationDialog(QDialog):
     @property
     def visible_ids(self):
         return tuple(
-            self.visible_list.item(i).data(Qt.UserRole)
-            for i in range(self.visible_list.count())
+            self.visible_list.item(i).data(Qt.UserRole) for i in range(self.visible_list.count())
         )
 
     def accept(self):
@@ -636,9 +647,7 @@ class TabDeck(QWidget):
         self.tabbar.setUsesScrollButtons(True)
         self.tabbar.setMovable(True)
         self.tabbar.setElideMode(Qt.ElideNone)
-        self.tabbar.setAccessibleName(
-            f"Вкладки: {next(iter(self.specs.values())).pane}"
-        )
+        self.tabbar.setAccessibleName(f"Вкладки: {next(iter(self.specs.values())).pane}")
         header.addWidget(self.tabbar, 1)
         self.menu_button = QToolButton()
         self.menu_button.setIcon(material_icon("tune"))
@@ -673,14 +682,8 @@ class TabDeck(QWidget):
 
     def set_visible_tabs(self, ids):
         ids = tuple(ids)
-        if (
-            not ids
-            or len(ids) != len(set(ids))
-            or any(id not in self.specs for id in ids)
-        ):
-            raise ValueError(
-                "Visible tabs must be a non-empty unique subset of the catalogue"
-            )
+        if not ids or len(ids) != len(set(ids)) or any(id not in self.specs for id in ids):
+            raise ValueError("Visible tabs must be a non-empty unique subset of the catalogue")
         current = self.current_id
         self.tabbar.blockSignals(True)
         while self.tabbar.count():
@@ -710,9 +713,7 @@ class TabDeck(QWidget):
         self.current_changed.emit(id)
 
     def _moved(self, before, after):
-        self.visible_ids = tuple(
-            self.tabbar.tabData(i) for i in range(self.tabbar.count())
-        )
+        self.visible_ids = tuple(self.tabbar.tabData(i) for i in range(self.tabbar.count()))
 
     def _build_menu(self):
         self.menu.clear()
@@ -728,9 +729,7 @@ class TabDeck(QWidget):
             action.triggered.connect(lambda checked=False, id=id: self.select_tab(id))
 
     def configure_tabs(self):
-        dialog = TabConfigurationDialog(
-            tuple(self.specs.values()), self.visible_ids, self
-        )
+        dialog = TabConfigurationDialog(tuple(self.specs.values()), self.visible_ids, self)
         if dialog.exec_() == QDialog.Accepted:
             self.set_visible_tabs(dialog.visible_ids)
 

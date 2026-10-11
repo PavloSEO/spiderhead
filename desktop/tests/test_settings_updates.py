@@ -34,7 +34,9 @@ class UpdatesSectionTests(unittest.TestCase):
         store.set("updates.auto_check", False)
         dialog.reset_section()
         self.assertIs(store.get("updates.auto_check"), True)
-        self.assertTrue(row(dialog._pages["updates"][1], "Проверять автоматически").control.isChecked())
+        self.assertTrue(
+            row(dialog._pages["updates"][1], "Проверять автоматически").control.isChecked()
+        )
 
     def test_honest_without_backend(self):
         _store, _dialog, page = make("updates")

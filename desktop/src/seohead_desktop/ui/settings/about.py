@@ -46,14 +46,22 @@ def _core_version():
 
 
 def _system_rows():
-    system = f"macOS {platform.mac_ver()[0]}" if platform.system() == "Darwin" else f"{platform.system()} {platform.release()}"
+    system = (
+        f"macOS {platform.mac_ver()[0]}"
+        if platform.system() == "Darwin"
+        else f"{platform.system()} {platform.release()}"
+    )
     screen = QApplication.primaryScreen()
     screen_text = None
     if screen is not None:
         ratio = screen.devicePixelRatio()
         size = screen.size()
-        screen_text = trf("{width} × {height} · масштаб {ratio}×", width=round(size.width() * ratio),
-                          height=round(size.height() * ratio), ratio=f"{ratio:g}")
+        screen_text = trf(
+            "{width} × {height} · масштаб {ratio}×",
+            width=round(size.width() * ratio),
+            height=round(size.height() * ratio),
+            ratio=f"{ratio:g}",
+        )
     try:
         memory = format_size(os.sysconf("SC_PHYS_PAGES") * os.sysconf("SC_PAGE_SIZE"))
     except (AttributeError, ValueError, OSError):
@@ -85,7 +93,9 @@ def _header(version):
     layout.setContentsMargins(0, 10, 0, 6)
     layout.setSpacing(6)
     logo = QLabel()
-    logo.setPixmap(brand.render(brand.lockup_path(), 240))  # brandbook: About = lockup (mark + name); the product is «SEOHEAD Tools»
+    logo.setPixmap(
+        brand.render(brand.lockup_path(), 240)
+    )  # brandbook: About = lockup (mark + name); the product is «SEOHEAD Tools»
     logo.setAccessibleName("SEOHEAD Tools")
     layout.addWidget(logo, 0, Qt.AlignLeft)
     core = _core_version()
@@ -116,7 +126,10 @@ def build_page(store, context):
     system = _system_rows()
 
     def copy_info():
-        lines = [trf("{key}: {value}", key=k, value="Нет данных" if v is None else v) for k, v in versions + system]
+        lines = [
+            trf("{key}: {value}", key=k, value="Нет данных" if v is None else v)
+            for k, v in versions + system
+        ]
         QApplication.clipboard().setText("\n".join(lines))
 
     copy = QPushButton("Скопировать сведения")
@@ -142,7 +155,9 @@ def build_page(store, context):
             action_button("CLI", context, "open_cli", icon="terminal"),
             action_button("История изменений", context, "open_changelog", icon="history"),
         ),
-        meta_label("Сайт продукта: seohead.tech/seotools · исходники: github.com/PavloSEO/seohead-tools"),
+        meta_label(
+            "Сайт продукта: seohead.tech/seotools · исходники: github.com/PavloSEO/seohead-tools"
+        ),
     ]
     holder = page(_header(context.app_version), Columns(left, right))
     return holder

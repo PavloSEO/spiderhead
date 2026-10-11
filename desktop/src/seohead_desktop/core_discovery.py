@@ -29,7 +29,10 @@ def discover_core(prefs=None):
     bundled = bundle.bundled_core_cli()
     if bundled is not None and _usable(bundled):
         return str(bundled)
-    for candidate in (Path(sys.executable).with_name("seohead"), Path(sys.prefix) / "bin" / "seohead"):
+    for candidate in (
+        Path(sys.executable).with_name("seohead"),
+        Path(sys.prefix) / "bin" / "seohead",
+    ):
         found = _usable(candidate)
         if found:
             return found

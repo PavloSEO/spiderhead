@@ -78,7 +78,8 @@ class LocalScanProcess(QObject):
             raise RuntimeError("a local scan is already running")
         self.stop_requested = False
         self.process.start(
-            self.executable, resume_arguments(scan_path, project, observer_run_id, self.producer_build)
+            self.executable,
+            resume_arguments(scan_path, project, observer_run_id, self.producer_build),
         )
 
     def request_stop(self) -> None:
@@ -136,11 +137,23 @@ def crawl_arguments(
         str(max_urls),
     ]
     if sitemap_url is not None:
-        if not isinstance(sitemap_url, str) or len(sitemap_url) > 4096 or any(char in sitemap_url for char in "\r\n\x00"):
+        if (
+            not isinstance(sitemap_url, str)
+            or len(sitemap_url) > 4096
+            or any(char in sitemap_url for char in "\r\n\x00")
+        ):
             raise ValueError("Sitemap URL must be a bounded absolute HTTP(S) URL")
         parsed = urlsplit(sitemap_url)
-        if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password or parsed.fragment:
-            raise ValueError("Sitemap URL must be absolute HTTP(S), without credentials or fragment")
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.hostname
+            or parsed.username
+            or parsed.password
+            or parsed.fragment
+        ):
+            raise ValueError(
+                "Sitemap URL must be absolute HTTP(S), without credentials or fragment"
+            )
         _ = parsed.port  # Validate malformed port syntax before starting the child.
         arguments.extend(("--sitemap-only", "--sitemap", sitemap_url))
     if producer_build is not None:
@@ -155,7 +168,9 @@ def crawl_arguments(
             continue
         if not isinstance(key, str) or not re.fullmatch(r"[a-z][a-z0-9_.]*", key):
             raise ValueError("invalid validated crawl override path")
-        if not isinstance(value, (str, int, float, bool, list)) or (isinstance(value, float) and not math.isfinite(value)):
+        if not isinstance(value, (str, int, float, bool, list)) or (
+            isinstance(value, float) and not math.isfinite(value)
+        ):
             raise ValueError("unsupported local crawl override")
         typed_overrides[key] = value
     if max_urls == 0:
@@ -164,7 +179,11 @@ def crawl_arguments(
         typed_overrides.setdefault("limits.max_crawl_seconds", 0)
         typed_overrides.setdefault("storage.min_free_bytes", 12 * 1024**3)
     if max_urls_per_second is not None:
-        if type(max_urls_per_second) not in (int, float) or not math.isfinite(max_urls_per_second) or max_urls_per_second <= 0:
+        if (
+            type(max_urls_per_second) not in (int, float)
+            or not math.isfinite(max_urls_per_second)
+            or max_urls_per_second <= 0
+        ):
             raise ValueError("native request rate must be a finite positive value")
         typed_overrides["speed.min_delay_seconds"] = max(
             typed_overrides.get("speed.min_delay_seconds", 0), 1 / max_urls_per_second
@@ -175,7 +194,9 @@ def crawl_arguments(
 
 
 def resume_arguments(
-    scan_path: str, project: str, observer_run_id: str | None = None,
+    scan_path: str,
+    project: str,
+    observer_run_id: str | None = None,
     producer_build: str | None = None,
 ) -> list[str]:
     """Resume an in-project artifact without changing its stored crawl settings."""

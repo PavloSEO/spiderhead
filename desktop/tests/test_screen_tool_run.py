@@ -19,7 +19,9 @@ from tests._screens_host import FakeHost
 
 
 def catalogue_item(name="seo_hreflang_check"):
-    return next(item for item in fixture("tool_catalog_hreflang.json")["items"] if item["name"] == name)
+    return next(
+        item for item in fixture("tool_catalog_hreflang.json")["items"] if item["name"] == name
+    )
 
 
 def labels(widget):
@@ -63,7 +65,10 @@ class ToolRunScreenTests(unittest.TestCase):
         self.screen.set_tool(catalogue_item())
         self.assertIn("$ seohead hreflang-check --url <url>", labels(self.screen))
         self.screen.fields["url"].setText("https://shop.example.test/catalog/ divany/")
-        self.assertIn("$ seohead hreflang-check --url 'https://shop.example.test/catalog/ divany/'", labels(self.screen))
+        self.assertIn(
+            "$ seohead hreflang-check --url 'https://shop.example.test/catalog/ divany/'",
+            labels(self.screen),
+        )
 
     def test_result_is_the_waiting_state_and_nothing_is_sampled(self):
         self.screen.set_tool(catalogue_item())
@@ -73,14 +78,18 @@ class ToolRunScreenTests(unittest.TestCase):
 
     def test_batch_options_are_marked_as_waiting_for_the_core(self):
         self.screen.set_tool(catalogue_item())
-        notes = [frame for frame in self.screen.findChildren(QFrame) if frame.property("note") == "info"]
+        notes = [
+            frame for frame in self.screen.findChildren(QFrame) if frame.property("note") == "info"
+        ]
         self.assertEqual(len(notes), 1)
         self.assertTrue(notes[0].findChildren(QLabel))
 
     def test_command_line_is_pure_and_shell_quoted(self):
         item = catalogue_item()
-        self.assertEqual(command_line(item, {"url": "https://a.example.test/?x=1&y=2"}),
-                         "seohead hreflang-check --url 'https://a.example.test/?x=1&y=2'")
+        self.assertEqual(
+            command_line(item, {"url": "https://a.example.test/?x=1&y=2"}),
+            "seohead hreflang-check --url 'https://a.example.test/?x=1&y=2'",
+        )
         self.assertEqual(command_line(item, {}), "seohead hreflang-check --url <url>")
 
     def test_refresh_keeps_the_current_tool(self):

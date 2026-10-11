@@ -11,7 +11,7 @@ from ...i18n import trf
 from ...settings_store import Setting
 from ..controls import Note, SettingRow, Switch, polish
 from ..icons import material_icon
-from .helpers import keyed, page, switch_row, column_stack
+from .helpers import column_stack, keyed, page, switch_row
 
 ID, ICON, TITLE = "notify", "notifications", "Уведомления"
 HINT = "Тосты в окне, системные уведомления и звук"
@@ -47,8 +47,11 @@ def event_key(event_id, channel):
 
 
 SCHEMA = (
-    *(Setting(event_key(event_id, channel), default[index], bool)
-      for event_id, _t, _d, default in EVENTS for index, (channel, _label) in enumerate(CHANNELS)),
+    *(
+        Setting(event_key(event_id, channel), default[index], bool)
+        for event_id, _t, _d, default in EVENTS
+        for index, (channel, _label) in enumerate(CHANNELS)
+    ),
     Setting("notify.quiet", True, bool),
     TimeSetting("notify.quiet_from", "20:00", str, error=TIME_ERROR),
     TimeSetting("notify.quiet_to", "08:00", str, error=TIME_ERROR),
@@ -88,7 +91,10 @@ def _event_row(store, event_id, title, description):
     cells = []
     for channel, _label in CHANNELS:
         key = event_key(event_id, channel)
-        switch = Switch(trf("{title} — {channel}", title=title, channel=CHANNEL_NAMES[channel]), bool(store.get(key)))
+        switch = Switch(
+            trf("{title} — {channel}", title=title, channel=CHANNEL_NAMES[channel]),
+            bool(store.get(key)),
+        )
         switch.toggled.connect(lambda checked, k=key: store.set(k, checked))
         cell = QWidget()
         cell_layout = QHBoxLayout(cell)
@@ -107,7 +113,9 @@ def _quiet_period_row(store):
     layout = QHBoxLayout(box)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(6)
-    for index, (key, name) in enumerate((("notify.quiet_from", "Начало"), ("notify.quiet_to", "Конец"))):
+    for index, (key, name) in enumerate(
+        (("notify.quiet_from", "Начало"), ("notify.quiet_to", "Конец"))
+    ):
         field = QLineEdit(store.get(key))
         field.setFixedWidth(72)
         field.setAccessibleName(name)
@@ -151,7 +159,15 @@ def build_page(store, context):
         _quiet_period_row(store),
     ]
     right = [
-        Note("info", "Что это меняет.", "Окно в фоне.<br>Тосты видны только в открытом окне; когда оно свёрнуто, срабатывают системные уведомления macOS."),
+        Note(
+            "info",
+            "Что это меняет.",
+            "Окно в фоне.<br>Тосты видны только в открытом окне; когда оно свёрнуто, срабатывают системные уведомления macOS.",
+        ),
         preview_row,
     ]
-    return page(_header(), *(_event_row(store, i, t, d) for i, t, d, _default in EVENTS), column_stack(left, right))
+    return page(
+        _header(),
+        *(_event_row(store, i, t, d) for i, t, d, _default in EVENTS),
+        column_stack(left, right),
+    )

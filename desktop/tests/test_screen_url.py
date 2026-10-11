@@ -29,7 +29,7 @@ from tests._qt import sweep_widgets
 from tests._screens_core import FIXTURES, fixture
 from tests._screens_host import FakeHost
 
-FAKE = '''#!{python}
+FAKE = """#!{python}
 import json, sys
 args = sys.argv[1:]
 fixtures = {fixtures!r}
@@ -53,7 +53,7 @@ else:
            "http://shop.example.test:18431/catalog/stoly/": "scan_url_detail_final.json"}}.get(url, "scan_url_detail.json")
 print("seohead: " + name, file=sys.stderr)
 print(open(fixtures + "/" + out).read())
-'''
+"""
 
 
 def tr_no_data():
@@ -75,11 +75,15 @@ class UrlBase(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.log = Path(self.tmp.name) / "calls.log"
         script = Path(self.tmp.name) / "seohead"
-        script.write_text(FAKE.format(python=sys.executable, fixtures=str(FIXTURES), log=str(self.log)))
+        script.write_text(
+            FAKE.format(python=sys.executable, fixtures=str(FIXTURES), log=str(self.log))
+        )
         script.chmod(script.stat().st_mode | stat.S_IEXEC)
         self.host = FakeHost("/project/shop")
         self.host.core_executable = str(script)
-        self.host.open_settings = lambda section="general": self.host.calls.append(("open_settings", section))
+        self.host.open_settings = lambda section="general": self.host.calls.append(
+            ("open_settings", section)
+        )
         self.scan = fixture("scan_row_shop_findings.json")
         self.host.scan_model.rows = [self.scan]
         self.host.selected_scan_path = self.scan["path"]
@@ -99,19 +103,37 @@ class UrlBase(unittest.TestCase):
             self.app.processEvents()
             time.sleep(0.01)
             busy = self.screen.job.busy or self.screen.detail_job.busy or self.screen.counter.busy
-            if not busy and not self.screen._select_timer.isActive() and not self.screen._search_timer.isActive():
+            if (
+                not busy
+                and not self.screen._select_timer.isActive()
+                and not self.screen._search_timer.isActive()
+            ):
                 break
         self.app.processEvents()
 
     def calls(self, name="scan-url-query", skip_counts=True):
-        found = [json.loads(line) for line in self.log.read_text().splitlines()] if self.log.exists() else []
+        found = (
+            [json.loads(line) for line in self.log.read_text().splitlines()]
+            if self.log.exists()
+            else []
+        )
         found = [c for c in found if c[0] == name]
-        return [c for c in found if not (skip_counts and "--columns" in c and c[c.index("--columns") + 1] == "url_id")]
+        return [
+            c
+            for c in found
+            if not (skip_counts and "--columns" in c and c[c.index("--columns") + 1] == "url_id")
+        ]
 
 
 class ArgumentTests(unittest.TestCase):
     def test_arguments_follow_the_core_contract(self):
-        args = query_arguments("/s.sqlite", filters=[{"column": "status_class", "op": "ne", "value": "2xx"}], sort="word_count", direction="desc", offset=400)
+        args = query_arguments(
+            "/s.sqlite",
+            filters=[{"column": "status_class", "op": "ne", "value": "2xx"}],
+            sort="word_count",
+            direction="desc",
+            offset=400,
+        )
         self.assertEqual(args[:3], ["scan-url-query", "--scan", "/s.sqlite"])
         self.assertEqual(args[args.index("--offset") + 1], "400")
         self.assertEqual(args[args.index("--limit") + 1], "200")
@@ -121,10 +143,15 @@ class ArgumentTests(unittest.TestCase):
             query_arguments("/s.sqlite", limit=201)
         with self.assertRaises(ValueError):
             query_arguments("/s.sqlite", offset=-1)
-        self.assertEqual(count_arguments("/s.sqlite")[count_arguments("/s.sqlite").index("--limit") + 1], "1")
+        self.assertEqual(
+            count_arguments("/s.sqlite")[count_arguments("/s.sqlite").index("--limit") + 1], "1"
+        )
 
     def test_url_parts_and_reasons(self):
-        self.assertEqual(split_url("http://shop.example.test:18431/a/?b=1"), ("shop.example.test:18431", "/a/?b=1"))
+        self.assertEqual(
+            split_url("http://shop.example.test:18431/a/?b=1"),
+            ("shop.example.test:18431", "/a/?b=1"),
+        )
         self.assertIn("200", reason_text(fixture("url_query_error.json")) + "200")
 
 
@@ -144,7 +171,10 @@ class UrlTests(UrlBase):
         self.screen._reload()
         self.assertEqual(self.screen.table_stack.currentIndex(), 1)
         placeholder = self.screen.table_state_layout.itemAt(0).widget()
-        self.assertEqual(len([w for w in placeholder.findChildren(QFrame) if w.property("skeleton") == "row"]), 12)
+        self.assertEqual(
+            len([w for w in placeholder.findChildren(QFrame) if w.property("skeleton") == "row"]),
+            12,
+        )
         self.assertEqual(self.screen.foot_text.text(), "Читаю первую страницу · 200 строк")
         self.wait()
         self.assertEqual(self.screen.table_stack.currentIndex(), 0)
@@ -161,7 +191,10 @@ class UrlTests(UrlBase):
         self.screen._sort_clicked(7)
         self.wait()
         call = self.calls()[-1]
-        self.assertEqual((call[call.index("--sort") + 1], call[call.index("--direction") + 1]), ("word_count", "asc"))
+        self.assertEqual(
+            (call[call.index("--sort") + 1], call[call.index("--direction") + 1]),
+            ("word_count", "asc"),
+        )
         self.screen._sort_clicked(7)
         self.wait()
         self.assertEqual(self.calls()[-1][self.calls()[-1].index("--direction") + 1], "desc")
@@ -175,15 +208,22 @@ class UrlTests(UrlBase):
         self.screen._sort_clicked(inlinks)
         self.wait()
         self.assertEqual(len(self.calls()), before)
-        self.assertIn("Недоступно", self.screen.model.headerData(inlinks, Qt.Horizontal, Qt.ToolTipRole))
+        self.assertIn(
+            "Недоступно", self.screen.model.headerData(inlinks, Qt.Horizontal, Qt.ToolTipRole)
+        )
         self.assertIn("Недоступно", self.screen.model.index(0, inlinks).data(Qt.ToolTipRole))
 
     def test_filter_chip_is_a_core_filter_and_the_filtered_total_is_shown(self):
         self.screen._class_chip("4xx")
         self.wait()
         call = self.calls()[-1]
-        self.assertEqual(json.loads(call[call.index("--filters") + 1]), [{"column": "status_class", "op": "eq", "value": "4xx"}])
-        self.assertEqual(self.screen.model.rowCount(), len(fixture("url_query_filtered.json")["rows"]))
+        self.assertEqual(
+            json.loads(call[call.index("--filters") + 1]),
+            [{"column": "status_class", "op": "eq", "value": "4xx"}],
+        )
+        self.assertEqual(
+            self.screen.model.rowCount(), len(fixture("url_query_filtered.json")["rows"])
+        )
         self.assertIn("8", self.screen.caption.text())
         self.screen._remove_chip("http")
         self.wait()
@@ -197,7 +237,10 @@ class UrlTests(UrlBase):
         self.screen.group_buttons["resp"].click()
         self.wait()
         call = self.calls()[-1]
-        self.assertEqual(json.loads(call[call.index("--filters") + 1])[0], {"column": "status_class", "op": "ne", "value": "2xx"})
+        self.assertEqual(
+            json.loads(call[call.index("--filters") + 1])[0],
+            {"column": "status_class", "op": "ne", "value": "2xx"},
+        )
 
     def test_address_search_is_a_contains_filter_on_the_whole_scan(self):
         self.screen.search.setText("kuhn")
@@ -205,11 +248,16 @@ class UrlTests(UrlBase):
         self.screen._search_changed()
         self.wait()
         call = self.calls()[-1]
-        self.assertEqual(json.loads(call[call.index("--filters") + 1]), [{"column": "url", "op": "contains", "value": "kuhn"}])
+        self.assertEqual(
+            json.loads(call[call.index("--filters") + 1]),
+            [{"column": "url", "op": "contains", "value": "kuhn"}],
+        )
 
     def test_other_screens_open_the_table_with_their_urls(self):
         urls = [r["url"] for r in fixture("url_query_page.json")["rows"][:3]]
-        self.screen.apply_external("Проверка · выборка 3 URL", [{"column": "url", "op": "in", "value": urls}])
+        self.screen.apply_external(
+            "Проверка · выборка 3 URL", [{"column": "url", "op": "in", "value": urls}]
+        )
         self.wait()
         call = self.calls()[-1]
         self.assertEqual(json.loads(call[call.index("--filters") + 1])[0]["value"], urls)
@@ -239,7 +287,12 @@ class UrlTests(UrlBase):
         from seohead_desktop.screens.url_detail import OverviewPage
 
         overview = OverviewPage()
-        overview.fill({"url": "http://shop.example.test/a/", "status_code": 200, "title": "Кухня Верона"}, None, None, "loading")
+        overview.fill(
+            {"url": "http://shop.example.test/a/", "status_code": 200, "title": "Кухня Верона"},
+            None,
+            None,
+            "loading",
+        )
         self.assertEqual(overview.left.values["Title"].text(), "Кухня Верона")
         self.assertNotEqual(overview.left.values["Title"].text(), tr_no_data())
 
@@ -251,7 +304,10 @@ class UrlTests(UrlBase):
 
     def test_sort_not_indexed_keeps_the_table_and_says_why(self):
         self.screen.sort = ("title", "asc")
-        self.screen._page_done(("page", self.screen.revision), {"ok": False, "state": "invalid", "reason_code": "sort_not_indexed", "error": "x"})
+        self.screen._page_done(
+            ("page", self.screen.revision),
+            {"ok": False, "state": "invalid", "reason_code": "sort_not_indexed", "error": "x"},
+        )
         self.wait()
         self.assertIsNone(self.screen.sort)
         self.assertTrue(self.screen.note.isVisibleTo(self.screen))
@@ -281,7 +337,9 @@ class UrlTests(UrlBase):
 
         window = QWidget()
         self.addCleanup(window.deleteLater)
-        visible = lambda: [c for c in range(len(COLUMNS)) if not self.screen.table.isColumnHidden(c)]  # noqa: E731
+        visible = lambda: [
+            c for c in range(len(COLUMNS)) if not self.screen.table.isColumnHidden(c)
+        ]
         with mock.patch.object(self.screen, "window", return_value=window):
             window.resize(800, 800)
             self.screen._apply_columns()
@@ -295,7 +353,10 @@ class UrlTests(UrlBase):
         self.wait()
         self.assertIsNotNone(self.screen.current_url)
         self.screen.rows = []
-        self.screen._page_done(("page", self.screen.revision), {**fixture("url_query_filtered.json"), "rows": [], "filtered_total": 0})
+        self.screen._page_done(
+            ("page", self.screen.revision),
+            {**fixture("url_query_filtered.json"), "rows": [], "filtered_total": 0},
+        )
         self.assertIsNone(self.screen.current_url)
 
     def test_pager_never_holds_more_than_one_page(self):

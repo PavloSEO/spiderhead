@@ -45,9 +45,34 @@ class ComparisonTests(unittest.TestCase):
             path = directory / f"{kind}.ndjson"
             with path.open("w") as handle:
                 for index in range(count if kind == "left" else 0):
-                    handle.write(json.dumps({"id": f"issue-{index}", "check": "TITLE_MISSING", "target_url": f"https://example.test/{index}", "message": f"Missing title {index}"}) + "\n")
-            files[kind] = {"path": path.name, "format": "ndjson", "rows": count if kind == "left" else 0, "bytes": path.stat().st_size}
-        (directory / "compare.json").write_text(json.dumps({"schema_version": "compare.v2", "files": files, "summary": {"left": count}, "compatibility": [{"basis": "scope", "state": "unknown"}], "warnings": ["Unknown population"]}))
+                    handle.write(
+                        json.dumps(
+                            {
+                                "id": f"issue-{index}",
+                                "check": "TITLE_MISSING",
+                                "target_url": f"https://example.test/{index}",
+                                "message": f"Missing title {index}",
+                            }
+                        )
+                        + "\n"
+                    )
+            files[kind] = {
+                "path": path.name,
+                "format": "ndjson",
+                "rows": count if kind == "left" else 0,
+                "bytes": path.stat().st_size,
+            }
+        (directory / "compare.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": "compare.v2",
+                    "files": files,
+                    "summary": {"left": count},
+                    "compatibility": [{"basis": "scope", "state": "unknown"}],
+                    "warnings": ["Unknown population"],
+                }
+            )
+        )
         return directory
 
     def test_paging_never_turns_a_missing_finding_into_a_fix(self):
@@ -84,20 +109,37 @@ class ComparisonTests(unittest.TestCase):
     def test_gateway_requires_offline_after_and_immutable_project_output(self):
         gateway = PersistentMcpGateway("/unused")
         gateway.set_project_scope(str(self.project))
-        args = {"baseline": self.pair[0]["path"], "after": self.pair[1]["path"], "finding_ids": ["issue"], "out_dir": str(self.project / "reports" / "new")}
+        args = {
+            "baseline": self.pair[0]["path"],
+            "after": self.pair[1]["path"],
+            "finding_ids": ["issue"],
+            "out_dir": str(self.project / "reports" / "new"),
+        }
         gateway._validate("seo_verify_fixes", args)
-        for change in ({"after": None}, {"out_dir": str(self.project / "outside")}, {"finding_ids": ["x"] * 101}, {"config": "secret"}):
+        for change in (
+            {"after": None},
+            {"out_dir": str(self.project / "outside")},
+            {"finding_ids": ["x"] * 101},
+            {"config": "secret"},
+        ):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 gateway._validate("seo_verify_fixes", {**args, **change})
-        compare = {"before": self.pair[0]["path"], "after": self.pair[1]["path"], "out_dir": str(self.project / "reports" / "new"), "force": True}
+        compare = {
+            "before": self.pair[0]["path"],
+            "after": self.pair[1]["path"],
+            "out_dir": str(self.project / "reports" / "new"),
+            "force": True,
+        }
         with self.assertRaises(ValueError):
             gateway._validate("seo_compare_crawls", compare)
 
     def test_superseded_pair_results_and_errors_cannot_replace_new_selection(self):
         class Signals(QObject):
             failed = pyqtSignal(str, str, int)
+
         class Gateway:
             signals = Signals()
+
         class Window(QObject):
             def __init__(self, project):
                 super().__init__()
@@ -105,10 +147,13 @@ class ComparisonTests(unittest.TestCase):
                 self.read_generation = 1
                 self.pool = QThreadPool(self)
                 self.commands = []
+
             def ensure_mcp_gateway(self):
                 return Gateway
+
             def start_command(self, *args):
                 self.commands.append(args)
+
         window = Window(self.project)
         controller = ComparisonController(window)
         observed = []
@@ -129,10 +174,16 @@ class ComparisonTests(unittest.TestCase):
     def test_real_mainwindow_compare_and_verify_without_network_or_source_mutation(self):
         core = core_cli(self)
         directory = os.environ.get("SEOHEAD_DESKTOP_COMPARE_PROJECT")
-        names = [os.environ.get("SEOHEAD_DESKTOP_COMPARE_BEFORE"), os.environ.get("SEOHEAD_DESKTOP_COMPARE_AFTER")]
+        names = [
+            os.environ.get("SEOHEAD_DESKTOP_COMPARE_BEFORE"),
+            os.environ.get("SEOHEAD_DESKTOP_COMPARE_AFTER"),
+        ]
         if not directory or not all(names):
-            self.skipTest("provide an existing same-project before/after pair for the offline MCP gate")
+            self.skipTest(
+                "provide an existing same-project before/after pair for the offline MCP gate"
+            )
         from seohead_desktop.app import MainWindow
+
         project = Path(directory)
         scans = []
         hashes = {}
@@ -146,18 +197,33 @@ class ComparisonTests(unittest.TestCase):
         window.show()
         try:
             window.read_project(str(project))
-            wait_for(self, lambda: window.project_directory and not window.requests, "project did not load")
-            self.assertTrue(hasattr(window, "comparison"), "MainWindow compare hook is not connected")
+            wait_for(
+                self,
+                lambda: window.project_directory and not window.requests,
+                "project did not load",
+            )
+            self.assertTrue(
+                hasattr(window, "comparison"), "MainWindow compare hook is not connected"
+            )
             states = []
             window.comparison.changed.connect(states.append)
             window.open_comparison()
             panel = window.project_panels.panel("compare")
             for combo, scan in zip((panel.before, panel.after), scans):
-                index = next(index for index in range(combo.count()) if (combo.itemData(index) or {}).get("uuid") == scan["uuid"])
+                index = next(
+                    index
+                    for index in range(combo.count())
+                    if (combo.itemData(index) or {}).get("uuid") == scan["uuid"]
+                )
                 combo.setCurrentIndex(index)
             self.assertTrue(panel.compare_button.isEnabled())
             QTest.mouseClick(panel.compare_button, Qt.LeftButton)
-            wait_for(self, lambda: states and states[-1]["state"] in {"ready", "unavailable"}, lambda: str(states[-1] if states else "No comparison state"), timeout=60)
+            wait_for(
+                self,
+                lambda: states and states[-1]["state"] in {"ready", "unavailable"},
+                lambda: str(states[-1] if states else "No comparison state"),
+                timeout=60,
+            )
             result = states[-1]
             self.assertEqual(result["state"], "ready", result)
             self.assertLessEqual(len(result["rows"]), 100)
@@ -165,22 +231,39 @@ class ComparisonTests(unittest.TestCase):
             self.assertIn("resolved", outcomes)
             self.assertIn("not_verifiable", outcomes)
             self.assertTrue(outcomes & {"changed", "persisting"})
-            self.assertTrue(all(item["state"] == "compatible" for item in result["compatibility"]), result["compatibility"])
+            self.assertTrue(
+                all(item["state"] == "compatible" for item in result["compatibility"]),
+                result["compatibility"],
+            )
             self.assertGreater(result["summary"]["verified_page"]["resolved"], 0)
             for path, digest in hashes.items():
                 self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), digest)
             first_rows = [(row["url"], row["check"]) for row in result["rows"]]
             QTest.mouseClick(panel.next_button, Qt.LeftButton)
-            wait_for(self, lambda: states[-1]["state"] == "ready" and states[-1].get("offset") == 100, "comparison second page did not load")
+            wait_for(
+                self,
+                lambda: states[-1]["state"] == "ready" and states[-1].get("offset") == 100,
+                "comparison second page did not load",
+            )
             second = states[-1]
             self.assertEqual(len(second["rows"]), 45)
             self.assertFalse(second["has_more"])
-            self.assertFalse(set(first_rows) & {(row["url"], row["check"]) for row in second["rows"]})
+            self.assertFalse(
+                set(first_rows) & {(row["url"], row["check"]) for row in second["rows"]}
+            )
             QTest.mouseClick(panel.previous_button, Qt.LeftButton)
-            wait_for(self, lambda: states[-1]["state"] == "ready" and states[-1].get("offset") == 0, "comparison previous page did not reload")
+            wait_for(
+                self,
+                lambda: states[-1]["state"] == "ready" and states[-1].get("offset") == 0,
+                "comparison previous page did not reload",
+            )
             report = Path(result["package"]).parent
-            (report / "desktop-proof-page2.json").write_text(json.dumps(second, ensure_ascii=False, indent=2))
-            (report / "desktop-proof.json").write_text(json.dumps(result, ensure_ascii=False, indent=2))
+            (report / "desktop-proof-page2.json").write_text(
+                json.dumps(second, ensure_ascii=False, indent=2)
+            )
+            (report / "desktop-proof.json").write_text(
+                json.dumps(result, ensure_ascii=False, indent=2)
+            )
             window.grab().save(str(report / "desktop-comparison.png"))
         finally:
             close_window(self, window)

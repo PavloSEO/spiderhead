@@ -38,12 +38,25 @@ SPEND_KEY = {"dataforseo_backlinks": "dataforseo"}
 SYNC_SOURCE = {"gsc": "gsc", "ga4": "ga4", "metrika": "metrika", "yandex_webmaster": "webmaster"}
 
 COMPONENTS = {
-    "api_key": "API-ключ", "api_token": "API-токен", "oauth_bearer": "OAuth-токен", "durable_oauth": "OAuth (вход через браузер)",
-    "service_account": "Сервисный аккаунт", "login": "Логин", "password": "API-пароль", "submission_key": "Ключ отправки",
+    "api_key": "API-ключ",
+    "api_token": "API-токен",
+    "oauth_bearer": "OAuth-токен",
+    "durable_oauth": "OAuth (вход через браузер)",
+    "service_account": "Сервисный аккаунт",
+    "login": "Логин",
+    "password": "API-пароль",
+    "submission_key": "Ключ отправки",
     "folder_id": "ID каталога",
 }
-METHOD_LABELS = {"oauth_bearer": "OAuth", "durable_oauth": "OAuth", "service_account": "сервисный аккаунт", "api_key": "API-ключ", "api_token": "API-токен",
-                 "login": "логин + пароль", "submission_key": "ключ отправки"}
+METHOD_LABELS = {
+    "oauth_bearer": "OAuth",
+    "durable_oauth": "OAuth",
+    "service_account": "сервисный аккаунт",
+    "api_key": "API-ключ",
+    "api_token": "API-токен",
+    "login": "логин + пароль",
+    "submission_key": "ключ отправки",
+}
 
 # state -> (badge kind, badge text, icon); the text always says what the core reported, never more
 STATES = {
@@ -64,19 +77,52 @@ PROBLEM = {"expired", "revoked", "invalid", "failed"}
 
 # provider -> (token lifetime, where to take it, what it shows after connecting) as printed on the sheet SetSourcesAuth
 HOWTO = {
-    "gsc": ("токен сервисного аккаунта на 1 ч, приложение обновляет сам; OAuth в статусе «Testing» — 7 дней",
-            "Google Cloud → IAM → Сервисные аккаунты → Ключи (JSON); e-mail аккаунта добавить пользователем в каждый ресурс",
-            "свойства Search Console"),
-    "ga4": ("как у Search Console", "Google Cloud → IAM → Сервисные аккаунты; e-mail добавить в «Управление доступом» ресурса GA4",
-            "ресурсы и потоки GA4"),
-    "pagespeed": ("до отзыва", "Google Cloud → API и сервисы → Учётные данные → API-ключ", "публичные данные PageSpeed"),
-    "crux": ("до отзыва", "Google Cloud → API и сервисы → Учётные данные → API-ключ", "публичные данные CrUX"),
-    "yandex_webmaster": ("~1 год, дату истечения покажем после появления в ядре", "oauth.yandex.ru → приложение → разрешить доступ", "сайты Вебмастера"),
-    "metrika": ("~1 год, дату истечения покажем после появления в ядре", "oauth.yandex.ru → приложение → разрешить доступ", "счётчики Метрики"),
-    "yandex_cloud": ("ключ — до отзыва", "консоль Yandex Cloud → Сервисные аккаунты → ключи", "каталог Cloud, квота Wordstat"),
-    "bing_webmaster": ("ключ — до отзыва", "Bing Webmaster → Настройки → API access", "сайты аккаунта Bing"),
+    "gsc": (
+        "токен сервисного аккаунта на 1 ч, приложение обновляет сам; OAuth в статусе «Testing» — 7 дней",
+        "Google Cloud → IAM → Сервисные аккаунты → Ключи (JSON); e-mail аккаунта добавить пользователем в каждый ресурс",
+        "свойства Search Console",
+    ),
+    "ga4": (
+        "как у Search Console",
+        "Google Cloud → IAM → Сервисные аккаунты; e-mail добавить в «Управление доступом» ресурса GA4",
+        "ресурсы и потоки GA4",
+    ),
+    "pagespeed": (
+        "до отзыва",
+        "Google Cloud → API и сервисы → Учётные данные → API-ключ",
+        "публичные данные PageSpeed",
+    ),
+    "crux": (
+        "до отзыва",
+        "Google Cloud → API и сервисы → Учётные данные → API-ключ",
+        "публичные данные CrUX",
+    ),
+    "yandex_webmaster": (
+        "~1 год, дату истечения покажем после появления в ядре",
+        "oauth.yandex.ru → приложение → разрешить доступ",
+        "сайты Вебмастера",
+    ),
+    "metrika": (
+        "~1 год, дату истечения покажем после появления в ядре",
+        "oauth.yandex.ru → приложение → разрешить доступ",
+        "счётчики Метрики",
+    ),
+    "yandex_cloud": (
+        "ключ — до отзыва",
+        "консоль Yandex Cloud → Сервисные аккаунты → ключи",
+        "каталог Cloud, квота Wordstat",
+    ),
+    "bing_webmaster": (
+        "ключ — до отзыва",
+        "Bing Webmaster → Настройки → API access",
+        "сайты аккаунта Bing",
+    ),
     "arsenkin": ("до отзыва", "кабинет Arsenkin → API", "баланс; проекты не связываются"),
-    "dataforseo_backlinks": ("до смены пароля; sandbox для проверки бесплатный", "app.dataforseo.com → API Access", "баланс и лимиты, ссылки домена"),
+    "dataforseo_backlinks": (
+        "до смены пароля; sandbox для проверки бесплатный",
+        "app.dataforseo.com → API Access",
+        "баланс и лимиты, ссылки домена",
+    ),
     "miratext": ("ключ — до отзыва", "кабинет Miratext → API", "SEO-анализ текста"),
     "indexnow": ("ключ — до смены", "файл ключа на сайте проекта", "отправка адресов в поисковики"),
     "wayback": ("—", "—", "публичные архивы"),
@@ -104,19 +150,31 @@ def describe(entry):
 
 def paid_kind(registry_entry):
     access = str((registry_entry or {}).get("access") or "")
-    return "paid" if access.endswith("_paid") and "optional" not in access else "optional" if "optional_paid" in access else ""
+    return (
+        "paid"
+        if access.endswith("_paid") and "optional" not in access
+        else "optional"
+        if "optional_paid" in access
+        else ""
+    )
 
 
 def credential_line(registry_entry, entry, refs=True):
     """«сервисный аккаунт / OAuth-токен · хранится: config:…» from component names and reference paths only."""
-    names = (registry_entry or {}).get("credential_components") or list((entry or {}).get("credential_components") or {})
+    names = (registry_entry or {}).get("credential_components") or list(
+        (entry or {}).get("credential_components") or {}
+    )
     kinds = []
     for component in names:
         label = METHOD_LABELS.get(component)
         if label and label not in kinds:
             kinds.append(label)
     parts = [joined(" / ", kinds)] if kinds else []
-    found = [s.get("source_reference") for s in ((entry or {}).get("credential_sources") or {}).values() if s.get("source_reference")]
+    found = [
+        s.get("source_reference")
+        for s in ((entry or {}).get("credential_sources") or {}).values()
+        if s.get("source_reference")
+    ]
     if refs and found:
         parts.append(trf("хранится: {refs}", refs=", ".join(dict.fromkeys(found))))
     return joined(" · ", parts)

@@ -1167,11 +1167,17 @@ def test_native_asset_thresholds_keep_frozen_header_and_roundtrip(tmp_path, reso
         NativeScan.open(path, expected_config=mismatch)
 
 
-@pytest.mark.parametrize("payload", [
-    {"schema_version": "analysis_asset_thresholds.v0", "thresholds": {}},
-    {"schema_version": "analysis_asset_thresholds.v1", "thresholds": {"resource_max_bytes": 5}},
-    {"schema_version": "analysis_asset_thresholds.v1", "thresholds": {"resource_max_bytes": True, "page_weight_max_bytes": 5}},
-])
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"schema_version": "analysis_asset_thresholds.v0", "thresholds": {}},
+        {"schema_version": "analysis_asset_thresholds.v1", "thresholds": {"resource_max_bytes": 5}},
+        {
+            "schema_version": "analysis_asset_thresholds.v1",
+            "thresholds": {"resource_max_bytes": True, "page_weight_max_bytes": 5},
+        },
+    ],
+)
 def test_native_asset_threshold_adjunct_rejects_malformed_payload(tmp_path, payload):
     import sqlite3
 

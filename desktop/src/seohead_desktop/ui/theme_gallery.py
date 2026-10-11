@@ -34,8 +34,14 @@ from .. import qt, theming
 from ..app import load_theme
 from .presentation import SwitchCheckBox
 
-ROWS = [("/", 200, "Индексируется"), ("/old-product/", 301, "Редирект"), ("/missing/", 404, "Не индексируется"),
-        ("/catalog/", 200, "Индексируется"), ("/api/cart", 500, "Не индексируется"), ("/blog/", 200, "Индексируется")]
+ROWS = [
+    ("/", 200, "Индексируется"),
+    ("/old-product/", 301, "Редирект"),
+    ("/missing/", 404, "Не индексируется"),
+    ("/catalog/", 200, "Индексируется"),
+    ("/api/cart", 500, "Не индексируется"),
+    ("/blog/", 200, "Индексируется"),
+]
 
 
 class _Rows(QAbstractTableModel):
@@ -141,7 +147,11 @@ def build_board(width, height):
     nav = QListWidget()
     nav.setObjectName("navView")
     nav.setProperty("rail", width < 1100)
-    nav.addItems(["Работа", "Входящие", "Сканы", "URL", "Проблемы", "Сравнение"] if width >= 1100 else ["Раб", "Вх", "Скан", "URL", "Пр", "Ср"])
+    nav.addItems(
+        ["Работа", "Входящие", "Сканы", "URL", "Проблемы", "Сравнение"]
+        if width >= 1100
+        else ["Раб", "Вх", "Скан", "URL", "Пр", "Ср"]
+    )
     nav.setCurrentRow(3)
     nav.setFixedWidth(200 if width >= 1100 else 64)
     body.addWidget(nav)
@@ -157,11 +167,28 @@ def build_board(width, height):
         buttons.append(_set(QPushButton(role), role=role))
     off = _set(QPushButton("disabled"), role="primary")
     off.setEnabled(False)
-    buttons += [off, _set(QPushButton("size lg"), role="primary", size="lg"), _set(QPushButton("pill"), size="pill")]
+    buttons += [
+        off,
+        _set(QPushButton("size lg"), role="primary", size="lg"),
+        _set(QPushButton("pill"), size="pill"),
+    ]
     grid.addWidget(_row(*buttons))
     grid.addWidget(_section("Бейджи"))
-    grid.addWidget(_row(*[_set(QLabel(text), badge=kind) for kind, text in
-                          (("ok", "200"), ("info", "301"), ("warn", "404"), ("err", "500"), ("mut", "Не измерено"), ("goal", "Цель"))]))
+    grid.addWidget(
+        _row(
+            *[
+                _set(QLabel(text), badge=kind)
+                for kind, text in (
+                    ("ok", "200"),
+                    ("info", "301"),
+                    ("warn", "404"),
+                    ("err", "500"),
+                    ("mut", "Не измерено"),
+                    ("goal", "Цель"),
+                )
+            ]
+        )
+    )
     grid.addWidget(_section("Поля и переключатели"))
     focus = QLineEdit("example.test")
     invalid = _set(QLineEdit("htp://"), invalid=True)

@@ -75,7 +75,11 @@ def _mapping(value):
 def _source(run):
     kind = run.get("source_kind") or run.get("kind")
     mode = _mapping(run.get("collector")).get("mode")
-    if kind == "sitemap" or mode in {"sitemap", "sitemap-only"} or run.get("input_mode") == "sitemap":
+    if (
+        kind == "sitemap"
+        or mode in {"sitemap", "sitemap-only"}
+        or run.get("input_mode") == "sitemap"
+    ):
         return "Sitemap", "account_tree"
     if kind in {"screaming_frog", "sf"} or mode in {"sf_live", "sf_exports"}:
         return "Screaming Frog", "manage_search"
@@ -85,12 +89,17 @@ def _source(run):
 
 
 def _phase(run):
-    return next((item.get("phase") for item in reversed(run.get("events") or []) if item.get("phase")), None)
+    return next(
+        (item.get("phase") for item in reversed(run.get("events") or []) if item.get("phase")), None
+    )
 
 
 def _rate(run):
     telemetry = _mapping(run.get("telemetry"))
-    if telemetry.get("state") == "fresh" and _number(telemetry.get("current_rate_per_second")) is None:
+    if (
+        telemetry.get("state") == "fresh"
+        and _number(telemetry.get("current_rate_per_second")) is None
+    ):
         return "Не измерено"
     return run_projection(run)["rate"]
 
@@ -107,7 +116,9 @@ def bounded_observed_runs(runs):
 def _snapshot(runs):
     """Join only exact supplied IDs; never resolve files or process identities."""
     envelope = _mapping(runs)
-    observed = list(islice(iter(envelope.get("items") or [] if envelope else runs or []), RUN_LIMIT + 1))
+    observed = list(
+        islice(iter(envelope.get("items") or [] if envelope else runs or []), RUN_LIMIT + 1)
+    )
     owned = list(islice(iter(envelope.get("owned") or []), RUN_LIMIT + 1))
     if any(not isinstance(item, Mapping) for item in observed + owned):
         raise TypeError("Run snapshots must contain mappings")
@@ -124,14 +135,26 @@ def _snapshot(runs):
         row = dict(item)
         row["_owned"] = owners.pop(identity, None)
         row["_observed"] = True
-        row["events"] = [dict(event) for event in (item.get("events") or [])[-EVENT_LIMIT:] if isinstance(event, Mapping)]
+        row["events"] = [
+            dict(event)
+            for event in (item.get("events") or [])[-EVENT_LIMIT:]
+            if isinstance(event, Mapping)
+        ]
         joined[identity] = row
-    queued = [{**item, "id": identity, "_owned": item, "_observed": False, "events": []}
-              for identity, item in owners.items() if item.get("state") in ACTIVE_STATES]
+    queued = [
+        {**item, "id": identity, "_owned": item, "_observed": False, "events": []}
+        for identity, item in owners.items()
+        if item.get("state") in ACTIVE_STATES
+    ]
     merged = queued + list(joined.values())
     merged.sort(key=lambda row: row.get("state") not in ACTIVE_STATES)
     rows = merged[:RUN_LIMIT]
-    truncated = bool(envelope.get("has_more") or _mapping(envelope.get("pagination")).get("has_more")) or len(observed) > RUN_LIMIT or len(owned) > RUN_LIMIT or len(queued) + len(joined) > RUN_LIMIT
+    truncated = (
+        bool(envelope.get("has_more") or _mapping(envelope.get("pagination")).get("has_more"))
+        or len(observed) > RUN_LIMIT
+        or len(owned) > RUN_LIMIT
+        or len(queued) + len(joined) > RUN_LIMIT
+    )
     return rows, truncated
 
 
@@ -168,7 +191,14 @@ class _RunCard(QPushButton):
         layout.addLayout(title_row, 1, 0, 1, 2)
         layout.addWidget(self.counts, 2, 0, 1, 2)
         layout.addWidget(self.activity, 3, 0, 1, 2)
-        for child in (self.source, self.state, self.source_icon, self.title, self.counts, self.activity):
+        for child in (
+            self.source,
+            self.state,
+            self.source_icon,
+            self.title,
+            self.counts,
+            self.activity,
+        ):
             child.setTextFormat(Qt.PlainText)
             child.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.counts.setWordWrap(True)
@@ -183,13 +213,33 @@ class _RunCard(QPushButton):
         self.source.setText(source)
         self.state.set_state(run.get("state", "unknown"))
         collector, counters = _mapping(run.get("collector")), _mapping(run.get("counters"))
-        self.title.setText(str(collector.get("origin") or "Запуск") + " · " + short_run_id(self.identity))
-        self.counts.setText(f"Получено: {_display(_counter(counters.get('fetched')))} · В очереди: {_display(_counter(counters.get('queued')))}")
+        self.title.setText(
+            str(collector.get("origin") or "Запуск") + " · " + short_run_id(self.identity)
+        )
+        self.counts.setText(
+            f"Получено: {_display(_counter(counters.get('fetched')))} · В очереди: {_display(_counter(counters.get('queued')))}"
+        )
         phase = state_text(_phase(run)) if _phase(run) else "Этап не сообщён"
-        terminal = run.get("state") in {"finished", "partial", "interrupted", "failed", "cancelled_before_start"}
-        self.activity.setText(("Окончен · " + field_text("finished_at", run.get("finished_at")) if run.get("finished_at") else "Текущих измерений нет") if terminal else ("Сейчас: " + _rate(run) if run.get("_observed") else "Очередь этого окна"))
+        terminal = run.get("state") in {
+            "finished",
+            "partial",
+            "interrupted",
+            "failed",
+            "cancelled_before_start",
+        }
+        self.activity.setText(
+            (
+                "Окончен · " + field_text("finished_at", run.get("finished_at"))
+                if run.get("finished_at")
+                else "Текущих измерений нет"
+            )
+            if terminal
+            else ("Сейчас: " + _rate(run) if run.get("_observed") else "Очередь этого окна")
+        )
         self.setToolTip(f"{source} · {self.identity}\n{phase} · {self.activity.text()}")
-        self.setAccessibleName(f"{self.title.text()}. {source}. {self.state.text()}. {self.counts.text()}. {self.activity.text()}")
+        self.setAccessibleName(
+            f"{self.title.text()}. {source}. {self.state.text()}. {self.counts.text()}. {self.activity.text()}"
+        )
 
     def set_active(self, active):
         self.setChecked(active)
@@ -301,7 +351,15 @@ class WorkMonitor(QWidget):
         self.metrics_layout.setHorizontalSpacing(16)
         self.metric_values = {}
         self.metric_labels = {}
-        for column, (key, title) in enumerate((("fetched", "Получено страниц"), ("queued", "В очереди"), ("inflight", "В работе"), ("excluded", "Исключено"), ("rate", "Сейчас"))):
+        for column, (key, title) in enumerate(
+            (
+                ("fetched", "Получено страниц"),
+                ("queued", "В очереди"),
+                ("inflight", "В работе"),
+                ("excluded", "Исключено"),
+                ("rate", "Сейчас"),
+            )
+        ):
             label = self._label("workMetricLabel")
             label.setText(title)
             value = self._label("workMetricValue")
@@ -336,7 +394,11 @@ class WorkMonitor(QWidget):
             metadata_layout.addWidget(label)
         self.metadata_panel.hide()
         self.metadata_toggle.toggled.connect(self.metadata_panel.setVisible)
-        self.metadata_toggle.toggled.connect(lambda opened: self.metadata_toggle.setIcon(material_icon("chevron_up" if opened else "chevron_down")))
+        self.metadata_toggle.toggled.connect(
+            lambda opened: self.metadata_toggle.setIcon(
+                material_icon("chevron_up" if opened else "chevron_down")
+            )
+        )
         selected_layout.addWidget(self.metadata_toggle, 0, Qt.AlignLeft)
         selected_layout.addWidget(self.metadata_panel)
         self.events_section = QWidget()
@@ -345,7 +407,9 @@ class WorkMonitor(QWidget):
         events_layout.setSpacing(12)
         self.events_caption = self._label("workMetricLabel")
         events_layout.addWidget(self.events_caption)
-        self.events_model = PageModel((("at", "Время"), ("phase", "Этап"), ("code", "Событие")), self)
+        self.events_model = PageModel(
+            (("at", "Время"), ("phase", "Этап"), ("code", "Событие")), self
+        )
         self.events = QTableView()
         self.events.setAccessibleName("Последние двадцать событий выбранного запуска")
         self.events.setModel(self.events_model)
@@ -387,7 +451,10 @@ class WorkMonitor(QWidget):
         _margin, spacing = content_spacing(self.width())
         self.body.setSpacing(spacing)
         width = self.cards_scroll.viewport().width()
-        columns = min(len(self.run_cards) or 1, 4 if width >= 1120 else 3 if width >= 840 else 2 if width >= 540 else 1)
+        columns = min(
+            len(self.run_cards) or 1,
+            4 if width >= 1120 else 3 if width >= 840 else 2 if width >= 540 else 1,
+        )
         card_width = min(380, max(160, (width - self.cards.spacing() * (columns - 1)) // columns))
         for column in range(5):
             self.cards.setColumnStretch(column, 0)
@@ -395,7 +462,9 @@ class WorkMonitor(QWidget):
         for index, card in enumerate(self.run_cards.values()):
             self.cards.removeWidget(card)
             card.setFixedWidth(card_width)
-            self.cards.addWidget(card, index // columns, index % columns, Qt.AlignLeft | Qt.AlignTop)
+            self.cards.addWidget(
+                card, index // columns, index % columns, Qt.AlignLeft | Qt.AlignTop
+            )
         for column in range(columns):
             self.cards.setColumnMinimumWidth(column, card_width)
         self.cards.setColumnStretch(columns, 1)
@@ -405,9 +474,13 @@ class WorkMonitor(QWidget):
             if index % columns == 0:
                 row_heights.append(0)
             height = card.heightForWidth(card_width)
-            row_heights[-1] = max(row_heights[-1], height if height >= 0 else card.sizeHint().height())
+            row_heights[-1] = max(
+                row_heights[-1], height if height >= 0 else card.sizeHint().height()
+            )
         visible_rows = row_heights[:2]
-        self.cards_scroll.setFixedHeight(sum(visible_rows) + max(0, len(visible_rows) - 1) * self.cards.verticalSpacing())
+        self.cards_scroll.setFixedHeight(
+            sum(visible_rows) + max(0, len(visible_rows) - 1) * self.cards.verticalSpacing()
+        )
 
     def set_reduced_motion(self, enabled):
         self.reduced_motion = bool(enabled) or self.system_reduced_motion
@@ -439,28 +512,45 @@ class WorkMonitor(QWidget):
         self.all_runs_button.setEnabled(bool(rows))
         self._arrange_cards()
         suffix = " · показаны не все запуски" if truncated else ""
-        self.observation.setText(f"Карточки: {len(overview)} · В наблюдении: {len(rows)} · Незавершённых: {_display(_counter(_mapping(runs).get('active_total')))}{suffix}")
+        self.observation.setText(
+            f"Карточки: {len(overview)} · В наблюдении: {len(rows)} · Незавершённых: {_display(_counter(_mapping(runs).get('active_total')))}{suffix}"
+        )
         self.observation.setToolTip("Наблюдение ядра: " + field_text("observed_at", observed_at))
-        self.empty.setText("В этом наблюдении запусков нет" if not rows else "Выбранный запуск не входит в текущее наблюдение")
+        self.empty.setText(
+            "В этом наблюдении запусков нет"
+            if not rows
+            else "Выбранный запуск не входит в текущее наблюдение"
+        )
         if self.selected_run_id is None and rows:
             self.selected_run_id = rows[0]["id"]
         self.set_selected_run(self.selected_run_id)
         progress = _mapping(progress)
         completion = _mapping(progress.get("audit_task_completion"))
         done, total = _number(completion.get("numerator")), _number(completion.get("denominator"))
-        measured = completion.get("state") == "measured" and done is not None and total is not None and 0 <= done <= total and total > 0
+        measured = (
+            completion.get("state") == "measured"
+            and done is not None
+            and total is not None
+            and 0 <= done <= total
+            and total > 0
+        )
         self.plan_progress.setVisible(measured)
         if measured:
-            self.plan_label.setText(f"План аудита · {_display(done)} из {_display(total)} согласованных задач")
+            self.plan_label.setText(
+                f"План аудита · {_display(done)} из {_display(total)} согласованных задач"
+            )
             self.plan_progress.setValue(round(1000 * done / total))
             self.plan_progress.setAccessibleDescription(self.plan_label.text())
         else:
             self.plan_label.setText("План аудита · выполнение не измерено")
         counts = _mapping(progress.get("counts"))
-        has_counts = any(_counter(counts.get(key)) is not None for key in ("complete", "remaining", "stale"))
+        has_counts = any(
+            _counter(counts.get(key)) is not None for key in ("complete", "remaining", "stale")
+        )
         self.plan_note.setText(
             f"Задачи проекта · Завершено: {_display(_counter(counts.get('complete')))} · Осталось: {_display(_counter(counts.get('remaining')))} · Устарело: {_display(_counter(counts.get('stale')))}"
-            if has_counts else "Для доли выполнения нужен согласованный план с известным числом задач"
+            if has_counts
+            else "Для доли выполнения нужен согласованный план с известным числом задач"
         )
         self.plan_note.setVisible(has_counts)
         self.plan_label.setToolTip("" if has_counts else self.plan_note.text())
@@ -491,17 +581,41 @@ class WorkMonitor(QWidget):
         self.selected_title.setToolTip(identity)
         self.selected_badge.set_state(run.get("state", "unknown"))
         phase = _phase(run)
-        self.phase_label.setText("Последний этап: " + state_text(phase) if phase else "Этап ещё не сообщён")
-        values = {key: _display(_counter(counters.get(key))) for key in ("fetched", "queued", "inflight", "excluded")}
-        measured_rate = telemetry.get("state") == "fresh" and _number(telemetry.get("current_rate_per_second")) is not None
+        self.phase_label.setText(
+            "Последний этап: " + state_text(phase) if phase else "Этап ещё не сообщён"
+        )
+        values = {
+            key: _display(_counter(counters.get(key)))
+            for key in ("fetched", "queued", "inflight", "excluded")
+        }
+        measured_rate = (
+            telemetry.get("state") == "fresh"
+            and _number(telemetry.get("current_rate_per_second")) is not None
+        )
         values["rate"] = _rate(run) if measured_rate else "—"
-        self.metric_labels["rate"].setText("Сейчас" if measured_rate else "Измерение устарело" if telemetry.get("state") == "stale" else "Нет текущей скорости")
-        self.metric_labels["fetched"].setText({"pages": "Получено страниц", "sitemap_documents": "Sitemap-документов", "urls_including_resources": "URL и ресурсов"}.get(telemetry.get("unit"), "Получено"))
+        self.metric_labels["rate"].setText(
+            "Сейчас"
+            if measured_rate
+            else "Измерение устарело"
+            if telemetry.get("state") == "stale"
+            else "Нет текущей скорости"
+        )
+        self.metric_labels["fetched"].setText(
+            {
+                "pages": "Получено страниц",
+                "sitemap_documents": "Sitemap-документов",
+                "urls_including_resources": "URL и ресурсов",
+            }.get(telemetry.get("unit"), "Получено")
+        )
         for key, value in values.items():
             self.metric_values[key].setText(value)
             self.metric_values[key].setAccessibleName(self.metric_labels[key].text() + ": " + value)
         signature = (identity, tuple(values.items()))
-        if self._detail_signature and self._detail_signature[0] == identity and self._detail_signature != signature:
+        if (
+            self._detail_signature
+            and self._detail_signature[0] == identity
+            and self._detail_signature != signature
+        ):
             self.transition.stop()
             if not self.reduced_motion and self.isVisible():
                 self.transition.setStartValue(0.65)
@@ -519,21 +633,42 @@ class WorkMonitor(QWidget):
         )
         self.sample_label.setToolTip("Возраст на момент наблюдения ядра.\n" + str(dict(telemetry)))
         limit = _counter(collector.get("max_urls", owned.get("max_urls")))
-        rate_limit = _number(collector.get("max_requests_per_second", owned.get("max_urls_per_second")))
-        self.budget_label.setText(f"Лимиты запуска · URL: {_display(limit)} · запросов/с: {_display(rate_limit)} · время: {_display(_number(collector.get('max_crawl_seconds')))} с")
+        rate_limit = _number(
+            collector.get("max_requests_per_second", owned.get("max_urls_per_second"))
+        )
+        self.budget_label.setText(
+            f"Лимиты запуска · URL: {_display(limit)} · запросов/с: {_display(rate_limit)} · время: {_display(_number(collector.get('max_crawl_seconds')))} с"
+        )
         semantics = telemetry.get("queue_semantics")
         self.queue_label.setText(
-            "Очередь и URL в работе учтены раздельно · размер сайта не измерен" if semantics == "separate" else
-            "Очередь включает URL в работе · размер сайта не измерен" if semantics == "outstanding" else
-            "Состав очереди не уточнён · размер сайта не измерен"
+            "Очередь и URL в работе учтены раздельно · размер сайта не измерен"
+            if semantics == "separate"
+            else "Очередь включает URL в работе · размер сайта не измерен"
+            if semantics == "outstanding"
+            else "Состав очереди не уточнён · размер сайта не измерен"
         )
         events = run["events"]
-        self.events_model.replace([{"at": field_text("at", event.get("at")), "phase": state_text(event.get("phase")), "code": state_text(event.get("code"))} for event in events])
-        self.events_caption.setText(f"События запуска · {len(events)}" if events else "События ещё не получены")
-        self.events_caption.setToolTip(f"Последние {EVENT_LIMIT} событий выбранного запуска из наблюдения ядра")
+        self.events_model.replace(
+            [
+                {
+                    "at": field_text("at", event.get("at")),
+                    "phase": state_text(event.get("phase")),
+                    "code": state_text(event.get("code")),
+                }
+                for event in events
+            ]
+        )
+        self.events_caption.setText(
+            f"События запуска · {len(events)}" if events else "События ещё не получены"
+        )
+        self.events_caption.setToolTip(
+            f"Последние {EVENT_LIMIT} событий выбранного запуска из наблюдения ядра"
+        )
         self.events.setVisible(bool(events))
         self.events_section.setVisible(bool(events))
-        self.result_button.setEnabled(bool(run.get("_observed") and isinstance(run.get("artifact"), str) and run["artifact"]))
+        self.result_button.setEnabled(
+            bool(run.get("_observed") and isinstance(run.get("artifact"), str) and run["artifact"])
+        )
         self.result_button.setAccessibleName("Открыть сохранённый результат запуска " + identity)
 
     def _show_result(self):

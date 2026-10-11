@@ -55,23 +55,44 @@ def _installation(context):
     compatible = info.get("compatible")
     compat = None if compatible is None else _compat_widget(compatible, info.get("required"))
     cli = shutil.which("seohead")
-    process = joined(" · ", [p for p in (f"PID {info['pid']}" if info.get("pid") else "",
-                                         trf("{n} МБ", n=info["memory_mb"]) if info.get("memory_mb") else "",
-                                         trf("работает {uptime}", uptime=info["uptime"]) if info.get("uptime") else "") if p]) or None
-    return key_values([
-        ("Версия ядра", version),
-        ("Совместимость", compat),
-        ("Путь ядра", Mono(tilde(context.core_executable)) if context.core_executable else None),
-        ("CLI", Mono(tilde(cli)) if cli else "Не найден в PATH"),
-        ("Процесс", process),
-    ])
+    process = (
+        joined(
+            " · ",
+            [
+                p
+                for p in (
+                    f"PID {info['pid']}" if info.get("pid") else "",
+                    trf("{n} МБ", n=info["memory_mb"]) if info.get("memory_mb") else "",
+                    trf("работает {uptime}", uptime=info["uptime"]) if info.get("uptime") else "",
+                )
+                if p
+            ],
+        )
+        or None
+    )
+    return key_values(
+        [
+            ("Версия ядра", version),
+            ("Совместимость", compat),
+            (
+                "Путь ядра",
+                Mono(tilde(context.core_executable)) if context.core_executable else None,
+            ),
+            ("CLI", Mono(tilde(cli)) if cli else "Не найден в PATH"),
+            ("Процесс", process),
+        ]
+    )
 
 
 def _compat_widget(compatible, required):
     box = QWidget()
     layout = QHBoxLayout(box)
     layout.setContentsMargins(0, 0, 0, 0)
-    layout.addWidget(badge("ok", "совместимо", "check_circle") if compatible else badge("err", "несовместимо", "cancel"))
+    layout.addWidget(
+        badge("ok", "совместимо", "check_circle")
+        if compatible
+        else badge("err", "несовместимо", "cancel")
+    )
     if required:
         layout.addWidget(QLabel(trf("нужно ≥ {required}", required=required)))
     return box
@@ -83,10 +104,21 @@ def _custom_path_row(store):
     field.setCursorPosition(0)
     field.setProperty("mono", True)
     field.setPlaceholderText("/путь/к/.venv/bin/seohead")
-    row = keyed(SettingRow("Путь к своему ядру", "Используется вместо найденного при следующем запуске приложения", field), "core.custom_path")
-    field.editingFinished.connect(lambda: row.set_error(store.set("core.custom_path", field.text().strip())))
+    row = keyed(
+        SettingRow(
+            "Путь к своему ядру",
+            "Используется вместо найденного при следующем запуске приложения",
+            field,
+        ),
+        "core.custom_path",
+    )
+    field.editingFinished.connect(
+        lambda: row.set_error(store.set("core.custom_path", field.text().strip()))
+    )
     row.setVisible(store.get("core.custom"))
-    store.changed.connect(lambda key: _toggle(row, store) if key.startswith("core.custom") else None)
+    store.changed.connect(
+        lambda key: _toggle(row, store) if key.startswith("core.custom") else None
+    )
     return row
 
 
@@ -108,13 +140,25 @@ def _diagnostics(context):
         return widgets
     items = result.get("items", [])
     counts = {status: sum(1 for i in items if i.get("status") == status) for status in STATUS}
-    parts = [result.get("when", ""), trf("{n} ок", n=counts["ok"]), trf("{n} внимание", n=counts["warn"]), trf("{n} ошибка", n=counts["err"])]
+    parts = [
+        result.get("when", ""),
+        trf("{n} ок", n=counts["ok"]),
+        trf("{n} внимание", n=counts["warn"]),
+        trf("{n} ошибка", n=counts["err"]),
+    ]
     summary = hint(joined(" · ", [part for part in parts if part]))
     widgets.append(_header_row(summary, run))
     for item in items:
         kind, text, icon, color = STATUS.get(item.get("status"), STATUS["warn"])
-        widgets.append(list_item(icon, item.get("title", ""), item.get("sub", ""), _plain_badge(kind, text),
-                                 icon_color=theming.roles()[color]))
+        widgets.append(
+            list_item(
+                icon,
+                item.get("title", ""),
+                item.get("sub", ""),
+                _plain_badge(kind, text),
+                icon_color=theming.roles()[color],
+            )
+        )
     if result.get("note"):
         widgets.append(Note("error", result["note"]))
     return widgets
@@ -151,15 +195,34 @@ def build_page(store, context):
     left = [
         group_label("Установка"),
         _installation(context),
-        switch_row(store, "core.custom", "Своё ядро", "Путь к другой установке seohead (разработка)"),
+        switch_row(
+            store, "core.custom", "Своё ядро", "Путь к другой установке seohead (разработка)"
+        ),
         _custom_path_row(store),
-        segmented_row(store, "core.poll", "Опрос активного скана", "Интервал, пока есть активный запуск", list(POLL_CHOICES)),
+        segmented_row(
+            store,
+            "core.poll",
+            "Опрос активного скана",
+            "Интервал, пока есть активный запуск",
+            list(POLL_CHOICES),
+        ),
         group_label("Логи"),
-        segmented_row(store, "core.log_level", "Уровень логов", "DEBUG — только для разбора ошибок", [("INFO", "INFO"), ("DEBUG", "DEBUG")]),
-        key_values([
-            ("Папка логов", Mono(tilde(context.log_directory)) if context.log_directory else None),
-            ("Размер", context.request("log_size")),
-        ]),
+        segmented_row(
+            store,
+            "core.log_level",
+            "Уровень логов",
+            "DEBUG — только для разбора ошибок",
+            [("INFO", "INFO"), ("DEBUG", "DEBUG")],
+        ),
+        key_values(
+            [
+                (
+                    "Папка логов",
+                    Mono(tilde(context.log_directory)) if context.log_directory else None,
+                ),
+                ("Размер", context.request("log_size")),
+            ]
+        ),
         buttons_row(open_logs, restart),
     ]
     return page(Columns(left, _diagnostics(context)))

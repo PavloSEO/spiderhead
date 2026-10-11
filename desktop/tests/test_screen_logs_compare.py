@@ -41,10 +41,17 @@ class LogsCompareTests(unittest.TestCase):
         for card in cards:
             panels = card.findChildren(StatePanel)
             self.assertEqual([p.kind for p in panels], ["waiting"])
-            self.assertFalse(any(ch.isdigit() for ch in " ".join(l.text() for l in panels[0].findChildren(QLabel))))
+            self.assertFalse(
+                any(
+                    ch.isdigit()
+                    for ch in " ".join(label.text() for label in panels[0].findChildren(QLabel))
+                )
+            )
 
     def test_join_issue_badge_is_neutral_and_shows_no_issue_number(self):
-        badges = [w for w in self.screen.findChildren(QLabel) if w.property("waiting_issue") == JOIN_ISSUE]
+        badges = [
+            w for w in self.screen.findChildren(QLabel) if w.property("waiting_issue") == JOIN_ISSUE
+        ]
         self.assertEqual(len(badges), 1)
         self.assertEqual(badges[0].text(), "Недоступно в этой версии ядра")
         self.assertNotIn(str(JOIN_ISSUE), badges[0].toolTip())

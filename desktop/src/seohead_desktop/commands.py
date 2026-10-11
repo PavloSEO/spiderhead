@@ -73,7 +73,9 @@ class CommandsMixin:
             return
         handler = self.complete_command(request_id)
         if request_id.split(":", 1)[0] in self.screen_errors:
-            self.screen_errors = {k: v for k, v in self.screen_errors.items() if k != request_id.split(":", 1)[0]}
+            self.screen_errors = {
+                k: v for k, v in self.screen_errors.items() if k != request_id.split(":", 1)[0]
+            }
         if handler:
             handler(result)
         if self.notice.context == request_id:
@@ -122,17 +124,29 @@ class CommandsMixin:
             self.finish_workspace_restore()
         elif request_id.startswith("url-detail:"):
             self.audit_workspace.set_page(
-                "url_details", [], state="unavailable", reason=text, source="Retained URL detail unavailable"
+                "url_details",
+                [],
+                state="unavailable",
+                reason=text,
+                source="Retained URL detail unavailable",
             )
         self.statusBar().showMessage(f"{request_id}: {text}")
         self.notice.show_error(f"Не удалось получить данные. {text}", request_id)
-        kind = {"tasks": "tasks", "task-detail": "tasks", "inbox-submit": "inbox", "observer": "observer"}.get(operation)
+        kind = {
+            "tasks": "tasks",
+            "task-detail": "tasks",
+            "inbox-submit": "inbox",
+            "observer": "observer",
+        }.get(operation)
         if kind:
             self.data_changed.emit(kind)
 
     def cancel_requests(self):
         if self._pending_note is not None:
-            self.notice.show_error("Сохранение заметки ещё не подтверждено. Черновик сохранён; дождитесь ответа ядра.", "inbox-submit")
+            self.notice.show_error(
+                "Сохранение заметки ещё не подтверждено. Черновик сохранён; дождитесь ответа ядра.",
+                "inbox-submit",
+            )
             return
         if self.mcp_gateway is not None:
             self.mcp_gateway.cancel_generation(self.read_generation)
@@ -144,11 +158,15 @@ class CommandsMixin:
         if hasattr(self, "comparison"):
             self.comparison.clear("Чтение сравнения отменено; выберите пару и повторите")
         self.cancel_button.setEnabled(False)
-        self.statusBar().showMessage("Текущие чтения отменены; сохранённые данные проекта не изменены")
+        self.statusBar().showMessage(
+            "Текущие чтения отменены; сохранённые данные проекта не изменены"
+        )
 
     def cancel_active_work(self):
         if self.scan_manager is not None and self.selected_managed_run_id:
             if self.scan_manager.stop(self.selected_managed_run_id):
-                self.statusBar().showMessage("Остановка отправлена только выбранному запуску этого окна")
+                self.statusBar().showMessage(
+                    "Остановка отправлена только выбранному запуску этого окна"
+                )
                 return
         self.cancel_requests()

@@ -20,8 +20,18 @@ TOOLS = frozenset({"seo_scan_content_search", "seo_scan_content_search_page"})
 MAX_OUTPUT = 8 * 1024 * 1024
 SEARCH_PRESETS = (
     {"id": "gtm", "label": "GTM в head", "query": "GTM-", "scope": "head_markup"},
-    {"id": "ga4", "label": "GA4 / Google tag", "query": "googletagmanager.com/gtag/js", "scope": "head_markup"},
-    {"id": "metrika", "label": "Яндекс Метрика", "query": "mc.yandex.ru/metrika", "scope": "raw_html"},
+    {
+        "id": "ga4",
+        "label": "GA4 / Google tag",
+        "query": "googletagmanager.com/gtag/js",
+        "scope": "head_markup",
+    },
+    {
+        "id": "metrika",
+        "label": "Яндекс Метрика",
+        "query": "mc.yandex.ru/metrika",
+        "scope": "raw_html",
+    },
 )
 
 
@@ -33,7 +43,19 @@ def _within(project, path, folder):
     return candidate
 
 
-def search_arguments(project, scan, output, query, *, scope="head_markup", mode="contains", representation="static", selector=None, case_sensitive=False, include_snippets=False):
+def search_arguments(
+    project,
+    scan,
+    output,
+    query,
+    *,
+    scope="head_markup",
+    mode="contains",
+    representation="static",
+    selector=None,
+    case_sensitive=False,
+    include_snippets=False,
+):
     source = _within(project, scan, "scans")
     destination = _within(project, output, "reports")
     if not source.is_file() or destination.exists() or Path(output).is_symlink():
@@ -43,17 +65,34 @@ def search_arguments(project, scan, output, query, *, scope="head_markup", mode=
     if not isinstance(query, str) or not query.strip() or len(query) > 512 or "\x00" in query:
         raise ValueError("Введите буквальный текст длиной от 1 до 512 символов")
     query.encode("utf-8")
-    if scope not in {"raw_html", "head_markup", "body_text", "selector_markup"} or mode not in {"contains", "not_contains"} or representation not in {"static", "rendered"}:
+    if (
+        scope not in {"raw_html", "head_markup", "body_text", "selector_markup"}
+        or mode not in {"contains", "not_contains"}
+        or representation not in {"static", "rendered"}
+    ):
         raise ValueError("Неизвестная область или режим поиска")
     if type(case_sensitive) is not bool or type(include_snippets) is not bool:
         raise ValueError("Параметры регистра и фрагментов должны быть логическими")
-    if selector is not None and (not isinstance(selector, str) or len(selector) > 4096 or "\x00" in selector):
+    if selector is not None and (
+        not isinstance(selector, str) or len(selector) > 4096 or "\x00" in selector
+    ):
         raise ValueError("Некорректный CSS-селектор")
     if (scope == "selector_markup") != bool(selector):
         raise ValueError("CSS-селектор нужен только для поиска в выбранном элементе")
-    arguments = ["scan-content-search", "--scan", str(source), "--query=" + query,
-                 "--out-dir", str(destination), "--scope", scope, "--mode", mode,
-                 "--representation", representation]
+    arguments = [
+        "scan-content-search",
+        "--scan",
+        str(source),
+        "--query=" + query,
+        "--out-dir",
+        str(destination),
+        "--scope",
+        scope,
+        "--mode",
+        mode,
+        "--representation",
+        representation,
+    ]
     if selector:
         arguments.append("--selector=" + selector)
     if case_sensitive:
@@ -69,7 +108,15 @@ def page_arguments(project, package, offset=0, limit=100):
         raise ValueError("Пакет поиска недоступен в текущем проекте")
     if type(offset) is not int or offset < 0 or type(limit) is not int or not 1 <= limit <= 100:
         raise ValueError("Страница поиска: неотрицательное смещение и не более 100 строк")
-    return ["scan-content-search-page", "--package", str(root), "--offset", str(offset), "--limit", str(limit)]
+    return [
+        "scan-content-search-page",
+        "--package",
+        str(root),
+        "--offset",
+        str(offset),
+        "--limit",
+        str(limit),
+    ]
 
 
 class ContentSearchController(QObject):
@@ -95,43 +142,90 @@ class ContentSearchController(QObject):
     def set_available(self, tools):
         self.available = set(tools) >= TOOLS
         if not self.active and self._result is None:
-            self._emit("unavailable", "Готов к поиску по всему сохранённому скану" if self.available else "Подключённое ядро не поддерживает поиск по сохранённым телам")
+            self._emit(
+                "unavailable",
+                "Готов к поиску по всему сохранённому скану"
+                if self.available
+                else "Подключённое ядро не поддерживает поиск по сохранённым телам",
+            )
         else:
             self.last_payload = {**self.last_payload, "available": self.available}
             self.changed.emit(self.last_payload)
 
     def _selected(self):
-        return (self.window.project_directory, self.window.current_project_uuid,
-                self.window.selected_scan_path, self.window.selected_scan_uuid)
+        return (
+            self.window.project_directory,
+            self.window.current_project_uuid,
+            self.window.selected_scan_path,
+            self.window.selected_scan_uuid,
+        )
 
     def _current(self, job):
         return job["revision"] == self.revision and job["context"]["selection"] == self._selected()
 
     def _emit(self, state, reason="", **values):
         context = self._context or {}
-        payload = {"state": state, "reason": reason, "rows": [], "coverage": None,
-                   "source": None, "absence_confirmed": False, "available": self.available,
-                   **{key: context.get(key) for key in ("query", "scope", "mode", "representation")}, **values}
+        payload = {
+            "state": state,
+            "reason": reason,
+            "rows": [],
+            "coverage": None,
+            "source": None,
+            "absence_confirmed": False,
+            "available": self.available,
+            **{key: context.get(key) for key in ("query", "scope", "mode", "representation")},
+            **values,
+        }
         self.last_payload = payload
         self.changed.emit(payload)
 
-    def start(self, query, *, scope="head_markup", mode="contains", representation="static", selector=None, case_sensitive=False, include_snippets=False):
+    def start(
+        self,
+        query,
+        *,
+        scope="head_markup",
+        mode="contains",
+        representation="static",
+        selector=None,
+        case_sensitive=False,
+        include_snippets=False,
+    ):
         try:
             if self._closing or not self.available:
                 raise ValueError("Поиск недоступен в подключённом ядре или окно закрывается")
-            if not isinstance(self.window.core_executable, str) or not self.window.core_executable or "\x00" in self.window.core_executable:
+            if (
+                not isinstance(self.window.core_executable, str)
+                or not self.window.core_executable
+                or "\x00" in self.window.core_executable
+            ):
                 raise ValueError("Исполняемый файл локального ядра не указан")
             selection = self._selected()
             if not all(isinstance(item, str) and item for item in selection):
                 raise ValueError("Выберите сохранённый скан открытого проекта")
             project, _project_uuid, scan, _scan_uuid = selection
             output = str(Path(project) / "reports" / f"content-search-{uuid.uuid4().hex}")
-            arguments = search_arguments(project, scan, output, query, scope=scope, mode=mode,
-                representation=representation, selector=selector, case_sensitive=case_sensitive, include_snippets=include_snippets)
+            arguments = search_arguments(
+                project,
+                scan,
+                output,
+                query,
+                scope=scope,
+                mode=mode,
+                representation=representation,
+                selector=selector,
+                case_sensitive=case_sensitive,
+                include_snippets=include_snippets,
+            )
             self.revision += 1
             self._result = None
-            self._context = {"selection": selection, "query": query, "scope": scope,
-                             "mode": mode, "representation": representation, "package": output}
+            self._context = {
+                "selection": selection,
+                "query": query,
+                "scope": scope,
+                "mode": mode,
+                "representation": representation,
+                "package": output,
+            }
             self._queue("search", arguments, self._context)
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             self._emit("error", str(exc))
@@ -143,17 +237,29 @@ class ContentSearchController(QObject):
             if self._context["selection"] != self._selected():
                 self.clear("Выбран другой скан; запустите поиск в новом контексте")
                 return
-            arguments = page_arguments(self._context["selection"][0], self._context["package"], offset, limit)
+            arguments = page_arguments(
+                self._context["selection"][0], self._context["package"], offset, limit
+            )
             self.revision += 1
             self._queue("page", arguments, self._context, offset=offset, limit=limit)
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             self._emit("error", str(exc))
 
     def _queue(self, phase, arguments, context, **values):
-        self._pending = {"revision": self.revision, "phase": phase, "arguments": arguments,
-                         "context": dict(context), **values}
-        self._emit("loading", "Поиск во всём сохранённом скане…" if phase == "search" else "Чтение индексированной страницы результата…",
-                   operation_status="searching" if phase == "search" else "paging")
+        self._pending = {
+            "revision": self.revision,
+            "phase": phase,
+            "arguments": arguments,
+            "context": dict(context),
+            **values,
+        }
+        self._emit(
+            "loading",
+            "Поиск во всём сохранённом скане…"
+            if phase == "search"
+            else "Чтение индексированной страницы результата…",
+            operation_status="searching" if phase == "search" else "paging",
+        )
         if self._job is not None:
             self._stop(self._job)
         else:
@@ -164,7 +270,9 @@ class ContentSearchController(QObject):
             return
         job, self._pending = self._pending, None
         process = QProcess(self)
-        job.update(process=process, stdout=bytearray(), stderr=bytearray(), stopping=False, failure=None)
+        job.update(
+            process=process, stdout=bytearray(), stderr=bytearray(), stopping=False, failure=None
+        )
         self._job = job
         process.readyReadStandardOutput.connect(lambda: self._read(job))
         process.readyReadStandardError.connect(lambda: self._read(job))
@@ -221,7 +329,11 @@ class ContentSearchController(QObject):
         self._pending = self._result = None
         if self._job is not None:
             self._stop(self._job)
-        self._emit("unavailable", "Поиск отменён; отсутствие маркера не подтверждено", operation_status="cancelled")
+        self._emit(
+            "unavailable",
+            "Поиск отменён; отсутствие маркера не подтверждено",
+            operation_status="cancelled",
+        )
         if not self.active:
             self.idle.emit()
 
@@ -250,9 +362,19 @@ class ContentSearchController(QObject):
                 if job["failure"]:
                     raise ValueError(job["failure"])
                 if code not in {0, 2} or status != QProcess.NormalExit:
-                    raise ValueError("Поиск не завершён: " + (bytes(job["stderr"]).decode(errors="replace").strip()[-2000:] or f"код {code}"))
+                    raise ValueError(
+                        "Поиск не завершён: "
+                        + (
+                            bytes(job["stderr"]).decode(errors="replace").strip()[-2000:]
+                            or f"код {code}"
+                        )
+                    )
                 result = json.loads(bytes(job["stdout"]))
-                if not isinstance(result, dict) or result.get("format") != FORMAT or result.get("ok") is not True:
+                if (
+                    not isinstance(result, dict)
+                    or result.get("format") != FORMAT
+                    or result.get("ok") is not True
+                ):
                     raise ValueError("Ядро не вернуло пригодный пакет поиска")
                 if job["phase"] == "search":
                     self._search_finished(job, result, code)
@@ -272,14 +394,22 @@ class ContentSearchController(QObject):
         source = result.get("source")
         if not isinstance(source, dict):
             raise TypeError("Ядро не вернуло идентификатор источника поиска")
-        if source.get("scan_uuid") != context["selection"][3] or source.get("query_sha256") != hashlib.sha256(context["query"].encode()).hexdigest():
+        if (
+            source.get("scan_uuid") != context["selection"][3]
+            or source.get("query_sha256") != hashlib.sha256(context["query"].encode()).hexdigest()
+        ):
             raise ValueError("Источник или запрос результата не соответствует выбранному скану")
-        if (Path(result.get("out_dir") or "").resolve() != Path(context["package"]).resolve()
-                or type(result.get("records")) is not int or result["records"] < 0
-                or type(source.get("evidence_revision")) is not int
-                or not isinstance(source.get("search_id"), str)):
+        if (
+            Path(result.get("out_dir") or "").resolve() != Path(context["package"]).resolve()
+            or type(result.get("records")) is not int
+            or result["records"] < 0
+            or type(source.get("evidence_revision")) is not int
+            or not isinstance(source.get("search_id"), str)
+        ):
             raise ValueError("Ядро вернуло другой пакет поиска")
-        if result.get("status") not in {"complete", "partial", "incomplete"} or not isinstance(result.get("coverage"), dict):
+        if result.get("status") not in {"complete", "partial", "incomplete"} or not isinstance(
+            result.get("coverage"), dict
+        ):
             raise ValueError("Ядро не вернуло состояние покрытия поиска")
         self._result = {**result, "exit_code": code}
         self.page()
@@ -289,13 +419,31 @@ class ContentSearchController(QObject):
         if result is None or page.get("source") != result.get("source"):
             raise ValueError("Страница относится к другому поиску или ревизии скана")
         records = page.get("records")
-        if not isinstance(records, list) or len(records) > job["limit"] or page.get("offset") != job["offset"]:
+        if (
+            not isinstance(records, list)
+            or len(records) > job["limit"]
+            or page.get("offset") != job["offset"]
+        ):
             raise ValueError("Ядро вернуло некорректную страницу поиска")
-        if any(not isinstance(row, dict) or row.get("scan_uuid") != result["source"]["scan_uuid"] or row.get("evidence_revision") != result["source"]["evidence_revision"] for row in records):
+        if any(
+            not isinstance(row, dict)
+            or row.get("scan_uuid") != result["source"]["scan_uuid"]
+            or row.get("evidence_revision") != result["source"]["evidence_revision"]
+            for row in records
+        ):
             raise ValueError("Строка поиска относится к другому источнику")
-        self._emit("ready", "Наличие маркера не подтверждает работу аналитики",
-                   operation_status=result["status"], rows=records, coverage=result["coverage"],
-                   source=result["source"], absence_confirmed=result.get("absence_confirmed") is True,
-                   search_completed=result.get("search_completed") is True, total=result["records"],
-                   offset=page["offset"], has_more=bool(page.get("has_more")),
-                   package=self._context["package"], exit_code=result["exit_code"])
+        self._emit(
+            "ready",
+            "Наличие маркера не подтверждает работу аналитики",
+            operation_status=result["status"],
+            rows=records,
+            coverage=result["coverage"],
+            source=result["source"],
+            absence_confirmed=result.get("absence_confirmed") is True,
+            search_completed=result.get("search_completed") is True,
+            total=result["records"],
+            offset=page["offset"],
+            has_more=bool(page.get("has_more")),
+            package=self._context["package"],
+            exit_code=result["exit_code"],
+        )
