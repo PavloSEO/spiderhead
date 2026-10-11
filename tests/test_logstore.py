@@ -292,3 +292,13 @@ def test_unknown_log_dates_block_date_filtered_absence_and_section_counts(tmp_pa
             imported["source"], str(scan), view=view, date_from="2026-10-10"
         )
         assert not result["available"] and "undated" in result["reason"]
+
+
+def test_join_rejects_logs_from_a_different_project_origin(tmp_path, project):
+    other = tmp_path / "other-project"
+    create_project(str(other), target="https://other.example.test")
+    imported = _import(tmp_path, other, [_line("/visited")])
+    scan = _scan(tmp_path)
+    result = logstore.join_log_scan(imported["source"], str(scan))
+    assert result["available"] is False
+    assert "project origin differs" in result["reason"]

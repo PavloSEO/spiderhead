@@ -43,7 +43,9 @@ are user-agent claims. A missing/partial log observation does not prove zero vis
 
 `logs-join` supports `scan_without_bot_visits`, `bot_urls_absent_scan`, `status_waste`,
 `nonindexable` and `sections`. Relative requests match exact path plus query on the
-scan origin (or an explicit compatible `base_url`). Query variants stay separate;
+scan origin (or an explicit compatible `base_url`), which must match the retained
+import project target. A missing log-project origin is unavailable; it is never
+guessed from matching relative paths. Query variants stay separate;
 there is no guessed canonical, host or URL correspondence. URLs absent from a scan
 are candidates for inspection, not proven orphans. Absence views require complete
 import/bot-detection evidence and a completed compatible scan. Missing native scan,

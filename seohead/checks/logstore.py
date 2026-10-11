@@ -267,6 +267,7 @@ def import_logs(
                 "import_id": import_id,
                 "format": "logs.v1",
                 "project_uuid": document["project_uuid"],
+                "project_target": document["site"]["target"],
                 "lines": {
                     "total": total,
                     "parsed": parsed,
@@ -357,6 +358,10 @@ def open_log_source(source: str) -> sqlite3.Connection:
         document = json.loads(header[0])
         if not isinstance(document, dict) or document.get("format") != "logs.v1":
             raise ValueError("unsupported log import metadata")
+        if "project_target" in document and (
+            type(document["project_target"]) is not str or len(document["project_target"]) > 2048
+        ):
+            raise ValueError("log project origin metadata is invalid")
         if (
             type(document.get("complete")) is not bool
             or type(document.get("bot_detection_complete")) is not bool
@@ -579,6 +584,14 @@ def join_log_scan(
             if parsed_origin.scheme not in {"http", "https"} or not parsed_origin.netloc:
                 raise ValueError("an absolute base_url is required to match log paths")
             origin = parsed_origin.scheme.lower() + "://" + parsed_origin.netloc.lower()
+            project_target = urlsplit(metadata.get("project_target") or "")
+            if project_target.scheme not in {"http", "https"} or not project_target.netloc:
+                raise ValueError(
+                    "log import project origin is unavailable; reimport with an existing project"
+                )
+            log_origin = project_target.scheme.lower() + "://" + project_target.netloc.lower()
+            if origin != log_origin:
+                raise ValueError("log import project origin differs from the native scan origin")
             native_origin = urlsplit(header["start_url"] or "")
             if (
                 base_url
