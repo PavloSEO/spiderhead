@@ -97,16 +97,23 @@ def _audit(result, settings, *, stored_scan=None, stored_sitemap=None, sitemap_s
 def _drop_retained_only_checks(audit: dict) -> dict:
     """Remove checks whose evidence exists only inside the retained artifact.
 
-    ``BROKEN_BOOKMARK`` (#827) resolves link fragments inside retained
-    destination bodies: the SQL path carries them, the legacy graph keeps no
-    bodies at all, so the check can only ever diverge by construction. Dropping
+    Bookmark, DOM and content duplicate checks read retained destination
+    bodies: the SQL path carries them, the legacy graph keeps no bodies at
+    all, so these checks can only diverge by construction. Dropping
     it -- issues, skip declarations, coverage rows and their dependent totals --
     keeps this test measuring the shared-evidence parity it exists for.
     """
     # The security-header checks (#1013, and the repeated-header check) read each page's stored
     # response headers, which the legacy graph never keeps: the same retained-only shape as
     # BROKEN_BOOKMARK.
-    retained_only = {"BROKEN_BOOKMARK", *security_headers.CHECK_IDS}
+    retained_only = {
+        "BROKEN_BOOKMARK",
+        "DOM_TOO_DEEP",
+        "DOM_TOO_MANY_NODES",
+        "NEAR_DUPLICATE",
+        "DUPLICATE_BY_HASH",
+        *security_headers.CHECK_IDS,
+    }
     document = copy.deepcopy(audit)
     summary = document.get("summary") if isinstance(document.get("summary"), dict) else {}
     summary.pop("fragment_links", None)
@@ -128,6 +135,9 @@ def _drop_retained_only_checks(audit: dict) -> dict:
         id_map[issue.get("id")] = new_id
         issue["id"] = new_id
     document["issues"] = issues
+    document["groups"] = [
+        group for group in document.get("groups", []) if group.get("check") not in retained_only
+    ]
     for page in document.get("pages", []):
         page["issue_ids"] = [
             id_map.get(issue_id, issue_id)
@@ -135,6 +145,8 @@ def _drop_retained_only_checks(audit: dict) -> dict:
             if issue_id not in removed_ids
         ]
         page["issues"] = [c for c in page.get("issues", []) if c not in retained_only]
+        for key in ("dom_depth", "dom_nodes"):
+            page.get("metrics", {}).pop(key, None)
 
     run = document.get("run") if isinstance(document.get("run"), dict) else {}
     for key in ("checks_skipped", "checks_disabled"):
@@ -144,6 +156,7 @@ def _drop_retained_only_checks(audit: dict) -> dict:
     totals = summary.get("totals") if isinstance(summary.get("totals"), dict) else None
     if totals is not None:
         totals["issues_total"] = len(issues)
+        totals["groups_total"] = len(document["groups"])
     if isinstance(summary.get("by_check"), dict):
         summary["by_check"] = {
             check: count

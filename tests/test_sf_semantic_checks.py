@@ -337,3 +337,50 @@ def test_adapter_declaration_failure_is_result_data_before_body_read(ctx, monkey
     assert result["reason"] == "semantic adapter declaration failed (RuntimeError)"
     assert "sensitive-token" not in str(result)
     assert {skip.id for skip in ctx.skipped} == set(SEMANTIC_CHECKS)
+
+
+def test_semantic_checks_fire_on_defect_and_stay_silent_on_clean_urls(tmp_path, monkeypatch):
+    rows = [
+        ["https://example.test/a", "text/html", 200, "Indexable", "cakes title", "water heading"],
+        ["https://example.test/b", "text/html", 200, "Indexable", "water title", "cakes heading"],
+        ["https://example.test/c", "text/html", 200, "Indexable", "cakes title", "cakes heading"],
+    ]
+    with (tmp_path / "internal_all.csv").open("w", newline="") as stream:
+        writer = csv.writer(stream)
+        writer.writerow(
+            ["Address", "Content Type", "Status Code", "Indexability", "Title 1", "H1-1"]
+        )
+        writer.writerows(rows)
+    context = AuditContext(load_exports(str(tmp_path)), load_config(None))
+    context.config["semantic_similarity"]["cache_path"] = str(tmp_path / "cache.sqlite")
+    context.semantic_adapter = LocalEmbeddingAdapter(
+        "two-sided-fixture",
+        "1",
+        "/fixture",
+        lambda texts: [[0.0, 1.0] if "cakes" in text else [1.0, 0.0] for text in texts],
+    )
+    monkeypatch.setattr(
+        heuristics,
+        "_stored_html_reader",
+        lambda ctx: (
+            lambda url: (
+                "<main>cakes pastry body</main>"
+                if url.endswith("/c")
+                else "<main>water supply body</main>"
+            )
+        ),
+    )
+    try:
+        check_semantic_content(context)
+        fired = {}
+        for issue in context.issues:
+            fired.setdefault(issue.check, set()).add(issue.target_url)
+        members = {group.check: set(group.urls) for group in context.groups}
+        assert "https://example.test/a" in fired.get("TITLE_LOW_SEMANTIC_RELEVANCE", set())
+        assert "https://example.test/b" not in fired.get("TITLE_LOW_SEMANTIC_RELEVANCE", set())
+        assert "https://example.test/b" in fired.get("H1_LOW_SEMANTIC_RELEVANCE", set())
+        assert "https://example.test/a" not in fired.get("H1_LOW_SEMANTIC_RELEVANCE", set())
+        assert "https://example.test/a" in members.get("SEMANTIC_SIMILARITY_CANDIDATE", set())
+        assert "https://example.test/c" not in members.get("SEMANTIC_SIMILARITY_CANDIDATE", set())
+    finally:
+        context.close()
