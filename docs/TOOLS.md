@@ -17,7 +17,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 data, not an accident.
 
 The current registry has 175 commands and 184 callable tools,
-with 201 audit checks. These are inventories, not coverage on every input.
+with 202 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
 ## Generated command inventory
@@ -716,7 +716,7 @@ assignment or by the audit's already validated segment rules. It records
 assignment provenance and keeps candidate, declared, confirmed, and unassigned
 states separate; it does not infer a shared implementation from repeated findings.
 
-**201 checks**: 12 critical, 93 warnings, 96 notices. Sources: SF exports,
+**202 checks**: 12 critical, 93 warnings, 97 notices. Sources: SF exports,
 derived metrics, inlink exports, the sitemap module, and heuristics.
 
 **Two modes.** A crawls by itself through the SF CLI (license required). B
@@ -760,7 +760,7 @@ seohead mcp        # stdio
 
 ## Where to go next
 - [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — every tool's arguments, types, defaults, cost, and failure modes, generated from the MCP definitions
-- [CHECKS.md](CHECKS.md) — the 201 checks the SF crawl audit runs, generated from the registry
+- [CHECKS.md](CHECKS.md) — the 202 checks the SF crawl audit runs, generated from the registry
 - [ARCHITECTURE.md](ARCHITECTURE.md) — layers, invariants, where new code goes
 - [SKILLS.md](SKILLS.md) — which skill drives which tool
 - [DECISIONS.md](DECISIONS.md) — why it was decided this way and not another
