@@ -61,9 +61,16 @@ def run(
     *,
     ignore_words: Iterable[str] = (),
     content_area: dict[str, Any] | None = None,
+    visible_text_override: str | None = None,
     max_findings: int = 50,
 ) -> dict[str, Any]:
-    text = visible_text(html, content_area)
+    if visible_text_override is not None and not isinstance(visible_text_override, str):
+        raise ValueError("visible_text_override must be text")
+    text = (
+        visible_text_override
+        if visible_text_override is not None
+        else visible_text(html, content_area)
+    )
     blocks = split_blocks(text)
     languages: dict[str, int] = {"ru": 0, "en": 0}
     skipped_blocks = 0

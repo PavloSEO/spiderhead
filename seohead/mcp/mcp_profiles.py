@@ -24,6 +24,7 @@ _PROFILE_TOOLS = {
             "sf_audit_summary",
             "sf_audit_issues",
             "sf_audit_tasks",
+            "sf_snippet_edits",
             "sf_list_exports",
         }
     ),

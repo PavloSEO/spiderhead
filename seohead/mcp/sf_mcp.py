@@ -1,4 +1,4 @@
-"""MCP server (stdio) exposing the audit core through five agent-callable tools.
+"""MCP server (stdio) exposing the audit core through six agent-callable tools.
 
 Requires the optional ``mcp`` dependency::
 
@@ -410,6 +410,61 @@ def register(mcp):  # pragma: no cover - needs the SDK
         if diagnostics:
             result["input_diagnostics"] = diagnostics
         return result
+
+    @mcp.tool(annotations=create_local_files, structured_output=True)
+    def sf_snippet_edits(
+        csv_text: str,
+        out: str,
+        metrics: dict[str, dict[str, Any]] | None = None,
+        retained_scan: str | None = None,
+        query: str | None = None,
+        representation: str = "static",
+        variant_key: str | None = None,
+        content_area: dict[str, Any] | None = None,
+        max_decoded_bytes: int = 8 * 1024 * 1024,
+    ) -> dict[str, Any]:
+        """Import supplied snippet CSV text and write unapplied review tasks to a new JSON file.
+
+        The CSV needs ``url`` and at least one of ``title`` or ``description``. Empty edit cells
+        leave that field unchanged. Optional ``metrics`` names local font profiles with
+        ``font_path`` and ``font_size``; their widths are typography measurements, not Google or
+        Yandex truncation predictions. ``retained_scan`` can add bounded, offline content context
+        for those exact URLs; ``query`` selects a visible-text excerpt and requires that scan.
+        Existing output files are never replaced.
+        """
+        from seohead.sf.snippet_edits import (
+            attach_retained_context,
+            attach_retained_measurements,
+            build_snippet_tasks,
+            measure_snippet_edits,
+            parse_snippet_csv,
+            write_snippet_tasks,
+        )
+
+        parsed = parse_snippet_csv(csv_text)
+        tasks = build_snippet_tasks(parsed)
+        if query and not retained_scan:
+            raise ValueError("query requires retained_scan")
+        if metrics is not None:
+            tasks["measurements"] = measure_snippet_edits(parsed["edits"], metrics)
+        if retained_scan is not None:
+            tasks = attach_retained_context(
+                tasks,
+                retained_scan,
+                representation=representation,
+                variant_key=variant_key,
+                query=query,
+                content_area=content_area,
+                max_decoded_bytes=max_decoded_bytes,
+            )
+            if metrics is not None:
+                tasks = attach_retained_measurements(tasks, metrics)
+        path = write_snippet_tasks(tasks, out)
+        return {
+            "schema_version": tasks["schema_version"],
+            "summary": tasks["summary"],
+            "task_file": os.path.abspath(path),
+        }
 
     return mcp
 
