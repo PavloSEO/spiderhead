@@ -11,7 +11,7 @@
     "source": null,
     "exports_dir": "docs/examples/exports",
     "sf_version_detected": null,
-    "generated_at": "2026-10-11T12:08:50Z",
+    "generated_at": "2026-10-11T15:06:17Z",
     "profile": "full",
     "exports_used": [
       "internal_all",
@@ -249,6 +249,10 @@
       {
         "id": "CANONICAL_MULTIPLE",
         "reason": "no Canonical Link Element 2 column in Internal:All"
+      },
+      {
+        "id": "CANONICAL_INVALID_ATTRIBUTE",
+        "reason": "raw canonical attributes are unavailable in this export"
       },
       {
         "id": "PAGINATION_LOOP",
@@ -604,17 +608,18 @@
     ],
     "health_score": null,
     "check_coverage": {
-      "checks_total": 219,
+      "checks_total": 221,
       "checks_fired": 20,
-      "checks_skipped": 125,
+      "checks_skipped": 126,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
-      "checks_silent": 74,
+      "checks_silent": 75,
       "checks_silent_ids": [
         "BAD_REDIRECT_TYPE",
         "BLOCKED_BY_ROBOTS",
         "CANONICALISED",
         "CANONICAL_CHAIN",
+        "CANONICAL_CROSS_ORIGIN",
         "CANONICAL_FRAGMENT",
         "CANONICAL_HOMEPAGE_GROUP",
         "CANONICAL_NON_INDEXABLE",
@@ -686,10 +691,10 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.429
+      "coverage": 0.43
     },
-    "health_score_reason": "only 94 of 219 checks could run (43% coverage); too little evidence to score",
-    "health_score_basis": "94 of 219 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_reason": "only 95 of 221 checks could run (43% coverage); too little evidence to score",
+    "health_score_basis": "95 of 221 checks could run; the score is not comparable to a run with full evidence",
     "internal_linking": {
       "measured": false,
       "reason": "no all_inlinks export (needed for the complete internal edge list)"

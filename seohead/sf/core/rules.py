@@ -17,7 +17,9 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
-from seohead.checks.parser import robots_directives, uses_ajax_crawling_scheme
+import httpx
+
+from seohead.checks.parser import _rel_has, robots_directives, uses_ajax_crawling_scheme
 from seohead.core.canonical_policy import matching_canonical_rule
 
 from .asset_checks import check_lighthouse_reports, check_render_assets, check_resource_assets
@@ -108,17 +110,32 @@ class ProbedTarget:
     indexability: str | None = None
     indexability_status: str | None = None
 
+    @property
+    def is_2xx(self) -> bool:
+        return 200 <= self.status_code < 300
+
+    @property
+    def is_indexable(self) -> bool:
+        return self.is_2xx and self.indexability == "Indexable"
+
 
 def _probed_targets(ctx: AuditContext, key: str) -> list[ProbedTarget]:
     """Stored probe of an uncaptured target (#987); empty when none answered with a status."""
     payload = getattr(ctx, "target_probes", {}).get(key)
     if not payload or type(payload.get("status_code")) is not int:
         return []
+    from seohead.storage.target_probes import indexability
+
+    observed = indexability(payload)
     return [
         ProbedTarget(
             url=payload["url"],
             status_code=payload["status_code"],
             redirect_url=payload.get("redirect_url") or "",
+            indexability={"indexable": "Indexable", "non_indexable": "Non-Indexable"}.get(
+                observed["state"]
+            ),
+            indexability_status=observed["reason"],
         )
     ]
 
@@ -836,6 +853,7 @@ def check_link_placement(ctx: AuditContext) -> None:
 def check_canonical_directives(ctx: AuditContext) -> None:
     require_canonical = ctx.requirements.get("require_canonical", True)
     has_meta_keywords = _has_column(ctx, "meta_keywords")
+    unavailable_targets = 0
     if require_canonical:
         _skip_for_body_unavailable(
             ctx, "CANONICAL_MISSING", [p for p in ctx.html_pages() if p.is_indexable]
@@ -873,7 +891,11 @@ def check_canonical_directives(ctx: AuditContext) -> None:
             # every page under that key, since a site serving both slash forms has two
             # (issue #95). "The canonical points at something non-indexable" is only true
             # when no page under the key is indexable.
-            targets = ctx.pages_by_norm.get(norm_url(canonical)) or []
+            targets = ctx.pages_by_norm.get(norm_url(canonical)) or _probed_targets(
+                ctx, norm_url(canonical)
+            )
+            if not targets or any(t.indexability is None for t in targets):
+                unavailable_targets += 1
             target_codes = [t.status_code for t in targets]
             target_is_redirect = any(
                 code is not None and 300 <= int(code) <= 399 for code in target_codes
@@ -884,6 +906,7 @@ def check_canonical_directives(ctx: AuditContext) -> None:
             if (
                 targets
                 and not any(t.is_indexable for t in targets)
+                and all(t.indexability is not None for t in targets)
                 and (
                     any(code is not None and 200 <= int(code) <= 299 for code in target_codes)
                     or (not target_is_redirect and not target_is_http_error)
@@ -921,6 +944,11 @@ def check_canonical_directives(ctx: AuditContext) -> None:
                 target_url=page.url,
                 details={"value": rec.get("meta_keywords")},
             )
+    if unavailable_targets:
+        ctx.skip(
+            "CANONICAL_NON_INDEXABLE",
+            f"{unavailable_targets} canonical target(s) have unmeasured indexability; native probes may lack parsed HTML directives",
+        )
     if not has_meta_keywords:
         ctx.skip("META_KEYWORDS_PRESENT", "no Meta Keywords 1 column in Internal:All")
 
@@ -1410,6 +1438,99 @@ def check_canonical_extra(ctx: AuditContext) -> None:
         ctx.skip("CANONICAL_MULTIPLE", "no Canonical Link Element 2 column in Internal:All")
 
 
+def check_canonical_annotations(ctx: AuditContext) -> None:
+    """Malformed observed annotations and cross-host/protocol canonical declarations."""
+    for page in ctx.html_pages():
+        canonical = _rec(page).get("canonical")
+        if not canonical:
+            continue
+        source, target = urllib.parse.urlsplit(page.url), urllib.parse.urlsplit(canonical)
+        if target.scheme not in {"http", "https"} or not target.hostname:
+            continue
+        from seohead.storage.target_probes import canonical_identity
+
+        try:
+            source_host = canonical_identity(page.url)[1]
+            target_host = canonical_identity(canonical)[1]
+        except (ValueError, httpx.InvalidURL):
+            continue
+        differences = [
+            name
+            for name, a, b in (
+                ("host", source_host, target_host),
+                ("protocol", source.scheme, target.scheme),
+            )
+            if a != b
+        ]
+        if differences:
+            ctx.add(
+                "CANONICAL_CROSS_ORIGIN",
+                target_url=page.url,
+                details={
+                    "canonical_target_url": canonical,
+                    "differences": differences,
+                    "reason": "declared canonical changes host or protocol; confirm intended consolidation",
+                },
+            )
+    if ctx.scan_con is None:
+        ctx.skip(
+            "CANONICAL_INVALID_ATTRIBUTE", "raw canonical attributes are unavailable in this export"
+        )
+        return
+    from seohead.storage.head_links import active, eligible_count
+
+    measured = 0
+    for source, declarations in active(ctx.scan_con):
+        page = ctx.page_by_url.get(source)
+        if page is None or not page.is_html or not page.is_2xx:
+            continue
+        if declarations is None:
+            continue
+        measured += len(declarations) < 100
+        invalid = []
+        for declaration in declarations:
+            rel = declaration["rel"]
+            if not re.search(r"(?:^|[\s,;])(?ai:canonical)(?:$|[\s,;])", rel):
+                continue
+            alternate_attributes = {
+                name: declaration[name]
+                for name in ("hreflang", "lang", "media", "type")
+                if name in declaration
+            }
+            reason = None
+            if alternate_attributes:
+                reason = (
+                    "canonical includes alternate-version attributes ignored for canonicalization"
+                )
+            elif not _rel_has("canonical")(rel):
+                reason = "canonical relation uses a non-HTML whitespace or punctuation separator"
+            elif not declaration["href"].strip():
+                reason = "canonical href is empty or missing"
+            else:
+                try:
+                    target = urllib.parse.urlsplit(declaration["target"])
+                    valid = target.scheme in {"http", "https"} and bool(target.hostname)
+                    _port = target.port  # reject malformed/out-of-range ports without a request
+                except ValueError:
+                    valid = False
+                if not valid:
+                    reason = "canonical href does not resolve to a valid HTTP(S) URL"
+            if reason:
+                invalid.append({**declaration, "reason": reason})
+        if invalid:
+            ctx.add(
+                "CANONICAL_INVALID_ATTRIBUTE",
+                target_url=source,
+                occurrences_count=len(invalid),
+                details={"annotations": invalid},
+            )
+    if not measured or measured < eligible_count(ctx.scan_con):
+        ctx.skip(
+            "CANONICAL_INVALID_ATTRIBUTE",
+            "not measured completely by this native crawl: raw canonical annotations were unavailable or reached the annotation limit",
+        )
+
+
 # --------------------------------------------------------------------------
 # Canonical-graph checks build the canonical edge graph over
 # Internal:All and flag multi-hop chains and canonicals onto redirects.
@@ -1432,6 +1553,17 @@ def _canonical_edges(ctx: AuditContext) -> tuple[dict[str, str], bool]:
         b = norm_url(canonical)
         if a != b:
             edges[a] = b
+    for key, payload in ctx.target_probes.items():
+        canonical = payload.get("canonical")
+        if canonical:
+            from seohead.storage.target_probes import canonical_identity
+
+            try:
+                different = canonical_identity(canonical) != canonical_identity(payload["url"])
+            except (ValueError, httpx.InvalidURL):
+                different = norm_url(canonical) != key
+            if different:
+                edges[key] = norm_url(canonical)
     return edges, has_any
 
 
@@ -1448,11 +1580,20 @@ def check_canonical_chain(ctx: AuditContext) -> None:
     if not has_any:
         ctx.skip("CANONICAL_CHAIN", "no Canonical column in Internal:All")
         return
+    unmeasured = 0
     for page in ctx.html_pages():
         start = norm_url(page.url)
         b = edges.get(start)
-        if b is None or b not in edges:
-            continue  # no edge, or healthy single-step canonical to a terminal
+        if b is None:
+            continue
+        if b not in edges:
+            target = ctx.page_by_norm.get(b)
+            probe = ctx.target_probes.get(b)
+            if (target is None and (not probe or probe.get("canonical") is None)) or (
+                target is not None and _body_unavailable(_rec(target))
+            ):
+                unmeasured += 1
+            continue  # only a measured canonical absence establishes a terminal
         # target re-canonicalizes — reconstruct the path for context
         path = [start]
         seen = {start}
@@ -1479,6 +1620,11 @@ def check_canonical_chain(ctx: AuditContext) -> None:
             "CANONICAL_CHAIN",
             target_url=page.url,
             details={"chain": chain, "depth": len(path) - 1, "loop": is_loop},
+        )
+    if unmeasured:
+        ctx.skip(
+            "CANONICAL_CHAIN",
+            f"{unmeasured} canonical target(s) lack measured canonical annotations; not measured by this native crawl or export",
         )
 
 
@@ -1848,6 +1994,116 @@ def check_unlinked_canonical(ctx: AuditContext) -> None:
         )
 
 
+def _pagination_key(ctx: AuditContext, url: str) -> str:
+    """Native graph nodes use the collector's identities; exports retain their tolerance."""
+    if ctx.scan_con is not None:
+        parts = urllib.parse.urlsplit(url)
+        return urllib.parse.urlunsplit(parts._replace(path=parts.path or "/"))
+    return norm_url(url)
+
+
+def pagination_records(ctx: AuditContext):
+    """Stream unique pagination declarations from selected native HTML or SF rows."""
+    if ctx.scan_con is None:
+        for page in ctx.html_pages():
+            yield page, _rec(page)
+        return
+    from seohead.storage.head_links import active
+
+    for source, declarations in active(ctx.scan_con):
+        page = ctx.page_by_url.get(source)
+        if (
+            page is None
+            or not page.is_html
+            or not page.is_2xx
+            or declarations is None
+            or len(declarations) >= 100
+        ):
+            continue
+        yield page, _pagination_record(declarations)
+
+
+def _pagination_record(declarations):
+    rec = {}
+    for relation in ("next", "prev"):
+        values = {
+            norm_url(row["target"]): row
+            for row in declarations
+            if row["target"] and _rel_has(relation)(row["rel"])
+        }
+        if len(values) == 1:
+            declaration = next(iter(values.values()))
+            rec["rel_" + relation] = declaration["target"]
+            rec["annotation_" + relation] = declaration
+    return rec
+
+
+def _check_unnumbered_pagination(ctx: AuditContext, next_map: dict[str, str]):
+    """Judge explicit reciprocal contradictions, never infer opaque page numbers."""
+    _loops, cycling = pagination_loops(next_map)
+    judged = set()
+    reported_forward = set()
+    for page, rec in pagination_records(ctx):
+        source = _pagination_key(ctx, page.url)
+        if source in cycling:
+            continue
+        for relation, reverse in (("next", "prev"), ("prev", "next")):
+            target = rec.get("rel_" + relation)
+            if not target or (
+                ctx.scan_con is None
+                and pagination_page_number(_display_url(ctx, source)) is not None
+                and pagination_page_number(target) is not None
+            ):
+                continue
+            key = _pagination_key(ctx, target)
+            if key in cycling:
+                continue
+            target_page = ctx.page_by_url.get(target) or ctx.page_by_norm.get(norm_url(target))
+            if target_page is None:
+                continue
+            target_rec = _rec(target_page)
+            if ctx.scan_con is not None:
+                from seohead.storage.head_links import for_url
+
+                if _pagination_key(ctx, target_page.url) != key:
+                    continue
+                declarations = for_url(ctx.scan_con, target_page.url)
+                if declarations is None:
+                    continue
+                target_rec = _pagination_record(declarations)
+            counterpart = target_rec.get("rel_" + reverse)
+            if counterpart is None:
+                continue  # a missing statement does not establish a contradiction
+            judged.add(source)
+            if _pagination_key(ctx, counterpart) == source:
+                continue
+            reporter = source if relation == "next" else key
+            if reporter in reported_forward:
+                continue
+            reported_forward.add(reporter)
+            ctx.add(
+                "PAGINATION_SEQUENCE_ERROR",
+                target_url=_display_url(ctx, reporter),
+                details={
+                    "series": [_display_url(ctx, source), target],
+                    "basis": "contradictory reciprocal pagination declarations",
+                    "breaks": [
+                        {
+                            "from": _display_url(ctx, source),
+                            "to": target,
+                            "relation": relation,
+                            "return_relation": reverse,
+                            "expected_return_url": _display_url(ctx, source),
+                            "declared_return_url": counterpart,
+                            "source_annotation": rec.get("annotation_" + relation),
+                            "target_annotation": target_rec.get("annotation_" + reverse),
+                        }
+                    ],
+                },
+            )
+    return judged, reported_forward
+
+
 def check_pagination(ctx: AuditContext) -> None:
     """PAGINATION_NONINDEXABLE — a pagination page, or its declared neighbor, cannot be indexed.
 
@@ -1860,8 +2116,10 @@ def check_pagination(ctx: AuditContext) -> None:
     left alone, since nothing here knows its status.
     """
     reported: set[str] = set()
-    for page in ctx.html_pages():
-        rec = _rec(page)
+    unmeasured = 0
+    complete_sources = 0
+    for page, rec in pagination_records(ctx):
+        complete_sources += 1
         if (rec.get("rel_next") or rec.get("rel_prev")) and not page.is_indexable:
             reported.add(page.url)
             ctx.add(
@@ -1869,34 +2127,63 @@ def check_pagination(ctx: AuditContext) -> None:
                 target_url=page.url,
                 details={"indexability_status": page.indexability_status},
             )
-    for page in ctx.html_pages():
-        rec = _rec(page)
+    for page, rec in pagination_records(ctx):
         for relation in ("rel_next", "rel_prev"):
             value = rec.get(relation)
             if not value:
                 continue
-            target = ctx.page_by_norm.get(norm_url(value))
-            if target is None or target.url in reported:
-                continue  # not in the crawl — nothing here knows its status
+            targets = ctx.pages_by_norm.get(norm_url(value)) or _probed_targets(
+                ctx, norm_url(value)
+            )
+            target = (
+                ctx.page_by_url.get(value)
+                or ctx.page_by_norm.get(norm_url(value))
+                or (targets[0] if targets else None)
+            )
+            if target is None:
+                unmeasured += 1
+                continue
+            if target.url in reported:
+                continue
             if target.status_code is None:
+                unmeasured += 1
                 # The row exists but its Status Code cell was blank or
                 # unparseable. "Nobody measured it" is not "it is broken": the
                 # same rule that forbids missing evidence reading as clean
                 # forbids it reading as a defect.
+                continue
+            if target.is_2xx and target.indexability is None:
+                unmeasured += 1
                 continue
             if target.is_2xx and target.is_indexable:
                 continue
             reported.add(target.url)
             ctx.add(
                 "PAGINATION_NONINDEXABLE",
-                target_url=target.url,
+                target_url=page.url if isinstance(target, ProbedTarget) else target.url,
                 details={
                     "indexability_status": target.indexability_status,
                     "status_code": target.status_code,
                     "relation": relation.replace("rel_", 'rel="') + '"',
                     "source_url": page.url,
+                    "pagination_target_url": value,
+                    "reason": "observed target status or indexability prevents pagination",
                 },
             )
+
+    if ctx.scan_con is not None:
+        from seohead.storage.head_links import eligible_count
+
+        if complete_sources < eligible_count(ctx.scan_con):
+            ctx.skip(
+                "PAGINATION_NONINDEXABLE",
+                "not measured completely by this native crawl: pagination source annotations were unavailable or reached their limit",
+            )
+    if unmeasured:
+        ctx.skip(
+            "PAGINATION_NONINDEXABLE",
+            f"{unmeasured} pagination target(s) have unmeasured status or indexability; native probes may lack parsed HTML",
+        )
 
 
 def pagination_loops(
@@ -1967,10 +2254,12 @@ def check_pagination_series(ctx: AuditContext) -> None:
     on a partial one.
     """
     next_map: dict[str, str] = {}
-    for page in ctx.html_pages():
-        nxt = _rec(page).get("rel_next")
+    complete_sources = 0
+    for page, rec in pagination_records(ctx):
+        complete_sources += 1
+        nxt = rec.get("rel_next")
         if nxt:
-            next_map[norm_url(page.url)] = norm_url(nxt)
+            next_map[_pagination_key(ctx, page.url)] = _pagination_key(ctx, nxt)
     if not next_map:
         ctx.skip("PAGINATION_LOOP", 'no rel="next" column in Internal:All')
         ctx.skip("UNLINKED_PAGINATION_SERIES", 'no rel="next" column in Internal:All')
@@ -1985,7 +2274,7 @@ def check_pagination_series(ctx: AuditContext) -> None:
     # #176 audit: display only, like the equivalent helper in check_canonical_chain — the
     # walk over next_map already decided the series and the loop before any URL is printed.
     def _url_of(n: str) -> str:
-        page = ctx.page_by_norm.get(n)
+        page = ctx.page_by_url.get(n) or ctx.page_by_norm.get(norm_url(n))
         return page.url if page is not None else n
 
     loops, in_loop = pagination_loops(next_map)
@@ -1995,6 +2284,27 @@ def check_pagination_series(ctx: AuditContext) -> None:
             target_url=_url_of(start),
             details={"series": [_url_of(n) for n in path], "loops_back_to": _url_of(loops_to)},
         )
+
+    if ctx.scan_con is not None:
+        from seohead.storage.head_links import eligible_count, for_url
+
+        incomplete = complete_sources < eligible_count(ctx.scan_con)
+        for destination in next_map.values():
+            target = ctx.page_by_url.get(destination) or ctx.page_by_norm.get(norm_url(destination))
+            if (
+                target is None
+                or not target.is_2xx
+                or not target.is_html
+                or _pagination_key(ctx, target.url) != destination
+                or for_url(ctx.scan_con, target.url) is None
+            ):
+                incomplete = True
+                break
+        if incomplete:
+            reason = "not measured completely by this native crawl: one or more pagination graph documents lack complete retained annotations"
+            ctx.skip("PAGINATION_LOOP", reason)
+            ctx.skip("UNLINKED_PAGINATION_SERIES", reason)
+            return  # known loops above remain findings; negative graph claims remain unavailable
 
     # The cheap per-page filters run before the walk, not after it, so a full
     # chain is only ever traversed for a head that can actually produce a
@@ -2007,7 +2317,7 @@ def check_pagination_series(ctx: AuditContext) -> None:
         # is_indexable and inlinks are properties of the live page, and a redirecting twin
         # under this key would report neither, so the 2xx-preferring representative is the
         # only variant "is this series head unlinked" can mean.
-        page = ctx.page_by_norm.get(start)
+        page = ctx.page_by_url.get(start) or ctx.page_by_norm.get(norm_url(start))
         if page is None or not page.is_indexable or _rec(page).get("crawl_depth") == 0:
             continue
         inlinks = _rec(page).get("inlinks")
@@ -2042,20 +2352,25 @@ def pagination_page_number(url: str) -> int | None:
     one does: the URL does not tell us which page it is, and a check that picks
     one of them is inventing the evidence it then reports on.
     """
-    parts = urllib.parse.urlsplit(url)
-    seen: set[int] = set()
-    for key, value in urllib.parse.parse_qsl(parts.query):
-        if key.strip().lower() in _PAGE_NUMBER_PARAMS and value.isdigit():
-            seen.add(int(value))
-    match = _PAGE_NUMBER_PATH_RE.search(parts.path)
-    if match:
-        seen.add(int(match.group(1)))
+    try:
+        parts = urllib.parse.urlsplit(url)
+        seen: set[int] = set()
+        for key, value in urllib.parse.parse_qsl(parts.query, keep_blank_values=True):
+            if key.strip().lower() in _PAGE_NUMBER_PARAMS:
+                if not value.isdecimal():
+                    return None
+                seen.add(int(value))
+        match = _PAGE_NUMBER_PATH_RE.search(parts.path)
+        if match:
+            seen.add(int(match.group(1)))
+    except ValueError:
+        return None  # malformed URLs and unsupported integer widths state no readable number
     return seen.pop() if len(seen) == 1 else None
 
 
 def _display_url(ctx: AuditContext, norm: str) -> str:
     """The crawled URL behind a normalized key, or the key itself when uncrawled."""
-    page = ctx.page_by_norm.get(norm)
+    page = ctx.page_by_url.get(norm) or ctx.page_by_norm.get(norm_url(norm))
     return page.url if page is not None else norm
 
 
@@ -2165,10 +2480,11 @@ def check_pagination_sequence(ctx: AuditContext) -> None:
     judgeable series elsewhere on the same site.
     """
     next_map: dict[str, str] = {}
-    for page in ctx.html_pages():
-        nxt = _rec(page).get("rel_next")
+    for page, rec in pagination_records(ctx):
+        nxt = rec.get("rel_next")
         if nxt:
-            next_map[norm_url(page.url)] = norm_url(nxt)
+            next_map[_pagination_key(ctx, page.url)] = _pagination_key(ctx, nxt)
+    reciprocal_judged, reciprocal_breaks = _check_unnumbered_pagination(ctx, next_map)
     if not next_map:
         ctx.skip("PAGINATION_SEQUENCE_ERROR", 'no rel="next" column in Internal:All')
         return
@@ -2193,6 +2509,15 @@ def check_pagination_sequence(ctx: AuditContext) -> None:
         stated = [pagination_page_number(_display_url(ctx, n)) for n in path]
         unjudged_reason = _series_unjudged_reason(stated, loops_to is not None)
         if unjudged_reason is not None:
+            if (
+                loops_to is None
+                and any(n is None for n in stated)
+                and all(node in reciprocal_judged or node not in next_map for node in path)
+            ):
+                judged += 1
+                continue
+            if ctx.scan_con is not None and loops_to is None and any(n is None for n in stated):
+                unjudged_reason = "selected native documents do not establish unique reciprocal next/prev relationships"
             unjudged.append((_display_url(ctx, path[0]), unjudged_reason))
             continue
         judged += 1
@@ -2207,7 +2532,7 @@ def check_pagination_sequence(ctx: AuditContext) -> None:
                 "to_page": numbers[i + 1],
             }
             for i, step in enumerate(steps)
-            if step != expected
+            if step != expected and path[i] not in reciprocal_breaks
         ]
         if not breaks:
             continue
@@ -3531,6 +3856,7 @@ ALL_CHECKS = [
     check_content_quality,
     check_directives_extra,
     check_canonical_extra,
+    check_canonical_annotations,
     check_canonical_chain,
     check_canonical_to_redirect,
     check_canonical_target_error,

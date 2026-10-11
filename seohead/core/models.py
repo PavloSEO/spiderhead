@@ -277,6 +277,8 @@ class ParsedPage(_ParsedPageOptional):
     # this, not robots_meta, so a Bingbot/Yandex-only directive keeps its scope.
     robots_meta_scoped: list[str]
     canonical: str | None
+    # Raw canonical and pagination link attributes; resolved targets are separate.
+    head_links: list[dict[str, str]]
     position: DocumentPosition
     # Static Lighthouse audits (issue #59) — see seohead.sf.core.rules and
     # seohead.sf.core.lighthouse for the correspondence and doc links.

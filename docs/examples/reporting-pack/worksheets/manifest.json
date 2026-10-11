@@ -195,7 +195,7 @@
           "bytes": 21954,
           "path": "cohorts-0001.csv",
           "rows": 30,
-          "sha256": "258d87da0758b6077028e0af190a501a0adf5de55132e29b6495962d7a1c20a8"
+          "sha256": "c41ab1719d57eed6106ce73c82c302e37617060002f6b331332e5b70ad06d7f8"
         }
       ],
       "primary_key": [
@@ -209,7 +209,7 @@
       "state": "available"
     },
     "coverage": {
-      "bytes": 50329,
+      "bytes": 50756,
       "coverage": {},
       "fields": [
         {
@@ -278,10 +278,10 @@
       "partition_count": 1,
       "partitions": [
         {
-          "bytes": 50329,
+          "bytes": 50756,
           "path": "coverage-0001.csv",
-          "rows": 218,
-          "sha256": "dd91ad1594bc94ca56abfd9e4c2862768c9552492382e2d5d0e2ce71b0c08b28"
+          "rows": 220,
+          "sha256": "3b5d7d1be1f53d025064e1b92d02c4b60a7e4edd5f359ab3239ae829b950df13"
         }
       ],
       "primary_key": [
@@ -291,7 +291,7 @@
         "population"
       ],
       "reason": null,
-      "row_count": 218,
+      "row_count": 220,
       "schema_version": "seohead.bi.coverage.v1",
       "source_population": "input artifact and declared check coverage",
       "state": "available"
@@ -557,7 +557,7 @@
           "bytes": 29360,
           "path": "findings-0001.csv",
           "rows": 25,
-          "sha256": "d8adf5a263923e9f7387d8ad8fa97ad7adc28be2c25edaff791c9c85789e3a35"
+          "sha256": "d20ec4ebe0464b2aa146341e603bfaf0dbb06cca3a51cedd0556da89104604b8"
         }
       ],
       "primary_key": [
@@ -1147,7 +1147,7 @@
           "bytes": 40469,
           "path": "metrics-0001.csv",
           "rows": 16,
-          "sha256": "42be5880e634fc728666a87c0afcf90f58a83422eb90bfc2c592dfcc3784baf1"
+          "sha256": "221e08383435f0caf192fb57f122cc51d0f06d98786cd0ca9d941e19ba6dd9ac"
         }
       ],
       "primary_key": [
@@ -1590,7 +1590,7 @@
           "bytes": 12289,
           "path": "pages-0001.csv",
           "rows": 6,
-          "sha256": "1c3cc28b5f9739f5dc51dd1c5349423eeee38a4f13f49cb5a6dd32f92f015502"
+          "sha256": "a6de87ced5f8a3b6f364ed07d7062b2316253c13e013551a30e5d6b75be3df83"
         }
       ],
       "primary_key": [
@@ -1660,7 +1660,7 @@
           "bytes": 834,
           "path": "group-groups-0001.csv",
           "rows": 3,
-          "sha256": "f46b2eadcb7029f42c0b1f2917a314c2b0918639bc8d4f13476b2dc440ce3f84"
+          "sha256": "0c586ebec90153a51e30146e713a2e17ee4bc6593e19d70c5035de3c5fe3a6f9"
         }
       ],
       "row_count": 3
@@ -1702,22 +1702,22 @@
           "bytes": 589,
           "path": "group-members-0001.csv",
           "rows": 7,
-          "sha256": "7078277e9f6c64a61b88c4a9483934097239e23262aebe15707ef094d4cb1c24"
+          "sha256": "8fe909d097033db243f333c79a8ea13556c99848fda19c9dd648a97e9847678a"
         }
       ],
       "row_count": 7
     },
     "publication": "local companion; not included in the six published datasets",
-    "run_id": "audit:e2fd33e4263bb3df6f3dbd05",
-    "sha256": "cc806e8aca361c4a75bfa9ec7de91ca037a317a408044bea37f05ef8531bb7ff",
-    "source_audit_sha256": "e2fd33e4263bb3df6f3dbd0516c07d2ad571d31adfec47c0ca130e8fcd14bb99"
+    "run_id": "audit:e12c15d9397066ca2200f180",
+    "sha256": "5bd36e599433ebe8ebd25ca2c0161877c7795e99a03ba3f1dd2c2206a27ef574",
+    "source_audit_sha256": "e12c15d9397066ca2200f180bd55144924cc06ff6a75b4aef1ff424e9ac02933"
   },
   "input": {
-    "bytes": 56188,
+    "bytes": 56359,
     "kind": "sf-audit",
     "name": "audit.json",
     "schema": "2.0",
-    "sha256": "e2fd33e4263bb3df6f3dbd0516c07d2ad571d31adfec47c0ca130e8fcd14bb99"
+    "sha256": "e12c15d9397066ca2200f180bd55144924cc06ff6a75b4aef1ff424e9ac02933"
   },
   "metrics_dimension_columns": {},
   "provider_sources": [
@@ -1913,7 +1913,7 @@
     "projection_index_cache_bytes": 2097152
   },
   "run": {
-    "audit_sha256": "e2fd33e4263bb3df6f3dbd0516c07d2ad571d31adfec47c0ca130e8fcd14bb99",
+    "audit_sha256": "e12c15d9397066ca2200f180bd55144924cc06ff6a75b4aef1ff424e9ac02933",
     "check_skips": {
       "AJAX_CRAWLING_SCHEME_META_FRAGMENT": "no <meta name=\"fragment\"> evidence (native crawl only)",
       "AJAX_CRAWLING_SCHEME_URL": "no AJAX-scheme URL evidence (native crawl only)",
@@ -1928,6 +1928,7 @@
       "BODY_MULTIPLE": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "BROKEN_BOOKMARK": "export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan",
       "BROKEN_EXTERNAL_LINK": "export inlinks_5xx not available",
+      "CANONICAL_INVALID_ATTRIBUTE": "raw canonical attributes are unavailable in this export",
       "CANONICAL_MULTIPLE": "no Canonical Link Element 2 column in Internal:All",
       "CANONICAL_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "CONTENT_IN_IFRAME": "no iframe inventory in this evidence",
@@ -2044,14 +2045,14 @@
     "crawl_reason": "audit source does not establish a completed native crawl",
     "crawl_settings": null,
     "crawl_state": "unknown",
-    "finished_at": "2026-10-11T12:08:50Z",
+    "finished_at": "2026-10-11T15:06:17Z",
     "input_mode": "parse-exports",
-    "run_id": "audit:e2fd33e4263bb3df6f3dbd05",
-    "source_bytes": 56188,
+    "run_id": "audit:e12c15d9397066ca2200f180",
+    "source_bytes": 56359,
     "source_kind": "sf-audit",
     "source_name": "audit.json",
     "source_schema": "2.0",
-    "source_sha256": "e2fd33e4263bb3df6f3dbd0516c07d2ad571d31adfec47c0ca130e8fcd14bb99",
+    "source_sha256": "e12c15d9397066ca2200f180bd55144924cc06ff6a75b4aef1ff424e9ac02933",
     "started_at": null,
     "summary": {
       "asset_measurements": {
@@ -2240,12 +2241,13 @@
         "checks_disabled": 0,
         "checks_disabled_ids": [],
         "checks_fired": 20,
-        "checks_silent": 74,
+        "checks_silent": 75,
         "checks_silent_ids": [
           "BAD_REDIRECT_TYPE",
           "BLOCKED_BY_ROBOTS",
           "CANONICALISED",
           "CANONICAL_CHAIN",
+          "CANONICAL_CROSS_ORIGIN",
           "CANONICAL_FRAGMENT",
           "CANONICAL_HOMEPAGE_GROUP",
           "CANONICAL_NON_INDEXABLE",
@@ -2317,13 +2319,13 @@
           "URL_UPPERCASE",
           "YMYL_REVIEW_CANDIDATE"
         ],
-        "checks_skipped": 125,
-        "checks_total": 219,
-        "coverage": 0.429
+        "checks_skipped": 126,
+        "checks_total": 221,
+        "coverage": 0.43
       },
       "health_score": null,
-      "health_score_basis": "94 of 219 checks could run; the score is not comparable to a run with full evidence",
-      "health_score_reason": "only 94 of 219 checks could run (43% coverage); too little evidence to score",
+      "health_score_basis": "95 of 221 checks could run; the score is not comparable to a run with full evidence",
+      "health_score_reason": "only 95 of 221 checks could run (43% coverage); too little evidence to score",
       "implausible_checks": [
         {
           "check": "H2_DUPLICATE",

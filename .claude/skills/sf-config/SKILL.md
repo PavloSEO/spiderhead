@@ -2,7 +2,7 @@
 name: sf-config
 description: >-
   Configure Screaming Frog ONCE so mode A can maximize applicable coverage from
-  the 219-check registry for any site.
+  the 221-check registry for any site.
   Explains how to create audit.seospiderconfig (enable Spelling & Grammar,
   Structured Data, Security, Store HTML/Rendered HTML, JS Rendering, Crawl Linked
   XML Sitemaps, and Crawl Analysis), where to place it, and which checks it
@@ -18,7 +18,7 @@ description: >-
 SF calculates some checks **only when the corresponding modules are enabled**.
 They are disabled by default -> the report honestly marks those checks as
 `skipped` (instead of falsely reporting zero). To maximize the checks that can run
-from the 219-check registry in a single `--crawl` run, create an
+from the 221-check registry in a single `--crawl` run, create an
 `audit.seospiderconfig` profile once; the tool will then load it automatically.
 Site type, crawl scope, and available exports still determine which checks apply.
 

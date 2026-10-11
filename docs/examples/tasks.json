@@ -3,26 +3,27 @@
   "source": {
     "project": "example.com",
     "site_name": "example.com",
-    "generated_at": "2026-10-11T12:08:50Z",
+    "generated_at": "2026-10-11T15:06:17Z",
     "health_score": null,
     "crawl_valid": true,
     "crawl_invalid_reason": null,
     "crawl_partial": false,
     "crawl_finish_reason": null,
     "health_score_scope": null,
-    "health_score_basis": "94 of 219 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_basis": "95 of 221 checks could run; the score is not comparable to a run with full evidence",
     "check_coverage": {
-      "checks_total": 219,
+      "checks_total": 221,
       "checks_fired": 20,
-      "checks_skipped": 125,
+      "checks_skipped": 126,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
-      "checks_silent": 74,
+      "checks_silent": 75,
       "checks_silent_ids": [
         "BAD_REDIRECT_TYPE",
         "BLOCKED_BY_ROBOTS",
         "CANONICALISED",
         "CANONICAL_CHAIN",
+        "CANONICAL_CROSS_ORIGIN",
         "CANONICAL_FRAGMENT",
         "CANONICAL_HOMEPAGE_GROUP",
         "CANONICAL_NON_INDEXABLE",
@@ -94,7 +95,7 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.429
+      "coverage": 0.43
     }
   },
   "pipeline": {

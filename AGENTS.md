@@ -47,7 +47,7 @@ seohead/
   integrations/remote_api/  optional authenticated scan API (ASGI app, no listener)
   recon/          domain and infrastructure reconnaissance
   crawl/          native site collector (crawl-site) — no Screaming Frog required
-  sf/             Screaming Frog export runner and 219-check analyzer, shared with crawl/'s output
+  sf/             Screaming Frog export runner and 221-check analyzer, shared with crawl/'s output
   audit/          bounded sitemap-based evidence orchestration
   core/           shared models, job contracts, and run logs
   reports/        XLSX, DOCX, CSV, Markdown, and JSON formatting

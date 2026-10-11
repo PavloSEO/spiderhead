@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**219 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**221 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -201,6 +201,8 @@ python scripts/generate_checks_reference.py
 
 | Check id | Severity | Evidence | Fires on | Fix |
 |---|---|---|---|---|
+| `CANONICAL_INVALID_ATTRIBUTE` | warning | crawl:head_links | Canonical annotation contains unsupported alternate-version attributes or malformed rel/href | Remove hreflang, lang, media and type from the canonical link; declare alternates separately. Use an HTML whitespace-separated canonical relation and a non-empty HTTP(S) href. Raw attributes are included in the evidence. |
+| `CANONICAL_CROSS_ORIGIN` | notice | SF-derived | Canonical changes the declaring URL host or protocol | Confirm that cross-host or protocol consolidation is intentional and that the target is the preferred URL. |
 | `CANONICAL_CHAIN` | warning | SF-derived | Canonical chain: the target canonicalizes to another URL (two or more steps) | Point the canonical directly to the final canonical URL in one step and break any canonical loops. |
 | `CANONICAL_TO_REDIRECT` | warning | SF-derived | Canonical points to a redirecting URL (3xx) | Point the canonical to the final 200-status URL; otherwise search engines must resolve conflicting canonical signals. |
 | `CANONICAL_TARGET_ERROR` | warning | SF-derived | Canonical points to a URL returning 4xx or 5xx | Point the canonical to a fetched, successful URL; restore the target or redirect it to the intended canonical page. |
@@ -226,7 +228,7 @@ python scripts/generate_checks_reference.py
 | `UNLINKED_PAGINATION_SERIES` | warning | SF-derived | A pagination series is reachable only by following rel="next", never by a hyperlink | Add an ordinary internal link to the first page of the series so it does not depend on rel="next" alone for discovery. |
 | `PAGINATION_MULTIPLE` | warning | SF-derived | The page declares more than one rel="next" (or more than one rel="prev") URL | Declare exactly one rel="next" and one rel="prev" URL per page; two different successors leave the series ambiguous, and a crawler picks one of them without telling anybody which. |
 | `PAGINATION_URL_NOT_IN_ANCHOR` | notice | inlinks:All Inlinks | A rel="next"/rel="prev" URL is not also linked from the same page with an anchor | Link the paginated URL from the page itself with an ordinary <a href> as well. Google stopped using rel="next"/rel="prev" for indexing in 2019, so an annotation with no anchor beside it is a route only some crawlers still take. |
-| `PAGINATION_SEQUENCE_ERROR` | warning | SF-derived | A rel="next" series breaks a page-number run it otherwise follows | Point each rel="next" at the page that actually follows this one. A run that goes 1, 2, 3, 7 leaves pages 4 to 6 out of the chain entirely, so a crawler following it never reaches them. |
+| `PAGINATION_SEQUENCE_ERROR` | warning | SF-derived | Pagination breaks an established numbered run or contradicts a reciprocal next/prev declaration | Point each rel="next" at the page that actually follows this one. A run that goes 1, 2, 3, 7 leaves pages 4 to 6 out of the chain entirely, so a crawler following it never reaches them. |
 
 ## --- extension: links ---
 

@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-11T12:08:50Z
+- **Generated:** 2026-10-11T15:06:17Z
 
 ## Health summary
 
-> **No health score.** only 94 of 219 checks could run (43% coverage); too little evidence to score.
+> **No health score.** only 95 of 221 checks could run (43% coverage); too little evidence to score.
 
-_94 of 219 checks could run; the score is not comparable to a run with full evidence_
+_95 of 221 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 125 skipped, 74 silent, 0 disabled (of 219 total)
+- Checks: **20 fired**, 126 skipped, 75 silent, 0 disabled (of 221 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -274,9 +274,10 @@ Each check below describes more than half the crawled pages. That can be true --
 | Grammar errors detected | no Grammar Errors column (enable grammar-check in SF) |
 | Redirect is implemented with an HTTP Refresh response header | no Refresh response header evidence (native crawl only) |
 | Page declares multiple canonical URLs | no Canonical Link Element 2 column in Internal:All |
+| Canonical annotation contains unsupported alternate-version attributes or malformed rel/href | raw canonical attributes are unavailable in this export |
 | A rel="next" pagination series loops back on itself | no rel="next" column in Internal:All |
 | A pagination series is reachable only by following rel="next", never by a hyperlink | no rel="next" column in Internal:All |
-| A rel="next" series breaks a page-number run it otherwise follows | no rel="next" column in Internal:All |
+| Pagination breaks an established numbered run or contradicts a reciprocal next/prev declaration | no rel="next" column in Internal:All |
 | Response uses HTTP/1.x rather than HTTP/2 or newer | no HTTP Version column in Internal:All |
 | AMP version is declared | no amphtml Link Element column in Internal:All |
 | The AMP page declared by rel=amphtml does not answer 200 | no amphtml Link Element column in Internal:All |

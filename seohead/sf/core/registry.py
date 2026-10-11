@@ -697,6 +697,18 @@ CHECKS: dict[str, dict[str, Any]] = {
         "fix": "Drop the fragment; the server never receives it, so a canonical pointing at one is meaningless.",
     },
     # --- extension: canonical graph (Mode B, built from Internal:All) ---
+    "CANONICAL_INVALID_ATTRIBUTE": {
+        "severity": "warning",
+        "source": "crawl:head_links",
+        "message": "Canonical annotation contains unsupported alternate-version attributes or malformed rel/href",
+        "fix": "Remove hreflang, lang, media and type from the canonical link; declare alternates separately. Use an HTML whitespace-separated canonical relation and a non-empty HTTP(S) href. Raw attributes are included in the evidence.",
+    },
+    "CANONICAL_CROSS_ORIGIN": {
+        "severity": "notice",
+        "source": "SF-derived",
+        "message": "Canonical changes the declaring URL host or protocol",
+        "fix": "Confirm that cross-host or protocol consolidation is intentional and that the target is the preferred URL.",
+    },
     "CANONICAL_CHAIN": {
         "severity": "warning",
         "source": "SF-derived",
@@ -829,7 +841,7 @@ CHECKS: dict[str, dict[str, Any]] = {
     "PAGINATION_SEQUENCE_ERROR": {
         "severity": "warning",
         "source": "SF-derived",
-        "message": 'A rel="next" series breaks a page-number run it otherwise follows',
+        "message": "Pagination breaks an established numbered run or contradicts a reciprocal next/prev declaration",
         "fix": 'Point each rel="next" at the page that actually follows this one. A run that '
         "goes 1, 2, 3, 7 leaves pages 4 to 6 out of the chain entirely, so a crawler "
         "following it never reaches them.",

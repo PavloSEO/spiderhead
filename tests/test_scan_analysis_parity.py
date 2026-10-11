@@ -107,12 +107,14 @@ def _drop_retained_only_checks(audit: dict) -> dict:
     # The security-header checks (#1013, and the repeated-header check) read each page's stored
     # response headers, which the legacy graph never keeps: the same retained-only shape as
     # BROKEN_BOOKMARK.
-    # These asset checks need retained source/headers or a rendered adjunct,
-    # which the legacy in-memory link graph does not carry. Their dedicated
-    # fixtures verify replay and unavailable scope separately.
+    # Asset and raw head-link checks need retained sources, headers, or rendered
+    # adjuncts, which the legacy in-memory link graph does not carry. Their
+    # dedicated fixtures verify replay and unavailable scope separately.
     retained_only = {
         "BROKEN_BOOKMARK",
         "RENDER_BLOCKING",
+        "CANONICAL_INVALID_ATTRIBUTE",
+        "PAGINATION_MULTIPLE",
         *security_headers.CHECK_IDS,
         *RESOURCE_CHECKS,
         *RENDER_CHECKS,
@@ -221,6 +223,7 @@ _PATH_WORDED_SKIPS = frozenset(
         "IMG_OVER_KB",
         "MIXED_CONTENT",
         "TITLE_MULTIPLE",
+        "PAGINATION_URL_NOT_IN_ANCHOR",
         "SITEMAP_URL_3XX",
         "SITEMAP_URL_4XX_5XX",
         "SITEMAP_URL_NON_INDEXABLE",
@@ -461,6 +464,10 @@ def test_sql_graph_audit_matches_legacy_without_building_all_inlinks(
 
     sql_outcome = _outcome(sql_audit, retained_run=retained_run)
     legacy_outcome = _outcome(legacy_audit)
+    legacy_skipped = {row["id"] for row in legacy_audit["run"]["checks_skipped"]}
+    native_silent = set(sql_audit["summary"]["check_coverage"]["checks_silent_ids"])
+    assert {"CANONICAL_INVALID_ATTRIBUTE", "PAGINATION_MULTIPLE"} <= legacy_skipped
+    assert {"CANONICAL_INVALID_ATTRIBUTE", "PAGINATION_MULTIPLE"} <= native_silent
     # A URL-budget stop is labelled stopped_by_budget by the native scan (finished, see
     # stop_by_budget) and url_limit by the legacy spider. Both are the same stop, so the
     # run label is compared as a budget stop; the findings and tasks still compare exactly.

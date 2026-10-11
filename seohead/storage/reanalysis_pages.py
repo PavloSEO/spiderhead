@@ -165,6 +165,7 @@ def _facts(
             "resource_inventory_state": "unavailable",
             "resource_inventory_reason": "document is not in the retained corpus",
             "resource_omitted": 0,
+            "head_links": None,
         }
     has_resources = "resource_declarations" in (parsed or {})
     omitted = int((parsed or {}).get("resource_declarations_omitted") or 0)
@@ -179,6 +180,7 @@ def _facts(
         if has_resources
         else "resource declarations were not parsed",
         "resource_omitted": omitted,
+        "head_links": (parsed or {}).get("head_links"),
     }
 
 
