@@ -11,7 +11,9 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import signal
 import sqlite3
+import threading
 from array import array
 from bisect import bisect_right
 from collections import Counter
@@ -32,9 +34,14 @@ MAX_DOCUMENT_BYTES = 5 * 1024 * 1024
 MAX_SNIPPET_CHARS = 320
 MAX_OCCURRENCES_PER_DOCUMENT = 10_000
 MAX_MATCH_WINDOW_CHARS = 4_000
+MAX_SERIALIZED_RECORD_BYTES = 64 * 1024
 _REDACTION_PATTERN = (
-    r"(?i)\b(authorization|bearer|token|api[_-]?key|secret|password)\s*([:=])\s*"
-    r"(?:bearer\s+)?(?:'[^']*'|\"[^\"]*\"|[^\s<'\">]+)"
+    r"(?i)(?:\b(?:set[-_ ]?cookie|cookie)\s*[:=]\s*[^\r\n]+"
+    r"|\b(?:authorization|proxy[-_ ]?authorization|access[-_ ]?token|"
+    r"refresh[-_ ]?token|id[-_ ]?token|client[-_ ]?secret|api[-_ ]?key|"
+    r"secret[-_ ]?key|token|secret|password|passwd|credential|private[-_ ]?key)"
+    r"(?:[\"'])?\s*[:=]\s*(?:bearer\s+)?(?:'[^']*'|\"[^\"]*\"|[^\s,;<'\">]+)"
+    r"|\bbearer\s+[A-Za-z0-9._~+/=-]{8,})"
 )
 _SCOPES = {"raw_html", "head_markup", "body_text", "selector_markup"}
 _REPRESENTATIONS = {"static", "rendered"}
@@ -131,10 +138,16 @@ def _occurrence_spans(
     *,
     case_sensitive: bool,
     pattern: re.Pattern[str] | None,
-) -> tuple[list[tuple[int, int]], int, bool, bool]:
+) -> tuple[list[tuple[int, int]], int, bool, bool, str | None]:
     """Return bounded offsets, total count, output-cap state, and timeout state."""
     spans: list[tuple[int, int]] = []
     total = 0
+    if pattern is not None and (
+        not hasattr(signal, "SIGALRM")
+        or not hasattr(signal, "setitimer")
+        or threading.current_thread() is not threading.main_thread()
+    ):
+        return spans, total, False, True, "regex_deadline_unavailable"
     matcher = pattern or re.compile(
         f"(?=({re.escape(query)}))", 0 if case_sensitive else re.IGNORECASE
     )
@@ -148,7 +161,32 @@ def _occurrence_spans(
         return total
 
     _, timed_out = _run_with_budget(collect, timeout_seconds=DEFAULT_TIMEOUT_SECONDS)
-    return spans, total, total > MAX_OCCURRENCES_PER_DOCUMENT, timed_out
+    timeout_reason = None
+    if timed_out:
+        timeout_reason = (
+            "regex_budget_exceeded" if pattern is not None else "match_budget_exceeded"
+        )
+    return spans, total, total > MAX_OCCURRENCES_PER_DOCUMENT, timed_out, timeout_reason
+
+
+def _serialized_record_bytes(record: dict[str, Any]) -> int:
+    encoded = json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    return len(encoded) + 1
+
+
+def _set_occurrence_output(
+    record: dict[str, Any], *, occurrence_count: int, count_limited: bool, record_limited: bool
+) -> None:
+    returned = len(record["occurrences"])
+    reasons = []
+    if count_limited:
+        reasons.append("occurrence_count_limit")
+    if record_limited:
+        reasons.append("serialized_record_limit")
+    record["occurrences_returned"] = returned
+    record["occurrences_omitted"] = max(0, occurrence_count - returned)
+    record["occurrence_truncated"] = bool(reasons or returned < occurrence_count)
+    record["occurrence_truncation_reasons"] = reasons
 
 
 def _redaction_spans(target: str) -> tuple[array, array]:
@@ -228,7 +266,7 @@ def _match_window(
     if truncated:
         value = ("…" if left > start else "") + value + ("…" if right < end else "")
     value = value[:MAX_MATCH_WINDOW_CHARS]
-    return start_line, value, truncated
+    return bisect_right(starts, left), value, truncated
 
 
 def _row_stream(con, representations: tuple[str, ...], url: str | None = None):
@@ -289,7 +327,7 @@ def search_scan(
     case_sensitive: bool = False,
     allow_active: bool = False,
     include_snippets: bool = False,
-    on_record: Callable[[dict[str, Any]], None] | None = None,
+    on_record: Callable[[dict[str, Any]], None | bool] | None = None,
     kind: str = "literal",
     url: str | None = None,
 ) -> dict[str, Any]:
@@ -298,7 +336,11 @@ def search_scan(
     ``kind="regex"`` treats ``query`` as a Python regular expression, run per
     document under the custom-extraction wall-clock budget. A document that
     exceeds the budget is unavailable (``regex_budget_exceeded``), never an
-    absence.
+    absence. Regex matching is unavailable on a worker thread or platform where
+    that wall-clock deadline cannot be enforced.
+
+    ``on_record`` may return ``False`` to stop a streaming consumer. The result
+    then has incomplete coverage and cannot confirm an absence.
 
     ``absence_confirmed`` is true only when every selected HTML observation is
     readable, the marker is absent from all of them, and the source scan itself
@@ -321,10 +363,12 @@ def search_scan(
 
     measured = present = absent = filter_matches = unavailable = non_html = documents = 0
     occurrence_truncated = 0
+    occurrence_truncation_reasons: Counter[str] = Counter()
     url_pages = 0
     reasons: Counter[str] = Counter()
     previous_url: str | None = None
     stream_error = ""
+    consumer_stopped = False
     try:
         reader = open_scan(
             scan_path, require_audit=False, query_timeout_seconds=READ_TIMEOUT_SECONDS
@@ -360,8 +404,11 @@ def search_scan(
                 "stream_error": None,
                 "body_byte_limit": MAX_DOCUMENT_BYTES,
                 "occurrence_output_limit_per_document": MAX_OCCURRENCES_PER_DOCUMENT,
+                "serialized_record_byte_limit": MAX_SERIALIZED_RECORD_BYTES,
                 "window_character_limit": MAX_MATCH_WINDOW_CHARS,
                 "occurrence_truncated_documents": 0,
+                "occurrence_truncation_reasons": {},
+                "record_consumer_stopped": False,
                 "url_filter": url,
             },
             "absence_confirmed": False,
@@ -405,6 +452,9 @@ def search_scan(
                 "occurrence_count": None,
                 "occurrence_truncated": None,
                 "occurrences": [],
+                "occurrences_returned": 0,
+                "occurrences_omitted": None,
+                "occurrence_truncation_reasons": [],
                 "offset_unit": "unicode_codepoint_zero_based_end_exclusive",
                 "line_numbering": "one_based",
                 "status": "unavailable",
@@ -432,7 +482,7 @@ def search_scan(
                         }[scope],
                         selector,
                     )
-                    spans, occurrence_count, occurrences_truncated, timed_out = _occurrence_spans(
+                    spans, occurrence_count, occurrences_truncated, timed_out, timeout_reason = _occurrence_spans(
                         target,
                         query,
                         case_sensitive=case_sensitive,
@@ -448,9 +498,7 @@ def search_scan(
                     )
                     if timed_out:
                         unavailable += 1
-                        record["reason"] = (
-                            "regex_budget_exceeded" if kind == "regex" else "match_budget_exceeded"
-                        )
+                        record["reason"] = timeout_reason or "match_budget_exceeded"
                     elif uncertain_absence:
                         unavailable += 1
                         record["reason"] = "decode_fidelity_unavailable_for_absence"
@@ -458,9 +506,10 @@ def search_scan(
                         measured += 1
                         record["presence"] = found
                         record["occurrence_count"] = occurrence_count
+                        record["occurrences_omitted"] = occurrence_count
                         record["occurrence_truncated"] = occurrences_truncated
                         if occurrences_truncated:
-                            occurrence_truncated += 1
+                            record["occurrence_truncation_reasons"] = ["occurrence_count_limit"]
                         if found:
                             line_starts = _line_starts(target)
                             redaction_spans = (
@@ -469,6 +518,7 @@ def search_scan(
                                 else (array("I"), array("I"))
                             )
                             occurrence_rows = []
+                            record["occurrences"] = occurrence_rows
                             for match_index, span in enumerate(spans, start=1):
                                 occurrence = {
                                     "match_index": match_index,
@@ -487,7 +537,25 @@ def search_scan(
                                         window_truncated=window_truncated,
                                     )
                                 occurrence_rows.append(occurrence)
-                            record["occurrences"] = occurrence_rows
+                                _set_occurrence_output(
+                                    record,
+                                    occurrence_count=occurrence_count,
+                                    count_limited=occurrences_truncated,
+                                    record_limited=False,
+                                )
+                                if _serialized_record_bytes(record) > MAX_SERIALIZED_RECORD_BYTES:
+                                    occurrence_rows.pop()
+                                    _set_occurrence_output(
+                                        record,
+                                        occurrence_count=occurrence_count,
+                                        count_limited=occurrences_truncated,
+                                        record_limited=True,
+                                    )
+                                    break
+                        else:
+                            record["occurrences_omitted"] = 0
+                            record["occurrence_truncated"] = False
+                            record["occurrence_truncation_reasons"] = []
                         if found:
                             present += 1
                         else:
@@ -504,13 +572,32 @@ def search_scan(
                                     span=spans[0] if spans else None,
                                     redaction_spans=redaction_spans,
                                 )
+                        while record["occurrences"] and (
+                            _serialized_record_bytes(record) > MAX_SERIALIZED_RECORD_BYTES
+                        ):
+                            record["occurrences"].pop()
+                            _set_occurrence_output(
+                                record,
+                                occurrence_count=occurrence_count,
+                                count_limited=occurrences_truncated,
+                                record_limited=True,
+                            )
                 except ScanError as exc:
                     unavailable += 1
                     record["reason"] = f"body_integrity_error/{exc}"
+            if _serialized_record_bytes(record) > MAX_SERIALIZED_RECORD_BYTES:
+                raise ValueError("content-search record exceeds the 64 KiB serialized record limit")
+            if record["status"] != "unavailable" and record["occurrence_truncated"]:
+                occurrence_truncated += 1
+                for reason in record["occurrence_truncation_reasons"]:
+                    occurrence_truncation_reasons[reason] += 1
             if record["status"] == "unavailable":
                 reasons[record["reason"]] += 1
             if on_record is not None:
-                on_record(record)
+                if on_record(record) is False:
+                    consumer_stopped = True
+                    stream_error = "record consumer stopped before all selected documents were emitted"
+                    break
 
     partial_reasons: list[str] = []
     if header["crawl_partial"]:
@@ -528,7 +615,11 @@ def search_scan(
         partial_reasons.append("no selected URL pages")
     if occurrence_truncated:
         partial_reasons.append(
-            f"occurrence offsets capped at {MAX_OCCURRENCES_PER_DOCUMENT} per document"
+            f"occurrence output truncated in {occurrence_truncated} document(s): "
+            + ", ".join(
+                f"{reason}={count}"
+                for reason, count in sorted(occurrence_truncation_reasons.items())
+            )
         )
     if unavailable or non_html or partial_reasons:
         coverage = "unavailable" if measured == 0 else "partial"
@@ -558,8 +649,11 @@ def search_scan(
             "stream_error": stream_error or None,
             "body_byte_limit": MAX_DOCUMENT_BYTES,
             "occurrence_output_limit_per_document": MAX_OCCURRENCES_PER_DOCUMENT,
+            "serialized_record_byte_limit": MAX_SERIALIZED_RECORD_BYTES,
             "window_character_limit": MAX_MATCH_WINDOW_CHARS,
             "occurrence_truncated_documents": occurrence_truncated,
+            "occurrence_truncation_reasons": dict(sorted(occurrence_truncation_reasons.items())),
+            "record_consumer_stopped": consumer_stopped,
             "url_filter": url,
         },
         "absence_confirmed": absence_confirmed,

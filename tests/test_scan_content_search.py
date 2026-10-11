@@ -6,13 +6,22 @@ import hashlib
 import json
 import socket
 import sqlite3
+from threading import Thread
 
 import pytest
 
 from seohead import cli
 from seohead.mcp import handlers
 from seohead.storage import ScanError
-from seohead.storage.content_search import MAX_MATCH_WINDOW_CHARS, search_scan
+from seohead.storage.content_search import (
+    MAX_MATCH_WINDOW_CHARS,
+    MAX_SERIALIZED_RECORD_BYTES,
+    _line_starts,
+    _match_window,
+    _redact_slice,
+    _redaction_spans,
+    search_scan,
+)
 from seohead.storage.native_scan import NativeScan
 from tests.test_native_capture import _event, _renderer
 from tests.test_scan_corpus_inputs import _scan
@@ -192,7 +201,12 @@ def test_content_search_counts_matches_past_the_explicit_offset_output_limit(tmp
 
     assert records[0]["occurrence_count"] == count
     assert records[0]["occurrence_truncated"] is True
-    assert len(records[0]["occurrences"]) == 10_000
+    assert records[0]["occurrences_returned"] == len(records[0]["occurrences"])
+    assert records[0]["occurrences_omitted"] == count - len(records[0]["occurrences"])
+    assert 0 < len(records[0]["occurrences"]) < 10_000
+    assert len(
+        json.dumps(records[0], ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\n"
+    ) <= MAX_SERIALIZED_RECORD_BYTES
     assert result["coverage"]["state"] == "partial"
     assert result["coverage"]["occurrence_truncated_documents"] == 1
 
@@ -211,7 +225,12 @@ def test_content_search_bounds_many_windows_on_a_large_minified_body(tmp_path):
         observed.update(
             occurrence_count=record["occurrence_count"],
             returned=len(windows),
+            omitted=record["occurrences_omitted"],
             longest_window=max(map(len, windows)),
+            serialized_bytes=len(
+                json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+                + b"\n"
+            ),
             leaked_secret=any("SUPERSECRET" in window for window in windows),
             redacted=any("[REDACTED]" in window for window in windows),
         )
@@ -224,12 +243,155 @@ def test_content_search_bounds_many_windows_on_a_large_minified_body(tmp_path):
         on_record=inspect,
     )
 
-    assert result["coverage"]["state"] == "complete"
+    assert result["coverage"]["state"] == "partial"
     assert observed["occurrence_count"] == repeats
-    assert observed["returned"] == repeats
+    assert 0 < observed["returned"] < repeats
+    assert observed["omitted"] == repeats - observed["returned"]
+    assert observed["serialized_bytes"] <= MAX_SERIALIZED_RECORD_BYTES
     assert observed["longest_window"] <= MAX_MATCH_WINDOW_CHARS
     assert observed["leaked_secret"] is False
     assert observed["redacted"] is True
+
+
+def test_content_search_package_writer_round_trips_ten_thousand_minified_matches(tmp_path):
+    repeats = 10_100
+    html = "<html><body>" + ("x" * 450 + "MATCH") * repeats + "</body></html>"
+    scan = _scan(tmp_path / "scan", [("https://example.test/minified", html)])
+    package = tmp_path / "package"
+
+    result = handlers.scan_content_search(
+        input_path=str(scan),
+        query="MATCH",
+        out_dir=str(package),
+        include_snippets=False,
+    )
+    page = handlers.scan_content_search_page(str(package), limit=1)
+    row = page["records"][0]
+    record_line = (package / "records.ndjson").read_bytes().splitlines()[0]
+
+    assert result["status"] == "partial"
+    assert result["records"] == 1
+    assert row["occurrence_count"] == repeats
+    assert row["occurrence_truncated"] is True
+    assert row["occurrences_omitted"] == repeats - row["occurrences_returned"]
+    assert row["occurrences_returned"] == len(row["occurrences"])
+    assert len(record_line) + 1 <= MAX_SERIALIZED_RECORD_BYTES
+    assert "serialized_record_limit" in row["occurrence_truncation_reasons"]
+
+
+def test_content_search_package_stops_at_explicit_total_byte_budget(tmp_path, monkeypatch):
+    scan = _scan(
+        tmp_path / "scan",
+        [
+            (
+                f"https://example.test/{index}",
+                f"<html><body>marker-{index}</body></html>",
+            )
+            for index in range(101)
+        ],
+    )
+    package = tmp_path / "package"
+    budget = handlers.MAX_CONTENT_SEARCH_MANIFEST_BYTES + 12_000
+    monkeypatch.setattr(handlers, "MAX_CONTENT_SEARCH_PACKAGE_BYTES", budget)
+
+    result = handlers.scan_content_search(
+        input_path=str(scan),
+        query="marker-",
+        out_dir=str(package),
+    )
+    page = handlers.scan_content_search_page(str(package), limit=100)
+    manifest = json.loads((package / "manifest.json").read_text(encoding="utf-8"))
+    package_bytes = sum(
+        (package / name).stat().st_size
+        for name in ("manifest.json", "records.ndjson", "records.idx")
+    )
+
+    assert result["status"] == "incomplete"
+    assert result["search_completed"] is False
+    assert result["coverage"]["package_output_truncated"] is True
+    assert manifest["package_byte_limit"] == budget
+    assert package_bytes == result["package_bytes"]
+    assert package_bytes <= budget
+    assert 0 < len(page["records"]) < 101
+
+
+def test_regex_search_without_main_thread_deadline_is_unavailable_not_unbounded(
+    tmp_path, monkeypatch
+):
+    scan = _scan(
+        tmp_path / "scan",
+        [("https://example.test/regex", "<html><body>safe</body></html>")],
+    )
+
+    def refuse_unbounded_execution(*_args, **_kwargs):
+        raise AssertionError("off-main-thread regex must not run without an enforced deadline")
+
+    monkeypatch.setattr(
+        "seohead.storage.content_search._run_with_budget", refuse_unbounded_execution
+    )
+    result_box = []
+    error_box = []
+
+    def search_in_worker():
+        try:
+            records = []
+            result = search_scan(
+                scan,
+                query=r"(a+)+$",
+                kind="regex",
+                on_record=records.append,
+            )
+            result_box.append((result, records))
+        except Exception as error:  # captured from worker for a useful caller assertion
+            error_box.append(error)
+
+    worker = Thread(target=search_in_worker)
+    worker.start()
+    worker.join(timeout=5)
+
+    assert not worker.is_alive()
+    assert error_box == []
+    result, records = result_box[0]
+    assert result["coverage"]["state"] == "unavailable"
+    assert records[0]["reason"] == "regex_deadline_unavailable"
+
+
+def test_match_window_reports_line_where_character_crop_begins():
+    target = "first line\n" + "x" * 5_000 + "\nMATCH\nlast line"
+    start = target.index("MATCH")
+    line, window, truncated = _match_window(
+        target,
+        _line_starts(target),
+        (start, start + len("MATCH")),
+        _redaction_spans(target),
+    )
+
+    assert truncated is True
+    assert line == 2
+    assert len(window) <= MAX_MATCH_WINDOW_CHARS
+
+
+def test_redaction_covers_common_credential_labels_and_bearer_values():
+    target = (
+        "access_token=ACCESSSECRET refresh_token: REFRESHSECRET "
+        'client_secret="CLIENT SECRET" api_key=APISECRET '
+        'Authorization: Bearer HEADERSECRET Bearer standalonesecrettoken '
+        '{"access_token":"JSONACCESSSECRET","client_secret":"JSONCLIENTSECRET"}'
+    )
+    redacted = _redact_slice(target, 0, len(target), _redaction_spans(target))
+
+    for secret in (
+        "ACCESSSECRET",
+        "REFRESHSECRET",
+        "CLIENT SECRET",
+        "APISECRET",
+        "HEADERSECRET",
+        "standalonesecrettoken",
+        "JSONACCESSSECRET",
+        "JSONCLIENTSECRET",
+    ):
+        assert secret not in redacted
+    assert redacted.count("[REDACTED]") == 8
 
 
 def test_content_search_keeps_static_and_rendered_absence_separate(tmp_path):

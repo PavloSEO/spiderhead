@@ -39,6 +39,8 @@ from seohead.core.filesystem import atomic_write_bytes
 from seohead.core.models import ParseManyResult, RobotsCheckResult
 
 LARGE_EVIDENCE_JOIN_SCAN_PAGES = 100_000
+MAX_CONTENT_SEARCH_PACKAGE_BYTES = 512 * 1024 * 1024
+MAX_CONTENT_SEARCH_MANIFEST_BYTES = 1024 * 1024
 
 
 def handler_failed(result: Any) -> bool:
@@ -6738,14 +6740,15 @@ def scan_content_search(
     kind: str = "literal",
     url: str | None = None,
 ) -> dict[str, Any]:
-    """Search one finished retained scan and write a complete local NDJSON package.
+    """Search one finished retained scan and write a bounded local NDJSON package.
 
     The scan is read offline and never re-fetched. ``out_dir`` must be a new
-    local directory; records and their fixed-width offset index are staged then
-    atomically published. The response contains counts and paths only, while
+    local directory; each serialized record is at most 64 KiB and the package
+    is capped at 512 MiB. Records and their fixed-width offset index are staged
+    then atomically published. The response contains counts, bytes and paths, while
     ``scan_content_search_page`` reads at most 100 derived records at a time.
-    A partial source or unavailable body publishes an honest partial package,
-    never an all-clear absence claim.
+    A partial source, unavailable body, or package byte cap publishes explicit
+    partial/incomplete coverage, never an all-clear absence claim.
     """
     import hashlib
     import json
@@ -6753,7 +6756,7 @@ def scan_content_search(
     import shutil
     import tempfile
 
-    from seohead.storage.content_search import search_scan
+    from seohead.storage.content_search import MAX_SERIALIZED_RECORD_BYTES, search_scan
 
     if not isinstance(out_dir, str) or not out_dir:
         raise ValueError("out_dir required: a new local content-search package directory")
@@ -6769,17 +6772,30 @@ def scan_content_search(
     count = 0
     record_bytes = 0
     digest = hashlib.sha256()
+    package_limit_hit = False
+    package_bytes = 0
     try:
         records_path = stage / "records.ndjson"
         index_path = stage / "records.idx"
         with records_path.open("wb") as records, index_path.open("wb") as index:
 
-            def emit(record: dict[str, Any]) -> None:
-                nonlocal count, record_bytes
+            def emit(record: dict[str, Any]) -> bool | None:
+                nonlocal count, record_bytes, package_limit_hit
                 encoded = (
                     json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
                     + b"\n"
                 )
+                if len(encoded) > MAX_SERIALIZED_RECORD_BYTES:
+                    raise ValueError(
+                        "content-search record exceeds the 64 KiB serialized record limit"
+                    )
+                projected = record_bytes + len(encoded) + (count + 1) * 40
+                if (
+                    projected + MAX_CONTENT_SEARCH_MANIFEST_BYTES
+                    > MAX_CONTENT_SEARCH_PACKAGE_BYTES
+                ):
+                    package_limit_hit = True
+                    return False
                 index.write(record_bytes.to_bytes(8, "big"))
                 index.write(hashlib.sha256(encoded).digest())
                 records.write(encoded)
@@ -6788,6 +6804,7 @@ def scan_content_search(
                 count += 1
                 if progress is not None:
                     progress(count)
+                return None
 
             summary = search_scan(
                 input_path,
@@ -6801,6 +6818,21 @@ def scan_content_search(
                 on_record=emit,
                 kind=kind,
                 url=url,
+            )
+        if package_limit_hit:
+            summary["search_completed"] = False
+            summary["ok"] = False
+            summary["absence_confirmed"] = False
+            summary["coverage"]["package_output_truncated"] = True
+            summary["coverage"]["package_output_limit_bytes"] = MAX_CONTENT_SEARCH_PACKAGE_BYTES
+            summary["coverage"]["stream_error"] = "derived package byte limit reached"
+            summary["coverage"]["partial_reasons"] = [
+                reason
+                for reason in summary["coverage"]["partial_reasons"]
+                if reason != "record consumer stopped before all selected documents were emitted"
+            ]
+            summary["coverage"]["partial_reasons"].append(
+                "derived package byte limit reached before all selected documents were emitted"
             )
         manifest = {
             "format": "seohead.retained-content-search.v1",
@@ -6820,14 +6852,21 @@ def scan_content_search(
                 "bytes": record_bytes,
                 "sha256": digest.hexdigest(),
                 "index_entry_bytes": 40,
+                "record_byte_limit": MAX_SERIALIZED_RECORD_BYTES,
             },
+            "package_byte_limit": MAX_CONTENT_SEARCH_PACKAGE_BYTES,
             "snippets": "included" if include_snippets else "omitted",
             "network": False,
         }
-        (stage / "manifest.json").write_text(
-            json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        manifest_bytes = (
+            json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+        ).encode("utf-8")
+        if len(manifest_bytes) > MAX_CONTENT_SEARCH_MANIFEST_BYTES:
+            raise ValueError("content-search package manifest exceeds 1 MiB")
+        package_bytes = record_bytes + count * 40 + len(manifest_bytes)
+        if package_bytes > MAX_CONTENT_SEARCH_PACKAGE_BYTES:
+            raise ValueError("content-search package exceeds its byte limit")
+        (stage / "manifest.json").write_bytes(manifest_bytes)
         if os.path.lexists(destination):
             raise ValueError("content-search out_dir appeared while the package was being written")
         os.replace(stage, destination)
@@ -6847,6 +6886,7 @@ def scan_content_search(
         "out_dir": str(destination),
         "manifest": str(destination / "manifest.json"),
         "records": count,
+        "package_bytes": package_bytes,
         "source": summary["source"],
         "coverage": summary["coverage"],
         "absence_confirmed": summary["absence_confirmed"],
@@ -6880,6 +6920,8 @@ def scan_content_search_page(
     import json
     import os
 
+    from seohead.storage.content_search import MAX_SERIALIZED_RECORD_BYTES
+
     if type(offset) is not int or offset < 0 or type(limit) is not int or not 1 <= limit <= 100:
         raise ValueError("offset must be nonnegative and limit must be 1..100")
     if status is not None and status not in {"matched", "not_matched", "unavailable"}:
@@ -6896,7 +6938,7 @@ def scan_content_search_page(
         or not manifest_path.is_file()
     ):
         raise ValueError("content-search package must be a regular local package directory")
-    if manifest_path.stat().st_size > 1_048_576:
+    if manifest_path.stat().st_size > MAX_CONTENT_SEARCH_MANIFEST_BYTES:
         raise ValueError("content-search package manifest exceeds 1 MiB")
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -6913,6 +6955,8 @@ def scan_content_search_page(
         or not isinstance(records.get("file"), str)
         or not isinstance(records.get("index"), str)
         or records.get("index_entry_bytes") != 40
+        or records.get("record_byte_limit", MAX_SERIALIZED_RECORD_BYTES)
+        != MAX_SERIALIZED_RECORD_BYTES
         or Path(records["file"]).name != records["file"]
         or Path(records["index"]).name != records["index"]
     ):
@@ -6925,6 +6969,13 @@ def scan_content_search_page(
         "index_entry_bytes"
     ] or os.path.getsize(records_path) != records.get("bytes"):
         raise ValueError("content-search package index length is invalid")
+    package_bytes = (
+        manifest_path.stat().st_size
+        + os.path.getsize(index_path)
+        + os.path.getsize(records_path)
+    )
+    if package_bytes > MAX_CONTENT_SEARCH_PACKAGE_BYTES:
+        raise ValueError("content-search package exceeds its byte limit")
     source = manifest.get("source")
     if not isinstance(source, dict):
         raise ValueError("content-search package source identity is invalid")
@@ -6934,7 +6985,7 @@ def scan_content_search_page(
         raise ValueError("content-search package source identity is invalid")
 
     def checked_row(line: bytes, digest: bytes) -> dict[str, Any]:
-        if len(line) > 64 * 1024 or not line.endswith(b"\n"):
+        if len(line) > MAX_SERIALIZED_RECORD_BYTES or not line.endswith(b"\n"):
             raise ValueError("content-search package record is truncated or exceeds 64 KiB")
         if hashlib.sha256(line).digest() != digest:
             raise ValueError("content-search package record integrity is invalid")
@@ -6980,7 +7031,7 @@ def scan_content_search_page(
             raise ValueError("content-search package index is truncated")
         stream.seek(int.from_bytes(marker[:8], "big"))
         for _ in range(limit):
-            line = stream.readline(64 * 1024 + 1)
+            line = stream.readline(MAX_SERIALIZED_RECORD_BYTES + 1)
             if not line:
                 raise ValueError("content-search package records are truncated")
             entry = offset + len(rows)
@@ -7031,7 +7082,7 @@ def _content_search_filtered_page(
             if len(marker) != entry_bytes:
                 raise ValueError("content-search package index is truncated")
             stream.seek(int.from_bytes(marker[:8], "big"))
-            line = stream.readline(64 * 1024 + 1)
+            line = stream.readline(MAX_SERIALIZED_RECORD_BYTES + 1)
             if not line:
                 raise ValueError("content-search package records are truncated")
             row = checked_row(line, marker[8:40])
