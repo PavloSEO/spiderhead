@@ -249,9 +249,9 @@ the report says `http_version_measurable: false`.
 | Command | What it does | Side effects |
 |---|---|---|
 | `parse` | Page breakdown: title, description, headings, canonical, meta robots, OG, counters | — |
-| `headers-check` | The full response header set with the SEO-relevant ones decoded | — |
+| `headers-check` | The full response header set with the SEO-relevant ones decoded; GET or HEAD only | — |
 | `asset-weight-check` | Fetches a page's linked CSS/JS and reports render-blocking resources, oversized files, duplicate libraries (by content hash), missing minification, missing `font-display`, legacy polyfilled JS, and missing compression/long-lived caching. Unused-code and cross-page outlier checks need rendering/multiple pages and are reported under `skipped` | — |
-| `redirects-check` | The live redirect chain to the final URL: hop count, codes, where the loop is | — |
+| `redirects-check` | The live redirect chain to the final URL: hop count, codes, where the loop is; GET or HEAD only | — |
 | `redirects-generate` | Ready redirect rules from URL pairs: Apache, Nginx, WordPress Redirection CSV, or a custom format; reports local chains and loops | writes to stdout |
 | `links-check` | Broken links on a page; `--internal-only` — own links only | — |
 | `robots-check` | Parse robots.txt and test specific paths for a specific user-agent | — |
@@ -351,7 +351,7 @@ are supplied lab results; the toolkit does not launch Lighthouse or infer field 
 | `logs-bots` | Read per-IP PTR, forward match, verdict, visits and last visit; explicit verification updates a one-hour local cache | opt-in DNS and local cache writes |
 | `log-scan` | Reads a finished run's own artifacts (`audit.json`, `pages.jsonl`, an `images-download` directory) and reports claims that cannot all be true at once: a recorded size that disagrees with the file, a check firing more often than there are pages to fire on, a finding about a URL the run never fetched, a summary that disagrees with its own rows. Not a second audit — only contradictions, each naming both values | reads files |
 | `images-download` | Download a list of images into a directory | writes files |
-| `images-optimize` | Recompress, resize, or convert raster images and conservatively minify SVG; `--quality auto` selects the lowest quality meeting an SSIM threshold over an aligned 1024 px RGB thumbnail (0.98 by default); EXIF can be removed explicitly; `--scan` downloads and optimizes up to 50 distinct declared images with source-occurrence and before/after evidence under a 100 MiB total download cap | requires `--output-dir`; scan mode writes only to that directory; local-file source mutation needs explicit `--in-place` and backs up by default |
+| `images-optimize` | Recompress, resize, or convert raster images and conservatively minify SVG; `--quality auto` uses bounded search and reports measured SSIM plus whether the target was met over an aligned 1024 px RGB thumbnail (0.98 by default); EXIF can be removed explicitly; `--scan` downloads and optimizes up to 50 distinct declared images with source-occurrence and before/after evidence under a 100 MiB total download cap | requires `--output-dir`; scan mode writes only to that directory; local-file source mutation needs explicit `--in-place` and backs up by default |
 
 ---
 

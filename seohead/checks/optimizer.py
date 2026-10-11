@@ -342,7 +342,7 @@ def _ssim_score(source: str, candidate: str) -> float:
 def _encode_raster_auto(
     source: str, destination: str, target_format: str, settings: dict[str, Any]
 ) -> tuple[str, int, float, bool]:
-    """Choose the lowest quality meeting the requested thumbnail SSIM threshold."""
+    """Select a bounded-search quality and report whether thumbnail SSIM meets target."""
     pillow_format = _FORMAT_TO_PIL[target_format][0]
     if pillow_format not in {"JPEG", "WEBP", "AVIF"}:
         raise ValueError("quality=auto requires a lossy JPEG, WebP, or AVIF output format")

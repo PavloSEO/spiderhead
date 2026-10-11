@@ -2,6 +2,8 @@
 
 import pytest
 
+from seohead.checks import headers as headers_core
+from seohead.checks import redirects as redirects_core
 from seohead.mcp import handlers
 from seohead.mcp.tool_reference import Argument, ToolSpec
 
@@ -83,3 +85,45 @@ def test_url_check_batch_reads_bounded_pages_from_a_retained_scan(monkeypatch):
     assert result["source"] == "retained_scan"
     assert result["offset"] == 40 and result["has_more"] is True
     assert result["results"][0]["url"] == "https://example.test/page"
+
+
+@pytest.mark.parametrize("check", ["headers-check", "redirects-check"])
+@pytest.mark.parametrize("method", ["POST", "DELETE"])
+def test_url_check_batch_rejects_write_methods_before_network(check, method):
+    with pytest.raises(ValueError, match="only GET or HEAD"):
+        handlers.url_check_batch(
+            urls=["https://example.test/"], checks=[check], options={"method": method}
+        )
+
+
+def test_single_url_read_checks_reject_write_methods_before_network(monkeypatch):
+    monkeypatch.setattr(
+        handlers.headers_core,
+        "check_headers",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("network reached")),
+    )
+    monkeypatch.setattr(
+        redirects_core,
+        "http_client",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("network reached")),
+    )
+    with pytest.raises(ValueError, match="GET or HEAD"):
+        handlers.headers_check("https://example.test/", method="POST")
+    with pytest.raises(ValueError, match="GET or HEAD"):
+        handlers.redirects_check("https://example.test/", options={"method": "DELETE"})
+
+
+def test_core_read_checks_also_reject_write_methods_before_network(monkeypatch):
+    monkeypatch.setattr(
+        headers_core,
+        "http_client",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("network reached")),
+    )
+    monkeypatch.setattr(
+        redirects_core,
+        "http_client",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("network reached")),
+    )
+    assert headers_core.check_headers("https://example.test/", method="POST")["ok"] is False
+    chain = redirects_core.check_chain("https://example.test/", {"method": "DELETE"})
+    assert chain[0]["ok"] is False

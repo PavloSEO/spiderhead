@@ -160,6 +160,11 @@ def redirects_check(
 ) -> dict[str, Any]:
     if not url:
         raise ValueError("url required")
+    if options is not None and not isinstance(options, dict):
+        raise ValueError("redirects-check options must be an object")
+    method = str((options or {}).get("method") or "HEAD").upper()
+    if method not in {"GET", "HEAD"}:
+        raise ValueError("redirects-check method must be GET or HEAD")
     from seohead.checks import redirects as redirects_core
 
     return {"chain": redirects_core.check_chain(url, options or {})}
@@ -2659,6 +2664,9 @@ def robots_check(
 def headers_check(url: str | None = None, method: str = "GET") -> dict[str, Any]:
     if not url:
         raise ValueError("url required")
+    method = str(method).upper()
+    if method not in {"GET", "HEAD"}:
+        raise ValueError("headers-check method must be GET or HEAD")
     return headers_core.check_headers(url, method=method)
 
 
@@ -6923,9 +6931,15 @@ def url_check_batch(
     }
     if len(set(checks)) != len(checks) or any(name not in supported for name in checks):
         raise ValueError("checks must be unique supported single-URL check names")
+    if options is not None and not isinstance(options, dict):
+        raise ValueError("batch options must be an object")
+    normalized = options or {}
+    if checks and {"headers-check", "redirects-check"}.intersection(checks):
+        method = str(normalized.get("method") or "GET").upper()
+        if method not in {"GET", "HEAD"}:
+            raise ValueError("batched read-only checks allow only GET or HEAD methods")
     if len(urls) * len(checks) > 50:
         raise ValueError("a batch may contain at most 50 URL/check combinations")
-    normalized = options if isinstance(options, dict) else {}
     results = []
     for url in urls:
         for name in checks:

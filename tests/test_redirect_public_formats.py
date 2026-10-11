@@ -3,7 +3,12 @@
 import csv
 import io
 
-from seohead.checks.redirects import analyze_redirect_map, generate_rule
+from seohead.checks.redirects import analyze_redirect_map, generate_rule, normalize_url
+
+
+def test_absolute_root_url_keeps_query_and_fragment_when_host_is_removed():
+    assert normalize_url("https://example.test?source=old#section") == "/?source=old#section"
+    assert normalize_url("https://example.test/path?source=old#section") == "/path?source=old#section"
 
 
 def test_wordpress_redirection_csv_row_has_import_fields():

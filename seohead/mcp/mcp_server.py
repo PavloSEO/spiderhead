@@ -474,7 +474,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
     ) -> dict[str, Any]:
         """Compress, convert, or resize raster images and conservatively minify SVG.
 
-        settings.quality="auto" chooses the lowest lossy quality meeting SSIM on an aligned 1024 px RGB thumbnail (0.98 by default).
+        settings.quality="auto" uses bounded search and reports measured SSIM plus whether the target was met on an aligned 1024 px RGB thumbnail (0.98 by default).
         settings.strip_exif=true removes EXIF. Safe default: settings.out_dir is required. Source mutation needs
         settings.in_place=true and creates a backup by default. Existing destinations
         require settings.overwrite=true. Animated and multipage images are rejected. A retained
@@ -506,7 +506,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         return _checked(handlers.robots_check(url=url, user_agent=user_agent, paths=paths))
 
     @mcp.tool(annotations=fetch, structured_output=True)
-    def seo_headers_check(url: str, method: str = "GET") -> dict[str, Any]:
+    def seo_headers_check(url: str, method: Literal["GET", "HEAD"] = "GET") -> dict[str, Any]:
         """Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link,
         Cache-Control, HSTS, ...), HTTP version, TTFB, and body size."""
         return _checked(handlers.headers_check(url=url, method=method))

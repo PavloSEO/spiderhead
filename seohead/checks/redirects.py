@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import csv
 import io
-import re
 from typing import Any
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
@@ -55,13 +54,17 @@ _KNOWN_FORMATS = {
 def normalize_url(url: str) -> str:
     """Strip scheme + host, leaving only the path (+ query/fragment).
 
-    Mirrors the TS ``normalizeUrl``: trims whitespace and removes a leading
-    ``http://host`` / ``https://host`` prefix. Non-string / empty input yields
-    an empty string.
+    Trims whitespace and removes an HTTP(S) scheme and host while preserving
+    path, query and fragment. A host-only URL has the root path ``/``.
+    Non-string / empty input yields an empty string.
     """
     if not url:
         return ""
-    return re.sub(r"^https?://[^/]+", "", url.strip())
+    value = url.strip()
+    parts = urlsplit(value)
+    if parts.scheme.lower() in {"http", "https"} and parts.netloc:
+        return urlunsplit(("", "", parts.path or "/", parts.query, parts.fragment))
+    return value
 
 
 def _pick(item: dict, *keys: str) -> Any:
@@ -253,7 +256,28 @@ def check_chain(url: str, options: dict | None = None) -> list[dict]:
     URLs are detected as a redirect loop. Never raises: any setup failure is
     returned as a single error hop.
     """
+    if options is not None and not isinstance(options, dict):
+        return [
+            {
+                "url": url,
+                "status": 0,
+                "location": None,
+                "ok": False,
+                "error": "redirects-check options must be an object",
+            }
+        ]
     options = options or {}
+    method = str(options.get("method") or "HEAD").upper()
+    if method not in {"GET", "HEAD"}:
+        return [
+            {
+                "url": url,
+                "status": 0,
+                "location": None,
+                "ok": False,
+                "error": "redirects-check method must be GET or HEAD",
+            }
+        ]
 
     if httpx is None:
         return [

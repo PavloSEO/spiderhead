@@ -31,7 +31,6 @@ dependencies = [
     # Preserve foreign TOML configuration comments and keys during MCP registration.
     "tomlkit>=0.13,<1",
     "pandas>=2.0,<4",
-    "numpy>=1.26,<3",
     "openpyxl>=3.1,<4",
     "lxml>=4.9,<7",
     "jsonschema>=4.0,<5",

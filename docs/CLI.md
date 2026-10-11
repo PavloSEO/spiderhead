@@ -84,8 +84,8 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 |---|---|---|
 | `parse` | Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6, JSON-LD, links, visible text, word count) from one URL or a list of URLs. | network |
 | `robots-check` | Fetch and analyze a site's robots.txt: user-agent groups, declared sitemaps, and whether given paths are crawlable. | network |
-| `headers-check` | Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link, Cache-Control, HSTS, ...), HTTP version, TTFB, and body size. | network |
-| `redirects-check` | Follow a live redirect chain for a URL and report each hop (status, location). | network |
+| `headers-check` | Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link, Cache-Control, HSTS, ...), HTTP version, TTFB, and body size using GET or HEAD. | network, read-only |
+| `redirects-check` | Follow a live redirect chain for a URL and report each hop (status, location) using GET or HEAD. | network, read-only |
 | `links-check` | Check a page's outbound links for broken (4xx/5xx) targets and links that point at redirects (wasted crawl hops). | network |
 | `hreflang-check` | Extract and validate a page's hreflang alternates (x-default, self-reference, duplicates, malformed codes). | network |
 | `render-check` | Compare the raw server HTML with the DOM after JavaScript runs — the gap between them is what a non-rendering crawler loses. | network |
