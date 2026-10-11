@@ -33,7 +33,7 @@ from .ui.settings import mcp as sheet
 from .ui.settings.listing import tilde
 
 CLIENTS = tuple((cid, name) for cid, name, _path in sheet.CLIENTS)
-ACTOR = "SEOHEAD Desktop"
+ACTOR = "SpiderHead Desktop"
 SERVER_KEY = {"codex": "mcp_servers.seohead"}
 
 

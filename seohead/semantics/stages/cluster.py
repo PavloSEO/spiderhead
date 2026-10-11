@@ -13,6 +13,7 @@ from __future__ import annotations
 import collections
 import itertools
 import json
+from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 from seohead.data_sources.yandex_cloud import WebSearch
@@ -145,14 +146,17 @@ def run(store, cfg, limit=0, top=10, method="serp"):
 
     store.db.execute("""CREATE TABLE IF NOT EXISTS serp_fetches(
         phrase_norm TEXT, region TEXT, top INTEGER, state TEXT, operation_id TEXT,
-        raw_json TEXT, error TEXT, PRIMARY KEY(phrase_norm, region, top))""")
+        raw_json TEXT, error TEXT, fetched_at TEXT, PRIMARY KEY(phrase_norm, region, top))""")
+    receipt_columns = {row["name"] for row in store.db.execute("PRAGMA table_info(serp_fetches)")}
+    if "fetched_at" not in receipt_columns:
+        store.db.execute("ALTER TABLE serp_fetches ADD COLUMN fetched_at TEXT")
     n_req = 0
     doms = {}  # norm -> set of top-N page keys
     todo = []
     receipts = {
         r["phrase_norm"]: r
         for r in store.db.execute(
-            "SELECT phrase_norm,state FROM serp_fetches WHERE region=? AND top=?",
+            "SELECT phrase_norm,state,fetched_at FROM serp_fetches WHERE region=? AND top=?",
             (str(region), top),
         )
     }
@@ -171,6 +175,8 @@ def run(store, cfg, limit=0, top=10, method="serp"):
                 (r["norm"], str(region), top),
             ).fetchone()[0]
             docs = json.loads(raw)["docs"][:top]
+            if not cached:
+                store.add_serp(r["norm"], docs, fetched_at=receipt["fetched_at"])
             doms[r["norm"]] = {url_key(d["url"]) for d in docs if d.get("url")}
         elif cached and r["norm"] not in has_receipt:
             # Legacy SERP has no region receipt; retain it until an explicit new fetch is recorded.
@@ -209,13 +215,16 @@ def run(store, cfg, limit=0, top=10, method="serp"):
                     store.add_serp(p, docs)
                     doms[p] = {url_key(d["url"]) for d in docs if d.get("url")}
             store.db.execute(
-                "UPDATE serp_fetches SET state=?,operation_id=?,raw_json=?,error=? "
+                "UPDATE serp_fetches SET state=?,operation_id=?,raw_json=?,error=?,fetched_at=? "
                 "WHERE phrase_norm=? AND region=? AND top=?",
                 (
                     state,
                     (result or {}).get("operation_id"),
                     json.dumps(result, ensure_ascii=False),
                     str((result or {}).get("error") or "") or None,
+                    datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+                    if state == "complete"
+                    else None,
                     p,
                     str(region),
                     top,

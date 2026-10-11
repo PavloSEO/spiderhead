@@ -1,0 +1,1 @@
+- Native stored crawls compare retained response bodies with a bounded set of recognizable Content-Type families; unavailable, oversized and ambiguous bodies remain explicitly unmeasured.

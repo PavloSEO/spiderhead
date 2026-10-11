@@ -121,7 +121,7 @@ def build_board(width, height):
     top.setFixedHeight(52)
     tl = QHBoxLayout(top)
     tl.setContentsMargins(16, 0, 16, 0)
-    tl.addWidget(_label("SEOHEAD", "section"))
+    tl.addWidget(_label("SpiderHead", "section"))
     tl.addStretch(1)
     new_scan = _set(QPushButton("Новый скан"), role="primary")
     tl.addWidget(new_scan)

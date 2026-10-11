@@ -60,7 +60,56 @@ Rendered from the registry exactly as `provider-registry` reports it.
 | `public-recon` | Snapshot history of a URL and subdomains named in public certificate logs | `wayback`, `crtsh` | `wayback-history`, `crtsh-subdomains` | supported | None — public services | Free; public service pacing and availability | public | provider-verify reports not_required — there is no access contract to verify | not applicable |
 | `evidence-join` | Attach external URL-keyed rows to a crawl and surface orphan candidates for explicit review | `gsc`, `ga4`, `metrika`, `yandex_webmaster`, `bing_webmaster` | `provider-join`, `provider-replay` | supported | None — operates on already-collected or user-supplied rows | Free; local operation | restricted inputs stay local; artifact directory is created mode 0700 | Never changes the crawl frontier; unkeyable, crawl-only, and external-only populations stay named and separate | yes — this is the CSV fallback path itself |
 
+## Resource discovery
+
+`provider-discover --provider google|yandex|topvisor [--domain HOST]` makes one bounded,
+read-only request to list resources visible to the authenticated account. It returns normalized
+service/resource/label records and an optional domain-match hint. The result is a preview: it
+never creates or changes a project binding, and visible account resources remain unselected until
+the operator explicitly binds one with `project-sources-link`. Topvisor discovery reads one page;
+`truncated` is true when the provider reports another page.
+
+## GSC OAuth consent lifecycle
+
+Configure `GSC_OAUTH_CLIENT_ID` and `GSC_OAUTH_REDIRECT_URI` locally, then start the read-only
+consent flow. The generated URL contains a random state value; the local flow file stores only its
+digest and expires after ten minutes. The callback accepts state and authorization code through
+stdin JSON, exchanges the code for a read-only grant, and reports connected timestamps only after
+the provider's token response validates:
+
+```bash
+seohead provider-auth --provider gsc --action start
+printf '%s' '{"state":"CALLBACK_STATE","code":"CALLBACK_CODE"}' | \
+  seohead provider-auth --provider gsc --action callback --callback-stdin
+seohead provider-auth --provider gsc --action status
+```
+
+Do not place callback values in command arguments or logs. `--action cancel` invalidates a waiting
+flow locally. Cancelled and expired flows reject callbacks; a connected account still requires an
+explicit `provider-verify` read before any target is described as accessible. The CLI owns callback
+input; MCP can start, inspect, and cancel flows without receiving callback codes.
+
 ## Unsupported work, stated explicitly
+
+### Write-only credential management
+
+`provider-credential --action status` returns only a relative `config:` reference, whether an
+environment override shadows that file, a configuration state, and the file's `updated_at`
+timestamp. It never returns a stored value. Set or replace through the local CLI stdin channel;
+values in command arguments and inline JSON are not accepted:
+
+```bash
+printf %s "$PROVIDER_TOKEN" | seohead provider-credential \
+  --provider arsenkin --component api_token --action set --value-stdin
+seohead provider-credential --provider arsenkin --component api_token \
+  --action revoke --confirm
+```
+
+Provider and component names are checked against the registry. The existing atomic private-file
+writer stores values with restrictive permissions. Replacement requires `--replace`; revocation
+requires `--confirm`. MCP allows status only because it has no trusted caller identity; revoke and
+all OAuth mutations stay in explicit local CLI workflows. Credential configuration never proves
+provider or target access; use `provider-verify` for that explicit check.
 
 - **arsenkin serp_clustering via provider-collect** — declared in the registry but deliberately refused by the collection dispatch; tracked by the dedicated-operation contract rather than duplicated here
 - **metrika raw_logs (Yandex Logs API)** — excluded by design — raw logs may contain personal identifiers and must not reach reports or commits

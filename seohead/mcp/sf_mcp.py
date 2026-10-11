@@ -1,4 +1,4 @@
-"""MCP server (stdio) exposing the audit core through five agent-callable tools.
+"""MCP server (stdio) exposing the audit core through six agent-callable tools.
 
 Requires the optional ``mcp`` dependency::
 
@@ -73,6 +73,7 @@ def _do_run(
     config: str | None = None,
     sitemap: str | None = None,
     project: str | None = None,
+    inspect_gsc: bool = False,
 ) -> dict[str, Any]:
     if mode not in VALID_MODES:
         raise ValueError(f"mode must be one of {sorted(VALID_MODES)}, got {mode!r}")
@@ -154,6 +155,8 @@ def _do_run(
                 profile=profile,
                 config_path=config or "config.json",
                 sitemap_url=sitemap,
+                project_dir=project,
+                inspect_gsc=inspect_gsc,
                 log=log,
                 **observer_kwargs,
             )
@@ -164,6 +167,8 @@ def _do_run(
                 profile=profile,
                 config_path=config or "config.json",
                 sitemap_url=sitemap,
+                project_dir=project,
+                inspect_gsc=inspect_gsc,
                 output_dir=os.path.join(out, "exports"),
                 log=log,
                 **observer_kwargs,
@@ -198,6 +203,7 @@ async def _do_run_cancellable(
     config: str | None = None,
     sitemap: str | None = None,
     project: str | None = None,
+    inspect_gsc: bool = False,
 ) -> dict[str, Any]:
     """Run ``_do_run`` off the event loop and stop its child on cancellation.
 
@@ -231,6 +237,7 @@ async def _do_run_cancellable(
                 config=config,
                 sitemap=sitemap,
                 project=project,
+                inspect_gsc=inspect_gsc,
             )
 
     try:
@@ -286,6 +293,7 @@ def register(mcp):  # pragma: no cover - needs the SDK
         config: str | None = None,
         sitemap: str | None = None,
         project: str | None = None,
+        inspect_gsc: bool = False,
     ) -> dict[str, Any]:
         """Run an SF audit and write audit.json plus audit.md.
 
@@ -300,6 +308,11 @@ def register(mcp):  # pragma: no cover - needs the SDK
         caller-supplied body/title/H1 vectors. No embedding model or provider
         is selected by default; absent bodies or adapters remain unavailable.
 
+        ``inspect_gsc`` explicitly enables a bounded live Search Console URL Inspection sample.
+        It requires a project-bound GSC property, stores results in that project's private local
+        inspection history, and applies a local 2,000-request-per-property-per-UTC-day budget.
+        By default this run reads only retained GSC/analytics history and makes no provider call.
+
         A live crawl can run for a long time; this call runs off the server's
         event loop, so other sf_* calls stay answerable while it is in
         progress, and cancelling the request (an MCP CancelledNotification)
@@ -310,7 +323,14 @@ def register(mcp):  # pragma: no cover - needs the SDK
         same ``out`` path.
         """
         return await _do_run_cancellable(
-            mode, input, profile=profile, out=out, config=config, sitemap=sitemap, project=project
+            mode,
+            input,
+            profile=profile,
+            out=out,
+            config=config,
+            sitemap=sitemap,
+            project=project,
+            inspect_gsc=inspect_gsc,
         )
 
     @mcp.tool(annotations=read_files, structured_output=True)
@@ -331,6 +351,8 @@ def register(mcp):  # pragma: no cover - needs the SDK
             "top_checks": dict(list(s.get("by_check", {}).items())[:15]),
             "sitemap": s.get("sitemap"),
         }
+        if "provider_findings" in s:
+            result["provider_findings"] = s["provider_findings"]
         if s.get("health_score") is None:
             for key in ("health_score_reason", "health_score_basis", "health_score_scope"):
                 if key in s:
@@ -410,6 +432,61 @@ def register(mcp):  # pragma: no cover - needs the SDK
         if diagnostics:
             result["input_diagnostics"] = diagnostics
         return result
+
+    @mcp.tool(annotations=create_local_files, structured_output=True)
+    def sf_snippet_edits(
+        csv_text: str,
+        out: str,
+        metrics: dict[str, dict[str, Any]] | None = None,
+        retained_scan: str | None = None,
+        query: str | None = None,
+        representation: str = "static",
+        variant_key: str | None = None,
+        content_area: dict[str, Any] | None = None,
+        max_decoded_bytes: int = 8 * 1024 * 1024,
+    ) -> dict[str, Any]:
+        """Import supplied snippet CSV text and write unapplied review tasks to a new JSON file.
+
+        The CSV needs ``url`` and at least one of ``title`` or ``description``. Empty edit cells
+        leave that field unchanged. Optional ``metrics`` names local font profiles with
+        ``font_path`` and ``font_size``; their widths are typography measurements, not Google or
+        Yandex truncation predictions. ``retained_scan`` can add bounded, offline content context
+        for those exact URLs; ``query`` selects a visible-text excerpt and requires that scan.
+        Existing output files are never replaced.
+        """
+        from seohead.sf.snippet_edits import (
+            attach_retained_context,
+            attach_retained_measurements,
+            build_snippet_tasks,
+            measure_snippet_edits,
+            parse_snippet_csv,
+            write_snippet_tasks,
+        )
+
+        parsed = parse_snippet_csv(csv_text)
+        tasks = build_snippet_tasks(parsed)
+        if query and not retained_scan:
+            raise ValueError("query requires retained_scan")
+        if metrics is not None:
+            tasks["measurements"] = measure_snippet_edits(parsed["edits"], metrics)
+        if retained_scan is not None:
+            tasks = attach_retained_context(
+                tasks,
+                retained_scan,
+                representation=representation,
+                variant_key=variant_key,
+                query=query,
+                content_area=content_area,
+                max_decoded_bytes=max_decoded_bytes,
+            )
+            if metrics is not None:
+                tasks = attach_retained_measurements(tasks, metrics)
+        path = write_snippet_tasks(tasks, out)
+        return {
+            "schema_version": tasks["schema_version"],
+            "summary": tasks["summary"],
+            "task_file": os.path.abspath(path),
+        }
 
     return mcp
 

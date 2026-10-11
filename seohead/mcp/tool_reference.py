@@ -183,7 +183,7 @@ def load_seo_tools() -> list[ToolSpec]:
 
 
 def load_sf_tools() -> list[ToolSpec]:
-    """The 5 ``sf_*`` crawl-audit tools, in the order they are registered.
+    """The ``sf_*`` crawl-audit and snippet tools, in the order they are registered.
 
     These do not have a 1:1 CLI command the way ``seo_*`` tools do (``sf run``
     dispatches by ``mode``, not by tool name), so no ``command`` is derived for them.

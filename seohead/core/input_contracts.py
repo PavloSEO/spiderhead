@@ -1357,6 +1357,7 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
             "query",
             note="Offline retained-content query; package output is bounded and source-identified.",
         ),
+        _form("selector", "url", note="Optional exact logical URL filter."),
     ),
     _command(
         "scan-content-search-page",
@@ -1502,10 +1503,19 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         _form("selector", "url", note="Optional exact logical URL."),
     ),
     _command(
+        "custom-extract-sample",
+        "custom_extract_sample",
+        _form("inline_text", "html", note="Supplied HTML; never fetched."),
+        _form("inline_json", "extractors", note="Explicit extractor specifications."),
+        _form("selector", "url", note="Optional output label only; never fetched."),
+    ),
+    _command(
         "scan-structured-blocks",
         "scan_structured_blocks",
         _form("scan_artifact", "input_path"),
         _form("selector", "url", note="Exact retained logical URL."),
+        _form("selector", "representation", note="static, rendered, or legacy_fragment source."),
+        _form("selector", "variant_key", note="Optional exact retained HTTP variant key."),
     ),
     _command(
         "scan-fragment-links",

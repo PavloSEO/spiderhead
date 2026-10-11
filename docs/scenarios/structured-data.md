@@ -10,11 +10,17 @@
 
 ## The chain
 
-The shared checker validates JSON-LD, Microdata and common RDFa subjects/properties
-with the bundled vocabulary and local rich-result rules. A retained native scan also
-emits per-URL schema errors, warnings and missing required properties. Unsupported
-RDFa graph carriers remain partial/unavailable; local eligibility never guarantees
-Google display. Use `scan-structured-blocks` for the original and parsed JSON-LD tree.
+The shared checker validates JSON-LD, Microdata and offline RDFa subject graphs with
+the bundled vocabulary and local rich-result rules. RDFa forward/reverse relations,
+resource and literal values, ordered `inlist` collections and bounded iterative
+property copying use the same graph validator. [HTML+RDFa defines no default
+vocabulary](https://www.w3.org/TR/html-rdfa/#additional-rdfa-processing-rules); use
+an explicit `vocab` or Schema.org prefix. [Property copying](https://www.w3.org/TR/html-rdfa/#property-copying)
+is resolved after graph extraction. A retained native scan emits per-URL schema
+errors, warnings and missing required properties; extraction limits report partial
+coverage. Local eligibility
+never guarantees Google display. Use `scan-structured-blocks` for the original and
+parsed JSON-LD tree.
 
 **1. Read what the page actually declares.**
 

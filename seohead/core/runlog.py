@@ -194,7 +194,13 @@ def record(entry: dict[str, Any]) -> dict[str, Any]:
 
 
 @contextmanager
-def journal(interface: str, tool: str, arguments: dict[str, Any] | None = None):
+def journal(
+    interface: str,
+    tool: str,
+    arguments: dict[str, Any] | None = None,
+    *,
+    redact_error: bool = False,
+):
     """Record one call, whether it succeeds or raises.
 
     ``yield``s a mutable dict; a caller may add result facts to it (URLs crawled,
@@ -207,7 +213,11 @@ def journal(interface: str, tool: str, arguments: dict[str, Any] | None = None):
     try:
         yield facts
     except BaseException as exc:  # recorded, then re-raised unchanged
-        error = f"{type(exc).__name__}: {exc}"
+        error = (
+            f"{type(exc).__name__}: sensitive operation failed"
+            if redact_error
+            else f"{type(exc).__name__}: {exc}"
+        )
         raise
     finally:
         record(
@@ -318,7 +328,7 @@ def _reusable_payload(result: Any) -> Any | None:
     return json.loads(encoded)
 
 
-def journaled(tool: str, function):
+def journaled(tool: str, function, *, sensitive_arguments: set[str] | frozenset[str] = frozenset()):
     """Wrap a handler so every call through any interface is recorded once.
 
     When this tool has an opt-in reuse policy (see ``reuse_policy``) and the journal holds a
@@ -331,11 +341,16 @@ def journaled(tool: str, function):
 
     @functools.wraps(function)
     def wrapper(**kwargs):
-        max_age = reuse_policy().get(tool, 0)
+        sensitive_present = any(name in kwargs for name in sensitive_arguments)
+        journal_arguments = {
+            name: "[redacted]" if name in sensitive_arguments else value
+            for name, value in kwargs.items()
+        }
+        max_age = 0 if sensitive_present else reuse_policy().get(tool, 0)
         if max_age:
-            reusable = find_reusable(tool, kwargs, max_age)
+            reusable = find_reusable(tool, journal_arguments, max_age)
             if reusable is not None:
-                with journal(current_interface(), tool, kwargs) as facts:
+                with journal(current_interface(), tool, journal_arguments) as facts:
                     facts["reused"] = True
                     facts["reused_from_ts"] = reusable["ts"]
                     result = copy.deepcopy(reusable["result"])
@@ -344,7 +359,9 @@ def journaled(tool: str, function):
                         result["reused_from_ts"] = reusable["ts"]
                     return result
 
-        with journal(current_interface(), tool, kwargs) as facts:
+        with journal(
+            current_interface(), tool, journal_arguments, redact_error=sensitive_present
+        ) as facts:
             result = function(**kwargs)
             if isinstance(result, dict):
                 # Enough to answer "what did that run do" without opening the

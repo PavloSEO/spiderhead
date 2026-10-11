@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from collections import Counter
 from typing import Any
 
@@ -17,25 +18,20 @@ def _fingerprint(issue: Issue) -> str:
     is capped/ordered and would make the fingerprint unstable across runs.
     """
     basis = "|".join([issue.check, str(issue.target_url), str(issue.status_code)])
+    if issue.image_source:
+        basis += "|" + json.dumps(issue.dedupe_key[2:], ensure_ascii=True)
     return hashlib.sha1(basis.encode("utf-8"), usedforsecurity=False).hexdigest()[:12]
 
 
 def _dedupe(issues: list[Issue]) -> list[Issue]:
-    seen: dict[tuple[str, str | None], Issue] = {}
+    seen: dict[tuple[Any, ...], Issue] = {}
     out: list[Issue] = []
     for issue in issues:
-        key = (issue.check, issue.target_url)
+        key = issue.dedupe_key
         if key in seen and issue.target_url is not None:
             # merge locations into the first occurrence rather than duplicate
             existing = seen[key]
-            existing.locations.extend(issue.locations)
-            unique_sources = {
-                loc.get("source_url") for loc in existing.locations if loc.get("source_url")
-            }
-            # never undercount: locations may be capped, so keep the largest signal
-            existing.occurrences_count = max(
-                len(unique_sources), existing.occurrences_count, issue.occurrences_count
-            )
+            existing.merge(issue)
             continue
         seen[key] = issue
         out.append(issue)
@@ -228,7 +224,18 @@ IMPLAUSIBLE_SHARE = 0.5
 # ordinary, image-heavy site. There is no crawled "distinct images" population
 # available here to divide by instead, so these are excluded from the
 # heuristic rather than scored against the wrong denominator.
-IMAGE_TARGETED_CHECKS = frozenset({"IMG_OVER_KB", "IMG_MISSING_DIMENSIONS", "IMG_MISSING_ALT"})
+IMAGE_TARGETED_CHECKS = frozenset(
+    {
+        "IMG_OVER_KB",
+        "IMG_MISSING_DIMENSIONS",
+        "IMG_MISSING_ALT",
+        "IMG_MISSING_ALT_ATTRIBUTE",
+        "IMG_ALT_TOO_LONG",
+        "IMG_BROKEN",
+        "IMG_INTRINSIC_OVERSIZED",
+        "IMG_UPSCALED",
+    }
+)
 
 
 def _implausible_checks(issues: list[Issue], n_pages: int) -> list[dict[str, Any]]:

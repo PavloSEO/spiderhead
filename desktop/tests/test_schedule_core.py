@@ -4,6 +4,9 @@ import unittest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import copy
+import threading
+
+from PyQt5.QtCore import QCoreApplication, QEvent, QEventLoop, QObject, QTimer
 
 from seohead_desktop import keep_awake, schedule_core, tray
 
@@ -87,6 +90,13 @@ class CommandTests(unittest.TestCase):
         answer = show_answer(
             revision=4,
             next_due_at="2026-10-12T01:00:00Z",
+            competitors=[
+                {
+                    "directory": "competitors/example",
+                    "url": "https://example.test/",
+                    "schedule_configured": False,
+                }
+            ],
             state={
                 "last_window": "2026-10-05",
                 "last_run_at": "2026-10-05T01:00:00Z",
@@ -100,6 +110,7 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(state["last_run"]["status"], "failed")
         self.assertFalse(state["due_now"])
         self.assertEqual(state["zone"], "Europe/Minsk")
+        self.assertEqual(state["competitors"][0]["directory"], "competitors/example")
 
     def test_save_validates_then_reads_back(self):
         calls = []
@@ -216,6 +227,56 @@ class KeepAwakeTests(unittest.TestCase):
         awake, started = self.make(binary=None)
         awake.set_active(True)
         self.assertEqual(started, [])
+
+
+class ScheduleJobsDeliveryTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QCoreApplication.instance() or QCoreApplication([])
+
+    def _wait(self, loop, milliseconds=2000):
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(loop.quit)
+        timer.start(milliseconds)
+        loop.exec_()
+        timer.stop()
+
+    def test_result_callback_runs_on_the_gui_thread(self):
+        jobs = schedule_core.ScheduleJobs()
+        owner = QObject()
+        main_thread = threading.get_ident()
+        received = []
+        loop = QEventLoop()
+
+        def success(value):
+            received.append((value, threading.get_ident()))
+            loop.quit()
+
+        jobs.submit(lambda: "done", success, lambda error: loop.quit(), owner)
+        self._wait(loop)
+        self.assertEqual(received, [("done", main_thread)])
+
+    def test_closed_owner_drops_a_queued_result(self):
+        jobs = schedule_core.ScheduleJobs()
+        owner = QObject()
+        started = threading.Event()
+        release = threading.Event()
+        self.addCleanup(release.set)
+        received = []
+
+        def work():
+            started.set()
+            release.wait(2)
+            return "done"
+
+        jobs.submit(work, received.append, lambda error: received.append(error), owner)
+        self.assertTrue(started.wait(2))
+        owner.deleteLater()
+        QCoreApplication.sendPostedEvents(owner, QEvent.DeferredDelete)
+        release.set()
+        self._wait(QEventLoop(), 100)
+        self.assertEqual(received, [])
 
 
 if __name__ == "__main__":

@@ -514,7 +514,7 @@ DEFECTS: tuple[Defect, ...] = (
     Defect("D46", ("IMG_OVER_KB",), ("/img/banner-glavnaya.jpg",), "12", "home banner ~320 KB"),
     Defect(
         "D47",
-        ("BROKEN_INTERNAL_LINK", "BROKEN_PAGE_4XX"),
+        ("BROKEN_INTERNAL_LINK", "BROKEN_PAGE_4XX", "IMG_BROKEN"),
         ("/img/catalog/stoly-hero.jpg",),
         "1",
         "category hero image 404",
@@ -579,6 +579,20 @@ DEFECTS: tuple[Defect, ...] = (
         "12",
         "http:// map script — only meaningful on https, so not observable on loopback http",
         detectable=False,
+    ),
+    Defect(
+        "D56",
+        ("IMG_MISSING_ALT",),
+        ("/catalog/spalni/spalnya-009/",),
+        "12",
+        "explicit informative image has empty alt text",
+    ),
+    Defect(
+        "D57",
+        ("IMG_MISSING_DIMENSIONS",),
+        ("/catalog/spalni/spalnya-010/",),
+        "12",
+        "product image does not declare width and height",
     ),
 )
 
@@ -990,6 +1004,11 @@ class Site:
             else f" alt='{html.escape(pname)}'"
         )
         img = f"/img/products/{cat}/{p['slug']}.jpg"
+        if cat == "spalni" and idx == 9 and self.on["D56"]:
+            alt = " alt='' role='img'"
+        dimensions = (
+            "" if cat == "spalni" and idx == 10 and self.on["D57"] else " width='800' height='600'"
+        )
         self.add(img, Resp(200, _image(img, 18), "image/jpeg"))
         ld = {
             "@context": "https://schema.org",
@@ -1026,7 +1045,7 @@ class Site:
             h1=pname,
             desc=desc,
             canonical=canonical,
-            body=f"<img src='{img}'{alt} width='800' height='600'>{body}<h2>Похожие товары</h2><ul>{rel}</ul>",
+            body=f"<img src='{img}'{alt}{dimensions}>{body}<h2>Похожие товары</h2><ul>{rel}</ul>",
             jsonld=f"<script type='application/ld+json'>{ld_s}</script>"
             + self.crumbs_ld([("Главная", "/"), (name, f"/catalog/{cat}/"), (pname, path)]),
         )

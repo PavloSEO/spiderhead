@@ -170,8 +170,16 @@ def test_html_schema_formats_are_retained_as_validation_not_absent(tmp_path, for
         con.close()
 
 
-def test_partial_rdfa_is_unavailable_not_valid():
-    html = '<div vocab="https://schema.org/" typeof="Thing"><a rel="url" href="/x">X</a></div>'
+def test_rdfa_graph_is_retained_as_native_validation():
+    html = """
+    <div vocab="https://schema.org/" typeof="Product" about="#product">
+      <span property="name">Widget</span>
+      <a rel="offers" href="#offer">Offer</a>
+      <div about="#offer" typeof="Offer">
+        <meta property="price" content="19.99">
+        <meta property="priceCurrency" content="USD">
+      </div>
+    </div>"""
     payload = structured_payload(
         page_url_id=1,
         source_document_id=1,
@@ -179,8 +187,44 @@ def test_partial_rdfa_is_unavailable_not_valid():
         parsed=parse_html(html, URL),
         html=html,
     )
-    assert payload["state"] == "unavailable"
-    assert payload["validation"]["structural_state"] == "unavailable"
+    assert payload["state"] == "valid"
+    assert payload["validation"]["structural_state"] == "valid"
+    assert payload["validation"]["feature_eligibility_state"] == "locally_checked"
+    assert payload["validation"]["feature_checks"][0]["rules_version"]
+    assert set(payload["validation"]) == {
+        "syntax_state",
+        "structural_state",
+        "feature_eligibility_state",
+        "unsupported_context_normalization",
+        "entity_errors",
+        "entity_warnings",
+        "feature_checks",
+    }
+
+
+def test_retained_rdfa_property_copy_keeps_the_v2_validation_shape():
+    from pathlib import Path
+
+    html = (Path(__file__).parent / "fixtures" / "rdfa_copy_graph.html").read_text("utf-8")
+    payload = structured_payload(
+        page_url_id=1,
+        source_document_id=1,
+        representation="static",
+        parsed=parse_html(html, URL),
+        html=html,
+    )
+    assert payload["state"] == "valid"
+    assert payload["validation"]["structural_state"] == "valid"
+    assert payload["validation"]["feature_checks"] == []
+    assert set(payload["validation"]) == {
+        "syntax_state",
+        "structural_state",
+        "feature_eligibility_state",
+        "unsupported_context_normalization",
+        "entity_errors",
+        "entity_warnings",
+        "feature_checks",
+    }
 
 
 def test_schema_warning_is_a_native_finding(tmp_path):

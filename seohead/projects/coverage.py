@@ -21,6 +21,7 @@ from .workspace import _facts, _load, _target
 FORMAT = "seohead.coverage.v1"
 FORMAT_V2 = "seohead.coverage.v2"
 FORMAT_V3 = "seohead.coverage.v3"
+FORMAT_V4 = "seohead.coverage.v4"
 MAX_BYTES = 32 * 1024 * 1024
 URL_ENUMERATION_LIMIT = 10000
 _ID = re.compile(
@@ -42,7 +43,19 @@ def _completion_hash(definition: dict) -> str:
         {
             key: value
             for key, value in definition.items()
-            if key not in {"priority", "priority_origin", "order", "enabled"}
+            if key not in {"priority", "priority_origin", "order", "enabled", "assignee"}
+            and not (
+                key
+                in {
+                    "description",
+                    "acceptance_criterion",
+                    "finding_ref",
+                    "method_ref",
+                    "competitors",
+                }
+                and value is None
+            )
+            and not (key == "competitors" and value == [])
         }
     )
 
@@ -248,7 +261,18 @@ def _definition(value: Any, catalogue: dict, *, historical: bool = False) -> dic
         "operation",
         "source_hash",
     }
-    if not isinstance(value, dict) or set(value) != required:
+    task_fields = {
+        "assignee",
+        "description",
+        "acceptance_criterion",
+        "finding_ref",
+        "method_ref",
+        "competitors",
+    }
+    if not isinstance(value, dict) or frozenset(value) not in {
+        frozenset(required),
+        frozenset(required | task_fields),
+    }:
         raise ValueError("item definition has unsupported fields")
     value = copy.deepcopy(value)
     item_id = _identifier(value["id"])
@@ -307,6 +331,52 @@ def _definition(value: Any, catalogue: dict, *, historical: bool = False) -> dic
         or not re.fullmatch("[a-f0-9]{64}", value["source_hash"])
     ):
         raise ValueError("invalid source definition hash")
+    if task_fields <= set(value):
+        for field in ("assignee", "description", "acceptance_criterion"):
+            field_value = value[field]
+            if field_value is not None:
+                _text(field_value, field, 2048 if field != "assignee" else 128)
+        finding_ref = value["finding_ref"]
+        if finding_ref is not None:
+            if (
+                not isinstance(finding_ref, dict)
+                or set(finding_ref) != {"scan_id", "finding_id"}
+            ):
+                raise ValueError("finding_ref requires scan_id and finding_id")
+            _text(finding_ref["scan_id"], "finding_ref scan_id", 128)
+            _text(finding_ref["finding_id"], "finding_ref finding_id", 256)
+        method_ref = value["method_ref"]
+        if method_ref is not None and (
+            not isinstance(method_ref, str)
+            or not method_ref.startswith(("skill:", "scenario:"))
+            or len(method_ref) > 256
+        ):
+            raise ValueError("method_ref must identify a registered skill or scenario")
+        competitors = value["competitors"]
+        if not isinstance(competitors, list) or len(competitors) > 20:
+            raise ValueError("competitors must be a bounded list of at most 20 sites")
+        identities = set()
+        from urllib.parse import urlsplit
+
+        for competitor in competitors:
+            if not isinstance(competitor, dict) or set(competitor) != {"url", "max_urls"}:
+                raise ValueError("each competitor requires url and max_urls")
+            url = _text(competitor["url"], "competitor URL", 2048)
+            normalized = _target(url)
+            parsed = urlsplit(normalized)
+            if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+                raise ValueError("competitor URL must be an HTTP(S) site")
+            primary = urlsplit(_target(value["scope"]["site"]))
+            if parsed.netloc.casefold() == primary.netloc.casefold():
+                raise ValueError("the task's primary site cannot also be a competitor")
+            if normalized in identities:
+                raise ValueError("duplicate competitor URL")
+            identities.add(normalized)
+            if (
+                type(competitor["max_urls"]) is not int
+                or not 1 <= competitor["max_urls"] <= 1_000_000
+            ):
+                raise ValueError("competitor max_urls must be 1..1,000,000")
     return value
 
 
@@ -500,20 +570,35 @@ def _validate_document(document: dict, project: dict) -> dict:
             "priority_policy",
         }
         if document["format"] == FORMAT_V3
+        else {
+            "format",
+            "version",
+            "project_uuid",
+            "revision",
+            "items",
+            "priority_policy",
+            "plans",
+        }
+        if document["format"] == FORMAT_V4
         else None
     )
     if expected_keys is None or type(document["version"]) is not int:
         raise ValueError("unsupported coverage document shape")
-    if document["format"] == FORMAT_V3:
+    if document["format"] in {FORMAT_V3, FORMAT_V4}:
         extra = set(document) - expected_keys
-        if extra not in ({"plan"}, {"plans"}):
+        if extra not in ({"plan"}, {"plans"}, set()):
             raise ValueError("unsupported coverage document shape")
         if "plan" in document:
             # Normalize the single-plan v3 shape into the append-only history.
             document["plans"] = [document.pop("plan")]
     elif set(document) != expected_keys:
         raise ValueError("unsupported coverage document shape")
-    if document["version"] != ({FORMAT: 1, FORMAT_V2: 2, FORMAT_V3: 3}[document["format"]]):
+    if document["version"] != {
+        FORMAT: 1,
+        FORMAT_V2: 2,
+        FORMAT_V3: 3,
+        FORMAT_V4: 4,
+    }[document["format"]]:
         raise ValueError("unsupported coverage version")
     if document["project_uuid"] != project["project_uuid"]:
         raise ValueError("coverage project UUID mismatch")
@@ -527,7 +612,10 @@ def _validate_document(document: dict, project: dict) -> dict:
         raise ValueError("too many checklist items")
     for item_id, item in document["items"].items():
         _identifier(item_id)
-        if not isinstance(item, dict) or set(item) != {"definition", "definitions", "records"}:
+        allowed_item_keys = {"definition", "definitions", "records"} | (
+            {"comments"} if document["format"] == FORMAT_V4 else set()
+        )
+        if not isinstance(item, dict) or set(item) != allowed_item_keys:
             raise ValueError("invalid checklist history")
         if not isinstance(item["definition"], dict) or item["definition"].get("id") != item_id:
             raise ValueError("item identity mismatch")
@@ -540,6 +628,21 @@ def _validate_document(document: dict, project: dict) -> dict:
         ):
             raise ValueError("current definition is absent from history")
         _definition(item["definition"], {}, historical=True)
+        if document["format"] == FORMAT_V4:
+            task_fields = {
+                "assignee",
+                "description",
+                "acceptance_criterion",
+                "finding_ref",
+                "method_ref",
+                "competitors",
+            }
+            if not task_fields <= set(item["definition"]):
+                raise ValueError("v4 task metadata is incomplete")
+            if not isinstance(item.get("comments"), list) or len(item["comments"]) > 10000:
+                raise ValueError("invalid task comment history")
+            for comment in item["comments"]:
+                _task_comment_shape(comment)
         if document["format"] == FORMAT and item["definition"]["priority_origin"] == "policy":
             raise ValueError("v1 coverage cannot contain policy priority origins")
         hashes = {}
@@ -571,9 +674,13 @@ def _validate_document(document: dict, project: dict) -> dict:
                 raise ValueError("invalid priority policy application")
             _application_time(application["applied_at"])
             _priority_receipt(application["receipt"], set(document["items"]))
-    if document["format"] == FORMAT_V3:
+    if document["format"] in {FORMAT_V3, FORMAT_V4}:
         plans = document["plans"]
-        if not isinstance(plans, list) or not plans or len(plans) > 10000:
+        if (
+            not isinstance(plans, list)
+            or (document["format"] == FORMAT_V3 and not plans)
+            or len(plans) > 10000
+        ):
             raise ValueError("invalid audit scope plan history")
         revision = 0
         for entry in plans:
@@ -583,6 +690,136 @@ def _validate_document(document: dict, project: dict) -> dict:
             revision = entry["revision"]
     _dependencies(document["items"])
     return document
+
+
+def _task_comment_shape(value: Any) -> None:
+    if not isinstance(value, dict) or set(value) not in (
+        {"actor", "text", "created_at"},
+        {"actor", "text", "created_at", "reference"},
+    ):
+        raise ValueError("invalid task comment")
+    _text(value["actor"], "comment actor", 128)
+    _text(value["text"], "comment text", 8000)
+    _text(value["created_at"], "comment timestamp", 128)
+    reference = value.get("reference")
+    if reference is not None:
+        if not isinstance(reference, dict) or reference.get("kind") not in {"scan", "finding"}:
+            raise ValueError("comment reference must identify a scan or finding")
+        expected = {"kind", "id"} if reference["kind"] == "scan" else {"kind", "scan_id", "id"}
+        if set(reference) != expected:
+            raise ValueError("comment reference has an invalid shape")
+        _text(reference["id"], "comment reference id", 256)
+        if reference["kind"] == "finding":
+            _text(reference["scan_id"], "comment reference scan_id", 128)
+
+
+def _affected_url_count(
+    root: Path,
+    definition: dict,
+    measurement: dict | None,
+    cache: dict[str, tuple[Path | None, str | None]],
+    count_cache: dict[tuple[str, str], dict[str, Any]],
+) -> dict[str, Any]:
+    """Use retained affected-URL evidence or W07's saved issue selection, never the crawl total."""
+    urls = (measurement or {}).get("affected_urls")
+    if isinstance(urls, list) and all(isinstance(url, str) and url for url in urls):
+        return {
+            "count": len(set(urls)),
+            "state": "measured",
+            "scope_state": "measured_population",
+            "source": "retained_task_measurement",
+            "reason": None,
+        }
+    reference = definition.get("finding_ref")
+    if isinstance(reference, dict):
+        scan_id, finding_id = reference.get("scan_id"), reference.get("finding_id")
+        if isinstance(scan_id, str) and isinstance(finding_id, str):
+            scan_path, unavailable = cache.get(scan_id, (None, None))
+            if scan_id not in cache:
+                from seohead.storage.history import list_scans
+
+                offset = 0
+                while True:
+                    page = list_scans(root / "scans", offset=offset, limit=100)
+                    if page.get("errors"):
+                        unavailable = "saved scan history contains unreadable entries"
+                        break
+                    found = next(
+                        (row for row in page["items"] if row.get("uuid") == scan_id), None
+                    )
+                    if found is not None:
+                        scan_path = Path(found["path"])
+                        break
+                    offset += len(page["items"])
+                    if not page["has_more"]:
+                        unavailable = "referenced scan is not retained in this project"
+                        break
+                cache[scan_id] = (scan_path, unavailable)
+            if scan_path is not None:
+                check_id = finding_id.removeprefix("check:")
+                if re.fullmatch(r"[a-z0-9][a-z0-9_.-]{0,99}", check_id, re.I):
+                    count_key = (scan_id, check_id)
+                    if count_key in count_cache:
+                        return dict(count_cache[count_key])
+                    try:
+                        from seohead.storage.url_query import scan_url_query
+
+                        selection = scan_url_query(
+                            str(scan_path),
+                            issue_check=check_id,
+                            columns=["url"],
+                            offset=0,
+                            limit=1,
+                            count_timeout_seconds=5.0,
+                            max_bytes=4096,
+                        )
+                    except (OSError, ValueError) as exc:
+                        unavailable = f"saved finding selection is unavailable: {exc}"
+                    else:
+                        count = selection.get("filtered_total")
+                        if (
+                            selection.get("ok") is True
+                            and selection.get("filtered_total_state") == "exact"
+                            and type(count) is int
+                            and (selection.get("source") or {}).get("scan_uuid") == scan_id
+                        ):
+                            source = selection.get("source") or {}
+                            scan_state = (
+                                "partial"
+                                if source.get("crawl_partial") or source.get("corpus_partial")
+                                else "complete"
+                            )
+                            counted = {
+                                "count": count,
+                                "state": "measured",
+                                "scope_state": scan_state,
+                                "source": "saved_issue_selection",
+                                "scan_uuid": scan_id,
+                                "check_id": check_id,
+                                "reason": None,
+                            }
+                            count_cache[count_key] = counted
+                            return dict(counted)
+                        unavailable = (
+                            selection.get("reason")
+                            or "saved issue count was capped, unavailable, or from a different scan"
+                        )
+                else:
+                    unavailable = "finding_ref.finding_id is not a supported saved check identifier"
+            return {
+                "count": None,
+                "state": "not_measured",
+                "scope_state": "unknown",
+                "source": "finding_ref",
+                "reason": unavailable or "saved affected-URL evidence is unavailable",
+            }
+    return {
+        "count": None,
+        "state": "not_measured",
+        "scope_state": "unknown",
+        "source": "none",
+        "reason": "the retained task measurement does not enumerate affected URLs",
+    }
 
 
 def _record_shape(record: Any, definition_hashes: dict) -> None:
@@ -606,6 +843,7 @@ def _record_shape(record: Any, definition_hashes: dict) -> None:
         "evidence",
         "revision",
         "artifact_verification",
+        "actor",
     }
     if (
         not isinstance(record, dict)
@@ -623,6 +861,8 @@ def _record_shape(record: Any, definition_hashes: dict) -> None:
         raise ValueError("invalid execution history status")
     _text(record["reason"], "record reason")
     _text(record["recorded_at"], "record timestamp", 128)
+    if "actor" in record:
+        _text(record["actor"], "record actor", 128)
     if "evidence" in record:
         _text(record["evidence"], "exclusion evidence", 512)
     if "revision" in record and (type(record["revision"]) is not int or record["revision"] < 1):
@@ -754,6 +994,8 @@ def _set(items: dict, definition: dict) -> None:
     item_id = definition["id"]
     if item_id not in items:
         items[item_id] = {"definition": definition, "definitions": [], "records": []}
+        if "assignee" in definition:
+            items[item_id]["comments"] = []
     item = items[item_id]
     if not item["definitions"] or item["definition"] != definition:
         item["definitions"].append({"observed_at": _now(), "definition": copy.deepcopy(definition)})
@@ -781,6 +1023,12 @@ def _custom(value: Any, site: str, catalogue: dict, previous: dict | None = None
         "order": 0,
         "operation": None,
         "source_hash": None,
+        "assignee": None,
+        "description": None,
+        "acceptance_criterion": None,
+        "finding_ref": None,
+        "method_ref": None,
+        "competitors": [],
     }
     if set(value) - set(base):
         raise ValueError("unknown item definition fields")
@@ -818,7 +1066,26 @@ def _materialize_builtin(document: dict, item_id: str, project: dict) -> None:
     """A goal-only checklist gains the catalogue rows only when one of them is actually touched."""
     catalogue = load_catalogue()
     if item_id not in document["items"] and item_id in catalogue:
-        _reconcile_builtins(document["items"], catalogue, project["site"]["target"])
+        if document.get("format") == FORMAT_V4:
+            definition = _builtin(
+                item_id,
+                catalogue[item_id],
+                len(document["items"]),
+                project["site"]["target"],
+            )
+            definition.update(
+                {
+                    "assignee": None,
+                    "description": None,
+                    "acceptance_criterion": None,
+                    "finding_ref": None,
+                    "method_ref": None,
+                    "competitors": [],
+                }
+            )
+            _set(document["items"], definition)
+        else:
+            _reconcile_builtins(document["items"], catalogue, project["site"]["target"])
 
 
 def _reconcile_builtins(items: dict, catalogue: dict, site: str) -> None:
@@ -853,6 +1120,8 @@ def initialize_coverage(
     with _transaction(directory, expected_revision) as (_, project, document):
         items = document["items"]
         _reconcile_builtins(items, catalogue, project["site"]["target"])
+        if document.get("format") == FORMAT_V4:
+            _promote_v4(document)
         seen = set()
         for value in (template or {}).get("items", []):
             if not isinstance(value, dict):
@@ -869,8 +1138,9 @@ def initialize_coverage(
                 item_id not in items for item_id in stored["tasks"]["ids"]
             ):
                 raise ValueError("agreed task ids must exist in the reconciled checklist")
-            document["format"] = FORMAT_V3
-            document["version"] = 3
+            if document.get("format") != FORMAT_V4:
+                document["format"] = FORMAT_V3
+                document["version"] = 3
             document.setdefault("priority_policy", {"applications": []})
             agreement = {**stored, "site": project["site"]["target"]}
             current = (document.get("plans") or [None])[-1]
@@ -888,14 +1158,47 @@ def initialize_coverage(
     return coverage_status(directory)
 
 
-def ensure_goal_task(directory: str | Path, *, item_id: str, title: str) -> None:
+def _promote_v4(document: dict) -> None:
+    """Add task metadata/comments while retaining every earlier checklist record."""
+    defaults = {
+        "assignee": None,
+        "description": None,
+        "acceptance_criterion": None,
+        "finding_ref": None,
+        "method_ref": None,
+        "competitors": [],
+    }
+    for item in document["items"].values():
+        item["definition"] = {**defaults, **item["definition"]}
+        for version in item["definitions"]:
+            version["definition"] = {**defaults, **version["definition"]}
+        item.setdefault("comments", [])
+    if document.get("format") != FORMAT_V4:
+        document["format"] = FORMAT_V4
+        document["version"] = 4
+        document.setdefault("priority_policy", {"applications": []})
+        document.setdefault("plans", [])
+
+
+def ensure_goal_task(
+    directory: str | Path, *, item_id: str, title: str, description: str | None = None
+) -> None:
     """Create one manual custom task for an accepted goal; an existing task is kept as-is."""
     catalogue = load_catalogue()
     with _transaction(directory, None) as (_, project, document):
+        _promote_v4(document)
         if item_id not in document["items"]:
             _set(
                 document["items"],
-                _custom({"id": item_id, "title": title}, project["site"]["target"], catalogue),
+                _custom(
+                    {
+                        "id": item_id,
+                        "title": title,
+                        "description": description,
+                    },
+                    project["site"]["target"],
+                    catalogue,
+                ),
             )
 
 
@@ -910,6 +1213,7 @@ def update_item(directory: str | Path, item: dict, expected_revision: int) -> di
     with _transaction(directory, expected_revision) as (_, project, document):
         if document["revision"] == 0:
             raise ValueError("initialize the checklist first")
+        _promote_v4(document)
         _materialize_builtin(document, item.get("id"), project)
         previous = (
             document["items"].get(item.get("id"), {}).get("definition")
@@ -917,6 +1221,38 @@ def update_item(directory: str | Path, item: dict, expected_revision: int) -> di
             else None
         )
         _set(document["items"], _custom(item, project["site"]["target"], catalogue, previous))
+    return coverage_status(directory)
+
+
+def append_task_comment(
+    directory: str | Path,
+    *,
+    item_id: str,
+    text: str,
+    actor: str,
+    expected_revision: int,
+    reference: dict[str, str] | None = None,
+) -> dict:
+    """Append an attributed owner/agent note with an optional typed evidence identity."""
+    _identifier(item_id)
+    _text(actor, "comment actor", 128)
+    _text(text, "comment text", 8000)
+    if type(expected_revision) is not int:
+        raise ValueError("expected_revision must be an integer")
+    entry = {"actor": actor, "text": text, "created_at": _now()}
+    if reference is not None:
+        entry["reference"] = copy.deepcopy(reference)
+    _task_comment_shape(entry)
+    with _transaction(directory, expected_revision) as (_, _project, document):
+        if document["revision"] == 0:
+            raise ValueError("initialize the checklist first")
+        _promote_v4(document)
+        item = document["items"].get(item_id)
+        if item is None or item["definition"]["kind"] != "custom":
+            raise ValueError("comments apply to current custom tasks")
+        item.setdefault("comments", []).append(entry)
+        if len(item["comments"]) > 10000:
+            raise ValueError("task comment history exceeds its bound")
     return coverage_status(directory)
 
 
@@ -932,6 +1268,8 @@ def record_execution(
     if not isinstance(record, dict):
         raise ValueError("record must be an object")
     with _transaction(directory, expected_revision) as (root, project, document):
+        if "actor" in record:
+            _promote_v4(document)
         _materialize_builtin(document, item_id, project)
         if item_id not in document["items"]:
             raise ValueError("unknown checklist item")
@@ -1143,6 +1481,8 @@ def _status(
     agreement = (plan or {}).get("tasks") or {"kind": "all_agreed"}
     agreed = set(agreement["ids"]) if agreement["kind"] == "selection" else None
     rows = {}
+    affected_count_cache: dict[str, tuple[Path | None, str | None]] = {}
+    affected_result_cache: dict[tuple[str, str], dict[str, Any]] = {}
     digests = {}
     exclusions = []
     for item_id, item in document["items"].items():
@@ -1210,7 +1550,19 @@ def _status(
             "stale": bool(stale_reason) or source_stale,
             "reason": stale_reason or record.get("reason") or "not attempted",
             "attempt_status": record.get("status", "not_run"),
+            "actor": record.get("actor") or record.get("reviewer"),
             "measurement": record.get("measurement"),
+            "affected_urls": _affected_url_count(
+                root, definition, measurement, affected_count_cache, affected_result_cache
+            ),
+            "task": {
+                "assignee": definition.get("assignee"),
+                "description": definition.get("description"),
+                "acceptance_criterion": definition.get("acceptance_criterion"),
+                "finding_ref": definition.get("finding_ref"),
+                "method_ref": definition.get("method_ref"),
+                "competitors": definition.get("competitors", []),
+            },
             "evidence_verification": {
                 "mode": "bytes" if _verify_evidence else "metadata_only",
                 "state": "unverified"
@@ -1346,6 +1698,33 @@ def _status(
     coverage["checks"]["measured_urls"] = coverage["url_population"]["measured_urls"]
     tasks = coverage["audit_tasks"]
     url_population = coverage["url_population"]
+    custom_tasks = [row for row in ordered if row["kind"] == "custom"]
+    measured_affected = [
+        row["affected_urls"]["count"]
+        for row in custom_tasks
+        if row["affected_urls"]["state"] == "measured"
+    ]
+    affected_unmeasured = len(custom_tasks) - len(measured_affected)
+    task_kpis = {
+        "scope": "primary_project",
+        "total": len(custom_tasks),
+        "complete": sum(row["complete"] for row in custom_tasks),
+        "remaining": sum(not row["complete"] for row in custom_tasks),
+        "assigned": sum(bool(row["task"]["assignee"]) for row in custom_tasks),
+        "affected_urls": {
+            "state": "measured"
+            if custom_tasks and not affected_unmeasured
+            else "partial"
+            if measured_affected
+            else "unavailable",
+            "count": sum(measured_affected) if measured_affected else None,
+            "measured_tasks": len(measured_affected),
+            "unmeasured_tasks": affected_unmeasured,
+            "reason": None
+            if custom_tasks and not affected_unmeasured
+            else "exact affected-URL evidence is unavailable for one or more custom tasks",
+        },
+    }
     population_finished = (
         url_population["state"] == "measured"
         and bool(url_population["denominator"])
@@ -1356,6 +1735,7 @@ def _status(
         "revision": document["revision"],
         "project_uuid": document["project_uuid"],
         "counts": counts,
+        "task_kpis": task_kpis,
         "by_kind": by_kind,
         "views": views,
         "items": ordered,

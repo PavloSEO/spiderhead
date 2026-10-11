@@ -11,8 +11,7 @@ from seohead.semantics import PAID_STAGES, STAGES
 from seohead_desktop import i18n, theming
 from seohead_desktop.app import MainWindow, load_theme
 from seohead_desktop.qt import app as qt_app
-from seohead_desktop.screens.semantics import STEPS, SemanticsScreen
-from seohead_desktop.ui.kit import ISSUE_HINTS
+from seohead_desktop.screens.semantics import STEPS, SemanticsScreen, status_arguments
 from tests._qt import sweep_widgets
 from tests._screens_core import texts
 
@@ -70,13 +69,20 @@ class SemanticsScreenTests(unittest.TestCase):
         self.assertFalse(self.screen.run_button.isEnabled())
         self.assertIn(ui("Проект не открыт"), self.screen.meta.text())
 
-    def test_with_a_project_the_waiting_state_names_the_core_gap(self):
+    def test_hidden_project_screen_does_not_read_status_until_opened(self):
         self.window.project_directory = "/project/qa"
         self.screen.refresh()
-        self.assertIs(self.screen.state_stack.currentWidget(), self.screen.waiting)
-        self.assertEqual(self.screen.waiting.issue_label.property("waiting_issue"), 1208)
-        self.assertIn(1208, ISSUE_HINTS)
+        self.assertFalse(self.screen.status_loaded)
+        self.assertFalse(self.screen.job.busy)
         self.assertEqual(self.screen.meta.text(), "qa")
+
+    def test_status_command_is_read_only_project_scoped(self):
+        self.assertEqual(
+            status_arguments("/project/qa"),
+            ["semantics", "status", "--project", "/project/qa", "--json"],
+        )
+        with self.assertRaises(ValueError):
+            status_arguments("")
 
     def test_a_free_stage_shows_no_estimate_and_a_paid_one_shows_the_badge(self):
         free = next(i for i, (s, *_r) in enumerate(self.screen.steps) if not self.screen.paid[s])

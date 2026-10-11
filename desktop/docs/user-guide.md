@@ -1,4 +1,4 @@
-# SEOHEAD Desktop: short user guide
+# SpiderHead Desktop: short user guide
 
 The native guide uses Russian UI labels and opens from the host's Help/F1
 integration. It explains the existing workflow and displays a supplied issue;
@@ -35,6 +35,9 @@ agent control. Navigation buttons only request an existing view.
 | Поиск в содержимом | Literal markers in retained head markup, raw HTML, body text or a CSS-selected element | Choose static HTML or retained rendered DOM deliberately. Unavailable content is not a negative match. Finding a tag marker does not prove it executed. |
 | Сканы | Retained history and explicitly owned run controls | Selecting a scan only reads it. Stop targets the selected owned run. Resume requires eligible retained interrupted evidence. Externally started runs remain observations. |
 | Входящие | Explicitly save a note or proposed goal | Drafts belong to their project. Saving waits for fresh inbox state and does not start an agent or scan. Unsupported message kinds stay unavailable. |
+| Server logs | Import a chosen local access log, inspect bounded summaries and compare with the selected scan | The import is retained in the project. DNS verification uses the network only after its separate confirmation. |
+| Methods / Snippet editor | Read local playbooks and export review tasks from pasted or imported snippet CSV | Missing method metadata stays marked as unrecorded. Snippet edits do not fetch pages; retained scan context is optional. |
+| Core Web Vitals | Request CrUX field metrics for one URL, origin or up to 25 template URLs; read saved PageSpeed lab samples | Every keyed request has its own confirmation. PageSpeed results are read from the selected private artifact directory through a bounded field allowlist; they remain lab data, separate from CrUX field metrics. |
 | Working tabs | Keep a project, scan and view context | Closing a view does not stop collection. Use the View menu to restore panels or adjust density; F6 moves between work areas. |
 | Агент | Explicit local CLI/MCP connection to the running Desktop | Share the descriptor file path, never its contents. A restarted instance needs a new connection. Mutating run actions require authorization. See [local control](local-control.md). |
 
@@ -83,4 +86,4 @@ no web view, network dependency, persistence or operation dispatch.
 
 ## Window sizes
 
-The primary window supports a minimum of 800×720 logical pixels. Use a tall or half-screen window for dense tables. In a short window, search presets and secondary options are in the settings menu, and comparison pair controls can be expanded with Choose pair. The source scan selector and run controls remain reachable. Windows and mixed-monitor scaling require their own acceptance checks.
+The primary window minimum is set to 640×480 logical pixels to support the owner review size. Visual acceptance at 640×480 and 800×800 remains pending. Windows and mixed-monitor scaling require their own acceptance checks.

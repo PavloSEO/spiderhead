@@ -21,6 +21,12 @@ STAGES = (
     "relevance",
     "status",
     "export",
+    "clusters",
+    "cluster-show",
+    "cluster-queries",
+    "set-landing",
+    "insights",
+    "insights-tasks",
 )
 #: Stages that call a billed provider (Yandex Cloud or Arsenkin) and need explicit consent.
 PAID_STAGES = frozenset({"collect", "synonyms", "cluster", "exact"})

@@ -40,14 +40,16 @@ and inputs remain in the nearby route sections and generated tool reference.
 `monitor-collect` · `monitor-configure` · `monitor-local-deliver` · `monitor-run` · `monitor-schedule` ·
 `monitor-status` · `parse` · `project-activity` · `project-checklist-init` · `project-checklist-page` ·
 `project-checklist-record` · `project-checklist-update` · `project-competitors-add` ·
-`project-competitors-list` · `project-competitors-remove` · `project-event-append` · `project-event-page` ·
+`project-competitors-list` · `project-competitors-remove` · `project-competitors-scan` ·
+`project-competitors-scan-cancel` · `project-competitors-scan-status` · `project-event-append` · `project-event-page` ·
+`project-export` · `project-export-cancel` · `project-export-status` · `project-exports-page` ·
 `project-facts` · `project-inbox-acknowledge` · `project-inbox-goal` · `project-inbox-list` ·
 `project-inbox-read` · `project-inbox-submit` · `project-inbox-triage` · `project-inbox-unread` ·
 `project-new` · `project-observe` · `project-open` · `project-policy` · `project-prepare` ·
 `project-priorities` · `project-progress` · `project-scans` · `project-sources-link` · `project-sources-list`
-· `project-sources-unlink` · `project-start` · `project-status` · `project-task-detail` ·
+· `project-sources-unlink` · `project-start` · `project-status` · `project-task-comment` · `project-task-detail` ·
 `project-view-delete` · `project-view-list` · `project-view-rename` · `project-view-save` ·
-`project-view-show` · `provider-auth` · `provider-collect` · `provider-join` · `provider-readiness` ·
+`project-view-show` · `provider-auth` · `provider-credential` · `provider-discover` · `provider-collect` · `provider-join` · `provider-readiness` ·
 `provider-registry` · `provider-replay` · `provider-verify` · `publication-cohorts` · `redirects-check` ·
 `redirects-generate` · `regions-check` · `regions-tree` · `remediation-cases` · `remediation-create` ·
 `remediation-ingest` · `remediation-recheck` · `remediation-record-verification` · `remediation-report` ·
@@ -119,6 +121,13 @@ one document. It never fetches a route or infers a link from unobserved script t
 expose bounded local observer reads for agents and the terminal. Search, pagination,
 item definitions, evidence and history remain available without changing the project.
 
+Project exports are local jobs with bounded progress, explicit cancellation, restart
+recovery, and unconditional artifact receipts in export history. Separate task, comment, and
+append-only history datasets retain complete project records; compare exports preserve complete
+compare.v2 source rows and identities. Task-scoped competitor scans are an explicit
+one-shot action with per-site caps and at most three children in flight; they do not create or
+change scheduler cadence.
+
 `bi-export` writes typed, bounded CSV partitions and a provenance/coverage manifest
 from saved local scan/audit and supplied provider evidence. See [BI.md](BI.md) for
 source/output limits, null states and the explicit audit.v2 compatibility bound.
@@ -170,13 +179,18 @@ not the geographic region `key`; `summary` takes the singular `region_index`.
 | `project-open` | Validate and open a saved project without rewriting it | no |
 | `project-status` | Show scan history and explicit pending checklist/preparation states | no |
 | `project-archive` / `project-restore` | Write or restore a checksummed portable project archive; optional body and scan-retention selection | creates a new archive/project directory |
-| `project-sources-link` | Bind a provider resource ID (`--service`, `--resource`, optional `--label`) to a project in `sources.json`; no provider call or discovery | no |
+| `project-sources-link` | Bind a provider resource ID (`--service`, `--resource`, optional `--label`; Cloudflare uses zone IDs) to a project in `sources.json`; no provider call or discovery | no |
 | `project-sources-unlink` | Remove one `(service, resource)` binding from `sources.json` | no |
 | `project-sources-list` | List the project's resource bindings with `status: selected` | no |
 | `project-progress` | Show a compact, bounded page of checklist states and next actions; any percentage is explicitly labelled audit-task completion and requires an agreed scope | no |
 | `project-facts` | Preview or record the project's stack facts; `--detect` fetches the target once after robots.txt, and an unavailable or ambiguous detection leaves the fact absent with its reason | only with `--detect` |
 | `project-checklist-init` | Initialize or reconcile a local checklist from the built-in catalogue, an optional data-only template, and an optional agreed scope `plan` that fixes the URL-population and task denominators; does not execute items | no |
 | `project-checklist-update` | Add or edit one checklist definition with an expected revision; does not execute it | no |
+| `project-task-comment` | Append an attributed comment to a custom task and optional retained-evidence link under the checklist revision | no |
+| `project-export-start` | Export the tasks, task_comments, task_history, or compare.v2 dataset to a local artifact | no |
+| `project-export-status` | Read bounded progress or restart-recovery state for an export job | no |
+| `project-export-cancel` | Request cancellation at a local export checkpoint | no |
+| `project-exports-page` | Read a bounded page of export artifact receipts | no |
 | `project-checklist-record` | Validate and record supplied evidence for one item with an expected revision; does not execute it | no |
 | `project-view-list` / `project-view-show` | List saved finding views or retrieve one with stable identity and schema/config revisions | no |
 | `project-view-save` | Create or revise a closed declarative finding view using an expected config revision | writes project view configuration |
@@ -188,6 +202,9 @@ not the geographic region `key`; `summary` takes the singular `region_index`.
 | `project-competitors-add` | Records supplied competitor candidates as separate local workspaces, without crawling | yes |
 | `project-competitors-list` | Reads the recorded competitor candidates and their workspaces | no |
 | `project-competitors-remove` | Drops one recorded competitor from the shortlist; the workspace stays on disk | yes |
+| `project-competitors-scan` | Starts explicit task-scoped bounded scans in registered competitor workspaces | yes |
+| `project-competitors-scan-status` | Reads retained per-site progress for one explicitly started scan run | no |
+| `project-competitors-scan-cancel` | Requests cancellation at the next crawl progress boundary | writes |
 
 The nested aliases are `seohead project new`, `seohead project open`,
 `seohead project status`, `seohead project facts`, `seohead project checklist-init`,
@@ -288,7 +305,7 @@ because the rules could not be read, so the command never claims crawling is all
 
 | Command | What it does |
 |---|---|
-| `schema-check` | JSON-LD, Microdata and common RDFa validation **in two layers**: the bundled vocabulary (`domainIncludes`/`rangeIncludes`, inheritance, deprecated terms and literal values) and local Google rich-result requirements; unsupported RDFa constructs are partial evidence |
+| `schema-check` | JSON-LD, Microdata and offline RDFa subject-graph validation **in two layers**: the bundled vocabulary (`domainIncludes`/`rangeIncludes`, inheritance, deprecated terms and literal values) and local Google rich-result requirements; RDFa uses HTML's undefined default vocabulary, resource/literal values, relations, `inlist` and iterative property copying; HTML/node/token/triple/copy-step/copy-round limits produce explicit partial coverage |
 | `schema-build` | Builds a suggested connected `@graph` with `@id`s for the page type; `--type` sets the type manually when the classifier is unsure |
 | `social-meta-check` | Open Graph and Twitter Card: what is there, what is missing, what contradicts the content |
 | `citability-check` | How quotable a text is for an AI answer: direct answers, facts, structure. Fetching a URL scores the resolved content area's Markdown (nav/footer excluded), not the raw whole-document text |
@@ -532,11 +549,13 @@ without deleting its scan. The exact arguments and defaults are in the generated
 | `scan-export` | Exports retained scan data under the versioned `scan_export.v1` contract as CSV, XLSX, JSON, or XML. Accepts a `scan.v1` artifact or an SF Analyzer `audit.json`; validates `--records`/`--fields` before writing; XLSX splits oversized record types into numbered sheets and records every partition; XML uses the documented `scan-export` root element and namespace. | writes new files |
 | `scan-pin` | Explicitly pins a scan, or unpins it with `--unpin`, so retention will not select it. | changes scan metadata |
 | `scan-prune` | Produces a retention plan by default. Deletion needs `--apply` and the exact reviewed plan. | deletes only with `--apply` |
-| `scan-body-diff` | Compares retained bodies across scans or static versus rendered bodies in one scan. Optional text output is bounded and applies only to compatible textual evidence; a changed body is not an SEO score or verdict. | — |
+| `scan-body-diff` | Compares matching retained body hashes across validated scans or static versus rendered bodies within one scan; optional text output is bounded and only applies to compatible textual evidence. A changed body is not an SEO score or verdict. | — |
 | `scan-evidence` | Reads one bounded saved-evidence section: capabilities, corpus, structured data, rendered routes, resources, or timeline. Resource evidence includes occurrence counts by kind and unique fetched-byte totals by kind; incomplete fetch weights remain partial or unavailable. It never fetches or replays a scan. | — |
+| `scan-structured-blocks` | Reads one exact retained URL and representation, returning bounded JSON-LD source blocks, per-format JSON-LD/Microdata/RDFa results, retained structured/language evidence, and local offline Schema.org validation. Use `--variant-key` when the saved URL has multiple HTTP variants. | — |
 | `scan-extract` | Applies closed declarative extraction rules to retained complete bodies only. It is offline, body-retention limited, and does not persist the ad-hoc result. | — |
-| `scan-content-search` | Searches all retained complete textual documents offline for a literal string (or a Python regular expression with `kind="regex"`; a document over the regex time budget is unavailable, never absent), including HEAD, raw HTML, body text, or CSS-selected markup. Static/rendered coverage is explicit: unavailable bodies stay unknown, never absent. GTM/GA4/analytics tags are useful audit inputs; a tag's presence does not prove it fired. | writes a new indexed local result package |
+| `scan-content-search` | Searches retained complete textual documents offline for a literal string (or a Python regular expression with `kind="regex"`), including HEAD, raw HTML, body text, or CSS-selected markup. Each document reports every returned match offset (zero-based Unicode code points, end-exclusive), one-based line, and `match_index`/`match_total`; a per-URL filter narrows the read. Optional redacted windows contain at most six lines and 4,000 characters. Exact match totals remain visible if the 10,000-offset or 64 KiB record limit truncates returned occurrences, and coverage becomes partial. Regexes are unavailable when a wall-clock deadline cannot be enforced; unavailable bodies remain unknown, never absent. A package is capped at 512 MiB and reports incomplete coverage if that limit stops the scan. | writes a new indexed local result package |
 | `scan-content-search-page` | Reads at most 100 rows of that derived package using validated offsets and integrity checks, with unchanged global coverage counters. This operation never reopens or fetches the site. | — |
+| `custom-extract-sample` | Previews declared CSS, XPath or regex extractors against HTML supplied in the request. The optional URL is a label only; this tool never fetches it. | — |
 | `marketing-inventory` | Correlates CTA and form/iframe fields per supplied DOM occurrence. It never fetches, submits forms, or inspects iframe contents; an explicit new output directory writes local JSON and formula-safe CSV. | optional local artifact write |
 | `scan-fragment-links` | Evaluates every fragment-bearing `a[href]` in retained complete HTML/DOM and reports whether each `#fragment` identifies a target in the retained destination document (WHATWG scroll-to-the-fragment matching: serialized fragment against ids and `<a name>` first, then the percent/UTF-8-decoded value against both, then `top`). Static and rendered representations are measured independently; missing, truncated, unsupported or budget-exhausted bodies stay named skips, never broken findings. It never fetches a destination. | — |
 | `scan-requeue` | Requeues a restricted saved URL/page selection only after creating a mandatory verified backup. | writes artifact and backup |
@@ -602,6 +621,7 @@ seohead project archive --project ./shop --out ./recent.zip --keep-newest-scans 
 
 # read retained evidence or make an ad-hoc offline extraction; neither fetches a URL
 seohead scan evidence --scan native.sqlite --section structured
+seohead scan-structured-blocks --scan native.sqlite --url https://example.test/page --representation static
 seohead scan extract --scan native.sqlite --input '{"rules":[{"id":"product-name","kind":"text","selector":"h1","operator":"matches","value":"Product *","max_matches":1}]}'
 ```
 
@@ -635,9 +655,12 @@ and spend-journal rules.
 |---|---|---|
 | `provider-registry` | Lists declared providers and their bounded operations; it does not verify credentials | no |
 | `provider-readiness` | Reports redacted credential-source states, supported operation routes and their shared JSON call-envelope schema, quota/privacy, and whether verification remains necessary. It makes no provider requests | no |
-| `provider-auth` | Manages a private GSC read-only OAuth grant: status, connect from a private grant file, explicit refresh, cancel of a pending browser flow record (local only), confirmed local disconnect, or confirmed remote revoke. It never returns OAuth material. | refresh/revoke only when requested |
+| `provider-auth` | Manages a private GSC read-only OAuth grant: status, connect from a private grant file, explicit refresh, cancel of a pending browser flow record (local only), confirmed local disconnect, or confirmed remote revoke. It never returns OAuth material. | consent, refresh/revoke only when requested |
+| `provider-credential` | Inspects or explicitly revokes registry credentials; local CLI set/replace reads stdin only. Values never appear in results. | local config write |
+| `provider-discover` | Lists one page/set of resources visible to Google Search Console, Yandex Webmaster or Topvisor. It returns preview records and never creates a project binding. | provider read |
 | `provider-verify` | Performs one explicit read-only credential and optional target-access check. An authenticated account does not by itself prove access to a requested target. | provider read |
-| `provider-collect` | Performs one declared read-only operation and returns a versioned evidence envelope with complete, partial, failed, or skipped state. An optional restricted artifact directory keeps raw rows locally. | provider read; optional local artifact |
+| `provider-collect` | Performs one declared provider operation and returns a versioned evidence envelope. Reads stay read-only; Cloudflare `logpull` explicitly imports a bounded Enterprise log interval to the project's local logs store. | provider read; optional local artifact or explicit log import |
+| `provider-artifact-read` | Reads a bounded, allowlisted PageSpeed summary from its caller-owned local artifact directory; validates the digest and never returns the raw collection envelope | local read |
 | `provider-join` | Joins supplied crawl pages and collected evidence rows without changing a frontier. It preserves matched, crawl-only, external-only, and unkeyable populations. | no |
 | `provider-replay` | Replays a private saved provider collection against a saved scan offline, writes a restricted joined artifact, and keeps the crawl frontier unchanged. | local artifact write |
 | `evidence-normalize` | Normalizes a supplied CSV/XLSX/JSON or a saved provider envelope into `seohead.normalized-evidence.v1` against an optional `seohead.evidence-mapping.v1` manifest, offline. Every row keeps its grain, provenance and availability state: a measured `0` stays zero while missing, null, blank, suppressed, uncollected and failed inputs stay unavailable. Restricted sources return counts and redacted provenance. | optional restricted artifact under `--out-dir` |
@@ -654,6 +677,17 @@ access as unverified; `provider-verify` is the separate, explicit read that can
 return `verified`, `not_granted`, `insufficient_scope`, or `unsupported`. Supplying
 credentials alone never proves access to a property or site.
 
+Cloudflare `provider-collect` operation `logpull` is an explicit Enterprise-only import into a
+project's local logs store. It accepts a UTC interval no longer than one hour, within the seven-day
+retention window, ending at least five minutes ago, and caps one request at 10,000 records / 16 MiB.
+It reuses the logs core with reverse-DNS checks off; the temporary text conversion is removed
+immediately. A response at the row cap is retained as partial. It requires Zone Read and Logs Read.
+The read-only Logpush status lists existing jobs but never accesses their destination data; Logpush
+destinations are customer-owned. A separate local-file route imports caller-supplied Logpush NDJSON.
+Instant Logs is separately opt-in: it creates one transient live session, reads a bounded prefix,
+and closes only the socket it created.
+Contracts: [Logpull](https://developers.cloudflare.com/logs/logpull/), [received logs API](https://developers.cloudflare.com/api/resources/logs/subresources/received/methods/get/), [Instant Logs availability and session lifecycle](https://developers.cloudflare.com/logs/instant-logs/), [zone settings](https://developers.cloudflare.com/api/resources/zones/subresources/settings/methods/get/), [Rulesets entrypoint](https://developers.cloudflare.com/api/resources/rulesets/subresources/phases/methods/get/), and [AI Crawl Control WAF rules](https://developers.cloudflare.com/ai-crawl-control/configuration/ai-crawl-control-with-waf/).
+
 Provider evidence can change work order only when its coverage is usable; sampled,
 truncated, unmatched, or privacy-thresholded values remain unavailable for a
 priority adjustment. It never changes a technical finding's severity. See the
@@ -665,7 +699,7 @@ priority adjustment. It never changes a technical finding's severity. See the
 | `keywords-seasonality` | Demand over months/weeks/days — tell a dead query from a seasonal one | same |
 | `keywords-exact` | Exact `!W` frequency (Arsenkin's `overal`/`!WS` selector) — what the Wordstat API, base-only, will not give you | Arsenkin account limits; the charge and `task_id` are journaled at task creation |
 | `serp-fetch` | Yandex SERP for a query or a batch. Async only | metered; synchronous search is intentionally absent; verify current tariff |
-| `spend-report` | What was actually charged: by source, operation and day, from the local journal | free |
+| `spend-report` | What was actually charged: by source, operation and day, from the local journal. Unmeasured charges appear as uncertain receipts with `cost: null` and stay out of measured totals; confirmed zero remains zero | free |
 | `sources-doctor` | Which sources have usable credentials, with redacted source references; configured credentials are not verified access | free |
 | `sources-sync` | Fetch bounded missing or explicitly forced provider days into a local versioned SQLite history. Records complete, empty, partial, failed, and lagged days without storing tokens | Provider read subject to GSC, GA4, Metrika, or Webmaster quotas; writes local SQLite |
 | `sources-status` | Read requested-day coverage, resource identity, lag policy, and non-additive metric metadata from local history | Offline read only |
@@ -679,7 +713,17 @@ priority adjustment. It never changes a technical finding's severity. See the
 | `google-serp` | Google organic results for a query | same |
 | `wayback-history` | Every Internet Archive snapshot of a URL: when it changed, what status it returned, what MIME type it was | free, no key |
 | `crtsh-subdomains` | Hosts named in public TLS certificates for a domain — subdomains nothing links to | free, no key |
-| `cloudflare-traffic` | Bots x URLs x status codes x cache status per day for a Cloudflare zone, from edge GraphQL analytics, shaped like `log-analyze`. Aggregated (`source: cloudflare-aggregated`), not raw logs: no IPs, no rDNS bot verification; Free plan keeps 32 days | free; needs a read-only Cloudflare API token (`CLOUDFLARE_API_TOKEN` or `SEOHEAD_CLOUDFLARE_TOKEN_FILE`) |
+| `cloudflare-traffic` | Bot/human traffic summaries plus bounded per-URL daily edge/origin status, cache, redirect status and verified-bot category facts. Use `--zone` or a project with one selected Cloudflare zone ID binding. `--include-configuration` adds AI zone settings, bounded redirect/custom-WAF rulesets, and safe Logpush job summaries without destination data; rules describe configuration, not per-request matches. Aggregated (`source: cloudflare-aggregated`), not raw logs: no IPs, sub-day timestamps, rule IDs or reverse-DNS verification; URL facts cap at 50,000 and report truncation; Free plan keeps 32 days | free; traffic needs Zone Read and Account Analytics Read; configuration additionally needs Zone Settings Read, Rulesets Read and Logs Read |
+| `cloudflare-history` | Read metadata-only Cloudflare aggregate snapshot pages by default; `--include-facts` returns a bounded URL/day fact page, with `--snapshot-id`, `--facts-offset`, and `--facts-limit` for continuation | local, read-only; 2 MiB response cap |
+| `cloudflare-logpush-import` | Import a caller-supplied UTF-8 Logpush NDJSON file into the existing project-local server-log store; no destination is configured and no provider call occurs | local file + project write; 16 MiB and 10,000-event cap |
+| `cloudflare-instant-logs` | Explicit, confirmed Business/Enterprise live capture from the bound zone, capped at 60 seconds, 1,000 events, and 8 MiB; checks for an existing session and never replaces it | live provider session (`Logs Read`) + local logstore; requires the optional `cloudflare-stream` extra |
+
+Instant Logs uses Cloudflare's `POST /zones/{zone_id}/logpush/edge/jobs` plus the returned WebSocket
+address. Cancellation closes this client's socket. The Edge API has no session delete/stop operation;
+Cloudflare documents automatic session stop after five idle minutes (and a 60-minute maximum), so
+the result reports that provider-side expiry instead of claiming immediate cancellation. See
+[Instant Logs](https://developers.cloudflare.com/logs/instant-logs/) and the
+[create-session API](https://developers.cloudflare.com/api/resources/logpush/subresources/edge/methods/create/).
 | `gsc-query` | Search Console: clicks, impressions, position and CTR per query or page, plus Google's own indexing verdict for one URL | free; needs OAuth against a property you own |
 | `webmaster-url-queries` | Yandex Webmaster query evidence for one URL or a bounded URL population; URL/query rows stay separate and caps are explicit | free within Webmaster quota; needs an own verified host |
 | `miratext-analyze` | Start or resume bounded competitor text analysis; paid and keyword modes require explicit confirmation | paid provider; API key required |
@@ -838,10 +882,60 @@ seohead sf run --exports-dir docs/examples/exports --out report --tasks   # mode
 seohead sf run --crawl https://example.com --out report --tasks         # mode A
 seohead sf doctor                                                    # diagnostics
 seohead sf tasks --json report/audit.json                            # backlog from a report
+seohead sf snippet-edits --csv proposed.csv --out snippet-tasks.json  # import -> review tasks
+seohead sf snippet-edits --csv proposed.csv --scan ./scan.sqlite --query "red pump" --out snippet-tasks.json
 ```
 
 Note: `sf tasks` takes the audit path via the required `--json` flag, not as
 a positional argument (`seohead/sf/cli.py`).
+
+`sf snippet-edits` imports a bounded CSV with `url` plus `title` and/or `description` and exports
+each valid row as an unapplied `snippet_tasks.v1` review candidate. Bad rows retain their source
+line and reason; each task and proposed goal reference carries the decoded input CSV content
+hash and source line. An existing output file is never replaced. The matching MCP tool
+`sf_snippet_edits` accepts supplied CSV text and writes the same artifact. Optional named font
+profiles measure the proposed text with a caller-supplied local font and exact title/description
+widths. Each result records the font filename and SHA-256, font size, width map, and any caller-declared
+engine, device, locale, and source. A local fit preview records the source width, available width,
+displayed text, displayed width, and whether this local ellipsis rule shortened it; it makes no
+claim about a search engine's rendered result.
+
+For example, a profile contains `font_path`, `font_size_px`, `widths_px` (with `title` and/or
+`description`), and optional provenance fields such as `device`, `locale`, and `source`. A single
+`available_width_px` may replace `widths_px` when both fields use the same width. The font file and
+the width values come from the caller; SpiderHead does not select a font, viewport, or threshold.
+Google says snippets are query-specific, generated from page content and sometimes meta
+descriptions, and shortened to fit device width. Yandex says titles may vary by query and are
+limited by device-screen width, while description text is chosen for query relevance. Neither
+publishes the font metrics or fixed pixel budgets needed to claim an exact engine preview ([Google
+snippet documentation](https://developers.google.com/search/docs/appearance/snippet), [Yandex
+title and description](https://yandex.ru/support/webmaster/ru/search-results/title-and-description),
+[Yandex title guidance](https://yandex.ru/support/webmaster/ru/search-results/title)).
+No engine-specific profile, audit pixel threshold, or new check id is selected by default;
+`TITLE_TOO_LONG` and `DESC_TOO_LONG` remain the existing audit checks for measurements actually
+present in the audit evidence.
+
+Passing `--scan` adds content and metadata from the exact retained URL and selected representation,
+with no fetch fallback. An explicit `--query` adds a bounded excerpt from the retained content area;
+`data-nosnippet` text is excluded and common credential-shaped values in the excerpt are redacted.
+Results carry scan UUID, document id, representation, raw-body
+hash and decoded-text hash. When metrics are supplied, the same profiles measure retained
+title/description metadata and the query excerpt. Body decoding is capped at 8 MiB by default
+(`--max-body-bytes`, up to 64 MiB); a missing or over-budget document stays unavailable. The
+spelling result in CLI/MCP artifacts is `skipped`, never clean. The pure helper accepts a
+caller-injected backend, but no CLI/MCP backend is packaged or selected. The equivalent MCP
+arguments are `retained_scan`, `query`, `representation`, and optional `content_area`.
+
+Retained-text spelling has a backend-neutral core in `seohead/checks/spellcheck.py`. With no
+backend it returns `skipped`, never a clean spelling result. Hunspell dictionaries and a grammar
+service are not installed or called by default. A Python host may inject a backend and per-call
+`ignore_words`; no persistent project dictionary is configured. Hunspell dictionary provenance
+and licensing remain open. The retained-document helper returns per-URL spelling results, but does
+not promote them into native audit findings without an approved backend and check policy. Existing
+`SPELLING_ERRORS` and `GRAMMAR_ERRORS` audit checks consume supplied SF fields. Grammar-service
+integration remains separate. The existing
+`H2_MISSING`, `HEADING_SKIP`, and `READABILITY_DIFFICULT` checks are reused; this feature adds no
+duplicate variants or unapproved “very difficult” threshold.
 
 `tasks_pipeline.group_by` accepts `check`, `issue`, or `check_assignment`.
 The last mode groups a check only by an operator-declared template/component URL
@@ -872,6 +966,22 @@ coverage rows remain gaps until a real adapter is selected and validated.
 works from ready exports and is self-sufficient. Mode B is covered by tests
 and must not be broken for the sake of mode A.
 
+With `--project DIR`, `sf run` joins the last complete, locally retained 28-day GSC, GA4, and
+Metrika URL history to the audited pages, without contacting a provider. The resulting
+`summary.provider_findings` keeps typed source provenance in `audit.json` and `audit.md`; derived
+per-URL findings also enter the registered audit issue stream and its normal reports. Missing
+bindings, gaps and capped reads remain unavailable/partial; negative orphan or no-data findings
+require complete 28-day provider coverage and a complete crawl. Cloudflare retains its own native
+snapshot interval and freshness state; it is not represented as a 28-day history.
+
+`--gsc-inspect` is a separate opt-in live read that inspects a deterministic sample of up to 50
+URLs through the bound GSC property. It stores allowlisted index/AMP/rich-result results and a local
+per-property request ledger in `gsc-inspection.sqlite`; local limits are 600 inspections in a rolling
+minute and 2,000 in a rolling 24 hours. Other clients can share Google’s quota, so the report labels
+that usage as unknown.
+Unsampled URLs remain unknown. The GSC data API exposes URL Inspection only for the indexed page
+version and documents per-site limits in its [usage limits](https://developers.google.com/webmaster-tools/limits).
+
 No data for a check -> it is marked skipped with a reason, not a silent
 zero. This is a principle: "0 problems" and "the check never ran" are
 different things.
@@ -901,7 +1011,8 @@ turns on automatically for crawl modes (`--crawl`, `--crawl-list`, `--load-crawl
 `--sitemap` is given; pass `--no-live-recheck` to keep it off.
 
 **MCP.** The same set under the `seo_*` names plus the `sf_*` audit tools and the
-`seo_semantics_*` tools (192 + 5 + 4):
+`seo_semantics_*` semantic-core tools. Their stage, import/export, cluster, landing and
+insight contracts are documented in [SEMANTICS.md](SEMANTICS.md):
 
 ```bash
 seohead mcp        # stdio

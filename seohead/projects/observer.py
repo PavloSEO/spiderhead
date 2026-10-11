@@ -1172,7 +1172,43 @@ def checklist_page(
             for record in saved.get("records", [])
             if isinstance(record, dict)
         ]
-        rows.append(dict(item, display_state=display, updated=max(stamps, default="") or None))
+        definition = saved.get("definition") or {}
+        records = saved.get("records", [])
+        actor = next(
+            (
+                record.get("actor") or record.get("reviewer")
+                for record in reversed(records)
+                if record.get("actor") or record.get("reviewer")
+            ),
+            None,
+        )
+        rows.append(
+            dict(
+                item,
+                display_state=display,
+                updated=max(stamps, default="") or None,
+                task={
+                    "state": display,
+                    "executor": definition.get("assignee"),
+                    "actor": actor,
+                    "next_step": None,
+                    **{
+                        field: definition.get(field)
+                        for field in (
+                            "assignee",
+                            "description",
+                            "acceptance_criterion",
+                            "finding_ref",
+                            "method_ref",
+                            "competitors",
+                        )
+                    },
+                },
+                executor=definition.get("assignee"),
+                actor=actor,
+                next_step=None,
+            ),
+        )
     if sort == "id":
         if descending:
             rows.reverse()
@@ -1218,6 +1254,47 @@ def task_detail(directory: str | Path, *, item_id: str) -> dict:
         history_truncated=len(records) > 20,
         catalogue=load_catalogue().get(local_id),
     )
+    definition = saved.get("definition") or {}
+    comments = saved.get("comments", [])
+    actor = next(
+        (
+            record.get("actor") or record.get("reviewer")
+            for record in reversed(records)
+            if record.get("actor") or record.get("reviewer")
+        ),
+        None,
+    )
+    item.update(
+        {
+            "task": {
+                "state": item.get("display_state"),
+                "executor": definition.get("assignee"),
+                "actor": actor,
+                "next_step": None,
+                **{
+                    field: definition.get(field)
+                    for field in (
+                        "assignee",
+                        "description",
+                        "acceptance_criterion",
+                        "finding_ref",
+                        "method_ref",
+                        "competitors",
+                    )
+                },
+                "comments": comments[-20:],
+                "comments_total": len(comments),
+                "comments_truncated": len(comments) > 20,
+                "revision": view.get("revision"),
+            },
+        }
+    )
+    if definition.get("kind") == "custom":
+        from .competitor_scans import task_competitor_run_reference
+
+        item["task"]["competitor_run"] = task_competitor_run_reference(
+            root, task_id=local_id, task=saved
+        )
     return {"ok": True, "revision": view.get("revision"), "item": item}
 
 

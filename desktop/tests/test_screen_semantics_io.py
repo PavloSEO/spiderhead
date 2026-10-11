@@ -1,19 +1,58 @@
-"""Импорт и экспорт ядра (canvas SemImport): honest waiting states, no sample rows, no enabled write action."""
+"""Semantic import/export adapters keep previews separate from writes."""
 
 import os
 import unittest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from seohead_desktop import i18n
 from seohead_desktop.app import load_theme
 from seohead_desktop.qt import app as qt_app
-from seohead_desktop.screens.semantics_io import IO_ISSUE, SemImportScreen
+from seohead_desktop.screens.semantics_io import (
+    export_arguments,
+    import_arguments,
+    SemImportScreen,
+)
 from tests._qt import sweep_widgets
 from tests._screens_host import FakeHost
 
 
-class SemImportTests(unittest.TestCase):
+class SemanticIOArgumentsTests(unittest.TestCase):
+    def test_import_preview_carries_mapping_and_merge_without_writing(self):
+        args = import_arguments(
+            "/project/semantic",
+            "/tmp/phrases.xlsx",
+            sheet="Queries",
+            mapping={"query": "Keyword", "url": "Landing"},
+            merge="update",
+            dry_run=True,
+        )
+        self.assertIn("--dry-run", args)
+        self.assertEqual(args[args.index("--map") + 1], "query=Keyword")
+        second = args.index("--map", args.index("--map") + 1)
+        self.assertEqual(args[second + 1], "url=Landing")
+        self.assertIn("--sheet", args)
+        self.assertIn("--merge", args)
+
+    def test_export_scope_and_format_are_explicit(self):
+        args = export_arguments(
+            "/project/semantic",
+            "/tmp/new-output",
+            scope="cluster",
+            cluster="boots",
+            format="xlsx",
+            dry_run=True,
+        )
+        self.assertEqual(args[:2], ["semantics", "excel"])
+        self.assertIn("--dry-run", args)
+        self.assertEqual(args[args.index("--cluster") + 1], "boots")
+        self.assertEqual(args[args.index("--out") + 1], "/tmp/new-output")
+
+    def test_cluster_export_requires_an_exact_name(self):
+        with self.assertRaises(ValueError):
+            export_arguments("/project", "/tmp/output", scope="cluster")
+
+
+class SemImportScreenTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = qt_app()
@@ -21,9 +60,7 @@ class SemImportTests(unittest.TestCase):
 
     def setUp(self):
         sweep_widgets()
-        i18n.set_language("ru")
-        self.addCleanup(i18n.set_language, "ru")
-        self.host = FakeHost()
+        self.host = FakeHost(project="/work/shop-semantics")
         self.screen = SemImportScreen(self.host)
         self.screen.resize(1440, 800)
         self.screen.show()
@@ -33,36 +70,17 @@ class SemImportTests(unittest.TestCase):
         self.screen.deleteLater()
         self.app.processEvents()
 
-    def test_no_project_shows_open_prompt(self):
+    def test_opening_screen_performs_no_core_call_or_write(self):
+        self.assertEqual(self.host.calls, [])
+        self.assertFalse(self.screen.apply_button.isEnabled())
+        self.assertIn("shop-semantics", self.screen.project_line.text())
+
+    def test_no_project_disables_preview_and_apply(self):
         self.host.project_directory = None
         self.screen.refresh()
         self.assertIs(self.screen.stack.currentWidget(), self.screen.empty)
-
-    def test_project_shows_body_with_real_folder_name(self):
-        self.host.project_directory = "/work/shop-semantics"
-        self.screen.refresh()
-        self.assertIs(self.screen.stack.currentWidget(), self.screen.body)
-        self.assertIn("shop-semantics", self.screen.project_line.text())
-
-    def test_import_is_default_and_write_action_stays_disabled(self):
-        self.assertEqual(self.screen.mode, "import")
-        self.assertFalse(self.screen.primary.isEnabled())
-        self.assertEqual(self.screen.bar_badge.property("waiting_issue"), IO_ISSUE)
-        self.assertTrue(self.screen.import_preview.isVisibleTo(self.screen))
-        self.assertFalse(self.screen.export_preview.isVisibleTo(self.screen))
-
-    def test_export_mode_switches_panels_and_label(self):
-        self.screen.mode_buttons["export"].click()
-        self.assertEqual(self.screen.mode, "export")
-        self.assertEqual(self.screen.primary.text(), i18n.tr("Экспортировать"))
-        self.assertTrue(self.screen.export_side.isVisibleTo(self.screen))
-        self.assertFalse(self.screen.import_side.isVisibleTo(self.screen))
-        self.assertTrue(self.screen.export_preview.isVisibleTo(self.screen))
-        self.assertFalse(self.screen.import_preview.isVisibleTo(self.screen))
-
-    def test_no_sample_rows_are_rendered(self):
-        texts = [label.text() for label in self.screen.findChildren(type(self.screen.project_line))]
-        self.assertFalse(any("shop.example" in text or "угловой диван" in text for text in texts))
+        self.assertFalse(self.screen.preview_button.isEnabled())
+        self.assertFalse(self.screen.apply_button.isEnabled())
 
 
 if __name__ == "__main__":

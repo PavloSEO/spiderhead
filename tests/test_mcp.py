@@ -73,6 +73,11 @@ def test_all_mcp_tools_have_structured_schemas_and_safety_annotations():
     assert tasks.destructiveHint is False
     assert tasks.openWorldHint is False
 
+    snippet_edits = tools["sf_snippet_edits"].annotations
+    assert snippet_edits.readOnlyHint is False
+    assert snippet_edits.destructiveHint is False
+    assert snippet_edits.openWorldHint is False
+
 
 def test_report_build_accepts_an_audit_document_or_json_path(monkeypatch):
     """The MCP schema must expose both input forms the shared handler supports (#247)."""
@@ -206,6 +211,25 @@ def test_mcp_all_tools(tmp_path):
     assert len(res["issues"][0]["locations"]) == 2
     assert res["tasks"]["summary"]["tasks_total"] >= 1
     assert os.path.isfile(res["tasks"]["tasks_md"])
+
+
+def test_mcp_snippet_csv_exports_review_tasks(tmp_path):
+    output = tmp_path / "snippet-tasks.json"
+    tool = next(
+        tool for tool in build_server()._tool_manager.list_tools() if tool.name == "sf_snippet_edits"
+    )
+    result = asyncio.run(
+        tool.run(
+            {
+                "csv_text": "url,title,description\nhttps://example.test/p,New title,\n",
+                "out": str(output),
+            }
+        )
+    )
+    assert result["summary"] == {"tasks": 1, "rejected_rows": 0}
+    saved = json.loads(output.read_text(encoding="utf-8"))
+    assert saved["tasks"][0]["target_url"] == "https://example.test/p"
+    assert saved["tasks"][0]["state"] == "candidate"
 
 
 def test_crawl_site_omitted_overrides_forward_none(monkeypatch):

@@ -58,7 +58,7 @@ having, because the alternative is an absence nobody has noticed.
 | HTTP URLs | check | `HTTP_URL` |  |
 | Mixed Content | check | `MIXED_CONTENT` `INSECURE_SUBRESOURCE` |  |
 | Form URL Insecure | check | `FORM_URL_INSECURE` |  |
-| Form On HTTP URL | check | `FORM_ON_HTTP_URL` |  |
+| Form On HTTP URL | partial | `FORM_ON_HTTP_URL` | Detects password forms on HTTP pages; whether every form should trigger remains an owner decision. |
 | Missing HSTS Header | check | `MISSING_HSTS` |  |
 | Unsafe Cross Origin Links | check | `UNSAFE_CROSS_ORIGIN_LINK` |  |
 | Protocol-Relative Resource Links | check | `PROTOCOL_RELATIVE_LINK` |  |
@@ -66,7 +66,7 @@ having, because the alternative is an absence nobody has noticed.
 | Missing X-Content-Type-Options Header | check | `MISSING_X_CONTENT_TYPE_OPTIONS` |  |
 | Missing X-Frames-Options Header | check | `MISSING_X_FRAME_OPTIONS` |  |
 | Missing Secure Referrer-Policy Header | check | `MISSING_REFERRER_POLICY` |  |
-| Bad Content Type | partial | — | content type is recorded and drives HTML detection, but a mismatch between the declared type and the body is not asserted |
+| Bad Content Type | partial | `BODY_MIME_MISMATCH` `DECLARED_MIME_MISMATCH` | Retained native response bodies are checked for supported HTML, JSON, PDF and common image signatures; unknown signatures, unavailable bodies and body-limit overflow are skipped. Screaming Frog exports have no retained response body for this check. |
 
 ## URL
 
@@ -153,7 +153,7 @@ having, because the alternative is an absence nobody has noticed.
 | Issue | Status | Found by | Note |
 |---|---|---|---|
 | Missing Alt Text | check | `IMG_MISSING_ALT` |  |
-| Missing Alt Attribute | check | `IMG_MISSING_ALT_ATTRIBUTE` | a native crawl's own per-image inventory distinguishes the attribute being absent from a decorative alt="" -- only the former fires; IMG_MISSING_ALT (an SF export column) still reports the two together, since that export's own shape has not changed |
+| Missing Alt Attribute | check | `IMG_MISSING_ALT_ATTRIBUTE` | a native crawl's own per-image inventory distinguishes the attribute being absent from a decorative alt=""; native IMG_MISSING_ALT separately reports whitespace-only or explicitly informative/unnamed-interactive empty alt. The SF export keeps its original filter semantics |
 | Background Images | tool | `parse` | CSS url() sources are extracted by the parser's url_sources option, which is how four images invisible to the HTML were found on a live site |
 | Over 100 kb | check | `IMG_OVER_KB` |  |
 | Alt Text Over 100 Characters | check | `IMG_ALT_TOO_LONG` |  |

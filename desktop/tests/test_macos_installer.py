@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -36,7 +37,7 @@ class InstallerTests(unittest.TestCase):
     def test_postinstall_and_uninstall_require_only_the_fake_payload(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            app = root / "Applications/SEOHEAD Desktop.app"
+            app = root / "Applications/SpiderHead.app"
             core = app / "Contents/Resources/core/seohead/seohead"
             core.parent.mkdir(parents=True)
             core.write_text("#!/bin/sh\nexit 0\n")
@@ -55,6 +56,27 @@ class InstallerTests(unittest.TestCase):
             self.assertFalse(wrapper.exists())
             self.assertFalse(app.exists())
             self.assertEqual(len(list(app.parent.glob("*.uninstalled-*"))), 1)
+
+    @unittest.skipUnless(sys.platform == "darwin", "legacy bundle migration uses ditto")
+    def test_legacy_bundle_is_preserved_before_renamed_app_install(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            legacy = root / "Applications/SEOHEAD Desktop.app"
+            manifest = legacy / "Contents/Resources/core-manifest.json"
+            manifest.parent.mkdir(parents=True)
+            manifest.write_text('{"schema":"seohead.desktop.core-manifest.v1"}')
+            result = subprocess.run(
+                ["sh", str(SCRIPTS / "preinstall"), "package", "location", str(root)],
+                capture_output=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            backups = list(legacy.parent.glob("SEOHEAD Desktop.app.seohead-before-*"))
+            self.assertEqual(len(backups), 1)
+            self.assertFalse(legacy.exists())
+            self.assertEqual(
+                (backups[0] / "Contents/Resources/core-manifest.json").read_text(),
+                '{"schema":"seohead.desktop.core-manifest.v1"}',
+            )
 
     def test_source_launch_cannot_request_administrator_authorization(self):
         with (

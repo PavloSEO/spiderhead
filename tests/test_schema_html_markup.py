@@ -1,5 +1,7 @@
 """Offline Microdata/RDFa extraction and validation regression cases."""
 
+from pathlib import Path
+
 import pytest
 
 from seohead.checks import schema_org as schema
@@ -135,23 +137,143 @@ def test_rdfa_nested_entity_and_scoped_vocabulary():
     assert result["rich_results"][0]["eligible"] is True
 
 
-def test_rdfa_unsupported_features_are_partial_not_silently_clean():
+def test_rdfa_relation_is_a_validated_graph_edge():
     result = schema.check_schema(
         html="""
         <div vocab="https://schema.org/" typeof="Product">
           <span property="name">Widget</span><a rel="offers" href="#offer">Offer</a>
+          <div about="#offer" typeof="Offer">
+            <meta property="price" content="19.99"><meta property="priceCurrency" content="USD">
+          </div>
         </div>"""
     )
+    assert result["markup_coverage"][1]["status"] == "checked"
+    assert result["entities"][0]["errors"] == []
+    assert result["graph"]["linked_by_id"] == 1
+
+
+def test_rdfa_incomplete_relation_is_explicitly_partial():
+    result = schema.check_schema(
+        html='<div vocab="https://schema.org/" typeof="Person"><span rel="knows"></span></div>'
+    )
     assert result["markup_coverage"][1]["status"] == "partial"
-    assert any("rel/rev/inlist" in f for f in result["findings"])
+    assert any("incomplete rel/rev" in reason for reason in result["markup_coverage"][1]["reasons"])
 
 
 def test_rdfa_orphan_schema_property_and_foreign_metadata_are_distinct():
     orphan = schema.check_schema(html='<span property="schema:name">X</span>')
-    assert orphan["markup_coverage"][1]["status"] == "partial"
-    assert any("no typed subject" in f for f in orphan["findings"])
+    assert orphan["markup_coverage"][1]["status"] == "checked"
+    assert any("Missing typeof" in e for e in orphan["entities"][0]["errors"])
     og = schema.check_schema(html='<meta property="og:title" content="Title">')
     assert og["markup_coverage"][1]["status"] == "absent"
+
+
+def test_rdfa_subject_graph_lists_typed_literals_and_reverse_edges():
+    markup = (Path(__file__).parent / "fixtures" / "rdfa_graph.html").read_text("utf-8")
+    base = "https://example.test/article/"
+    result = schema.check_schema(html=markup, document_base_url=base)
+    assert result["markup_coverage"][1]["status"] == "checked"
+    assert result["graph"]["linked_by_id"] >= 2
+    person = next(
+        e for e in result["entities"] if e["types"] == ["Person"] and e["id"].endswith("#ada")
+    )
+    assert person["errors"] == []
+    assert person["warnings"] == []
+    assert result["rules_version"] == schema.RICH_RESULTS_RULES_VERSION
+    assert result["markup_counts"]["rdfa"] > 0
+    graph, _, reasons = schema._extract_rdfa(schema.BeautifulSoup(markup, "lxml"), base)
+    ada = next(node for node in graph if node.get("@id", "").endswith("#ada"))
+    grace = next(node for node in graph if node.get("@id", "").endswith("#grace"))
+    assert ada["additionalName"] == ["Queen", "of coding"]
+    assert ada["birthDate"]["@value"] == "1990-01-01"
+    assert ada["birthDate"]["@type"].endswith("#date")
+    assert ada["knows"] == {"@id": "https://example.test/article/#grace"}
+    assert ada["parent"] == {"@id": "https://example.test/article/#grace"}
+    assert reasons == []
+
+
+def test_schema_validation_marks_oversized_html_as_partial():
+    result = schema.check_schema(html=" " * (schema.MAX_HTML_BYTES + 1))
+    assert all(item["status"] == "partial" for item in result["markup_coverage"])
+    assert "byte schema validation limit" in result["findings"][0]
+
+
+def test_rdfa_initial_context_safe_curie_subjects_and_literal_precedence():
+    markup = (Path(__file__).parent / "fixtures" / "rdfa_context_edges.html").read_text("utf-8")
+    base = "https://example.test/article/"
+    result = schema.check_schema(html=markup, document_base_url=base)
+    assert result["markup_coverage"][1]["status"] == "checked"
+    ada, friend = schema._extract_rdfa(schema.BeautifulSoup(markup, "lxml"), base)[0]
+    assert ada["@id"] == "_:ada"
+    assert ada["name"] == {"@value": "Ada", "@language": "en"}
+    assert ada["alternateName"] == "Plain name"
+    assert ada["birthDate"] == {
+        "@value": "1990-01-01",
+        "@type": "http://www.w3.org/2001/XMLSchema#date",
+    }
+    assert ada["knows"] == {"@id": "_:friend"}
+    assert friend["@id"] == "_:friend"
+    assert not {"canonical", "nofollow"} & ada.keys()
+    assert not any("canonical" in item or "nofollow" in item for item in result["findings"])
+
+
+def test_rdfa_vocabulary_terms_preserve_namespace_delimiters():
+    assert schema._rdfa_term("Thing", "https://foreign.example/vocab#", {}) == (
+        "https://foreign.example/vocab#Thing",
+        False,
+    )
+    assert schema._rdfa_term("Person", "https://schema.org", {}) == ("Person", True)
+    assert schema._rdfa_term("Person", "https://schema.org/#", {}) == ("Person", True)
+
+
+def test_rdfa_foreign_vocabulary_does_not_poison_schema_siblings():
+    result = schema.check_schema(
+        html="""
+        <div vocab="https://foreign.example/vocab/" typeof="Thing">
+          <span property="name">Foreign</span>
+        </div>
+        <div typeof="schema:Person"><span property="schema:name">Ada</span></div>"""
+    )
+    person = next(entity for entity in result["entities"] if entity["types"] == ["Person"])
+    assert person["errors"] == []
+    assert person["warnings"] == []
+    assert result["markup_coverage"][1]["status"] == "checked"
+
+
+def test_rdfa_incomplete_relation_keeps_the_originating_inlist_state():
+    markup = (Path(__file__).parent / "fixtures" / "rdfa_inlist_relay.html").read_text("utf-8")
+    nodes, _, reasons = schema._extract_rdfa(
+        schema.BeautifulSoup(markup, "lxml"), "https://example.test/"
+    )
+    owner = next(node for node in nodes if node.get("@id") == "https://example.test/#list-owner")
+    assert owner["knows"] == [{"@id": "https://example.test/#list-target"}]
+    assert reasons == []
+
+
+def test_rdfa_property_copy_is_iterative_bounded_and_removes_patterns():
+    markup = (Path(__file__).parent / "fixtures" / "rdfa_copy_graph.html").read_text("utf-8")
+    result = schema.check_schema(html=markup, document_base_url="https://example.test/article/")
+    nodes, _, reasons = schema._extract_rdfa(
+        schema.BeautifulSoup(markup, "lxml"), "https://example.test/article/"
+    )
+    by_id = {node.get("@id"): node for node in nodes}
+    assert by_id["#event"]["name"] == "Shared name"
+    assert by_id["#article"]["name"] == "Chained name"
+    assert by_id["#article"]["description"] == "Shared description"
+    assert by_id["#other"]["name"] == "Cycle name"
+    assert by_id["#other"]["description"] == "Cycle description"
+    assert not any(
+        any(type_name.endswith("#Pattern") for type_name in node.get("@type", []))
+        for node in nodes
+    )
+    assert not any(
+        "http://www.w3.org/ns/rdfa#copy" in key
+        for node in nodes
+        for key in node
+        if not key.startswith(("@", "_"))
+    )
+    assert result["markup_coverage"][1]["status"] == "checked"
+    assert reasons == []
 
 
 def test_inert_templates_and_text_do_not_generate_markup_entities():
@@ -201,7 +323,8 @@ def test_reused_rdfa_subject_does_not_create_recursive_python_objects():
     )
     assert result["entities"][0]["types"] == ["Person"]
     assert result["ok"] is True
-    assert result["graph"]["linked_by_id"] == 1
+    assert result["graph"]["nodes"] == 1
+    assert result["graph"]["linked_by_id"] == 0
 
 
 def test_rdfa_resource_reference_is_connected_to_its_typed_subject():

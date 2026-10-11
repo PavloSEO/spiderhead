@@ -22,6 +22,7 @@ Public API:
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from collections.abc import Callable
 from html.parser import HTMLParser
 from typing import Any, Literal, cast
@@ -858,7 +859,9 @@ def extract_mobile_alternates(soup: BeautifulSoup, base_url: str) -> list[dict[s
     return alternates
 
 
-def extract_images(soup: BeautifulSoup) -> list[dict[str, Any]]:
+def extract_images(
+    soup: BeautifulSoup, *, base_url: str | None = None, max_images: int = 2000
+) -> list[dict[str, Any]]:
     """Every ``<img>`` element's alt-attribute evidence (#386).
 
     Two facts per image, kept separate rather than collapsed into one "no alt text"
@@ -869,13 +872,78 @@ def extract_images(soup: BeautifulSoup) -> list[dict[str, Any]]:
     attribute and a genuinely empty one). Scoped to ``<img>`` only: a CSS background image
     carries no ``alt`` concept to evaluate.
     """
+    # The ordinary parser keeps its historical count projection. Retained native
+    # analysis requests element facts from the same extraction, not another parser.
+    from seohead.checks.markup import _INERT_TAGS, _aria_named, _excluded, _name_text
+
+    ids: dict[str, list[Tag]] = defaultdict(list)
+    if base_url is not None:
+        for node in soup.find_all(id=True):
+            if node.name not in _INERT_TAGS and not _has_ancestor(node, tuple(_INERT_TAGS)):
+                ids[str(node["id"])].append(node)
     images: list[dict[str, Any]] = []
-    for tag in soup.find_all("img"):
+    for ordinal, tag in enumerate(soup.find_all("img")):
         if _has_ancestor(tag, _INERT_LINK_CONTAINERS):
             continue
         has_alt = "alt" in tag.attrs
         alt_value = collapse_whitespace(cast("str | None", tag.get("alt")) or "") if has_alt else ""
-        images.append({"has_alt": has_alt, "alt_length": len(alt_value)})
+        item: dict[str, Any] = {"has_alt": has_alt, "alt_length": len(alt_value)}
+        if base_url is not None:
+            roles = str(tag.get("role", "")).lower().split()
+            named = _aria_named(tag, ids)
+            interactive = tag.find_parent(("a", "button"))
+            unnamed_interactive = interactive is not None and not (
+                _name_text(interactive) or _aria_named(interactive, ids)
+            )
+            presentational = any(role in roles for role in ("none", "presentation"))
+            informative_empty = (
+                not alt_value and not named and ("img" in roles or unnamed_interactive)
+            )
+            malformed_empty = has_alt and bool(tag.get("alt")) and not alt_value
+            # ARIA-hidden/inert/presentation concerns names, not visible layout.
+            # An absent alt attribute remains a separate literal observation.
+            layout_hidden = any(
+                node.has_attr("hidden")
+                or any(
+                    "".join(declaration.lower().split()).removesuffix("!important")
+                    == "display:none"
+                    for declaration in str(node.get("style", "")).split(";")
+                )
+                for node in (tag, *tag.parents)
+                if isinstance(node, Tag)
+            )
+            raw = str(tag.get("src", "")).strip()
+            try:
+                resolved = urljoin(base_url, raw) if raw else ""
+                parts = urlparse(resolved)
+                resource_url = (
+                    resolved
+                    if len(resolved) <= 2048
+                    and parts.scheme in {"http", "https"}
+                    and parts.hostname
+                    else None
+                )
+            except ValueError:
+                resource_url = None
+            missing_dimensions = []
+            for name in ("width", "height"):
+                value = str(tag.get(name, "")).strip()
+                if not re.fullmatch(r"[0-9]{1,16}", value) or int(value) <= 0:
+                    missing_dimensions.append(name)
+            item.update(
+                ordinal=ordinal,
+                resource_url=resource_url,
+                missing_alt_attribute=not has_alt,
+                missing_alt_text=has_alt
+                and (informative_empty or malformed_empty)
+                and not named
+                and not presentational
+                and not _excluded(tag),
+                missing_dimensions=[] if layout_hidden else missing_dimensions,
+            )
+        images.append(item)
+        if base_url is not None and len(images) > max_images:
+            break  # One sentinel makes the retained pass declare partial coverage.
     return images
 
 

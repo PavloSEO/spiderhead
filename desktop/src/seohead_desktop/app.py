@@ -77,7 +77,7 @@ def load_theme(app, theme=None):
     if theme:
         theming.set_active_theme(theme)
     tokens = theme_tokens()
-    app.setWindowIcon(brand.app_icon())  # brandbook: the medium logo is the application / Dock icon
+    app.setWindowIcon(brand.app_icon())
     for font in sorted((ROOT / "assets/fonts").glob("*.ttf")):
         QFontDatabase.addApplicationFont(str(font))
     app.setStyleSheet(theming.stylesheet() + component_stylesheet(tokens))
@@ -108,7 +108,7 @@ class MainWindow(
 
     def __init__(self, *, persistent=True, core_executable=None):
         super().__init__()
-        self.setWindowTitle("SEOHEAD")
+        self.setWindowTitle("SpiderHead")
         self.resize(1440, 900)
         self.setMinimumSize(
             theming.metrics()["layout"]["min_width"], theming.metrics()["layout"]["min_height"]
@@ -476,6 +476,7 @@ def main():
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
     app = qt.app(sys.argv[:1])
+    brand.set_application_identity(app)
     app.setStyle("Fusion")
     load_theme(app)
     window = MainWindow(persistent=not args.no_settings, core_executable=args.core_cli)
@@ -536,7 +537,7 @@ def main():
                 generator.setFileName(str(args.export_svg))
                 generator.setSize(window.size())
                 generator.setViewBox(window.rect())
-                generator.setTitle("SEOHEAD")
+                generator.setTitle("SpiderHead")
                 painter = QPainter(generator)
                 window.render(painter)
                 painter.end()

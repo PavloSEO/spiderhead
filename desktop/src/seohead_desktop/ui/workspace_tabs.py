@@ -202,7 +202,7 @@ class WorkspaceTabs(QWidget):
         self.setObjectName("tabstrip")
         self.setFixedHeight(38)
         self.setAttribute(Qt.WA_StyledBackground, True)
-        self.setAccessibleName("Рабочие вкладки SEOHEAD")
+        self.setAccessibleName("Рабочие вкладки SpiderHead")
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 2, 8, 0)
         layout.setSpacing(0)

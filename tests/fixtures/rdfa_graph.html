@@ -1,0 +1,12 @@
+<div vocab="https://schema.org/" prefix="xsd: http://www.w3.org/2001/XMLSchema#"
+     typeof="Person" about="#ada">
+  <span property="name" lang="en">Ada</span>
+  <meta property="birthDate" content="1990-01-01" datatype="xsd:date">
+  <span property="additionalName" inlist>Queen</span>
+  <span property="additionalName" inlist>of coding</span>
+  <a rel="knows" href="#grace">Grace</a>
+  <div about="#grace" typeof="Person">
+    <span property="name">Grace</span>
+    <span rev="parent" resource="#ada"></span>
+  </div>
+</div>

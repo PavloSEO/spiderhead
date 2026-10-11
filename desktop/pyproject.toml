@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "seohead-desktop"
 version = "0.1.0"
-description = "Native SEOHEAD project-console preparation skeleton"
+description = "Native SpiderHead SEO crawler and audit application"
 requires-python = ">=3.10"
 license = { text = "GPL-3.0-or-later" }
 dependencies = ["PyQt5==5.15.11", "mcp==1.29.0"]

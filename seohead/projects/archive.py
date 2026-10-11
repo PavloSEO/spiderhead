@@ -1,4 +1,8 @@
-"""Portable project archive with validated state, scan snapshots and a SHA-256 manifest."""
+"""Portable project archive: one zip with a SHA-256 manifest, restorable on any OS.
+
+Project-local archive set: project and settings metadata, bounded action/event histories,
+inbox/coverage/export stores, top-level SQLite stores, and scans/ and reports/ artifacts.
+"""
 
 from __future__ import annotations
 
@@ -35,6 +39,7 @@ _FILES = (
     "actions.jsonl",
     "schedule.json",
     "schedule-state.json",
+    "exports.json",
 )
 _PROJECT_STATE = frozenset(_FILES) - {"project.json", "log.md", "inbox.json", "coverage.json"}
 _DIRECTORIES = ("scans", "reports")
@@ -91,6 +96,8 @@ def _validate_project_state(root: Path, rel: str) -> None:
         from seohead.projects.action_log import _parse, _path
 
         path = _path(root)
+        if path.is_symlink():
+            raise ValueError("actions.jsonl must be a regular project-local file")
         if path.exists():
             with path.open("r", encoding="utf-8") as stream:
                 _parse(stream)
@@ -153,6 +160,41 @@ def _validate_project_state(root: Path, rel: str) -> None:
                 raise ValueError(f"schedule-state.json {field} timestamp is invalid") from exc
             if stamp.tzinfo is None or stamp.utcoffset() != UTC.utcoffset(stamp):
                 raise ValueError(f"schedule-state.json {field} timestamp must be UTC")
+
+
+def _validate_project_stores(root: Path) -> None:
+    """Consume each present local store through its authoritative read validator."""
+    from seohead.projects.workspace import _load
+
+    _, project = _load(root)
+    if (root / "project-settings.json").exists():
+        from seohead.projects.project_settings import read_settings
+
+        read_settings(root)
+    if (root / "settings-proposals.json").exists():
+        from seohead.projects.project_settings import list_proposals
+
+        list_proposals(root, offset=0, limit=1)
+    if (root / "events.jsonl").exists():
+        from seohead.projects.event_log import page
+
+        page(root, offset=0, limit=1)
+    if (root / "actions.jsonl").exists():
+        if (root / "actions.jsonl").is_symlink():
+            raise ValueError("actions.jsonl must be a regular project-local file")
+        _validate_project_state(root, "actions.jsonl")
+    if (root / "coverage.json").exists():
+        from seohead.projects.coverage import _read
+
+        _read(root, project)
+    if (root / "inbox.json").exists():
+        from seohead.projects.inbox import list_entries
+
+        list_entries(root, consumer="archive-validation", offset=0, limit=1)
+    if (root / "exports.json").exists():
+        from seohead.projects.exports import exports_page
+
+        exports_page(root, offset=0, limit=1)
 
 
 def _plan(
@@ -330,6 +372,7 @@ def archive_project(
         type(keep_newest_scans) is not int or not 1 <= keep_newest_scans <= 10_000
     ):
         raise ValueError("keep_newest_scans must be from 1 to 10000")
+    _validate_project_stores(root)
     target = Path(out)
     if not target.name or ".." in target.parts:
         raise ValueError("archive output must be a plain file path")
@@ -471,6 +514,7 @@ def restore_project(archive: str | Path, to: str | Path) -> dict[str, Any]:
                 path = staging / name
                 if path.is_file():
                     _validate_project_state(staging, name)
+            _validate_project_stores(staging)
             if os.path.lexists(dest):
                 raise ValueError("restore target appeared during restore; nothing was replaced")
             os.rename(staging, dest)
