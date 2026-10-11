@@ -19,6 +19,7 @@ _TERMINAL = {"completed", "cancelled"}
 _STEP_STATES = {"succeeded", "failed", "unavailable", "skipped", "interrupted"}
 EVIDENCE_HASH_SECONDS = 5.0
 EVIDENCE_HASH_BYTES = 1024 * 1024 * 1024
+DEFAULT_PROMPT = "skill:workflow/full-audit-v1"
 
 
 def _text(value: Any, name: str, maximum: int = 512) -> str:
@@ -75,13 +76,20 @@ def _accepted_goal(directory: str | Path, value: Any) -> dict[str, Any]:
             if entry["id"] != goal_id:
                 continue
             if entry["kind"] != "proposed_goal" or entry["goal_state"] != "accepted":
-                raise ValueError("workflow goal_id must identify an accepted proposed goal")
+                raise ValueError(
+                    "workflow goal_id must identify an accepted proposed goal; accept it with "
+                    f"`seohead project inbox-goal --directory DIR --entry-id {goal_id} "
+                    "--state accepted`"
+                )
             return {"id": entry["id"], "references": entry["references"]}
         next_offset = page["pagination"]["next_offset"]
         if next_offset is None:
             break
         offset = next_offset
-    raise ValueError("workflow goal_id is not present in this project inbox")
+    raise ValueError(
+        "workflow goal_id is not present in this project inbox; list entries with "
+        "`seohead project inbox-list --directory DIR --consumer ID`"
+    )
 
 
 def _prompt_reference(value: Any) -> dict[str, str]:
@@ -111,10 +119,15 @@ def _task_ids(value: Any, rows: dict[str, dict[str, Any]]) -> list[str]:
 def _context(
     value: Any, directory: str | Path, project: dict[str, Any], rows: dict[str, dict[str, Any]]
 ) -> dict[str, Any]:
-    if value is None:
-        raise ValueError(
-            "workflow context requires accepted goal_id, prompt_reference, and task_ids"
-        )
+    """Resolve the durable handoff links; only goal_id is needed for the usual run.
+
+    The prompt defaults to the registered full-audit contract, and the task defaults to the
+    checklist task that accepting the goal created (``custom:goal-<entry>``). Explicit values
+    still win and are validated exactly as before.
+    """
+    from .inbox import goal_task_id
+
+    value = {} if value is None else value
     if not isinstance(value, dict) or set(value) - {
         "goal_id",
         "prompt_reference",
@@ -122,10 +135,14 @@ def _context(
         "competitors",
         "phase",
     }:
-        raise ValueError("workflow context has unsupported fields")
-    if {"goal_id", "prompt_reference", "task_ids"} - set(value):
         raise ValueError(
-            "workflow context requires accepted goal_id, prompt_reference, and task_ids"
+            "workflow context has unsupported fields; allowed: goal_id, prompt_reference, "
+            "task_ids, competitors, phase"
+        )
+    if "goal_id" not in value:
+        raise ValueError(
+            "workflow context requires goal_id (an accepted owner goal); accept one with "
+            "`seohead project inbox-goal --directory DIR --entry-id ENTRY --state accepted`"
         )
     competitors = value.get("competitors", [])
     if (
@@ -138,12 +155,23 @@ def _context(
         )
     ):
         raise ValueError("workflow competitors must be a unique bounded HTTP(S) list")
+    goal = _accepted_goal(directory, value["goal_id"])
+    if "task_ids" in value:
+        task_ids = _task_ids(value["task_ids"], rows)
+    else:
+        task_id = goal_task_id(goal["id"])
+        if task_id not in rows or rows[task_id]["stale"] or rows[task_id]["complete"]:
+            raise ValueError(
+                f"accepted goal's checklist task {task_id} is missing, stale or complete; "
+                "pass task_ids explicitly with current custom tasks"
+            )
+        task_ids = [task_id]
     result = {
         "own_site": project["site"]["target"],
         "competitors": competitors,
-        "goal": _accepted_goal(directory, value["goal_id"]),
-        "prompt": _prompt_reference(value["prompt_reference"]),
-        "task_ids": _task_ids(value["task_ids"], rows),
+        "goal": goal,
+        "prompt": _prompt_reference(value.get("prompt_reference", DEFAULT_PROMPT)),
+        "task_ids": task_ids,
     }
     if "phase" in value:
         result["phase"] = _text(value["phase"], "phase", 128)

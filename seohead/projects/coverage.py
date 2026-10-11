@@ -86,13 +86,33 @@ def _scope(value: Any) -> dict[str, Any]:
     return {"site": site, "template": template, "urls": _urls(value["urls"], site, "scope urls")}
 
 
+_POPULATION_REQUIRED = ("kind", "source")
+_POPULATION_DEFAULTS = {"size": None, "urls": [], "name": None, "reason": None, "templates": None}
+
+
 def _population(value: Any, site: str, *, nested: bool = False) -> dict[str, Any]:
-    """Validate one agreed URL population against the project site identity."""
-    required = {"kind", "size", "urls", "name", "source", "reason"}
-    if not nested:
-        required |= {"templates"}
-    if not isinstance(value, dict) or set(value) != required:
-        raise ValueError("population has unsupported fields")
+    """Validate one agreed URL population against the project site identity.
+
+    Only ``kind`` and ``source`` are required; the other keys default to unset, so a sample
+    needs just its kind, size, name and source. Missing and unknown keys are named in the error.
+    """
+    if not isinstance(value, dict):
+        raise ValueError("population must be an object")
+    allowed = {"kind", "size", "urls", "name", "source", "reason"} | (
+        set() if nested else {"templates"}
+    )
+    missing = [key for key in _POPULATION_REQUIRED if key not in value]
+    if missing:
+        raise ValueError("population is missing required key(s): " + ", ".join(missing))
+    unknown = sorted(set(value) - allowed, key=str)
+    if unknown:
+        raise ValueError(
+            "population has unsupported key(s): "
+            + ", ".join(map(str, unknown))
+            + "; allowed: "
+            + ", ".join(sorted(allowed))
+        )
+    value = {**_POPULATION_DEFAULTS, **value}
     kind = value["kind"]
     kinds = {"complete_set", "sample"} if nested else {"complete_set", "sample", "unknown"}
     if kind not in kinds:
@@ -111,6 +131,8 @@ def _population(value: Any, site: str, *, nested: bool = False) -> dict[str, Any
             if size is not None and size != len(urls):
                 raise ValueError("population size disagrees with its enumerated urls")
             size = len(urls)
+        elif size is None:
+            raise ValueError("population is missing required key(s): size (or urls)")
         if type(size) is not int or not 1 <= size <= 1_000_000_000:
             raise ValueError("population size must be a positive bounded integer")
         if kind == "sample":

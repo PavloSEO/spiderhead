@@ -6108,19 +6108,9 @@ def audit_workflow(
         )
     if action == "report":
         from seohead.projects.runtime import latest_project_scan
-        from seohead.reports import STREAMED_PROJECT_ERROR
 
         source = audit if audit is not None else str(latest_project_scan(directory))
-        result = report_build(audit=source, fmt=fmt, out=out, project=directory)
-        if not result.get("ok") and result.get("error") == STREAMED_PROJECT_ERROR:
-            # Streamed audit.v2 cannot bind the checklist snapshot; build it unbound and say so.
-            result = report_build(audit=source, fmt=fmt, out=out, project=None)
-            if result.get("ok"):
-                result["notice"] = (
-                    "project checklist snapshot not bound: the scan is a streamed audit.v2, "
-                    "so this report is unbound and carries no coverage snapshot"
-                )
-        return result
+        return report_build(audit=source, fmt=fmt, out=out, project=directory)
     raise ValueError("action must be status, start, prepare, or report")
 
 

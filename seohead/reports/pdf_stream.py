@@ -34,7 +34,9 @@ def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
 
 
-def build_overview_model(reader: Any) -> dict[str, Any]:
+def build_overview_model(
+    reader: Any, project_coverage: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Project ordered prefixes, keeping complete source counts and coverage."""
     from .pdf_model import _collection, _coverage_record, build_pdf_model
 
@@ -61,6 +63,8 @@ def build_overview_model(reader: Any) -> dict[str, Any]:
         else value
         for key, value in (reader.header.get("summary") or {}).items()
     }
+    if project_coverage is not None:
+        header["summary"]["project_coverage"] = project_coverage
     metadata_bytes = len(_json(header).encode("utf-8"))
     if metadata_bytes > MAX_METADATA_BYTES:
         raise ValueError(f"PDF overview metadata exceeds {MAX_METADATA_BYTES} bytes")
@@ -265,7 +269,7 @@ def write_overview(reader: Any, view: Any, target: Path, *, lang: str = "en") ->
             "ok": False,
             "error": "PDF overview requires a new output path and companion directory",
         }
-    model = build_overview_model(reader)
+    model = build_overview_model(reader, (view.get("summary") or {}).get("project_coverage"))
     names = [
         "audit.json",
         "findings.csv",

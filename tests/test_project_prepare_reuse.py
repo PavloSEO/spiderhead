@@ -128,7 +128,7 @@ def test_latest_project_scan_is_the_newest_complete_audited_scan(tmp_path):
 
 def test_latest_project_scan_refuses_when_no_complete_scan_exists(tmp_path):
     project = _project(tmp_path)
-    with pytest.raises(ValueError, match="no finished, complete audited scan"):
+    with pytest.raises(ValueError, match="no finished, audited scan"):
         latest_project_scan(str(project))
 
 
@@ -151,7 +151,11 @@ def test_default_report_of_streamed_latest_scan_names_the_next_step(tmp_path):
             runtime=_runtime(),
         )
         result = AuditResult(
-            run={"input_mode": "crawl", "generated_at": "2026-10-04T00:00:00Z"},
+            run={
+                "input_mode": "crawl",
+                "source": "https://example.test/",
+                "generated_at": "2026-10-04T00:00:00Z",
+            },
             summary={"totals": {}, "by_severity": {}, "by_check": {}, "health_score": None},
             issues=[
                 Issue(check="TITLE_MISSING", severity="warning", source="fixture", message="x")
@@ -171,4 +175,5 @@ def test_default_report_of_streamed_latest_scan_names_the_next_step(tmp_path):
         directory=str(project), action="report", fmt="md", out=str(tmp_path / "report.md")
     )
     assert report["ok"], report
-    assert "not bound" in report["notice"]
+    assert "notice" not in report
+    assert "## Project checklist coverage" in (tmp_path / "report.md").read_text(encoding="utf-8")

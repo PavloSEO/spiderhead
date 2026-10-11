@@ -647,6 +647,13 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     }:
         if getattr(args, "directory", None):
             kw["directory"] = args.directory
+        context = kw.get("context")
+        if (
+            cmd == "workflow-start"
+            and getattr(args, "goal_id", None)
+            and (context is None or isinstance(context, dict))
+        ):
+            kw["context"] = {**(context or {}), "goal_id": args.goal_id}
     elif cmd in {
         "remediation-create",
         "remediation-ingest",
@@ -947,6 +954,9 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             kw["_report"] = args.report
             kw["_out"] = getattr(args, "out", None)
     elif cmd == "report-build":
+        if "format" in kw:
+            # --input JSON uses the CLI spelling; the handler parameter is fmt.
+            kw["fmt"] = kw.pop("format")
         if getattr(args, "pdf_policy", None) is not None:
             kw["pdf_policy"] = args.pdf_policy
         if getattr(args, "audit", None):
@@ -2389,6 +2399,12 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "workflow-resume",
     }:
         _source_flag(sub, "--directory", help="project directory")
+    if cmd == "workflow-start":
+        sub.add_argument(
+            "--goal-id",
+            dest="goal_id",
+            help="accepted owner goal id (inbox:...); the prompt and goal task are derived",
+        )
     if cmd in {
         "monitor-configure",
         "monitor-run",
@@ -2911,6 +2927,21 @@ SCAN_FRAGMENT_LINKS_HELP_NOTE = (
 )
 
 
+WORKFLOW_START_HELP_NOTE = """\
+--input takes {"scenario_id": "scenario:full-audit", "steps": [...], "context": {...}}.
+Only the accepted goal is required in context; the rest is derived:
+  goal_id          required: the accepted proposed goal (inbox:...). --goal-id sets it.
+  prompt_reference optional: defaults to skill:workflow/full-audit-v1 (the registered contract).
+  task_ids         optional: defaults to the checklist task the accepted goal created
+                   (custom:goal-<entry id>); it must be current and incomplete.
+  competitors      optional: unique HTTP(S) URLs, at most 20.
+  phase            optional: a short label stored with the run.
+Owner-side steps that come first (nothing starts without them):
+  seohead project inbox-goal --directory DIR --entry-id ENTRY --state accepted
+  seohead project inbox-list --directory DIR --consumer ID   (find the entry id)
+Refused runs name the missing link and the command that creates it.
+"""
+
 CHECKLIST_RECORD_HELP_NOTE = """\
 --input takes {"record": {...}} with the checklist item's directory, --item-id and
 --expected-revision. Accepted record shapes (all are evidence only; nothing is executed):
@@ -2941,7 +2972,16 @@ def build_parser() -> argparse.ArgumentParser:
             if cmd == "scan-fragment-links"
             else None
         )
-        sp = subs.add_parser(cmd, help=f"run the {cmd} tool", epilog=epilog)
+        if cmd == "workflow-start":
+            epilog = WORKFLOW_START_HELP_NOTE
+        sp = subs.add_parser(
+            cmd,
+            help=f"run the {cmd} tool",
+            epilog=epilog,
+            formatter_class=argparse.RawDescriptionHelpFormatter
+            if cmd == "workflow-start"
+            else argparse.HelpFormatter,
+        )
         _add_flags(sp, cmd)
     scan = subs.add_parser("scan", help="saved SQLite scan history")
     scan_subs = scan.add_subparsers(dest="scan_command", metavar="<action>", required=True)
