@@ -1203,6 +1203,12 @@ def task_detail(directory: str | Path, *, item_id: str) -> dict:
             },
         }
     )
+    if definition.get("kind") == "custom":
+        from .competitor_scans import task_competitor_run_reference
+
+        item["task"]["competitor_run"] = task_competitor_run_reference(
+            root, task_id=local_id, task=saved
+        )
     return {"ok": True, "revision": view.get("revision"), "item": item}
 
 

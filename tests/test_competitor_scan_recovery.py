@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from seohead.projects import competitor_scans, coverage, schedule
+from seohead.projects import competitor_scans, coverage, observer, schedule
 from seohead.projects.runtime import add_competitors
 from seohead.projects.workspace import create_project
 
@@ -154,6 +154,26 @@ def test_recovery_skips_completed_child_and_resumes_only_interrupted_child(tmp_p
     assert status["state"] == "interrupted"
     assert status["results"][0]["state"] == "completed"
     assert status["results"][1]["state"] == "interrupted"
+    detail = observer.task_detail(project, item_id="custom:competitor-audit")
+    reference = detail["item"]["task"]["competitor_run"]
+    assert reference["run_id"] == run_id
+    assert reference["state"] == "interrupted"
+    assert reference["resumable"] is True
+    assert reference["coverage_revision"] == revision
+
+    coverage.append_task_comment(
+        project,
+        item_id="custom:competitor-audit",
+        text="Unrelated task note after the scan was interrupted.",
+        actor="agent/test",
+        expected_revision=revision,
+    )
+    updated_revision = coverage.coverage_status(project)["revision"]
+    refreshed = observer.task_detail(project, item_id="custom:competitor-audit")
+    assert refreshed["revision"] == updated_revision
+    assert refreshed["item"]["task"]["competitor_run"]["run_id"] == run_id
+    assert refreshed["item"]["task"]["competitor_run"]["resumable"] is True
+
     interrupted_path = project / status["results"][1]["scan"]
     recovery_reads = 0
 
@@ -175,7 +195,7 @@ def test_recovery_skips_completed_child_and_resumes_only_interrupted_child(tmp_p
     recovered = competitor_scans.scan_task_competitors(
         **_kwargs(
             project,
-            revision,
+            updated_revision,
             tools={"crawl_site": resume_crawl},
             concurrency=1,
             run_id=run_id,
@@ -184,6 +204,7 @@ def test_recovery_skips_completed_child_and_resumes_only_interrupted_child(tmp_p
 
     assert recovered["state"] == "completed"
     assert recovered["resumed"] is True
+    assert recovered["coverage_revision"] == revision
     assert len(second_calls) == 1
     assert second_calls[0]["project"] == str(project / rows[1]["directory"])
     assert len(calls) == 2

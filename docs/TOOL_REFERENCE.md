@@ -2978,7 +2978,12 @@ Reads saved local evidence with metadata-only receipt status; this is not
 fresh byte verification. Missing historical receipts remain unverified.
 Does not collect, fetch or modify evidence. Custom-task detail returns up to 20 newest attempts
 and comments, with total and truncation fields; use the separate task-history or task-comments
-export dataset when the complete retained ledger is needed.
+export dataset when the complete retained ledger is needed. A task with competitors also includes
+`item.task.competitor_run`: the latest compatible run reference/state, or `null` when there is no
+compatible manifest. An unavailable manifest history is explicit and must not be treated as a new
+run. When `state='running'`, poll or cancel that `run_id`; when `state='interrupted'` and
+`resumable=true`, pass the same ID to resume without generating a fresh one. Preserve the
+reference's `approve_large_crawl` and `producer_build` values on resume.
 
 ### `project-task-detail`
 

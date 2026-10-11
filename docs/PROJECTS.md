@@ -512,6 +512,13 @@ competitor list with `[]`. A measured affected-URL count is populated only from 
 selection for its finding reference. Unsupported, capped, missing, or stale evidence remains
 explicitly unmeasured; it is not inferred from a sample.
 
+For tasks with competitors, `project-task-detail` includes `task.competitor_run`. Poll or cancel
+its `run_id` while `state` is `running`; resume the same `run_id` when state is `interrupted` and
+`resumable` is true. It reflects current competitor crawl inputs, while `coverage_revision` remains
+provenance for the original run; unrelated comments or task metadata revisions do not invalidate
+an otherwise compatible checkpoint. Preserve the run's `approve_large_crawl` and `producer_build`
+settings when resuming it.
+
 Accepted goals can become stable custom tasks through the local owner workflow. MCP can submit
 or triage proposals, but cannot accept a goal or provide owner signoff. A caller-supplied actor
 or reviewer name is attribution, not proof of owner identity. Ordinary task metadata and

@@ -382,15 +382,112 @@ def _plan_digest(plan: dict[str, Any]) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _manifest_fingerprint(task_id: str, expected_revision: int, plans: list[dict[str, Any]]) -> str:
+def _compatibility_plan(plan: dict[str, Any]) -> dict[str, Any]:
+    """Only crawl inputs affect resume compatibility; revisions remain manifest provenance."""
+    return {key: value for key, value in plan.items() if key != "schedule_revision"}
+
+
+def _manifest_fingerprint(task_id: str, plans: list[dict[str, Any]]) -> str:
     payload = json.dumps(
-        {"task_id": task_id, "revision": expected_revision, "plans": plans},
+        {
+            "task_id": task_id,
+            "plans": [_compatibility_plan(plan) for plan in plans],
+        },
         ensure_ascii=False,
         sort_keys=True,
         separators=(",", ":"),
         allow_nan=False,
     ).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
+
+
+def _legacy_manifest_fingerprint(
+    task_id: str, coverage_revision: int, plans: list[dict[str, Any]]
+) -> str:
+    """Recognize manifests written before resume stopped binding to global coverage revisions."""
+    payload = json.dumps(
+        {"task_id": task_id, "revision": coverage_revision, "plans": plans},
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _site_inputs_match(site: dict[str, Any], plan: dict[str, Any]) -> bool:
+    # The second hash keeps existing manifests resumable when their stored schedule revision
+    # still matches. New manifests exclude that metadata-only revision from this identity.
+    return site.get("input_hash") in {
+        _plan_digest(plan),
+        _plan_digest(_compatibility_plan(plan)),
+    }
+
+
+def _manifest_matches_inputs(
+    manifest: dict[str, Any], task_id: str, plans: list[dict[str, Any]]
+) -> bool:
+    if manifest.get("task_id") != task_id:
+        return False
+    if manifest.get("fingerprint") not in {
+        _manifest_fingerprint(task_id, plans),
+        _legacy_manifest_fingerprint(task_id, manifest.get("coverage_revision"), plans),
+    }:
+        return False
+    planned = {(plan["project_uuid"], plan["url"]): plan for plan in plans}
+    sites = manifest.get("sites")
+    if not isinstance(sites, list) or len(sites) != len(plans):
+        return False
+    for site in sites:
+        if not isinstance(site, dict):
+            return False
+        plan = planned.get((site.get("project_uuid"), site.get("url")))
+        if plan is None or not _site_inputs_match(site, plan):
+            return False
+    return True
+
+
+def task_competitor_run_reference(
+    directory: str | Path, *, task_id: str, task: dict[str, Any]
+) -> dict[str, Any] | None:
+    """Return a bounded latest compatible run reference for one current task, without writes."""
+    try:
+        root, project = _load(directory)
+        if task.get("definition", {}).get("kind") != "custom":
+            return None
+        if not task["definition"].get("competitors"):
+            return None
+        targets = _targets(root, project, task)
+        plans, _budgets = _plans(targets)
+        manifests = _manifests(root, project["project_uuid"])
+        compatible = [
+            manifest
+            for manifest in manifests
+            if _manifest_matches_inputs(manifest, task_id, plans)
+        ]
+        if not compatible:
+            return None
+        resumable = [manifest for manifest in compatible if _incomplete(manifest)]
+        manifest = max(resumable or compatible, key=lambda item: item["updated_at"])
+        active = _run_lock_active(root)
+        state = manifest["state"]
+        if state == "running" and not active:
+            state = "interrupted"
+        return {
+            "run_id": manifest["run_id"],
+            "state": state,
+            "resumable": _incomplete(manifest),
+            "approve_large_crawl": manifest["approve_large_crawl"],
+            "producer_build": manifest.get("producer_build"),
+            "updated_at": manifest["updated_at"],
+            "coverage_revision": manifest["coverage_revision"],
+            "completed_sites": sum(
+                site.get("state") == "completed" for site in manifest["sites"]
+            ),
+            "total_sites": len(manifest["sites"]),
+        }
+    except (OSError, TypeError, ValueError):
+        return {"state": "unavailable", "resumable": False, "reason": "run history is unavailable"}
 
 
 def _manifest_result(manifest: dict[str, Any], *, resumed: bool) -> dict[str, Any]:
@@ -529,7 +626,7 @@ def _new_manifest(
         sites.append(
             {
                 **{key: value for key, value in plan.items() if key != "urls"},
-                "input_hash": _plan_digest(plan),
+                "input_hash": _plan_digest(_compatibility_plan(plan)),
                 "state": "pending",
                 "artifact": artifact,
                 "scan": None,
@@ -557,7 +654,7 @@ def _new_manifest(
         "concurrency": concurrency,
         "approve_large_crawl": approve_large_crawl,
         "producer_build": producer_build,
-        "fingerprint": _manifest_fingerprint(task_id, expected_revision, plans),
+        "fingerprint": _manifest_fingerprint(task_id, plans),
         "budgets": budgets,
         "sites": sites,
     }
@@ -647,7 +744,7 @@ def scan_task_competitors(
         raise ValueError("task_id must name a current custom task")
     target_rows = _targets(root, project, saved)
     plans, budgets = _plans(target_rows)
-    fingerprint = _manifest_fingerprint(task_id, expected_revision, plans)
+    fingerprint = _manifest_fingerprint(task_id, plans)
 
     lock_fd, local_run_lock = _open_run_lock(root)
     try:
@@ -659,9 +756,7 @@ def scan_task_competitors(
             existing_path = _manifest_path(root, run_id)
             if existing_path.exists():
                 manifest = _read_manifest(root, run_id, project["project_uuid"])
-                if manifest["task_id"] != task_id or manifest["coverage_revision"] != expected_revision:
-                    raise CompetitorScanError("run_id belongs to another task or coverage revision")
-                if manifest["fingerprint"] != fingerprint:
+                if not _manifest_matches_inputs(manifest, task_id, plans):
                     raise CompetitorScanError("run inputs changed since this run_id was created")
                 if not _incomplete(manifest):
                     return _manifest_result(manifest, resumed=True)
@@ -685,15 +780,11 @@ def scan_task_competitors(
                 item
                 for item in _manifests(root, project["project_uuid"])
                 if item["task_id"] == task_id
-                and item["coverage_revision"] == expected_revision
                 and _incomplete(item)
+                and _manifest_matches_inputs(item, task_id, plans)
             ]
             if previous:
                 manifest = max(previous, key=lambda item: item["updated_at"])
-                if manifest["fingerprint"] != fingerprint:
-                    raise CompetitorScanError(
-                        "an interrupted run has different crawl settings; resume it with its original settings"
-                    )
                 resumed = True
             else:
                 if len(_manifests(root, project["project_uuid"])) >= MAX_RUN_MANIFESTS:
@@ -723,8 +814,9 @@ def scan_task_competitors(
         }
         if any(
             current_plans.get((site["project_uuid"], site["url"])) is None
-            or _plan_digest(current_plans[(site["project_uuid"], site["url"])])
-            != site["input_hash"]
+            or not _site_inputs_match(
+                site, current_plans[(site["project_uuid"], site["url"])]
+            )
             for site in manifest["sites"]
         ):
             raise CompetitorScanError("competitor scan site settings changed since the run checkpoint")
