@@ -167,6 +167,6 @@ def test_default_report_of_streamed_latest_scan_names_the_next_step(tmp_path):
         )
 
     assert latest_project_scan(str(project)) == path
-    refused = handlers.audit_workflow(directory=str(project), action="report", fmt="md")
-    assert refused["ok"] is False
-    assert "next step" in refused["error"]
+    report = handlers.audit_workflow(directory=str(project), action="report", fmt="md")
+    assert report["ok"], report
+    assert "not bound" in report["notice"]
