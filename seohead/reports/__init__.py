@@ -480,7 +480,8 @@ def _build_audit_v2_report(
     if project is not None:
         return {
             "ok": False,
-            "error": "project checklist coverage is unavailable for streamed audit.v2 inputs",
+            "error": "project checklist coverage is unavailable for streamed audit.v2 inputs; "
+            "next step: build the report without project (it is not bound to the checklist snapshot)",
         }
     if fmt == "pdf" and pdf_policy is None:
         return {
