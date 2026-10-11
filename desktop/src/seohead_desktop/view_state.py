@@ -212,7 +212,7 @@ class ViewStateMixin:
 
     def focus_search(self):
         current = self.pages.currentWidget()
-        search_labels = (tr("Поиск").casefold(), tr("Найти").casefold())
+        search_labels = ("search", "find", tr("Поиск").casefold(), tr("Найти").casefold())
         search = next(
             (
                 field

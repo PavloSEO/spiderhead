@@ -27,6 +27,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from seohead.sf.core.registry import CHECKS as CORE_CHECKS
 
 from .. import i18n, theming
 from ..i18n import tr, trf
@@ -274,8 +275,10 @@ COLUMNS = ("Адрес", "HTTP", "Доказательство", "Состоян
 
 
 def check_name(check, _message=None):
-    """Russian name of a check; an unknown code is never shown raw (it stays in the tooltip)."""
-    return tr(CHECK_NAMES[check]) if check in CHECK_NAMES else tr("Другая проверка")
+    """Use localized labels or the core registry title; unknown codes stay out of the UI."""
+    return tr(
+        CHECK_NAMES.get(check) or CORE_CHECKS.get(check, {}).get("message") or "Другая проверка"
+    )
 
 
 def message_ru(message):

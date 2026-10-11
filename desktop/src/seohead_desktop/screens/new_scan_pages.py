@@ -755,6 +755,12 @@ def speed_page(draft, host):
         page.bind(lambda _p, s=sync_: s())
 
     def arrange(wide):
+        for item in (rps_row, threads_row):
+            layout = item.layout()
+            layout.removeWidget(item.control)
+            layout.addWidget(
+                item.control, 0 if wide else 1, 1 if wide else 0, Qt.AlignRight | Qt.AlignVCenter
+            )
         columns = 4 if wide else 2
         for index, key in enumerate(("limit", "depth", "requests", "minutes")):
             grid.addWidget(
