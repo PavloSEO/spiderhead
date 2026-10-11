@@ -2984,6 +2984,97 @@ def check_native_image_resources(ctx: AuditContext) -> None:
         )
 
 
+def check_native_image_size(ctx: AuditContext) -> None:
+    """IMG_OVER_KB: an image whose fetched body is over ``thresholds.img_max_kb``.
+
+    Read from the native crawl's own image fetches (resource_graph_fetches.bytes_received),
+    one finding per image file. A fetch that did not complete (budget, excluded or failed)
+    leaves that image's size unmeasured, so it is never read as small; when no image body
+    was measured at all, the check skips in native terms.
+    """
+    if ctx.scan_con is None:
+        return
+    con = ctx.scan_con
+    tables = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    if not {"resource_graph_occurrences", "resource_graph_fetches"} <= tables:
+        ctx.skip("IMG_OVER_KB", _NATIVE_NO_RESOURCES)
+        return
+    measured = con.execute(
+        "SELECT 1 FROM resource_graph_occurrences o JOIN resource_graph_fetches f "
+        "ON f.resolved_url=o.resolved_url WHERE o.kind='image' "
+        "AND f.state IN ('complete','partial') LIMIT 1"
+    ).fetchone()
+    if measured is None:
+        ctx.skip("IMG_OVER_KB", "not measured by this native crawl: no image body was fetched")
+        return
+    limit_kb = ctx.thresholds.get("img_max_kb", 150)
+    rows = con.execute(
+        "SELECT o.resolved_url, MIN(p.url), COUNT(DISTINCT o.page_url_id), f.bytes_received "
+        "FROM resource_graph_occurrences o "
+        "JOIN resource_graph_fetches f ON f.resolved_url=o.resolved_url "
+        "JOIN urls p ON p.url_id=o.page_url_id "
+        "WHERE o.kind='image' AND f.state IN ('complete','partial') "
+        "AND f.bytes_received > ? GROUP BY o.resolved_url ORDER BY o.resolved_url",
+        (int(limit_kb * 1024),),
+    )
+    for image_url, source_page, pages, size in rows:
+        ctx.add(
+            "IMG_OVER_KB",
+            target_url=image_url,
+            details={
+                "bytes": size,
+                "limit_kb": limit_kb,
+                "source_page": source_page,
+                "pages": pages,
+            },
+        )
+
+
+def check_native_export_aggregates(ctx: AuditContext) -> None:
+    """IMG_MISSING_ALT, IMG_MISSING_DIMENSIONS and HREFLANG_ERROR on a native crawl.
+
+    None of the three is an export-only fact here, and none is measured as the
+    export defines it, so each says so in native terms rather than pointing at an SF
+    filter. Alt text is stored as a per-page count of missing alt attributes
+    (IMG_MISSING_ALT_ATTRIBUTE), not per image with empty values. Image pixel size is
+    stored, but not whether each <img> declares width and height. HREFLANG_ERROR is an
+    umbrella over the per-kind hreflang checks, which the native crawl runs itself.
+    """
+    if ctx.scan_con is None:
+        return
+    ctx.skip(
+        "IMG_MISSING_ALT",
+        "not measured by this native crawl: alt text is recorded as a per-page count of "
+        "missing alt attributes (IMG_MISSING_ALT_ATTRIBUTE); empty alt values are not stored per image",
+    )
+    ctx.skip(
+        "IMG_MISSING_DIMENSIONS",
+        "not measured by this native crawl: the stored scan keeps each image's pixel size, "
+        "not whether the <img> tag declares width and height",
+    )
+    ctx.skip(
+        "HREFLANG_ERROR",
+        "not measured by this native crawl as one aggregate; the native hreflang checks "
+        "report each error kind on its own",
+    )
+
+
+_NATIVE_NO_RESOURCES = "no resource evidence (native crawl with resource capture only)"
+
+# Checks a native crawl resolves from its own stored data, whether they fire, come out clean,
+# or say honestly that the crawl could not measure them. Absence of an SF export says nothing
+# about them, so neither skip_unsupported nor the export fallback declares them missing.
+NATIVE_RESOLVED_CHECKS = (
+    "IMG_OVER_KB",
+    "IMG_MISSING_ALT",
+    "IMG_MISSING_DIMENSIONS",
+    "HREFLANG_ERROR",
+    "SITEMAP_URL_4XX_5XX",
+    "SITEMAP_URL_3XX",
+    "SITEMAP_URL_NON_INDEXABLE",
+)
+
+
 # Native-filter exports: emit one issue per Address when the export is present,
 # else honestly skip (no dead zeros). export key -> check id.
 _NATIVE_EXPORT_CHECKS = {
@@ -3153,6 +3244,7 @@ def native_check_ids(ctx: AuditContext) -> frozenset[str]:
     con = ctx.scan_con
     if con is None:
         return frozenset(ids)
+    ids.update(NATIVE_RESOLVED_CHECKS)
     tables = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     if "responses" in tables:
         ids.add("MISSING_HSTS")
@@ -3218,7 +3310,10 @@ def check_native_exports(ctx: AuditContext) -> None:
             continue
         df = ctx.exports.get(key)
         if df is None or df.empty:
-            ctx.skip(check_id, f"no {key} export (export this SF filter to enable)")
+            if ctx.scan_con is not None:
+                ctx.skip(check_id, "not measured by this native crawl")
+            else:
+                ctx.skip(check_id, f"no {key} export (export this SF filter to enable)")
             continue
         col = find_column(df, ["Address", "URL", "Image URL", "Image"])
         if not col:
@@ -3264,6 +3359,8 @@ ALL_CHECKS = [
     check_amp_pairing,
     check_native_page_evidence,
     check_native_image_resources,
+    check_native_image_size,
+    check_native_export_aggregates,
     check_ajax_crawling_scheme,
     check_charset,
     check_doctype,

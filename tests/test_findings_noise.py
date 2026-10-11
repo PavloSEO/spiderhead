@@ -111,7 +111,7 @@ def test_native_scan_does_not_declare_measured_checks_missing_for_absent_exports
     skipped = {s.id: s.reason for s in ctx.skipped}
     assert "MISSING_HSTS" not in skipped
     assert "STRUCTURED_DATA_MISSING" not in skipped
-    assert skipped["MIXED_CONTENT"] == "missing export: security_mixed"
+    assert skipped["MIXED_CONTENT"] == "not measured by this native crawl"
 
 
 def test_no_native_scan_keeps_every_export_requirement():

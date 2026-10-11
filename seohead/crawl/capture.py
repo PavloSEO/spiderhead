@@ -36,6 +36,14 @@ _ALLOW = frozenset(
         "range",
         "content-range",
         "link",
+        # Judged by the security-header checks (seohead.crawl.security_headers). Their
+        # values are policy text, not credentials, so they are stored as sent.
+        "strict-transport-security",
+        "content-security-policy",
+        "x-frame-options",
+        "x-content-type-options",
+        "referrer-policy",
+        "permissions-policy",
     }
 )
 

@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**201 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**202 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -325,6 +325,7 @@ python scripts/generate_checks_reference.py
 | `MISSING_X_CONTENT_TYPE_OPTIONS` | notice | crawl:security_headers | HTML page has no X-Content-Type-Options header | Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type. |
 | `MISSING_X_FRAME_OPTIONS` | notice | crawl:security_headers | HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive | Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive. |
 | `MISSING_REFERRER_POLICY` | notice | crawl:security_headers | HTML page has no Referrer-Policy header | Send a Referrer-Policy header, for example strict-origin-when-cross-origin. |
+| `DUPLICATE_SECURITY_HEADER` | notice | crawl:security_headers | HTML page sends a security header more than once | Send each security header once. A repeated header can be ignored or applied next to the other copy, so the policy the browser enforces may not be the one intended. |
 | `OUTLINK_TO_LOCALHOST` | warning | crawl:link_findings | A link points at a loopback address (localhost, 127.0.0.1, ::1, ...) | Replace the development/staging reference with the production URL. |
 | `JS_CONSOLE_ERRORS` | warning | crawl:browser_artifacts | The page's browser console logged errors while it was rendered | Fix the script error the console reports; an uncaught exception can stop the page's content, links or metadata from being built in the browser. |
 | `FOLLOW_AND_NOFOLLOW_INLINKS` | notice | crawl:link_findings | The page receives both a followed and a nofollow internal link | Decide deliberately whether the page should be crawl-priority or not, and make every internal link to it agree. |
