@@ -41,6 +41,7 @@ Public API:
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import nullcontext
@@ -74,7 +75,7 @@ LONG_CACHE_SECONDS = 7 * 24 * 3600
 MAX_IMPORTS_PER_FILE = 10
 
 _COMPRESSED_ENCODINGS = {"gzip", "br", "deflate", "zstd"}
-_MAX_AGE_RE = re.compile(r"max-age\s*=\s*(\d+)", re.IGNORECASE)
+_MAX_AGE_RE = re.compile(r"(?:^|,)\s*max-age\s*=\s*(\d+)(?=\s*(?:,|$))", re.IGNORECASE)
 _FONT_FACE_RE = re.compile(r"@font-face\s*\{([^}]*)\}", re.IGNORECASE | re.DOTALL)
 _FONT_DISPLAY_OK_RE = re.compile(r"font-display\s*:\s*(swap|fallback|optional)", re.IGNORECASE)
 # core-js/babel helpers are the standard marker a bundler leaves behind when it
@@ -155,7 +156,7 @@ def resource_delivery_evidence(body: bytes, kind: str, headers: Any) -> dict[str
     )
     text = decode_entity(body, values.get("content-type", ""))[0] if is_source else ""
     fonts = find_missing_font_display(text) if is_source and kind == "stylesheet" else []
-    return {
+    evidence = {
         "cache": check_cache_lifetime(values.get("cache-control")),
         "source_state": "complete"
         if is_source
@@ -172,6 +173,15 @@ def resource_delivery_evidence(body: bytes, kind: str, headers: Any) -> dict[str
         if is_source and kind == "script" and body
         else None,
     }
+
+    # The retained validator caps the whole ASCII-escaped delivery envelope,
+    # not just the number of excerpts. Unicode escaping can expand short samples.
+    sample = evidence["font_display"]
+    if isinstance(sample, list):
+        while len(json.dumps(evidence, ensure_ascii=True)) > 16 * 1024:
+            sample.pop()
+            evidence["font_display_omitted"] = len(fonts) - len(sample)
+    return evidence
 
 
 def find_duplicate_libraries(resources: list[dict[str, Any]]) -> list[dict[str, Any]]:

@@ -11,6 +11,7 @@ from seohead.crawl.settings import fingerprint, load
 from seohead.crawl.sqlite_adapter import crawl_to_scan
 from seohead.mcp.handlers import _audit_crawl_result
 from seohead.mcp.scan_handlers import _rebuild_page_result
+from seohead.sf.core.asset_checks import RENDER_CHECKS, RESOURCE_CHECKS
 from seohead.storage.native_scan import NativeScan
 from tests.evidence_contract_assertions import assert_saved_contract, semantic_audit
 from tests.test_scan_artifact_office import frozen_office_clock as frozen_office_clock
@@ -106,10 +107,25 @@ def _drop_retained_only_checks(audit: dict) -> dict:
     # The security-header checks (#1013, and the repeated-header check) read each page's stored
     # response headers, which the legacy graph never keeps: the same retained-only shape as
     # BROKEN_BOOKMARK.
-    retained_only = {"BROKEN_BOOKMARK", *security_headers.CHECK_IDS}
+    # These asset checks need retained source/headers or a rendered adjunct,
+    # which the legacy in-memory link graph does not carry. Their dedicated
+    # fixtures verify replay and unavailable scope separately.
+    retained_only = {
+        "BROKEN_BOOKMARK",
+        "RENDER_BLOCKING",
+        *security_headers.CHECK_IDS,
+        *RESOURCE_CHECKS,
+        *RENDER_CHECKS,
+    }
     document = copy.deepcopy(audit)
     summary = document.get("summary") if isinstance(document.get("summary"), dict) else {}
     summary.pop("fragment_links", None)
+    if isinstance(summary.get("asset_measurements"), dict):
+        summary["asset_measurements"] = {
+            key: value
+            for key, value in summary["asset_measurements"].items()
+            if key not in retained_only
+        }
 
     removed_ids = {
         issue["id"] for issue in document.get("issues", []) if issue.get("check") in retained_only

@@ -269,7 +269,7 @@ def _guard_browser_route(route) -> None:
 
 
 class _BrowserWeight:
-    """Count delivered pinned responses; retain no bodies or per-request metadata."""
+    """Count delivered responses and bounded image dimensions; retain no bodies."""
 
     def __init__(self, target: str) -> None:
         self.host = urlparse(target).hostname
@@ -281,6 +281,7 @@ class _BrowserWeight:
         self.reason = ""
         self.documents = 0
         self.pending = 0
+        self.image_dimensions: dict[str, dict[str, int]] = {}
 
     def started(self, request: Any) -> None:
         if urlparse(str(getattr(request, "url", ""))).scheme in {"http", "https"}:
@@ -293,7 +294,14 @@ class _BrowserWeight:
         if not self.reason:
             self.reason = reason
 
-    def delivered(self, request: Any, mime: str, size: int) -> None:
+    def delivered(
+        self,
+        request: Any,
+        mime: str,
+        size: int,
+        body: bytes | bytearray | None = None,
+        status: int | None = None,
+    ) -> None:
         self.pending = max(0, self.pending - 1)
         if self.observed >= _BROWSER_WEIGHT_RESPONSES:
             self.omit("pinned-browser response observation budget exhausted")
@@ -307,6 +315,28 @@ class _BrowserWeight:
             self.totals["html_bytes"] += size
         if kind == "image" or mime.startswith("image/"):
             self.totals["image_bytes"] += size
+            url = str(request.url)
+            if body is not None and len(url) <= 2048:
+                from seohead.storage.resource_graph import _image_dimensions
+
+                dimensions: dict[str, int] = {}
+                # Inspect metadata, never a pixel buffer; unsupported or oversized
+                # image declarations must not break delivery or imply a size.
+                with contextlib.suppress(Exception):
+                    width, height = _image_dimensions(body)
+                    if width is not None and height is not None:
+                        dimensions = {
+                            "intrinsic_width": width,
+                            "intrinsic_height": height,
+                        }
+                        if type(status) is int:
+                            dimensions["status_code"] = status
+                previous = self.image_dimensions.get(url)
+                # One URL can answer differently on repeated actual requests.
+                # Conflicting metadata cannot identify the body each element used.
+                self.image_dimensions[url] = (
+                    dimensions if previous is None or previous == dimensions else {}
+                )
         if (
             kind == "font"
             or mime.startswith("font/")
@@ -459,7 +489,11 @@ def _pinned_browser_route(
                 )
                 if weight_observer is not None:
                     weight_observer.delivered(
-                        request, response.headers.get("content-type", ""), len(body)
+                        request,
+                        response.headers.get("content-type", ""),
+                        len(body),
+                        body,
+                        response.status_code,
                     )
         except RenderCancelled:
             abort(route, _RENDER_CANCELLED)
@@ -645,12 +679,22 @@ _BACKGROUND_IMAGES_JS = """() => {
   return Array.from(found);
 }"""
 
-# Intrinsic pixel size against the box each image is drawn in. Only a rendered
-# layout can say this: the HTML carries the file's size, not the CSS box.
+# Browser natural sizes are density-corrected CSS pixels, not file pixels.
+# Physical image dimensions come from the already-delivered pinned body.
 _IMAGE_BOXES_JS = """() => {
   const all = Array.from(document.querySelectorAll('img'));
   const images = all.slice(0, 2000).map((img) => {
     const rect = img.getBoundingClientRect();
+    const style = getComputedStyle(img);
+    const spacing = ['paddingLeft', 'paddingRight', 'paddingTop', 'paddingBottom',
+      'borderLeftWidth', 'borderRightWidth', 'borderTopWidth', 'borderBottomWidth']
+      .some((key) => parseFloat(style[key]) > 0);
+    const transformed = style.transform !== 'none'
+      || Math.abs(rect.width - img.offsetWidth) > 0.5
+      || Math.abs(rect.height - img.offsetHeight) > 0.5;
+    const geometryReason = style.objectFit !== 'fill' ? 'object-fit image geometry is not measured'
+      : spacing ? 'image padding or border geometry is not measured'
+      : transformed ? 'transformed image geometry is not measured' : '';
     const candidate = img.currentSrc || img.src || '';
     const src = candidate.length <= 2048 && !/^(data|blob):/.test(candidate) ? candidate : '';
     const entry = src ? performance.getEntriesByName(src)[0] : null;
@@ -661,6 +705,8 @@ _IMAGE_BOXES_JS = """() => {
       rendered_width: Math.round(rect.width),
       rendered_height: Math.round(rect.height),
       encoded_bytes: entry ? (entry.encodedBodySize || 0) : 0,
+      geometry_state: geometryReason ? 'unavailable' : 'complete',
+      geometry_reason: geometryReason,
     };
   });
   return {dpr: window.devicePixelRatio || 1, images: images,
@@ -681,27 +727,38 @@ def image_sizing_findings(
     ``oversized``: the file has more than ``IMAGE_OVERSIZED_RATIO`` times the pixels
     the box can show, and weighs at least ``IMAGE_OVERSIZED_MIN_BYTES``.
     ``upscaled``: the file is narrower than the box in device pixels, so it blurs.
-    Images that did not load or are not rendered (zero natural or box size) are
-    skipped rather than measured as zero. One entry per source URL.
+    Requires physical ``intrinsic_width``/``intrinsic_height`` from the delivered
+    file. Browser naturalWidth is density-corrected and cannot substitute.
+    Unproved dimensions and zero display boxes are skipped, not measured as zero.
     """
     seen: set[tuple] = set()
     oversized: list[dict[str, Any]] = []
     upscaled: list[dict[str, Any]] = []
     for img in images:
         src = str(img.get("src") or "")
-        natural_w = int(img.get("natural_width") or 0)
+        natural_w = int(img.get("intrinsic_width") or 0)
+        natural_h = int(img.get("intrinsic_height") or 0)
         rendered_w = int(img.get("rendered_width") or 0)
         rendered_h = int(img.get("rendered_height") or 0)
         key = (src, natural_w, rendered_w, rendered_h)
-        if not src or key in seen or natural_w <= 0 or rendered_w <= 0 or rendered_h <= 0:
+        if (
+            not src
+            or img.get("geometry_state") == "unavailable"
+            or key in seen
+            or natural_w <= 0
+            or natural_h <= 0
+            or rendered_w <= 0
+            or rendered_h <= 0
+        ):
             continue
         seen.add(key)
         needed_w = rendered_w * dpr
         entry = {
             "src": src,
-            "natural": [natural_w, int(img.get("natural_height") or 0)],
+            "natural": [natural_w, natural_h],
             "rendered": [rendered_w, rendered_h],
             "dpr": dpr,
+            **({"status_code": img["status_code"]} if type(img.get("status_code")) is int else {}),
         }
         if (
             natural_w > IMAGE_OVERSIZED_RATIO * needed_w
@@ -719,24 +776,52 @@ def _render_asset_evidence(page: Any, coverage: Any, weight: _BrowserWeight) -> 
         boxes = page.evaluate(_IMAGE_BOXES_JS)
         if not isinstance(boxes, dict) or not isinstance(boxes.get("images"), list):
             raise ValueError("image boxes are unavailable")
-        sizing = image_sizing_findings(boxes["images"], float(boxes.get("dpr") or 1))
+        images = [
+            {
+                **img,
+                **(
+                    weight.image_dimensions.get(img.get("src"), {})
+                    if img.get("natural_width")
+                    and img.get("natural_height")
+                    and img.get("geometry_state") != "unavailable"
+                    else {}
+                ),
+            }
+            for img in boxes["images"]
+        ]
+        sizing = image_sizing_findings(images, float(boxes.get("dpr") or 1))
         unmeasured = sum(
             not img.get("src")
-            or not img.get("natural_width")
+            or not img.get("intrinsic_width")
+            or not img.get("intrinsic_height")
             or not img.get("rendered_width")
             or not img.get("rendered_height")
             or not img.get("encoded_bytes")
-            for img in boxes["images"]
+            for img in images
         )
         layout = {
-            "state": "partial" if boxes.get("images_omitted") or unmeasured else "complete",
-            "images_observed": len(boxes["images"]),
+            "state": "unavailable"
+            if images and unmeasured == len(images)
+            else "partial"
+            if boxes.get("images_omitted") or unmeasured
+            else "complete",
+            "reason": "physical image dimensions, delivered body size or visible layout unavailable"
+            if unmeasured
+            else "image observation budget exceeded"
+            if boxes.get("images_omitted")
+            else "",
+            "images_observed": len(images),
             "images_unmeasured": unmeasured,
             "images_omitted": boxes.get("images_omitted", 0),
             "image_sizing": sizing,
             "min_encoded_bytes": IMAGE_OVERSIZED_MIN_BYTES,
             "oversized_ratio": IMAGE_OVERSIZED_RATIO,
         }
+        geometry_reasons = sorted(
+            {img["geometry_reason"] for img in images if img.get("geometry_reason")}
+        )
+        if geometry_reasons:
+            layout["reason"] = "; ".join(geometry_reasons)
     except Exception:
         layout = {
             "state": "unavailable",
@@ -1296,7 +1381,6 @@ def render_check(
                 navigation.data["final_url"] = rendered_url
                 metrics = page.evaluate(_METRICS_JS)
                 computed_backgrounds = page.evaluate(_BACKGROUND_IMAGES_JS)
-                image_boxes = page.evaluate(_IMAGE_BOXES_JS) or {}
                 if limitations:
                     if _RENDER_CANCELLED in limitations:
                         return {
@@ -1440,10 +1524,8 @@ def render_check(
         # Vitals come from CrUX and must not be inferred from this measurement.
         "metrics_lab": metrics,
         "asset_evidence": asset_evidence,
-        # Evidence only, not findings: the SF-style check ids for these do not exist yet
-        # (#1049), so audits must not read them as an incorrectly-sized-images verdict.
-        "image_sizing": image_sizing_findings(
-            image_boxes.get("images") or [], float(image_boxes.get("dpr") or 1.0)
+        "image_sizing": (asset_evidence.get("layout") or {}).get(
+            "image_sizing", {"oversized": [], "upscaled": []}
         ),
         "findings": findings,
         "dual_crawl": dual_crawl,

@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from seohead.checks.lab_coverage import UNUSED_MIN_CHARS, UNUSED_RATIO_THRESHOLD
+from seohead.storage import ScanError, _loads
 from seohead.storage.resources import media_matches
 
 from .context import AuditContext
@@ -41,7 +42,7 @@ MAX_LIGHTHOUSE_REPORTS = 2000
 def _read_json(value: Any) -> dict[str, Any] | None:
     try:
         result = json.loads(value) if isinstance(value, str) else value
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, RecursionError):
         return None
     return result if isinstance(result, dict) else None
 
@@ -131,7 +132,7 @@ def check_lighthouse_reports(ctx: AuditContext) -> None:
                 raw = f.read(MAX_LIGHTHOUSE_BYTES + 1)
             if len(raw) > MAX_LIGHTHOUSE_BYTES:
                 raise ValueError("report exceeds byte budget")
-            report = json.loads(raw)
+            report = _loads(raw, "supplied Lighthouse report")
             if (
                 not isinstance(report, dict)
                 or report.get("finalUrl") != url
@@ -141,7 +142,7 @@ def check_lighthouse_reports(ctx: AuditContext) -> None:
             audits = report["audits"]
             if not isinstance(audits, dict):
                 raise ValueError("audits are unavailable")
-        except (OSError, ValueError, KeyError, TypeError):
+        except (OSError, ValueError, KeyError, TypeError, ScanError):
             reasons.add(
                 "supplied Lighthouse report is unreadable, oversized, malformed or belongs to another URL"
             )
@@ -155,25 +156,37 @@ def check_lighthouse_reports(ctx: AuditContext) -> None:
             if type(score) not in {int, float} or not 0 <= score <= 1 or audit.get("errorMessage"):
                 reasons.add(f"Lighthouse {ident} was not measured")
                 continue
-            measured[check] += 1
             if score < 1:
                 details = audit.get("details")
-                encoded = json.dumps(details, ensure_ascii=True)
+                try:
+                    encoded = json.dumps(details, ensure_ascii=True, allow_nan=False)
+                except (ValueError, TypeError, RecursionError):
+                    reasons.add(
+                        f"Lighthouse {ident} details could not be retained within this runtime"
+                    )
+                    continue
                 ctx.add(
                     check,
                     target_url=url,
+                    status_code=page.status_code,
                     details={
                         "source": "supplied-lighthouse",
                         "audit_id": ident,
                         "score": score,
-                        "lighthouse_version": report.get("lighthouseVersion"),
-                        "fetch_time": report.get("fetchTime"),
+                        "lighthouse_version": value
+                        if isinstance(value := report.get("lighthouseVersion"), str)
+                        and len(value) <= 128
+                        else None,
+                        "fetch_time": value
+                        if isinstance(value := report.get("fetchTime"), str) and len(value) <= 128
+                        else None,
                         "input_sha256": hashlib.sha256(raw).hexdigest(),
                         "details": details if len(encoded) <= 64 * 1024 else None,
                         "details_omitted": len(encoded) > 64 * 1024,
                         "reason": "the supplied Lighthouse lab audit reported an optimization opportunity",
                     },
                 )
+            measured[check] += 1
     reason = "; ".join(sorted(reasons)) or (
         "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
     )
@@ -314,6 +327,7 @@ def check_resource_assets(ctx: AuditContext) -> None:
     eligible = dict.fromkeys(codes, 0)
     measured = dict.fromkeys(codes, 0)
     partial = dict.fromkeys(codes, 0)
+    range_response = False
     tables = (
         {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         if con is not None
@@ -357,6 +371,11 @@ def check_resource_assets(ctx: AuditContext) -> None:
             + ") o LEFT JOIN resource_graph_fetches f ON f.resolved_url=o.resolved_url"
         )
         for resource, source, kind, status, size, state, media, delivery_json in rows:
+            # Earlier scans classified every retained 2xx response as complete.
+            # Reanalysis must not mistake a 206 fragment for whole-resource evidence.
+            if status == 206 and state in {"complete", "partial"}:
+                range_response = True
+                state = "partial"
             applicable = ["RESOURCE_OVER_2MB", "ASSET_SHORT_CACHE"]
             if kind in _SOURCE_KINDS:
                 applicable.append("UNMINIFIED_CSS_JS")
@@ -461,7 +480,7 @@ def check_resource_assets(ctx: AuditContext) -> None:
                 + _HTML_WHERE
                 + " AND "
                 + _ACTIVE_DOCUMENT_WHERE
-                + " AND o.kind IN ('script','module') AND f.state='complete' AND json_valid(f.delivery_json) "
+                + " AND o.kind IN ('script','module') AND f.state='complete' AND f.status_code!=206 AND json_valid(f.delivery_json) "
                 "AND json_extract(f.delivery_json,'$.source_state')='complete' AND json_extract(f.delivery_json,'$.sha256') IS NOT NULL "
                 "AND lower(trim(substr(f.content_type,1,instr(f.content_type||';',';')-1))) IN "
                 "('text/javascript','application/javascript','text/ecmascript','application/ecmascript','application/x-javascript') "
@@ -489,5 +508,10 @@ def check_resource_assets(ctx: AuditContext) -> None:
             None if unknown else eligible[code],
             measured[code],
             partial[code],
-            "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+            "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+            + (
+                "; HTTP 206 responses contain only byte ranges; whole-resource source was not measured"
+                if range_response
+                else ""
+            ),
         )

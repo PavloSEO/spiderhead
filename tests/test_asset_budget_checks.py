@@ -995,3 +995,137 @@ def test_missing_page_document_envelope_keeps_asset_scope_unavailable(tmp_path):
         assert _scope(ctx, "RESOURCE_OVER_2MB", None, 0)["state"] == "unavailable"
         check_render_assets(ctx)
         assert _scope(ctx, "IMG_UPSCALED", 1, 0)["state"] == "unavailable"
+
+
+@pytest.mark.parametrize(
+    "headers",
+    [
+        {"content-range": "bytes 0-1/10000000"},
+        {"content-range": "invalid"},
+        {},
+        {"content-type": "multipart/byteranges; boundary=fixture"},
+    ],
+)
+def test_http206_fragment_is_partial_resource_evidence_without_whole_source_analysis(
+    tmp_path, headers
+):
+    settings = load(overrides={"storage.format_version": "scan.v2", "resources.fetch": True})
+    with NativeScan.create(
+        tmp_path / "range.sqlite", format_version="scan.v2", **_v2_metadata()
+    ) as scan:
+        _store_html(scan, '<script src="/range.js"></script>')
+        capture(
+            scan,
+            settings,
+            fetcher=lambda _: _Response(
+                206,
+                b"xx",
+                {"content-type": "text/javascript", "cache-control": "max-age=31536000", **headers},
+            ),
+            wait=lambda: None,
+            clock=lambda: 0.0,
+        )
+        row = scan.con.execute(
+            "SELECT state,body_state,reason,bytes_received,delivery_json FROM resource_graph_fetches"
+        ).fetchone()
+        assert row["state"] == row["body_state"] == "partial"
+        assert "206" in row["reason"]
+        assert row["bytes_received"] == 2
+        assert row["delivery_json"] is None
+        ctx = _ctx(scan.con)
+        check_resource_assets(ctx)
+        assert _scope(ctx, "RESOURCE_OVER_2MB", 1, 1, 1)["state"] == "partial"
+        assert "RESOURCE_OVER_2MB" in _skips(ctx)
+        assert "RESOURCE_OVER_2MB" not in _codes(ctx)
+        for code in ("UNMINIFIED_CSS_JS", "LEGACY_JS", "DUPLICATED_JS"):
+            assert _scope(ctx, code, 1, 0)["state"] == "unavailable"
+            assert code in _skips(ctx)
+        ctx = _ctx(scan.con)
+        ctx.thresholds["resource_max_bytes"] = 1
+        check_resource_assets(ctx)
+        finding = next(i for i in ctx.issues if i.check == "RESOURCE_OVER_2MB")
+        assert finding.details["bytes"] == 2
+        assert finding.details["size_state"] == "lower_bound"
+        assert _scope(ctx, "RESOURCE_OVER_2MB", 1, 1, 1)["state"] == "partial"
+        # The server's declared representation size is never reported as observed bytes.
+        assert 10000000 not in finding.details.values()
+    with open_scan(tmp_path / "range.sqlite", require_audit=False) as con:
+        replay = _ctx(con)
+        check_resource_assets(replay)
+        assert _scope(replay, "RESOURCE_OVER_2MB", 1, 1, 1)["state"] == "partial"
+        assert _scope(replay, "UNMINIFIED_CSS_JS", 1, 0)["state"] == "unavailable"
+
+
+def test_old_complete_http206_measurement_replays_as_partial_without_duplicate_claim(tmp_path):
+    settings = load(overrides={"storage.format_version": "scan.v2", "resources.fetch": True})
+    with NativeScan.create(
+        tmp_path / "old-range.sqlite", format_version="scan.v2", **_v2_metadata()
+    ) as scan:
+        _store_html(scan, '<script src="/a.js"></script><script src="/b.js"></script>')
+        capture(
+            scan,
+            settings,
+            fetcher=lambda _: _Response(
+                200,
+                b"const x=1;",
+                {"content-type": "text/javascript", "cache-control": "max-age=31536000"},
+            ),
+            wait=lambda: None,
+            clock=lambda: 0.0,
+        )
+        scan.con.execute("UPDATE resource_graph_fetches SET status_code=206")
+        ctx = _ctx(scan.con)
+        check_resource_assets(ctx)
+        assert _scope(ctx, "RESOURCE_OVER_2MB", 2, 2, 2)["state"] == "partial"
+        assert _scope(ctx, "UNMINIFIED_CSS_JS", 2, 0)["state"] == "unavailable"
+        assert _scope(ctx, "DUPLICATED_JS", 2, 0)["state"] == "unavailable"
+        assert "DUPLICATED_JS" not in _codes(ctx)
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("s-max-age=604800, max-age=0", 0),
+        ("max-age=0, s-max-age=604800", 0),
+        ("s-max-age=604800", None),
+    ],
+)
+def test_shared_cache_ttl_never_masquerades_as_browser_cache_ttl(value, expected):
+    evidence = resource_delivery_evidence(
+        b"const x=1;", "script", (("content-type", "text/javascript"), ("cache-control", value))
+    )
+    assert evidence["cache"]["ok"] is False
+    assert evidence["cache"]["max_age"] == expected
+
+
+def test_unicode_font_samples_fit_retained_envelope_and_scan_reopens(tmp_path):
+    settings = load(overrides={"storage.format_version": "scan.v2", "resources.fetch": True})
+    css = ("@font-face { font-family: '" + "漢" * 200 + "'; }\n") * 100
+    evidence = resource_delivery_evidence(
+        css.encode(), "stylesheet", (("content-type", "text/css; charset=utf-8"),)
+    )
+    assert len(json.dumps(evidence, ensure_ascii=True)) <= 16 * 1024
+    assert evidence["font_display_count"] == 100
+    assert 0 < len(evidence["font_display"]) < 20
+    assert evidence["font_display_omitted"] == 100 - len(evidence["font_display"])
+    path = tmp_path / "unicode-font.sqlite"
+    with NativeScan.create(path, format_version="scan.v2", **_v2_metadata()) as scan:
+        _store_html(scan, '<link rel="stylesheet" href="/font.css">')
+        capture(
+            scan,
+            settings,
+            fetcher=lambda _: _Response(
+                200, css.encode(), {"content-type": "text/css; charset=utf-8"}
+            ),
+            wait=lambda: None,
+            clock=lambda: 0.0,
+        )
+        payload = scan.con.execute("SELECT delivery_json FROM resource_graph_fetches").fetchone()[0]
+        assert len(payload) <= 16 * 1024
+        assert json.loads(payload)["font_display_count"] == 100
+    with open_scan(path, require_audit=False) as con:
+        ctx = _ctx(con)
+        check_resource_assets(ctx)
+        finding = next(i for i in ctx.issues if i.check == "FONT_DISPLAY_MISSING")
+        assert finding.details["font_faces_count"] == 100
+        assert finding.details["font_faces_omitted"] == 100 - len(finding.details["font_faces"])

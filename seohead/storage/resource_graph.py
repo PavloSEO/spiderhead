@@ -650,7 +650,12 @@ def capture(
                     (record.error if record is not None else "")
                     or "resource response was not successful",
                 )
-            elif body is None:
+            elif status == 206:
+                state, reason = (
+                    "partial",
+                    "HTTP 206 response contains only a requested byte range; whole resource was not measured",
+                )
+            elif body is None or event.body_state != "complete":
                 state, reason = "partial", "resource response body was not retained completely"
             else:
                 state, reason = "complete", ""
@@ -673,7 +678,7 @@ def capture(
                     (record.cache_status if record is not None else "") or "unknown",
                     _fetch_integrity_state(scan.con, url),
                     *_image_dimensions(body),
-                    "complete" if body is not None else "partial",
+                    "complete" if state == "complete" else "partial",
                 ),
             )
             _set_occurrence_state(scan.con, url, state, reason)
@@ -815,15 +820,20 @@ def _fetch_integrity_state(con: sqlite3.Connection, url: str) -> str:
 
 
 def _image_dimensions(body: bytes | None) -> tuple[int | None, int | None]:
-    """Read dimensions from one retained entity without decoding a pixel buffer."""
+    """Read visually oriented dimensions without decoding or transposing pixels."""
     if body is None:
         return None, None
     try:
         with warnings.catch_warnings():
-            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            warnings.simplefilter("error")
             with Image.open(BytesIO(body)) as image:
                 width, height = image.size
-    except (Image.DecompressionBombError, UnidentifiedImageError, OSError, ValueError):
+                orientation = image.getexif().get(274, 1)
+                if type(orientation) is not int or not 1 <= orientation <= 8:
+                    return None, None
+                if orientation in {5, 6, 7, 8}:
+                    width, height = height, width
+    except (Image.DecompressionBombError, UnidentifiedImageError, OSError, ValueError, Warning):
         return None, None
     if type(width) is not int or type(height) is not int or width < 1 or height < 1:
         return None, None

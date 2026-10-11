@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import base64
+from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
 
 import httpx
 import pytest
+from PIL import Image
 
 from seohead.checks import render
 from tests.test_render_document import _rendering_config, fake_stack  # noqa: F401
@@ -52,6 +54,25 @@ def offline_transport(monkeypatch):
     monkeypatch.setattr(render, "http_client", lambda *args, **kwargs: (client, False))
     yield client, calls, responses
     client.close()
+
+
+@pytest.fixture
+def real_chromium(monkeypatch):
+    pytest.importorskip("playwright.sync_api")
+    from playwright.sync_api import sync_playwright
+
+    chrome = next(
+        Path.home().glob(
+            "Library/Caches/ms-playwright/chromium_headless_shell-*/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+        ),
+        None,
+    )
+    if chrome is not None:
+        monkeypatch.setenv("SEOHEAD_CHROME", str(chrome))
+    else:
+        with sync_playwright() as pw:
+            if not Path(pw.chromium.executable_path).exists():
+                pytest.skip("Chromium unavailable; no installation attempted")
 
 
 def test_actual_responses_exclude_unselected_srcset_and_unused_css_declarations(offline_transport):
@@ -232,24 +253,9 @@ def test_native_renderer_retains_weight_in_success_and_failed_provenance(
 
 @pytest.mark.parametrize("entrypoint", ["document", "check"])
 def test_real_chromium_selects_one_srcset_and_omits_unused_css_image(
-    monkeypatch, offline_transport, entrypoint
+    monkeypatch, offline_transport, entrypoint, real_chromium
 ):
     """Real browser selection, synthetic HTTP transport; no DNS or origin socket."""
-    pytest.importorskip("playwright.sync_api")
-    from playwright.sync_api import sync_playwright
-
-    chrome = next(
-        Path.home().glob(
-            "Library/Caches/ms-playwright/chromium_headless_shell-*/chrome-headless-shell-mac-arm64/chrome-headless-shell"
-        ),
-        None,
-    )
-    if chrome is not None:
-        monkeypatch.setenv("SEOHEAD_CHROME", str(chrome))
-    else:
-        with sync_playwright() as pw:
-            if not Path(pw.chromium.executable_path).exists():
-                pytest.skip("Chromium unavailable; no installation attempted")
     client, calls, responses = offline_transport
     # render-check has a separate raw fetch and browser client. Both use the
     # same fully synthetic transport; raw HTML must not be added to render weight.
@@ -289,3 +295,158 @@ def test_real_chromium_selects_one_srcset_and_omits_unused_css_image(
     assert evidence["responses_observed"] == 3
     assert calls.count(root) == (2 if entrypoint == "check" else 1)
     assert not any(url.endswith(("unselected.png", "unused.png")) for url in calls)
+
+
+@pytest.mark.parametrize("dpr, box, upscaled", [(1, 300, False), (2, 300, False), (2, 600, True)])
+def test_real_chromium_density_correct_srcset_uses_physical_file_dimensions(
+    offline_transport, real_chromium, dpr, box, upscaled
+):
+    _, calls, responses = offline_transport
+    root = "https://example.test/"
+    html = (
+        b"<html><head><title>Density fixture</title></head><body><h1>Density fixture</h1>"
+        + f'<img width="{box}" height="100" src="one.png" srcset="one.png 1x, two.png 2x">'.encode()
+        + b'<script>addEventListener("load",()=>document.body.dataset.naturalWidth='
+        b'document.querySelector("img").naturalWidth)</script></body></html>'
+    )
+    responses[root] = (200, "text/html", html)
+    for name, pixels in (("one.png", 300), ("two.png", 600)):
+        buffer = BytesIO()
+        Image.new("RGB", (pixels, pixels // 3), "red").save(buffer, format="PNG")
+        responses[root + name] = (200, "image/png", buffer.getvalue())
+    config = _rendering_config(device_pixel_ratio=dpr)
+    result = render.render_document(root, config)
+    assert result["ok"], result
+    assert 'data-natural-width="300"' in result["html"]
+    layout = result["renderer"]["settings"]["asset_evidence"]["layout"]
+    assert layout["state"] == "complete"
+    assert layout["images_unmeasured"] == 0
+    assert layout["image_sizing"]["oversized"] == []
+    if upscaled:
+        assert layout["image_sizing"]["upscaled"][0] == {
+            "src": root + "two.png",
+            "natural": [600, 200],
+            "rendered": [600, 100],
+            "dpr": 2,
+            "status_code": 200,
+        }
+    else:
+        assert layout["image_sizing"]["upscaled"] == []
+    assert calls == [root, root + ("one.png" if dpr == 1 else "two.png")]
+
+
+def test_real_chromium_svg_without_proven_pixel_dimensions_is_unavailable(
+    offline_transport, real_chromium
+):
+    _, _, responses = offline_transport
+    root = "https://example.test/"
+    responses[root] = (
+        200,
+        "text/html",
+        b'<html><body><img src="image.svg" width="300" height="100"></body></html>',
+    )
+    responses[root + "image.svg"] = (
+        200,
+        "image/svg+xml",
+        b'<svg xmlns="http://www.w3.org/2000/svg" width="300" height="100"><rect width="300" height="100" fill="red"/></svg>',
+    )
+    result = render.render_document(root, _rendering_config(device_pixel_ratio=2))
+    assert result["ok"], result
+    evidence = result["renderer"]["settings"]["asset_evidence"]
+    assert evidence["weight"]["state"] == "complete"
+    assert evidence["layout"]["state"] == "unavailable"
+    assert evidence["layout"]["images_unmeasured"] == 1
+    assert "physical image dimensions" in evidence["layout"]["reason"]
+    assert evidence["layout"]["image_sizing"] == {"oversized": [], "upscaled": []}
+
+
+@pytest.mark.parametrize("orientation", [6, 8])
+def test_real_chromium_exif_rotated_jpeg_uses_visual_pixel_width(
+    offline_transport, real_chromium, orientation
+):
+    _, calls, responses = offline_transport
+    root = "https://example.test/"
+    responses[root] = (
+        200,
+        "text/html",
+        b'<html><body><img src="rotated.jpg" width="300" height="150"><script>'
+        b'addEventListener("load",()=>document.body.dataset.naturalWidth='
+        b'document.querySelector("img").naturalWidth)</script></body></html>',
+    )
+    buffer = BytesIO()
+    exif = Image.Exif()
+    exif[274] = orientation
+    Image.new("RGB", (300, 600), "red").save(buffer, format="JPEG", exif=exif)
+    responses[root + "rotated.jpg"] = (200, "image/jpeg", buffer.getvalue())
+    result = render.render_document(root, _rendering_config(device_pixel_ratio=2))
+    assert result["ok"], result
+    assert 'data-natural-width="600"' in result["html"]
+    layout = result["renderer"]["settings"]["asset_evidence"]["layout"]
+    assert layout["state"] == "complete"
+    assert layout["image_sizing"] == {"oversized": [], "upscaled": []}
+    assert calls == [root, root + "rotated.jpg"]
+
+
+@pytest.mark.parametrize(
+    "style,reason",
+    [
+        ("width:600px;height:100px;object-fit:contain", "object-fit"),
+        ("width:300px;height:100px;padding:100px;border:100px solid black", "padding or border"),
+    ],
+)
+def test_real_chromium_nonplain_image_geometry_remains_unmeasured(
+    offline_transport, real_chromium, style, reason
+):
+    _, _, responses = offline_transport
+    root = "https://example.test/"
+    responses[root] = (
+        200,
+        "text/html",
+        f'<html><body><img src="image.png" style="{style}"></body></html>'.encode(),
+    )
+    buffer = BytesIO()
+    Image.new("RGB", (300, 100), "red").save(buffer, format="PNG")
+    responses[root + "image.png"] = (200, "image/png", buffer.getvalue())
+    result = render.render_document(root, _rendering_config(device_pixel_ratio=1))
+    assert result["ok"], result
+    layout = result["renderer"]["settings"]["asset_evidence"]["layout"]
+    assert layout["state"] == "unavailable"
+    assert layout["images_unmeasured"] == 1
+    assert reason in layout["reason"]
+    assert layout["image_sizing"] == {"oversized": [], "upscaled": []}
+
+
+def test_image_dimension_inspection_failure_does_not_change_delivered_response_weight(
+    offline_transport, monkeypatch
+):
+    from seohead.storage import resource_graph
+
+    monkeypatch.setattr(
+        resource_graph,
+        "_image_dimensions",
+        lambda body: (_ for _ in ()).throw(ValueError("unsupported image")),
+    )
+    client, _, responses = offline_transport
+    root = "https://example.test/"
+    responses[root] = (200, "text/html", b"html")
+    responses[root + "image"] = (200, "image/png", b"opaque-image")
+    weight = render._BrowserWeight(root)
+    handler, limitations = render._pinned_browser_route(client, weight_observer=weight)
+    handler(Route(root, "document"))
+    handler(Route(root + "image", "image"))
+    assert weight.image_dimensions == {root + "image": {}}
+    assert weight.finish()["state"] == "complete"
+    assert weight.finish()["bytes"] == len(b"htmlopaque-image")
+    assert not limitations
+
+
+def test_conflicting_bodies_at_one_image_url_do_not_reuse_unproved_dimensions():
+    root = "https://example.test/"
+    weight = render._BrowserWeight(root)
+    request = Route(root + "image.png", "image").request
+    for width in (300, 600, 600):
+        buffer = BytesIO()
+        Image.new("RGB", (width, 100)).save(buffer, format="PNG")
+        body = buffer.getvalue()
+        weight.delivered(request, "image/png", len(body), body, 200)
+    assert weight.image_dimensions == {root + "image.png": {}}
