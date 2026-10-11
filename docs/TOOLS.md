@@ -55,8 +55,9 @@ and inputs remain in the nearby route sections and generated tool reference.
 `scan-import-urls` · `scan-inspect` · `scan-link-inspect` · `scan-list` · `scan-navigation` · `scan-pin` ·
 `scan-prune` · `scan-reanalyze` · `scan-rendered-routes` · `scan-requeue` · `scan-snapshot` · `scan-status` ·
 `scan-structured-blocks` · `scan-url-detail` · `scan-url-history` · `scan-url-query` · `scenario-list` ·
-`scenario-show` · `schedule-install` · `schedule-run-due` · `schedule-set` · `schedule-show` · `schedule-uninstall` · `schema-build` · `schema-check` · `security-check` · `segment-diff` · `semantic-inputs` ·
-`semantic-similarity` · `serp-fetch` · `site-audit` · `sitemap-crawl` · `skill-list` · `skill-show` ·
+`scenario-show` · `schedule-install` · `schedule-run-due` · `schedule-set` · `schedule-show` ·
+`schedule-uninstall` · `schema-build` · `schema-check` · `security-check` · `segment-diff` · `semantic-inputs`
+· `semantic-similarity` · `serp-fetch` · `site-audit` · `sitemap-crawl` · `skill-list` · `skill-show` ·
 `social-meta-check` · `soft404-check` · `sources-doctor` · `sources-export` · `sources-status` ·
 `sources-sync` · `spend-report` · `tech-detect` · `tool-catalog` · `topvisor-read` · `verify-fixes` ·
 `wayback-history` · `webmaster-url-queries` · `workflow-checkpoint` · `workflow-execute` · `workflow-resume` ·
