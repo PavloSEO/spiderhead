@@ -9,6 +9,7 @@ import json
 import math
 import os
 import re
+import sqlite3
 import uuid
 from pathlib import Path
 from typing import Any
@@ -459,6 +460,81 @@ def remove_competitor(directory: str, url: str) -> dict:
         }
     finally:
         lock.unlink(missing_ok=True)
+_CAP_STOPS = frozenset({"stopped_by_budget", "url_limit"})
+
+
+def _has_saved_audit(path: Path) -> bool:
+    """A scan holds an audit either inline or in its audit.v2 companion."""
+    from seohead.storage import open_scan
+
+    try:
+        with contextlib.closing(open_scan(path)) as con:
+            return (
+                con.execute("SELECT EXISTS(SELECT 1 FROM audit WHERE singleton=1)").fetchone()[0]
+                == 1
+            )
+    except (ValueError, OSError, sqlite3.Error):
+        return False
+
+
+def _audited_scans(root: Path, target: str):
+    """Finished, audited native scans of this site identity, newest first."""
+    from seohead.storage.history import list_scans
+
+    for row in list_scans(root / "scans", limit=1000)["items"]:
+        if row["lifecycle"] != "finished":
+            continue
+        try:
+            same = _target(row["start_url"]) == target
+        except (TypeError, ValueError):
+            continue
+        if same and (row["audit_bytes"] or _has_saved_audit(Path(row["path"]))):
+            yield row
+
+
+def _scan_url_cap(path: Path) -> int | None:
+    from seohead.storage import open_scan
+
+    try:
+        with contextlib.closing(open_scan(path)) as con:
+            config = json.loads(
+                con.execute("SELECT config_json FROM scan WHERE singleton=1").fetchone()[0]
+            )
+        return config["limits"]["max_urls"]
+    except (KeyError, TypeError, ValueError, OSError):
+        return None
+
+
+def _is_complete(row: dict) -> bool:
+    return row["finish_reason"] == "finished" and not row["crawl_partial"]
+
+
+def latest_project_scan(directory: str) -> Path:
+    """Return the newest finished, audited, complete scan of the project's own site."""
+    root, project = _load(directory)
+    for row in _audited_scans(root, project["site"]["target"]):
+        if _is_complete(row):
+            return Path(row["path"])
+    raise ValueError(
+        "no finished, complete audited scan in this project; run project-prepare or a crawl first"
+    )
+
+
+def _reusable_scan(root: Path, target: str, max_urls: int | None) -> Path | None:
+    """Newest saved scan that already answers this request, so preparation does not re-crawl.
+
+    Without a requested cap any complete scan qualifies. With a cap, the scan must have been
+    run under that exact cap and either finished inside it or stopped at it.
+    """
+    for row in _audited_scans(root, target):
+        if max_urls is None:
+            if _is_complete(row):
+                return Path(row["path"])
+        elif (_is_complete(row) or row["finish_reason"] in _CAP_STOPS) and _scan_url_cap(
+            Path(row["path"])
+        ) == max_urls:
+            return Path(row["path"])
+    return None
 
 
 def prepare_project(
@@ -469,11 +545,18 @@ def prepare_project(
     competitors: list | None = None,
     approve_large_crawl: bool = False,
     producer_build: str | None = None,
+    max_urls: int | None = None,
 ) -> dict:
-    """Run the bounded native preparation path using explicitly injected shared tools."""
+    """Run the bounded native preparation path using explicitly injected shared tools.
+
+    ``max_urls`` is the owner's URL cap for the preparation crawl. It replaces the quick
+    default and, when set, a stop at that cap is reported as reaching the owner's limit.
+    """
     from .priorities import project_priorities
     from .workspace import project_status
 
+    if max_urls is not None and (type(max_urls) is not int or not 1 <= max_urls <= 1_000_000):
+        raise ValueError("max_urls must be an integer from 1 to 1000000")
     root, project = _load(directory)
     policy = project_policy(directory)["policy"]
     if competitors is not None and (
@@ -540,26 +623,41 @@ def prepare_project(
                 )
         save()
         quick = policy["quick_crawl"]
+        pages = quick["pages"] if max_urls is None else max_urls
+        # A requested cap scales the other budgets so the URL cap, not an unrelated budget, stops the crawl.
+        budgets = {
+            "pages": pages,
+            "requests": quick["requests"]
+            if max_urls is None
+            else max(quick["requests"], 3 * pages),
+            "seconds": quick["seconds"] if max_urls is None else max(quick["seconds"], 2 * pages),
+        }
         overrides = {
             **policy["crawl_overrides"],
-            "limits.max_urls": quick["pages"],
-            "limits.max_requests": quick["requests"],
-            "limits.max_crawl_seconds": quick["seconds"],
+            "limits.max_urls": budgets["pages"],
+            "limits.max_requests": budgets["requests"],
+            "limits.max_crawl_seconds": budgets["seconds"],
             "sitemaps.auto_discover": True,
         }
+        reused = _reusable_scan(root, project["site"]["target"], max_urls)
         state["steps"]["crawl"] = {
             "state": "running",
-            "reason": "bounded native crawl requested",
-            "budgets": quick,
+            "reason": "reusing latest suitable saved scan"
+            if reused
+            else "bounded native crawl requested",
+            "budgets": budgets,
         }
         save()
         try:
-            result = tools["crawl_site"](
-                project=str(root),
-                overrides=overrides,
-                approve_large_crawl=approve_large_crawl,
-                producer_build=producer_build,
-            )
+            if reused is not None:
+                result = {"ok": True, "scan": str(reused)}
+            else:
+                result = tools["crawl_site"](
+                    project=str(root),
+                    overrides=overrides,
+                    approve_large_crawl=approve_large_crawl,
+                    producer_build=producer_build,
+                )
             if not isinstance(result, dict) or result.get("ok") is False:
                 raise ValueError(
                     str(result.get("error", "crawl was unavailable"))
@@ -582,12 +680,18 @@ def prepare_project(
             with contextlib.closing(open_scan(source)) as con:
                 header = dict(con.execute("SELECT * FROM scan WHERE singleton=1").fetchone())
                 run, coverage, fired = audit_facts(source, con)
+            at_owner_cap = max_urls is not None and header["finish_reason"] in _CAP_STOPS
             state["steps"]["crawl"] = {
-                "state": "partial" if header["crawl_partial"] else "run",
+                "state": "partial" if header["crawl_partial"] and not at_owner_cap else "run",
                 "artifact": relative,
                 "scan_uuid": header["scan_uuid"],
-                "partial": bool(header["crawl_partial"]),
-                "reason": header["finish_reason"],
+                "partial": bool(header["crawl_partial"]) and not at_owner_cap,
+                "reason": (
+                    f"reached your URL limit ({max_urls})"
+                    if at_owner_cap
+                    else header["finish_reason"]
+                ),
+                "reused": reused is not None,
             }
             sitemap_skips = [
                 row

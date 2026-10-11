@@ -719,6 +719,8 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             kw["offset"] = args.offset
         if getattr(args, "expected_revision", None) is not None:
             kw["expected_revision"] = args.expected_revision
+        if cmd == "project-prepare" and args.max_urls is not None:
+            kw["max_urls"] = args.max_urls
         if getattr(args, "item_id", None) is not None:
             kw["item_id"] = args.item_id
         if cmd in {"project-priorities", "project-policy", "project-facts"} and getattr(
@@ -2578,6 +2580,12 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "project-policy":
         sub.add_argument(
             "--expected-revision", type=int, help="current policy revision, zero for a new policy"
+        )
+    if cmd == "project-prepare":
+        sub.add_argument(
+            "--max-urls",
+            type=int,
+            help="URL cap for a new preparation crawl: 1..1,000,000; reuses a suitable saved scan first",
         )
     if cmd in {"project-prepare", "project-start"}:
         sub.add_argument("--approve-large-crawl", action="store_true")

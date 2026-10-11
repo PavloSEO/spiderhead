@@ -167,7 +167,7 @@ and this decision makes no backend migration.
 | `bi-bigquery-plan` | Local directory (`package`)<br>Selector (`dataset, operation`) | Offline optional-load plan; no project selection, billing, authentication, or write. |
 | `bi-destination-apply` | Local directory (`package`)<br>Selector (`target, destination, operation`)<br>Inline JSON (`apply`)<br>Inline JSON (`reconcile`) | Never accepts credentials; a missing host client fails before any destination write.; Requires true and a host-injected authorized client.; Explicitly reconciles a retained uncertain request before any retry; requires apply=true. |
 | `inspect-url` | Live URL (`url`)<br>Inline JSON (`checks`) | Optional bounded selection of closed investigation checks. |
-| `audit-workflow` | Project directory (`directory`)<br>Selector (`action`)<br>Live URL (`target`)<br>Audit document (`audit`) | status, start, prepare, or report.; Required only for action=start.; Required only for action=report. |
+| `audit-workflow` | Project directory (`directory`)<br>Selector (`action`)<br>Live URL (`target`)<br>Audit document (`audit`) | status, start, prepare, or report.; Required only for action=start.; Optional for action=report; omitted, the project's latest complete audited scan is used. |
 | `workflow-status` | Project directory (`directory`) | — |
 | `workflow-start` | Project directory (`directory`); requires `scenario_id, steps` | — |
 | `workflow-checkpoint` | Project directory (`directory`); requires `run_id, step_id, state, expected_revision` | — |
