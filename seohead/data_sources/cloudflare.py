@@ -44,6 +44,7 @@ PAGE_SIZE = 10000  # the dataset's maxPageSize on the Free plan
 MAX_DAYS = 32  # the dataset's maxDuration on the Free plan (2764800 s)
 RETRIES = 3
 MAX_TRACKED_PATHS = 5000
+MAX_URL_FACTS = 50000
 SOURCE = "cloudflare-aggregated"
 NOTE = (
     "Aggregated Cloudflare edge analytics, not raw server logs: grouped counts per day, "
@@ -223,6 +224,9 @@ def traffic(
         bots_daily: dict[str, Counter] = defaultdict(Counter)
         hosts: Counter = Counter()
         daily: Counter = Counter()
+        url_facts: dict[tuple, int] = {}
+        url_facts_truncated = False
+        url_facts_omitted = 0
         truncated_days: list[str] = []
         sampled = False
         queries = 0
@@ -269,6 +273,27 @@ def traffic(
                 code = int(dims.get("edgeResponseStatus") or 0)
                 origin = int(dims.get("originResponseStatus") or 0)
                 day_key = dims.get("date") or day.isoformat()
+
+                # Preserve the measured edge/origin/cache dimensions at URL grain. This is
+                # still grouped analytics, not a request log: no IP or sub-day timestamp exists.
+                fact_key = (
+                    dims.get("clientRequestHTTPHost") or "unknown",
+                    path,
+                    day_key,
+                    family,
+                    name,
+                    category or None,
+                    code,
+                    origin or None,
+                    dims.get("cacheStatus") or "unknown",
+                )
+                if fact_key in url_facts:
+                    url_facts[fact_key] += count
+                elif len(url_facts) < MAX_URL_FACTS:
+                    url_facts[fact_key] = count
+                else:
+                    url_facts_truncated = True
+                    url_facts_omitted += 1
 
                 families[family][name] += count
                 status[family][code] += count
@@ -318,6 +343,24 @@ def traffic(
         "edge_origin_status": dict(edge_vs_origin.most_common(20)),
         "hosts": dict(hosts.most_common(20)),
         "daily": dict(sorted(daily.items())),
+        "url_facts": [
+            {
+                "host": key[0],
+                "path": key[1],
+                "date": key[2],
+                "bot_family": key[3],
+                "bot_name": key[4],
+                "verified_bot_category": key[5],
+                "edge_status": key[6],
+                "origin_status": key[7],
+                "cache_status": key[8],
+                "edge_redirect": 300 <= key[6] < 400,
+                "requests": count,
+            }
+            for key, count in sorted(url_facts.items())
+        ],
+        "url_facts_truncated": url_facts_truncated,
+        "url_facts_omitted": url_facts_omitted,
         "bots_daily": {n: dict(sorted(c.items())) for n, c in bots_daily.items()},
         "bot_url_status": {
             n: [

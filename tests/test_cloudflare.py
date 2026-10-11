@@ -83,6 +83,20 @@ def test_traffic_builds_log_analyze_shaped_summary(tmp_path, monkeypatch):
     assert result["top_paths_by_family"]["googlebot"] == {"/a": 10, "/gone": 2}
     assert result["cache_by_family"]["googlebot"] == {"hit": 10, "dynamic": 2}
     assert result["daily"] == {"2026-10-08": 60}
+    assert {
+        "host": "unknown",
+        "path": "/gone",
+        "date": "2026-10-08",
+        "bot_family": "googlebot",
+        "bot_name": "Googlebot",
+        "verified_bot_category": "Search Engine Crawler",
+        "edge_status": 404,
+        "origin_status": None,
+        "cache_status": "dynamic",
+        "edge_redirect": False,
+        "requests": 2,
+    } in result["url_facts"]
+    assert result["url_facts_truncated"] is False
     assert result["bots_daily"]["ClaudeBot (Anthropic)"] == {"2026-10-08": 5}
     assert {"path": "/gone", "status": 404, "hits": 2} in result["bot_url_status"]["Googlebot"]
     assert result["verification"]["checked"] is False
@@ -125,6 +139,22 @@ def test_one_hour_window_that_stays_full_is_reported(tmp_path, monkeypatch):
         token=TOKEN,
     )
     assert result["truncated_days"] == ["2026-10-08"]
+
+
+def test_url_fact_population_is_hard_bounded(tmp_path, monkeypatch):
+    monkeypatch.setenv("SEOHEAD_SPEND_LOG", str(tmp_path / "spend.jsonl"))
+    monkeypatch.setattr(cloudflare, "MAX_URL_FACTS", 1)
+    rows = [_row(1, "/a", GOOGLE), _row(2, "/b", GOOGLE)]
+    result = cloudflare.traffic(
+        "example.com",
+        since="2026-10-08",
+        until="2026-10-08",
+        transport=_transport(lambda v: rows, []),
+        token=TOKEN,
+    )
+    assert len(result["url_facts"]) == 1
+    assert result["url_facts_truncated"] is True
+    assert result["url_facts_omitted"] == 1
 
 
 def test_graphql_error_is_reported_without_the_token():

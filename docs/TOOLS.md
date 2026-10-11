@@ -604,7 +604,7 @@ priority adjustment. It never changes a technical finding's severity. See the
 | `keywords-seasonality` | Demand over months/weeks/days — tell a dead query from a seasonal one | same |
 | `keywords-exact` | Exact `!W` frequency (Arsenkin's `overal`/`!WS` selector) — what the Wordstat API, base-only, will not give you | Arsenkin account limits; the charge and `task_id` are journaled at task creation |
 | `serp-fetch` | Yandex SERP for a query or a batch. Async only | metered; synchronous search is intentionally absent; verify current tariff |
-| `spend-report` | What was actually charged: by source, operation and day, from the local journal | free |
+| `spend-report` | What was actually charged: by source, operation and day, from the local journal. Unmeasured charges appear as uncertain receipts with `cost: null` and stay out of measured totals; confirmed zero remains zero | free |
 | `sources-doctor` | Which sources have usable credentials, with redacted source references; configured credentials are not verified access | free |
 | `sources-sync` | Fetch bounded missing or explicitly forced provider days into a local versioned SQLite history. Records complete, empty, partial, failed, and lagged days without storing tokens | Provider read subject to GSC, GA4, Metrika, or Webmaster quotas; writes local SQLite |
 | `sources-status` | Read requested-day coverage, resource identity, lag policy, and non-additive metric metadata from local history | Offline read only |
@@ -618,7 +618,7 @@ priority adjustment. It never changes a technical finding's severity. See the
 | `google-serp` | Google organic results for a query | same |
 | `wayback-history` | Every Internet Archive snapshot of a URL: when it changed, what status it returned, what MIME type it was | free, no key |
 | `crtsh-subdomains` | Hosts named in public TLS certificates for a domain — subdomains nothing links to | free, no key |
-| `cloudflare-traffic` | Bots x URLs x status codes x cache status per day for a Cloudflare zone, from edge GraphQL analytics, shaped like `log-analyze`. Aggregated (`source: cloudflare-aggregated`), not raw logs: no IPs, no rDNS bot verification; Free plan keeps 32 days | free; needs a read-only Cloudflare API token (`CLOUDFLARE_API_TOKEN` or `SEOHEAD_CLOUDFLARE_TOKEN_FILE`) |
+| `cloudflare-traffic` | Bot/human traffic summaries plus bounded per-URL daily edge/origin status, cache, redirect status and verified-bot category facts. Aggregated (`source: cloudflare-aggregated`), not raw logs: no IPs, sub-day timestamps, rule IDs or reverse-DNS verification; URL facts cap at 50,000 and report truncation; Free plan keeps 32 days | free; needs a read-only Cloudflare API token (`CLOUDFLARE_API_TOKEN` or `SEOHEAD_CLOUDFLARE_TOKEN_FILE`) |
 | `gsc-query` | Search Console: clicks, impressions, position and CTR per query or page, plus Google's own indexing verdict for one URL | free; needs OAuth against a property you own |
 | `webmaster-url-queries` | Yandex Webmaster query evidence for one URL or a bounded URL population; URL/query rows stay separate and caps are explicit | free within Webmaster quota; needs an own verified host |
 | `miratext-analyze` | Start or resume bounded competitor text analysis; paid and keyword modes require explicit confirmation | paid provider; API key required |
