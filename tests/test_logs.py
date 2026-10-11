@@ -458,3 +458,17 @@ def test_stalled_dns_workers_are_bounded_across_calls(monkeypatch):
         assert second["verified"] is None and "capacity" in second["reason"]
     finally:
         event.set()
+
+
+def test_temporary_ip_index_failure_is_result_data(tmp_path, monkeypatch):
+    import sqlite3
+
+    from seohead.checks import logs
+
+    def unavailable(*args):
+        raise sqlite3.OperationalError("synthetic disk unavailable")
+
+    monkeypatch.setattr(logs.sqlite3, "connect", unavailable)
+    result = analyze_log(_write(tmp_path, COMBINED))
+    assert result["ok"] is False
+    assert "synthetic disk unavailable" in result["error"]

@@ -475,7 +475,7 @@ def analyze_log(
                 bot_filter=bot,
                 ip_filter=ip,
             )
-    except (OSError, EOFError) as exc:
+    except (OSError, EOFError, sqlite3.Error) as exc:
         # A truncated or corrupt .gz raises mid-stream. Report it as data: partial counts
         # from a broken archive must not be presented as a complete analysis.
         return {"ok": False, "path": path, "error": f"Cannot read log: {exc}"}
