@@ -39,7 +39,9 @@ def _streamed_scan(path, *, cap=500, stopped=False):
         result = AuditResult(
             run=run,
             summary={"totals": {}, "by_severity": {}, "by_check": {}, "health_score": None},
-            issues=[Issue(check="TITLE_MISSING", severity="warning", source="fixture", message="x")],
+            issues=[
+                Issue(check="TITLE_MISSING", severity="warning", source="fixture", message="x")
+            ],
             pages=[Page(url="https://example.test/", metrics={"title": ""})],
         )
         header, collections = result.audit_v2_parts()
@@ -106,3 +108,37 @@ def test_cli_input_accepts_format_key_for_report_build(tmp_path, capsys):
     assert code == 0, captured
     assert "unexpected keyword argument" not in captured.out + captured.err
     assert out.exists()
+
+
+def test_bound_pdf_overview_renders_checklist_coverage(tmp_path):
+    project = _project(tmp_path)
+    scan = project / "scans" / "full.sqlite"
+    _streamed_scan(scan)
+    out = tmp_path / "bound.pdf"
+
+    result = handlers.report_build(
+        audit=str(scan),
+        fmt="pdf",
+        out=str(out),
+        project=str(project),
+        pdf_policy="overview-v1",
+    )
+
+    assert result["ok"], result
+    from pypdf import PdfReader
+
+    text = "".join(page.extract_text() for page in PdfReader(str(out)).pages)
+    assert "Project checklist items" in text
+
+
+def test_bound_json_report_is_refused_instead_of_silently_unbound(tmp_path):
+    project = _project(tmp_path)
+    scan = project / "scans" / "full.sqlite"
+    _streamed_scan(scan)
+    out = tmp_path / "bound.json"
+
+    result = handlers.report_build(audit=str(scan), fmt="json", out=str(out), project=str(project))
+
+    assert result["ok"] is False
+    assert "cannot carry project coverage" in result["error"]
+    assert not out.exists()

@@ -507,6 +507,12 @@ def _build_audit_v2_report(
         targets.append(target.with_suffix(target.suffix + ".index.json"))
     if fmt == "csv" and project is not None:
         targets.append(target.with_suffix(".coverage.csv"))
+    if project is not None and fmt == "json":
+        return {
+            "ok": False,
+            "error": "streamed audit.v2 JSON is written verbatim and cannot carry project coverage; "
+            "use md, csv, xlsx, docx or pdf with --project, or build the JSON without --project",
+        }
     if project is not None:
         from seohead.reports.project_coverage import (
             attach_snapshot,

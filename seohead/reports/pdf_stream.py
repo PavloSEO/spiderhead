@@ -34,7 +34,9 @@ def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
 
 
-def build_overview_model(reader: Any, project_coverage: dict[str, Any] | None = None) -> dict[str, Any]:
+def build_overview_model(
+    reader: Any, project_coverage: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Project ordered prefixes, keeping complete source counts and coverage."""
     from .pdf_model import _collection, _coverage_record, build_pdf_model
 

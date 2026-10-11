@@ -1150,7 +1150,8 @@ The report builder refuses that combination explicitly rather than silently igno
 the selected view. Project checklist coverage is bound on the streaming path too:
 `report-build --project` and `audit-workflow --action report` attach the same
 checklist snapshot as inline reports, and a budget-capped (`stopped_by_budget`)
-scan is accepted as a scope-limited audit. Bounded inline audit reports retain
+scan is accepted as a scope-limited audit. Streamed JSON with `--project` is refused,
+because the JSON is written verbatim. Bounded inline audit reports retain
 their view/language support.
 
 For streamed PDF output, explicitly pass `pdf_policy="overview-v1"` (CLI
