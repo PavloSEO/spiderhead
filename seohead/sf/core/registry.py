@@ -1421,18 +1421,6 @@ CHECKS: dict[str, dict[str, Any]] = {
         "message": "AMP document lacks the structural AMP boilerplate declarations",
         "fix": "Include the required amp-boilerplate style and noscript fallback; validate their content with the official AMP validator.",
     },
-    "AMP_DISALLOWED_HTML": {
-        "severity": "warning",
-        "source": "crawl:markup_evidence",
-        "message": "Full AMP validator reports disallowed HTML",
-        "fix": "Use the official AMP validator; the bundled structural checks do not evaluate its full rule set.",
-    },
-    "AMP_VALIDATOR_ERRORS": {
-        "severity": "warning",
-        "source": "crawl:markup_evidence",
-        "message": "Full AMP validator reports other document validation errors",
-        "fix": "Use the official AMP validator; full rules remain unavailable pending a licence decision.",
-    },
     "A11Y_HTML_LANG_MISSING": {
         "severity": "warning",
         "source": "crawl:markup_evidence",

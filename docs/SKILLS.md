@@ -86,7 +86,7 @@ Then by the layer of the task.
 | Skill | When | Tool |
 |---|---|---|
 | **sf-analyzer** | There is a crawl or exports — produce a machine-readable audit | `sf run` |
-| **sf-config** | Configure SF once to maximize applicable coverage from the 220-check registry | — |
+| **sf-config** | Configure SF once to maximize applicable coverage from the 218-check registry | — |
 | **sf-report** | Turn the export into a human-readable report | `sf run --out` |
 | **sf-tasks** | Build a prioritized backlog from `audit.json` | `sf tasks` |
 

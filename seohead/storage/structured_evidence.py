@@ -37,7 +37,7 @@ def _nodes(value: Any) -> list[dict[str, Any]]:
     return result
 
 
-def _validation(html: str | None) -> dict[str, Any]:
+def _validation(html: str | None, base_url: str | None = None) -> dict[str, Any]:
     """Run only bundled, offline graph checks; do not promise Google display."""
     base = {
         "syntax_state": "unavailable",
@@ -52,7 +52,7 @@ def _validation(html: str | None) -> dict[str, Any]:
         return base
     from seohead.checks.schema_org import check_schema
 
-    checked = check_schema(html=html)
+    checked = check_schema(html=html, document_base_url=base_url)
     parse_errors = checked.get("parse_errors") or []
     entities = checked.get("entities") or []
     vocabularies = checked.get("vocabularies") or []
@@ -188,7 +188,7 @@ def structured_payload(
                 "hash": _hash(item),
             }
         )
-    validation = _validation(html)
+    validation = _validation(html, parsed.get("document_base_url"))
     if invalid:
         validation["syntax_state"] = "malformed"
     # Non-JSON-LD formats are validated by the same bundled vocabulary. They
@@ -206,6 +206,8 @@ def structured_payload(
     state = (
         "malformed"
         if invalid
+        else validation["structural_state"]
+        if validation["structural_state"] in {"unavailable", "unsupported_context"}
         else "absent"
         if not valid and not non_json_markup
         else validation["structural_state"]

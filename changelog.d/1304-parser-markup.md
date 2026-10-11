@@ -13,3 +13,7 @@
 - Serve parsed JSON-LD trees alongside per-block source, position and syntax errors in
   `scan-structured-blocks`; cap wide property trees and expose their limit. Read the latest
   document for a requested URL and representation without changing its scan.
+- Preserve partial/unavailable structured evidence without hiding confirmed sibling
+  errors. Resolve supported JSON-LD identities against the same document base as HTML
+  markup while preserving source JSON; reject scalar/empty JSON blocks as valid graphs
+  and share normalized live JSON-LD tag selection across parser and served projections.

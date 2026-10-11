@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**220 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**218 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -366,8 +366,6 @@ python scripts/generate_checks_reference.py
 | `AMP_INVALID_VIEWPORT` | warning | crawl:markup_evidence | AMP document lacks the required device-width viewport | Declare a viewport containing width=device-width in the head. |
 | `AMP_INVALID_RUNTIME` | warning | crawl:markup_evidence | AMP document lacks an async AMP runtime script in the head | Add <script async src="https://cdn.ampproject.org/v0.js"></script> to the AMP head. |
 | `AMP_INVALID_BOILERPLATE` | warning | crawl:markup_evidence | AMP document lacks the structural AMP boilerplate declarations | Include the required amp-boilerplate style and noscript fallback; validate their content with the official AMP validator. |
-| `AMP_DISALLOWED_HTML` | warning | crawl:markup_evidence | Full AMP validator reports disallowed HTML | Use the official AMP validator; the bundled structural checks do not evaluate its full rule set. |
-| `AMP_VALIDATOR_ERRORS` | warning | crawl:markup_evidence | Full AMP validator reports other document validation errors | Use the official AMP validator; full rules remain unavailable pending a licence decision. |
 | `A11Y_HTML_LANG_MISSING` | warning | crawl:markup_evidence | Root html element has no nonempty lang declaration | Declare the document language on html and review whether it matches the content. |
 | `A11Y_FORM_LABEL_MISSING` | warning | crawl:markup_evidence | Form control has no static accessible label | Associate a label with the control, or provide a valid aria-label or aria-labelledby reference. |
 | `A11Y_IMAGE_ALT_MISSING` | warning | crawl:markup_evidence | Image has no alt attribute or static accessible name | Provide meaningful alternative text; explicitly mark decorative images with empty alt text. |

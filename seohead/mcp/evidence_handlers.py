@@ -252,7 +252,7 @@ def scan_structured_blocks(
                 "representation": representation,
                 "document_id": row["document_id"],
             }
-        result = structured_blocks(html)
+        result = structured_blocks(html, base_url=url)
         result.update(
             ok=True,
             representation=representation,

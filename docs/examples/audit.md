@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-11T10:12:59Z
+- **Generated:** 2026-10-11T10:23:02Z
 
 ## Health summary
 
-> **No health score.** only 94 of 220 checks could run (43% coverage); too little evidence to score.
+> **No health score.** only 94 of 218 checks could run (43% coverage); too little evidence to score.
 
-_94 of 220 checks could run; the score is not comparable to a run with full evidence_
+_94 of 218 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 126 skipped, 74 silent, 0 disabled (of 220 total)
+- Checks: **20 fired**, 124 skipped, 74 silent, 0 disabled (of 218 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -253,8 +253,6 @@ Each check below describes more than half the crawled pages. That can be true --
 | Structured data contains errors under the bundled Schema.org vocabulary | document-bound markup evidence requires a retained native crawl |
 | Structured data contains warnings under the bundled Schema.org vocabulary | document-bound markup evidence requires a retained native crawl |
 | Structured data lacks required properties in the bundled local rich-result rules | document-bound markup evidence requires a retained native crawl |
-| Full AMP validator reports disallowed HTML | document-bound markup evidence requires a retained native crawl |
-| Full AMP validator reports other document validation errors | document-bound markup evidence requires a retained native crawl |
 | More than one <meta name="description"> element is present | no meta description count evidence (native crawl only) |
 | Page has an H1 but no H2 headings | requirements.require_h2 is false; the check was not evaluated |
 | The H1 has no text of its own; its only content is an image's alt attribute | no H1 alt-text evidence (native crawl only) |

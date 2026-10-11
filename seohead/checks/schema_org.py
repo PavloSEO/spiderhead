@@ -36,7 +36,8 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup, Tag
 
-from seohead.checks.parser import is_inert_template_content
+from seohead.checks.parser import document_base_url as html_document_base_url
+from seohead.checks.parser import is_inert_template_content, live_jsonld_tags
 from seohead.recon.net import http_client, normalize_url
 
 # Schema.org types documented by Google as their own rich-result feature.
@@ -165,6 +166,49 @@ def _block_vocab(block: Any) -> tuple[str, bool]:
     return ("https://schema.org", True)
 
 
+def normalize_jsonld_ids(
+    payload: Any, base_url: str, *, _supported: bool = True, _depth: int = 0
+) -> Any:
+    """Copy a JSON-LD tree and resolve Schema.org identities against its local base.
+
+    Relative top-level identities and nested references must use the same base
+    as Microdata/RDFa for cross-format graph validation. Keep source JSON and
+    foreign-vocabulary identities unchanged; no remote contexts are fetched.
+    """
+    if _depth >= 64:
+        return payload  # Deeper entities are reported by the validator's depth limit.
+    if isinstance(payload, list):
+        return [
+            normalize_jsonld_ids(v, base_url, _supported=_supported, _depth=_depth + 1)
+            for v in payload
+        ]
+    if not isinstance(payload, dict):
+        return payload
+    if "@context" in payload:
+        _supported = _block_vocab(payload)[1]
+        contexts = payload["@context"]
+        for context in contexts if isinstance(contexts, list) else [contexts]:
+            if not isinstance(context, dict):
+                continue
+            declared_vocab = context.get("@vocab")
+            if isinstance(declared_vocab, str):
+                _supported = _is_schema_org_context(declared_vocab)
+            if "@base" in context:
+                declared_base = context["@base"]
+                if declared_base is None:
+                    base_url = ""
+                elif isinstance(declared_base, str):
+                    base_url = urljoin(base_url, declared_base)
+    copied = {
+        k: normalize_jsonld_ids(v, base_url, _supported=_supported, _depth=_depth + 1)
+        for k, v in payload.items()
+    }
+    identifier = copied.get("@id")
+    if _supported and isinstance(identifier, str) and not identifier.startswith("_:"):
+        copied["@id"] = urljoin(base_url, identifier)
+    return copied
+
+
 def _extract_blocks(html: str | BeautifulSoup) -> tuple[list[Any], list[str], int]:
     """Extract page JSON-LD.
 
@@ -177,12 +221,7 @@ def _extract_blocks(html: str | BeautifulSoup) -> tuple[list[Any], list[str], in
     blocks, errors = [], []
     found = 0
     soup = html if isinstance(html, BeautifulSoup) else BeautifulSoup(html, features="lxml")
-    scripts = (
-        tag
-        for tag in soup.find_all("script")
-        if str(tag.get("type") or "").strip().lower() == "application/ld+json"
-        and not is_inert_template_content(tag)
-    )
+    scripts = live_jsonld_tags(soup)
     for i, tag in enumerate(scripts, 1):
         found += 1
         raw = tag.string or tag.get_text() or ""
@@ -771,7 +810,11 @@ def _graph_shape(nodes: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def check_schema(
-    url: str | None = None, html: str | None = None, timeout: float = 25.0
+    url: str | None = None,
+    html: str | None = None,
+    timeout: float = 25.0,
+    *,
+    document_base_url: str | None = None,
 ) -> dict[str, Any]:
     """Validate one page's vocabulary, entity graph, and rich-result readiness."""
     result: dict[str, Any] = {"ok": True}
@@ -794,6 +837,11 @@ def check_schema(
     vocab = load_vocab()
     soup = BeautifulSoup(html, features="lxml")
     blocks, parse_errors, blocks_found = _extract_blocks(soup)
+    base = (
+        document_base_url
+        if document_base_url is not None
+        else html_document_base_url(soup, result.get("final_url") or url or "")
+    )
 
     nodes: list[dict[str, Any]] = []
     # Record each JSON-LD block's declared vocabulary. Resolve context once per
@@ -805,7 +853,8 @@ def check_schema(
     for block_index, block in enumerate(blocks, 1):
         context, supported = _block_vocab(block)
         before = len(nodes)
-        _flatten(block, nodes, f"jsonld[{block_index}]")
+        normalized = normalize_jsonld_ids(block, base)
+        _flatten(normalized, nodes, f"jsonld[{block_index}]")
         for n in nodes[before:]:
             n["_vocab_context"] = context
             n["_vocab_supported"] = supported
@@ -817,10 +866,6 @@ def check_schema(
             vocabularies.append({"context": context, "supported": supported, "blocks": 1})
         else:
             vocabularies[pos]["blocks"] += 1
-    base = result.get("final_url") or url or ""
-    base_tag = soup.find("base", href=True)
-    if base_tag:
-        base = urljoin(base, str(base_tag["href"]))
     microdata, microdata_count = _extract_microdata(soup, base)
     rdfa, rdfa_count, rdfa_reasons = _extract_rdfa(soup, base)
     for entity in microdata + rdfa:

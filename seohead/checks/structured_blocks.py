@@ -14,7 +14,7 @@ from typing import Any
 from bs4 import BeautifulSoup
 
 from seohead.checks import schema_org
-from seohead.checks.parser import _INERT_LINK_CONTAINERS, _ci, _has_ancestor
+from seohead.checks.parser import document_base_url, live_jsonld_tags
 
 # Bounds keep one page's answer small enough for an MCP response.
 SOURCE_CHARS = 20_000
@@ -63,15 +63,7 @@ def _unique_types(nodes: list[dict[str, Any]]) -> list[str]:
     return found
 
 
-def _live_tags(soup: BeautifulSoup) -> list[Any]:
-    return [
-        tag
-        for tag in soup.find_all("script", attrs={"type": _ci("application/ld+json")})
-        if not _has_ancestor(tag, _INERT_LINK_CONTAINERS)
-    ]
-
-
-def structured_blocks(html: str | None) -> dict[str, Any]:
+def structured_blocks(html: str | None, *, base_url: str = "") -> dict[str, Any]:
     """Describe every live JSON-LD block of one document, in source order.
 
     ``state`` is ``absent`` when there are no blocks, ``malformed`` when any block
@@ -84,11 +76,12 @@ def structured_blocks(html: str | None) -> dict[str, Any]:
     # html.parser is the only bundled builder that records source lines; the
     # script and template handling used here is the same in both builders.
     soup = BeautifulSoup(html, features="html.parser")
+    resolved_base = document_base_url(soup, base_url)
     vocab = schema_org.load_vocab()
 
     parsed: list[dict[str, Any]] = []
     nodes_by_block: list[list[dict[str, Any]]] = []
-    for ordinal, tag in enumerate(_live_tags(soup)):
+    for ordinal, tag in enumerate(live_jsonld_tags(soup)):
         raw = (tag.string or tag.get_text() or "").strip()
         entry: dict[str, Any] = {
             "ordinal": ordinal,
@@ -120,7 +113,8 @@ def structured_blocks(html: str | None) -> dict[str, Any]:
                 # graph annotations to its independent flattened nodes.
                 entry["parsed_json"] = block if len(raw) <= SOURCE_CHARS else None
                 context, supported = schema_org._block_vocab(block)
-                schema_org._flatten(block, nodes)
+                normalized = schema_org.normalize_jsonld_ids(block, resolved_base)
+                schema_org._flatten(normalized, nodes)
                 for node in nodes:
                     node.setdefault("_vocab_context", context)
                     node.setdefault("_vocab_supported", supported)
@@ -131,6 +125,15 @@ def structured_blocks(html: str | None) -> dict[str, Any]:
                 entry["source_truncated"] = len(source) > SOURCE_CHARS
                 entry["source_json"] = source[:SOURCE_CHARS]
                 entry["state"] = "valid"
+                if not nodes:
+                    entry["errors"] = 1
+                    entry["messages"] = [
+                        {
+                            "path": "@root",
+                            "level": "error",
+                            "text": "Parsed JSON-LD block contains no entity definitions",
+                        }
+                    ]
         parsed.append(entry)
         nodes_by_block.append(nodes)
 
@@ -141,6 +144,14 @@ def structured_blocks(html: str | None) -> dict[str, Any]:
         for node in nodes
         if isinstance(node.get("@id"), str)
     }
+    # A JSON-LD entity can legally reference a subject declared in Microdata or
+    # RDFa on this same page. Use the shared graph's normalized identities.
+    checked_page = schema_org.check_schema(html=html, document_base_url=resolved_base)
+    known_ids.update(
+        entity["id"]
+        for entity in checked_page.get("entities", [])
+        if isinstance(entity.get("id"), str)
+    )
     for entry, nodes in zip(parsed, nodes_by_block, strict=True):
         for node in nodes:
             checked = schema_org._check_node(node, vocab, known_ids)

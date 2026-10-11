@@ -11,7 +11,7 @@
     "source": null,
     "exports_dir": "docs/examples/exports",
     "sf_version_detected": null,
-    "generated_at": "2026-10-11T10:12:59Z",
+    "generated_at": "2026-10-11T10:23:02Z",
     "profile": "full",
     "exports_used": [
       "internal_all",
@@ -164,14 +164,6 @@
       },
       {
         "id": "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING",
-        "reason": "document-bound markup evidence requires a retained native crawl"
-      },
-      {
-        "id": "AMP_DISALLOWED_HTML",
-        "reason": "document-bound markup evidence requires a retained native crawl"
-      },
-      {
-        "id": "AMP_VALIDATOR_ERRORS",
         "reason": "document-bound markup evidence requires a retained native crawl"
       },
       {
@@ -608,9 +600,9 @@
     ],
     "health_score": null,
     "check_coverage": {
-      "checks_total": 220,
+      "checks_total": 218,
       "checks_fired": 20,
-      "checks_skipped": 126,
+      "checks_skipped": 124,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
       "checks_silent": 74,
@@ -690,10 +682,10 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.427
+      "coverage": 0.431
     },
-    "health_score_reason": "only 94 of 220 checks could run (43% coverage); too little evidence to score",
-    "health_score_basis": "94 of 220 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_reason": "only 94 of 218 checks could run (43% coverage); too little evidence to score",
+    "health_score_basis": "94 of 218 checks could run; the score is not comparable to a run with full evidence",
     "internal_linking": {
       "measured": false,
       "reason": "no all_inlinks export (needed for the complete internal edge list)"

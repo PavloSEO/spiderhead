@@ -14,7 +14,6 @@ SCHEMA_CODES = (
     "STRUCTURED_DATA_SCHEMA_WARNING",
     "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING",
 )
-AMP_UNAVAILABLE_CODES = ("AMP_DISALLOWED_HTML", "AMP_VALIDATOR_ERRORS")
 
 
 def check_document_markup(ctx: AuditContext) -> None:
@@ -24,15 +23,12 @@ def check_document_markup(ctx: AuditContext) -> None:
         "AMP_MISSING_HTML_ATTRIBUTE",
         *A11Y_CODES,
         *SCHEMA_CODES,
-        *AMP_UNAVAILABLE_CODES,
     )
     if ctx.scan_con is None:
         for code in all_codes:
             ctx.skip(code, "document-bound markup evidence requires a retained native crawl")
         return
     con = ctx.scan_con
-    for code in AMP_UNAVAILABLE_CODES:
-        ctx.skip(code, "full AMP validator rule set unavailable pending owner licence decision")
     targets = {
         norm_url(str(page.metrics.get("_record", {}).get("amphtml")))
         for page in ctx.html_pages()
@@ -115,12 +111,12 @@ def check_document_markup(ctx: AuditContext) -> None:
                 )
         else:
             validation = payload.get("validation")
-            if not isinstance(validation, dict) or payload["state"] in {
-                "unavailable",
-                "unsupported_context",
-            }:
+            if not isinstance(validation, dict):
                 unavailable.update(SCHEMA_CODES)
                 continue
+            incomplete = payload["state"] in {"unavailable", "unsupported_context"}
+            if incomplete:
+                unavailable.update(SCHEMA_CODES)
             measured.update(SCHEMA_CODES[:2])
             for field, code in zip(
                 ("entity_errors", "entity_warnings"), SCHEMA_CODES[:2], strict=True
@@ -134,6 +130,8 @@ def check_document_markup(ctx: AuditContext) -> None:
                         details={**provenance, "validation": validation},
                     )
             features = validation["feature_checks"]
+            if incomplete:
+                continue  # Required fields may be in unsupported RDFa graph carriers.
             if features:
                 measured.add(SCHEMA_CODES[2])
             else:
@@ -154,8 +152,6 @@ def check_document_markup(ctx: AuditContext) -> None:
                     },
                 )
     for code in all_codes:
-        if code in AMP_UNAVAILABLE_CODES:
-            continue
         if code in unavailable or code not in measured:
             ctx.skip(
                 code,

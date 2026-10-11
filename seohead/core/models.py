@@ -289,6 +289,7 @@ class ParsedPage(_ParsedPageOptional):
     html_lang: dict[str, str]
     # Static AMP/accessibility observations; independent of meta extraction flags.
     markup: dict[str, Any]
+    document_base_url: str
     # The <meta http-equiv="refresh"> content attribute exactly as written,
     # "" when the page declares none -- the same fact SF's Meta Refresh 1
     # column carries, so one check reads it whichever source produced it.

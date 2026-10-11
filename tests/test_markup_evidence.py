@@ -85,8 +85,13 @@ def test_native_markup_emits_all_static_failures_with_document_identity(tmp_path
         assert "AMP_MISSING_BODY" not in fired
         assert all(issue.details["document_id"] > 0 for issue in ctx.issues)
         assert all(issue.details["representation"] == "static" for issue in ctx.issues)
-        skipped = {item.id: item.reason for item in ctx.skipped}
-        assert "licence" in skipped["AMP_VALIDATOR_ERRORS"]
+        facts = json.loads(
+            con.execute(
+                "SELECT payload_json FROM context_items WHERE kind='markup_evidence'"
+            ).fetchone()[0]
+        )["facts"]
+        assert facts["amp"]["validator_state"] == "unavailable"
+        assert "licence" in facts["amp"]["validator_reason"]
     finally:
         con.close()
 
@@ -208,5 +213,110 @@ def test_one_missing_legacy_context_prevents_clean_sibling_pass(tmp_path):
         check_document_markup(ctx)
         assert set(A11Y_CODES) <= {item.id for item in ctx.skipped}
         assert not ctx.issues
+    finally:
+        con.close()
+
+
+def test_native_defective_markup_fires_all_implemented_checks(tmp_path):
+    html = '<html amp><div><h1>One</h1><h3>Three</h3><input><img src="x"><script type="application/ld+json">{"@type":"Product","brand":"literal","bogus":"bad"}</script></div></html>'
+    path = _scan(tmp_path, [(AMP, html)])
+    con = open_scan(path, require_audit=False)
+    try:
+        ctx = _ctx(con)
+        check_document_markup(ctx)
+        fired = {issue.check for issue in ctx.issues}
+        assert {
+            "AMP_INVALID_DOCTYPE",
+            "AMP_MISSING_HEAD",
+            "AMP_MISSING_BODY",
+            "AMP_INVALID_CHARSET",
+            "AMP_INVALID_VIEWPORT",
+            "AMP_INVALID_RUNTIME",
+            "AMP_INVALID_BOILERPLATE",
+            "A11Y_HTML_LANG_MISSING",
+            "A11Y_FORM_LABEL_MISSING",
+            "A11Y_IMAGE_ALT_MISSING",
+            "A11Y_HEADING_ORDER",
+            "A11Y_MAIN_LANDMARK_MISSING",
+            "STRUCTURED_DATA_SCHEMA_ERROR",
+            "STRUCTURED_DATA_SCHEMA_WARNING",
+            "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING",
+        } <= fired
+    finally:
+        con.close()
+
+
+def test_native_healthy_markup_stays_silent_for_all_implemented_checks(tmp_path):
+    html = """<!doctype html><html amp lang="en"><head><meta charset="utf-8">
+      <meta name="viewport" content="width=device-width"><script async src="https://cdn.ampproject.org/v0.js"></script>
+      <style amp-boilerplate>body{visibility:hidden}</style><noscript><style amp-boilerplate>body{visibility:visible}</style></noscript>
+      <script type="application/ld+json">{"@type":"Product","name":"Fixture","offers":{"@type":"Offer","price":"10","priceCurrency":"USD"}}</script>
+      </head><body><main><h1>Title</h1><h2>Second</h2><label for="name">Name</label><input id="name"><img src="x" alt="Fixture"></main></body></html>"""
+    path = _scan(tmp_path, [(AMP, html)])
+    con = open_scan(path, require_audit=False)
+    try:
+        ctx = _ctx(con, targets=True)
+        check_document_markup(ctx)
+        fired = {issue.check for issue in ctx.issues}
+        assert not (
+            {
+                "AMP_INVALID_DOCTYPE",
+                "AMP_MISSING_HEAD",
+                "AMP_MISSING_BODY",
+                "AMP_INVALID_CHARSET",
+                "AMP_INVALID_VIEWPORT",
+                "AMP_INVALID_RUNTIME",
+                "AMP_INVALID_BOILERPLATE",
+                "AMP_MISSING_HTML_ATTRIBUTE",
+                "A11Y_HTML_LANG_MISSING",
+                "A11Y_FORM_LABEL_MISSING",
+                "A11Y_IMAGE_ALT_MISSING",
+                "A11Y_HEADING_ORDER",
+                "A11Y_MAIN_LANDMARK_MISSING",
+                "STRUCTURED_DATA_SCHEMA_ERROR",
+                "STRUCTURED_DATA_SCHEMA_WARNING",
+                "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING",
+            }
+            & fired
+        )
+    finally:
+        con.close()
+
+
+@pytest.mark.parametrize(
+    "html",
+    [
+        '<div vocab="https://schema.org/"><span property="name">Orphan</span></div>',
+        '<div vocab="https://schema.org/" typeof="Article"><span property="bogus">bad</span><a rel="author" href="#ada">Ada</a></div>',
+    ],
+)
+def test_partial_rdfa_never_becomes_absent_and_proven_errors_survive(tmp_path, html):
+    path = _scan(tmp_path, [(URL, html)])
+    con = open_scan(path, require_audit=False)
+    try:
+        payload = json.loads(
+            con.execute(
+                "SELECT payload_json FROM context_items WHERE kind='structured_evidence'"
+            ).fetchone()[0]
+        )
+        assert payload["state"] == "unavailable"
+        ctx = _ctx(con)
+        check_document_markup(ctx)
+        fired = {issue.check for issue in ctx.issues}
+        if "bogus" in html:
+            assert "STRUCTURED_DATA_SCHEMA_ERROR" in fired
+        assert "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING" not in fired
+    finally:
+        con.close()
+
+
+def test_foreign_sibling_does_not_hide_confirmed_schema_error(tmp_path):
+    html = '<script type="application/ld+json">{"@type":"Article","bogus":"bad"}</script><div vocab="https://example.test/vocab/" typeof="Thing"></div>'
+    path = _scan(tmp_path, [(URL, html)])
+    con = open_scan(path, require_audit=False)
+    try:
+        ctx = _ctx(con)
+        check_document_markup(ctx)
+        assert "STRUCTURED_DATA_SCHEMA_ERROR" in {issue.check for issue in ctx.issues}
     finally:
         con.close()

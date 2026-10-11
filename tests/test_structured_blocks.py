@@ -152,3 +152,26 @@ def test_foreign_context_does_not_get_schema_org_clean_validation():
     )["blocks"]
     assert block["state"] == "warnings"
     assert block["warnings"]
+
+
+def test_non_entity_json_is_not_a_valid_structured_block():
+    for raw in ["1", "null", "{}", "[]"]:
+        (block,) = structured_blocks(_page(raw))["blocks"]
+        assert block["state"] == "errors"
+        assert block["errors"] == 1
+        assert "no entity definitions" in block["messages"][0]["text"]
+
+
+def test_padded_case_jsonld_type_uses_same_parser_and_served_selector():
+    from seohead.checks.parser import parse_html
+
+    html = '<script type=" APPLICATION/LD+JSON ">' + PRODUCT + "</script>"
+    assert parse_html(html, "https://example.test/")["jsonld"]
+    assert structured_blocks(html)["block_count"] == 1
+
+
+def test_shared_relative_cross_format_identity_does_not_create_dangling_error():
+    html = '<script type="application/ld+json">{"@type":"Article","headline":"A","author":{"@id":"#ada"}}</script><div itemscope itemtype="https://schema.org/Person" itemid="#ada"><span itemprop="name">Ada</span></div>'
+    (block,) = structured_blocks(html, base_url="https://example.test/page")["blocks"]
+    assert block["errors"] == 0
+    assert block["parsed_json"]["author"]["@id"] == "#ada"

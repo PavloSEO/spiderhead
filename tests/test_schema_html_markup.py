@@ -277,3 +277,94 @@ def test_foreign_redeclaration_of_rdfa_subject_remains_unsupported():
     )
     assert result["rich_results"] == []
     assert result["entities"][0]["warnings"]
+
+
+@pytest.mark.parametrize("format", ["microdata", "rdfa"])
+@pytest.mark.parametrize(
+    "base_tag,expected_base",
+    [
+        ("", "https://example.test/page"),
+        ('<base href="news/">', "https://example.test/news/"),
+    ],
+)
+def test_relative_identity_links_jsonld_and_html_without_false_dangling_reference(
+    format, base_tag, expected_base
+):
+    declaration = (
+        'itemscope itemtype="https://schema.org/Person" itemid="#ada"'
+        if format == "microdata"
+        else 'vocab="https://schema.org/" typeof="Person" about="#ada"'
+    )
+    prop = "itemprop" if format == "microdata" else "property"
+    html = (
+        base_tag
+        + """
+        <script type="application/ld+json">
+          {"@context":"https://schema.org","@type":"Article","@id":"#article",
+           "author":{"@id":"#ada"}}
+        </script>"""
+    )
+    html += f'<div {declaration}><span {prop}="name">Ada</span></div>'
+    result = schema.check_schema(url="https://example.test/page", html=html)
+    assert {e["id"] for e in result["entities"]} == {
+        expected_base + "#article",
+        expected_base + "#ada",
+    }
+    assert not any(e["errors"] for e in result["entities"])
+    assert result["graph"]["islands"] == []
+    assert result["graph"]["is_graph"] is True
+    assert result["graph"]["linked_by_id"] == 1
+
+
+def test_resolved_document_base_is_not_applied_twice():
+    html = """<base href="news/">
+        <script type="application/ld+json">{"@type":"Article","@id":"#article","author":{"@id":"#ada"}}</script>
+        <div itemscope itemtype="https://schema.org/Person" itemid="#ada"></div>"""
+    result = schema.check_schema(html=html, document_base_url="https://example.test/news/")
+    assert {e["id"] for e in result["entities"]} == {
+        "https://example.test/news/#article",
+        "https://example.test/news/#ada",
+    }
+    assert not any(e["errors"] for e in result["entities"])
+
+
+def test_identity_normalization_copies_source_and_preserves_foreign_context_and_blank_ids():
+    payload = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "@id": "#article",
+        "author": {"@id": "#ada"},
+        "publisher": {
+            "@context": "https://example.org/",
+            "@type": "Organization",
+            "@id": "#foreign",
+        },
+        "about": {"@id": "_:blank"},
+    }
+    copied = schema.normalize_jsonld_ids(payload, "https://example.test/page")
+    assert payload["@id"] == "#article"
+    assert payload["author"]["@id"] == "#ada"
+    assert copied["@id"] == "https://example.test/page#article"
+    assert copied["author"]["@id"] == "https://example.test/page#ada"
+    assert copied["publisher"]["@id"] == "#foreign"
+    assert copied["about"]["@id"] == "_:blank"
+    assert (
+        schema.normalize_jsonld_ids(payload["publisher"], "https://example.test/")["@id"]
+        == "#foreign"
+    )
+
+
+def test_jsonld_local_base_and_foreign_vocab_context_are_respected():
+    payload = {
+        "@context": {"@vocab": "https://schema.org/", "@base": "people/"},
+        "@type": "Person",
+        "@id": "ada",
+    }
+    assert (
+        schema.normalize_jsonld_ids(payload, "https://example.test/")["@id"]
+        == "https://example.test/people/ada"
+    )
+    payload["@context"]["@base"] = None
+    assert schema.normalize_jsonld_ids(payload, "https://example.test/")["@id"] == "ada"
+    payload["@context"]["@vocab"] = "https://example.org/"
+    assert schema.normalize_jsonld_ids(payload, "https://example.test/")["@id"] == "ada"
