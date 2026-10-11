@@ -9,7 +9,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import secrets
+import time
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -18,6 +21,8 @@ from seohead.core.filesystem import atomic_write_bytes
 from seohead.data_sources.credentials import is_private_mode
 
 FLOW_TTL = timedelta(seconds=600)
+FLOW_LOCK_TIMEOUT_SECONDS = 35.0
+FLOW_LOCK_POLL_SECONDS = 0.05
 _BASE_KEYS = {"flow_id", "state_sha256", "status", "created_at", "expires_at"}
 _EXTRA_KEYS = {"connected_at", "token_expires_at"}
 _STATES = {"waiting", "connected", "expired", "cancelled", "revoked", "invalid"}
@@ -34,6 +39,30 @@ def _iso(value: datetime) -> str:
 def _check_path(path: Path) -> None:
     if path.parent.is_symlink() or path.is_symlink():
         raise ValueError("OAuth storage must not use symlinks")
+
+
+@contextmanager
+def flow_lock(path: Path):
+    """Serialize OAuth flow transitions across processes with a bounded portable file lock."""
+    _check_path(path)
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    lock = path.with_name(path.name + ".lock")
+    _check_path(lock)
+    deadline = time.monotonic() + FLOW_LOCK_TIMEOUT_SECONDS
+    descriptor: int | None = None
+    while descriptor is None:
+        try:
+            descriptor = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        except FileExistsError:
+            if time.monotonic() >= deadline:
+                raise ValueError("oauth_flow_busy") from None
+            time.sleep(FLOW_LOCK_POLL_SECONDS)
+    try:
+        os.write(descriptor, str(os.getpid()).encode("ascii"))
+        yield
+    finally:
+        os.close(descriptor)
+        lock.unlink(missing_ok=True)
 
 
 def _write(path: Path, record: dict[str, Any]) -> None:
@@ -106,14 +135,15 @@ def effective_status(flow: dict[str, Any], now: datetime) -> str:
 
 def cancel_flow(path: Path, now: datetime) -> dict[str, Any] | None:
     """Mark a waiting flow cancelled. Repeated cancels are no-ops returning the same status."""
-    flow = load_flow(path)
-    if flow is None:
-        return None
-    status = effective_status(flow, now)
-    if status == "waiting":
-        flow["status"] = status = "cancelled"
-        _write(path, flow)
-    return {**flow, "status": status}
+    with flow_lock(path):
+        flow = load_flow(path)
+        if flow is None:
+            return None
+        status = effective_status(flow, now)
+        if status == "waiting":
+            flow["status"] = status = "cancelled"
+            _write(path, flow)
+        return {**flow, "status": status}
 
 
 def verify_callback_state(path: Path, state: str, now: datetime) -> dict[str, Any]:

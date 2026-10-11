@@ -535,6 +535,27 @@ def test_dataforseo_verify_uses_free_account_metadata_without_returning_it(monke
     assert "private account metadata" not in json.dumps(result)
 
 
+def test_dataforseo_account_metadata_rejects_malformed_200_envelopes():
+    from seohead.data_sources.dataforseo import DataForSEOError, _account_metadata_result
+
+    valid = {
+        "status_code": 20000,
+        "tasks_count": 1,
+        "tasks_error": 0,
+        "tasks": [
+            {
+                "status_code": 20000,
+                "result": [{"rates": {"serp": {}}, "price": {"serp": {}}}],
+            }
+        ],
+    }
+    assert _account_metadata_result(valid)["rates"] == {"serp": {}}
+
+    malformed = {**valid, "tasks": [{"status_code": 20000, "result": [None]}]}
+    with pytest.raises(DataForSEOError, match="quota or pricing metadata"):
+        _account_metadata_result(malformed)
+
+
 def test_cloudflare_token_verification_does_not_claim_zone_permissions(monkeypatch):
     from seohead.data_sources import cloudflare
 

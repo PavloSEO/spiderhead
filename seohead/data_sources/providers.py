@@ -874,13 +874,19 @@ def provider_verify(
         except Exception:
             result = {"ok": False, "status": None, "error": "provider connection failed"}
         else:
-            quota_state = "reported" if isinstance(account.get("limits"), dict) else "unknown"
+            valid_account = (
+                isinstance(account, dict)
+                and account.get("env") == "prod"
+                and isinstance(account.get("limits"), dict)
+                and isinstance(account.get("prices"), dict)
+            )
             result = {
-                "ok": True,
-                "quota_state": quota_state,
-                "account_data_available": True,
-                "environment": account.get("env"),
-                "verified_capabilities": ["appendix.user_data"],
+                "ok": valid_account,
+                "error": None if valid_account else "account metadata response was incomplete",
+                "quota_state": "reported" if valid_account else "unknown",
+                "account_data_available": valid_account,
+                "environment": account.get("env") if isinstance(account, dict) else None,
+                "verified_capabilities": ["appendix.user_data"] if valid_account else [],
                 "unverified_capabilities": ["backlinks subscription and collection access"],
             }
     elif provider in {"ga4", "metrika", "pagespeed", "crux"}:

@@ -7334,7 +7334,19 @@ _RAW_HANDLERS = {
     "bi_destination_apply": bi_destination_apply,
 }
 
+# Sensitive values that flow only through these local workflows are omitted from journal
+# arguments and fingerprints; the generic journal sanitizer remains name-based.
+_SENSITIVE_HANDLER_ARGUMENTS = {
+    "provider_auth": frozenset({"state", "code"}),
+    "provider_credential": frozenset({"value"}),
+}
+
 # Journaling sits here rather than in each interface: the CLI and the MCP server
 # both dispatch through this mapping, so one wrapper records every call exactly
 # once and no future tool can be added without being recorded.
-HANDLERS = {name: runlog.journaled(name, fn) for name, fn in _RAW_HANDLERS.items()}
+HANDLERS = {
+    name: runlog.journaled(
+        name, fn, sensitive_arguments=_SENSITIVE_HANDLER_ARGUMENTS.get(name, frozenset())
+    )
+    for name, fn in _RAW_HANDLERS.items()
+}

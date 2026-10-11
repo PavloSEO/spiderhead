@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import socket
+import threading
 import urllib.parse
 from datetime import datetime, timedelta, timezone
 
@@ -352,3 +353,49 @@ def test_invalid_grant_refresh_is_normalized_and_clears_connected_flow_state(tmp
 
     assert "synthetic-secret-provider-response" not in str(excinfo.value)
     assert oauth_flow.load_flow(path)["status"] == "invalid"
+
+
+def test_cancel_during_oauth_exchange_prevents_grant_persistence(tmp_path, monkeypatch):
+    config_root = tmp_path / "config"
+    monkeypatch.setattr(oauth, "CONFIG_ROOT", config_root)
+    monkeypatch.setenv("GSC_OAUTH_CLIENT_ID", "synthetic-client.apps.example.test")
+    monkeypatch.setenv("GSC_OAUTH_CLIENT_SECRET", "synthetic-client-secret")
+    monkeypatch.setenv("GSC_OAUTH_REDIRECT_URI", "http://localhost:8765/oauth/callback")
+    now = datetime.now(timezone.utc)
+    path = config_root / "gsc" / "oauth-flow.json"
+    flow, state = oauth_flow.create_flow(path, now)
+    exchange_started = threading.Event()
+    allow_exchange_to_finish = threading.Event()
+    failures = []
+
+    def exchange(_payload):
+        exchange_started.set()
+        if not allow_exchange_to_finish.wait(timeout=2):
+            raise RuntimeError("test exchange timed out")
+        return {
+            "access_token": "synthetic-access-token",
+            "refresh_token": "synthetic-refresh-token",
+            "expires_in": 3600,
+            "scope": _SCOPE,
+        }
+
+    def callback():
+        try:
+            oauth.manage_grant(
+                "gsc", "callback", state=state, code="synthetic-code", exchange_transport=exchange
+            )
+        except Exception as exc:
+            failures.append(exc)
+
+    worker = threading.Thread(target=callback)
+    worker.start()
+    assert exchange_started.wait(timeout=1)
+    cancelled = oauth.manage_grant("gsc", "cancel")
+    allow_exchange_to_finish.set()
+    worker.join(timeout=2)
+
+    assert not worker.is_alive()
+    assert cancelled["flow"]["status"] == "cancelled"
+    assert failures and "oauth_flow_not_waiting" in str(failures[0])
+    assert not (config_root / "gsc" / "oauth.json").exists()
+    assert oauth_flow.load_flow(path)["flow_id"] == flow["flow_id"]

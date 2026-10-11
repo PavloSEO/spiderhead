@@ -189,10 +189,6 @@ def manage_grant(
             }
         return result
     if action == "start":
-        if grant_available(provider):
-            raise ValueError(
-                "a durable OAuth grant already exists; disconnect it before reconnecting"
-            )
         client_id = os.environ.get("GSC_OAUTH_CLIENT_ID", "").strip()
         redirect_uri = os.environ.get("GSC_OAUTH_REDIRECT_URI", "").strip()
         parsed = urllib.parse.urlsplit(redirect_uri)
@@ -211,7 +207,13 @@ def manage_grant(
         }:
             raise ValueError("OAuth redirect URI must use HTTPS outside loopback")
         now = datetime.now(timezone.utc)
-        flow, raw_state = oauth_flow.create_flow(_flow_path(provider), now)
+        flow_path = _flow_path(provider)
+        with oauth_flow.flow_lock(flow_path):
+            if grant_available(provider):
+                raise ValueError(
+                    "a durable OAuth grant already exists; disconnect it before reconnecting"
+                )
+            flow, raw_state = oauth_flow.create_flow(flow_path, now)
         query = urllib.parse.urlencode(
             {
                 "client_id": client_id,
@@ -303,19 +305,21 @@ def manage_grant(
         ):
             raise ValueError("Google OAuth response did not grant the required read-only scope")
         connected_at = datetime.now(timezone.utc)
-        oauth_flow.verify_callback_state(_flow_path(provider), state, connected_at)
-        if grant_available(provider):
-            raise ValueError("a durable OAuth grant appeared during consent; disconnect it first")
-        save_grant(
-            provider,
-            {
-                "refresh_token": refresh_token,
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "scopes": [expected_scope],
-            },
-        )
-        completed = oauth_flow.complete_flow(_flow_path(provider), flow, connected_at, expires_in)
+        flow_path = _flow_path(provider)
+        with oauth_flow.flow_lock(flow_path):
+            oauth_flow.verify_callback_state(flow_path, state, connected_at)
+            if grant_available(provider):
+                raise ValueError("a durable OAuth grant appeared during consent; disconnect it first")
+            save_grant(
+                provider,
+                {
+                    "refresh_token": refresh_token,
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "scopes": [expected_scope],
+                },
+            )
+            completed = oauth_flow.complete_flow(flow_path, flow, connected_at, expires_in)
         return {
             "ok": True,
             "configured": True,
