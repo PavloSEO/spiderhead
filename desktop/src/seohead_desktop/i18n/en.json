@@ -2456,5 +2456,10 @@
  "Нет страницы контактов": "Missing contact page",
  "Нет политики конфиденциальности": "Missing privacy policy",
  "Нет пользовательского соглашения": "Missing terms page",
- "Страница YMYL, нужна проверка экспертом": "YMYL page needs expert review"
+ "Страница YMYL, нужна проверка экспертом": "YMYL page needs expert review",
+ "Сначала откройте или создайте проект: скан сохраняется в проект": "Open or create a project first: a scan is saved into the project",
+ "Разделы с пометкой «нужен проект» откроются после открытия или создания проекта": "Sections marked «needs project» open after a project is opened or created",
+ "Не запускалась": "Never run",
+ "Проверки скана. Число рядом с проверкой — находки по всему скану от ядра; список URL — из первых {n} находок.": "Scan checks. The number next to a check is the core's count of findings for the whole scan; the URL list comes from the first {n} findings.",
+ "число находок этой проверки в скане": "number of findings of this check in the scan"
 }

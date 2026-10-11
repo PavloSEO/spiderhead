@@ -269,6 +269,7 @@ class NavList(QListWidget):
 
     def set_project_open(self, opened):
         self.project_open = bool(opened)
+        self.setToolTip("" if self.project_open else tr("Разделы с пометкой «нужен проект» откроются после открытия или создания проекта"))
         for section_id, item in self._items.items():
             locked = section_id in NEEDS_PROJECT and not self.project_open
             item.setData(ROLE_LOCKED, locked)

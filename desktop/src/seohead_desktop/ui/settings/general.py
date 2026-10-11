@@ -21,7 +21,7 @@ SCHEMA = (
     Setting("general.start", "last", str, choices=("last", "list")),
     Setting("general.restore_tabs", True, bool),
     Setting("general.recent_count", 20, int, 5, 50, error="Введите число от 5 до 50"),
-    Setting("general.projects_folder", "~/Work/projects", str),
+    Setting("general.projects_folder", "~/Documents/SEOHEAD", str),
     Setting("general.confirm_close_active_scan", True, bool),
     Setting("general.stay_in_menu_bar", False, bool),
     Setting("general.link_action", "details", str, choices=("details", "browser")),

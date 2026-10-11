@@ -274,6 +274,7 @@ class IssuesScreen(Screen):
         self.severity = "all"
         self.selected = None
         self.checks = {}
+        self.check_counts = {}
         self.signature = None
         self.panel_state = None
         root = QVBoxLayout(self)
@@ -555,7 +556,12 @@ class IssuesScreen(Screen):
         skipped = [item for item in evidence.get("skipped_checks") or [] if isinstance(item, dict)]
         self.skipped_rows = [f"{check_name(item.get('id'))} — {skip_reason(item.get('reason'))}" for item in skipped]
         self._sync_skipped()
-        self.list_note.setText(trf("Проверки из первых {n} находок. Число рядом с проверкой — находки в этой выборке, не во всём скане.", n=len(findings.get("items") or [])))
+        by_check = findings.get("by_check")  # per-check counts of the whole scan, when the core provides them
+        self.check_counts = {k: v for k, v in by_check.items() if type(v) is int} if isinstance(by_check, dict) else {}
+        if self.check_counts:
+            self.list_note.setText(trf("Проверки скана. Число рядом с проверкой — находки по всему скану от ядра; список URL — из первых {n} находок.", n=len(findings.get("items") or [])))
+        else:
+            self.list_note.setText(trf("Проверки из первых {n} находок. Число рядом с проверкой — находки в этой выборке, не во всём скане.", n=len(findings.get("items") or [])))
         self._fill_list()
         self._fill_detail()
 
@@ -602,8 +608,9 @@ class IssuesScreen(Screen):
             button.setChecked(check == self.selected)
             button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
             button.setIcon(material_icon(icon, f"role:{colour}"))
-            button.setText(f"{name}  ·  {len(entry['items'])}")
-            button.setToolTip(f"{check} · {tr('число находок этой проверки в выборке')}")
+            count = self.check_counts.get(check, len(entry["items"]))
+            button.setText(f"{name}  ·  {count}")
+            button.setToolTip(f"{check} · {tr('число находок этой проверки в скане') if check in self.check_counts else tr('число находок этой проверки в выборке')}")
             button.setSizePolicy(button.sizePolicy().Expanding, button.sizePolicy().Fixed)
             button.setMinimumHeight(40)
             button.clicked.connect(lambda _c=False, c=check: self._select(c))

@@ -914,6 +914,8 @@ class UrlCard(QFrame):
         bar = QHBoxLayout()
         bar.setContentsMargins(4, 0, 8, 0)
         self.tabs = QTabBar()
+        self.tabs.setUsesScrollButtons(True)
+        self.tabs.setElideMode(Qt.ElideNone)
         self.tabs.setObjectName("cardTabs")
         self.tabs.setProperty("tabs", "underline")
         self.tabs.setDrawBase(False)

@@ -336,7 +336,10 @@ class TaskDetail(QFrame):
             verification = item.get("evidence_verification") or {}
             measurement = item.get("measurement")
             attempts = item.get("attempts")
-            self._text(trf("Попыток проверки: {n}", n=attempts if type(attempts) is int else tr("Нет данных")))
+            if type(attempts) is int and attempts == 0:
+                self._text(tr("Не запускалась"), "meta")
+            else:
+                self._text(trf("Попыток проверки: {n}", n=attempts if type(attempts) is int else tr("Нет данных")))
             self._text(trf("Измерение: {state}", state=(measurement or {}).get("state") if isinstance(measurement, dict) else tr("не проводилось")))
             self._text(trf("Подтверждение доказательств: {state}", state=verification.get("state") or tr("Нет данных")), "meta")
         self._section("История")
@@ -471,6 +474,8 @@ class WorkScreen(Screen):
         bar = QHBoxLayout()
         bar.setContentsMargins(4, 0, 12, 0)
         self.tabs = QTabBar()
+        self.tabs.setUsesScrollButtons(True)  # labels keep their full text at narrow widths: the bar scrolls
+        self.tabs.setElideMode(Qt.ElideNone)
         self.tabs.setProperty("tabs", "underline")
         self.tabs.setDrawBase(False)
         for _ in range(3):
