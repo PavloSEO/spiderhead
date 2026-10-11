@@ -48,7 +48,9 @@ from seohead.crawl.spider import LinkEdge
 # 65 -> 66 for the resolved AMP target (#1020), measured over 8,000 distinct URLs on
 # Python 3.14: an empty string adds no allocation, a populated AMP URL adds about 99 bytes
 # per record.
-FIELD_COUNTS_THE_CEILING_WAS_COMPUTED_AGAINST = {LinkEdge: 8, PageRecord: 67}
+# 67 -> 68 for render-blocking JSON (#1022), paired over 8,000 distinct URLs on
+# Python 3.14: null adds no allocation, two distinct resource URLs add about 131 bytes.
+FIELD_COUNTS_THE_CEILING_WAS_COMPUTED_AGAINST = {LinkEdge: 8, PageRecord: 68}
 
 
 def test_both_crawlers_read_the_same_ceiling() -> None:

@@ -70,6 +70,11 @@ from typing import Any
 # above may approach 12,200 bytes/page with rich attribution markup (about
 # 0.31 GiB extra at 50,000 URLs). These estimates exclude other crawl/analyzer
 # allocations and are not a full-run memory guarantee.
+# The nullable render-blocking JSON projection (#1022) adds field 68. A paired
+# Python 3.14 tracemalloc run over 8,000 distinct-URL records measured 2,503 bytes
+# per default record at both 67 and 68 fields; null adds no allocation. Two
+# distinct resource URLs in the populated JSON array add about 131 bytes per
+# record. Longer resource lists cost more; the native route streams this evidence.
 # Explicit native crawl admission; capacity still depends on independent request,
 # time, body, disk and renderer budgets. Admission is not a benchmark result.
 # Higher requests are refused, never silently clamped.
