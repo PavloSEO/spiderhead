@@ -6,7 +6,7 @@ The pinned build dependency is PyQt5 5.15.11, copyright Riverbank Computing
 Limited. Its installed metadata states GPL v3 and also describes a separate
 commercial license. The source distribution includes the full GPLv3 text as
 `LICENSE`; packaged artifacts copy it as
-`licenses/SEOHEAD-Desktop-GPL-3.0-or-later.txt`.
+`licenses/SpiderHead-Desktop-GPL-3.0-or-later.txt`.
 
 PyQt5-Qt5 5.15.19 provides the Qt subset required by the binding. Its installed
 metadata states LGPL v3. The build copies the exact wheel license to
@@ -19,7 +19,7 @@ substitute for release review of the final build environment.
 
 The co-shipped `seohead-seotools` core is MIT-licensed. The build copies its
 `LICENSE` and `THIRD_PARTY_NOTICES.md` from the exact, recorded source commit
-into the application bundle.
+into the SpiderHead application bundle.
 
 ## Assets
 

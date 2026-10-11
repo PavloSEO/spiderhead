@@ -1,4 +1,4 @@
-"""SEOHEAD native desktop presentation skeleton."""
+"""SpiderHead native desktop application."""
 
 try:  # every entry point and test imports this package first: Python must never tear Qt objects down at exit
     from PyQt5 import sip

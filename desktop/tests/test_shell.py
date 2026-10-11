@@ -189,7 +189,7 @@ class ShellTests(unittest.TestCase):
             scans = project / "scans"
             scans.mkdir(parents=True)
             (project / "project.json").write_text("{}", encoding="utf-8")
-            desktop = root / "bin" / "SEOHEAD Desktop"
+            desktop = root / "bin" / "SpiderHead"
             desktop.parent.mkdir()
             desktop.write_bytes(b"desktop")
             resources = desktop.parent / "Resources"

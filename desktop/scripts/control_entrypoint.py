@@ -1,4 +1,4 @@
-"""Frozen console entrypoint for the local SEOHEAD Desktop control client."""
+"""Frozen console entrypoint for the local SpiderHead Desktop control client."""
 
 from seohead_desktop.control_cli import main
 

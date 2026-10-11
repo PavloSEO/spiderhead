@@ -269,23 +269,42 @@ class OverviewPage(QWidget):
 class SnippetPage(QWidget):
     """«Сниппет»: title and description with their lengths, as the page stores them."""
 
-    def __init__(self, parent=None):
+    def __init__(self, host=None, parent=None):
         super().__init__(parent)
+        self.host = host
+        self.url = ""
+        self.title = ""
+        self.description = ""
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 14, 20, 14)
         self.pairs = Pairs(("Title", "Длина title", "Description", "Длина description"))
         layout.addWidget(self.pairs)
+        self.edit_button = QPushButton("Prepare review task…")
+        self.edit_button.clicked.connect(self._edit)
+        layout.addWidget(self.edit_button, 0, Qt.AlignLeft)
         layout.addStretch(1)
 
-    def fill(self, page):
+    def fill(self, page, url=""):
         page = page or {}
         title, description = clean(page.get("title")), clean(page.get("meta_description"))
+        self.url, self.title, self.description = url or "", title or "", description or ""
         self.pairs.set("Title", title)
         self.pairs.set("Длина title", trf("{n} зн.", n=len(title)) if title else None)
         self.pairs.set("Description", description)
         self.pairs.set(
             "Длина description", trf("{n} зн.", n=len(description)) if description else None
         )
+
+    def _edit(self):
+        if not self.host or not self.url:
+            return
+        from .methods import VIEW_METHODS
+
+        page = self.host.placeholder_pages.get(VIEW_METHODS)
+        if page is None or not hasattr(page, "open_snippet"):
+            return
+        page.open_snippet(self.url, self.title, self.description)
+        self.host.navigation.select_section("methods")
 
 
 class Accordion(QFrame):

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build a self-contained macOS app plus the exact local SEOHEAD core revision.
+# Build a self-contained SpiderHead app plus the exact local seohead core revision.
 set -eu
 
 project_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
@@ -78,7 +78,7 @@ mkdir -p "$core_build" "$agent_build" "$app_build"
     "$project_dir/scripts/control_entrypoint.py"
 
 "$python_bin" -m PyInstaller \
-    $clean_flag --noconfirm --onedir --windowed --name "SEOHEAD Desktop" \
+    $clean_flag --noconfirm --onedir --windowed --name "SpiderHead" \
     --paths "$project_dir/src" \
     --osx-bundle-identifier tech.seohead.desktop \
     --icon "$project_dir/src/seohead_desktop/assets/app/seohead.icns" \
@@ -86,8 +86,8 @@ mkdir -p "$core_build" "$agent_build" "$app_build"
     --distpath "$app_build/dist" --workpath "$app_build/work" --specpath "$app_build" \
     "$project_dir/scripts/entrypoint.py"
 
-bundle="$scratch/SEOHEAD Desktop.app"
-ditto "$app_build/dist/SEOHEAD Desktop.app" "$bundle"
+bundle="$scratch/SpiderHead.app"
+ditto "$app_build/dist/SpiderHead.app" "$bundle"
 resources="$bundle/Contents/Resources"
 mkdir -p "$resources/core"
 # PyInstaller maps --add-data into Contents/Frameworks for a macOS .app.
@@ -97,7 +97,7 @@ ditto "$core_build/dist/seohead" "$resources/core/seohead"
 mkdir -p "$resources/agent"
 ditto "$agent_build/dist/seohead-desktop-agent" "$resources/agent/seohead-desktop-agent"
 mkdir -p "$resources/licenses"
-cp "$project_dir/LICENSE" "$resources/licenses/SEOHEAD-Desktop-GPL-3.0-or-later.txt"
+cp "$project_dir/LICENSE" "$resources/licenses/SpiderHead-Desktop-GPL-3.0-or-later.txt"
 cp "$project_dir/THIRD_PARTY_NOTICES.md" "$resources/licenses/THIRD_PARTY_NOTICES.md"
 cp "$core_source/LICENSE" "$resources/licenses/SEOHEAD-Tools-MIT.txt"
 cp "$core_source/THIRD_PARTY_NOTICES.md" "$resources/licenses/SEOHEAD-Tools-THIRD_PARTY_NOTICES.md"
