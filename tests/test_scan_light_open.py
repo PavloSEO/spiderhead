@@ -50,9 +50,11 @@ def test_status_is_light_by_default_and_counts_match_full(tmp_path, counters):
     assert counters["full"] == 1
 
     assert (light["validation"], full["validation"]) == ("light", "full")
-    assert {k: v for k, v in light.items() if k != "validation"} == {
-        k: v for k, v in full.items() if k != "validation"
-    }
+    assert {
+        k: v for k, v in light.items() if k not in {"validation", "integrity"}
+    } == {k: v for k, v in full.items() if k not in {"validation", "integrity"}}
+    assert light["integrity"]["state"] == "not_checked"
+    assert full["integrity"]["state"] == "ok"
     assert light["committed_page_outcomes"]["2xx"] == 1
 
 
@@ -85,7 +87,7 @@ def test_light_open_still_rejects_schema_and_header_damage(tmp_path, mutation):
             con.execute(statement)
 
     with pytest.raises(ScanError):
-        scan_status(str(path))
+        open_scan_mode(path, require_audit=False, light=True)
 
 
 def test_light_open_rejects_non_scan_and_foreign_files(tmp_path):
@@ -97,7 +99,7 @@ def test_light_open_rejects_non_scan_and_foreign_files(tmp_path):
 
     for path in (garbage, foreign, tmp_path / "missing.sqlite"):
         with pytest.raises(ScanError):
-            scan_status(str(path))
+            open_scan_mode(path, require_audit=False, light=True)
 
 
 def test_legacy_import_is_not_light_eligible(legacy_run, tmp_path):

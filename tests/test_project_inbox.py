@@ -345,6 +345,10 @@ def test_observer_finding_browser_filters_sorts_pages_and_keeps_scan_read_only(t
 
     unfiltered = findings_page(root, limit=2, sort="target_url", descending=True)
     assert unfiltered["counts"]["source"] >= 1
+    selected_url = unfiltered["items"][0]["target_url"]
+    by_url = findings_page(root, url=selected_url, limit=100)
+    assert by_url["counts"]["matched"] >= 1
+    assert all(item["target_url"] == selected_url for item in by_url["items"])
     needle = unfiltered["items"][0]["check"]
     page = findings_page(root, query=needle, limit=2, sort="target_url", descending=True)
     assert page["counts"]["matched"] >= 1

@@ -5125,6 +5125,9 @@ def scan_url_detail(
     form_offset: int = 0,
     form_limit: int = 20,
     max_bytes: int = 1_048_576,
+    body_offset: int = 0,
+    body_length: int = 4096,
+    max_body_bytes: int = 8 * 1024 * 1024,
 ) -> dict[str, Any]:
     """Read one exact native URL's bounded retained transport metadata offline."""
     from seohead.mcp.history_handlers import scan_url_detail as core
@@ -5137,6 +5140,55 @@ def scan_url_detail(
         form_offset=form_offset,
         form_limit=form_limit,
         max_bytes=max_bytes,
+        body_offset=body_offset,
+        body_length=body_length,
+        max_body_bytes=max_body_bytes,
+    )
+
+
+def scan_body_read(
+    input_path: str,
+    url: str,
+    representation: str = "static",
+    variant_key: str | None = None,
+    offset: int = 0,
+    length: int = 4096,
+    max_decoded_bytes: int = 8 * 1024 * 1024,
+) -> dict[str, Any]:
+    from seohead.mcp.history_handlers import scan_body_read as core
+
+    return core(
+        input_path,
+        url,
+        representation=representation,
+        variant_key=variant_key,
+        offset=offset,
+        length=length,
+        max_decoded_bytes=max_decoded_bytes,
+    )
+
+
+def scan_findings_page(
+    project: str,
+    scan_uuid: str | None = None,
+    offset: int = 0,
+    limit: int = 100,
+    query: str = "",
+    url: str | None = None,
+    sort: str = "severity",
+    descending: bool = False,
+) -> dict[str, Any]:
+    from seohead.projects.observer import findings_page
+
+    return findings_page(
+        project,
+        scan_uuid=scan_uuid,
+        offset=offset,
+        limit=limit,
+        query=query,
+        url=url,
+        sort=sort,
+        descending=descending,
     )
 
 
@@ -5266,6 +5318,8 @@ def scan_body_diff(
     text: bool = False,
     max_bytes: int = 5 * 1024 * 1024,
     max_lines: int = 10_000,
+    left_representation: str | None = None,
+    right_representation: str | None = None,
 ) -> dict[str, Any]:
     from seohead.mcp.history_handlers import scan_body_diff as core
 
@@ -5278,6 +5332,8 @@ def scan_body_diff(
         text=text,
         max_bytes=max_bytes,
         max_lines=max_lines,
+        left_representation=left_representation,
+        right_representation=right_representation,
     )
 
 
@@ -5305,6 +5361,32 @@ def project_open(directory: str, expected_site: str | None = None) -> dict[str, 
     from seohead.mcp.project_handlers import project_open as core
 
     return core(directory, expected_site=expected_site)
+
+
+def project_archive(
+    project: str,
+    out: str,
+    dry_run: bool = False,
+    exclude_bodies: bool = False,
+    exclude_bodies_older_than_days: int | None = None,
+    keep_newest_scans: int | None = None,
+) -> dict[str, Any]:
+    from seohead.projects.archive import archive_project
+
+    return archive_project(
+        project,
+        out,
+        dry_run=dry_run,
+        exclude_bodies=exclude_bodies,
+        exclude_bodies_older_than_days=exclude_bodies_older_than_days,
+        keep_newest_scans=keep_newest_scans,
+    )
+
+
+def project_restore(archive: str, to: str) -> dict[str, Any]:
+    from seohead.projects.archive import restore_project
+
+    return restore_project(archive, to)
 
 
 def project_status(directory: str, consumer: str | None = None) -> dict[str, Any]:
@@ -7201,6 +7283,7 @@ _RAW_HANDLERS = {
     "scan_list": scan_list,
     "scan_inspect": scan_inspect,
     "scan_url_detail": scan_url_detail,
+    "scan_body_read": scan_body_read,
     "scan_url_query": scan_url_query,
     "scan_url_history": scan_url_history,
     "scan_link_inspect": scan_link_inspect,
@@ -7220,8 +7303,11 @@ _RAW_HANDLERS = {
     "scan_pin": scan_pin,
     "scan_prune": scan_prune,
     "scan_body_diff": scan_body_diff,
+    "scan_findings_page": scan_findings_page,
     "project_new": project_new,
     "project_open": project_open,
+    "project_archive": project_archive,
+    "project_restore": project_restore,
     "project_status": project_status,
     "project_sources_link": project_sources_link,
     "project_sources_unlink": project_sources_unlink,

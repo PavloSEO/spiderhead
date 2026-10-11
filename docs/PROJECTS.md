@@ -88,10 +88,14 @@ preserve the relative artifact references.
 Local portability: the project archive action writes one zip (a manifest with SHA-256 and size for
 each member, plus project.json, log.md, scans/, reports/ and the top-level SQLite stores, which are
 snapshotted through the SQLite backup API). A dry-run reports the file list, skipped entries and a
-size estimate without writing. Credential-like file names are never archived. The restore action
-verifies every member against the manifest, validates the project, and publishes it at a new path
-only; it never replaces an existing directory. Raw HTML bodies pruning, event journal, bindings and
-core version compatibility are not part of this first slice (#996). The `ledger.v1` remediation ledger
+size estimate without writing. `--exclude-bodies` removes retained HTML BLOBs from archived SQLite
+snapshots while preserving document, response and findings tables; restored body state is explicitly
+unavailable. `--exclude-bodies-older-than-days 30|90` applies the same omission to older captured
+HTML while keeping newer bodies. `--keep-newest-scans N` retains only the newest N recognized scan databases.
+Credential-like file names are never archived. The restore action verifies every member against the
+manifest, validates the project, and publishes it at a new path only; it never replaces an existing
+directory. Event journal, provider bindings and core version compatibility remain outside the current
+archive contract (#996). The `ledger.v1` remediation ledger
 ([LEDGER.md](LEDGER.md)) binds to this project UUID and normalized site target: it
 tracks the project's findings and their observation history in a separate artifact,
 never inside a scan.

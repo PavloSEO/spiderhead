@@ -53,10 +53,12 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | Command | What it does | Effects |
 |---|---|---|
 | `scan-list` | List saved SQLite scan metadata without loading retained bodies. | offline, read-only |
-| `scan-status` | Summarize frontier work and committed page outcomes from one saved scan offline. | offline, read-only |
+| `scan-status` | Summarize frontier work and committed page outcomes; expose integrity state, damage scope, and checkpoint availability. | offline, read-only |
 | `scan-inspect` | Read a bounded, paginated table view from one saved scan. | offline, read-only |
 | `scan-url-query` | Filter, sort and paginate the whole page table of one saved scan with total and filtered total. `--preset` applies a ready-made view; `--export PATH` writes all matching rows to a new CSV or XLSX file. | offline, read-only |
-| `scan-url-detail` | Read one exact native URL's retained headers, redirects, page fields, and forms. | offline, read-only |
+| `scan-url-detail` | Read one exact native URL's bounded source HTML window, headers, redirects, page fields, and forms. | offline, read-only |
+| `scan-body-read` | Read a bounded retained static or rendered HTML window with raw and decoded hashes. | offline, read-only |
+| `scan-findings-page` | Read a sorted, filtered page of retained findings, optionally for one exact URL. | offline, read-only |
 | `scan-url-history` | Read one exact URL's state across the newest saved scans of a project (`--limit` 1..500, default 50). | offline, read-only |
 | `scan-link-inspect` | Inspect saved shortest paths, reverse inlinks, per-link DOM context, or one URL's paged links offline. | offline, read-only |
 | `scan-navigation` | Read bounded observed navigation evidence from a retained local scan. | offline, read-only |
@@ -67,7 +69,7 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `scan-extract` | Run bounded data-only extraction rules on retained complete bodies, without network or writes. | offline, read-only |
 | `scan-fragment-links` | Evaluate every retained fragment anchor offline and page the results. | offline, read-only |
 | `scan-structured-blocks` | Describe one retained URL's JSON-LD blocks offline: line, state, graph findings and source JSON. | offline, read-only |
-| `scan-body-diff` | Compare compatible retained bodies offline; a change is not an SEO verdict. | offline, read-only |
+| `scan-body-diff` | Compare retained bodies across scans, or static versus rendered bodies within one scan; text output is bounded. | offline, read-only |
 | `scan-graph` | Read a bounded retained internal graph by positions, section or local neighbourhood; compare scans. |
 | `scan-sitemap-generate` | Write local split XML and optional image sitemaps from retained canonical, indexable 200 pages. |
 | `scan-reanalyze` | Reparse retained HTML/DOM and rerun existing checks without network. | writes |
@@ -185,6 +187,8 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-competitors-list` | Read the recorded competitor candidates and their workspaces. | — |
 | `project-competitors-remove` | Drop one recorded competitor from the shortlist; its workspace stays on disk. | writes |
 | `project-open` | Open a local project workspace without executing template references. | offline, read-only |
+| `project-archive` | Write a portable project archive, with optional body-age and newest-scan retention. | writes a new archive |
+| `project-restore` | Verify and restore an archive into a new project directory. | writes a new directory |
 | `project-status` | Show project scan history and named pending checklist/preparation states. | offline, read-only |
 | `project-sources-link` | Bind a provider resource ID to a project in `sources.json`; no provider call. | writes |
 | `project-sources-unlink` | Remove one resource binding from `sources.json`; no provider call. | writes |

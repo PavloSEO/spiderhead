@@ -108,6 +108,69 @@ def test_static_uses_active_inventory_after_page_selects_rendered_document(tmp_p
     with sqlite3.connect(left_path) as left, sqlite3.connect(right_path) as right:
         result = body_diff(left, right, PAGE_URL)
     assert result["status"] == "unchanged"
+
+
+def test_body_diff_compares_static_with_rendered_in_one_scan(tmp_path):
+    path = tmp_path / "scan.sqlite"
+    _static_and_rendered_scan(
+        path,
+        static=b"<html><body>server copy</body></html>",
+        diagnostic=b"<html>diagnostic</html>",
+        renderer=_renderer(PAGE_URL),
+    )
+    with sqlite3.connect(path) as scan:
+        result = body_diff(
+            scan,
+            scan,
+            PAGE_URL,
+            left_representation="static",
+            right_representation="rendered",
+            text=True,
+        )
+    assert result["status"] == "changed"
+    assert result["representation"] == "cross-representation"
+    assert result["left_representation"] == "static"
+    assert result["right_representation"] == "rendered"
+    assert "server copy" in "\n".join(result["text_diff"])
+
+
+def test_body_diff_cli_and_mcp_share_cross_representation_options(tmp_path, capsys):
+    from seohead import cli
+    from seohead.mcp.mcp_server import build_server
+
+    path = tmp_path / "scan.sqlite"
+    _static_and_rendered_scan(
+        path,
+        static=b"<html><body>server copy</body></html>",
+        diagnostic=b"<html>diagnostic</html>",
+        renderer=_renderer(PAGE_URL),
+    )
+    args = [
+        "scan-body-diff",
+        "--left",
+        str(path),
+        "--right",
+        str(path),
+        "--url",
+        PAGE_URL,
+        "--left-representation",
+        "static",
+        "--right-representation",
+        "rendered",
+        "--text",
+    ]
+    assert cli.main(args) == 0
+    command_result = json.loads(capsys.readouterr().out)
+    tool = build_server()._tool_manager.get_tool("seo_scan_body_diff")
+    mcp_result = tool.fn(
+        left=str(path),
+        right=str(path),
+        url=PAGE_URL,
+        left_representation="static",
+        right_representation="rendered",
+        text=True,
+    )
+    assert command_result == mcp_result
     assert result["left"]["document_id"] == left_static
 
 

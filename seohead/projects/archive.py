@@ -41,7 +41,24 @@ def _credential_name(name: str) -> bool:
     return _CREDENTIAL.search(name) is not None
 
 
-def _plan(root: Path) -> tuple[list[tuple[str, Path]], list[dict[str, str]]]:
+def _scan_timestamp(path: Path) -> tuple[str, str] | None:
+    """Read a retained scan's stable age key without accepting arbitrary databases."""
+    try:
+        with contextlib.closing(
+            sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True)
+        ) as con:
+            row = con.execute(
+                "SELECT scan_uuid,COALESCE(NULLIF(finished_at,''),created_at) "
+                "FROM scan WHERE singleton=1"
+            ).fetchone()
+    except sqlite3.Error:
+        return None
+    return (row[1] or "", row[0] or "") if row else None
+
+
+def _plan(
+    root: Path, *, keep_newest_scans: int | None = None
+) -> tuple[list[tuple[str, Path]], list[dict[str, str]]]:
     """Return (archived entries, skipped entries) relative to the project root."""
     included: list[tuple[str, Path]] = []
     skipped: list[dict[str, str]] = []
@@ -70,6 +87,26 @@ def _plan(root: Path) -> tuple[list[tuple[str, Path]], list[dict[str, str]]]:
                     continue
                 path = Path(dirpath) / filename
                 take(path.relative_to(root).as_posix(), path)
+    if keep_newest_scans is not None:
+        scans = [
+            (rel, path, stamp)
+            for rel, path in included
+            if rel.startswith("scans/")
+            and rel.lower().endswith(_SQLITE)
+            and (stamp := _scan_timestamp(path)) is not None
+        ]
+        newest = {
+            rel
+            for rel, _path, _stamp in sorted(scans, key=lambda item: (item[2], item[0]))[
+                -keep_newest_scans:
+            ]
+        }
+        omitted = {rel for rel, _path, _stamp in scans if rel not in newest}
+        included = [(rel, path) for rel, path in included if rel not in omitted]
+        skipped.extend(
+            {"path": rel, "reason": f"outside keep_newest_scans={keep_newest_scans}"}
+            for rel in sorted(omitted)
+        )
     return included, skipped
 
 
@@ -93,16 +130,91 @@ def _snapshot(source: Path, destination: Path) -> None:
         src.backup(dst)
 
 
+def _exclude_html_bodies(path: Path, *, older_than_days: int | None = None) -> int:
+    """Remove stored page documents from an archive snapshot while preserving evidence tables."""
+    with sqlite3.connect(path) as con:
+        tables = {
+            row[0]
+            for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }
+        if not {"scan", "documents", "responses", "bodies"} <= tables:
+            return 0
+        header = con.execute(
+            "SELECT format_version FROM scan WHERE singleton=1"
+        ).fetchone()
+        if header is None or header[0] not in {"scan.v1", "scan.v2"}:
+            return 0
+        before = con.execute("SELECT COUNT(*) FROM bodies").fetchone()[0]
+        if older_than_days is None:
+            condition = (
+                "body_sha256 IS NOT NULL AND (fidelity='serialized_dom' OR EXISTS "
+                "(SELECT 1 FROM responses r WHERE r.response_id=documents.source_response_id "
+                "AND lower(r.content_type) LIKE '%html%'))"
+            )
+            values = ()
+        else:
+            cutoff = datetime.now(UTC).timestamp() - older_than_days * 86400
+            cutoff_at = datetime.fromtimestamp(cutoff, UTC).isoformat().replace("+00:00", "Z")
+            condition = (
+                "body_sha256 IS NOT NULL AND captured_at<? AND (fidelity='serialized_dom' "
+                "OR EXISTS (SELECT 1 FROM responses r WHERE "
+                "r.response_id=documents.source_response_id AND lower(r.content_type) LIKE '%html%'))"
+            )
+            values = (cutoff_at,)
+        con.execute(
+            "UPDATE documents SET body_sha256=NULL,body_state='unavailable',"
+            "body_reason='not_in_corpus' WHERE " + condition,
+            values,
+        )
+        if older_than_days is None:
+            con.execute(
+                "UPDATE responses SET body_sha256=NULL,body_state='unavailable',"
+                "body_reason='not_in_corpus' WHERE body_sha256 IS NOT NULL AND purpose='page' "
+                "AND lower(content_type) LIKE '%html%'"
+            )
+        else:
+            con.execute(
+                "UPDATE responses SET body_sha256=NULL,body_state='unavailable',"
+                "body_reason='not_in_corpus' WHERE body_sha256 IS NOT NULL AND purpose='page' "
+                "AND lower(content_type) LIKE '%html%' AND received_at<?",
+                (cutoff_at,),
+            )
+        con.execute(
+            "DELETE FROM bodies WHERE NOT EXISTS "
+            "(SELECT 1 FROM documents WHERE documents.body_sha256=bodies.sha256) "
+            "AND NOT EXISTS (SELECT 1 FROM responses WHERE responses.body_sha256=bodies.sha256)"
+        )
+        removed = before - con.execute("SELECT COUNT(*) FROM bodies").fetchone()[0]
+        con.commit()
+        return removed
+
+
 def archive_project(
-    directory: str | Path, out: str | Path, *, dry_run: bool = False
+    directory: str | Path,
+    out: str | Path,
+    *,
+    dry_run: bool = False,
+    exclude_bodies: bool = False,
+    exclude_bodies_older_than_days: int | None = None,
+    keep_newest_scans: int | None = None,
 ) -> dict[str, Any]:
     """Write one zip for a validated project; dry_run only reports the plan and size estimate."""
     root, document = _load(directory)
+    if type(exclude_bodies) is not bool:
+        raise ValueError("exclude_bodies must be a boolean")
+    if exclude_bodies_older_than_days not in {None, 30, 90}:
+        raise ValueError("exclude_bodies_older_than_days must be 30, 90, or null")
+    if exclude_bodies and exclude_bodies_older_than_days is not None:
+        raise ValueError("choose exclude_bodies or exclude_bodies_older_than_days")
+    if keep_newest_scans is not None and (
+        type(keep_newest_scans) is not int or not 1 <= keep_newest_scans <= 10_000
+    ):
+        raise ValueError("keep_newest_scans must be from 1 to 10000")
     target = Path(out)
     if not target.name or ".." in target.parts:
         raise ValueError("archive output must be a plain file path")
     parent = _directory(target.parent, "archive output parent")
-    included, skipped = _plan(root)
+    included, skipped = _plan(root, keep_newest_scans=keep_newest_scans)
     estimate = sum(path.stat().st_size for _, path in included)
     plan = {
         "ok": True,
@@ -110,6 +222,9 @@ def archive_project(
         "files": [rel for rel, _ in included],
         "skipped": skipped,
         "estimated_bytes": estimate,
+        "exclude_bodies": exclude_bodies,
+        "exclude_bodies_older_than_days": exclude_bodies_older_than_days,
+        "keep_newest_scans": keep_newest_scans,
     }
     if dry_run:
         return plan
@@ -119,10 +234,16 @@ def archive_project(
     partial = parent / f".{target.name}.partial"
     with tempfile.TemporaryDirectory(prefix=".seohead-archive-", dir=parent) as scratch:
         staged: list[tuple[str, Path]] = []
+        excluded_body_blobs = 0
         for rel, path in included:
             copy = Path(scratch) / rel.replace("/", "__")
             if rel.endswith(_SQLITE):
                 _snapshot(path, copy)
+                if exclude_bodies or exclude_bodies_older_than_days is not None:
+                    excluded_body_blobs += _exclude_html_bodies(
+                        copy,
+                        older_than_days=exclude_bodies_older_than_days,
+                    )
             else:
                 shutil.copyfile(path, copy)
             staged.append((rel, copy))
@@ -148,7 +269,14 @@ def archive_project(
         os.link(partial, target, follow_symlinks=False)
     finally:
         partial.unlink(missing_ok=True)
-    plan.update({"dry_run": False, "archive": str(target), "file_count": len(entries)})
+    plan.update(
+        {
+            "dry_run": False,
+            "archive": str(target),
+            "file_count": len(entries),
+            "excluded_body_blobs": excluded_body_blobs,
+        }
+    )
     return plan
 
 

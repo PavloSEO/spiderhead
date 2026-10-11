@@ -1984,6 +1984,32 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         )
 
     @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_archive(
+        project: str,
+        out: str,
+        dry_run: bool = False,
+        exclude_bodies: bool = False,
+        exclude_bodies_older_than_days: int | None = None,
+        keep_newest_scans: int | None = None,
+    ) -> dict[str, Any]:
+        """Write a portable archive to a new path, optionally omitting bodies or older scans."""
+        return _checked(
+            handlers.project_archive(
+                project=project,
+                out=out,
+                dry_run=dry_run,
+                exclude_bodies=exclude_bodies,
+                exclude_bodies_older_than_days=exclude_bodies_older_than_days,
+                keep_newest_scans=keep_newest_scans,
+            )
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_restore(archive: str, to: str) -> dict[str, Any]:
+        """Restore a verified portable archive into a new project directory."""
+        return _checked(handlers.project_restore(archive=archive, to=to))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
     def seo_project_sources_link(
         directory: str, service: str, resource: str, label: str | None = None
     ) -> dict[str, Any]:
@@ -3582,12 +3608,15 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         form_offset: int = 0,
         form_limit: int = 20,
         max_bytes: int = 1_048_576,
+        body_offset: int = 0,
+        body_length: int = 4096,
+        max_body_bytes: int = 8 * 1024 * 1024,
     ) -> dict[str, Any]:
-        """Read one exact native URL's retained headers, redirects, page fields, and forms.
+        """Read one exact native URL's bounded retained HTML and transport evidence.
 
         The query is offline and read-only. Header and query values stay redacted,
-        body bytes remain unavailable here, and legacy/Screaming Frog sources
-        return named unavailable evidence instead of an empty detail record.
+        source HTML is returned as one bounded window with raw and decoded hashes,
+        and legacy/Screaming Frog sources return named unavailable evidence.
         """
         return _checked(
             handlers.scan_url_detail(
@@ -3598,6 +3627,57 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 form_offset=form_offset,
                 form_limit=form_limit,
                 max_bytes=max_bytes,
+                body_offset=body_offset,
+                body_length=body_length,
+                max_body_bytes=max_body_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_body_read(
+        input_path: str,
+        url: str,
+        representation: str = "static",
+        variant_key: str | None = None,
+        offset: int = 0,
+        length: int = 4096,
+        max_decoded_bytes: int = 8 * 1024 * 1024,
+    ) -> dict[str, Any]:
+        """Read a bounded static or rendered HTML window from one saved scan offline."""
+        return _checked(
+            handlers.scan_body_read(
+                input_path=input_path,
+                url=url,
+                representation=representation,
+                variant_key=variant_key,
+                offset=offset,
+                length=length,
+                max_decoded_bytes=max_decoded_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_findings_page(
+        project: str,
+        scan_uuid: str | None = None,
+        offset: int = 0,
+        limit: int = 100,
+        query: str = "",
+        url: str | None = None,
+        sort: str = "severity",
+        descending: bool = False,
+    ) -> dict[str, Any]:
+        """Read one bounded page of saved findings, optionally for one exact URL."""
+        return _checked(
+            handlers.scan_findings_page(
+                project=project,
+                scan_uuid=scan_uuid,
+                offset=offset,
+                limit=limit,
+                query=query,
+                url=url,
+                sort=sort,
+                descending=descending,
             )
         )
 
@@ -3815,8 +3895,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         text: bool = False,
         max_bytes: int = 5 * 1024 * 1024,
         max_lines: int = 10_000,
+        left_representation: str | None = None,
+        right_representation: str | None = None,
     ) -> dict[str, Any]:
-        """Compare compatible retained bodies offline; a change is not an SEO verdict."""
+        """Compare retained bodies across scans or static/rendered bodies in one scan offline."""
         return _checked(
             handlers.scan_body_diff(
                 left=left,
@@ -3827,6 +3909,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 text=text,
                 max_bytes=max_bytes,
                 max_lines=max_lines,
+                left_representation=left_representation,
+                right_representation=right_representation,
             )
         )
 
