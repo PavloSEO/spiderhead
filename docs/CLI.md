@@ -68,6 +68,8 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `scan-fragment-links` | Evaluate every retained fragment anchor offline and page the results. | offline, read-only |
 | `scan-structured-blocks` | Describe one retained URL's JSON-LD blocks offline: line, state, graph findings and source JSON. | offline, read-only |
 | `scan-body-diff` | Compare compatible retained bodies offline; a change is not an SEO verdict. | offline, read-only |
+| `scan-graph` | Read a bounded retained internal graph by positions, section or local neighbourhood; compare scans. |
+| `scan-sitemap-generate` | Write local split XML and optional image sitemaps from retained canonical, indexable 200 pages. |
 | `scan-reanalyze` | Reparse retained HTML/DOM and rerun existing checks without network. | writes |
 | `scan-export` | Export retained scan data under scan_export.v1 as CSV, XLSX, JSON, or XML. | writes |
 | `scan-snapshot` | Create a consistent new SQLite snapshot without overwriting a destination. | writes |
@@ -109,6 +111,9 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `log-analyze` | Analyse a web server access log (Apache/Nginx Common or Combined, IIS W3C; gzip-compressed files are read directly). | network |
 | `regions-check` | Audit a site's regional structure: subdomains (msk.site.ru), folders (site.ru/msk/) and satellite domains (site-msk.ru). | network |
 | `backlinks-check` | Verify backlinks from a list of donor pages: is the link still there, its anchor and rel, whether it passes weight (nofollow/ugc/sponsored), and whether the donor… | network |
+| `backlinks-profile` | Merge explicit backlink CSV/provider evidence, retain private history, or read history with --history; source calls are explicit. | network, writes, paid opt-in |
+| `backlinks-disavow` | Export only reviewed donor domains/URLs to a new local file; never submit or overwrite. | writes |
+| `dataforseo-estimate` | Quote supplied provider prices offline; --refresh-prices explicitly reads the free account price endpoint. | network opt-in |
 
 ## AI search readiness (GEO/AEO)
 
@@ -352,3 +357,19 @@ scans or update the project. Notes/goals still require their explicit editor act
 seohead watch --project workspace/site --lang ru --compact
 seohead tui --project workspace/site --lang en --compact
 ```
+
+## Retained link graph and sitemap files
+
+`seohead scan graph` is also available as `seohead scan-graph`. It accepts `--scan`,
+`--section`, `--positions`, `--around`, `--depth`, `--aggregate sections`, independent
+`--node-offset`/`--edge-offset` and row limits, `--max-nodes`, `--max-edges`,
+`--timeout-seconds`, `--max-bytes`, and `--compare-to`. JSON totals and clipping state
+make partial graph pages explicit.
+
+`seohead scan sitemap-generate` (alias `scan-sitemap-generate`) accepts `--scan`,
+`--out-dir`, `--sitemap-base-url`, optional `--include-images` and repeated `--exclude`
+globs. The output directory must be new; the deployment base must be a same-origin
+HTTP(S) directory URL. It performs no requests or deployment.
+
+`scan-reanalyze --step links.position --max-documents N` performs one offline position
+batch into a fresh derived output. Use that output as the next input to continue.

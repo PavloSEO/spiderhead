@@ -118,6 +118,32 @@ def _drop_retained_only_checks(audit: dict) -> dict:
         *security_headers.CHECK_IDS,
         *RESOURCE_CHECKS,
         *RENDER_CHECKS,
+        "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
+        "BROKEN_INTERNAL_LINK",
+        "INTERNAL_LINK_TO_REDIRECT",
+        "REDIRECT_CHAIN",
+        "REDIRECT_LOOP",
+        "INTERNAL_LINK_NO_ANCHOR",
+        "EXTERNAL_NO_RESPONSE",
+        "BROKEN_EXTERNAL_LINK",
+        "EXTERNAL_LINK_TO_REDIRECT",
+        "SITEMAP_URL_NON_INDEXABLE",
+        "SITEMAP_URL_NON_CANONICAL",
+        "SITEMAP_URL_BLOCKED_ROBOTS",
+        "INTERNALLY_LINKED_ROBOTS_BLOCKED",
+        "ROBOTS_BLOCKS_RESOURCES",
+        "SITEMAP_NOT_IN_ROBOTS",
+        "SITEMAP_FETCH_INCOMPLETE",
+        "SITEMAP_TOO_MANY_URLS",
+        "SITEMAP_TOO_LARGE",
+        "SITEMAP_URL_DUPLICATED",
+        "SITEMAP_STALE_LASTMOD",
+        "SITEMAP_ORPHAN",
+        "URL_NOT_IN_SITEMAP",
+        "SITEMAP_DESYNC",
+        "LINK_TO_5XX",
+        "SITEMAP_URL_3XX",
+        "SITEMAP_URL_4XX_5XX",
     }
     document = copy.deepcopy(audit)
     summary = document.get("summary") if isinstance(document.get("summary"), dict) else {}
@@ -128,6 +154,10 @@ def _drop_retained_only_checks(audit: dict) -> dict:
             for key, value in summary["asset_measurements"].items()
             if key not in retained_only
         }
+    # Disclosure replays the retained document; token counts use shared graph evidence.
+    if isinstance(summary.get("link_rel"), dict):
+        summary["link_rel"].pop("disclosure", None)
+    summary.pop("sitemap", None)
 
     removed_ids = {
         issue["id"] for issue in document.get("issues", []) if issue.get("check") in retained_only

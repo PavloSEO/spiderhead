@@ -90,14 +90,20 @@ _REGISTRY: dict[str, dict[str, Any]] = {
     "bing_webmaster": {
         "credential_components": ["api_key"],
         "access": "read_only",
-        "operations": ["sites", "crawl", "links", "keywords", "search_performance"],
+        "operations": ["sites", "crawl", "links", "url_links", "keywords", "search_performance"],
         "quota_mode": "Bing Webmaster API quota",
         "privacy_class": "restricted",
     },
     "dataforseo_backlinks": {
         "credential_components": ["login", "password"],
         "access": "read_only_optional_paid",
-        "operations": ["backlinks_summary"],
+        "operations": [
+            "backlinks_summary",
+            "backlinks",
+            "referring_domains",
+            "backlinks_history",
+            "domain_pages_summary",
+        ],
         "quota_mode": "paid per provider response",
         "privacy_class": "restricted",
         "default_enabled": False,
@@ -160,8 +166,18 @@ _COLLECTABLE_OPERATIONS: dict[str, frozenset[str]] = {
     "ga4": frozenset({"landing_pages", "page_views"}),
     "metrika": frozenset({"counters", "aggregate_report"}),
     "yandex_webmaster": frozenset(_WEBMASTER_OPERATIONS),
-    "bing_webmaster": frozenset({"sites", "crawl", "links", "keywords", "search_performance"}),
-    "dataforseo_backlinks": frozenset({"backlinks_summary"}),
+    "bing_webmaster": frozenset(
+        {"sites", "crawl", "links", "url_links", "keywords", "search_performance"}
+    ),
+    "dataforseo_backlinks": frozenset(
+        {
+            "backlinks_summary",
+            "backlinks",
+            "referring_domains",
+            "backlinks_history",
+            "domain_pages_summary",
+        }
+    ),
     "wayback": frozenset({"history"}),
     "crtsh": frozenset({"subdomains"}),
 }
@@ -746,7 +762,7 @@ def provider_collect(
     elif provider == "dataforseo_backlinks":
         from seohead.data_sources import dataforseo
 
-        result = dataforseo.backlinks_summary(**request)
+        result = dataforseo.backlink_call(operation, **request)
     elif provider == "wayback":
         from seohead.data_sources import wayback
 

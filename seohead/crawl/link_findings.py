@@ -108,6 +108,34 @@ def protocol_relative_links(links: list[LinkEdge]) -> list[dict[str, Any]]:
 # Hint tokens that describe a link leaving the site (paid placement, user-submitted content).
 # On a same-site link they describe nothing true.
 _OUTBOUND_HINT_REL = {"sponsored", "ugc"}
+_QUALIFYING_REL = {"nofollow", "sponsored", "ugc"}
+
+
+def mixed_rel_links(links: Iterable[LinkEdge]) -> Iterable[dict[str, Any]]:
+    """Review multiple qualifying tokens; their combination is valid HTML."""
+    for edge in links:
+        tokens = {token.lower() for token in edge.rel}
+        if len(tokens & _QUALIFYING_REL) > 1:
+            yield {
+                "target_url": edge.source,
+                "destination": edge.destination,
+                "rel": sorted(tokens),
+                "qualifying_rel": sorted(tokens & _QUALIFYING_REL),
+                "combination_valid": True,
+            }
+
+
+def rel_summary(links: Iterable[LinkEdge]) -> dict[str, Any]:
+    """Independent token counts; mixed edges contribute to each named class."""
+    counts = {"total": 0, "nofollow": 0, "ugc": 0, "sponsored": 0, "mixed": 0, "unqualified": 0}
+    for edge in links:
+        tokens = {token.lower() for token in edge.rel} & _QUALIFYING_REL
+        counts["total"] += 1
+        for token in tokens:
+            counts[token] += 1
+        counts["mixed"] += int(len(tokens) > 1)
+        counts["unqualified"] += int(not tokens)
+    return {"measured": True, "by_rel": counts, "counts_overlap": True}
 
 
 def internal_sponsored_ugc_links(links: Iterable[LinkEdge], host: str) -> list[dict[str, Any]]:

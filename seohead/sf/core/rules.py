@@ -236,6 +236,8 @@ _BODY_DERIVED_INDEXABLE_CHECKS = (
 )
 
 _BODY_DERIVED_HTML_CHECKS = (
+    "MIXED_LINK_REL",
+    "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
     "CANONICALISED",
     "CANONICAL_NON_INDEXABLE",
     "CANONICAL_RELATIVE",
@@ -1144,6 +1146,22 @@ def check_url_and_perf(ctx: AuditContext) -> None:
             and not _body_unavailable(rec)
         ):
             ctx.add("URL_HAS_PARAMS", target_url=url)
+        search_parts = urllib.parse.urlsplit(url)
+        if any(
+            part in {"search", "site-search", "recherche", "suche", "poisk"}
+            for part in path.lower().split("/")
+        ):
+            ctx.add(
+                "URL_INTERNAL_SEARCH",
+                target_url=url,
+                details={"path": path, "reason": "recognized path-based internal search route"},
+            )
+        elif set(urllib.parse.parse_qs(search_parts.query)) & {"s", "search", "q", "query"}:
+            ctx.add(
+                "URL_INTERNAL_SEARCH",
+                target_url=url,
+                details={"reason": "recognized internal search query parameter"},
+            )
         if urllib.parse.urlsplit(url).query:
             ctx.add("URL_HAS_PARAMETERS", target_url=url)
         if NON_ASCII.search(path):
@@ -3642,6 +3660,9 @@ def check_redirect_chains(ctx: AuditContext) -> None:
     the same findings without a second crawl. Only when Internal:All carries
     no redirect data at all is the pair skipped by name.
     """
+    if ctx.scan_con is not None:
+        # Stored native scans resolve hop evidence with indexed SQL lookups.
+        return
     from .normalize import find_column, normalize_value, to_int
 
     df = ctx.exports.get("redirect_chains")
@@ -3751,6 +3772,9 @@ def native_check_ids(ctx: AuditContext) -> frozenset[str]:
     if con is None:
         return frozenset(ids)
     ids.update(NATIVE_RESOLVED_CHECKS)
+    from seohead.storage.retained_link_findings import CHECK_IDS
+
+    ids.update(CHECK_IDS)
     tables = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     if "responses" in tables:
         ids.add("MISSING_HSTS")
@@ -3895,5 +3919,14 @@ def run_rules(ctx: AuditContext) -> None:
         ctx.skip("INTERNAL_ALL", "Internal:All export not loaded")
         return
     _declare_unparsed_body_skips(ctx)
+    if ctx.scan_con is None:
+        for check_id in (
+            "INTERNAL_LINK_NO_ANCHOR",
+            "EXTERNAL_NO_RESPONSE",
+            "SITEMAP_URL_NON_CANONICAL",
+            "SITEMAP_URL_BLOCKED_ROBOTS",
+            "INTERNALLY_LINKED_ROBOTS_BLOCKED",
+        ):
+            ctx.skip(check_id, "this check requires retained native scan evidence")
     for check in ALL_CHECKS:
         check(ctx)

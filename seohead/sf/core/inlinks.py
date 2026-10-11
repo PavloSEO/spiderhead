@@ -90,6 +90,14 @@ def _link_from_record(rec: dict[str, Any]) -> Link:
 def _process_export(
     ctx: AuditContext, key: str, internal_check: str, external_check: str, site_host: str
 ) -> None:
+    if ctx.scan_con is not None:
+        # Native internal target statuses are emitted by the retained occurrence pass.
+        # This export aggregate does not classify retained external HTTP outcomes.
+        ctx.skip(
+            external_check,
+            "not measured by this native check: external response status aggregates are not projected",
+        )
+        return
     df = ctx.exports.get(key)
     if df is None or df.empty:
         ctx.skip(internal_check, f"export {key} not available")

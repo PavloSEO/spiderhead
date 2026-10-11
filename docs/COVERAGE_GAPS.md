@@ -1,7 +1,7 @@
 # Audit coverage — the gap map
 
 **Purpose.** The list of SEO checks our SF audit
-(`seohead/sf/core/registry.py`, 221 checks) still **lacks**. For every gap:
+(`seohead/sf/core/registry.py`, 229 checks) still **lacks**. For every gap:
 value, implementation mode, likely home in the code. This is a filling plan,
 not a bug report. Items implemented since this map was written are marked
 **DONE**.
@@ -79,7 +79,7 @@ The priority list below is therefore a backlog, not a product-capability claim.
 | 1.7 | Page weight (total) | Observed navigation weight; HTML-only lower bounds without rendering | medium | **PARTIAL** — `HEAVY_PAGE_WEIGHT` retains content-decoded response buckets, scope and missing counts; compressed transfer totals and later interactions remain unmeasured | native render + audit |
 
 **Context.** `SLOW_RESPONSE` already catches a slow server, but it is no
-substitute for real CWV. None of the 221 crawl-registry checks measures field
+substitute for real CWV. None of the 229 crawl-registry checks measures field
 CWV directly. The opt-in CrUX path added in #822 assesses current-window p75
 with URL/origin, form factor and period provenance; missing field data stays
 unavailable. A one-run `render-check` result remains lab evidence.

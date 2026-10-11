@@ -157,3 +157,28 @@ def test_the_scanner_finds_claims_at_all():
     # A regex that stops matching would make every assertion above vacuous.
     found = sum(len(_claims_in(p.read_text(encoding="utf-8"))) for p in DOCS)
     assert found > 15, f"only {found} count claims found; the patterns have gone stale"
+
+
+def test_registry_generator_updates_prose_counts_without_rewriting_history(tmp_path, monkeypatch):
+    from scripts import generate_registry_inventory
+
+    path = tmp_path / "AGENTS.md"
+    path.write_text(
+        "The registry has 204 checks.\n"
+        "A score from 16 of 183 checks is not comparable.\n"
+        "139 checks when this audit was written.\n"
+        "96 checks (the count before expansion).\n"
+        "A focused tool performs 9 checks.\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(generate_registry_inventory, "ROOT", tmp_path)
+    monkeypatch.setattr(generate_registry_inventory, "CHECKS", dict.fromkeys(range(217)))
+
+    assert generate_registry_inventory._replace_check_counts(check=False) == [path]
+    assert path.read_text(encoding="utf-8") == (
+        "The registry has 217 checks.\n"
+        "A score from 16 of 217 checks is not comparable.\n"
+        "139 checks when this audit was written.\n"
+        "96 checks (the count before expansion).\n"
+        "A focused tool performs 9 checks.\n"
+    )

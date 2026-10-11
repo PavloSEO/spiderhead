@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-11T15:06:17Z
+- **Generated:** 2026-10-11T15:20:47Z
 
 ## Health summary
 
-> **No health score.** only 95 of 221 checks could run (43% coverage); too little evidence to score.
+> **No health score.** only 96 of 229 checks could run (42% coverage); too little evidence to score.
 
-_95 of 221 checks could run; the score is not comparable to a run with full evidence_
+_96 of 229 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 126 skipped, 75 silent, 0 disabled (of 221 total)
+- Checks: **20 fired**, 133 skipped, 76 silent, 0 disabled (of 229 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -236,7 +236,14 @@ Each check below describes more than half the crawled pages. That can be true --
 | Sitemap URL returns a 4xx or 5xx response | missing export: sitemap_non_200 |
 | Sitemap URL returns a 3xx response | missing export: sitemap_redirects |
 | Sitemap contains a non-indexable URL | missing export: sitemap_non_indexable |
+| A link combines nofollow, sponsored or ugc tokens | export input retains no full rel-token/context evidence; native retained links are required |
+| An outbound sponsored link has no recognized local disclosure text | export input retains no full rel-token/context evidence; native retained links are required |
 | Link fragment identifies no element on the destination page | export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan |
+| Internal hyperlink has empty anchor text | this check requires retained native scan evidence |
+| An explicitly checked external destination did not answer | this check requires retained native scan evidence |
+| Sitemap URL declares another canonical URL | this check requires retained native scan evidence |
+| Sitemap URL is blocked by the retained robots policy | this check requires retained native scan evidence |
+| An internally linked URL is blocked by robots.txt | this check requires retained native scan evidence |
 | The supplied Lighthouse LCP discovery audit reports an opportunity | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
 | The supplied Lighthouse dependency-tree audit reports a request-chain opportunity | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
 | The supplied Lighthouse layout-shift audit reports culprits | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |

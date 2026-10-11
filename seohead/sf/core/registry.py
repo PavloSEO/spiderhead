@@ -59,6 +59,42 @@ CHECKS: dict[str, dict[str, Any]] = {
         "message": "robots.txt blocks JavaScript or CSS resources required for rendering",
         "fix": "Do not block .js, .css, or _next/static resources in robots.txt; otherwise Google may render the page incompletely.",
     },
+    "URL_INTERNAL_SEARCH": {
+        "severity": "notice",
+        "source": "SF-derived",
+        "message": "URL is a recognized internal search route",
+        "fix": "Review whether internal search results should be linked or indexable; apply the intended crawl and indexing policy.",
+    },
+    "INTERNAL_LINK_NO_ANCHOR": {
+        "severity": "warning",
+        "source": "crawl:retained_links",
+        "message": "Internal hyperlink has empty anchor text",
+        "fix": "Add descriptive text to the internal link, or provide an accessible label for an intentional image or icon link.",
+    },
+    "EXTERNAL_NO_RESPONSE": {
+        "severity": "warning",
+        "source": "crawl:external_checks",
+        "message": "An explicitly checked external destination did not answer",
+        "fix": "Review the recorded timeout or connection failure and update or remove the link after confirming the destination is unavailable.",
+    },
+    "SITEMAP_URL_NON_CANONICAL": {
+        "severity": "warning",
+        "source": "crawl:sitemap_membership",
+        "message": "Sitemap URL declares another canonical URL",
+        "fix": "List the canonical destination in the sitemap and remove the non-canonical URL.",
+    },
+    "SITEMAP_URL_BLOCKED_ROBOTS": {
+        "severity": "warning",
+        "source": "crawl:robots_policy",
+        "message": "Sitemap URL is blocked by the retained robots policy",
+        "fix": "Remove the intentionally blocked URL from the sitemap or allow crawling if the URL should be indexed.",
+    },
+    "INTERNALLY_LINKED_ROBOTS_BLOCKED": {
+        "severity": "warning",
+        "source": "crawl:robots_policy",
+        "message": "An internally linked URL is blocked by robots.txt",
+        "fix": "Review the observed internal links and the blocking rule; allow crawling when this page should be discovered and indexed.",
+    },
     # 7.B — links & DOM localization
     "BROKEN_INTERNAL_LINK": {
         "severity": "critical",
@@ -1258,6 +1294,18 @@ CHECKS: dict[str, dict[str, Any]] = {
         "message": "An internal link carries rel=sponsored or rel=ugc",
         "fix": "Remove sponsored and ugc from links to pages of this site. Keep them only on "
         "links that really lead to paid placements or user-submitted content.",
+    },
+    "MIXED_LINK_REL": {
+        "severity": "notice",
+        "source": "crawl:link_findings",
+        "message": "A link combines nofollow, sponsored or ugc tokens",
+        "fix": "The combination is valid. Review whether each qualifying token describes the placement; retain intentional combinations and the full rel token set.",
+    },
+    "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE": {
+        "severity": "notice",
+        "source": "crawl:link_findings",
+        "message": "An outbound sponsored link has no recognized local disclosure text",
+        "fix": "Review the retained local text and add a clear reader-facing disclosure when needed. This bounded English/Russian text-marker heuristic does not establish legal compliance; CSS visibility, other languages and remote disclosures require manual review.",
     },
     "HTTP_LINK_ON_HTTPS": {
         "severity": "notice",

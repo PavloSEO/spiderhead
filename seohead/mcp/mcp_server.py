@@ -174,7 +174,11 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=create_files, structured_output=True)
     def seo_scan_reanalyze(
-        input_path: str, out: str, producer_build: str | None = None
+        input_path: str,
+        out: str,
+        producer_build: str | None = None,
+        step: Literal["all", "links.position"] = "all",
+        max_documents: int | None = None,
     ) -> dict[str, Any]:
         """Reparse retained HTML/DOM and rerun existing checks without network.
 
@@ -184,8 +188,84 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         unavailable errors. Missing live-only context remains skipped. No HTTP,
         DNS, browser, provider, or cache-miss fallback is permitted.
         """
+        kwargs = {"input_path": input_path, "out": out, "producer_build": producer_build}
+        if step != "all":
+            kwargs["step"] = step
+        if max_documents is not None:
+            kwargs["max_documents"] = max_documents
+        return _checked(handlers.scan_reanalyze(**kwargs))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_scan_sitemap_generate(
+        input_path: str,
+        out_dir: str,
+        sitemap_base_url: str,
+        include_images: bool = False,
+        exclude: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Write local XML sitemap files from retained indexable, canonical 200 responses.
+
+        Requires a fresh output directory and a same-origin deployment base URL.
+        Splits at 50,000 URLs and 50 MiB uncompressed, writes a sitemap index, and
+        optionally includes images parsed from complete retained bodies. lastmod
+        uses observed modification evidence, never the capture or generation time.
+        Exclusion patterns and skipped evidence are reported. No network or deployment.
+        """
         return _checked(
-            handlers.scan_reanalyze(input_path=input_path, out=out, producer_build=producer_build)
+            handlers.scan_sitemap_generate(
+                input_path=input_path,
+                out_dir=out_dir,
+                sitemap_base_url=sitemap_base_url,
+                include_images=include_images,
+                exclude=exclude,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_graph(
+        input_path: str,
+        positions: list[str] | str | None = None,
+        section: str | None = None,
+        around: str | None = None,
+        depth: int = 2,
+        aggregate: str = "none",
+        representation: str = "all",
+        node_offset: int = 0,
+        edge_offset: int = 0,
+        node_limit: int = 1000,
+        edge_limit: int = 2000,
+        max_nodes: int = 5000,
+        max_edges: int = 20000,
+        compare_to: str | None = None,
+        timeout_seconds: float = 1.0,
+        max_bytes: int = 8388608,
+    ) -> dict[str, Any]:
+        """Read versioned chunks of a retained internal-link graph without network.
+
+        Filter by position or URL section, expand around a URL by depth, aggregate
+        sections, or compare two scans. At most 5,000 nodes and 20,000 edges are
+        admitted; totals, clipping, coverage and unavailable reasons are explicit.
+        Orphan and component counts describe the admitted graph scope.
+        """
+        return _checked(
+            handlers.scan_graph(
+                input_path=input_path,
+                positions=positions,
+                section=section,
+                around=around,
+                depth=depth,
+                aggregate=aggregate,
+                representation=representation,
+                node_offset=node_offset,
+                edge_offset=edge_offset,
+                node_limit=node_limit,
+                edge_limit=edge_limit,
+                max_nodes=max_nodes,
+                max_edges=max_edges,
+                compare_to=compare_to,
+                timeout_seconds=timeout_seconds,
+                max_bytes=max_bytes,
+            )
         )
 
     @mcp.tool(annotations=create_files_from_web, structured_output=True)
@@ -482,6 +562,67 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         return _checked(
             handlers.backlinks_check(target=target, donors=donors, concurrency=concurrency)
         )
+
+    @mcp.tool(annotations=paid, structured_output=True)
+    def seo_backlinks_profile(
+        domain: str,
+        history_only: bool = False,
+        imports: list[dict[str, Any]] | None = None,
+        evidence: list[dict[str, Any]] | None = None,
+        sources: list[dict[str, Any]] | None = None,
+        db: str | None = None,
+        project: str | None = None,
+        observed_at: str | None = None,
+        state: str | None = None,
+        follow: str | None = None,
+        target_prefix: str | None = None,
+        min_spam_score: float | None = None,
+        max_spam_score: float | None = None,
+        first_seen_from: str | None = None,
+        first_seen_to: str | None = None,
+        one_per_domain: bool = False,
+        target_status: dict[str, Any] | None = None,
+        limit: int = 1000,
+        offset: int = 0,
+    ) -> dict[str, Any]:
+        """Build a bounded backlink profile from explicit CSV/imported evidence or selected sources.
+
+        Offline by default. Optional project/db stores private SQLite history. Explicit sources
+        may call free or paid providers; DataForSEO defaults sandbox, requires confirm_paid and
+        account/production approval. No automatic pagination or web-wide completeness claim.
+        """
+        return _checked(
+            handlers.backlinks_profile(
+                domain=domain,
+                history_only=history_only,
+                imports=imports,
+                evidence=evidence,
+                sources=sources,
+                db=db,
+                project=project,
+                observed_at=observed_at,
+                state=state,
+                follow=follow,
+                target_prefix=target_prefix,
+                min_spam_score=min_spam_score,
+                max_spam_score=max_spam_score,
+                first_seen_from=first_seen_from,
+                first_seen_to=first_seen_to,
+                one_per_domain=one_per_domain,
+                target_status=target_status,
+                limit=limit,
+                offset=offset,
+            )
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_backlinks_disavow(
+        domains: list[str] | None = None,
+        urls: list[str] | None = None,
+        output: str | None = None,
+    ) -> dict[str, Any]:
+        """Generate a reviewed disavow selection locally; never submit or overwrite a file."""
+        return _checked(handlers.backlinks_disavow(domains=domains, urls=urls, output=output))
 
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_schema_check(url: str = "", html: str = "") -> dict[str, Any]:
@@ -1147,6 +1288,36 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         one. Use it to see who actually ranks before promising a client a position."""
         return _checked(handlers.serp_fetch(query=query, queries=queries, region=region, top=top))
 
+    @mcp.tool(annotations=fetch, structured_output=True)
+    def seo_dataforseo_estimate(
+        operation: str,
+        query_count: int = 1,
+        row_limit: int = 0,
+        cache_hits: int = 0,
+        prices: dict[str, Any] | None = None,
+        env: str | None = None,
+        refresh_prices: bool = False,
+        query: str | None = None,
+    ) -> dict[str, Any]:
+        """Calculate a quote offline using a supplied appendix/user_data price snapshot.
+
+        Cache hits are caller-declared; this tool never claims to discover cached data.
+        Unknown pricing is unavailable. refresh_prices explicitly reads the free account endpoint;
+        without it, no provider request or credential access occurs.
+        """
+        return _checked(
+            handlers.dataforseo_estimate(
+                operation=operation,
+                query_count=query_count,
+                row_limit=row_limit,
+                cache_hits=cache_hits,
+                prices=prices,
+                env=env,
+                refresh_prices=refresh_prices,
+                query=query,
+            )
+        )
+
     @mcp.tool(annotations=paid, structured_output=True)
     def seo_google_keywords(
         keywords: list[str] | None = None,
@@ -1156,6 +1327,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         country: str | None = None,
         limit: int = 100,
         difficulty: bool = False,
+        confirm_paid: bool = False,
+        env: str | None = None,
+        spend_ceiling_usd: float | None = None,
+        prices: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Google demand via DataForSEO: pass `keywords` for search volume and competition on a
         list, or `seed` to expand semantics from one phrase (the Google counterpart of
@@ -1175,6 +1350,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 location_code=location_code,
                 language=language,
                 country=country,
+                confirm_paid=confirm_paid,
+                env=env,
+                spend_ceiling_usd=spend_ceiling_usd,
+                prices=prices,
                 limit=limit,
                 difficulty=difficulty,
             )
@@ -1187,6 +1366,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         language: str = "en",
         depth: int = 10,
         country: str | None = None,
+        confirm_paid: bool = False,
+        env: str | None = None,
+        spend_ceiling_usd: float | None = None,
+        prices: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Google organic results for a query — who actually ranks. Same geo rules as
         seo_google_keywords: Russia and Belarus are not covered, use seo_serp_fetch (Yandex)
@@ -1198,6 +1381,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 language=language,
                 depth=depth,
                 country=country,
+                confirm_paid=confirm_paid,
+                env=env,
+                spend_ceiling_usd=spend_ceiling_usd,
+                prices=prices,
             )
         )
 

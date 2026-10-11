@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**221 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**229 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -23,6 +23,12 @@ python scripts/generate_checks_reference.py
 | `NON_INDEXABLE_LINKED` | notice | SF-derived | Internally linked page is non-indexable | Decide whether the page should be indexable; otherwise remove unnecessary internal links and account for crawl-budget impact. |
 | `IMPORTANT_URL_BLOCKED_BY_ROBOTS` | warning | SF-derived | Live page is blocked by robots.txt despite receiving internal links | robots.txt blocks crawling, not indexing, so link discovery is lost. Make the URL crawlable with a more specific Allow rule than the matching Disallow, and control indexing with canonical or noindex. A common case is pagination such as /blog?page=N blocked by Disallow: /*?. |
 | `ROBOTS_BLOCKS_RESOURCES` | notice | sitemap | robots.txt blocks JavaScript or CSS resources required for rendering | Do not block .js, .css, or _next/static resources in robots.txt; otherwise Google may render the page incompletely. |
+| `URL_INTERNAL_SEARCH` | notice | SF-derived | URL is a recognized internal search route | Review whether internal search results should be linked or indexable; apply the intended crawl and indexing policy. |
+| `INTERNAL_LINK_NO_ANCHOR` | warning | crawl:retained_links | Internal hyperlink has empty anchor text | Add descriptive text to the internal link, or provide an accessible label for an intentional image or icon link. |
+| `EXTERNAL_NO_RESPONSE` | warning | crawl:external_checks | An explicitly checked external destination did not answer | Review the recorded timeout or connection failure and update or remove the link after confirming the destination is unavailable. |
+| `SITEMAP_URL_NON_CANONICAL` | warning | crawl:sitemap_membership | Sitemap URL declares another canonical URL | List the canonical destination in the sitemap and remove the non-canonical URL. |
+| `SITEMAP_URL_BLOCKED_ROBOTS` | warning | crawl:robots_policy | Sitemap URL is blocked by the retained robots policy | Remove the intentionally blocked URL from the sitemap or allow crawling if the URL should be indexed. |
+| `INTERNALLY_LINKED_ROBOTS_BLOCKED` | warning | crawl:robots_policy | An internally linked URL is blocked by robots.txt | Review the observed internal links and the blocking rule; allow crawling when this page should be discovered and indexed. |
 
 ## 7.B — links & DOM localization
 
@@ -334,6 +340,8 @@ python scripts/generate_checks_reference.py
 | `FOLLOW_AND_NOFOLLOW_INLINKS` | notice | crawl:link_findings | The page receives both a followed and a nofollow internal link | Decide deliberately whether the page should be crawl-priority or not, and make every internal link to it agree. |
 | `INTERNAL_NOFOLLOW_OUTLINKS` | notice | crawl:link_findings | The page has internal outlinks marked nofollow | Confirm each internal nofollow link is intentional; links to pages that should be crawled and ranked should be followed. rel=sponsored and rel=ugc are not visible here and stay distinct. |
 | `INTERNAL_LINK_SPONSORED_UGC` | notice | crawl:link_findings | An internal link carries rel=sponsored or rel=ugc | Remove sponsored and ugc from links to pages of this site. Keep them only on links that really lead to paid placements or user-submitted content. |
+| `MIXED_LINK_REL` | notice | crawl:link_findings | A link combines nofollow, sponsored or ugc tokens | The combination is valid. Review whether each qualifying token describes the placement; retain intentional combinations and the full rel token set. |
+| `OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE` | notice | crawl:link_findings | An outbound sponsored link has no recognized local disclosure text | Review the retained local text and add a clear reader-facing disclosure when needed. This bounded English/Russian text-marker heuristic does not establish legal compliance; CSS visibility, other languages and remote disclosures require manual review. |
 | `HTTP_LINK_ON_HTTPS` | notice | crawl:link_findings | HTTPS page contains an ordinary internal http:// anchor | Write the internal anchor as https:// or a relative URL. A fetched HTTP variant that already redirects to HTTPS is reported as converged, not as this finding. |
 | `FORM_URL_INSECURE` | critical | crawl:link_findings | A form submits to an http:// action, so its data leaves the browser unencrypted regardless of the page's own scheme | Point the form's action at an https:// URL. |
 | `FORM_ON_HTTP_URL` | critical | crawl:link_findings | A form with a password field is served from a plain-HTTP page, so the credentials themselves travel unencrypted before the action URL is even reached | Serve the page itself over HTTPS; an HTTPS form action does not protect input typed on an HTTP page. |

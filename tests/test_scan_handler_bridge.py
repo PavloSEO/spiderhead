@@ -425,8 +425,12 @@ def test_real_handler_adapter_native_audit_and_all_report_formats(
 
     audit = read_audit(scan)
     desync = [item for item in audit["issues"] if item["check"] == "SITEMAP_DESYNC"]
-    assert len(desync) == 1
-    assert desync[0]["details"]["sitemap_not_in_crawl_pct"] == 50.0
+    # Both declared pages were fetched. The start page does not need an incoming
+    # link to avoid a false orphan/desync finding in a retained native audit.
+    assert not desync
+    assert audit["summary"]["sitemap"]["urls_in_sitemap"] == 2
+    assert audit["summary"]["sitemap"]["sitemap_status_unmeasured"] == 0
+    assert audit["summary"]["sitemap"]["sitemap_orphan_findings_count"] == 0
     assert audit["run"]["effective_max_requests_per_second"] == (
         "unbounded" if min_delay == 0 else 100.0
     )

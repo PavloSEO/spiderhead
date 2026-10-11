@@ -129,7 +129,10 @@ def test_silent_checks_are_named_so_the_gap_is_visible(tmp_path):
     # Raw annotation attributes are absent from exports and must remain unmeasured.
     assert "CANONICAL_CROSS_ORIGIN" in silent
     assert "CANONICAL_INVALID_ATTRIBUTE" in skipped
-    assert coverage["checks_silent"] <= 75
+    # URL_INTERNAL_SEARCH reads the retained URL column on this export fixture;
+    # its ordinary non-search URLs prove one additional clean, invoked check.
+    assert "URL_INTERNAL_SEARCH" in silent
+    assert coverage["checks_silent"] <= 76
 
 
 def test_a_disabled_check_is_its_own_bucket_never_silent_or_clean(tmp_path):

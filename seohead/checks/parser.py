@@ -1416,6 +1416,64 @@ def _link_info(
     return entry
 
 
+_DISCLOSURE_MARKER = re.compile(
+    r"\b(?:sponsored|paid\s+(?:partnership|placement|post|content)|advertisement|"
+    r"affiliate\s+links?|реклама|рекламный|партн[её]рский\s+материал)\b",
+    re.IGNORECASE,
+)
+
+
+def sponsorship_disclosure(tag: Tag) -> dict[str, Any]:
+    """Bounded local text markers; a review heuristic, never a legal verdict.
+
+    Inspect the nearest text block and its preceding sibling label. Unrelated
+    footer text, attributes, scripts and explicitly hidden text cannot disclose
+    this placement. CSS visibility and other languages remain outside the test.
+    """
+    block = tag.find_parent(["p", "li", "div", "section", "article", "td", "figure"])
+    block = block if isinstance(block, Tag) else tag
+    previous = block.find_previous_sibling()
+    roots = [previous, block] if isinstance(previous, Tag) else [block]
+    parts: list[str] = []
+    size = 0
+    truncated = False
+    for root in roots:
+        for text in root.strings:
+            parents = list(text.parents)
+            if any(
+                parent.name in TEXT_EXCLUDED_TAGS
+                or parent.has_attr("hidden")
+                or str(parent.get("aria-hidden", "")).lower() == "true"
+                or re.search(
+                    r"(?:display\s*:\s*none|visibility\s*:\s*hidden)",
+                    str(parent.get("style", "")),
+                    re.I,
+                )
+                for parent in parents
+            ):
+                continue
+            part = collapse_whitespace(str(text))
+            if size + len(part) > 500:
+                parts.append(part[: max(0, 500 - size)])
+                truncated = True
+                break
+            parts.append(part)
+            size += len(part) + 1
+        if truncated:
+            break
+    context = " ".join(parts)[:500]
+    marker = _DISCLOSURE_MARKER.search(context)
+    return {
+        "state": "partial" if truncated else "measured",
+        "detected": bool(marker),
+        "marker": marker.group(0) if marker else None,
+        "context": context,
+        "context_truncated": truncated,
+        "basis": "local_text_marker",
+        "heuristic": True,
+    }
+
+
 def _extract_link_observations(
     soup: BeautifulSoup,
     base_url: str,

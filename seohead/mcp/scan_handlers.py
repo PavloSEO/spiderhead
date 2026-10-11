@@ -30,8 +30,6 @@ _POST_CAPTURE_INTERRUPT = "post-collection processing interrupted; retained capt
 # so a reanalysis never silently drops them out of the coverage denominator
 # while still reporting a score (#382).
 UNMEASURABLE_OFFLINE_CHECKS = (
-    "SITEMAP_NOT_IN_ROBOTS",
-    "ROBOTS_BLOCKS_RESOURCES",
     "SITEMAP_FETCH_INCOMPLETE",
     "SITEMAP_TOO_MANY_URLS",
     "SITEMAP_TOO_LARGE",
@@ -39,7 +37,7 @@ UNMEASURABLE_OFFLINE_CHECKS = (
     "SITEMAP_STALE_LASTMOD",
 )
 _UNMEASURABLE_REASON = (
-    "scan.v1 retains no robots.txt/sitemap document; re-measuring this check "
+    "retained sitemap membership has no protocol-size or lastmod evidence; re-measuring this check "
     "requires a new crawl, not a reanalysis of stored evidence"
 )
 

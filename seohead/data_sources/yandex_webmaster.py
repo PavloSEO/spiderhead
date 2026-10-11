@@ -48,6 +48,7 @@ OPERATIONS: dict[str, str] = {
     "broken_links_samples": "/hosts/{host}/links/internal/broken/samples",
     "broken_links_history": "/hosts/{host}/links/internal/broken/history",
     "external_links_history": "/hosts/{host}/links/external/history",
+    "external_links_samples": "/hosts/{host}/links/external/samples",
 }
 # Paged sample lists: operation -> (key of the list in the answer, documented page-size cap).
 # Popular queries allow up to 500 per page; the sample lists cap at 100.
@@ -56,6 +57,7 @@ PAGED: dict[str, tuple[str, int]] = {
     "crawl": ("samples", 100),
     "indexing": ("samples", 100),
     "broken_links_samples": ("links", 100),
+    "external_links_samples": ("links", 100),
 }
 MAX_ROWS = 50_000
 DEFAULT_PARAMS = {"search_performance": {"order_by": "TOTAL_SHOWS"}}

@@ -195,7 +195,7 @@
           "bytes": 21954,
           "path": "cohorts-0001.csv",
           "rows": 30,
-          "sha256": "c41ab1719d57eed6106ce73c82c302e37617060002f6b331332e5b70ad06d7f8"
+          "sha256": "136e34d24d01a90664210440f880aabdf52a3663de0fbc57ac3d502663e7764d"
         }
       ],
       "primary_key": [
@@ -209,7 +209,7 @@
       "state": "available"
     },
     "coverage": {
-      "bytes": 50756,
+      "bytes": 52773,
       "coverage": {},
       "fields": [
         {
@@ -278,10 +278,10 @@
       "partition_count": 1,
       "partitions": [
         {
-          "bytes": 50756,
+          "bytes": 52773,
           "path": "coverage-0001.csv",
-          "rows": 220,
-          "sha256": "3b5d7d1be1f53d025064e1b92d02c4b60a7e4edd5f359ab3239ae829b950df13"
+          "rows": 228,
+          "sha256": "d727c1df797a092859e4dcd4aa88da46082726be0e69b87b62dbf68281647450"
         }
       ],
       "primary_key": [
@@ -291,7 +291,7 @@
         "population"
       ],
       "reason": null,
-      "row_count": 220,
+      "row_count": 228,
       "schema_version": "seohead.bi.coverage.v1",
       "source_population": "input artifact and declared check coverage",
       "state": "available"
@@ -557,7 +557,7 @@
           "bytes": 29360,
           "path": "findings-0001.csv",
           "rows": 25,
-          "sha256": "d20ec4ebe0464b2aa146341e603bfaf0dbb06cca3a51cedd0556da89104604b8"
+          "sha256": "8d5aa842980ef3392fb84804f6d13e7c5ad48306935f796e80fb5efe8729a0a5"
         }
       ],
       "primary_key": [
@@ -1147,7 +1147,7 @@
           "bytes": 40469,
           "path": "metrics-0001.csv",
           "rows": 16,
-          "sha256": "221e08383435f0caf192fb57f122cc51d0f06d98786cd0ca9d941e19ba6dd9ac"
+          "sha256": "743bd937b5f540c96a34f6e445b0e663fd740ebe4f4ff7a77a20ad28dfcadf92"
         }
       ],
       "primary_key": [
@@ -1590,7 +1590,7 @@
           "bytes": 12289,
           "path": "pages-0001.csv",
           "rows": 6,
-          "sha256": "a6de87ced5f8a3b6f364ed07d7062b2316253c13e013551a30e5d6b75be3df83"
+          "sha256": "8ed25a33680023ae5e1bae3b24904919862732c585963baa365de71180c2616a"
         }
       ],
       "primary_key": [
@@ -1660,7 +1660,7 @@
           "bytes": 834,
           "path": "group-groups-0001.csv",
           "rows": 3,
-          "sha256": "0c586ebec90153a51e30146e713a2e17ee4bc6593e19d70c5035de3c5fe3a6f9"
+          "sha256": "e542bc8996b62a9b5938c4586054cb0f8f5f8b582a6d8dd1e55c350db2cc70b1"
         }
       ],
       "row_count": 3
@@ -1702,22 +1702,22 @@
           "bytes": 589,
           "path": "group-members-0001.csv",
           "rows": 7,
-          "sha256": "8fe909d097033db243f333c79a8ea13556c99848fda19c9dd648a97e9847678a"
+          "sha256": "c03225585c00953b94b671aedeb2eac5a7633cd84f981b71bf677a5f594c73db"
         }
       ],
       "row_count": 7
     },
     "publication": "local companion; not included in the six published datasets",
-    "run_id": "audit:e12c15d9397066ca2200f180",
-    "sha256": "5bd36e599433ebe8ebd25ca2c0161877c7795e99a03ba3f1dd2c2206a27ef574",
-    "source_audit_sha256": "e12c15d9397066ca2200f180bd55144924cc06ff6a75b4aef1ff424e9ac02933"
+    "run_id": "audit:f7140e73685f6ff90f4e8b69",
+    "sha256": "e4bca83af177ea00d0d6d6947383847a009534d633df184fd5a1227b03ab700b",
+    "source_audit_sha256": "f7140e73685f6ff90f4e8b69ce1efb6876bf095e78764832cac0a80ac448dccf"
   },
   "input": {
-    "bytes": 56359,
+    "bytes": 57387,
     "kind": "sf-audit",
     "name": "audit.json",
     "schema": "2.0",
-    "sha256": "e12c15d9397066ca2200f180bd55144924cc06ff6a75b4aef1ff424e9ac02933"
+    "sha256": "f7140e73685f6ff90f4e8b69ce1efb6876bf095e78764832cac0a80ac448dccf"
   },
   "metrics_dimension_columns": {},
   "provider_sources": [
@@ -1913,7 +1913,7 @@
     "projection_index_cache_bytes": 2097152
   },
   "run": {
-    "audit_sha256": "e12c15d9397066ca2200f180bd55144924cc06ff6a75b4aef1ff424e9ac02933",
+    "audit_sha256": "f7140e73685f6ff90f4e8b69ce1efb6876bf095e78764832cac0a80ac448dccf",
     "check_skips": {
       "AJAX_CRAWLING_SCHEME_META_FRAGMENT": "no <meta name=\"fragment\"> evidence (native crawl only)",
       "AJAX_CRAWLING_SCHEME_URL": "no AJAX-scheme URL evidence (native crawl only)",
@@ -1944,6 +1944,7 @@
       "DUPLICATE_ID": "no duplicate-id evidence (native crawl only)",
       "DUPLICATE_INTERNAL_LINK": "no all_inlinks export (needed for the complete internal edge list)",
       "EXTERNAL_LINK_TO_REDIRECT": "export inlinks_3xx not available",
+      "EXTERNAL_NO_RESPONSE": "this check requires retained native scan evidence",
       "FEW_CITATIONS": "no External Outlinks column and no all_inlinks export -- nothing to count outbound citations from",
       "FILTER_CANONICAL_POLICY": "no filters canonical policy configured",
       "FONT_DISPLAY_MISSING": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
@@ -1983,6 +1984,8 @@
       "IMG_OVER_KB": "missing export: images_over_kb",
       "IMG_UPSCALED": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
       "INSECURE_SUBRESOURCE": "no all_inlinks export (needed for the resource inventory)",
+      "INTERNALLY_LINKED_ROBOTS_BLOCKED": "this check requires retained native scan evidence",
+      "INTERNAL_LINK_NO_ANCHOR": "this check requires retained native scan evidence",
       "INTERNAL_LINK_TO_REDIRECT": "export inlinks_3xx not available",
       "INVALID_HEAD_ELEMENT": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "JS_EXECUTION_TIME": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
@@ -1999,6 +2002,7 @@
       "MISSING_DOCTYPE": "no Doctype column (needs a native seohead crawl or Custom Extraction in SF)",
       "MISSING_HSTS": "missing export: security_hsts",
       "MIXED_CONTENT": "missing export: security_mixed",
+      "MIXED_LINK_REL": "export input retains no full rel-token/context evidence; native retained links are required",
       "MOBILE_ALTERNATE_LINK": "no rel=alternate media evidence (native crawl only)",
       "NEAR_DUPLICATE": "no stored HTML (input.html_store_dir not set)",
       "NETWORK_DEPENDENCY_TREE": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
@@ -2008,6 +2012,7 @@
       "OG_MISSING": "no Open Graph columns in Internal:All (enable OG extraction in SF)",
       "ONLY_NOFOLLOW_INLINKS": "no all_inlinks export (needed for the complete inlink list)",
       "ONLY_NONINDEXABLE_SOURCE_INLINKS": "no all_inlinks export (needed for the complete inlink list)",
+      "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE": "export input retains no full rel-token/context evidence; native retained links are required",
       "PAGINATION_CANONICAL_POLICY": "no pagination canonical policy configured",
       "PAGINATION_LOOP": "no rel=\"next\" column in Internal:All",
       "PAGINATION_MULTIPLE": "no all_inlinks export (needed for every rel=\"next\"/rel=\"prev\" declaration and the anchors beside them)",
@@ -2028,7 +2033,9 @@
       "SITEMAP_TOO_MANY_URLS": "no sitemap document was fetched to measure",
       "SITEMAP_URL_3XX": "missing export: sitemap_redirects",
       "SITEMAP_URL_4XX_5XX": "missing export: sitemap_non_200",
+      "SITEMAP_URL_BLOCKED_ROBOTS": "this check requires retained native scan evidence",
       "SITEMAP_URL_DUPLICATED": "no sitemap entries were fetched to compare",
+      "SITEMAP_URL_NON_CANONICAL": "this check requires retained native scan evidence",
       "SITEMAP_URL_NON_INDEXABLE": "missing export: sitemap_non_indexable",
       "SPELLING_ERRORS": "no Spelling Errors column (enable spell-check in SF)",
       "STRUCTURED_DATA_MISSING": "missing export: structured_data_missing",
@@ -2045,14 +2052,14 @@
     "crawl_reason": "audit source does not establish a completed native crawl",
     "crawl_settings": null,
     "crawl_state": "unknown",
-    "finished_at": "2026-10-11T15:06:17Z",
+    "finished_at": "2026-10-11T15:20:47Z",
     "input_mode": "parse-exports",
-    "run_id": "audit:e12c15d9397066ca2200f180",
-    "source_bytes": 56359,
+    "run_id": "audit:f7140e73685f6ff90f4e8b69",
+    "source_bytes": 57387,
     "source_kind": "sf-audit",
     "source_name": "audit.json",
     "source_schema": "2.0",
-    "source_sha256": "e12c15d9397066ca2200f180bd55144924cc06ff6a75b4aef1ff424e9ac02933",
+    "source_sha256": "f7140e73685f6ff90f4e8b69ce1efb6876bf095e78764832cac0a80ac448dccf",
     "started_at": null,
     "summary": {
       "asset_measurements": {
@@ -2241,7 +2248,7 @@
         "checks_disabled": 0,
         "checks_disabled_ids": [],
         "checks_fired": 20,
-        "checks_silent": 75,
+        "checks_silent": 76,
         "checks_silent_ids": [
           "BAD_REDIRECT_TYPE",
           "BLOCKED_BY_ROBOTS",
@@ -2307,6 +2314,7 @@
           "URL_CONTAINS_SPACE",
           "URL_HAS_PARAMETERS",
           "URL_HAS_PARAMS",
+          "URL_INTERNAL_SEARCH",
           "URL_MULTIPLE_SLASHES",
           "URL_NON_ASCII",
           "URL_NOT_IN_SITEMAP",
@@ -2319,13 +2327,13 @@
           "URL_UPPERCASE",
           "YMYL_REVIEW_CANDIDATE"
         ],
-        "checks_skipped": 126,
-        "checks_total": 221,
-        "coverage": 0.43
+        "checks_skipped": 133,
+        "checks_total": 229,
+        "coverage": 0.419
       },
       "health_score": null,
-      "health_score_basis": "95 of 221 checks could run; the score is not comparable to a run with full evidence",
-      "health_score_reason": "only 95 of 221 checks could run (43% coverage); too little evidence to score",
+      "health_score_basis": "96 of 229 checks could run; the score is not comparable to a run with full evidence",
+      "health_score_reason": "only 96 of 229 checks could run (42% coverage); too little evidence to score",
       "implausible_checks": [
         {
           "check": "H2_DUPLICATE",

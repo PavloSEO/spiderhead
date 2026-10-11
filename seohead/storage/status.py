@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from . import open_scan_mode
+from .link_positions import position_summary
 
 
 def scan_status(input_path: str, *, full_validation: bool = False) -> dict[str, Any]:
@@ -66,6 +67,7 @@ def scan_status(input_path: str, *, full_validation: bool = False) -> dict[str, 
             "ok": True,
             "source": source,
             "frontier": frontier,
+            "link_positions": position_summary(con),
             "committed_page_outcomes": outcomes,
             "validation": validation,
         }

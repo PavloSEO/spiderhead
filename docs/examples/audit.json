@@ -11,7 +11,7 @@
     "source": null,
     "exports_dir": "docs/examples/exports",
     "sf_version_detected": null,
-    "generated_at": "2026-10-11T15:06:17Z",
+    "generated_at": "2026-10-11T15:20:47Z",
     "profile": "full",
     "exports_used": [
       "internal_all",
@@ -99,8 +99,36 @@
         "reason": "missing export: sitemap_non_indexable"
       },
       {
+        "id": "MIXED_LINK_REL",
+        "reason": "export input retains no full rel-token/context evidence; native retained links are required"
+      },
+      {
+        "id": "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
+        "reason": "export input retains no full rel-token/context evidence; native retained links are required"
+      },
+      {
         "id": "BROKEN_BOOKMARK",
         "reason": "export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan"
+      },
+      {
+        "id": "INTERNAL_LINK_NO_ANCHOR",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "EXTERNAL_NO_RESPONSE",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "SITEMAP_URL_NON_CANONICAL",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "SITEMAP_URL_BLOCKED_ROBOTS",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "INTERNALLY_LINKED_ROBOTS_BLOCKED",
+        "reason": "this check requires retained native scan evidence"
       },
       {
         "id": "LCP_DISCOVERY",
@@ -608,12 +636,12 @@
     ],
     "health_score": null,
     "check_coverage": {
-      "checks_total": 221,
+      "checks_total": 229,
       "checks_fired": 20,
-      "checks_skipped": 126,
+      "checks_skipped": 133,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
-      "checks_silent": 75,
+      "checks_silent": 76,
       "checks_silent_ids": [
         "BAD_REDIRECT_TYPE",
         "BLOCKED_BY_ROBOTS",
@@ -679,6 +707,7 @@
         "URL_CONTAINS_SPACE",
         "URL_HAS_PARAMETERS",
         "URL_HAS_PARAMS",
+        "URL_INTERNAL_SEARCH",
         "URL_MULTIPLE_SLASHES",
         "URL_NON_ASCII",
         "URL_NOT_IN_SITEMAP",
@@ -691,10 +720,10 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.43
+      "coverage": 0.419
     },
-    "health_score_reason": "only 95 of 221 checks could run (43% coverage); too little evidence to score",
-    "health_score_basis": "95 of 221 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_reason": "only 96 of 229 checks could run (42% coverage); too little evidence to score",
+    "health_score_basis": "96 of 229 checks could run; the score is not comparable to a run with full evidence",
     "internal_linking": {
       "measured": false,
       "reason": "no all_inlinks export (needed for the complete internal edge list)"

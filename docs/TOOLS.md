@@ -16,8 +16,8 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 `{"ok": false, "error": "..."}` instead of raising. An unreachable site is
 data, not an accident.
 
-The current registry has 183 commands and 192 callable tools,
-with 221 audit checks. These are inventories, not coverage on every input.
+The current registry has 188 commands and 197 callable tools,
+with 229 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
 ## Generated command inventory
@@ -26,34 +26,35 @@ The command names below are generated from the shared CLI/MCP registry; detailed
 and inputs remain in the nearby route sections and generated tool reference.
 
 `ai-bots-check` · `ai-column` · `asset-weight-check` · `audit-workflow` · `backlinks-check` ·
-`bi-bigquery-plan` · `bi-destination-apply` · `bi-export` · `bi-filter` · `bi-sheets-plan` ·
-`boilerplate-report` · `cdn-check` · `citability-check` · `cloudflare-traffic` · `compare-crawls` ·
-`crawl-describe-settings` · `crawl-diagnose` · `crawl-diagnose-export` · `crawl-enrich` · `crawl-import` ·
-`crawl-site` · `crtsh-subdomains` · `crux-report` · `domain-profile` · `duplicate-check` · `evidence-join` ·
-`evidence-normalize` · `facts-export` · `findings-view` · `google-keywords` · `google-serp` · `gsc-archive` ·
-`gsc-progress` · `gsc-query` · `headers-check` · `hreflang-check` · `images-download` · `images-optimize` ·
-`indexnow-submit` · `inspect-url` · `keywords-cluster` · `keywords-exact` · `keywords-expand` ·
-`keywords-seasonality` · `links-check` · `llms-txt-check` · `log-analyze` · `log-scan` · `markdown-extract` ·
-`marketing-inventory` · `meta-description-drafts` · `metrika-counters` · `metrika-report` · `metrika-setup` ·
-`metrika-traffic-pdf` · `miratext-analyze` · `mirror-check` · `monitor-collect` · `monitor-configure` ·
-`monitor-local-deliver` · `monitor-run` · `monitor-schedule` · `monitor-status` · `parse` · `project-activity`
-· `project-checklist-init` · `project-checklist-page` · `project-checklist-record` ·
-`project-checklist-update` · `project-competitors-add` · `project-competitors-list` ·
-`project-competitors-remove` · `project-event-append` · `project-event-page` · `project-facts` ·
-`project-inbox-acknowledge` · `project-inbox-goal` · `project-inbox-list` · `project-inbox-read` ·
-`project-inbox-submit` · `project-inbox-triage` · `project-inbox-unread` · `project-new` · `project-observe` ·
-`project-open` · `project-policy` · `project-prepare` · `project-priorities` · `project-progress` ·
-`project-scans` · `project-sources-link` · `project-sources-list` · `project-sources-unlink` · `project-start`
-· `project-status` · `project-task-detail` · `project-view-delete` · `project-view-list` ·
-`project-view-rename` · `project-view-save` · `project-view-show` · `provider-auth` · `provider-collect` ·
-`provider-join` · `provider-readiness` · `provider-registry` · `provider-replay` · `provider-verify` ·
-`publication-cohorts` · `redirects-check` · `redirects-generate` · `regions-check` · `regions-tree` ·
-`remediation-cases` · `remediation-create` · `remediation-ingest` · `remediation-recheck` ·
-`remediation-record-verification` · `remediation-report` · `remediation-summary` · `remediation-transition` ·
-`render-check` · `report-build` · `robots-check` · `scan-body-diff` · `scan-content-search` ·
-`scan-content-search-page` · `scan-evidence` · `scan-export` · `scan-extract` · `scan-fragment-links` ·
-`scan-import-urls` · `scan-inspect` · `scan-link-inspect` · `scan-list` · `scan-navigation` · `scan-pin` ·
-`scan-prune` · `scan-reanalyze` · `scan-rendered-routes` · `scan-requeue` · `scan-snapshot` · `scan-status` ·
+`backlinks-disavow` · `backlinks-profile` · `bi-bigquery-plan` · `bi-destination-apply` · `bi-export` ·
+`bi-filter` · `bi-sheets-plan` · `boilerplate-report` · `cdn-check` · `citability-check` ·
+`cloudflare-traffic` · `compare-crawls` · `crawl-describe-settings` · `crawl-diagnose` ·
+`crawl-diagnose-export` · `crawl-enrich` · `crawl-import` · `crawl-site` · `crtsh-subdomains` · `crux-report`
+· `dataforseo-estimate` · `domain-profile` · `duplicate-check` · `evidence-join` · `evidence-normalize` ·
+`facts-export` · `findings-view` · `google-keywords` · `google-serp` · `gsc-archive` · `gsc-progress` ·
+`gsc-query` · `headers-check` · `hreflang-check` · `images-download` · `images-optimize` · `indexnow-submit` ·
+`inspect-url` · `keywords-cluster` · `keywords-exact` · `keywords-expand` · `keywords-seasonality` ·
+`links-check` · `llms-txt-check` · `log-analyze` · `log-scan` · `markdown-extract` · `marketing-inventory` ·
+`meta-description-drafts` · `metrika-counters` · `metrika-report` · `metrika-setup` · `metrika-traffic-pdf` ·
+`miratext-analyze` · `mirror-check` · `monitor-collect` · `monitor-configure` · `monitor-local-deliver` ·
+`monitor-run` · `monitor-schedule` · `monitor-status` · `parse` · `project-activity` ·
+`project-checklist-init` · `project-checklist-page` · `project-checklist-record` · `project-checklist-update`
+· `project-competitors-add` · `project-competitors-list` · `project-competitors-remove` ·
+`project-event-append` · `project-event-page` · `project-facts` · `project-inbox-acknowledge` ·
+`project-inbox-goal` · `project-inbox-list` · `project-inbox-read` · `project-inbox-submit` ·
+`project-inbox-triage` · `project-inbox-unread` · `project-new` · `project-observe` · `project-open` ·
+`project-policy` · `project-prepare` · `project-priorities` · `project-progress` · `project-scans` ·
+`project-sources-link` · `project-sources-list` · `project-sources-unlink` · `project-start` ·
+`project-status` · `project-task-detail` · `project-view-delete` · `project-view-list` · `project-view-rename`
+· `project-view-save` · `project-view-show` · `provider-auth` · `provider-collect` · `provider-join` ·
+`provider-readiness` · `provider-registry` · `provider-replay` · `provider-verify` · `publication-cohorts` ·
+`redirects-check` · `redirects-generate` · `regions-check` · `regions-tree` · `remediation-cases` ·
+`remediation-create` · `remediation-ingest` · `remediation-recheck` · `remediation-record-verification` ·
+`remediation-report` · `remediation-summary` · `remediation-transition` · `render-check` · `report-build` ·
+`robots-check` · `scan-body-diff` · `scan-content-search` · `scan-content-search-page` · `scan-evidence` ·
+`scan-export` · `scan-extract` · `scan-fragment-links` · `scan-graph` · `scan-import-urls` · `scan-inspect` ·
+`scan-link-inspect` · `scan-list` · `scan-navigation` · `scan-pin` · `scan-prune` · `scan-reanalyze` ·
+`scan-rendered-routes` · `scan-requeue` · `scan-sitemap-generate` · `scan-snapshot` · `scan-status` ·
 `scan-structured-blocks` · `scan-url-detail` · `scan-url-history` · `scan-url-query` · `scenario-list` ·
 `scenario-show` · `schedule-install` · `schedule-run-due` · `schedule-set` · `schedule-show` ·
 `schedule-uninstall` · `schema-build` · `schema-check` · `security-check` · `segment-diff` · `semantic-inputs`
@@ -780,7 +781,7 @@ assignment or by the audit's already validated segment rules. It records
 assignment provenance and keeps candidate, declared, confirmed, and unassigned
 states separate; it does not infer a shared implementation from repeated findings.
 
-**221 checks**: 12 critical, 97 warnings, 112 notices. Sources: SF exports,
+**229 checks**: 12 critical, 102 warnings, 115 notices. Sources: SF exports,
 derived metrics, inlink exports, the sitemap module, and heuristics.
 
 **Two modes.** A crawls by itself through the SF CLI (license required). B
@@ -816,7 +817,7 @@ turns on automatically for crawl modes (`--crawl`, `--crawl-list`, `--load-crawl
 `--sitemap` is given; pass `--no-live-recheck` to keep it off.
 
 **MCP.** The same set under the `seo_*` names plus the `sf_*` audit tools and the
-`seo_semantics_*` tools (183 + 5 + 4):
+`seo_semantics_*` tools (188 + 5 + 4):
 
 ```bash
 seohead mcp        # stdio
@@ -824,7 +825,7 @@ seohead mcp        # stdio
 
 ## Where to go next
 - [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — every tool's arguments, types, defaults, cost, and failure modes, generated from the MCP definitions
-- [CHECKS.md](CHECKS.md) — the 221 checks the SF crawl audit runs, generated from the registry
+- [CHECKS.md](CHECKS.md) — the 229 checks the SF crawl audit runs, generated from the registry
 - [ARCHITECTURE.md](ARCHITECTURE.md) — layers, invariants, where new code goes
 - [SKILLS.md](SKILLS.md) — which skill drives which tool
 - [DECISIONS.md](DECISIONS.md) — why it was decided this way and not another
@@ -864,3 +865,53 @@ provenance and partial/failure states; it does not start a scheduler or delivery
 `monitor-local-deliver` records a deduplicated `local:receipt` for a retained run,
 without contacting an external recipient. Both require the current monitoring revision.
 See [PROJECTS.md](PROJECTS.md) for the claim and local receipt sequence.
+
+## Backlink profiles and paid-call estimates
+
+`backlinks-profile` / `seo_backlinks_profile` merges explicit CSV imports, retained provider
+responses, Common Crawl extracts and selected bounded provider operations. It is offline when
+`sources` is absent. `project` or `db` opts into private local history snapshots; it never writes
+the retained scan schema. Full rel token sets preserve normal, nofollow, sponsored, ugc and
+unknown observations separately. See [BACKLINK_PROFILES.md](BACKLINK_PROFILES.md).
+
+`backlinks-disavow` generates only explicitly reviewed donor domains/URLs, optionally at a new
+local path. It does not automatically classify a donor as harmful or submit a search-engine request.
+
+`dataforseo-estimate` is an offline quote using a supplied current `appendix/user_data` price
+snapshot. Query count, maximum billed rows and caller-declared cache hits stay visible; unknown
+pricing stays unavailable. SERP quotes require the query and include depth/operator adjustments. Production Google calls require `confirm_paid=true`; backlink calls
+also require explicit enablement/account/cost approval. A supplied `spend_ceiling_usd` is enforced
+before transport and requires known pricing. Project/month currency limits await the owner decision.
+
+## Retained link graph and sitemap generation
+
+`scan-graph` / `seo_scan_graph` reads retained internal edges without network. Filter positions
+(including `not_classified`), sections or an `--around` URL with `--depth`; page nodes and edges
+with independent offsets/limits. Hard ceilings are 5,000 nodes and 20,000 edges. Large graphs
+use bounded section aggregation and report clipping, coverage and the scope of orphan/component
+counts. `--compare-to` reads a second scan and reports added/removed pairs and new observed
+orphans. These counts do not prove whole-site reachability on an incomplete crawl.
+
+`scan-reanalyze --step links.position --max-documents N` writes a new derived scan containing
+a bounded offline position-backfill batch. Continue by passing that output as the next input.
+The checkpoint and document identities carry into each derived file; source scans remain
+immutable. The default full reanalysis also backfills retained links. Missing bodies and
+occurrence-identity mismatches remain `not_classified` with a reason in `scan-status` and
+`scan-link-inspect`. No page is fetched to infer a position.
+
+`scan-sitemap-generate` / `seo_scan_sitemap_generate` writes fresh local sitemap files from
+retained same-origin, indexable, canonical HTTP 200 HTML pages. Supply an explicit deployment
+base URL ending in `/`, and a fresh output directory. It splits at 50,000 URL entries or 50 MiB
+uncompressed and writes a sitemap index. Optional image sitemaps use complete retained HTML;
+missing image bodies and unmeasured responses are reported. Known non-200 resource
+responses are excluded. lastmod uses retained modification evidence and is omitted
+when unknown. Exclusion globs are explicit. The command does not deploy the generated files.
+
+Native retained audits also group 4xx/5xx internal link targets with source pages and anchors,
+record redirect chain/loop hop lists and checked external no-response outcomes, distinguish
+empty internal anchors from generic text, and reconcile sitemap members with retained HTTP,
+canonical, noindex and robots evidence. Finding location samples carry exact omitted counts;
+all original contributing links remain pageable through `scan-url-links`.
+
+Graph comparison applies section, position and representation filters across both scans.
+The `around` option limits the displayed current graph; it does not narrow comparison scope.
