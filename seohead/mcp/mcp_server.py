@@ -2474,7 +2474,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
     def seo_project_competitors_remove(directory: str, url: str) -> dict[str, Any]:
         """Drop one recorded competitor from the shortlist. Its local workspace and scans stay
         on disk, untouched; no crawl runs."""
-        return _checked(handlers.project_competitors_remove(directory, url))
+        return _checked(handlers.project_competitors_remove(directory, url=url))
 
     @mcp.tool(annotations=create_files_from_web, structured_output=True)
     def seo_project_prepare(
