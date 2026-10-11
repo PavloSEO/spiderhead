@@ -3202,6 +3202,35 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         """
         return _checked(handlers.project_task_detail(directory=directory, item_id=item_id))
 
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_task_comment(
+        directory: str,
+        item_id: str,
+        text: str,
+        actor: str,
+        expected_revision: int,
+        reference: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Append a comment to a custom project task with an optional scan/finding link.
+
+        The comment records its actor and timestamp. expected_revision prevents overwriting a
+        newer checklist update. This writes local project metadata and makes no network request.
+        """
+        return _checked(
+            with_project_notice(
+                handlers.project_task_comment(
+                    directory=directory,
+                    item_id=item_id,
+                    text=text,
+                    actor=actor,
+                    expected_revision=expected_revision,
+                    reference=reference,
+                ),
+                directory,
+                None,
+            )
+        )
+
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_project_scans(directory: str, offset: int = 0, limit: int = 20) -> dict[str, Any]:
         """Read a bounded page of retained project scans with evidence metadata.

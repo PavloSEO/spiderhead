@@ -64,11 +64,16 @@ The inbox records the specialist's intent and the agent's explicit decisions abo
 | `project-inbox-read` | Record that a consumer inspected specific entries. |
 | `project-inbox-acknowledge` | Record an explicit acknowledgment. It never accepts or completes a goal. |
 | `project-inbox-goal` | Move a proposed goal to `accepted` or `completed` (completion requires acceptance first). Launches nothing. |
+| `project-task-comment` | Append an attributed note to a custom task, optionally linked to a retained scan or finding. |
 | `project-inbox-triage` | Append the agent's outcome for a note: created/updated `custom:` tasks, a stored goal, competitor candidates, or a blocked/rejected reason. Note text is never parsed into commands. |
 
 The `watch` terminal observer can write a note (`n`) or a proposed goal (`g`); those are its only
 writes. MCP agents receive unread summaries only when their process has an explicit consumer
 identity and a matching project allowlist ([MCP profiles](MCP_PROFILES.md)).
+
+Accepting a proposed goal creates one `custom:goal-…` checklist task with the original goal text
+as its description. It does not execute the goal or grant manual-review approval. Use the ordinary
+checklist revision and evidence rules to update and complete that task.
 
 ## Monitor records
 

@@ -235,6 +235,29 @@ def project_checklist_record(
     )
 
 
+def project_task_comment(
+    directory: str,
+    item_id: str,
+    text: str,
+    actor: str,
+    expected_revision: int,
+    reference: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """Append an attributed note with an optional typed scan/finding identity."""
+    from seohead.projects.coverage import append_task_comment
+    from seohead.projects.runtime import resolve_item_scope
+
+    target, local_id = resolve_item_scope(directory, item_id)
+    return append_task_comment(
+        target,
+        item_id=local_id,
+        text=text,
+        actor=actor,
+        expected_revision=expected_revision,
+        reference=reference,
+    )
+
+
 def project_view_list(directory: str) -> dict[str, Any]:
     from seohead.projects.finding_views import list_views
 

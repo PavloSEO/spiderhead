@@ -207,6 +207,7 @@ COMMANDS = (
     "project-activity",
     "project-checklist-page",
     "project-task-detail",
+    "project-task-comment",
     "project-scans",
     "publication-cohorts",
     "gsc-progress",
@@ -828,6 +829,10 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         for name in ("directory", "source", "actor", "text"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "project-task-comment":
+        for name in ("directory", "item_id", "text", "actor", "expected_revision", "reference"):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
     elif cmd == "project-event-page":
         for name in ("directory", "source", "offset", "limit", "query"):
             if getattr(args, name, None) is not None:
@@ -884,6 +889,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         "project-activity",
         "project-checklist-page",
         "project-task-detail",
+        "project-task-comment",
         "project-scans",
         "scan-navigation",
         "bi-filter",
@@ -2949,11 +2955,17 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "project-activity",
         "project-checklist-page",
         "project-task-detail",
+        "project-task-comment",
         "project-scans",
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
     if cmd == "project-task-detail":
         sub.add_argument("--item-id", help="exact checklist item identifier")
+    if cmd == "project-task-comment":
+        sub.add_argument("--item-id", help="exact custom task identifier")
+        sub.add_argument("--expected-revision", type=int)
+        sub.add_argument("--actor", help="person or agent adding the comment")
+        _source_flag(sub, "--text", help="comment text")
     if cmd in {"project-checklist-page", "project-scans", "scan-navigation"}:
         sub.add_argument("--limit", type=int, help="bounded page size")
         sub.add_argument("--offset", type=int, help="zero-based item offset")
@@ -3310,6 +3322,7 @@ def build_parser() -> argparse.ArgumentParser:
         "activity",
         "checklist-page",
         "task-detail",
+        "task-comment",
         "scans",
         "inbox-submit",
         "inbox-list",

@@ -2997,6 +2997,32 @@ Reads saved local evidence with metadata-only receipt status; this is not
 fresh byte verification. Missing historical receipts remain unverified.
 Does not collect, fetch or modify evidence.
 
+### `project-task-comment`
+
+MCP name: `seo_project_task_comment`
+
+Append an attributed comment to a custom project task. An optional structured reference may point
+to a retained scan (`{"kind":"scan","id":"…"}`) or finding
+(`{"kind":"finding","scan_id":"…","id":"…"}`). The comment is append-only and the
+write requires the current checklist revision. The reference is stored as metadata; it is not
+fetched or verified. The command makes no network request.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `item_id` | `str` | `required` |
+| `text` | `str` | `required` |
+| `actor` | `str` | `required` |
+| `expected_revision` | `int` | `required` |
+| `reference` | `dict[str, str] \| None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+Only current custom checklist tasks accept comments. A stale expected revision, invalid actor/text,
+or invalid scan/finding reference is refused without changing the checklist.
+
 ### `project-scans`
 
 MCP name: `seo_project_scans`

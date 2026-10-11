@@ -45,7 +45,7 @@ and inputs remain in the nearby route sections and generated tool reference.
 `project-inbox-read` · `project-inbox-submit` · `project-inbox-triage` · `project-inbox-unread` ·
 `project-new` · `project-observe` · `project-open` · `project-policy` · `project-prepare` ·
 `project-priorities` · `project-progress` · `project-scans` · `project-sources-link` · `project-sources-list`
-· `project-sources-unlink` · `project-start` · `project-status` · `project-task-detail` ·
+· `project-sources-unlink` · `project-start` · `project-status` · `project-task-comment` · `project-task-detail` ·
 `project-view-delete` · `project-view-list` · `project-view-rename` · `project-view-save` ·
 `project-view-show` · `provider-auth` · `provider-collect` · `provider-join` · `provider-readiness` ·
 `provider-registry` · `provider-replay` · `provider-verify` · `publication-cohorts` · `redirects-check` ·
@@ -156,6 +156,7 @@ not the geographic region `key`; `summary` takes the singular `region_index`.
 | `project-facts` | Preview or record the project's stack facts; `--detect` fetches the target once after robots.txt, and an unavailable or ambiguous detection leaves the fact absent with its reason | only with `--detect` |
 | `project-checklist-init` | Initialize or reconcile a local checklist from the built-in catalogue, an optional data-only template, and an optional agreed scope `plan` that fixes the URL-population and task denominators; does not execute items | no |
 | `project-checklist-update` | Add or edit one checklist definition with an expected revision; does not execute it | no |
+| `project-task-comment` | Append an attributed comment to a custom task and optional retained-evidence link under the checklist revision | no |
 | `project-checklist-record` | Validate and record supplied evidence for one item with an expected revision; does not execute it | no |
 | `project-view-list` / `project-view-show` | List saved finding views or retrieve one with stable identity and schema/config revisions | no |
 | `project-view-save` | Create or revise a closed declarative finding view using an expected config revision | writes project view configuration |

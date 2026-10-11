@@ -199,6 +199,7 @@ def validate_record(root: Path, definition: dict, record: Any) -> dict:
         "artifact",
         "evidence",
         "reviewer",
+        "actor",
         "review",
         "signoff",
     }:
@@ -214,13 +215,15 @@ def validate_record(root: Path, definition: dict, record: Any) -> dict:
         raise ValueError("invalid execution status")
     reason = _text(record.get("reason"), "record reason")
     result = {"status": status, "reason": reason, "measurement": None}
+    if "actor" in record:
+        result["actor"] = _text(record["actor"], "record actor", 128)
     if status in {"running", "failed", "unavailable"}:
-        if set(record) - {"status", "reason"}:
-            raise ValueError("unfinished attempts record status and reason only")
+        if set(record) - {"status", "reason", "actor"}:
+            raise ValueError("unfinished attempts record status, reason and optional actor only")
         return result
     if status == "not_applicable":
         # Applicability is an explicit specialist decision, never inferred from missing data.
-        if set(record) - {"status", "reason", "reviewer", "artifact", "evidence"}:
+        if set(record) - {"status", "reason", "reviewer", "artifact", "evidence", "actor"}:
             raise ValueError("applicability review records reason, reviewer and evidence basis")
         result["reviewer"] = _text(record.get("reviewer"), "reviewer", 128)
         if "artifact" in record:
@@ -235,7 +238,7 @@ def validate_record(root: Path, definition: dict, record: Any) -> dict:
         return result
     kind = definition["execution_kind"]
     if kind == "automatic":
-        if set(record) - {"status", "reason", "artifact"}:
+        if set(record) - {"status", "reason", "artifact", "actor"}:
             raise ValueError("automatic evidence cannot be replaced by manual signoff")
         result.update(_saved_check(root, definition, record.get("artifact")))
     else:

@@ -194,6 +194,7 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-activity` | Read lightweight current activity for a local project and its sites. | offline, read-only |
 | `project-scans` | Read a bounded page of retained project scans with evidence metadata. | offline, read-only |
 | `project-task-detail` | Read one project task definition, evidence and bounded history. | offline, read-only |
+| `project-task-comment` | Append an attributed comment to a custom task with an optional retained scan/finding reference. | writes |
 | `project-checklist-init` | Initialize or reconcile a local checklist without executing a check, skill, or scenario. | writes |
 | `project-checklist-update` | Add or update one local checklist definition without executing it. | writes |
 | `project-checklist-record` | Record supplied evidence for one checklist item without executing its operation. | writes |

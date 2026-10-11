@@ -20,6 +20,31 @@ collection policy, saved scans, tasks, review decisions and outputs. Start with
 accepts or rejects a proposed goal. None of these is permission to execute free text. A workflow
 requires the accepted goal, registered prompt and current incomplete custom task IDs.
 
+Accepting a proposed goal creates its stable `custom:goal-…` checklist task once. The task keeps
+the proposed text as its description and remains incomplete until the normal checklist workflow
+records an outcome. Acceptance does not start a crawl, approve a manual review, or mark the task
+complete. Custom task definitions can also carry `assignee`, `description`,
+`acceptance_criterion`, a typed `finding_ref` (`scan_id` plus `finding_id`), and a `method_ref` for a
+registered skill or scenario. The optional `competitors` field is a bounded list of `{url,
+max_urls}` entries for per-site task caps. Storing candidates and limits starts no scans; each
+competitor crawl remains an explicit action. These are checklist metadata and remain covered by
+the checklist's expected-revision write contract.
+
+`project-checklist-page` is filter-before-page and returns `total`, `next_offset`, and
+`previous_offset` for bounded offset/limit navigation. Each task row reports `task.state`,
+`task.executor`, `task.actor`, and `task.next_step`; absent values remain null. Per-task
+`affected_urls` has a nullable count plus `measured` or `not_measured` state and reason. The
+count is emitted only when retained measurement evidence enumerates affected URLs; a crawl's
+measured population is not substituted for a count of affected URLs. `project-task-detail` returns
+up to 20 recent comments, total count and truncation state. `project-task-comment` appends an
+attributed comment under the checklist revision and can store a typed scan or finding identity.
+The reference is metadata; recording it does not verify or fetch the referenced evidence.
+
+The existing `updated` sort field still means the newest execution-record timestamp. Whether it
+should instead be named `updated_at`, and whether definition-only state/priority edits should move
+it without adding execution evidence, remains an owner decision. No timestamp is fabricated for
+those edits.
+
 Use the revision returned by the latest read when writing. Old definitions, changed artifacts,
 changed scope or stale dependencies can leave work stale or unfinished; a handoff must include
 those reasons, the next action and its expected evidence, not just a completion count. Competitor

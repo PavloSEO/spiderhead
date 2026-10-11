@@ -6476,6 +6476,26 @@ def project_task_detail(directory: str, item_id: str) -> dict[str, Any]:
     return core(directory=directory, item_id=item_id)
 
 
+def project_task_comment(
+    directory: str,
+    item_id: str,
+    text: str,
+    actor: str,
+    expected_revision: int,
+    reference: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_task_comment as core
+
+    return core(
+        directory=directory,
+        item_id=item_id,
+        text=text,
+        actor=actor,
+        expected_revision=expected_revision,
+        reference=reference,
+    )
+
+
 def project_scans(directory: str, offset: int = 0, limit: int = 20) -> dict[str, Any]:
     """Read a bounded page of retained project scans with evidence metadata."""
     from seohead.projects.observer import scans_page as core
@@ -7300,6 +7320,7 @@ _RAW_HANDLERS = {
     "project_activity": project_activity,
     "project_checklist_page": project_checklist_page,
     "project_task_detail": project_task_detail,
+    "project_task_comment": project_task_comment,
     "project_scans": project_scans,
     "publication_cohorts": publication_cohorts,
     "gsc_progress": gsc_progress,
