@@ -6,11 +6,13 @@ import copy
 
 import pytest
 
+from seohead.checks.markup import A11Y_CODES, AMP_CODES
 from seohead.crawl import security_headers
 from seohead.crawl.settings import fingerprint, load
 from seohead.crawl.sqlite_adapter import crawl_to_scan
 from seohead.mcp.handlers import _audit_crawl_result
 from seohead.mcp.scan_handlers import _rebuild_page_result
+from seohead.sf.core.markup_rules import SCHEMA_CODES
 from seohead.storage.native_scan import NativeScan
 from tests.evidence_contract_assertions import assert_saved_contract, semantic_audit
 from tests.test_scan_artifact_office import frozen_office_clock as frozen_office_clock
@@ -106,7 +108,16 @@ def _drop_retained_only_checks(audit: dict) -> dict:
     # The security-header checks (#1013, and the repeated-header check) read each page's stored
     # response headers, which the legacy graph never keeps: the same retained-only shape as
     # BROKEN_BOOKMARK.
-    retained_only = {"BROKEN_BOOKMARK", *security_headers.CHECK_IDS}
+    # Markup findings require document-bound contexts (#1304); the legacy
+    # graph deliberately retains neither bodies nor those source contexts.
+    retained_only = {
+        "BROKEN_BOOKMARK",
+        *security_headers.CHECK_IDS,
+        *A11Y_CODES,
+        *AMP_CODES,
+        "AMP_MISSING_HTML_ATTRIBUTE",
+        *SCHEMA_CODES,
+    }
     document = copy.deepcopy(audit)
     summary = document.get("summary") if isinstance(document.get("summary"), dict) else {}
     summary.pop("fragment_links", None)

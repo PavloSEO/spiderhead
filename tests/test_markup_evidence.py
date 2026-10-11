@@ -320,3 +320,15 @@ def test_foreign_sibling_does_not_hide_confirmed_schema_error(tmp_path):
         assert "STRUCTURED_DATA_SCHEMA_ERROR" in {issue.check for issue in ctx.issues}
     finally:
         con.close()
+
+
+@pytest.mark.parametrize("source", ["null", "1", "{}", "[]"])
+def test_syntactically_parsed_non_entity_json_has_native_schema_error(tmp_path, source):
+    path = _scan(tmp_path, [(URL, '<script type="application/ld+json">' + source + "</script>")])
+    con = open_scan(path, require_audit=False)
+    try:
+        ctx = _ctx(con)
+        check_document_markup(ctx)
+        assert "STRUCTURED_DATA_SCHEMA_ERROR" in {issue.check for issue in ctx.issues}
+    finally:
+        con.close()

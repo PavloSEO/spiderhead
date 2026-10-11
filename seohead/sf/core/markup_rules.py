@@ -122,6 +122,14 @@ def check_document_markup(ctx: AuditContext) -> None:
                 ("entity_errors", "entity_warnings"), SCHEMA_CODES[:2], strict=True
             ):
                 count = validation[field]
+                # Scalar/empty JSON parses syntactically but defines no graph
+                # entities. Its explicit structural failure is still a finding.
+                if (
+                    field == "entity_errors"
+                    and not count
+                    and payload["state"] == "structurally_invalid"
+                ):
+                    count = 1
                 if count:
                     ctx.add(
                         code,

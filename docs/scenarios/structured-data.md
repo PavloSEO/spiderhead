@@ -10,6 +10,12 @@
 
 ## The chain
 
+The shared checker validates JSON-LD, Microdata and common RDFa subjects/properties
+with the bundled vocabulary and local rich-result rules. A retained native scan also
+emits per-URL schema errors, warnings and missing required properties. Unsupported
+RDFa graph carriers remain partial/unavailable; local eligibility never guarantees
+Google display. Use `scan-structured-blocks` for the original and parsed JSON-LD tree.
+
 **1. Read what the page actually declares.**
 
 ```bash
