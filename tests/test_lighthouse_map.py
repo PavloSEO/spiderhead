@@ -51,6 +51,16 @@ def test_new_checks_are_new_and_correspondence_checks_already_existed():
     """Guards the issue's "do not duplicate, record correspondence instead" rule."""
     new_checks = {"MISSING_CHARSET", "MISSING_DOCTYPE", "VIEWPORT_MISSING", "NO_COMPRESSION"}
     correspondence_only = {"HTTP1_ONLY", "IMG_MISSING_DIMENSIONS"}
-    assert new_checks | correspondence_only == set(LIGHTHOUSE_MAP)
+    supplied_lab = {
+        "LCP_DISCOVERY",
+        "NETWORK_DEPENDENCY_TREE",
+        "LAYOUT_SHIFT_CULPRITS",
+        "IMAGE_DELIVERY",
+        "FORCED_REFLOW",
+        "JS_EXECUTION_TIME",
+    }
+    assert new_checks | correspondence_only | supplied_lab == set(LIGHTHOUSE_MAP)
     for check_id in correspondence_only:
         assert "already covers" in LIGHTHOUSE_MAP[check_id]["note"].lower()
+    for check_id in supplied_lab:
+        assert "supplied" in LIGHTHOUSE_MAP[check_id]["note"].lower()

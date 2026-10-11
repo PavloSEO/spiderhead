@@ -285,6 +285,7 @@ class ParsedPage(_ParsedPageOptional):
     viewport: str | None
     # <html amp> / <html ⚡> presence, data only (#1021 slice 1).
     html_amp: bool
+    render_blocking: list[str]
     # The document's <html lang> claim: {"declared", "declared_primary"}, both "" when absent.
     html_lang: dict[str, str]
     # The <meta http-equiv="refresh"> content attribute exactly as written,

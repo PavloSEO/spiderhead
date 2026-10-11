@@ -608,6 +608,8 @@ def aggregate(
     # each conventional trust page -- found_indexable, found_non_indexable,
     # found_error, discovered_not_crawled or not_discovered. A report can read
     # the states without trusting any single finding's wording.
+    if ctx.asset_measurements:
+        summary["asset_measurements"] = dict(ctx.asset_measurements)
     if ctx.trust_evidence:
         trust_evidence = dict(ctx.trust_evidence)
         if crawl_partial:

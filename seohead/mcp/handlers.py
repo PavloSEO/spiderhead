@@ -980,6 +980,7 @@ def crawl_site(
     audit_config = load_audit_config(None)
     audit_config["finding_exclusions"] = settings["analysis"]["finding_exclusions"]
     audit_config["canonical_policy"] = settings["analysis"]["canonical_policy"]
+    audit_config["thresholds"].update(settings["analysis"].get("asset_thresholds", {}))
     validate_audit_config(audit_config)
     proxy_route = crawl_config.resolve_proxy(settings)
     if project_root is not None:
@@ -1521,6 +1522,7 @@ def _audit_crawl_result(
 
     audit_config = load_config(None)
     audit_config["finding_exclusions"] = settings.get("analysis", {}).get("finding_exclusions", [])
+    audit_config["thresholds"].update(settings.get("analysis", {}).get("asset_thresholds", {}))
     validate_config(audit_config)
     from seohead.sf.core.aggregate import aggregate
     from seohead.sf.core.context import AuditContext

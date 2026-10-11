@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**202 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**219 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -272,6 +272,7 @@ python scripts/generate_checks_reference.py
 | `UNSUPPORTED_PLUGIN` | warning | crawl:plugin_elements | Page contains a legacy plugin-dependent element (<object>/<embed>/<applet>) | Replace the plugin-dependent element with a native equivalent (HTML5 <video>/<audio>, an <img>/<svg>, or a JavaScript-driven alternative) -- mobile browsers, and modern desktop ones, do not run plugins, so this content is simply invisible there. |
 | `AJAX_CRAWLING_SCHEME_URL` | notice | crawl:ajax_scheme_outlinks | The deprecated AJAX crawling scheme (#! / _escaped_fragment_) is still used by this page's URL or by URLs it links to | Serve the same content at ordinary URLs and link to those instead. Google deprecated the scheme in 2015 and stopped supporting it in 2018, so an _escaped_fragment_ companion URL is no longer requested by anything -- informational rather than broken, because a site may still keep it for a legacy client of its own. |
 | `AJAX_CRAWLING_SCHEME_META_FRAGMENT` | notice | crawl:meta_fragment | Page declares <meta name="fragment"> -- the page-wide opt-in to the deprecated AJAX crawling scheme | Remove the tag once the page is served as ordinary HTML (server-rendered or crawlable client-rendered). Nothing requests the _escaped_fragment_ companion URL it advertises any more, so the declaration is inert -- informational rather than broken. |
+| `RENDER_BLOCKING` | notice | crawl:render_blocking | A <head> script or stylesheet blocks first paint (no async/defer, no non-matching media) | Add `defer` or `async` to the <script src>, move it out of <head>, or give the stylesheet a `media` value that the first render does not need. |
 | `NO_COMPRESSION` | notice | SF-derived | HTML response is served uncompressed above the size where gzip/br would help | Enable gzip, Brotli, or deflate compression for text responses on the origin server or CDN. |
 
 ## --- extension: element position & document skeleton (issue #123) ---
@@ -353,3 +354,24 @@ python scripts/generate_checks_reference.py
 | `MISSING_TERMS_PAGE` | notice | SF-derived | No indexable terms-of-use page was found in the crawl's scope | If a terms page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all. |
 | `FEW_CITATIONS` | notice | SF-derived | Content-shaped page has no observable outbound reference in its body content | Review whether the page should cite its sources. An outbound link inside the body copy is the only carrier a crawl can observe as a citation; the finding never asserts that any link is authoritative. |
 | `YMYL_REVIEW_CANDIDATE` | notice | SF-derived | URL path or title matches a YMYL-adjacent keyword — a review candidate only, not a classification | Have a specialist confirm whether the page genuinely covers Your-Money-Your-Life topics; if it does, the attribution and trust-page evidence above deserves a closer look. |
+
+## Native asset budgets and supplied Lighthouse lab evidence (issue #1303)
+
+| Check id | Severity | Evidence | Fires on | Fix |
+|---|---|---|---|---|
+| `ASSET_SHORT_CACHE` | notice | native resource delivery | A captured resource has no long-lived public cache policy | Use an appropriate public max-age for versioned static assets; keep private and no-store policies where required. |
+| `FONT_DISPLAY_MISSING` | notice | native resource delivery | An observed stylesheet font-face lacks an accepted font-display value | Set font-display to swap, fallback or optional when appropriate for the font. |
+| `HEAVY_PAGE_WEIGHT` | warning | native render responses / HTML | Observed navigation responses or HTML alone exceed the configured content-decoded byte budget | Reduce the measured document, images, fonts and scripts; keep raw-only and incomplete runtime coverage explicit. |
+| `RESOURCE_OVER_2MB` | warning | native resource graph | A captured resource exceeds the configured individual byte budget | Reduce or split the identified resource; the default budget is 2 MiB. |
+| `UNUSED_CSS_JS` | notice | native render coverage | CSS or JavaScript source is substantially unused in the captured navigation window | Split or defer unused code after testing the interactions and routes that need it; lab coverage is not proof code is universally unused. |
+| `UNMINIFIED_CSS_JS` | notice | native resource delivery | Captured CSS or JavaScript does not look minified (heuristic) | Apply the existing production minifier and verify the result still works. |
+| `DUPLICATED_JS` | notice | native resource delivery | Different script URLs on one page contain identical captured source bytes | Load the identical script once; review the build and page template. |
+| `LEGACY_JS` | notice | native resource delivery | Captured JavaScript has an unconditional legacy or polyfill marker (heuristic) | Review target browser support before removing or splitting legacy code. |
+| `IMG_INTRINSIC_OVERSIZED` | notice | native render layout | A heavy image has more intrinsic width than its displayed device pixels need | Serve a responsive image sized for the observed viewport and device pixel ratio. |
+| `IMG_UPSCALED` | warning | native render layout | An image has less intrinsic width than its displayed device pixels need | Supply an image with enough intrinsic pixels for the observed viewport and device pixel ratio. |
+| `LCP_DISCOVERY` | notice | supplied Lighthouse JSON | The supplied Lighthouse LCP discovery audit reports an opportunity | Review the recorded LCP element and make its image discoverable and appropriately prioritized. |
+| `NETWORK_DEPENDENCY_TREE` | notice | supplied Lighthouse JSON | The supplied Lighthouse dependency-tree audit reports a request-chain opportunity | Shorten the measured critical request chain; inspect the supplied lab trace evidence. |
+| `LAYOUT_SHIFT_CULPRITS` | notice | supplied Lighthouse JSON | The supplied Lighthouse layout-shift audit reports culprits | Reserve layout space and correct the measured shift sources. |
+| `IMAGE_DELIVERY` | notice | supplied Lighthouse JSON | The supplied Lighthouse image-delivery audit reports an opportunity | Optimize the measured image size and encoding while preserving visual quality. |
+| `FORCED_REFLOW` | notice | supplied Lighthouse JSON | The supplied Lighthouse forced-reflow audit reports an opportunity | Review the measured script stack and batch layout reads and writes. |
+| `JS_EXECUTION_TIME` | notice | supplied Lighthouse JSON | The supplied Lighthouse bootup-time audit reports expensive script execution | Reduce or defer the measured JavaScript execution work. |

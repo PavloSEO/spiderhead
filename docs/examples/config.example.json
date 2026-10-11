@@ -57,7 +57,8 @@
   "input": {
     "mode": "auto",
     "exports_dir": "exports",
-    "html_store_dir": null
+    "html_store_dir": null,
+    "lighthouse_reports": {}
   },
   "filters": {
     "content_type_include": [
@@ -102,6 +103,8 @@
     "dom_depth_max": 32,
     "dom_nodes_max": 1500,
     "img_max_kb": 150,
+    "page_weight_max_bytes": 2097152,
+    "resource_max_bytes": 2097152,
     "sitemap_lastmod_stale_days": 365,
     "sitemap_desync_pct_warn": 20,
     "templated_title_share": 0.6,

@@ -24,8 +24,10 @@ seohead crawl-site --url https://example.com --out-dir ./run --max-urls 200
 seohead log-scan --run ./run
 ```
 
-Both image checks are named as skipped in `run.checks_skipped`, because per-image attributes are
-not in the record a native crawl builds:
+Without retained resource declarations and responses, the image checks explain their missing
+inputs in `run.checks_skipped`. Native scan.v2 resource capture supplies those declarations,
+headers and captured byte sizes; omitted or unfetched references remain unavailable. Older
+scans or export sets without the image filters can report:
 
 ```
 {"id": "IMG_MISSING_DIMENSIONS", "reason": "missing export: images_missing_size"}
@@ -93,9 +95,11 @@ with `parse`. No paid API. The re-encoding half, if you run it, is CPU-bound and
 - **How much layout shift actually happens.** CLS is measured in a browser under a real
   connection. A missing attribute is a cause; it is not a score. `render-check` gives lab
   timings from one machine, which are not field data either.
-- **Whether an image is the wrong size for its box.** Comparing intrinsic pixels against the
-  rendered layout box needs the rendered layout, and that is not collected. An oversized image
-  scaled down in CSS is invisible to this chain.
+- **Sizing without supported browser layout and physical response dimensions.** Requested renders
+  retain `IMG_INTRINSIC_OVERSIZED` and `IMG_UPSCALED` for offline audit replay. File pixels are
+  checked against device-pixel width; density-corrected `naturalWidth` does not substitute for
+  physical dimensions. The existing oversized-image floor is 10 KiB. Unsupported object-fit,
+  transformed/bordered/padded geometry, formats or missing response bodies stay unavailable.
 - **Backgrounds and layout shift.** CSS backgrounds cannot carry dimensions, so they are absent
   from the finding by construction rather than by omission.
 - **Whether the deploy keeps the saving.** A CMS that regenerates derivatives on upload can undo

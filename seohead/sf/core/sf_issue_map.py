@@ -239,9 +239,10 @@ CATEGORIES: dict[str, list[Entry]] = {
         _c("Alt Text Over 100 Characters", "IMG_ALT_TOO_LONG"),
         _p(
             "Incorrectly Sized Images",
-            "render-check measures intrinsic size against the rendered box (image_sizing: "
-            "oversized, upscaled) on rendered routes only; no SF-analyzer check reads it yet, "
-            "and crawl exports are not checked",
+            "native retained render layout compares intrinsic and displayed width at the recorded "
+            "DPR; raw-only scans skip, and the existing 10 KiB oversized-image floor awaits owner review",
+            "IMG_INTRINSIC_OVERSIZED",
+            "IMG_UPSCALED",
         ),
         _c("Missing Size Attributes", "IMG_MISSING_DIMENSIONS"),
     ],
@@ -398,28 +399,73 @@ CATEGORIES: dict[str, list[Entry]] = {
     ],
     "PageSpeed": [
         _c("Document Request Latency", "SLOW_RESPONSE"),
-        _o("LCP Request Discovery", "needs Lighthouse's own trace of the loading sequence"),
-        _t("Render Blocking Requests", "asset-weight-check"),
-        _o("Network Dependency Tree", "needs a full request waterfall from a real navigation"),
-        _t("Use Efficient Cache Lifetimes", "headers-check", "cdn-check"),
-        _o("Layout Shift Culprits", "needs layout instrumentation during a real render"),
-        _t("Improve Image Delivery", "images-optimize", "asset-weight-check"),
-        _o("Forced Reflow", "needs main-thread instrumentation"),
-        _t("Legacy JavaScript", "asset-weight-check"),
-        _t("Duplicated JavaScript", "asset-weight-check", note="by content hash across the page"),
+        _c(
+            "LCP Request Discovery",
+            "LCP_DISCOVERY",
+            note="supplied matching per-URL Lighthouse lab JSON only; no automatic trace collection",
+        ),
+        _c("Render Blocking Requests", "RENDER_BLOCKING"),
+        _c(
+            "Network Dependency Tree",
+            "NETWORK_DEPENDENCY_TREE",
+            note="supplied per-URL Lighthouse lab JSON",
+        ),
+        _c(
+            "Use Efficient Cache Lifetimes",
+            "ASSET_SHORT_CACHE",
+            note="completed native resource headers; static heuristic, not a Lighthouse score",
+        ),
+        _c(
+            "Layout Shift Culprits",
+            "LAYOUT_SHIFT_CULPRITS",
+            note="supplied per-URL Lighthouse lab JSON",
+        ),
+        _c("Improve Image Delivery", "IMAGE_DELIVERY", note="supplied per-URL Lighthouse lab JSON"),
+        _c("Forced Reflow", "FORCED_REFLOW", note="supplied per-URL Lighthouse lab JSON"),
+        _c(
+            "Legacy JavaScript",
+            "LEGACY_JS",
+            note="markers in completed native script source; heuristic",
+        ),
+        _c(
+            "Duplicated JavaScript",
+            "DUPLICATED_JS",
+            note="exact captured bytes at different script URLs on the same page",
+        ),
         _p(
             "Avoid Enormous Network Payloads",
-            "LARGE_HTML/HTML_BLOAT measure only each HTML document's own size (bytes) and "
-            "word count; nothing sums images, fonts, third-party tags or later requests into "
-            "a total page payload (docs/COVERAGE_GAPS.md 1.7 tracks the gap)",
+            "HEAVY_PAGE_WEIGHT uses observed navigation response bodies or an HTML-only lower bound, "
+            "with explicit content-decoded units; not a total page payload across future interactions "
+            "or a compressed transfer measurement. LARGE_HTML/HTML_BLOAT retain HTML-only scope",
+            "HEAVY_PAGE_WEIGHT",
             "LARGE_HTML",
             "HTML_BLOAT",
         ),
-        _t("Minify CSS", "asset-weight-check"),
-        _t("Minify JavaScript", "asset-weight-check"),
-        _o("Reduce Unused CSS", "needs coverage instrumentation from a real render"),
-        _o("Reduce Unused JavaScript", "needs coverage instrumentation from a real render"),
-        _o("Reduce JavaScript Execution Time", "needs a CPU profile"),
+        _c(
+            "Minify CSS",
+            "UNMINIFIED_CSS_JS",
+            note="completed native source; whitespace/line-length heuristic",
+        ),
+        _c(
+            "Minify JavaScript",
+            "UNMINIFIED_CSS_JS",
+            note="completed native source; whitespace/line-length heuristic",
+        ),
+        _c(
+            "Reduce Unused CSS",
+            "UNUSED_CSS_JS",
+            note="bounded Chromium CDP coverage from the recorded navigation window",
+        ),
+        _c(
+            "Reduce Unused JavaScript",
+            "UNUSED_CSS_JS",
+            note="bounded Chromium CDP coverage from the recorded navigation window",
+        ),
+        _c(
+            "Reduce JavaScript Execution Time",
+            "JS_EXECUTION_TIME",
+            note="supplied Lighthouse bootup-time lab result",
+        ),
         _o("Minimize Main-Thread Work", "needs a CPU profile"),
         _p(
             "Optimize DOM Size",
@@ -429,7 +475,11 @@ CATEGORIES: dict[str, list[Entry]] = {
             "DOM_TOO_MANY_NODES",
             "DOM_TOO_DEEP",
         ),
-        _t("Font Display", "asset-weight-check"),
+        _c(
+            "Font Display",
+            "FONT_DISPLAY_MISSING",
+            note="font-face blocks in completed native stylesheets",
+        ),
     ],
     "Mobile": [
         _c("Viewport Not Set", "VIEWPORT_MISSING"),
@@ -493,10 +543,10 @@ CATEGORIES: dict[str, list[Entry]] = {
         _c("Missing <body> Tag", "BODY_MISSING"),
         _c("Multiple <body> Tags", "BODY_MULTIPLE"),
         _c("HTML Document Over 2MB", "HTML_OVER_2MB"),
-        _p(
+        _c(
             "Resource Over 2MB",
-            "a body above the configured ceiling is recorded and not parsed; it is a limit, "
-            "not a finding",
+            "RESOURCE_OVER_2MB",
+            note="captured declared-resource bytes; partial captures retain lower-bound status",
         ),
         _c("Invalid HTML Elements In <head>", "INVALID_HEAD_ELEMENT"),
         # Both collapse, after an HTML5 parser recovers from either shape of malformed

@@ -2050,6 +2050,12 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
         result["meta_refresh"] = ""
         result["html_amp"] = False
 
+    # Resource markup is measured independently of the metadata extraction option.
+    # asset_weight imports parser, so importing here avoids a module cycle.
+    from seohead.checks.asset_weight import find_render_blocking_resources
+
+    result["render_blocking"] = [r["url"] for r in find_render_blocking_resources(soup, base_url)]
+
     if opts["canonical"]:
         canonical_tag = _canonical_tag(soup)
         # "href" is single-valued, so this is always a plain string.

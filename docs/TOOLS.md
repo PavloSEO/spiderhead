@@ -17,7 +17,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 data, not an accident.
 
 The current registry has 183 commands and 192 callable tools,
-with 202 audit checks. These are inventories, not coverage on every input.
+with 219 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
 ## Generated command inventory
@@ -38,10 +38,11 @@ and inputs remain in the nearby route sections and generated tool reference.
 `metrika-traffic-pdf` · `miratext-analyze` · `mirror-check` · `monitor-collect` · `monitor-configure` ·
 `monitor-local-deliver` · `monitor-run` · `monitor-schedule` · `monitor-status` · `parse` · `project-activity`
 · `project-checklist-init` · `project-checklist-page` · `project-checklist-record` ·
-`project-checklist-update` · `project-event-append` · `project-event-page` · `project-facts` ·
+`project-checklist-update` · `project-competitors-add` · `project-competitors-list` ·
+`project-competitors-remove` · `project-event-append` · `project-event-page` · `project-facts` ·
 `project-inbox-acknowledge` · `project-inbox-goal` · `project-inbox-list` · `project-inbox-read` ·
 `project-inbox-submit` · `project-inbox-triage` · `project-inbox-unread` · `project-new` · `project-observe` ·
-`project-competitors-add` · `project-competitors-list` · `project-competitors-remove` · `project-open` · `project-policy` · `project-prepare` · `project-priorities` · `project-progress` ·
+`project-open` · `project-policy` · `project-prepare` · `project-priorities` · `project-progress` ·
 `project-scans` · `project-sources-link` · `project-sources-list` · `project-sources-unlink` · `project-start`
 · `project-status` · `project-task-detail` · `project-view-delete` · `project-view-list` ·
 `project-view-rename` · `project-view-save` · `project-view-show` · `provider-auth` · `provider-collect` ·
@@ -268,6 +269,65 @@ because the rules could not be read, so the command never claims crawling is all
 | `meta-description-drafts` | Prepares a bounded dry-run or validates structured drafts supplied by a calling/delegated agent. It reads only supplied HTML or retained scan content, stores local checkpoints by source/context/executor identity, reports unavailable inputs and review flags, and optionally exports local JSON plus formula-safe CSV. It never calls a model, writes a CMS or promises a search snippet. |
 | `keywords-cluster` | Keyword clustering; the algorithm and parameters come via `--input` |
 | `render-check` | Raw HTML vs the rendered DOM + lab metrics. See the [js-render-check](../.claude/skills/js-render-check/SKILL.md) skill |
+
+### Native asset budgets and lab findings
+
+`RENDER_BLOCKING` reads complete retained static HTML, with a 2 MiB per-document analysis
+bound. It uses the existing head-markup helper and preserves the frozen `scan.v1` schema.
+Missing, incomplete and oversized retained bodies stay unavailable. This is markup evidence,
+not a measured blocking duration.
+
+For declared-resource budgets and delivery findings, enable `storage.format_version=scan.v2`
+and `resources.fetch=true`. The existing resource request, origin, byte, nesting and time
+budgets still apply. `HEAVY_PAGE_WEIGHT` reads actual responses delivered by a requested native
+browser navigation, with document, image, font and third-party buckets. Third-party here means
+a hostname different from the initial navigation target, including subdomains. It observes the existing
+pinned transport and adds no requests. Declared responsive alternatives and unused CSS resources
+are not summed as runtime bytes. A raw-only page can exceed the budget on its HTML alone; remaining
+runtime assets stay unavailable. Partial navigation bytes remain a lower bound within the recorded
+window. Browser weight uses content-decoded body bytes, not compressed transfer size; the
+HTML-only fallback labels its own captured-byte unit. `RESOURCE_OVER_2MB` identifies
+individual resources over the configured limit. The default is 2 MiB for both checks.
+Native overrides are `analysis.asset_thresholds.page_weight_max_bytes` and
+`analysis.asset_thresholds.resource_max_bytes`; SF config uses the same names under `thresholds`.
+
+Completed resource responses also feed `ASSET_SHORT_CACHE`, `FONT_DISPLAY_MISSING`,
+`UNMINIFIED_CSS_JS`, `LEGACY_JS` and `DUPLICATED_JS`. Minification and legacy markers are
+heuristics. Duplicated scripts require identical captured bytes at different URLs on the same
+page; whitespace inside string literals is preserved. A script URL answering with HTML is
+unavailable source evidence. HTTP 206 fragments remain partial even in older retained graphs.
+Font-face samples fit the whole 16 KiB ASCII-escaped delivery envelope and retain omitted counts.
+Shared-cache `s-max-age` does not substitute for browser `max-age`.
+
+Requested native renders collect bounded Chromium JS/CSS precise coverage before navigation.
+`UNUSED_CSS_JS` reports source unused during that recorded window in UTF-16 code units, not
+transfer bytes. Workers, out-of-process frames and later interactions are outside its scope.
+Other engines or failed CDP collection remain unavailable. Sources are limited to 60 per kind,
+2 million code units each and 8 million combined. Precise coverage can affect lab timings.
+Rendered layout feeds `IMG_INTRINSIC_OVERSIZED` and `IMG_UPSCALED`, with physical file/displayed
+width, DPR, source-page and response evidence. File dimensions account for EXIF orientation;
+browser density-corrected `naturalWidth` is not used as file pixels. The supported geometry is a
+plain image content rectangle: unsupported object-fit, padding, border or transforms remain
+unavailable. The existing oversized-image floor is 10 KiB. Missing image sizes, unknown encoded
+sizes and observation/result limits remain partial or unavailable.
+Layout/coverage summaries survive retained-scan reopening and offline reanalysis without refetch.
+`summary.asset_measurements` records eligible, measured, partial and unavailable counts for every
+asset check. A valid finding can coexist with explicitly partial coverage; missing sibling pages,
+resources or reports do not become clean results. Raw CDP responses materialize before local
+source/range acceptance limits; these limits do not claim an absolute browser memory ceiling.
+
+LCP discovery, dependency trees, layout-shift culprits, image delivery, forced reflow and JS
+execution time can consume already collected per-URL Lighthouse JSON in SF audit config:
+
+```json
+{"input":{"lighthouse_reports":{"https://example.test/page":"./lighthouse/page.json"}}}
+```
+
+Run `seohead sf run --exports-dir ./exports --config ./audit-config.json --out ./audit`.
+Each report must match a crawled URL by `finalUrl`; runtime errors, missing audits and null scores
+stay unavailable. Imports are bounded to 2,000 reports and 8 MiB per report. Findings retain
+input hashes, Lighthouse version, capture time and bounded details, without local paths. These
+are supplied lab results; the toolkit does not launch Lighthouse or infer field Core Web Vitals.
 
 ### Logs and images
 
@@ -719,7 +779,7 @@ assignment or by the audit's already validated segment rules. It records
 assignment provenance and keeps candidate, declared, confirmed, and unassigned
 states separate; it does not infer a shared implementation from repeated findings.
 
-**202 checks**: 12 critical, 93 warnings, 97 notices. Sources: SF exports,
+**219 checks**: 12 critical, 96 warnings, 111 notices. Sources: SF exports,
 derived metrics, inlink exports, the sitemap module, and heuristics.
 
 **Two modes.** A crawls by itself through the SF CLI (license required). B
@@ -763,7 +823,7 @@ seohead mcp        # stdio
 
 ## Where to go next
 - [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — every tool's arguments, types, defaults, cost, and failure modes, generated from the MCP definitions
-- [CHECKS.md](CHECKS.md) — the 202 checks the SF crawl audit runs, generated from the registry
+- [CHECKS.md](CHECKS.md) — the 219 checks the SF crawl audit runs, generated from the registry
 - [ARCHITECTURE.md](ARCHITECTURE.md) — layers, invariants, where new code goes
 - [SKILLS.md](SKILLS.md) — which skill drives which tool
 - [DECISIONS.md](DECISIONS.md) — why it was decided this way and not another

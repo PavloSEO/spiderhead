@@ -78,7 +78,7 @@ or configuration evidence retain their normal warnings and classifications.
 
 ### Deep analysis of existing crawl data
 
-Export mode evaluates Screaming Frog CSV/XLSX data against a 202-check registry without crawling
+Export mode evaluates Screaming Frog CSV/XLSX data against a 219-check registry without crawling
 again. It is useful when the crawl was taken by another specialist, came from CI, or must remain
 offline. Missing exports become explicit skipped checks rather than silent zeroes.
 

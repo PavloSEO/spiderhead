@@ -182,6 +182,8 @@ def _native_config(value: Any, *, recorded: bool = False) -> dict[str, Any]:
             expected["evidence"].pop("retain_no_store_acknowledged")
         if "analysis" in config and "finding_exclusions" not in config["analysis"]:
             expected["analysis"].pop("finding_exclusions")
+        if "analysis" in config and "asset_thresholds" not in config["analysis"]:
+            expected["analysis"].pop("asset_thresholds")
         for key in ("proxy", "proxy_allow_private", "proxy_identity", "proxy_authenticated"):
             if key not in config.get("http", {}):
                 expected["http"].pop(key)
@@ -210,6 +212,9 @@ def _native_config(value: Any, *, recorded: bool = False) -> dict[str, Any]:
         validation_config["evidence"].setdefault("retain_no_store_acknowledged", False)
         validation_config.setdefault("analysis", {})
         validation_config["analysis"].setdefault("finding_exclusions", [])
+        validation_config["analysis"].setdefault(
+            "asset_thresholds", copy.deepcopy(DEFAULTS["analysis"]["asset_thresholds"])
+        )
         validation_config.setdefault("http", {})
         validation_config["http"].update(
             proxy="", proxy_allow_private=False, proxy_identity="", proxy_authenticated=False
@@ -286,6 +291,11 @@ def _resume_fingerprint(expected_config: Any, recorded_config: Any) -> str:
         and expected["analysis"].get("finding_exclusions") == []
     ):
         expected["analysis"].pop("finding_exclusions")
+    if (
+        "asset_thresholds" not in recorded.get("analysis", {})
+        and expected["analysis"].get("asset_thresholds") == DEFAULTS["analysis"]["asset_thresholds"]
+    ):
+        expected["analysis"].pop("asset_thresholds")
     for key in ("proxy", "proxy_allow_private", "proxy_identity", "proxy_authenticated"):
         if (
             key not in recorded.get("http", {})

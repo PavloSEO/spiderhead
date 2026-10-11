@@ -15,18 +15,18 @@ here is written about *our own* behaviour.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| check | 142 | a registry check finds it |
-| tool | 32 | a command outside the crawl registry finds it |
-| partial | 19 | we find part of it; the missing part is stated |
+| check | 158 | a registry check finds it |
+| tool | 24 | a command outside the crawl registry finds it |
+| partial | 18 | we find part of it; the missing part is stated |
 | gap | 3 | we should find it and do not |
-| out of scope | 124 | a decision, with its reason |
+| out of scope | 117 | a decision, with its reason |
 | **total** | **320** | |
 
 108 of the out-of-scope entries are two whole categories declined as single
 decisions — accessibility and AMP, each explained in its own section below. Of the
-remaining 212 issues, **174 are found today**, 19 are
+remaining 212 issues, **182 are found today**, 18 are
 found in part, 3 are gaps worth closing, and
-16 need something we have decided not to build.
+9 need something we have decided not to build.
 
 A gap is not a defect. It is a named, deliberate absence — which is the only kind worth
 having, because the alternative is an absence nobody has noticed.
@@ -157,7 +157,7 @@ having, because the alternative is an absence nobody has noticed.
 | Background Images | tool | `parse` | CSS url() sources are extracted by the parser's url_sources option, which is how four images invisible to the HTML were found on a live site |
 | Over 100 kb | check | `IMG_OVER_KB` |  |
 | Alt Text Over 100 Characters | check | `IMG_ALT_TOO_LONG` |  |
-| Incorrectly Sized Images | partial | — | render-check measures intrinsic size against the rendered box (image_sizing: oversized, upscaled) on rendered routes only; no SF-analyzer check reads it yet, and crawl exports are not checked |
+| Incorrectly Sized Images | partial | `IMG_INTRINSIC_OVERSIZED` `IMG_UPSCALED` | native retained render layout compares intrinsic and displayed width at the recorded DPR; raw-only scans skip, and the existing 10 KiB oversized-image floor awaits owner review |
 | Missing Size Attributes | check | `IMG_MISSING_DIMENSIONS` |  |
 
 ## Canonicals
@@ -284,24 +284,24 @@ having, because the alternative is an absence nobody has noticed.
 | Issue | Status | Found by | Note |
 |---|---|---|---|
 | Document Request Latency | check | `SLOW_RESPONSE` |  |
-| LCP Request Discovery | out of scope | — | needs Lighthouse's own trace of the loading sequence |
-| Render Blocking Requests | tool | `asset-weight-check` |  |
-| Network Dependency Tree | out of scope | — | needs a full request waterfall from a real navigation |
-| Use Efficient Cache Lifetimes | tool | `headers-check` `cdn-check` |  |
-| Layout Shift Culprits | out of scope | — | needs layout instrumentation during a real render |
-| Improve Image Delivery | tool | `images-optimize` `asset-weight-check` |  |
-| Forced Reflow | out of scope | — | needs main-thread instrumentation |
-| Legacy JavaScript | tool | `asset-weight-check` |  |
-| Duplicated JavaScript | tool | `asset-weight-check` | by content hash across the page |
-| Avoid Enormous Network Payloads | partial | `LARGE_HTML` `HTML_BLOAT` | LARGE_HTML/HTML_BLOAT measure only each HTML document's own size (bytes) and word count; nothing sums images, fonts, third-party tags or later requests into a total page payload (docs/COVERAGE_GAPS.md 1.7 tracks the gap) |
-| Minify CSS | tool | `asset-weight-check` |  |
-| Minify JavaScript | tool | `asset-weight-check` |  |
-| Reduce Unused CSS | out of scope | — | needs coverage instrumentation from a real render |
-| Reduce Unused JavaScript | out of scope | — | needs coverage instrumentation from a real render |
-| Reduce JavaScript Execution Time | out of scope | — | needs a CPU profile |
+| LCP Request Discovery | check | `LCP_DISCOVERY` | supplied matching per-URL Lighthouse lab JSON only; no automatic trace collection |
+| Render Blocking Requests | check | `RENDER_BLOCKING` |  |
+| Network Dependency Tree | check | `NETWORK_DEPENDENCY_TREE` | supplied per-URL Lighthouse lab JSON |
+| Use Efficient Cache Lifetimes | check | `ASSET_SHORT_CACHE` | completed native resource headers; static heuristic, not a Lighthouse score |
+| Layout Shift Culprits | check | `LAYOUT_SHIFT_CULPRITS` | supplied per-URL Lighthouse lab JSON |
+| Improve Image Delivery | check | `IMAGE_DELIVERY` | supplied per-URL Lighthouse lab JSON |
+| Forced Reflow | check | `FORCED_REFLOW` | supplied per-URL Lighthouse lab JSON |
+| Legacy JavaScript | check | `LEGACY_JS` | markers in completed native script source; heuristic |
+| Duplicated JavaScript | check | `DUPLICATED_JS` | exact captured bytes at different script URLs on the same page |
+| Avoid Enormous Network Payloads | partial | `HEAVY_PAGE_WEIGHT` `LARGE_HTML` `HTML_BLOAT` | HEAVY_PAGE_WEIGHT uses observed navigation response bodies or an HTML-only lower bound, with explicit content-decoded units; not a total page payload across future interactions or a compressed transfer measurement. LARGE_HTML/HTML_BLOAT retain HTML-only scope |
+| Minify CSS | check | `UNMINIFIED_CSS_JS` | completed native source; whitespace/line-length heuristic |
+| Minify JavaScript | check | `UNMINIFIED_CSS_JS` | completed native source; whitespace/line-length heuristic |
+| Reduce Unused CSS | check | `UNUSED_CSS_JS` | bounded Chromium CDP coverage from the recorded navigation window |
+| Reduce Unused JavaScript | check | `UNUSED_CSS_JS` | bounded Chromium CDP coverage from the recorded navigation window |
+| Reduce JavaScript Execution Time | check | `JS_EXECUTION_TIME` | supplied Lighthouse bootup-time lab result |
 | Minimize Main-Thread Work | out of scope | — | needs a CPU profile |
 | Optimize DOM Size | partial | `DOM_TOO_MANY_NODES` `DOM_TOO_DEEP` | needs HTML stored to disk (input.html_store_dir) to measure; a Screaming Frog export configured to store HTML supplies it, but a native `crawl-site` run never writes one, so that run always skips both by name instead |
-| Font Display | tool | `asset-weight-check` |  |
+| Font Display | check | `FONT_DISPLAY_MISSING` | font-face blocks in completed native stylesheets |
 
 ## Mobile
 
@@ -347,7 +347,7 @@ having, because the alternative is an absence nobody has noticed.
 | Missing <body> Tag | check | `BODY_MISSING` |  |
 | Multiple <body> Tags | check | `BODY_MULTIPLE` |  |
 | HTML Document Over 2MB | check | `HTML_OVER_2MB` |  |
-| Resource Over 2MB | partial | — | a body above the configured ceiling is recorded and not parsed; it is a limit, not a finding |
+| Resource Over 2MB | check | `RESOURCE_OVER_2MB` | captured declared-resource bytes; partial captures retain lower-bound status |
 | Invalid HTML Elements In <head> | check | `INVALID_HEAD_ELEMENT` |  |
 | <body> Element Preceding <html> | check | `HEAD_NOT_FIRST` |  |
 | <head> Not First In <html> Element | check | `HEAD_NOT_FIRST` |  |

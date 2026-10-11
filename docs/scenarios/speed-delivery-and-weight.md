@@ -47,10 +47,15 @@ measured before the body is decoded. That detail is load-bearing: measuring afte
 a 739 KB WebP into a recorded 1.27 MB, by a factor that differs per file, and every weight-based
 conclusion drawn from it was unusable.
 
-The two image findings with check ids — files over the size ceiling (150 KB by default) and
-images served without width and height attributes — come from a Screaming Frog export set, not
-from the native crawl, which declares those frames missing so the checks are skipped rather than
-reported clean. Read image weight from `pages.jsonl`; read the two findings from `sf run`.
+With native scan.v2 resource capture, retained image responses and declarations support image
+weight and missing-dimension findings. Missing or budget-limited captures retain their native
+unavailable reasons. SF exports remain another supported input for these filters.
+
+`HEAVY_PAGE_WEIGHT` uses actual pinned-browser response bodies on requested renders, including
+image, font and third-party buckets. Its unit is content-decoded bytes within that navigation
+window; captured HTML alone is an explicit lower bound on unrendered pages. It does not sum
+unused `srcset`, media or `nomodule` alternatives. `RESOURCE_OVER_2MB` uses a configurable
+individual captured-resource threshold, and HTTP 206 fragments preserve lower-bound scope.
 
 Re-encoding those files, measuring the saving and shipping an archive is a different chain and it
 already exists: The [images scenario](images.md). Do not run both halves at once and report one number.
@@ -103,14 +108,14 @@ money. No paid API at any step.
 
 ## What it cannot answer
 
-- **The total transfer size of a real page load.** Nothing here assembles a waterfall. Images,
-  fonts, third-party tags and anything a script requests later are not summed into one figure,
-  and a network dependency tree needs a real navigation.
-- **Whether an image is the right size for its box.** Rendered dimensions against intrinsic
-  dimensions, `srcset` selection and lazy-loading behaviour all need a rendered layout.
-- **Whether a large DOM is actually slow.** Node count is a proxy. Forced reflow, layout shift
-  culprits and main-thread work need instrumentation this toolkit does not have, and
-  `docs/COVERAGE_SF_ISSUES.md` names each of them as out of scope rather than implying parity
-  with Lighthouse.
+- **Compressed transfer totals or requests outside the captured navigation.** Browser weight
+  measures delivered content-decoded bodies, with pending/omitted responses marked partial.
+- **Image sizing without supported layout and delivered physical dimensions.** Requested renders
+  support `IMG_INTRINSIC_OVERSIZED` and `IMG_UPSCALED`; unsupported geometry or image formats,
+  missing bodies and invisible/unloaded elements remain unavailable. CSS background sizing is
+  a separate owner decision.
+- **Whether a large DOM is actually slow.** Node count is a proxy. Supplied matching Lighthouse
+  JSON supports the named reflow, layout-shift and delivery findings; no general CPU profile or
+  field-performance verdict follows from this chain.
 - **Whether a short cache lifetime is a mistake.** A hashed filename wants a year; an unversioned
   one cannot have it. The check reports the header, not the deployment strategy behind it.

@@ -1,9 +1,45 @@
 {
   "schema": "seohead.headless-capabilities.v1",
   "inventory_source": "seohead.crawl.settings.describe_settings",
-  "inventory_sha256": "b7cc8b16ca14b3f9601565a08cc772681818cd0da5e972bf80eed1a0a47bcc5a",
-  "settings_count": 114,
+  "inventory_sha256": "09fc75eea3f4a991ca0f6e4021a725b8ec61f1d300af83390f66582775a473bd",
+  "settings_count": 116,
   "settings": [
+    {
+      "path": "analysis.asset_thresholds.page_weight_max_bytes",
+      "type": "int",
+      "default": 2097152,
+      "results_affecting": true,
+      "description": "Native declared-resource page budget in captured content-decoded bytes; incomplete runtime payloads remain lower bounds.",
+      "family": "analysis",
+      "implementation": "seohead/sf/core/registry.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_scan_handler_bridge.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/748",
+        "https://github.com/PavloSEO/seohead-tools/issues/816"
+      ]
+    },
+    {
+      "path": "analysis.asset_thresholds.resource_max_bytes",
+      "type": "int",
+      "default": 2097152,
+      "results_affecting": true,
+      "description": "Native per-resource budget in captured content-decoded bytes; defaults to 2 MiB.",
+      "family": "analysis",
+      "implementation": "seohead/sf/core/registry.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_scan_handler_bridge.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/748",
+        "https://github.com/PavloSEO/seohead-tools/issues/816"
+      ]
+    },
     {
       "path": "analysis.canonical_policy.filters",
       "type": "list",

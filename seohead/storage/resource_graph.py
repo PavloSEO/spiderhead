@@ -69,11 +69,15 @@ def ensure_schema(con: sqlite3.Connection) -> None:
         ("width", "INTEGER"),
         ("height", "INTEGER"),
         ("body_state", "TEXT NOT NULL DEFAULT 'unavailable'"),
+        ("delivery_json", "TEXT"),
     ):
         if name not in existing:
             con.execute(f"ALTER TABLE resource_graph_fetches ADD COLUMN {name} {definition}")
     con.execute(
         "CREATE INDEX IF NOT EXISTS resource_graph_occurrences_url ON resource_graph_occurrences(resolved_url)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS resource_graph_pending ON resource_graph_occurrences(occurrence_id) WHERE state='disabled'"
     )
 
 
@@ -474,6 +478,25 @@ def validate(con: sqlite3.Connection) -> None:
     ).fetchone():
         raise ScanError("resource graph occurrence ordinals are not contiguous")
     for row in con.execute("SELECT * FROM resource_graph_fetches"):
+        if "delivery_json" in row.keys() and row["delivery_json"] is not None:  # noqa: SIM118 -- sqlite3.Row membership checks values.
+            try:
+                if len(row["delivery_json"]) > 16 * 1024:
+                    raise ValueError("delivery summary exceeds its bound")
+                delivery = json.loads(row["delivery_json"])
+                if (
+                    not isinstance(delivery, dict)
+                    or not isinstance(delivery.get("cache"), dict)
+                    or type(delivery["cache"].get("ok")) is not bool
+                    or (
+                        delivery.get("font_display") is not None
+                        and not isinstance(delivery["font_display"], list)
+                    )
+                    or type(delivery.get("unminified")) not in {bool, type(None)}
+                    or type(delivery.get("legacy_js")) not in {bool, type(None)}
+                ):
+                    raise ValueError("invalid delivery summary")
+            except (TypeError, ValueError) as exc:
+                raise ScanError("resource delivery evidence is invalid") from exc
         if (
             row["state"] not in {"complete", "partial", "failed", "excluded", "budget"}
             or row["bytes_received"] < 0
@@ -627,7 +650,12 @@ def capture(
                     (record.error if record is not None else "")
                     or "resource response was not successful",
                 )
-            elif body is None:
+            elif status == 206:
+                state, reason = (
+                    "partial",
+                    "HTTP 206 response contains only a requested byte range; whole resource was not measured",
+                )
+            elif body is None or event.body_state != "complete":
                 state, reason = "partial", "resource response body was not retained completely"
             else:
                 state, reason = "complete", ""
@@ -650,10 +678,18 @@ def capture(
                     (record.cache_status if record is not None else "") or "unknown",
                     _fetch_integrity_state(scan.con, url),
                     *_image_dimensions(body),
-                    "complete" if body is not None else "partial",
+                    "complete" if state == "complete" else "partial",
                 ),
             )
             _set_occurrence_state(scan.con, url, state, reason)
+            if state == "complete" and event is not None and body is not None:
+                from seohead.checks.asset_weight import resource_delivery_evidence
+
+                delivery = resource_delivery_evidence(body, row["kind"], event.response_headers)
+                scan.con.execute(
+                    "UPDATE resource_graph_fetches SET delivery_json=? WHERE resolved_url=?",
+                    (json.dumps(delivery), url),
+                )
             if state == "complete":
                 totals["fetched"] += 1
             elif state == "excluded":
@@ -784,15 +820,37 @@ def _fetch_integrity_state(con: sqlite3.Connection, url: str) -> str:
 
 
 def _image_dimensions(body: bytes | None) -> tuple[int | None, int | None]:
-    """Read dimensions from one retained entity without decoding a pixel buffer."""
+    """Read visually oriented dimensions without decoding or transposing pixels."""
     if body is None:
         return None, None
     try:
         with warnings.catch_warnings():
-            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            warnings.simplefilter("error")
             with Image.open(BytesIO(body)) as image:
                 width, height = image.size
-    except (Image.DecompressionBombError, UnidentifiedImageError, OSError, ValueError):
+                if image.format == "PNG":
+                    # PNG metadata may follow IDAT. Pillow's PNG getexif() calls
+                    # load() to reach it, decoding pixels; walk retained chunks instead.
+                    offset = 8
+                    while offset + 12 <= len(body):
+                        length = int.from_bytes(body[offset : offset + 4], "big")
+                        end = offset + length + 12
+                        if end > len(body):
+                            return None, None
+                        kind = body[offset + 4 : offset + 8]
+                        if kind == b"eXIf":
+                            image.info["exif"] = body[offset + 8 : end - 4]
+                        offset = end
+                        if kind == b"IEND":
+                            break
+                    else:
+                        return None, None
+                orientation = Image.Image.getexif(image).get(274, 1)
+                if type(orientation) is not int or not 1 <= orientation <= 8:
+                    return None, None
+                if orientation in {5, 6, 7, 8}:
+                    width, height = height, width
+    except (Image.DecompressionBombError, UnidentifiedImageError, OSError, ValueError, Warning):
         return None, None
     if type(width) is not int or type(height) is not int or width < 1 or height < 1:
         return None, None
