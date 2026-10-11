@@ -276,6 +276,100 @@ def write_markdown(result: AuditResult, path: str) -> str:
     if "sitemap" in s:
         _render_sitemap(w, s["sitemap"])
 
+    provider_findings = s.get("provider_findings")
+    if isinstance(provider_findings, dict):
+        w("## Search and analytics evidence")
+        w("")
+        w(
+            "These measurements come from retained, project-bound provider history. "
+            "They are separate from the crawl issue totals and health score."
+        )
+        w("")
+        w(f"- Evidence state: **{_esc(provider_findings.get('state'))}**")
+        w(
+            "- URL Inspection: explicitly requested for this run"
+            if provider_findings.get("network_requests")
+            else "- Provider history only; no URL Inspection request was made"
+        )
+        if provider_findings.get("crawl_pages_omitted"):
+            w(
+                f"- Crawl pages omitted from the provider join: "
+                f"**{provider_findings['crawl_pages_omitted']}**"
+            )
+        for source, source_data in (provider_findings.get("sources") or {}).items():
+            if not isinstance(source_data, dict):
+                continue
+            w("")
+            w(f"### {_esc(source)} — {_esc(source_data.get('state'))}")
+            coverage = source_data.get("coverage") or {}
+            period = coverage.get("period") or {}
+            if period:
+                w(f"- Period: {_esc(period.get('from'))} to {_esc(period.get('to'))}")
+            if coverage.get("days_expected"):
+                w(
+                    f"- Retained days complete: {coverage.get('days_complete', 0)} / "
+                    f"{coverage['days_expected']} (empty days: {coverage.get('days_empty', 0)})"
+                )
+            if coverage.get("truncated"):
+                w("- Provider rows reached the local read cap; absence findings are withheld.")
+            if source_data.get("truncated_findings"):
+                w("- URL examples are capped at 500 per finding.")
+            if source_data.get("reason"):
+                w(f"- Reason: {_esc(source_data['reason'])}")
+            for check, finding in (source_data.get("findings") or {}).items():
+                if check == "_skipped":
+                    for skipped_check, reason in finding.items():
+                        w(f"- {check_title(skipped_check)} skipped: {_esc(reason)}")
+                    continue
+                if isinstance(finding, list):
+                    state = "reported"
+                    reason = "measured URL evidence"
+                    urls = [entry.get("url") for entry in finding if isinstance(entry, dict)]
+                elif isinstance(finding, dict):
+                    state = finding.get("state", "unavailable")
+                    reason = finding.get("reason")
+                    urls = finding.get("urls") or []
+                else:
+                    continue
+                w(f"- **{check_title(check)}** — {_esc(state)}: {_esc(reason)}")
+                for url in urls[:20]:
+                    w(f"  - {_esc(url)}")
+                if len(urls) > 20:
+                    w(f"  - … {len(urls) - 20} more")
+            cloudflare_facts = source_data.get("url_facts")
+            if isinstance(cloudflare_facts, list):
+                w("")
+                w(
+                    f"- Grouped Cloudflare URL/day facts: {len(cloudflare_facts)} retained; "
+                    f"{source_data.get('omitted_url_facts', 0)} omitted by display cap."
+                )
+                for fact in cloudflare_facts[:20]:
+                    w(
+                        f"  - `{_esc(fact.get('host'))}{_esc(fact.get('path'))}` "
+                        f"({fact.get('date')}): {fact.get('requests')} requests, "
+                        f"edge {fact.get('edge_status')}, origin {fact.get('origin_status')}, "
+                        f"cache {_esc(fact.get('cache_status'))}, "
+                        f"{_esc(fact.get('bot_name'))}"
+                    )
+                if len(cloudflare_facts) > 20:
+                    w(f"  - … {len(cloudflare_facts) - 20} more")
+            inspection = source_data.get("inspection") or {}
+            if inspection:
+                w("")
+                w(
+                    f"URL Inspection sample: {_esc(inspection.get('inspected', 0))} URLs "
+                    f"inspected; {_esc(inspection.get('deferred', 0))} deferred; "
+                    f"state {_esc(inspection.get('state'))}."
+                )
+                for check, rows in (inspection.get("findings") or {}).items():
+                    label = (inspection.get("sf_checks") or {}).get(check, check)
+                    w(f"- **{_esc(label)}** — {len(rows)} sampled findings")
+                    for row in rows[:20]:
+                        w(f"  - {_esc(row.get('url'))}")
+                    if len(rows) > 20:
+                        w(f"  - … {len(rows) - 20} more")
+        w("")
+
     # 7. appendix
     # Read from the authoritative dataclass lists on the result, not from
     # ``run`` — those keys only exist in the mapping that AuditResult.to_json()

@@ -140,6 +140,10 @@
         "size_stats_bytes": {"type": "object"},
         "internal_linking": {"type": "object"},
         "sitemap": {"type": "object"},
+        "provider_findings": {
+          "type": "object",
+          "description": "Optional URL findings from retained project provider history; separate from crawl issue totals and score."
+        },
         "evidence_contract": {"type": "object"},
         "saved_corpus_derivations": {"type": "object"},
         "finding_exclusions": {

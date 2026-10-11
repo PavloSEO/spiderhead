@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import stat
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -458,10 +459,15 @@ def _save_local_artifact(directory: str | Path, value: dict[str, Any]) -> str:
     if root.is_symlink():
         raise ValueError("provider artifact directory must not be a symlink")
     root.mkdir(mode=0o700, parents=True, exist_ok=True)
+    root_info = root.lstat()
+    if not stat.S_ISDIR(root_info.st_mode) or not credentials.is_private_mode(root_info.st_mode):
+        raise ValueError("provider artifact directory must be a private directory")
     digest = hashlib.sha256(json.dumps(value, sort_keys=True, default=str).encode()).hexdigest()
     destination = root / f"provider-{digest[:16]}.json"
     atomic_write_bytes(
-        destination, json.dumps(value, ensure_ascii=False, sort_keys=True).encode("utf-8")
+        destination,
+        json.dumps(value, ensure_ascii=False, sort_keys=True).encode("utf-8"),
+        mode=0o600,
     )
     return f"local-artifact:{digest}"
 
@@ -476,7 +482,13 @@ def _evidence(
     state = result.get("state")
     if state not in _STATES:
         state = "complete" if result.get("ok") else "failed"
-    rows = result.get("rows") or result.get("samples") or result.get("summary") or []
+    rows = (
+        result.get("rows")
+        or result.get("samples")
+        or result.get("url_facts")
+        or result.get("summary")
+        or []
+    )
     return {
         "format": EVIDENCE_FORMAT,
         "provider": provider,
@@ -771,6 +783,22 @@ def provider_collect(
         from seohead.data_sources import crtsh
 
         result = crtsh.subdomains(fetcher=transport, **request)
+    elif provider == "cloudflare":
+        from seohead.data_sources import cloudflare, cloudflare_history
+
+        if operation == "traffic":
+            result = cloudflare.traffic(transport=transport, **request)
+        elif operation == "logpull":
+            raw_transport = (
+                (lambda url, token: transport("GET", url, None, token))
+                if transport is not None
+                else None
+            )
+            result = cloudflare.logpull(
+                transport=transport, raw_transport=raw_transport, **request
+            )
+        else:
+            result = cloudflare_history.list_snapshots(**request)
     elif provider == "metrika":
         if operation not in {"counters", "aggregate_report"}:
             raise ValueError("Metrika raw Logs API is intentionally unreachable")
@@ -840,7 +868,13 @@ def provider_collect(
     )
     evidence["artifact_reference"] = artifact
     if event_sink is not None:
-        rows = result.get("rows") or result.get("samples") or result.get("summary") or []
+        rows = (
+            result.get("rows")
+            or result.get("samples")
+            or result.get("url_facts")
+            or result.get("summary")
+            or []
+        )
         event_sink.emit(
             "provider_enrichment",
             {

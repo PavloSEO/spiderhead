@@ -88,10 +88,16 @@ def run_audit(
     fetch_all_inlinks: bool | None = None,
     live_recheck: bool | None = None,
     output_dir: str | None = None,
+    project_dir: str | None = None,
+    inspect_gsc: bool = False,
     log: Callable[[str], None] = print,
     on_started: Callable[[int], None] | None = None,
     on_progress: Callable[[dict], None] | None = None,
 ) -> AuditResult:
+    if type(inspect_gsc) is not bool:
+        raise ValueError("inspect_gsc must be a boolean")
+    if inspect_gsc and project_dir is None:
+        raise ValueError("inspect_gsc requires a project for source binding and quota history")
     cfg = config if config is not None else load_config(config_path)
     # Apply targeted CLI overrides, such as an SF authentication profile.
     for section, values in (config_overrides or {}).items():
@@ -227,6 +233,32 @@ def run_audit(
             }
         )
     result = aggregate(ctx, run_meta, size_stats, sitemap_summary)
+    if project_dir is not None:
+        from itertools import islice
+
+        from .provider_findings import MAX_CRAWL_PAGES, project_provider_findings
+
+        page_count = len(ctx.pages)
+        included_pages = [
+            {"url": page.url, "indexability": page.indexability}
+            for page in islice(ctx.pages, MAX_CRAWL_PAGES)
+        ]
+        omitted_pages = max(0, page_count - len(included_pages))
+        try:
+            result.summary["provider_findings"] = project_provider_findings(
+                included_pages,
+                project_dir=project_dir,
+                crawl_partial=bool(result.run.get("crawl_partial")) or omitted_pages > 0,
+                crawl_pages_omitted=omitted_pages,
+                inspect_gsc=inspect_gsc,
+            )
+        except (OSError, KeyError, TypeError, ValueError):
+            result.summary["provider_findings"] = {
+                "schema_version": "provider_findings.v1",
+                "state": "unavailable",
+                "reason": "retained provider history could not be read",
+                "sources": {},
+            }
     log(
         f"[audit] {result.summary['totals']['issues_total']} issues "
         f"(critical={result.summary['by_severity']['critical']}, "

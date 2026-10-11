@@ -93,6 +93,8 @@ def analytics_findings(
     join_result: Mapping[str, Any],
     *,
     partial: bool,
+    evidence_complete: bool = True,
+    evidence_reason: str | None = None,
     visits_column: str | None = None,
     bounce_column: str | None = None,
 ) -> dict[str, Any]:
@@ -111,6 +113,11 @@ def analytics_findings(
             "withheld",
             "crawl is partial; an external-only URL cannot be proven an orphan",
         )
+    elif not evidence_complete:
+        orphans = _finding(
+            "withheld",
+            evidence_reason or "analytics history coverage is incomplete",
+        )
     else:
         orphans = _finding(
             "reported",
@@ -118,7 +125,15 @@ def analytics_findings(
             orphan_urls(join_result),
         )
 
-    if rows_total == 0:
+    if partial:
+        no_data = _finding(
+            "withheld", "crawl is partial; absence of analytics data cannot be established"
+        )
+    elif not evidence_complete:
+        no_data = _finding(
+            "withheld", evidence_reason or "analytics history coverage is incomplete"
+        )
+    elif rows_total == 0:
         no_data = _finding(
             "skipped", "analytics input has no rows; a no-data claim would not be meaningful"
         )

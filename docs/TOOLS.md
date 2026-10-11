@@ -576,7 +576,8 @@ and spend-journal rules.
 | `provider-readiness` | Reports redacted credential-source states, supported operation routes and their shared JSON call-envelope schema, quota/privacy, and whether verification remains necessary. It makes no provider requests | no |
 | `provider-auth` | Manages a private GSC read-only OAuth grant: status, connect from a private grant file, explicit refresh, cancel of a pending browser flow record (local only), confirmed local disconnect, or confirmed remote revoke. It never returns OAuth material. | refresh/revoke only when requested |
 | `provider-verify` | Performs one explicit read-only credential and optional target-access check. An authenticated account does not by itself prove access to a requested target. | provider read |
-| `provider-collect` | Performs one declared read-only operation and returns a versioned evidence envelope with complete, partial, failed, or skipped state. An optional restricted artifact directory keeps raw rows locally. | provider read; optional local artifact |
+| `provider-collect` | Performs one declared provider operation and returns a versioned evidence envelope. Reads stay read-only; Cloudflare `logpull` explicitly imports a bounded Enterprise log interval to the project's local logs store. | provider read; optional local artifact or explicit log import |
+| `provider-artifact-read` | Reads a bounded, allowlisted PageSpeed summary from its caller-owned local artifact directory; validates the digest and never returns the raw collection envelope | local read |
 | `provider-join` | Joins supplied crawl pages and collected evidence rows without changing a frontier. It preserves matched, crawl-only, external-only, and unkeyable populations. | no |
 | `provider-replay` | Replays a private saved provider collection against a saved scan offline, writes a restricted joined artifact, and keeps the crawl frontier unchanged. | local artifact write |
 | `evidence-normalize` | Normalizes a supplied CSV/XLSX/JSON or a saved provider envelope into `seohead.normalized-evidence.v1` against an optional `seohead.evidence-mapping.v1` manifest, offline. Every row keeps its grain, provenance and availability state: a measured `0` stays zero while missing, null, blank, suppressed, uncollected and failed inputs stay unavailable. Restricted sources return counts and redacted provenance. | optional restricted artifact under `--out-dir` |
@@ -592,6 +593,16 @@ fields remain validated by that operation adapter. Readiness always reports targ
 access as unverified; `provider-verify` is the separate, explicit read that can
 return `verified`, `not_granted`, `insufficient_scope`, or `unsupported`. Supplying
 credentials alone never proves access to a property or site.
+
+Cloudflare `provider-collect` operation `logpull` is an explicit Enterprise-only import into a
+project's local logs store. It accepts a UTC interval no longer than one hour, within the seven-day
+retention window, ending at least five minutes ago, and caps one request at 10,000 records / 16 MiB.
+It reuses the logs core with reverse-DNS checks off; the temporary text conversion is removed
+immediately. A response at the row cap is retained as partial. It requires Zone Read and Logs Read.
+The read-only Logpush status lists existing jobs but never accesses their destination data; Logpush
+destinations are customer-owned. Instant Logs is not ingested because its API creates a live session
+and requires a WebSocket stream.
+Contracts: [Logpull](https://developers.cloudflare.com/logs/logpull/), [received logs API](https://developers.cloudflare.com/api/resources/logs/subresources/received/methods/get/), [Instant Logs availability and session lifecycle](https://developers.cloudflare.com/logs/instant-logs/), [zone settings](https://developers.cloudflare.com/api/resources/zones/subresources/settings/methods/get/), [Rulesets entrypoint](https://developers.cloudflare.com/api/resources/rulesets/subresources/phases/methods/get/), and [AI Crawl Control WAF rules](https://developers.cloudflare.com/ai-crawl-control/configuration/ai-crawl-control-with-waf/).
 
 Provider evidence can change work order only when its coverage is usable; sampled,
 truncated, unmatched, or privacy-thresholded values remain unavailable for a
@@ -618,7 +629,8 @@ priority adjustment. It never changes a technical finding's severity. See the
 | `google-serp` | Google organic results for a query | same |
 | `wayback-history` | Every Internet Archive snapshot of a URL: when it changed, what status it returned, what MIME type it was | free, no key |
 | `crtsh-subdomains` | Hosts named in public TLS certificates for a domain — subdomains nothing links to | free, no key |
-| `cloudflare-traffic` | Bot/human traffic summaries plus bounded per-URL daily edge/origin status, cache, redirect status and verified-bot category facts. Use `--zone` or a project with one selected Cloudflare zone ID binding. Aggregated (`source: cloudflare-aggregated`), not raw logs: no IPs, sub-day timestamps, rule IDs or reverse-DNS verification; URL facts cap at 50,000 and report truncation; Free plan keeps 32 days | free; needs a read-only Cloudflare API token with Zone Read and Account Analytics Read (`CLOUDFLARE_API_TOKEN` or `SEOHEAD_CLOUDFLARE_TOKEN_FILE`) |
+| `cloudflare-traffic` | Bot/human traffic summaries plus bounded per-URL daily edge/origin status, cache, redirect status and verified-bot category facts. Use `--zone` or a project with one selected Cloudflare zone ID binding. `--include-configuration` adds AI zone settings, bounded redirect/custom-WAF rulesets, and safe Logpush job summaries without destination data; rules describe configuration, not per-request matches. Aggregated (`source: cloudflare-aggregated`), not raw logs: no IPs, sub-day timestamps, rule IDs or reverse-DNS verification; URL facts cap at 50,000 and report truncation; Free plan keeps 32 days | free; traffic needs Zone Read and Account Analytics Read; configuration additionally needs Zone Settings Read, Rulesets Read and Logs Read |
+| `cloudflare-history` | Read paged Cloudflare per-URL/day aggregate snapshots retained by explicit project-bound `cloudflare-traffic` calls | local, read-only |
 | `gsc-query` | Search Console: clicks, impressions, position and CTR per query or page, plus Google's own indexing verdict for one URL | free; needs OAuth against a property you own |
 | `webmaster-url-queries` | Yandex Webmaster query evidence for one URL or a bounded URL population; URL/query rows stay separate and caps are explicit | free within Webmaster quota; needs an own verified host |
 | `miratext-analyze` | Start or resume bounded competitor text analysis; paid and keyword modes require explicit confirmation | paid provider; API key required |
@@ -810,6 +822,21 @@ coverage rows remain gaps until a real adapter is selected and validated.
 **Two modes.** A crawls by itself through the SF CLI (license required). B
 works from ready exports and is self-sufficient. Mode B is covered by tests
 and must not be broken for the sake of mode A.
+
+With `--project DIR`, `sf run` joins the last complete, locally retained 28-day GSC, GA4, and
+Metrika URL history to the audited pages, without contacting a provider. The resulting
+`summary.provider_findings` is a separate typed section in `audit.json` and `audit.md`; it does not
+change technical issue totals or the health score. Missing bindings, gaps and capped reads remain
+unavailable/partial; negative orphan or no-data findings require complete 28-day provider coverage
+and a complete crawl.
+
+`--gsc-inspect` is a separate opt-in live read that inspects a deterministic sample of up to 50
+URLs through the bound GSC property. It stores allowlisted index/AMP/rich-result results and a local
+per-property request ledger in `gsc-inspection.sqlite`; local limits are 600 inspections in a rolling
+minute and 2,000 in a rolling 24 hours. Other clients can share Google’s quota, so the report labels
+that usage as unknown.
+Unsampled URLs remain unknown. The GSC data API exposes URL Inspection only for the indexed page
+version and documents per-site limits in its [usage limits](https://developers.google.com/webmaster-tools/limits).
 
 No data for a check -> it is marked skipped with a reason, not a silent
 zero. This is a principle: "0 problems" and "the check never ran" are

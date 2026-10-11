@@ -8,6 +8,7 @@ from seohead.checks.search_console_findings import (
     NO_SEARCH_DATA,
     NON_INDEXABLE_WITH_SEARCH_DATA,
     evaluate,
+    evaluate_inspections,
 )
 from seohead.data_sources import evidence_import
 
@@ -131,3 +132,41 @@ def test_missing_indexability_skips_checks_that_need_it():
     assert "crawl indexability missing on 1 pages" in result["_skipped"][NO_SEARCH_DATA]
     assert result["_skipped"][NON_INDEXABLE_WITH_SEARCH_DATA].startswith("crawl indexability")
     assert _urls(result, GSC_ORPHAN) == []
+
+
+def test_bounded_inspection_maps_six_positive_findings_without_census_claims():
+    pages = [
+        _page("https://example.com/one"),
+        _page("https://example.com/two"),
+    ]
+    result = evaluate_inspections(
+        pages,
+        [
+            {
+                "url": "https://example.com/one",
+                "state": "complete",
+                "index_status": {
+                    "verdict": "PASS",
+                    "userCanonical": "https://example.com/one",
+                    "googleCanonical": "https://example.com/canonical",
+                },
+                "amp_result": {"verdict": "FAIL"},
+                "rich_results_result": {"verdict": "FAIL"},
+            },
+            {
+                "url": "https://example.com/two",
+                "state": "complete",
+                "index_status": {"verdict": "NEUTRAL", "coverageState": "Crawled - currently not indexed"},
+            },
+        ],
+        requested=2,
+    )
+
+    findings = result["findings"]
+    assert len(findings["GSC_INDEXED_WITH_ISSUES"]) == 1
+    assert len(findings["GSC_AMP_INVALID"]) == 1
+    assert len(findings["GSC_RICH_RESULTS_INVALID"]) == 1
+    assert findings["GSC_INDEXABLE_NOT_INDEXED"][0]["url"] == "https://example.com/two"
+    assert findings["GSC_USER_CANONICAL_NOT_SELECTED"][0]["details"]["google_canonical"] == "https://example.com/canonical"
+    assert findings["GSC_URL_NOT_ON_GOOGLE"][0]["url"] == "https://example.com/two"
+    assert "not a site-wide census" in result["scope"]

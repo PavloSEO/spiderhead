@@ -4583,13 +4583,34 @@ def cloudflare_traffic(
     since: str | None = None,
     until: str | None = None,
     project: str | None = None,
+    include_configuration: bool = False,
 ) -> dict[str, Any]:
     """Read Cloudflare edge analytics by zone name or a selected project binding."""
     if bool(zone) == bool(project):
         raise ValueError("pass exactly one of zone or project")
     from seohead.data_sources import cloudflare as core
 
-    return core.traffic(zone, project=project, since=since, until=until)
+    return core.traffic(
+        zone,
+        project=project,
+        since=since,
+        until=until,
+        include_configuration=include_configuration,
+    )
+
+
+def cloudflare_history(
+    project: str | None = None,
+    zone_id: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Read retained aggregate Cloudflare snapshots from a local project."""
+    if not project:
+        raise ValueError("project required")
+    from seohead.data_sources.cloudflare_history import list_snapshots
+
+    return list_snapshots(project=project, zone_id=zone_id, limit=limit, offset=offset)
 
 
 def crtsh_subdomains(domain: str | None = None) -> dict[str, Any]:
@@ -6092,6 +6113,20 @@ def provider_collect(
     return core(provider, operation, request, artifact_dir=artifact_dir)
 
 
+def provider_artifact_read(
+    artifact_ref: str,
+    artifact_dir: str,
+    offset: int = 0,
+    limit: int = 25,
+) -> dict[str, Any]:
+    """Read a bounded, allowlisted PageSpeed summary from a caller-owned local artifact dir."""
+    from seohead.data_sources.provider_artifacts import read_pagespeed_artifact
+
+    return read_pagespeed_artifact(
+        artifact_ref, artifact_dir, offset=offset, limit=limit
+    )
+
+
 def provider_join(
     crawl_pages: list[dict[str, Any]],
     evidence_rows: list[dict[str, Any]],
@@ -7192,6 +7227,7 @@ _RAW_HANDLERS = {
     "wayback_history": wayback_history,
     "crtsh_subdomains": crtsh_subdomains,
     "cloudflare_traffic": cloudflare_traffic,
+    "cloudflare_history": cloudflare_history,
     "gsc_query": gsc_query,
     "webmaster_url_queries": webmaster_url_queries,
     "miratext_analyze": miratext_analyze,
@@ -7294,6 +7330,7 @@ _RAW_HANDLERS = {
     "provider_readiness": provider_readiness,
     "provider_verify": provider_verify,
     "provider_collect": provider_collect,
+    "provider_artifact_read": provider_artifact_read,
     "provider_join": provider_join,
     "evidence_normalize": evidence_normalize,
     "evidence_join": evidence_join,

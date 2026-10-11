@@ -1776,16 +1776,38 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         since: str | None = None,
         until: str | None = None,
         project: str | None = None,
+        include_configuration: bool = False,
     ) -> dict[str, Any]:
         """Read Cloudflare edge GraphQL analytics by zone name or project binding. Pass exactly
         one of zone or project; project requires one selected Cloudflare zone ID binding. Returns
         aggregated bot/human summaries and bounded URL/day edge/origin status, cache, redirect
-        status and Cloudflare verified-bot category facts. It is not a raw log: it has no client
+        status and Cloudflare verified-bot category facts. Set include_configuration=true for
+        extra bounded AI zone settings, redirect/custom-WAF rules, and destination-redacted Logpush
+        job summaries. These are configured rules, not proof of per-request matches. It is not a raw log: it has no client
         IPs, sub-day timestamps or rule IDs, so reverse-DNS verification is unavailable. Dates are
         UTC YYYY-MM-DD; the Free plan keeps 32 days. A read-only token needs Zone Read and Account
         Analytics Read. Token is read from CLOUDFLARE_API_TOKEN or SEOHEAD_CLOUDFLARE_TOKEN_FILE."""
         return _checked(
-            handlers.cloudflare_traffic(zone=zone, since=since, until=until, project=project)
+            handlers.cloudflare_traffic(
+                zone=zone,
+                since=since,
+                until=until,
+                project=project,
+                include_configuration=include_configuration,
+            )
+        )
+
+    @mcp.tool(annotations=pure, structured_output=True)
+    def seo_cloudflare_history(
+        project: str, zone_id: str | None = None, limit: int = 20, offset: int = 0
+    ) -> dict[str, Any]:
+        """Read retained, bounded Cloudflare aggregate snapshots from a local project. History
+        contains URL/day counts and cache/status/bot dimensions, not client IP logs. This read
+        does not contact Cloudflare."""
+        return _checked(
+            handlers.cloudflare_history(
+                project=project, zone_id=zone_id, limit=limit, offset=offset
+            )
         )
 
     @mcp.tool(annotations=fetch, structured_output=True)
@@ -3013,6 +3035,19 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         """
         return _checked(
             handlers.provider_collect(provider, operation, request, artifact_dir=artifact_dir)
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_provider_artifact_read(
+        artifact_ref: str, artifact_dir: str, offset: int = 0, limit: int = 25
+    ) -> dict[str, Any]:
+        """Read a bounded PageSpeed summary from an existing provider artifact. The reader
+        validates the local artifact reference and returns an allowlisted, sanitized sample page;
+        it never returns the raw saved envelope or makes a provider request."""
+        return _checked(
+            handlers.provider_artifact_read(
+                artifact_ref, artifact_dir, offset=offset, limit=limit
+            )
         )
 
     @mcp.tool(annotations=pure, structured_output=True)

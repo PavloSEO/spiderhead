@@ -55,6 +55,11 @@ Fetcher = Callable[[dict[str, Any], str], str]
 RequestTransport = Callable[[str, str, dict[str, Any] | None, str], str]
 MAX_INSPECTION_URLS = 50
 MAX_ANALYTICS_ROWS = 25_000
+MAX_RESPONSE_BYTES = 8 * 1024 * 1024
+
+
+class ResponseTooLarge(ValueError):
+    """A Search Console response exceeded the local read budget."""
 _ARCHIVE_DIMENSIONS = ("date", "query", "page", "country", "device", "searchAppearance")
 _SEARCH_TYPES = ("web", "image", "video", "news", "discover", "googleNews")
 _AGGREGATION_TYPES = ("auto", "byPage", "byProperty")
@@ -119,7 +124,10 @@ def _default_fetcher(url: str) -> Fetcher:
         # The request URL is the fixed HTTPS Search Console endpoint; the token travels in a
         # header, never in the URL, so it cannot end up echoed into a log line or a stack trace.
         with open_no_redirect(request, timeout=TIMEOUT) as response:
-            return response.read().decode("utf-8")
+            raw = response.read(MAX_RESPONSE_BYTES + 1)
+        if len(raw) > MAX_RESPONSE_BYTES:
+            raise ResponseTooLarge("Search Console response exceeded the 8 MiB limit")
+        return raw.decode("utf-8")
 
     return fetch
 
@@ -180,6 +188,8 @@ def search_analytics(
         raw = fetch(payload, bearer)
     except urllib.error.HTTPError as exc:
         return {"ok": False, "error": _api_error(exc, bearer), "status": exc.code}
+    except ResponseTooLarge as exc:
+        return {"ok": False, "error": str(exc), "state": "response_too_large"}
     except (urllib.error.URLError, TimeoutError) as exc:
         return {"ok": False, "error": f"Search Console request failed: {exc}"}
 
@@ -231,6 +241,8 @@ def inspect_url(
         raw = fetch(payload, bearer)
     except urllib.error.HTTPError as exc:
         return {"ok": False, "error": _api_error(exc, bearer), "status": exc.code}
+    except ResponseTooLarge as exc:
+        return {"ok": False, "error": str(exc), "state": "response_too_large"}
     except (urllib.error.URLError, TimeoutError) as exc:
         return {"ok": False, "error": f"Search Console request failed: {exc}"}
 
@@ -267,7 +279,10 @@ def _request(method: str, url: str, payload: dict[str, Any] | None, token: str) 
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
     )
     with open_no_redirect(request, timeout=TIMEOUT) as response:
-        return response.read().decode("utf-8")
+        raw = response.read(MAX_RESPONSE_BYTES + 1)
+    if len(raw) > MAX_RESPONSE_BYTES:
+        raise ResponseTooLarge("Search Console response exceeded the 8 MiB limit")
+    return raw.decode("utf-8")
 
 
 _SERVICE_ACCOUNT_ERRORS = {
@@ -361,7 +376,7 @@ def discover_properties(
         body = _response_object(
             (transport or _request)("GET", f"{SEARCH_ANALYTICS_HOST}/sites", None, bearer)
         )
-    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as exc:
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ResponseTooLarge) as exc:
         result = {
             "ok": False,
             "state": "verification_failed",
@@ -669,28 +684,102 @@ def inspect_urls(
         raise ValueError(f"site_url and 1..{MAX_INSPECTION_URLS} inspection URLs are required")
     bearer, token_error = _acquire_token(token)
     if bearer is None:
-        return {"ok": False, "state": "not_configured", "verified": False, "error": token_error}
+        return {
+            "ok": False,
+            "state": "not_configured",
+            "verified": False,
+            "requests_made": 0,
+            "error": token_error,
+        }
     request = transport or _request
     outcomes = []
+    requests_made = 0
     for url in urls:
         try:
-            body = _response_object(
-                request(
-                    "POST",
-                    f"{INSPECTION_HOST}/urlInspection/index:inspect",
-                    {"inspectionUrl": url, "siteUrl": site_url},
-                    bearer,
-                )
+            requests_made += 1
+            raw = request(
+                "POST",
+                f"{INSPECTION_HOST}/urlInspection/index:inspect",
+                {"inspectionUrl": url, "siteUrl": site_url},
+                bearer,
             )
-        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as exc:
-            outcomes.append({"url": url, "state": "failed", "error": str(exc)})
+            raw_bytes = raw.encode("utf-8") if isinstance(raw, str) else raw
+            if not isinstance(raw_bytes, bytes) or len(raw_bytes) > MAX_RESPONSE_BYTES:
+                raise ResponseTooLarge("Search Console inspection response exceeded the 8 MiB limit")
+            body = _response_object(raw)
+        except (
+            urllib.error.HTTPError,
+            urllib.error.URLError,
+            TimeoutError,
+            ResponseTooLarge,
+            UnicodeError,
+        ):
+            outcomes.append({"url": url, "state": "failed", "error": "Search Console inspection request failed"})
             continue
-        status = (body or {}).get("inspectionResult", {}).get("indexStatusResult", {})
-        outcomes.append({"url": url, "state": "complete", "index_status": status})
+        inspection = (body or {}).get("inspectionResult")
+        if not isinstance(inspection, dict):
+            outcomes.append(
+                {"url": url, "state": "failed", "error": "Search Console malformed inspection response"}
+            )
+            continue
+        index_status = inspection.get("indexStatusResult")
+        if not isinstance(index_status, dict):
+            outcomes.append(
+                {"url": url, "state": "failed", "error": "Search Console malformed inspection response"}
+            )
+            continue
+        index_fields = (
+            "verdict",
+            "coverageState",
+            "indexingState",
+            "robotsTxtState",
+            "pageFetchState",
+            "googleCanonical",
+            "userCanonical",
+            "lastCrawlTime",
+            "crawledAs",
+        )
+        index_summary = (
+            {name: index_status[name] for name in index_fields if name in index_status}
+        )
+        amp = inspection.get("ampResult")
+        amp_summary = None
+        if isinstance(amp, dict):
+            amp_summary = {
+                name: amp[name]
+                for name in ("verdict", "ampIndexStatusVerdict", "pageFetchState", "indexingState")
+                if name in amp
+            }
+        rich = inspection.get("richResultsResult")
+        rich_summary = None
+        if isinstance(rich, dict):
+            detected = rich.get("detectedItems")
+            rich_summary = {
+                "verdict": rich.get("verdict"),
+                "detected_items": [
+                    {
+                        "type": item.get("richResultType"),
+                        "items": len(item.get("items") or [])
+                        if isinstance(item.get("items"), list)
+                        else 0,
+                    }
+                    for item in detected[:50]
+                    if isinstance(item, dict)
+                ]
+                if isinstance(detected, list)
+                else [],
+            }
+        outcome = {"url": url, "state": "complete", "index_status": index_summary}
+        if amp_summary is not None:
+            outcome["amp_result"] = amp_summary
+        if rich_summary is not None:
+            outcome["rich_results_result"] = rich_summary
+        outcomes.append(outcome)
     return {
         "ok": all(item["state"] == "complete" for item in outcomes),
         "state": "complete" if all(item["state"] == "complete" for item in outcomes) else "partial",
         "scope": "bounded URL diagnostic; not an index census",
+        "requests_made": requests_made,
         "urls": outcomes,
     }
 
@@ -707,7 +796,7 @@ def sitemap_status(
     endpoint = f"{SEARCH_ANALYTICS_HOST}/sites/{urllib.parse.quote(site_url, safe='')}/sitemaps"
     try:
         body = _response_object((transport or _request)("GET", endpoint, None, bearer))
-    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as exc:
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ResponseTooLarge) as exc:
         return {"ok": False, "state": "failed", "error": str(exc)}
     sitemaps = (body or {}).get("sitemap")
     if not isinstance(sitemaps, list) or not all(isinstance(item, dict) for item in sitemaps):
