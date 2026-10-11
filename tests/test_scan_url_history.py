@@ -11,8 +11,9 @@ from seohead.mcp.mcp_server import build_server
 from seohead.storage import url_history
 from seohead.storage.history import _metadata
 from seohead.storage.native_scan import NativeScan
+from tests.test_native_capture import _event
 from tests.test_scan_native import _metadata as _scan_metadata
-from tests.test_scan_native import _record, _runtime
+from tests.test_scan_native import _link, _record, _runtime
 
 URL = "https://example.test/page"
 
@@ -70,10 +71,17 @@ def test_history_lists_newest_first_with_numbering_and_absence(scans):
     assert newest["indexability"] is False  # 2xx but noindex
     assert newest["canonical"] == "https://example.test/canonical"
     assert newest["title_hash"] == hashlib.sha256(b"Back").hexdigest()
+    assert newest["title"] == "Back"
+    assert newest["word_count"] is not None and newest["html_size_bytes"] is not None
+    assert "response_time_seconds" in newest and "inlinks" in newest and "outlinks" in newest
     assert middle["state"] == "absent" and middle["status_code"] is None
     assert oldest["state"] == "present" and oldest["status_code"] == 404
     assert oldest["indexability"] is False
     assert oldest["title_hash"] == hashlib.sha256(b"Gone").hexdigest()
+    transition = got["transitions"][0]
+    assert transition["state"] == "not_comparable"
+    assert transition["changes"] == {}
+    assert got["transitions"][1]["state"] == "not_comparable"
     assert len(by_uuid) == 3
 
 
@@ -105,6 +113,47 @@ def test_url_absent_everywhere_and_bounds(scans):
         url_history.url_history(directory, URL, limit=0)
     with pytest.raises(ValueError):
         url_history.url_history(directory, URL, limit=url_history.MAX_LIMIT + 1)
+
+
+def test_history_reports_only_retained_external_link_response_codes(tmp_path):
+    directory = tmp_path / "scans"
+    directory.mkdir()
+    external = "https://other.test/resource"
+    path = directory / "external.sqlite"
+    with NativeScan.create(path, **_scan_metadata()) as scan:
+        scan.begin_collection()
+        scan.enqueue([(URL, 0)])
+        scan.commit_page(
+            scan.claim(1)[0],
+            _record(URL) | {"crawl_depth": 0},
+            links=[_link(URL, external)],
+            captures=[_event(external, status_code=404, effective_status_code=404)],
+            runtime=_runtime() | {"max_depth_reached": 1},
+        )
+        scan.finish_capture()
+    got = url_history.url_history(directory, URL)
+    assert got["scans"][0]["external_link_response_codes"] == {
+        "state": "measured",
+        "external_targets": 1,
+        "external_targets_observed": 1,
+        "responses_measured": 1,
+        "codes": {"404": 1},
+    }
+
+
+def test_history_keeps_unfetched_external_link_responses_unavailable(tmp_path):
+    directory = tmp_path / "scans"
+    directory.mkdir()
+    _make_scan(
+        directory / "unfetched.sqlite",
+        {URL: {}},
+    )
+    # This helper-created scan has no retained complete link inventory; its apparent lack of
+    # response rows must not be reported as zero external responses.
+    got = url_history.url_history(directory, URL)
+    evidence = got["scans"][0]["external_link_response_codes"]
+    assert evidence["state"] == "unavailable"
+    assert evidence["reason"]
 
 
 def test_cli_rejects_a_directory_that_is_not_a_project(capsys, tmp_path):

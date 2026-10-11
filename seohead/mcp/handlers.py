@@ -7,6 +7,7 @@ behavior to the core + a handler here, then surface it in each face.
 from __future__ import annotations
 
 import contextlib
+import sqlite3
 import sys
 import tempfile
 import time
@@ -3020,6 +3021,9 @@ def compare_crawls(
     correspondence: Any = None,
     out_dir: str | None = None,
     compression: str = "none",
+    resume: bool = False,
+    progress: Any = None,
+    cancel_event: Any = None,
 ) -> dict[str, Any]:
     """Diff two audits: which findings were fixed, which are new, which pages
     dropped out of the crawl entirely. See seohead.sf.core.compare for why
@@ -3038,6 +3042,9 @@ def compare_crawls(
             correspondence=correspondence,
             out_dir=out_dir,
             compression=compression,
+            resume=resume,
+            progress=progress,
+            cancel_event=cancel_event,
         )
     finally:
         if not hasattr(before, "iter_collection") and hasattr(before_doc, "close"):
@@ -3051,6 +3058,348 @@ def compare_crawls(
     if diagnostics:
         result["input_diagnostics"] = diagnostics
     return result
+
+
+def compare_read(
+    manifest_path: str,
+    file: str,
+    offset: int = 0,
+    limit: int = 200,
+    sort: str = "url",
+    direction: str = "asc",
+    contains: str | None = None,
+    segment: str | None = None,
+    change: str | None = None,
+    max_bytes: int = 1_048_576,
+) -> dict[str, Any]:
+    """Read a bounded page from a validated compare.v2 file."""
+    from seohead.sf.core.compare_store import read_compare_page
+
+    try:
+        return read_compare_page(
+            manifest_path,
+            file,
+            offset=offset,
+            limit=limit,
+            sort=sort,
+            direction=direction,
+            contains=contains,
+            segment=segment,
+            change=change,
+            max_bytes=max_bytes,
+        )
+    except (ValueError, OSError, TypeError) as exc:
+        return {"ok": False, "state": "unavailable", "error": str(exc)}
+
+
+def compare_status(out_dir: str) -> dict[str, Any]:
+    """Read the current checkpoint or completed manifest for a comparison output path."""
+    import json
+
+    from seohead.core.filesystem import lock_exclusive, open_lock, unlock
+
+    destination = Path(out_dir).absolute()
+    if destination.is_symlink():
+        raise ValueError("comparison output path must not be a symbolic link")
+    manifest = destination / "compare.json"
+    if manifest.is_file() and not manifest.is_symlink():
+        result = json.loads(manifest.read_text(encoding="utf-8"))
+        job = result.get("job") if isinstance(result, dict) else None
+        return {
+            "ok": True,
+            "format": "compare.job-status.v1",
+            "state": "finished",
+            "stage": "complete",
+            "job_id": job.get("id") if isinstance(job, dict) else None,
+            "completed": 1,
+            "total": 1,
+            "resumable": False,
+            "cache_available": True,
+        }
+    work = destination.with_name(f".{destination.name}.compare-work")
+    if work.is_symlink() or not work.is_dir():
+        return {"ok": False, "state": "unavailable", "error": "comparison job was not found"}
+    checkpoint = work / "job.json"
+    if checkpoint.is_symlink() or not checkpoint.is_file():
+        return {"ok": False, "state": "unavailable", "error": "comparison checkpoint is unreadable"}
+    data = json.loads(checkpoint.read_text(encoding="utf-8"))
+    active = False
+    try:
+        fd = open_lock(work / ".writer.lock", create=False)
+    except OSError:
+        fd = None
+    if fd is not None:
+        try:
+            lock_exclusive(fd)
+        except OSError:
+            active = True
+        else:
+            unlock(fd)
+        finally:
+            import os
+
+            os.close(fd)
+    return {
+        "ok": True,
+        "format": "compare.job-status.v1",
+        **{
+            key: data.get(key)
+            for key in ("job_id", "state", "stage", "completed", "total", "reason")
+        },
+        "resumable": not active and data.get("state") in {"failed", "paused", "running"},
+        "active": active,
+        "cache_available": False,
+    }
+
+
+def compare_report(manifest_path: str, out_file: str, max_bytes: int = 65_536) -> dict[str, Any]:
+    """Write a bounded Markdown summary to a new path from a validated compare.v2 package."""
+    import hashlib
+    import os
+    import tempfile
+
+    from seohead.sf.core.compare_store import compare_markdown
+
+    report = compare_markdown(manifest_path, max_bytes=max_bytes)
+    destination = Path(out_file).absolute()
+    if destination.exists():
+        raise FileExistsError(f"report output already exists: {destination}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=".compare-report-", dir=destination.parent)
+    data = report.encode("utf-8")
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.link(temporary, destination)
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(temporary)
+    return {
+        "ok": True,
+        "format": "compare.v2.markdown",
+        "report": str(destination),
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def compare_url(
+    before: Any,
+    after: Any,
+    url: str,
+    *,
+    max_bytes: int = 65_536,
+    max_lines: int = 200,
+    left_representation: str = "static",
+    right_representation: str = "static",
+) -> dict[str, Any]:
+    """Return exact-URL before/after facts and finding deltas without absence claims."""
+    from collections.abc import Mapping
+
+    from seohead.sf.core.compare import _iter_rows
+    from seohead.storage.inputs import load_audit_source
+
+    if not isinstance(url, str) or not url or len(url) > 8192:
+        raise ValueError("url must be nonempty exact URL text of at most 8192 characters")
+    if type(max_bytes) is not int or not 1 <= max_bytes <= 65_536:
+        raise ValueError("max_bytes must be an integer 1..65536")
+    if type(max_lines) is not int or not 1 <= max_lines <= 200:
+        raise ValueError("max_lines must be an integer 1..200")
+    representations = {"static", "rendered", "legacy_fragment"}
+    if left_representation not in representations or right_representation not in representations:
+        raise ValueError("representations must be static, rendered, or legacy_fragment")
+
+    sources = []
+    opened = []
+    try:
+        for value, label in ((before, "before"), (after, "after")):
+            is_source = hasattr(value, "iter_collection")
+            source = value if is_source else load_audit_source(value, label)
+            sources.append(source)
+            if not is_source and hasattr(source, "close"):
+                opened.append(source)
+    except BaseException:
+        for source in opened:
+            source.close()
+        raise
+    try:
+        cards = []
+        findings = []
+        fields = (
+            "status_code",
+            "title",
+            "meta_description",
+            "h1",
+            "word_count",
+            "inlinks",
+            "internal_outlinks",
+            "canonical",
+            "response_time",
+            "size_bytes",
+            "indexability",
+        )
+        aliases = {"response_time": "response_time_seconds", "size_bytes": "html_size_bytes"}
+
+        def value_of(page: Mapping[str, Any], field: str) -> Any:
+            metrics = page.get("metrics") if isinstance(page.get("metrics"), Mapping) else {}
+            if field == "indexability":
+                val = page.get(field, metrics.get(field))
+                return val
+            if field in page:
+                return page[field]
+            if field in metrics:
+                return metrics[field]
+            return None
+
+        for source in sources:
+            page = next(
+                (item for item in _iter_rows(source, "pages") if item.get("url") == url), None
+            )
+            if page is None:
+                cards.append({"state": "absent", "url": url, "fields": {}})
+            else:
+                facts = {}
+                for field in fields:
+                    value = value_of(page, field)
+                    name = aliases.get(field, field)
+                    facts[name] = {
+                        "state": "measured" if value is not None else "unavailable",
+                        "value": value,
+                        **(
+                            {}
+                            if value is not None
+                            else {"reason": f"source does not retain {field}"}
+                        ),
+                    }
+                cards.append({"state": "present", "url": url, "fields": facts})
+            findings.append(
+                [
+                    dict(issue)
+                    for issue in _iter_rows(source, "issues")
+                    if issue.get("target_url") == url
+                ]
+            )
+
+        if cards[0]["state"] != "present" or cards[1]["state"] != "present":
+            comparison_state = "not_rechecked"
+            reason = (
+                "both scans must contain this URL before field or finding deltas can be interpreted"
+            )
+            changes = {}
+            finding_delta = {
+                "state": comparison_state,
+                "reason": reason,
+                "entered": [],
+                "left": [],
+            }
+        else:
+            comparison_state = "compared"
+            reason = None
+            changes = {}
+            for name in cards[0]["fields"]:
+                left, right = cards[0]["fields"][name], cards[1]["fields"][name]
+                if left["state"] != "measured" or right["state"] != "measured":
+                    changes[name] = {
+                        "state": "unavailable",
+                        "reason": "field was not measured on both scans",
+                    }
+                elif left["value"] != right["value"]:
+                    changes[name] = {
+                        "state": "changed",
+                        "before": left["value"],
+                        "after": right["value"],
+                    }
+                else:
+                    changes[name] = {"state": "unchanged", "value": left["value"]}
+            before_by_check = {row.get("check"): row for row in findings[0]}
+            after_by_check = {row.get("check"): row for row in findings[1]}
+            from seohead.sf.core.compare import _run
+
+            unavailable = []
+            invalid_run = False
+            for source in sources:
+                run = _run(source)
+                invalid_run = invalid_run or run.get("crawl_valid") is False
+                for field in ("checks_skipped", "checks_disabled"):
+                    unavailable.extend(
+                        item.get("id")
+                        for item in (run.get(field) or [])
+                        if isinstance(item, dict) and isinstance(item.get("id"), str)
+                    )
+            unavailable = set(unavailable)
+            if invalid_run:
+                unavailable.update(before_by_check.keys() | after_by_check.keys())
+            entered, left, unmeasured = [], [], []
+            for check in sorted(after_by_check.keys() - before_by_check.keys()):
+                if check in unavailable:
+                    unmeasured.append(
+                        {
+                            "check": check,
+                            "state": "not_measured",
+                            "reason": "check coverage is incomplete",
+                        }
+                    )
+                else:
+                    entered.append(after_by_check[check])
+            for check in sorted(before_by_check.keys() - after_by_check.keys()):
+                if check in unavailable:
+                    unmeasured.append(
+                        {
+                            "check": check,
+                            "state": "not_measured",
+                            "reason": "check coverage is incomplete",
+                        }
+                    )
+                else:
+                    left.append(before_by_check[check])
+            finding_delta = {
+                "state": "compared",
+                "entered": entered,
+                "left": left,
+                "not_comparable": unmeasured,
+                "unchanged": sorted(before_by_check.keys() & after_by_check.keys()),
+            }
+
+        body = {
+            "state": "not_requested",
+            "reason": "text diff requires native scan.v1 SQLite inputs",
+        }
+        if all(
+            isinstance(value, (str, Path)) and Path(value).suffix.lower() in {".sqlite", ".db"}
+            for value in (before, after)
+        ):
+            from seohead.storage.body_diff import body_diff
+
+            try:
+                body = body_diff(
+                    before,
+                    after,
+                    url,
+                    text=True,
+                    max_bytes=max_bytes,
+                    max_lines=max_lines,
+                    left_representation=left_representation,
+                    right_representation=right_representation,
+                )
+            except (OSError, ValueError, sqlite3.Error) as exc:
+                body = {"state": "unavailable", "reason": str(exc)[:2048]}
+        return {
+            "ok": True,
+            "format": "compare-url.v1",
+            "url": url,
+            "state": comparison_state,
+            **({"reason": reason} if reason else {}),
+            "before": cards[0],
+            "after": cards[1],
+            "changes": changes,
+            "findings": finding_delta,
+            "body_diff": body,
+        }
+    finally:
+        for source in opened:
+            source.close()
 
 
 def verify_fixes(
@@ -5296,6 +5645,7 @@ def scan_url_query(
     export_max_rows: int | None = None,
     issue_check: str | list[str] | None = None,
     issue_severity: str | None = None,
+    include_check_counts: bool = False,
 ) -> dict[str, Any]:
     """Filter, sort and paginate the whole page table of one saved scan, read-only.
 
@@ -5325,10 +5675,74 @@ def scan_url_query(
         count_timeout_seconds=count_timeout_seconds,
         issue_check=issue_check,
         issue_severity=issue_severity,
+        include_check_counts=include_check_counts,
         max_bytes=max_bytes,
         facets=facets,
         preset=preset,
     )
+
+
+def scan_directory_tree(
+    input_path: str,
+    max_depth: int = 3,
+    max_children: int = 50,
+    max_nodes: int = 10_000,
+    max_bytes: int = 1_048_576,
+    timeout_seconds: float = 15.0,
+) -> dict[str, Any]:
+    """Read a bounded URL-path directory tree from retained page URLs only."""
+    from seohead.storage.directory_tree import scan_directory_tree as core
+
+    try:
+        return {
+            "ok": True,
+            **core(
+                input_path,
+                max_depth=max_depth,
+                max_children=max_children,
+                max_nodes=max_nodes,
+                max_bytes=max_bytes,
+                timeout_seconds=timeout_seconds,
+            ),
+        }
+    except (ValueError, OSError) as exc:
+        return {
+            "ok": False,
+            "state": "invalid",
+            "reason_code": "invalid_directory_tree",
+            "error": str(exc),
+        }
+
+
+def headers_analyze(
+    input_path: str,
+    url: str | None = None,
+    offset: int = 0,
+    limit: int = 100,
+    max_bytes: int = 1_048_576,
+    timeout_seconds: float = 15.0,
+) -> dict[str, Any]:
+    """Analyze headers and phase timing retained in a scan; never fetch the URL."""
+    import sqlite3
+
+    from seohead.storage.headers_analyze import analyze
+
+    try:
+        return analyze(
+            input_path,
+            url=url,
+            offset=offset,
+            limit=limit,
+            max_bytes=max_bytes,
+            timeout_seconds=timeout_seconds,
+        )
+    except (ValueError, OSError, sqlite3.Error) as exc:
+        return {
+            "ok": False,
+            "state": "invalid",
+            "reason_code": "invalid_headers_analysis",
+            "error": str(exc),
+        }
 
 
 def scan_url_history(project: str, url: str, limit: int = 50) -> dict[str, Any]:
@@ -5348,6 +5762,9 @@ def scan_url_detail(
     form_offset: int = 0,
     form_limit: int = 20,
     max_bytes: int = 1_048_576,
+    body_offset: int = 0,
+    body_length: int = 4096,
+    max_body_bytes: int = 8 * 1024 * 1024,
 ) -> dict[str, Any]:
     """Read one exact native URL's bounded retained transport metadata offline."""
     from seohead.mcp.history_handlers import scan_url_detail as core
@@ -5360,6 +5777,55 @@ def scan_url_detail(
         form_offset=form_offset,
         form_limit=form_limit,
         max_bytes=max_bytes,
+        body_offset=body_offset,
+        body_length=body_length,
+        max_body_bytes=max_body_bytes,
+    )
+
+
+def scan_body_read(
+    input_path: str,
+    url: str,
+    representation: str = "static",
+    variant_key: str | None = None,
+    offset: int = 0,
+    length: int = 4096,
+    max_decoded_bytes: int = 8 * 1024 * 1024,
+) -> dict[str, Any]:
+    from seohead.mcp.history_handlers import scan_body_read as core
+
+    return core(
+        input_path,
+        url,
+        representation=representation,
+        variant_key=variant_key,
+        offset=offset,
+        length=length,
+        max_decoded_bytes=max_decoded_bytes,
+    )
+
+
+def scan_findings_page(
+    project: str,
+    scan_uuid: str | None = None,
+    offset: int = 0,
+    limit: int = 100,
+    query: str = "",
+    url: str | None = None,
+    sort: str = "severity",
+    descending: bool = False,
+) -> dict[str, Any]:
+    from seohead.projects.observer import findings_page
+
+    return findings_page(
+        project,
+        scan_uuid=scan_uuid,
+        offset=offset,
+        limit=limit,
+        query=query,
+        url=url,
+        sort=sort,
+        descending=descending,
     )
 
 
@@ -5387,6 +5853,7 @@ def scan_link_inspect(
     status_class: str = "all",
     contains: str | None = None,
     sort: str = "order",
+    preset: str | None = None,
 ) -> dict[str, Any]:
     from seohead.mcp.history_handlers import scan_link_inspect as core
 
@@ -5414,6 +5881,7 @@ def scan_link_inspect(
         status_class=status_class,
         contains=contains,
         sort=sort,
+        preset=preset,
     )
 
 
@@ -5489,6 +5957,8 @@ def scan_body_diff(
     text: bool = False,
     max_bytes: int = 5 * 1024 * 1024,
     max_lines: int = 10_000,
+    left_representation: str | None = None,
+    right_representation: str | None = None,
 ) -> dict[str, Any]:
     from seohead.mcp.history_handlers import scan_body_diff as core
 
@@ -5501,6 +5971,8 @@ def scan_body_diff(
         text=text,
         max_bytes=max_bytes,
         max_lines=max_lines,
+        left_representation=left_representation,
+        right_representation=right_representation,
     )
 
 
@@ -5528,6 +6000,32 @@ def project_open(directory: str, expected_site: str | None = None) -> dict[str, 
     from seohead.mcp.project_handlers import project_open as core
 
     return core(directory, expected_site=expected_site)
+
+
+def project_archive(
+    project: str,
+    out: str,
+    dry_run: bool = False,
+    exclude_bodies: bool = False,
+    exclude_bodies_older_than_days: int | None = None,
+    keep_newest_scans: int | None = None,
+) -> dict[str, Any]:
+    from seohead.projects.archive import archive_project
+
+    return archive_project(
+        project,
+        out,
+        dry_run=dry_run,
+        exclude_bodies=exclude_bodies,
+        exclude_bodies_older_than_days=exclude_bodies_older_than_days,
+        keep_newest_scans=keep_newest_scans,
+    )
+
+
+def project_restore(archive: str, to: str) -> dict[str, Any]:
+    from seohead.projects.archive import restore_project
+
+    return restore_project(archive, to)
 
 
 def project_status(directory: str, consumer: str | None = None) -> dict[str, Any]:
@@ -7538,6 +8036,10 @@ _RAW_HANDLERS = {
     "report_build": report_build,
     "facts_export": facts_export,
     "compare_crawls": compare_crawls,
+    "compare_read": compare_read,
+    "compare_status": compare_status,
+    "compare_report": compare_report,
+    "compare_url": compare_url,
     "crawl_enrich": crawl_enrich,
     "crawl_import": crawl_import,
     "segment_diff": segment_diff,
@@ -7574,7 +8076,10 @@ _RAW_HANDLERS = {
     "scan_list": scan_list,
     "scan_inspect": scan_inspect,
     "scan_url_detail": scan_url_detail,
+    "scan_body_read": scan_body_read,
     "scan_url_query": scan_url_query,
+    "scan_directory_tree": scan_directory_tree,
+    "headers_analyze": headers_analyze,
     "scan_url_history": scan_url_history,
     "scan_link_inspect": scan_link_inspect,
     "scan_status": scan_status,
@@ -7593,8 +8098,11 @@ _RAW_HANDLERS = {
     "scan_pin": scan_pin,
     "scan_prune": scan_prune,
     "scan_body_diff": scan_body_diff,
+    "scan_findings_page": scan_findings_page,
     "project_new": project_new,
     "project_open": project_open,
+    "project_archive": project_archive,
+    "project_restore": project_restore,
     "project_status": project_status,
     "project_sources_link": project_sources_link,
     "project_sources_unlink": project_sources_unlink,

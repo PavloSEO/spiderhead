@@ -77,6 +77,196 @@ def test_round_trip_keeps_scan_query_results_and_drops_credential_names(tmp_path
     assert not (tmp_path / "restored" / "scans" / "api_token.txt").exists()
 
 
+def test_archive_can_omit_raw_html_bodies_and_preserve_evidence_tables(tmp_path):
+    project = _project(tmp_path)
+    scan = project / "scans" / "body-scan.sqlite"
+    digest = hashlib.sha256(b"<html>private body</html>").hexdigest()
+    with sqlite3.connect(scan) as db:
+        db.executescript(
+            "CREATE TABLE scan(singleton INTEGER,format_version TEXT);"
+            "INSERT INTO scan VALUES(1,'scan.v1');"
+            "CREATE TABLE bodies(sha256 TEXT PRIMARY KEY,data BLOB);"
+            "CREATE TABLE documents(document_id INTEGER PRIMARY KEY,body_sha256 TEXT,"
+            "body_state TEXT,body_reason TEXT,fidelity TEXT,source_response_id INTEGER);"
+            "CREATE TABLE responses(response_id INTEGER PRIMARY KEY,purpose TEXT,"
+            "body_sha256 TEXT,body_state TEXT,body_reason TEXT,content_type TEXT);"
+        )
+        db.execute("INSERT INTO bodies VALUES (?,?)", (digest, b"<html>private body</html>"))
+        db.execute(
+            "INSERT INTO documents VALUES (1,?,'complete','none','entity_bytes',1)", (digest,)
+        )
+        db.execute(
+            "INSERT INTO responses VALUES (1,'page',?,'complete','none','text/html')", (digest,)
+        )
+
+    out = tmp_path / "without-bodies.zip"
+    result = archive_project(project, out, exclude_bodies=True)
+    assert result["exclude_bodies"] is True
+    assert result["excluded_body_blobs"] == 1
+    with zipfile.ZipFile(out) as zf:
+        archived = tmp_path / "archived-scan.sqlite"
+        archived_bytes = zf.read("scans/body-scan.sqlite")
+        archived.write_bytes(archived_bytes)
+    assert b"<html>private body</html>" not in archived_bytes
+    with sqlite3.connect(archived) as db:
+        assert db.execute("SELECT COUNT(*) FROM bodies").fetchone()[0] == 0
+        assert db.execute("SELECT body_sha256,body_state,body_reason FROM documents").fetchone() == (
+            None,
+            "unavailable",
+            "not_in_corpus",
+        )
+        assert db.execute("SELECT COUNT(*) FROM responses").fetchone()[0] == 1
+
+
+def test_archive_can_keep_only_the_newest_n_scan_files(tmp_path):
+    project = _project(tmp_path)
+    for name, created in (
+        ("old.sqlite", "2026-01-01T00:00:00Z"),
+        ("new.sqlite", "2026-10-01T00:00:00Z"),
+    ):
+        with sqlite3.connect(project / "scans" / name) as db:
+            db.execute("CREATE TABLE scan(singleton INTEGER,scan_uuid TEXT,created_at TEXT,finished_at TEXT)")
+            db.execute("INSERT INTO scan VALUES(1,?,?,NULL)", (name, created))
+
+    out = tmp_path / "latest.zip"
+    result = archive_project(project, out, keep_newest_scans=1)
+
+    assert "scans/old.sqlite" not in result["files"]
+    assert "scans/new.sqlite" in result["files"]
+    assert {item["path"] for item in result["skipped"]} >= {"scans/old.sqlite"}
+
+
+def test_archive_can_omit_html_bodies_older_than_a_named_retention_window(tmp_path):
+    project = _project(tmp_path)
+    scan = project / "scans" / "aged.sqlite"
+    digest = hashlib.sha256(b"<html>old</html>").hexdigest()
+    with sqlite3.connect(scan) as db:
+        db.executescript(
+            "CREATE TABLE scan(singleton INTEGER,format_version TEXT);"
+            "INSERT INTO scan VALUES(1,'scan.v1');"
+            "CREATE TABLE bodies(sha256 TEXT PRIMARY KEY,data BLOB);"
+            "CREATE TABLE documents(document_id INTEGER PRIMARY KEY,body_sha256 TEXT,"
+            "body_state TEXT,body_reason TEXT,captured_at TEXT,fidelity TEXT,"
+            "source_response_id INTEGER);"
+            "CREATE TABLE responses(response_id INTEGER PRIMARY KEY,purpose TEXT,"
+            "body_sha256 TEXT,body_state TEXT,body_reason TEXT,content_type TEXT,received_at TEXT);"
+        )
+        db.execute("INSERT INTO bodies VALUES (?,?)", (digest, b"<html>old</html>"))
+        db.execute(
+            "INSERT INTO documents VALUES (1,?,'complete','none','2000-01-01T00:00:00Z','entity_bytes',1)",
+            (digest,),
+        )
+        db.execute(
+            "INSERT INTO responses VALUES (1,'page',?,'complete','none','text/html','2000-01-01T00:00:00Z')",
+            (digest,),
+        )
+
+    out = tmp_path / "aged.zip"
+    result = archive_project(project, out, exclude_bodies_older_than_days=30)
+    assert result["exclude_bodies_older_than_days"] == 30
+    assert result["excluded_body_blobs"] == 1
+    with zipfile.ZipFile(out) as zf:
+        archived = tmp_path / "aged-archive.sqlite"
+        archived_bytes = zf.read("scans/aged.sqlite")
+        archived.write_bytes(archived_bytes)
+    assert b"<html>old</html>" not in archived_bytes
+    with sqlite3.connect(archived) as db:
+        assert db.execute("SELECT COUNT(*) FROM bodies").fetchone()[0] == 0
+        assert db.execute("SELECT COUNT(*) FROM documents").fetchone()[0] == 1
+        assert db.execute("SELECT body_sha256 FROM responses").fetchone()[0] is None
+
+
+def test_archive_preserves_validated_project_state_and_skips_measurement_cache(tmp_path):
+    from seohead.projects.schedule import _state_default, default_settings
+
+    project = _project(tmp_path)
+    project_uuid = json.loads((project / "project.json").read_text())[
+        "project_uuid"
+    ]
+    (project / "events.jsonl").write_text("", encoding="utf-8")
+    (project / "sources.json").write_text(
+        json.dumps({"format": "seohead.project.sources.v1", "version": 1, "bindings": []}),
+        encoding="utf-8",
+    )
+    (project / "finding-views.json").write_text(
+        json.dumps(
+            {
+                "format": "seohead.project-finding-views.v1",
+                "version": 1,
+                "project_uuid": project_uuid,
+                "revision": 1,
+                "views": {},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (project / "project-settings.json").write_text(
+        json.dumps(
+            {
+                "format": "seohead.project-settings.v1",
+                "version": 1,
+                "project_uuid": project_uuid,
+                "revision": 1,
+                "settings": {"label": "Synthetic"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (project / "settings-proposals.json").write_text(
+        json.dumps(
+            {
+                "format": "seohead.project-settings-proposals.v1",
+                "version": 1,
+                "project_uuid": project_uuid,
+                "revision": 1,
+                "proposals": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (project / "actions.jsonl").write_text("", encoding="utf-8")
+    (project / "schedule.json").write_text(
+        json.dumps(default_settings(project_uuid)), encoding="utf-8"
+    )
+    (project / "schedule-state.json").write_text(
+        json.dumps(_state_default(project_uuid)), encoding="utf-8"
+    )
+    (project / ".schedule.lock").write_text("coordination only", encoding="utf-8")
+    (project / "project-measurement.json").write_text('{"cache":true}', encoding="utf-8")
+
+    out = tmp_path / "state.zip"
+    result = archive_project(project, out)
+
+    expected = {
+        "events.jsonl",
+        "sources.json",
+        "finding-views.json",
+        "project-settings.json",
+        "settings-proposals.json",
+        "actions.jsonl",
+        "schedule.json",
+        "schedule-state.json",
+    }
+    assert expected <= set(result["files"])
+    assert "project-measurement.json" not in result["files"]
+    with zipfile.ZipFile(out) as zf:
+        assert expected <= set(zf.namelist())
+        assert "project-measurement.json" not in zf.namelist()
+        assert ".schedule.lock" not in zf.namelist()
+    restore_project(out, tmp_path / "state-restored")
+    assert expected <= {path.name for path in (tmp_path / "state-restored").iterdir()}
+
+
+def test_archive_refuses_invalid_allowlisted_state(tmp_path):
+    project = _project(tmp_path)
+    (project / "sources.json").write_text('{"unexpected":true}', encoding="utf-8")
+    out = tmp_path / "invalid-state.zip"
+
+    with pytest.raises(ValueError, match="sources.json"):
+        archive_project(project, out)
+    assert not out.exists()
+
+
 def test_dry_run_reports_plan_and_writes_nothing(tmp_path):
     project = _project(tmp_path)
     out = tmp_path / "planned.zip"
@@ -161,6 +351,15 @@ def test_members_missing_from_manifest_are_refused(tmp_path):
         restore_project(path, tmp_path / "extra")
 
 
+def test_restore_refuses_credential_named_members(tmp_path):
+    token = b"synthetic-only"
+    crafted = _zip_with(tmp_path, {"scans/api_token.txt": token})
+
+    with pytest.raises(ValueError, match="credential-like"):
+        restore_project(crafted, tmp_path / "credential-archive")
+    assert not (tmp_path / "credential-archive").exists()
+
+
 def test_cli_archive_and_restore_round_trip(tmp_path, capsys):
     from seohead import cli
 
@@ -173,3 +372,19 @@ def test_cli_archive_and_restore_round_trip(tmp_path, capsys):
     assert payload["ok"] is True
     assert cli.main(["project", "restore", str(out), "--to", str(tmp_path / "cli-restored")]) == 1
     assert json.loads(capsys.readouterr().out)["ok"] is False
+
+
+def test_project_archive_mcp_and_flat_cli_share_plan(tmp_path, capsys):
+    from seohead.mcp import handlers
+    from seohead.mcp.mcp_server import build_server
+
+    project = _project(tmp_path)
+    out = tmp_path / "planned.zip"
+    assert cli.main(
+        ["project-archive", "--project", str(project), "--out", str(out), "--dry-run"]
+    ) == 0
+    command_result = json.loads(capsys.readouterr().out)
+    direct_result = handlers.project_archive(str(project), str(out), dry_run=True)
+    tool = build_server()._tool_manager.get_tool("seo_project_archive")
+    mcp_result = tool.fn(project=str(project), out=str(out), dry_run=True)
+    assert command_result == direct_result == mcp_result

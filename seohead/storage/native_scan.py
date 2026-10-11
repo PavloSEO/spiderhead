@@ -3465,6 +3465,10 @@ class NativeScan:
                     _utc() if lifecycle == "finished" else None,
                 ),
             )
+            if lifecycle == "finished":
+                from .click_depth import persist as persist_click_depth
+
+                persist_click_depth(self.con)
             self.con.commit()
             return ready
         except BaseException:
@@ -3509,6 +3513,9 @@ class NativeScan:
                     "UPDATE scan SET lifecycle='finished', finish_reason=?, finished_at=? WHERE singleton=1",
                     (reason, _utc()),
                 )
+                from .click_depth import persist as persist_click_depth
+
+                persist_click_depth(self.con)
                 self.con.commit()
                 return True
             except BaseException:
@@ -3548,6 +3555,9 @@ class NativeScan:
                 "UPDATE scan SET lifecycle='finished',finish_reason='offline_reanalysis',finished_at=? WHERE singleton=1",
                 (_utc(),),
             )
+            from .click_depth import persist as persist_click_depth
+
+            persist_click_depth(self.con)
             self.con.commit()
             return True
         except BaseException:

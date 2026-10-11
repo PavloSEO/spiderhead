@@ -106,6 +106,7 @@ def scan_link_inspect(
     status_class: str = "all",
     contains: str | None = None,
     sort: str = "order",
+    preset: str | None = None,
 ) -> dict[str, Any]:
     """One bounded saved-scan link query, shared by the CLI and local MCP."""
     if not isinstance(view, str) or view not in {"path", "inlinks", "context", "links"}:
@@ -116,7 +117,7 @@ def scan_link_inspect(
         }
     try:
         path = _path(input_path, "scan")
-        links_only = (url, direction, link_type, follow, status_class, contains, sort) != (
+        links_only = (url, direction, link_type, follow, status_class, contains, sort, preset) != (
             None,
             "out",
             "all",
@@ -124,6 +125,7 @@ def scan_link_inspect(
             "all",
             None,
             "order",
+            None,
         )
         if links_only and view != "links":
             raise ValueError("url, direction and link filters belong to view=links")
@@ -132,6 +134,25 @@ def scan_link_inspect(
         if view == "links":
             if not url:
                 raise ValueError("links view requires a url")
+            if preset is not None:
+                definitions = {
+                    "inlinks": {"direction": "in", "link_type": "internal", "status_class": "all"},
+                    "broken_links": {"direction": "out", "link_type": "internal", "status_class": "broken"},
+                }
+                if preset not in definitions:
+                    raise ValueError("preset must be inlinks or broken_links")
+                defaults = {"direction": "out", "link_type": "all", "status_class": "all"}
+                current = {
+                    "direction": direction,
+                    "link_type": link_type,
+                    "status_class": status_class,
+                }
+                for key, value in definitions[preset].items():
+                    if current[key] not in {defaults[key], value}:
+                        raise ValueError(f"preset {preset} conflicts with explicit {key}")
+                direction = definitions[preset]["direction"]
+                link_type = definitions[preset]["link_type"]
+                status_class = definitions[preset]["status_class"]
             if any(value is not None for value in (seed, target, cursor, link_id, document_id)) or (
                 max_nodes,
                 max_edges,
@@ -229,7 +250,7 @@ def scan_link_inspect(
                 )
             if representation != "all" and result["representation"] != representation:
                 raise ValueError("context representation differs from the requested filter")
-        answer = {"ok": True, "view": view, **result}
+        answer = {"ok": True, "view": view, **result, **({"preset": preset} if preset else {})}
         size = len(json.dumps(answer, ensure_ascii=False, default=str).encode("utf-8"))
         if size > max_bytes:
             return {
@@ -453,6 +474,9 @@ def _scan_url_detail(
     form_offset: int = 0,
     form_limit: int = 20,
     max_bytes: int = 1_048_576,
+    body_offset: int = 0,
+    body_length: int = 4096,
+    max_body_bytes: int = 8 * 1024 * 1024,
 ) -> dict[str, Any]:
     """Read one native scan URL and its bounded retained transport evidence offline."""
     path = _path(input_path, "input")
@@ -468,6 +492,12 @@ def _scan_url_detail(
         raise ValueError("form_limit must be 1..100")
     if type(max_bytes) is not int or not 4096 <= max_bytes <= 8 * 1024 * 1024:
         raise ValueError("max_bytes must be 4096..8388608")
+    if type(body_offset) is not int or body_offset < 0:
+        raise ValueError("body_offset must be a nonnegative integer")
+    if type(body_length) is not int or not 1 <= body_length <= 64 * 1024:
+        raise ValueError("body_length must be 1..65536")
+    if type(max_body_bytes) is not int or not 1 <= max_body_bytes <= 64 * 1024 * 1024:
+        raise ValueError("max_body_bytes must be 1..67108864")
     if path.lower().endswith(".json"):
         return {
             "ok": True,
@@ -571,6 +601,33 @@ def _scan_url_detail(
             "FROM forms WHERE page_url_id=? ORDER BY form_id LIMIT ? OFFSET ?",
             (url_row["url_id"], form_limit + 1, form_offset),
         ).fetchall()
+        source_html: dict[str, Any] = {"state": "unavailable", "reason": "not_retained"}
+        if page["document_id"] is not None:
+            from seohead.storage.bodies import read_document_window
+
+            doc = con.execute(
+                "SELECT representation,body_state,body_reason FROM documents WHERE document_id=?",
+                (page["document_id"],),
+            ).fetchone()
+            if doc is not None and doc["body_state"] == "complete":
+                source_html = {
+                    "state": "available",
+                    "representation": doc["representation"],
+                    **read_document_window(
+                        con,
+                        page["document_id"],
+                        offset=body_offset,
+                        length=body_length,
+                        max_decoded_bytes=max_body_bytes,
+                    ),
+                }
+            elif doc is not None:
+                source_html = {
+                    "state": "unavailable",
+                    "reason": f"{doc['body_state']}/{doc['body_reason']}",
+                    "document_id": page["document_id"],
+                    "representation": doc["representation"],
+                }
         detail = {
             "ok": True,
             "state": "available",
@@ -594,7 +651,9 @@ def _scan_url_detail(
                 "has_more": len(form_rows) > form_limit,
                 "next_offset": form_offset + min(len(form_rows), form_limit),
             },
-            "scope": "retained native metadata only; no HTML body, network request, or artifact mutation",
+            "source_html": source_html,
+            "scope": "bounded retained HTML and native metadata only; "
+            "no network request or artifact mutation",
         }
         size = len(json.dumps(detail, ensure_ascii=False, default=str).encode("utf-8"))
         if size > max_bytes:
@@ -622,6 +681,9 @@ def scan_url_detail(
     form_offset: int = 0,
     form_limit: int = 20,
     max_bytes: int = 1_048_576,
+    body_offset: int = 0,
+    body_length: int = 4096,
+    max_body_bytes: int = 8 * 1024 * 1024,
 ) -> dict[str, Any]:
     """Return structured result data instead of mistaking an unreadable scan for no detail."""
     try:
@@ -633,9 +695,66 @@ def scan_url_detail(
             form_offset=form_offset,
             form_limit=form_limit,
             max_bytes=max_bytes,
+            body_offset=body_offset,
+            body_length=body_length,
+            max_body_bytes=max_body_bytes,
         )
     except (ValueError, OSError, sqlite3.Error, TypeError) as exc:
         return {"ok": False, "state": "invalid", "error": str(exc)}
+
+
+def scan_body_read(
+    input_path: str,
+    url: str,
+    *,
+    representation: str = "static",
+    variant_key: str | None = None,
+    offset: int = 0,
+    length: int = 4096,
+    max_decoded_bytes: int = 8 * 1024 * 1024,
+) -> dict[str, Any]:
+    """Read one bounded, hash-verified retained body window by exact URL."""
+    from seohead.storage.bodies import MAX_WINDOW_CHARS, read_page_document_content
+
+    if not isinstance(url, str) or not url or len(url) > 8192:
+        raise ValueError("url must be exact nonempty text of at most 8192 characters")
+    if representation not in {"static", "rendered", "legacy_fragment"}:
+        raise ValueError("representation must be static, rendered, or legacy_fragment")
+    if type(offset) is not int or offset < 0:
+        raise ValueError("offset must be a nonnegative integer")
+    if type(length) is not int or not 1 <= length <= MAX_WINDOW_CHARS:
+        raise ValueError(f"length must be 1..{MAX_WINDOW_CHARS}")
+    con, validation = open_scan_mode(_path(input_path, "input"), require_audit=False, light=True)
+    try:
+        document = read_page_document_content(
+            con,
+            url,
+            representation=representation,
+            variant_key=variant_key,
+            max_decoded_bytes=max_decoded_bytes,
+        )
+        if document["state"] != "available":
+            return {
+                "ok": True,
+                **document,
+                "url": _detail_url(url),
+                "validation": validation,
+            }
+        text = document.pop("text")
+        window = text[offset : offset + length]
+        return {
+            "ok": True,
+            "state": "available",
+            "validation": validation,
+            **document,
+            "url": _detail_url(url),
+            "offset": offset,
+            "length": len(window),
+            "truncated": offset + len(window) < len(text),
+            "text": window,
+        }
+    finally:
+        con.close()
 
 
 def scan_rendered_routes(input_path: str) -> dict[str, Any]:
@@ -739,6 +858,8 @@ def scan_body_diff(
     text: bool = False,
     max_bytes: int = 5 * 1024 * 1024,
     max_lines: int = 10_000,
+    left_representation: str | None = None,
+    right_representation: str | None = None,
 ) -> dict[str, Any]:
     left_con = open_scan(_path(left, "left"), require_audit=False)
     try:
@@ -753,6 +874,8 @@ def scan_body_diff(
                 text=text,
                 max_bytes=max_bytes,
                 max_lines=max_lines,
+                left_representation=left_representation,
+                right_representation=right_representation,
             )
         finally:
             right_con.close()

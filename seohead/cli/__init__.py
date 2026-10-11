@@ -42,6 +42,10 @@ COMMANDS = (
     "crawl-diagnose",
     "crawl-diagnose-export",
     "compare-crawls",
+    "compare-read",
+    "compare-report",
+    "compare-status",
+    "compare-url",
     "verify-fixes",
     "crawl-enrich",
     "crawl-import",
@@ -122,9 +126,13 @@ COMMANDS = (
     "scan-list",
     "scan-inspect",
     "scan-url-detail",
+    "scan-body-read",
+    "scan-findings-page",
     "scan-url-query",
+    "scan-directory-tree",
     "scan-url-history",
     "scan-link-inspect",
+    "headers-analyze",
     "scan-status",
     "scan-rendered-routes",
     "scan-content-search",
@@ -136,6 +144,8 @@ COMMANDS = (
     "scan-body-diff",
     "project-new",
     "project-open",
+    "project-archive",
+    "project-restore",
     "project-status",
     "project-progress",
     "project-sources-link",
@@ -286,8 +296,11 @@ _SCAN_PATH_COMMANDS = frozenset(
     {
         "scan-inspect",
         "scan-url-detail",
+        "scan-body-read",
         "scan-url-query",
+        "scan-directory-tree",
         "scan-link-inspect",
+        "headers-analyze",
         "scan-status",
         "scan-rendered-routes",
         "scan-snapshot",
@@ -449,6 +462,23 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             value = getattr(args, flag, None)
             if value is not None:
                 kw[flag] = value
+    elif cmd == "project-archive":
+        for name in (
+            "project",
+            "out",
+            "exclude_bodies_older_than_days",
+            "keep_newest_scans",
+        ):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+        if getattr(args, "dry_run", False):
+            kw["dry_run"] = True
+        if getattr(args, "exclude_bodies", False):
+            kw["exclude_bodies"] = True
+    elif cmd == "project-restore":
+        for name in ("archive", "to"):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
     elif cmd in {"scan-graph", "scan-sitemap-generate"}:
         for flag in (
             "input_path",
@@ -544,9 +574,20 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "export_max_rows",
             "issue_check",
             "issue_severity",
+            "include_check_counts",
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "scan-directory-tree":
+        for name in ("input_path", "max_depth", "max_children", "max_nodes", "max_bytes", "timeout_seconds"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "headers-analyze":
+        for name in ("input_path", "url", "offset", "limit", "max_bytes", "timeout_seconds"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "scan-url-history":
         for name in ("project", "url", "limit"):
             if getattr(args, name, None) is not None:
@@ -560,9 +601,38 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "form_offset",
             "form_limit",
             "max_bytes",
+            "body_offset",
+            "body_length",
+            "max_body_bytes",
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "scan-body-read":
+        for name in (
+            "input_path",
+            "url",
+            "representation",
+            "variant_key",
+            "offset",
+            "length",
+            "max_decoded_bytes",
+        ):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+    elif cmd == "scan-findings-page":
+        for name in (
+            "project",
+            "scan_uuid",
+            "offset",
+            "limit",
+            "query",
+            "url",
+            "sort",
+        ):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+        if getattr(args, "descending", False):
+            kw["descending"] = True
     elif cmd == "inspect-url":
         if getattr(args, "url", None):
             kw["url"] = args.url
@@ -1153,6 +1223,40 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             kw["correspondence"] = args.correspondence
         if getattr(args, "force", False):
             kw["force"] = True
+        if getattr(args, "resume", False):
+            kw["resume"] = True
+    elif cmd == "compare-read":
+        for name in (
+            "manifest_path",
+            "file",
+            "offset",
+            "limit",
+            "sort",
+            "direction",
+            "contains",
+            "segment",
+            "change",
+            "max_bytes",
+        ):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "compare-report":
+        for name in ("manifest_path", "out_file", "max_bytes"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "compare-status":
+        if getattr(args, "out_dir", None) is not None:
+            kw["out_dir"] = args.out_dir
+    elif cmd == "compare-url":
+        for name in (
+            "before", "after", "url", "max_bytes", "max_lines",
+            "left_representation", "right_representation",
+        ):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "verify-fixes":
         for name in ("baseline", "view", "urls_file", "after", "config", "out_dir"):
             value = getattr(args, name, None)
@@ -1422,6 +1526,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "status_class",
             "contains",
             "sort",
+            "preset",
         ):
             value = getattr(args, name, None)
             if value is not None:
@@ -1461,6 +1566,8 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "url",
             "variant_key",
             "representation",
+            "left_representation",
+            "right_representation",
             "max_bytes",
             "max_lines",
         ):
@@ -2493,6 +2600,62 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             sub, "--before", help="path to the earlier audit.json or scan.v1 SQLite artifact"
         )
         _source_flag(sub, "--after", help="path to the later audit.json or scan.v1 SQLite artifact")
+        sub.add_argument(
+            "--resume",
+            action="store_true",
+            help="resume the matching local comparison checkpoint for --out-dir",
+        )
+    if cmd == "compare-read":
+        _source_flag(
+            sub, "--manifest", dest="manifest_path", help="compare.v2 compare.json manifest"
+        )
+        sub.add_argument(
+            "--file",
+            choices=(
+                "entered",
+                "left",
+                "appeared",
+                "disappeared",
+                "unchanged",
+                "by_check",
+                "facts",
+                "correspondence",
+                "segment_changes",
+            ),
+        )
+        sub.add_argument("--offset", type=int)
+        sub.add_argument("--limit", type=int)
+        sub.add_argument("--sort", choices=("url", "check", "severity"))
+        sub.add_argument("--direction", choices=("asc", "desc"))
+        sub.add_argument("--contains")
+        sub.add_argument("--segment")
+        sub.add_argument(
+            "--change",
+            choices=("entered", "left", "appeared", "disappeared", "unchanged"),
+        )
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+    if cmd == "compare-report":
+        _source_flag(
+            sub, "--manifest", dest="manifest_path", help="compare.v2 compare.json manifest"
+        )
+        _source_flag(sub, "--out-file", help="new Markdown report path; refuses overwrite")
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+    if cmd == "compare-status":
+        _source_flag(sub, "--out-dir", help="compare.v2 destination or checkpoint base path")
+    if cmd == "compare-url":
+        _source_flag(sub, "--before", help="earlier audit.json or native scan SQLite")
+        _source_flag(sub, "--after", help="later audit.json or native scan SQLite")
+        _source_flag(sub, "--url", help="exact URL to compare")
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+        sub.add_argument("--max-lines", dest="max_lines", type=int)
+        sub.add_argument(
+            "--left-representation",
+            choices=("static", "rendered", "legacy_fragment"),
+        )
+        sub.add_argument(
+            "--right-representation",
+            choices=("static", "rendered", "legacy_fragment"),
+        )
     if cmd == "verify-fixes":
         _source_flag(sub, "--baseline", help="saved baseline audit.json or SQLite scan")
         sub.add_argument("--finding-ids", help="comma-separated baseline finding IDs")
@@ -2521,6 +2684,18 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--offset", type=int)
         sub.add_argument("--limit", type=int)
         _source_flag(sub, "--project", help="project directory whose scans/ directory is listed")
+    if cmd == "project-archive":
+        _source_flag(sub, "--project", help="existing project workspace")
+        _source_flag(sub, "--out", help="new archive file path")
+        sub.add_argument("--dry-run", action="store_true")
+        sub.add_argument("--exclude-bodies", action="store_true")
+        sub.add_argument(
+            "--exclude-bodies-older-than-days", type=int, choices=(30, 90)
+        )
+        sub.add_argument("--keep-newest-scans", type=int)
+    if cmd == "project-restore":
+        _source_flag(sub, "--archive", help="verified project archive file")
+        _source_flag(sub, "--to", help="new destination directory")
     if cmd in _SCAN_PATH_COMMANDS:
         _source_flag(sub, "--scan", dest="input_path", required=False, help="scan SQLite file")
     if cmd == "scan-inspect":
@@ -2569,6 +2744,11 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             dest="issue_severity",
             choices=("critical", "warning", "notice"),
         )
+        sub.add_argument(
+            "--include-check-counts",
+            action="store_true",
+            help="include exact saved whole-scan severity totals and registry-wide check states",
+        )
     if cmd == "scan-url-history":
         _source_flag(sub, "--project", help="project directory whose scans/ directory is read")
         _source_flag(sub, "--url", help="exact retained URL text")
@@ -2580,6 +2760,25 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--form-offset", type=int)
         sub.add_argument("--form-limit", type=int)
         sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+        sub.add_argument("--body-offset", type=int)
+        sub.add_argument("--body-length", type=int)
+        sub.add_argument("--max-body-bytes", dest="max_body_bytes", type=int)
+    if cmd == "scan-body-read":
+        _source_flag(sub, "--url", help="exact retained logical URL")
+        sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
+        sub.add_argument("--variant-key")
+        sub.add_argument("--offset", type=int)
+        sub.add_argument("--length", type=int)
+        sub.add_argument("--max-decoded-bytes", dest="max_decoded_bytes", type=int)
+    if cmd == "scan-findings-page":
+        _source_flag(sub, "--project", help="project directory whose retained scan is read")
+        sub.add_argument("--scan-uuid")
+        sub.add_argument("--offset", type=int)
+        sub.add_argument("--limit", type=int)
+        sub.add_argument("--query")
+        sub.add_argument("--url", help="exact URL for findings-by-URL")
+        sub.add_argument("--sort", choices=("severity", "check", "target_url", "id"))
+        sub.add_argument("--descending", action="store_true")
     if cmd == "scan-link-inspect":
         sub.add_argument("--view", choices=("path", "inlinks", "context", "links"))
         sub.add_argument("--url", help="URL whose links to page (view=links)")
@@ -2592,6 +2791,11 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             choices=("all", "2xx", "3xx", "4xx", "5xx", "broken", "error", "unscanned"),
         )
         sub.add_argument("--contains", help="substring of the other URL or the anchor")
+        sub.add_argument(
+            "--preset",
+            choices=("inlinks", "broken_links"),
+            help="named view filter; applies incoming internal links or broken internal targets",
+        )
         sub.add_argument("--sort", choices=("order", "url", "status"))
         sub.add_argument("--seed")
         sub.add_argument("--target")
@@ -2609,6 +2813,18 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--max-nodes", dest="max_nodes", type=int)
         sub.add_argument("--max-edges", dest="max_edges", type=int)
         sub.add_argument("--max-depth", dest="max_depth", type=int)
+        sub.add_argument("--timeout-seconds", dest="timeout_seconds", type=float)
+    if cmd == "scan-directory-tree":
+        sub.add_argument("--max-depth", type=int)
+        sub.add_argument("--max-children", type=int)
+        sub.add_argument("--max-nodes", type=int)
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+        sub.add_argument("--timeout-seconds", dest="timeout_seconds", type=float)
+    if cmd == "headers-analyze":
+        _source_flag(sub, "--url", help="optional exact retained URL")
+        sub.add_argument("--offset", type=int)
+        sub.add_argument("--limit", type=int)
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
         sub.add_argument("--timeout-seconds", dest="timeout_seconds", type=float)
     if cmd == "scan-snapshot":
         _source_flag(sub, "--out", help="new snapshot SQLite file")
@@ -3119,6 +3335,12 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--url", help="exact logical URL")
         sub.add_argument("--variant-key")
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
+        sub.add_argument(
+            "--left-representation", choices=("static", "rendered", "legacy_fragment")
+        )
+        sub.add_argument(
+            "--right-representation", choices=("static", "rendered", "legacy_fragment")
+        )
         sub.add_argument("--text", action="store_true")
         sub.add_argument("--max-bytes", dest="max_bytes", type=int)
         sub.add_argument("--max-lines", dest="max_lines", type=int)
@@ -3433,6 +3655,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     project_archive.add_argument("--project", dest="project_dir", required=True)
     project_archive.add_argument("--out", required=True, help="new archive file path")
+    project_archive.add_argument("--exclude-bodies", action="store_true")
+    project_archive.add_argument(
+        "--exclude-bodies-older-than-days", type=int, choices=(30, 90)
+    )
+    project_archive.add_argument("--keep-newest-scans", type=int)
     project_archive.add_argument(
         "--dry-run", action="store_true", help="report files and size estimate; write nothing"
     )
@@ -3703,19 +3930,25 @@ def main(argv: list[str] | None = None) -> int:
             return mcp_main()
         return mcp_main(profile=args.profile, progress_notifications=not args.no_progress)
     if cmd == "project-archive":
-        from seohead.projects.archive import archive_project
-
         try:
-            result = archive_project(args.project_dir, args.out, dry_run=args.dry_run)
+            result = handlers.project_archive(
+                project=getattr(args, "project_dir", None) or args.project,
+                out=args.out,
+                dry_run=args.dry_run,
+                exclude_bodies=args.exclude_bodies,
+                exclude_bodies_older_than_days=args.exclude_bodies_older_than_days,
+                keep_newest_scans=args.keep_newest_scans,
+            )
         except ValueError as exc:
             result = {"ok": False, "error": str(exc)}
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0 if result["ok"] else 1
     if cmd == "project-restore":
-        from seohead.projects.archive import restore_project
-
         try:
-            result = restore_project(args.archive_file, args.to_dir)
+            result = handlers.project_restore(
+                archive=getattr(args, "archive_file", None) or args.archive,
+                to=getattr(args, "to_dir", None) or args.to,
+            )
         except (ValueError, OSError, zipfile.BadZipFile, KeyError) as exc:
             result = {"ok": False, "error": str(exc)}
         print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -3786,6 +4019,23 @@ def main(argv: list[str] | None = None) -> int:
                 _print_effective_rate(kwargs)
             progress = _crawl_progress(kwargs)
             kwargs["progress"] = progress
+        elif cmd == "compare-crawls" and not quiet and kwargs.get("out_dir"):
+            from time import monotonic
+
+            last_emit = {"stage": None, "at": 0.0}
+
+            def comparison_progress(update: Any) -> None:
+                now = monotonic()
+                if update.stage != last_emit["stage"] or now - last_emit["at"] >= 1.0:
+                    total = update.total if update.total is not None else "unknown"
+                    completed = update.completed if update.completed is not None else "unknown"
+                    print(
+                        f"compare-crawls: {update.stage} {completed}/{total} ({update.state})",
+                        file=sys.stderr,
+                    )
+                    last_emit.update(stage=update.stage, at=now)
+
+            kwargs["progress"] = comparison_progress
         try:
             result = handlers.HANDLERS[handler_name](**kwargs)
         finally:

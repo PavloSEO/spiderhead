@@ -16,7 +16,9 @@ from seohead.storage.bodies import (
     encode_body,
     read_body,
     read_document,
+    read_page_document_content,
     read_document_window,
+    _line_count,
 )
 
 
@@ -287,6 +289,12 @@ def test_document_window_counts_characters_and_keeps_multibyte_whole():
     assert window["lines"] == 2
     assert window["encoding"] == "utf-8"
     assert window["sha256"] == hashlib.sha256(text.encode()).hexdigest()
+    assert window["raw_body_sha256"] == hashlib.sha256(raw).hexdigest()
+
+
+@pytest.mark.parametrize("text", ["", "one\n", "one\ntwo", "\r\n\n", "a\v b\u2028c\x1cd"])
+def test_line_count_matches_splitlines_without_materializing_lines(text):
+    assert _line_count(text) == len(text.splitlines())
 
 
 def test_document_window_full_read_and_empty_body():
@@ -324,3 +332,31 @@ def test_document_window_rejects_invalid_bounds_and_respects_byte_limit():
             read_document_window(con, 1, max_decoded_bytes=100, **kwargs)
     with pytest.raises(ScanError, match="decoded byte limit"):
         read_document_window(con, 1, max_decoded_bytes=2)
+
+
+def test_page_document_content_returns_complete_text_and_provenance_under_cap():
+    con = _con()
+    raw = b"caf\xe9"
+    sha = _body(con, raw)
+    _response(con, sha)
+    _document(con, sha)
+
+    result = read_page_document_content(
+        con,
+        "https://example.test/",
+        max_decoded_bytes=4,
+    )
+
+    assert result["state"] == "available"
+    assert result["document_id"] == 1
+    assert result["representation"] == "static"
+    assert result["content_type"] == "text/html; charset=iso-8859-1"
+    assert result["raw_body_sha256"] == sha
+    assert result["sha256"] == hashlib.sha256("café".encode()).hexdigest()
+    assert result["text"] == "café"
+    with pytest.raises(ScanError, match="decoded byte limit"):
+        read_page_document_content(
+            con,
+            "https://example.test/",
+            max_decoded_bytes=3,
+        )

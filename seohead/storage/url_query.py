@@ -84,8 +84,7 @@ COLUMNS: dict[str, Column] = {
     "word_count": _pages("word_count", "int"),
     "text_ratio": _pages("text_ratio", "real"),
     "crawl_depth": _pages("crawl_depth", "int"),
-    # Derived per query from links (storage/click_depth.py), so it needs no schema column and works on old scans.
-    # ponytail: click depth is recomputed each query | ceiling: slow on very large link graphs | upgrade: persist it at finish with a schema version bump (issue #992).
+    # The scan.v2 writer persists this derived index on finish; older artifacts derive it in temp storage.
     "click_depth": Column(
         "(SELECT cd.depth FROM temp.cd_depth cd WHERE cd.url_id=p.url_id)", "int"
     ),
@@ -104,6 +103,67 @@ COLUMNS: dict[str, Column] = {
     "title_length": Column("length(p.title)", "int"),
     "meta_description_length": Column("length(p.meta_description)", "int"),
     "h1_length": Column("length(p.h1)", "int"),
+    "inlinks": Column(
+        "(SELECT COUNT(*) FROM links l WHERE l.destination_url_id=p.url_id)", "int"
+    ),
+    "title_duplicate": Column(
+        "EXISTS (SELECT 1 FROM pages t WHERE t.url_id<>p.url_id "
+        "AND trim(t.title)<>'' AND lower(t.title)=lower(p.title))",
+        "bool",
+    ),
+    "has_hreflang": Column(
+        "CASE WHEN p.hreflang_json IS NULL THEN NULL "
+        "ELSE p.hreflang_json NOT IN ('[]','{}','') END",
+        "bool",
+    ),
+    "in_sitemap": Column(
+        "EXISTS (SELECT 1 FROM context_items s WHERE s.kind='sitemap_declared_url' "
+        "AND CAST(json_extract(s.payload_json,'$.url_id') AS INTEGER)=p.url_id)",
+        "bool",
+    ),
+    "canonical_self": Column(
+        "(p.canonical<>'' AND p.canonical=u.url)", "bool"
+    ),
+    "canonical_other": Column(
+        "(p.canonical<>'' AND p.canonical<>u.url)", "bool"
+    ),
+    "resource_count": Column(
+        "(SELECT COUNT(*) FROM resource_graph_occurrences r "
+        "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id)",
+        "int",
+    ),
+    "resource_images": Column(
+        "(SELECT COUNT(*) FROM resource_graph_occurrences r "
+        "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind='image')",
+        "int",
+    ),
+    "resource_scripts": Column(
+        "(SELECT COUNT(*) FROM resource_graph_occurrences r "
+        "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind IN ('script','module'))",
+        "int",
+    ),
+    "resource_stylesheets": Column(
+        "(SELECT COUNT(*) FROM resource_graph_occurrences r "
+        "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind='stylesheet')",
+        "int",
+    ),
+    "resource_bytes": Column(
+        "(SELECT CASE WHEN COUNT(*)=0 THEN 0 "
+        "WHEN COALESCE(SUM(f.state='complete'),0)<COUNT(*) THEN NULL ELSE SUM(f.bytes_received) END "
+        "FROM (SELECT DISTINCT resolved_url FROM resource_graph_occurrences "
+        "WHERE page_url_id=p.url_id AND source_document_id=p.document_id) q "
+        "LEFT JOIN resource_graph_fetches f USING(resolved_url))",
+        "int",
+    ),
+    "resource_bytes_state": Column(
+        "(SELECT CASE WHEN COUNT(*)=0 THEN 'exact' "
+        "WHEN COALESCE(SUM(f.state='complete'),0)=COUNT(*) THEN 'exact' "
+        "WHEN COALESCE(SUM(f.state='complete'),0)=0 THEN 'unavailable' ELSE 'partial' END "
+        "FROM (SELECT DISTINCT resolved_url FROM resource_graph_occurrences "
+        "WHERE page_url_id=p.url_id AND source_document_id=p.document_id) q "
+        "LEFT JOIN resource_graph_fetches f USING(resolved_url))",
+        "text",
+    ),
     # 2xx without a noindex directive in meta robots or X-Robots-Tag; canonical is not considered.
     "indexable": Column(
         "COALESCE(p.status_code BETWEEN 200 AND 299 AND "
@@ -111,6 +171,34 @@ COLUMNS: dict[str, Column] = {
         "bool",
     ),
 }
+_TRANSPORT_RESPONSE_ID = (
+    "COALESCE((SELECT d.source_response_id FROM documents d WHERE d.document_id=p.document_id),"
+    "(SELECT MAX(r.response_id) FROM responses r WHERE r.request_url_id=p.url_id AND r.purpose='page'))"
+)
+_TRANSPORT_COLUMNS: dict[str, Column] = {}
+for _phase in ("dns", "connect", "tls", "ttfb", "download"):
+    COLUMNS[f"{_phase}_seconds"] = Column(
+        f"(SELECT t.{_phase}_seconds FROM response_transport_meta t WHERE t.response_id={_TRANSPORT_RESPONSE_ID})",
+        "real",
+    )
+    COLUMNS[f"{_phase}_state"] = Column(
+        f"COALESCE((SELECT CASE WHEN t.{_phase}_state='unknown' THEN 'unavailable' "
+        f"ELSE t.{_phase}_state END FROM response_transport_meta t WHERE t.response_id={_TRANSPORT_RESPONSE_ID}),"
+        "'unavailable')",
+        "text",
+    )
+    COLUMNS[f"{_phase}_reason"] = Column(
+        f"COALESCE((SELECT t.{_phase}_reason FROM response_transport_meta t "
+        f"WHERE t.response_id={_TRANSPORT_RESPONSE_ID}),'transport phase was not retained in this scan')",
+        "text",
+    )
+    _TRANSPORT_COLUMNS.update(
+        {
+            f"{_phase}_seconds": COLUMNS[f"{_phase}_seconds"],
+            f"{_phase}_state": COLUMNS[f"{_phase}_state"],
+            f"{_phase}_reason": COLUMNS[f"{_phase}_reason"],
+        }
+    )
 DEFAULT_COLUMNS = (
     "url_id",
     "url",
@@ -173,14 +261,23 @@ PRESETS: dict[str, tuple[str, tuple[dict[str, Any], ...]]] = {
         ({"column": "x_robots", "op": "contains", "value": "noindex"},),
     ),
     "no_outlinks": ("Links: no outlinks", ({"column": "outlinks", "op": "eq", "value": 0},)),
+    "hreflang": ("Hreflang: present", ({"column": "has_hreflang", "op": "eq", "value": True},)),
+    "duplicate_titles": (
+        "Titles: duplicate",
+        ({"column": "title_duplicate", "op": "eq", "value": True},),
+    ),
+    "in_sitemap": ("Sitemap: included", ({"column": "in_sitemap", "op": "eq", "value": True},)),
+    "inlinks": ("Links: has inlinks", ({"column": "inlinks", "op": "gt", "value": 0},)),
 }
 # Physical pages columns the allow-list reads; a scan lacking one is a different schema version.
 _REQUIRED_PAGE_COLUMNS = frozenset(
     c.expr[2:] for c in COLUMNS.values() if re.fullmatch(r"p\.\w+", c.expr)
 )
 _STATUS_CLASSES = {f"{n}xx": (n * 100, n * 100 + 100) for n in range(1, 6)}
-# Facet groups over the pages table only (no urls join), so every count is one conditional scan.
-# Literals only: the SQL text is fixed and no user value reaches it.
+_RESOURCE_KINDS = frozenset(
+    {"image", "media", "document", "stylesheet", "module", "manifest", "script", "css_import", "css_url", "font"}
+)
+# Facet expressions are fixed SQL; no caller-provided text reaches the query.
 FACET_GROUPS: dict[str, str] = {
     "all": "1",
     "status_2xx": "p.status_code>=200 AND p.status_code<300",
@@ -192,6 +289,21 @@ FACET_GROUPS: dict[str, str] = {
     "directives_noindex": "instr(lower(p.meta_robots||','||p.x_robots),'noindex')>0",
     "directives_nofollow": "instr(lower(p.meta_robots||','||p.x_robots),'nofollow')>0",
     "with_outlinks": "p.outlinks>0",
+    "internal": "lower(substr(u.url,1,instr(u.url,'/',instr(u.url,'://')+3)-1)) = "
+    "lower(substr((SELECT start_url FROM scan WHERE singleton=1),1,instr((SELECT start_url FROM scan WHERE singleton=1),'/',instr((SELECT start_url FROM scan WHERE singleton=1),'://')+3)-1))",
+    "external": "lower(substr(u.url,1,instr(u.url,'/',instr(u.url,'://')+3)-1)) <> "
+    "lower(substr((SELECT start_url FROM scan WHERE singleton=1),1,instr((SELECT start_url FROM scan WHERE singleton=1),'/',instr((SELECT start_url FROM scan WHERE singleton=1),'://')+3)-1))",
+    "title_duplicate": "EXISTS (SELECT 1 FROM pages t WHERE t.url_id<>p.url_id AND trim(t.title)<>'' AND lower(t.title)=lower(p.title))",
+    "title_long": "length(p.title)>60",
+    "title_short": "(p.title<>'' AND length(p.title)<30)",
+    "canonical_other": "(p.canonical<>'' AND p.canonical<>u.url)",
+    "canonical_self": "(p.canonical<>'' AND p.canonical=u.url)",
+    "in_sitemap": "EXISTS (SELECT 1 FROM context_items s WHERE s.kind='sitemap_declared_url' AND CAST(json_extract(s.payload_json,'$.url_id') AS INTEGER)=p.url_id)",
+    "with_inlinks": "EXISTS (SELECT 1 FROM links l WHERE l.destination_url_id=p.url_id)",
+    "with_resources": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id)",
+    "with_images": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind='image')",
+    "with_scripts": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind IN ('script','module'))",
+    "with_stylesheets": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id AND r.kind='stylesheet')",
 }
 _OPS = {
     "int": {"eq", "ne", "gt", "gte", "lt", "lte", "between", "in", "not_in", "is_null", "not_null"},
@@ -273,15 +385,17 @@ def _filter_clause(item: Any) -> tuple[str, list[Any], bool]:
     if unknown:
         raise QueryError("invalid_filter", "unknown filter key: " + ", ".join(sorted(unknown)))
     name, op, value = item.get("column"), item.get("op"), item.get("value")
+    sensitive = item.get("case_sensitive", False)
+    if type(sensitive) is not bool:
+        raise QueryError("invalid_filter", "case_sensitive must be a boolean")
+    if isinstance(name, str) and name in {"resource_url", "resource_kind"}:
+        return _resource_filter_clause(name, op, value, sensitive)
     if not isinstance(name, str) or name not in COLUMNS:
         raise QueryError("unknown_column", "filter column is not an allowed column name")
     col = COLUMNS[name]
     if op not in _OPS[col.kind]:
         raise QueryError("invalid_filter", f"operator {op!r} is not valid for column {name}")
-    sensitive = item.get("case_sensitive", False)
-    if type(sensitive) is not bool:
-        raise QueryError("invalid_filter", "case_sensitive must be a boolean")
-    uses_url = name == "url"
+    uses_url = "u." in col.expr
     x = col.expr
     if op in _NO_VALUE:
         if value is not None:
@@ -327,6 +441,72 @@ def _filter_clause(item: Any) -> tuple[str, list[Any], bool]:
     if op == "contains":
         return f"instr({hay},?)>0", [needle], uses_url
     return f"instr({hay},?)=0", [needle], uses_url  # not_contains
+
+
+def _resource_filter_clause(name: str, op: Any, value: Any, case_sensitive: bool) -> tuple[str, list[Any], bool]:
+    """Filter pages by a retained resource occurrence without duplicating page rows."""
+    if not isinstance(op, str):
+        raise QueryError("invalid_filter", "resource filter operator must be text")
+    column = "resolved_url" if name == "resource_url" else "kind"
+    if name == "resource_kind":
+        if op not in {"eq", "in"}:
+            raise QueryError("invalid_filter", "resource_kind supports eq and in")
+        values = [value] if op == "eq" else value
+        if type(values) is not list or not 1 <= len(values) <= MAX_IN_VALUES:
+            raise QueryError("invalid_filter", "resource_kind in needs a list of 1..100 values")
+        if any(type(item) is not str or item not in _RESOURCE_KINDS for item in values):
+            raise QueryError("invalid_filter", "resource_kind names an unknown resource kind")
+        marks = ",".join("?" for _ in values)
+        return (
+            "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
+            "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id "
+            f"AND r.{column} IN ({marks}))",
+            values,
+            False,
+        )
+    if op == "eq":
+        value = _scalar("text", value, name)
+        return (
+            "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
+            "WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id "
+            "AND r.resolved_url=?)",
+            [value],
+            False,
+        )
+    if op == "in":
+        if type(value) is not list or not 1 <= len(value) <= MAX_IN_VALUES:
+            raise QueryError("invalid_filter", "resource_url in needs a list of 1..100 values")
+        values = [_scalar("text", item, name) for item in value]
+        marks = ",".join("?" for _ in values)
+        return (
+            "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
+            f"WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id "
+            f"AND r.resolved_url IN ({marks}))",
+            values,
+            False,
+        )
+    if op not in {"contains", "starts_with"}:
+        raise QueryError("invalid_filter", "resource_url supports eq, in, contains and starts_with")
+    value = _scalar("text", value, name)
+    if op == "starts_with":
+        expr = "r.resolved_url" if case_sensitive else "lower(r.resolved_url)"
+        prefix = value if case_sensitive else _ascii_lower(value)
+        return (
+            "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
+            f"WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id "
+            f"AND {expr}>=? AND {expr}<?)",
+            [prefix, prefix + _TOP],
+            False,
+        )
+    expr = "r.resolved_url" if case_sensitive else "lower(r.resolved_url)"
+    needle = value if case_sensitive else _ascii_lower(value)
+    return (
+        "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
+        f"WHERE r.page_url_id=p.url_id AND r.source_document_id=p.document_id "
+        f"AND instr({expr},?)>0)",
+        [needle],
+        False,
+    )
 
 
 def _preset_filters(preset: str) -> list[dict[str, Any]]:
@@ -437,13 +617,13 @@ def _filter_names(filters: list[Any]) -> set[str]:
 
 
 def _click_depth_check(con: sqlite3.Connection, names: set[str]) -> None:
-    """Build temp.cd_depth only when a request uses click_depth; refuse when the scan cannot support it."""
+    """Prepare the saved or temporary click-depth index only when requested."""
     if "click_depth" not in names:
         return
     # The file stays read-only (mode=ro); only the temp database is written, so lift query_only for this step.
     con.execute("PRAGMA query_only=OFF")
     try:
-        click_depth.materialize(con)
+        click_depth.prepare_query(con)
     except LookupError as exc:
         raise QueryError(
             "click_depth_unavailable", f"click_depth is not available: {exc}", "unavailable"
@@ -476,19 +656,139 @@ def _facet_counts(
     where: str,
     params: list[Any],
     timeout: float,
-) -> tuple[dict[str, int | None], str]:
-    """Count every requested group in one pass over the same filtered rows."""
+    resource_graph_state: str | None = None,
+) -> tuple[dict[str, int | None], dict[str, str]]:
+    """Count requested groups in one pass and retain an explicit state per group."""
+    unavailable = set()
+    capped_groups = set()
+    if {"internal", "external"} & set(ids) and not con.execute(
+        "SELECT 1 FROM scan WHERE singleton=1 AND start_url IS NOT NULL AND start_url<>''"
+    ).fetchone():
+        unavailable.update({"internal", "external"} & set(ids))
+    if "in_sitemap" in ids and not _sitemap_membership_measured(con):
+        unavailable.add("in_sitemap")
+    if "with_inlinks" in ids and not _links_measured(con):
+        unavailable.add("with_inlinks")
+    resource_facets = {"with_resources", "with_images", "with_scripts", "with_stylesheets"} & set(ids)
+    if resource_facets and resource_graph_state != "complete":
+        (capped_groups if resource_graph_state == "capped" else unavailable).update(resource_facets)
+    active = [group for group in ids if group not in unavailable and group not in capped_groups]
+    counts: dict[str, int | None] = {group: None for group in unavailable | capped_groups}
+    states = {group: "unavailable" for group in unavailable}
+    states.update({group: "capped" for group in capped_groups})
+    if not active:
+        return counts, states
     exprs = ",".join(
-        f"COALESCE(SUM(CASE WHEN ({FACET_GROUPS[g]}) THEN 1 ELSE 0 END),0)" for g in ids
+        f"COALESCE(SUM(CASE WHEN ({FACET_GROUPS[g]}) THEN 1 ELSE 0 END),0)" for g in active
     )
     budget.start(timeout)
     try:
-        row = con.execute(f"SELECT {exprs} FROM pages p{join}{where}", params).fetchone()
+        source_join = join or " JOIN urls u ON u.url_id=p.url_id"
+        row = con.execute(f"SELECT {exprs} FROM pages p{source_join}{where}", params).fetchone()
     except sqlite3.OperationalError as exc:
         if "interrupt" not in str(exc).lower():
             raise
-        return {g: None for g in ids}, "capped"
-    return dict(zip(ids, row, strict=True)), "exact"
+        counts.update({g: None for g in active})
+        states.update({g: "capped" for g in active})
+        return counts, states
+    counts.update(dict(zip(active, row, strict=True)))
+    states.update({g: "exact" for g in active})
+    return counts, states
+
+
+def _sitemap_membership_measured(con: sqlite3.Connection) -> bool:
+    roots = con.execute(
+        "SELECT COUNT(*) FROM context_items WHERE kind='sitemap_declaration'"
+    ).fetchone()[0]
+    if not roots:
+        return False
+    complete = con.execute(
+        "SELECT COUNT(*) FROM context_items WHERE kind='sitemap_fetch_summary' AND completeness='complete'"
+    ).fetchone()[0]
+    return complete == roots
+
+
+def _links_measured(con: sqlite3.Connection) -> bool:
+    row = con.execute("SELECT capabilities_json FROM scan WHERE singleton=1").fetchone()
+    try:
+        state = (json.loads(row[0]).get("links") or {}).get("state")
+    except (TypeError, ValueError, AttributeError):
+        state = None
+    return state in {"complete", "empty"}
+
+
+def _resource_graph_state(con: sqlite3.Connection, budget: _Budget) -> str:
+    """Validate full source-document coverage under a bounded SQLite query."""
+    if con.execute("PRAGMA user_version").fetchone()[0] != 2:
+        return "unavailable"
+    tables = {
+        row[0]
+        for row in con.execute(
+            "SELECT name FROM main.sqlite_master WHERE type='table' AND name IN "
+            "('resource_graph_occurrences','resource_graph_fetches')"
+        )
+    }
+    if tables != {"resource_graph_occurrences", "resource_graph_fetches"}:
+        return "unavailable"
+    budget.start(PAGE_BUDGET_SECONDS)
+    try:
+        missing = con.execute(
+            "SELECT 1 FROM pages p LEFT JOIN context_items c ON c.kind='resource_graph_coverage' "
+            "AND c.item_key='document:'||p.document_id "
+            "WHERE p.document_id IS NULL OR c.completeness IS NOT 'complete' LIMIT 1"
+        ).fetchone()
+    except sqlite3.OperationalError as exc:
+        if "interrupt" not in str(exc).lower():
+            raise
+        return "capped"
+    return "unavailable" if missing else "complete"
+
+
+def _prepare_transport_phase_projection(con: sqlite3.Connection) -> None:
+    """Expose unavailable phase columns for older/frozen scan files without schema writes."""
+    names = {
+        row[0]
+        for row in con.execute(
+            "SELECT name FROM main.sqlite_master WHERE type='table' AND name='response_transport_meta'"
+        )
+    }
+    if not names:
+        con.execute("PRAGMA query_only=OFF")
+        try:
+            con.execute(
+                "CREATE TEMP VIEW response_transport_meta AS SELECT NULL AS response_id,"
+                "NULL AS protocol,NULL AS protocol_state,NULL AS total_seconds,"
+                ",".join(
+                    f"NULL AS {phase}_seconds,'unavailable' AS {phase}_state,"
+                    f"'transport phase was not retained in this scan' AS {phase}_reason"
+                    for phase in ("dns", "connect", "tls", "ttfb", "download")
+                )
+                + " WHERE 0"
+            )
+        finally:
+            con.execute("PRAGMA query_only=ON")
+        return
+    columns = {row[1] for row in con.execute("PRAGMA table_info(main.response_transport_meta)")}
+    expected = {
+        f"{phase}_{suffix}"
+        for phase in ("dns", "connect", "tls", "ttfb", "download")
+        for suffix in ("seconds", "state", "reason")
+    }
+    if expected <= columns:
+        return
+    con.execute("PRAGMA query_only=OFF")
+    try:
+        phases = ",".join(
+            f"NULL AS {phase}_seconds,'unavailable' AS {phase}_state,"
+            f"'transport phase durations were not retained in this scan' AS {phase}_reason"
+            for phase in ("dns", "connect", "tls", "ttfb", "download")
+        )
+        con.execute(
+            "CREATE TEMP VIEW response_transport_meta AS SELECT response_id,protocol,"
+            "protocol_state,total_seconds," + phases + " FROM main.response_transport_meta"
+        )
+    finally:
+        con.execute("PRAGMA query_only=ON")
 
 
 def _issue_filter_set(check: Any, severity: Any) -> bool:
@@ -531,6 +831,7 @@ def scan_url_query(
     facets: list[str] | str | None = None,
     issue_check: str | list[str] | None = None,
     issue_severity: str | None = None,
+    include_check_counts: bool = False,
 ) -> dict[str, Any]:
     started = time.monotonic()
     try:
@@ -549,6 +850,7 @@ def scan_url_query(
             facets,
             issue_check,
             issue_severity,
+            include_check_counts,
         )
     except QueryError as exc:
         return {
@@ -586,6 +888,7 @@ def _query(
     facets: Any = None,
     issue_check: Any = None,
     issue_severity: Any = None,
+    include_check_counts: Any = False,
 ) -> dict[str, Any]:
     if not isinstance(input_path, str) or not input_path:
         raise QueryError("invalid_input", "input_path is required")
@@ -620,21 +923,39 @@ def _query(
     if sort == "status_class":
         sort = "status_code"
     issue_filtered = _issue_filter_set(issue_check, issue_severity)
+    if type(include_check_counts) is not bool:
+        raise QueryError("invalid_check_counts", "include_check_counts must be a boolean")
     conditions, params, needs_url = _where(filters)
     where = (" WHERE " + conditions) if conditions else ""
     join = " JOIN urls u ON u.url_id=p.url_id" if needs_url else ""
     facet_ids = _facet_ids(facets)
     if input_path.lower().endswith(".json"):
-        return {
+        result = {
             "ok": True,
             "state": "unavailable",
             "format": FORMAT,
             "reason_code": "source_not_scan",
             "reason": "Screaming Frog audit JSON is not a saved scan with a page table",
         }
+        if include_check_counts:
+            result["issue_summary"] = {
+                "state": "unavailable",
+                "reason": "Screaming Frog audit JSON is not a saved scan with a page table",
+            }
+        return result
     con, source, status_index = _open(input_path)
     budget = _Budget(con)
+    issue_summary: dict[str, Any] | None = None
     try:
+        if include_check_counts:
+            from .issue_counters import summarize
+
+            issue_summary = summarize(
+                input_path,
+                scan_connection=con,
+                expected_source=source,
+                timeout_seconds=PAGE_BUDGET_SECONDS,
+            )
         if issue_filtered:
             from . import ScanError
             from .audit_v2 import AuditReadTimeout
@@ -665,15 +986,62 @@ def _query(
                     "total": None,
                     "filtered_total": None,
                     "filters": filters,
+                    **({"issue_summary": issue_summary} if issue_summary is not None else {}),
                 }
             conditions = " AND ".join(
                 filter(None, (conditions, "p.url_id IN (SELECT url_id FROM temp.issue_urls)"))
             )
             where = " WHERE " + conditions
-        _click_depth_check(con, {*columns, *([sort] if sort else []), *_filter_names(filters)})
+        filter_names = _filter_names(filters)
+        requested_names = {*columns, *filter_names, *([sort] if sort else [])}
+        if "in_sitemap" in requested_names and not _sitemap_membership_measured(con):
+            raise QueryError(
+                "sitemap_membership_unavailable",
+                "sitemap membership was not completely retained for this scan",
+                "unavailable",
+            )
+        if "inlinks" in requested_names and not _links_measured(con):
+            raise QueryError(
+                "inlinks_unavailable", "link observations were not retained for this scan", "unavailable"
+            )
+        resource_names = {
+            "resource_count",
+            "resource_images",
+            "resource_scripts",
+            "resource_stylesheets",
+            "resource_bytes",
+            "resource_bytes_state",
+            "resource_url",
+            "resource_kind",
+        }
+        resource_facets = {"with_resources", "with_images", "with_scripts", "with_stylesheets"}
+        needs_resource_state = bool(requested_names & resource_names or set(facet_ids) & resource_facets)
+        resource_graph_state = (
+            _resource_graph_state(con, budget) if needs_resource_state else None
+        )
+        if requested_names & resource_names and resource_graph_state != "complete":
+            capped = resource_graph_state == "capped"
+            raise QueryError(
+                "resource_graph_coverage_capped" if capped else "resource_graph_unavailable",
+                "resource declaration coverage could not be validated within the query budget"
+                if capped
+                else "complete retained resource declarations are unavailable for every page",
+                "capped" if capped else "unavailable",
+            )
+        if requested_names & set(_TRANSPORT_COLUMNS):
+            _prepare_transport_phase_projection(con)
+        if "has_hreflang" in filter_names and con.execute(
+            "SELECT 1 FROM pages WHERE hreflang_json IS NULL LIMIT 1"
+        ).fetchone():
+            raise QueryError(
+                "hreflang_unavailable", "hreflang presence is not measured for every page", "unavailable"
+            )
+        _click_depth_check(con, {*columns, *([sort] if sort else []), *filter_names})
         indexed = {n for n, c in COLUMNS.items() if c.indexed} | (
             {"status_code"} if status_index else set()
         )
+        if "click_depth" in {*columns, *([sort] if sort else []), *filter_names}:
+            indexed.add("click_depth")
         budget.start(PAGE_BUDGET_SECONDS)
         total = con.execute("SELECT COUNT(*) FROM pages").fetchone()[0]
         filtered: int | None = total
@@ -689,8 +1057,21 @@ def _query(
                 filtered = None
         facet_counts, facets_state = None, None
         if facet_ids:
-            facet_counts, facets_state = _facet_counts(
-                con, budget, facet_ids, join, where, params, float(count_timeout)
+            facet_counts, facet_states = _facet_counts(
+                con,
+                budget,
+                facet_ids,
+                join,
+                where,
+                params,
+                float(count_timeout),
+                resource_graph_state,
+            )
+            distinct_facet_states = set(facet_states.values())
+            facets_state = (
+                next(iter(distinct_facet_states))
+                if len(distinct_facet_states) == 1
+                else "partial"
             )
         small = filtered is not None and filtered <= SORT_ROW_CAP
         order_col = sort or "page_ordinal"
@@ -721,14 +1102,18 @@ def _query(
                 src = "urls u CROSS JOIN pages p ON p.url_id=u.url_id"
             elif order_col == "status_code":
                 src = "pages p INDEXED BY pages_status CROSS JOIN urls u ON u.url_id=p.url_id"
+            elif order_col == "click_depth":
+                src = "pages p JOIN temp.cd_depth cd ON cd.url_id=p.url_id "
+                "JOIN urls u ON u.url_id=p.url_id"
             else:
                 src = "pages p JOIN urls u ON u.url_id=p.url_id"
             tie = "" if order_col in ("url", "url_id", "page_ordinal") else f", p.url_id {sense}"
+            sort_key = "cd.depth" if order_col == "click_depth" else key
             sql = (
                 "SELECT p.url_id FROM "
                 + src
                 + where
-                + f" ORDER BY {key} {sense}{tie} LIMIT ? OFFSET ?"
+                + f" ORDER BY {sort_key} {sense}{tie} LIMIT ? OFFSET ?"
             )
         ids: list[int] = []
         partial = False
@@ -801,8 +1186,9 @@ def _query(
         "total": total,
         "filtered_total": filtered,
         "filtered_total_state": "exact" if filtered is not None else "capped",
+        "total_state": "exact",
         **(
-            {"facets": facet_counts, "facets_state": facets_state}
+            {"facets": facet_counts, "facets_state": facets_state, "facet_states": facet_states}
             if facet_counts is not None
             else {}
         ),
@@ -819,6 +1205,7 @@ def _query(
             "scan_complete": complete,
             "scan_lifecycle": source["lifecycle"],
         },
+        **({"issue_summary": issue_summary} if issue_summary is not None else {}),
         "elapsed_ms": round((time.monotonic() - started) * 1000),
     }
 

@@ -544,7 +544,13 @@ def fetch_one(
     ) -> None:
         if capture_observer is None:
             return
-        from seohead.crawl.capture import CaptureEvent, header_pairs, now_utc, redact_headers
+        from seohead.crawl.capture import (
+            CaptureEvent,
+            header_pairs,
+            now_utc,
+            redact_headers,
+            unavailable_transport_phases,
+        )
 
         try:
             request_object = getattr(response, "request", None)
@@ -634,6 +640,13 @@ def fetch_one(
                 ),
                 http_version=observed_protocol,
                 timing_state="partial" if record.response_time is not None else "unavailable",
+                transport_phases=(
+                    transport_trace.snapshot()
+                    if transport_trace is not None
+                    else unavailable_transport_phases(
+                        "injected fetcher does not expose HTTPX transport phases"
+                    )
+                ),
             )
         )
 
@@ -686,12 +699,14 @@ def fetch_one(
     capture_failure = None
     capture_failure_reason = "truncated"
     media_filter_reason = ""
+    transport_trace = None
     while True:
         media_filter_reason = ""
         if capture_observer is not None:
-            from seohead.crawl.capture import now_utc
+            from seohead.crawl.capture import TransportTrace, now_utc
 
             capture_started = now_utc()
+            transport_trace = TransportTrace() if fetcher is None else None
         try:
             if fetcher:
                 response = fetcher(url)
@@ -728,6 +743,8 @@ def fetch_one(
 
                     if not any(name.lower() == "accept-encoding" for name in request):
                         request["Accept-Encoding"] = "gzip, deflate"
+
+                    extensions = {**extensions, "trace": transport_trace}
 
                     with client.stream(
                         "GET", target, headers=request, extensions=extensions
