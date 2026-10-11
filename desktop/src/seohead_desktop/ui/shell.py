@@ -183,7 +183,7 @@ class _NavDelegate(QStyledItemDelegate):
         locked = bool(index.data(ROLE_LOCKED))
         if locked:
             painter.setOpacity(0.5)
-        selected = bool(option.state & QStyle.State_Selected) and not locked
+        selected = bool(option.state & QStyle.State_Selected)  # a locked row still shows the open section; only hover is suppressed
         hovered = bool(option.state & QStyle.State_MouseOver) and not locked
         ink = QColor(r["on_selected"] if selected else r["text_2"])
         font = QFont(painter.font())
