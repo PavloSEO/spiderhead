@@ -143,6 +143,29 @@ def wait_until(predicate, timeout=60):
     QApplication.processEvents()
 
 
+def projschedule_dialog(theme, lang):
+    """Project settings → Schedule, read from the supplied project through the core."""
+    from seohead_desktop.app import MainWindow
+    from seohead_desktop.screens.project_sources_page import ProjectSettingsDialog
+
+    if not OPTIONS.get("project"):
+        raise SystemExit("projschedule needs --project")
+    window = MainWindow(persistent=False)
+    window.prefs.set("view.theme", theme)
+    window.prefs.set("view.language", lang)
+    window.show_startup_workspace()
+    open_project(window, OPTIONS["project"])
+    dialog = ProjectSettingsDialog(window, window)
+    dialog._owner_window = window
+    if hasattr(dialog.nav, "setCurrentRow"):
+        dialog.nav.setCurrentRow(2)
+    else:
+        dialog.nav.setCurrentIndex(2)
+    wait_until(dialog.pages.widget(2).isEnabled)
+    dialog.capture_max = (1180, 820)
+    return dialog
+
+
 def sourcekey_dialog(pid, theme, lang):
     """Settings → Источники данных → one provider, answered by the real core CLI (read-only; the project is optional)."""
     from seohead_desktop.app import MainWindow
@@ -227,7 +250,11 @@ def url_tab(window, tab, path="", timeout=120):
     wait(lambda: bool(screen.rows))
     from urllib.parse import urlsplit
 
-    index = next((i for i, row in enumerate(screen.rows) if path and urlsplit(row.get("url", "")).path == path), 0)
+    index = 0
+    if path:
+        index = next((i for i, row in enumerate(screen.rows) if urlsplit(row.get("url", "")).path == path), None)
+        if index is None:
+            raise SystemExit(f"URL path {path!r} was not found in the loaded page of saved URLs")
     screen.table.selectRow(index)
     wait(lambda: screen.detail_job.busy or screen._select_timer.isActive() or screen.detail_data is not None)
     wait(lambda: not screen.detail_job.busy and not screen._select_timer.isActive())
