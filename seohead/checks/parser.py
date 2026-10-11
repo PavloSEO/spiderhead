@@ -920,6 +920,16 @@ def count_lorem_ipsum(content_text: str) -> int:
 _JSONLD_EXCERPT_CHARS = 200
 
 
+def live_jsonld_tags(soup: BeautifulSoup) -> list[Tag]:
+    """Use the same normalized type and inert-content policy for all JSON-LD readers."""
+    return [
+        tag
+        for tag in soup.find_all("script")
+        if str(tag.get("type") or "").strip().lower() == "application/ld+json"
+        and not _has_ancestor(tag, _INERT_LINK_CONTAINERS)
+    ]
+
+
 def _extract_jsonld(soup: BeautifulSoup) -> tuple[list[Any], list[dict[str, Any]]]:
     """Parse every ``<script type="application/ld+json">`` block.
 
@@ -936,11 +946,7 @@ def _extract_jsonld(soup: BeautifulSoup) -> tuple[list[Any], list[dict[str, Any]
 
     out: list[Any] = []
     invalid: list[dict[str, Any]] = []
-    live_blocks = [
-        tag
-        for tag in soup.find_all("script", attrs={"type": _ci("application/ld+json")})
-        if not _has_ancestor(tag, _INERT_LINK_CONTAINERS)
-    ]
+    live_blocks = live_jsonld_tags(soup)
     for index, tag in enumerate(live_blocks, 1):
         raw = tag.string or tag.get_text()
         text = (raw or "").strip()
@@ -2014,6 +2020,7 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
     base_url = document_base_url(soup, final_url)
 
     result: dict[str, Any] = {}
+    result["document_base_url"] = base_url
 
     if opts["meta"]:
         result["title"] = document_title(soup)
@@ -2111,6 +2118,9 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
     # above -- with the option off there are none to read.
     result["trust_signals"] = extract_trust_signals(soup, result["jsonld"], final_url)
     result["duplicate_ids"] = extract_duplicate_ids(soup)
+    from seohead.checks.markup import markup_facts
+
+    result["markup"] = markup_facts(html, soup)
     if opts["links"]:
         content_config = options.get("content_area") if isinstance(options, dict) else None
         position_rules = options.get("link_position_rules") if isinstance(options, dict) else None

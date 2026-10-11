@@ -17,7 +17,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 data, not an accident.
 
 The current registry has 187 commands and 196 callable tools,
-with 205 audit checks. These are inventories, not coverage on every input.
+with 221 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
 ## Generated command inventory
@@ -260,7 +260,7 @@ because the rules could not be read, so the command never claims crawling is all
 
 | Command | What it does |
 |---|---|
-| `schema-check` | Schema.org validation **in two layers**: the vocabulary (1010 types, `domainIncludes`/`rangeIncludes`, inheritance, deprecated terms) and Google rich-result eligibility |
+| `schema-check` | JSON-LD, Microdata and common RDFa validation **in two layers**: the bundled vocabulary (`domainIncludes`/`rangeIncludes`, inheritance, deprecated terms and literal values) and local Google rich-result requirements; unsupported RDFa constructs are partial evidence |
 | `schema-build` | Builds a suggested connected `@graph` with `@id`s for the page type; `--type` sets the type manually when the classifier is unsure |
 | `social-meta-check` | Open Graph and Twitter Card: what is there, what is missing, what contradicts the content |
 | `citability-check` | How quotable a text is for an AI answer: direct answers, facts, structure. Fetching a URL scores the resolved content area's Markdown (nav/footer excluded), not the raw whole-document text |
@@ -728,7 +728,7 @@ assignment or by the audit's already validated segment rules. It records
 assignment provenance and keeps candidate, declared, confirmed, and unassigned
 states separate; it does not infer a shared implementation from repeated findings.
 
-**205 checks**: 12 critical, 93 warnings, 100 notices. Sources: SF exports,
+**221 checks**: 12 critical, 106 warnings, 103 notices. Sources: SF exports,
 derived metrics, inlink exports, the sitemap module, and heuristics.
 
 Native scans with retained bodies evaluate DOM depth/node count and content-area exact/near
@@ -788,7 +788,7 @@ seohead mcp        # stdio
 
 ## Where to go next
 - [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — every tool's arguments, types, defaults, cost, and failure modes, generated from the MCP definitions
-- [CHECKS.md](CHECKS.md) — the 205 checks the SF crawl audit runs, generated from the registry
+- [CHECKS.md](CHECKS.md) — the 221 checks the SF crawl audit runs, generated from the registry
 - [ARCHITECTURE.md](ARCHITECTURE.md) — layers, invariants, where new code goes
 - [SKILLS.md](SKILLS.md) — which skill drives which tool
 - [DECISIONS.md](DECISIONS.md) — why it was decided this way and not another

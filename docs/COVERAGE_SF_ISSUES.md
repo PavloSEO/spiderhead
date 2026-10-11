@@ -17,16 +17,16 @@ here is written about *our own* behaviour.
 |---|---:|---|
 | check | 144 | a registry check finds it |
 | tool | 32 | a command outside the crawl registry finds it |
-| partial | 17 | we find part of it; the missing part is stated |
+| partial | 29 | we find part of it; the missing part is stated |
 | gap | 3 | we should find it and do not |
-| out of scope | 124 | a decision, with its reason |
+| out of scope | 112 | a decision, with its reason |
 | **total** | **320** | |
 
-108 of the out-of-scope entries are two whole categories declined as single
-decisions — accessibility and AMP, each explained in its own section below. Of the
-remaining 212 issues, **176 are found today**, 17 are
+Accessibility and AMP include measured subsets; their remaining limits are stated
+per issue below. Across the catalogue,
+**176 issues are found today**, 29 are
 found in part, 3 are gaps worth closing, and
-16 need something we have decided not to build.
+112 need something we have decided not to build.
 
 A gap is not a defect. It is a named, deliberate absence — which is the only kind worth
 having, because the alternative is an absence nobody has noticed.
@@ -314,6 +314,103 @@ having, because the alternative is an absence nobody has noticed.
 | Target Size | out of scope | — | needs rendered hit-box geometry |
 | Mobile Alternate Link | check | `MOBILE_ALTERNATE_LINK` | only a media-qualified rel=alternate with no href is flagged; the reciprocal canonical on the mobile URL is not checked |
 
+## Accessibility
+
+| Issue | Status | Found by | Note |
+|---|---|---|---|
+| Best Practice - Accesskey Attribute Value Must Be Unique | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Elements Must Not Have Tabindex Greater Than Zero | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - ARIA Dialog & Alertdialog Require Accessible Name | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - ARIA Treeitem Nodes Require Accessible Name | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Role=text Should Have No Focusable Descendants | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Form Elements Should Have Visible Label | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Frames Should Be Tested With axe-core | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Scope Attribute Should Be Used Correctly On Tables | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Scrollable Region Requires Keyboard Access | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Required ARIA Attributes Must Be Provided | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Attribute Must Be Used As Specified For Role | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Attributes Require Valid Values | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Attributes Require Valid Names | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Commands Require Accessible Name | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Input Fields Require Accessible Name | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Meter Nodes Require Accessible Name | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Progressbar Nodes Require Accessible Name | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Roles Must Be Contained By Required Parent | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Roles Require Valid Values | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Toggle Fields Require Accessible Name | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - ARIA Tooltip Nodes Require Accessible Name | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Certain ARIA Roles Must Contain Specific Children | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Aria-braille Require Non-braille Equivalent | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Aria-hidden Elements Contains Focusable Elements | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Aria-hidden=true Must Not Be Used In <body> | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Elements Must Only Use Permitted ARIA Attributes | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Elements Must Use Allowed ARIA Attributes | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - IDs Used In ARIA & Labels Must Be Unique | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Page Requires Means To Bypass Repeated Blocks | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Form <input> Elements Require Labels | partial | `A11Y_FORM_LABEL_MISSING` | conservative static HTML subset; computed styles and full axe-core rules are unmeasured |
+| WCAG 2.0 A - Frames Require Title Attribute | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Frames Require Unique Title Attribute | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Frames With Focusable Content Must Not Use tabindex=-1 | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Page Must Contain <title> | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - HTML Element Lang Attribute Value Must Be Valid | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - HTML Element Requires Lang Attribute | partial | `A11Y_HTML_LANG_MISSING` | conservative static HTML subset; computed styles and full axe-core rules are unmeasured |
+| WCAG 2.0 A - Image Button Requires Alternate Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Images Require Alternate Text | partial | `A11Y_IMAGE_ALT_MISSING` | conservative static HTML subset; computed styles and full axe-core rules are unmeasured |
+| WCAG 2.0 A - <object> Elements Require Alternate Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Active <area> Elements Require Alternate Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Elements Marked role=img Require Alternate Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - SVG Images & Graphics Require Accessible Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - <video> Elements Require <track> For Captions | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - <video> or <audio> Elements Must Not Auto-play | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Buttons Require Discernible Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Input Buttons Require Discernible Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Links Require Discernible Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Links Must Be Distinguishable | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Select Element Requires Accessible Name | partial | `A11Y_FORM_LABEL_MISSING` | conservative static HTML subset; computed styles and full axe-core rules are unmeasured |
+| WCAG 2.0 A - Summary Elements Require Discernible Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Deprecated <marquee> Element Must Not Be Used | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Interactive Controls Must Not Be Nested | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - List Items Must Be Contained In List Elements | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Lists Must Only Contain <li> Content Elements | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - <dt> & <dd> Elements Must Be Contained by <dl> | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - <dl> Must Only Have Ordered <dt> & <dd> Groups | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - <blink> Elements Deprecated & Must Not Be Used | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - <th> Element Requires Associated Data Cells | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Table Header Attr Must Refer To Cell In Same Table | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 AA - Meta Viewport Zoom & Scaling Disabled | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 AA - Lang Attribute Requires Valid Value | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 AA - Text Requires Higher Color Contrast to Background | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 AAA - Text Requires Higher Color Contrast Ratio | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.1 AA - Autocomplete Attribute Must Be Used Correctly | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.1 AA - Inline Text Spacing Must Be Adjustable | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.2 AA - Touch Targets Require Sufficient Size & Spacing | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Skip-link Target Should Exist & Be Focusable | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - All Page Content Must Be Contained By Landmarks | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Page Requires One Main Landmark | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Page Must Not Have More Than One Banner Landmark | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Banner Landmark Must Not Be In Another Landmark | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Page Must Not Have Multiple Contentinfo Landmarks | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Page Requires At Most One Main Landmark | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Complementary Landmarks & Asides Must Be Top Level | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Contentinfo Landmark Must Be Top Level Landmark | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Main Landmark Must Not Be In Another Landmark | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Landmarks Require Unique Role Or Accessible Name | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Page Must Contain <h1> | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Heading Levels Should Only Increase By One | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Form Field Must Not Have Multiple Label Elements | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - HTML Lang & XML Lang Value Should Match | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Ensure Elements Marked Presentational Are Ignored | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - ARIA Role Should Be Appropriate For Element | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Headings Should Not Be Empty | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Meta Viewport Should Allow Zoom & Scale Up to 500% | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Alt Text Should Not Be Repeated As Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Table Headers Require Discernible Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| Best Practice - Table With Identical Summary & Caption Text | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Deprecated ARIA Roles Must Not Be Used | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 A - Server-Side Image Maps Must Not Be Used | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 AAA - Delayed Meta Refresh Must Not Be Used | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+| WCAG 2.0 AAA - Links With Same Accessible Name | out of scope | — | First static HTML accessibility checks are available. The remaining WCAG/axe-core rules need a rendered DOM or computed styles and are not measured by this subset. |
+
 ## Analytics
 
 | Issue | Status | Found by | Note |
@@ -353,128 +450,23 @@ having, because the alternative is an absence nobody has noticed.
 | <head> Not First In <html> Element | check | `HEAD_NOT_FIRST` |  |
 | High Carbon Rating | out of scope | — | a derived score over transfer weight; the weight itself is already reported and the rating adds a model, not a measurement |
 
-## Accessibility
-
-**92 issues, declined as one decision.** A full WCAG/axe-core engine. Real, valuable, and a different product: it needs a rendered DOM, computed styles and a rule set larger than this entire registry. Out of scope until that is a deliberate decision with its own design, not a checkbox.
-
-<details><summary>The full list, so the decision is auditable</summary>
-
-- Best Practice - Accesskey Attribute Value Must Be Unique
-- Best Practice - Elements Must Not Have Tabindex Greater Than Zero
-- Best Practice - ARIA Dialog & Alertdialog Require Accessible Name
-- Best Practice - ARIA Treeitem Nodes Require Accessible Name
-- Best Practice - Role=text Should Have No Focusable Descendants
-- Best Practice - Form Elements Should Have Visible Label
-- Best Practice - Frames Should Be Tested With axe-core
-- Best Practice - Scope Attribute Should Be Used Correctly On Tables
-- WCAG 2.0 A - Scrollable Region Requires Keyboard Access
-- WCAG 2.0 A - Required ARIA Attributes Must Be Provided
-- WCAG 2.0 A - ARIA Attribute Must Be Used As Specified For Role
-- WCAG 2.0 A - ARIA Attributes Require Valid Values
-- WCAG 2.0 A - ARIA Attributes Require Valid Names
-- WCAG 2.0 A - ARIA Commands Require Accessible Name
-- WCAG 2.0 A - ARIA Input Fields Require Accessible Name
-- WCAG 2.0 A - ARIA Meter Nodes Require Accessible Name
-- WCAG 2.0 A - ARIA Progressbar Nodes Require Accessible Name
-- WCAG 2.0 A - ARIA Roles Must Be Contained By Required Parent
-- WCAG 2.0 A - ARIA Roles Require Valid Values
-- WCAG 2.0 A - ARIA Toggle Fields Require Accessible Name
-- WCAG 2.0 A - ARIA Tooltip Nodes Require Accessible Name
-- WCAG 2.0 A - Certain ARIA Roles Must Contain Specific Children
-- WCAG 2.0 A - Aria-braille Require Non-braille Equivalent
-- WCAG 2.0 A - Aria-hidden Elements Contains Focusable Elements
-- WCAG 2.0 A - Aria-hidden=true Must Not Be Used In <body>
-- WCAG 2.0 A - Elements Must Only Use Permitted ARIA Attributes
-- WCAG 2.0 A - Elements Must Use Allowed ARIA Attributes
-- WCAG 2.0 A - IDs Used In ARIA & Labels Must Be Unique
-- WCAG 2.0 A - Page Requires Means To Bypass Repeated Blocks
-- WCAG 2.0 A - Form <input> Elements Require Labels
-- WCAG 2.0 A - Frames Require Title Attribute
-- WCAG 2.0 A - Frames Require Unique Title Attribute
-- WCAG 2.0 A - Frames With Focusable Content Must Not Use tabindex=-1
-- WCAG 2.0 A - Page Must Contain <title>
-- WCAG 2.0 A - HTML Element Lang Attribute Value Must Be Valid
-- WCAG 2.0 A - HTML Element Requires Lang Attribute
-- WCAG 2.0 A - Image Button Requires Alternate Text
-- WCAG 2.0 A - Images Require Alternate Text
-- WCAG 2.0 A - <object> Elements Require Alternate Text
-- WCAG 2.0 A - Active <area> Elements Require Alternate Text
-- WCAG 2.0 A - Elements Marked role=img Require Alternate Text
-- WCAG 2.0 A - SVG Images & Graphics Require Accessible Text
-- WCAG 2.0 A - <video> Elements Require <track> For Captions
-- WCAG 2.0 A - <video> or <audio> Elements Must Not Auto-play
-- WCAG 2.0 A - Buttons Require Discernible Text
-- WCAG 2.0 A - Input Buttons Require Discernible Text
-- WCAG 2.0 A - Links Require Discernible Text
-- WCAG 2.0 A - Links Must Be Distinguishable
-- WCAG 2.0 A - Select Element Requires Accessible Name
-- WCAG 2.0 A - Summary Elements Require Discernible Text
-- WCAG 2.0 A - Deprecated <marquee> Element Must Not Be Used
-- WCAG 2.0 A - Interactive Controls Must Not Be Nested
-- WCAG 2.0 A - List Items Must Be Contained In List Elements
-- WCAG 2.0 A - Lists Must Only Contain <li> Content Elements
-- WCAG 2.0 A - <dt> & <dd> Elements Must Be Contained by <dl>
-- WCAG 2.0 A - <dl> Must Only Have Ordered <dt> & <dd> Groups
-- WCAG 2.0 A - <blink> Elements Deprecated & Must Not Be Used
-- WCAG 2.0 A - <th> Element Requires Associated Data Cells
-- WCAG 2.0 A - Table Header Attr Must Refer To Cell In Same Table
-- WCAG 2.0 AA - Meta Viewport Zoom & Scaling Disabled
-- WCAG 2.0 AA - Lang Attribute Requires Valid Value
-- WCAG 2.0 AA - Text Requires Higher Color Contrast to Background
-- WCAG 2.0 AAA - Text Requires Higher Color Contrast Ratio
-- WCAG 2.1 AA - Autocomplete Attribute Must Be Used Correctly
-- WCAG 2.1 AA - Inline Text Spacing Must Be Adjustable
-- WCAG 2.2 AA - Touch Targets Require Sufficient Size & Spacing
-- Best Practice - Skip-link Target Should Exist & Be Focusable
-- Best Practice - All Page Content Must Be Contained By Landmarks
-- Best Practice - Page Requires One Main Landmark
-- Best Practice - Page Must Not Have More Than One Banner Landmark
-- Best Practice - Banner Landmark Must Not Be In Another Landmark
-- Best Practice - Page Must Not Have Multiple Contentinfo Landmarks
-- Best Practice - Page Requires At Most One Main Landmark
-- Best Practice - Complementary Landmarks & Asides Must Be Top Level
-- Best Practice - Contentinfo Landmark Must Be Top Level Landmark
-- Best Practice - Main Landmark Must Not Be In Another Landmark
-- Best Practice - Landmarks Require Unique Role Or Accessible Name
-- Best Practice - Page Must Contain <h1>
-- Best Practice - Heading Levels Should Only Increase By One
-- WCAG 2.0 A - Form Field Must Not Have Multiple Label Elements
-- WCAG 2.0 A - HTML Lang & XML Lang Value Should Match
-- Best Practice - Ensure Elements Marked Presentational Are Ignored
-- Best Practice - ARIA Role Should Be Appropriate For Element
-- Best Practice - Headings Should Not Be Empty
-- Best Practice - Meta Viewport Should Allow Zoom & Scale Up to 500%
-- Best Practice - Alt Text Should Not Be Repeated As Text
-- Best Practice - Table Headers Require Discernible Text
-- Best Practice - Table With Identical Summary & Caption Text
-- WCAG 2.0 A - Deprecated ARIA Roles Must Not Be Used
-- WCAG 2.0 A - Server-Side Image Maps Must Not Be Used
-- WCAG 2.0 AAA - Delayed Meta Refresh Must Not Be Used
-- WCAG 2.0 AAA - Links With Same Accessible Name
-
-</details>
-
 ## AMP
 
-**16 issues, declined as one decision.** pairing read from the AMP target the crawl captured (#1020)
-
-<details><summary>The full list, so the decision is auditable</summary>
-
-- Non-200 Response
-- Missing Non-AMP Return Link
-- Missing Canonical to Non-AMP
-- Non-Indexable Canonical
-- Missing Canonical
-- Indexable
-- Missing <html amp> Tag
-- Missing/Invalid Doctype HTML Tag
-- Missing Head Tag
-- Missing Body Tag
-- Missing/Invalid Meta Charset Tag
-- Missing/Invalid Meta Viewport Tag
-- Missing/Invalid AMP Script
-- Missing/Invalid AMP Boilerplate
-- Contains Disallowed HTML
-- Other Validation Errors
-
-</details>
+| Issue | Status | Found by | Note |
+|---|---|---|---|
+| Non-200 Response | check | `AMP_NON_200` | pairing read from the AMP target the crawl captured (#1020) |
+| Missing Non-AMP Return Link | check | `AMP_MISSING_RETURN_LINK` | pairing read from the AMP target the crawl captured (#1020) |
+| Missing Canonical to Non-AMP | check | `AMP_MISSING_RETURN_LINK` | pairing read from the AMP target the crawl captured (#1020) |
+| Non-Indexable Canonical | check | `AMP_NON_INDEXABLE_CANONICAL` | pairing read from the AMP target the crawl captured (#1020) |
+| Missing Canonical | check | `AMP_MISSING_CANONICAL` | pairing read from the AMP target the crawl captured (#1020) |
+| Indexable | check | `AMP_INDEXABLE` | pairing read from the AMP target the crawl captured (#1020) |
+| Missing <html amp> Tag | partial | `AMP_MISSING_HTML_ATTRIBUTE` | source structural check; boilerplate CSS and full validator rules are unmeasured |
+| Missing/Invalid Doctype HTML Tag | partial | `AMP_INVALID_DOCTYPE` | source structural check; boilerplate CSS and full validator rules are unmeasured |
+| Missing Head Tag | partial | `AMP_MISSING_HEAD` | source structural check; boilerplate CSS and full validator rules are unmeasured |
+| Missing Body Tag | partial | `AMP_MISSING_BODY` | source structural check; boilerplate CSS and full validator rules are unmeasured |
+| Missing/Invalid Meta Charset Tag | partial | `AMP_INVALID_CHARSET` | source structural check; boilerplate CSS and full validator rules are unmeasured |
+| Missing/Invalid Meta Viewport Tag | partial | `AMP_INVALID_VIEWPORT` | source structural check; boilerplate CSS and full validator rules are unmeasured |
+| Missing/Invalid AMP Script | partial | `AMP_INVALID_RUNTIME` | source structural check; boilerplate CSS and full validator rules are unmeasured |
+| Missing/Invalid AMP Boilerplate | partial | `AMP_INVALID_BOILERPLATE` | source structural check; boilerplate CSS and full validator rules are unmeasured |
+| Contains Disallowed HTML | out of scope | — | AMP is effectively retired: Google dropped the Top Stories carousel requirement in 2021 and the format is in maintenance. The AMP validator's document model is a separate project. Structural source checks are available; the complete validator rule set remains unavailable pending an owner licence decision. |
+| Other Validation Errors | out of scope | — | AMP is effectively retired: Google dropped the Top Stories carousel requirement in 2021 and the format is in maintenance. The AMP validator's document model is a separate project. Structural source checks are available; the complete validator rule set remains unavailable pending an owner licence decision. |

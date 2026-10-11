@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-11T10:19:15Z
+- **Generated:** 2026-10-11T15:20:04Z
 
 ## Health summary
 
-> **No health score.** only 94 of 205 checks could run (46% coverage); too little evidence to score.
+> **No health score.** only 94 of 221 checks could run (42% coverage); too little evidence to score.
 
-_94 of 205 checks could run; the score is not comparable to a run with full evidence_
+_94 of 221 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 111 skipped, 74 silent, 0 disabled (of 205 total)
+- Checks: **20 fired**, 127 skipped, 74 silent, 0 disabled (of 221 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -237,6 +237,22 @@ Each check below describes more than half the crawled pages. That can be true --
 | Sitemap URL returns a 3xx response | missing export: sitemap_redirects |
 | Sitemap contains a non-indexable URL | missing export: sitemap_non_indexable |
 | Link fragment identifies no element on the destination page | export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan |
+| AMP document has a missing or invalid HTML5 doctype | document-bound markup evidence requires a retained native crawl |
+| AMP source document has no explicit head element | document-bound markup evidence requires a retained native crawl |
+| AMP source document has no explicit body element | document-bound markup evidence requires a retained native crawl |
+| AMP head does not start with the required UTF-8 charset declaration | document-bound markup evidence requires a retained native crawl |
+| AMP document lacks the required device-width viewport | document-bound markup evidence requires a retained native crawl |
+| AMP document lacks an async AMP runtime script in the head | document-bound markup evidence requires a retained native crawl |
+| AMP document lacks the structural AMP boilerplate declarations | document-bound markup evidence requires a retained native crawl |
+| AMP target does not declare the html amp or lightning attribute | document-bound markup evidence requires a retained native crawl |
+| Root html element has no nonempty lang declaration | document-bound markup evidence requires a retained native crawl |
+| Form control has no static accessible label | document-bound markup evidence requires a retained native crawl |
+| Image has no alt attribute or static accessible name | document-bound markup evidence requires a retained native crawl |
+| Heading sequence skips a level in the static document | document-bound markup evidence requires a retained native crawl |
+| Document content has no main landmark | document-bound markup evidence requires a retained native crawl |
+| Structured data contains errors under the bundled Schema.org vocabulary | document-bound markup evidence requires a retained native crawl |
+| Structured data contains warnings under the bundled Schema.org vocabulary | document-bound markup evidence requires a retained native crawl |
+| Structured data lacks required properties in the bundled local rich-result rules | document-bound markup evidence requires a retained native crawl |
 | More than one <meta name="description"> element is present | no meta description count evidence (native crawl only) |
 | Page has an H1 but no H2 headings | requirements.require_h2 is false; the check was not evaluated |
 | The H1 has no text of its own; its only content is an image's alt attribute | no H1 alt-text evidence (native crawl only) |
