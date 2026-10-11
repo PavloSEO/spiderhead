@@ -145,6 +145,7 @@ def _edge(con, link_id: int) -> dict[str, Any]:
         **dict(row),
         "nofollow": bool(row["nofollow"]),
         "position": row["position"] or None,
+        "position_status": "classified" if row["position"] else "not_classified",
     }
 
 

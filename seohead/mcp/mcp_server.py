@@ -174,7 +174,11 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=create_files, structured_output=True)
     def seo_scan_reanalyze(
-        input_path: str, out: str, producer_build: str | None = None
+        input_path: str,
+        out: str,
+        producer_build: str | None = None,
+        step: Literal["all", "links.position"] = "all",
+        max_documents: int | None = None,
     ) -> dict[str, Any]:
         """Reparse retained HTML/DOM and rerun existing checks without network.
 
@@ -184,8 +188,84 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         unavailable errors. Missing live-only context remains skipped. No HTTP,
         DNS, browser, provider, or cache-miss fallback is permitted.
         """
+        kwargs = {"input_path": input_path, "out": out, "producer_build": producer_build}
+        if step != "all":
+            kwargs["step"] = step
+        if max_documents is not None:
+            kwargs["max_documents"] = max_documents
+        return _checked(handlers.scan_reanalyze(**kwargs))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_scan_sitemap_generate(
+        input_path: str,
+        out_dir: str,
+        sitemap_base_url: str,
+        include_images: bool = False,
+        exclude: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Write local XML sitemap files from retained indexable, canonical 200 responses.
+
+        Requires a fresh output directory and a same-origin deployment base URL.
+        Splits at 50,000 URLs and 50 MiB uncompressed, writes a sitemap index, and
+        optionally includes images parsed from complete retained bodies. lastmod
+        uses observed modification evidence, never the capture or generation time.
+        Exclusion patterns and skipped evidence are reported. No network or deployment.
+        """
         return _checked(
-            handlers.scan_reanalyze(input_path=input_path, out=out, producer_build=producer_build)
+            handlers.scan_sitemap_generate(
+                input_path=input_path,
+                out_dir=out_dir,
+                sitemap_base_url=sitemap_base_url,
+                include_images=include_images,
+                exclude=exclude,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_graph(
+        input_path: str,
+        positions: list[str] | str | None = None,
+        section: str | None = None,
+        around: str | None = None,
+        depth: int = 2,
+        aggregate: str = "none",
+        representation: str = "all",
+        node_offset: int = 0,
+        edge_offset: int = 0,
+        node_limit: int = 1000,
+        edge_limit: int = 2000,
+        max_nodes: int = 5000,
+        max_edges: int = 20000,
+        compare_to: str | None = None,
+        timeout_seconds: float = 1.0,
+        max_bytes: int = 8388608,
+    ) -> dict[str, Any]:
+        """Read versioned chunks of a retained internal-link graph without network.
+
+        Filter by position or URL section, expand around a URL by depth, aggregate
+        sections, or compare two scans. At most 5,000 nodes and 20,000 edges are
+        admitted; totals, clipping, coverage and unavailable reasons are explicit.
+        Orphan and component counts describe the admitted graph scope.
+        """
+        return _checked(
+            handlers.scan_graph(
+                input_path=input_path,
+                positions=positions,
+                section=section,
+                around=around,
+                depth=depth,
+                aggregate=aggregate,
+                representation=representation,
+                node_offset=node_offset,
+                edge_offset=edge_offset,
+                node_limit=node_limit,
+                edge_limit=edge_limit,
+                max_nodes=max_nodes,
+                max_edges=max_edges,
+                compare_to=compare_to,
+                timeout_seconds=timeout_seconds,
+                max_bytes=max_bytes,
+            )
         )
 
     @mcp.tool(annotations=create_files_from_web, structured_output=True)

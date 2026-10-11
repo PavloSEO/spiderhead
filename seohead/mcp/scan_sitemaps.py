@@ -101,3 +101,18 @@ def load_sitemaps(
         scan.interrupt("sitemap expansion is incomplete")
     elif any(root["source"] == "sitemap-only" for root in selected) and not declared_count:
         raise ScanError("sitemap-only source declared no crawlable URL members")
+
+
+def generate_scan_sitemaps(
+    input_path: str,
+    out_dir: str,
+    sitemap_base_url: str,
+    include_images: bool = False,
+    exclude: list[str] | None = None,
+) -> dict[str, Any]:
+    """Generate sitemap XML from retained evidence without fetching or publishing URLs."""
+    from seohead.storage.sitemap_generator import generate_sitemaps
+
+    return generate_sitemaps(
+        input_path, out_dir, sitemap_base_url, include_images=include_images, exclude=exclude
+    )

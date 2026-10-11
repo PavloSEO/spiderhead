@@ -64,8 +64,8 @@ def _links(con, document_id: int) -> list[dict[str, Any]]:
             "s.url AS source_url,d.url AS destination_url "
             "FROM links l JOIN urls s ON s.url_id=l.source_url_id "
             "JOIN urls d ON d.url_id=l.destination_url_id "
-            "WHERE l.source_document_id=? ORDER BY l.ordinal,l.link_id",
-            (document_id,),
+            "WHERE l.source_document_id=? ORDER BY l.ordinal,l.link_id LIMIT ?",
+            (document_id, MAX_ANCHORS + 1),
         )
     ]
 
@@ -116,6 +116,8 @@ def _derive(
     if document_row is None:
         raise ScanError("source document is absent")
     document = dict(document_row)
+    if len(links) > MAX_ANCHORS:
+        return [], {"state": "unavailable", "reason": "link_occurrence_budget_exhausted"}
     if any(
         link["source_url_id"] != document["url_id"]
         or link["evidence_representation"] != document["representation"]

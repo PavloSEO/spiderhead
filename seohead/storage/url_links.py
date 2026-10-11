@@ -256,6 +256,7 @@ def _out_item(ctx: _Ctx, row: sqlite3.Row, index: int) -> dict[str, Any]:
         "target_scanned": scanned,
         "target_status": status if scanned else None,
         "position": row["position"] or None,
+        "position_status": "classified" if row["position"] else "not_classified",
         "attributes": {"target": row["target"] or None},
         "raw_href": row["raw_href"] or None,
     }
@@ -275,6 +276,7 @@ def _in_item(ctx: _Ctx, row: sqlite3.Row, index: int) -> dict[str, Any]:
         "internal": ctx.internal(url),
         "source_status": row["page_status"],
         "position": row["position"] or None,
+        "position_status": "classified" if row["position"] else "not_classified",
         "attributes": {"target": row["target"] or None},
         "raw_href": row["raw_href"] or None,
     }

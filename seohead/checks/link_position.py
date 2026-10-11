@@ -34,12 +34,20 @@ from bs4 import Tag
 # "content" is deliberately absent here: it is resolved structurally (see
 # module docstring), never by a selector, so it cannot be shadowed by a
 # same-named site-specific rule matching the wrong element.
-POSITIONS: tuple[str, ...] = ("nav", "header", "sidebar", "footer", "content", "other")
+POSITIONS: tuple[str, ...] = (
+    "nav",
+    "header",
+    "sidebar",
+    "footer",
+    "breadcrumbs",
+    "content",
+    "other",
+)
 
 # The subset of POSITIONS that is site furniture rather than the document's own
 # body: a link -- or a heading (#632) -- here belongs to a template repeated on
 # every page, not to this page's subject.
-CHROME_POSITIONS: frozenset[str] = frozenset({"nav", "header", "sidebar", "footer"})
+CHROME_POSITIONS: frozenset[str] = frozenset({"nav", "header", "sidebar", "footer", "breadcrumbs"})
 
 
 @dataclass(frozen=True)
@@ -54,8 +62,12 @@ class PositionRule:
 # concession to real templates: plenty of production menus are a styled <div>.
 DEFAULT_RULES: tuple[PositionRule, ...] = (
     PositionRule(
+        "breadcrumbs",
+        ".breadcrumb, .breadcrumbs, [aria-label='breadcrumb' i], [aria-label='breadcrumbs' i]",
+    ),
+    PositionRule(
         "nav",
-        "nav, [role='navigation'], .nav, .navbar, .menu, .main-menu, .primary-menu, .breadcrumb",
+        "nav, [role='navigation'], .nav, .navbar, .menu, .main-menu, .primary-menu",
     ),
     PositionRule("header", "header, [role='banner'], .site-header, .page-header"),
     PositionRule("sidebar", "aside, [role='complementary'], .sidebar, .widget-area"),
