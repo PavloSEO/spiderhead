@@ -13,6 +13,7 @@ from __future__ import annotations
 import collections
 import itertools
 import json
+from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 from seohead.data_sources.yandex_cloud import WebSearch
@@ -145,7 +146,10 @@ def run(store, cfg, limit=0, top=10, method="serp"):
 
     store.db.execute("""CREATE TABLE IF NOT EXISTS serp_fetches(
         phrase_norm TEXT, region TEXT, top INTEGER, state TEXT, operation_id TEXT,
-        raw_json TEXT, error TEXT, PRIMARY KEY(phrase_norm, region, top))""")
+        raw_json TEXT, error TEXT, fetched_at TEXT, PRIMARY KEY(phrase_norm, region, top))""")
+    receipt_columns = {row["name"] for row in store.db.execute("PRAGMA table_info(serp_fetches)")}
+    if "fetched_at" not in receipt_columns:
+        store.db.execute("ALTER TABLE serp_fetches ADD COLUMN fetched_at TEXT")
     n_req = 0
     doms = {}  # norm -> set of top-N page keys
     todo = []
@@ -209,13 +213,16 @@ def run(store, cfg, limit=0, top=10, method="serp"):
                     store.add_serp(p, docs)
                     doms[p] = {url_key(d["url"]) for d in docs if d.get("url")}
             store.db.execute(
-                "UPDATE serp_fetches SET state=?,operation_id=?,raw_json=?,error=? "
+                "UPDATE serp_fetches SET state=?,operation_id=?,raw_json=?,error=?,fetched_at=? "
                 "WHERE phrase_norm=? AND region=? AND top=?",
                 (
                     state,
                     (result or {}).get("operation_id"),
                     json.dumps(result, ensure_ascii=False),
                     str((result or {}).get("error") or "") or None,
+                    datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+                    if state == "complete"
+                    else None,
                     p,
                     str(region),
                     top,

@@ -13,6 +13,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
+from seohead.core.tabular import neutralize_formula
+
 HDR = Font(bold=True, color="FFFFFF")
 GREY = PatternFill("solid", fgColor="595959")
 ZEBRA = PatternFill("solid", fgColor="F2F2F2")
@@ -26,7 +28,7 @@ def _sheet(ws, headers, rows, widths):
         c.fill = GREY
         c.alignment = WRAP
     for i, r in enumerate(rows):
-        ws.append(r)
+        ws.append([neutralize_formula(value) for value in r])
         if i % 2:
             for c in ws[i + 2]:
                 c.fill = ZEBRA
@@ -35,11 +37,9 @@ def _sheet(ws, headers, rows, widths):
     ws.freeze_panes = "A2"
 
 
-def run(store, cfg, out_dir):
+def run(store, cfg, out_dir, *, scope="all"):
     db = store.db
-
-    def C(q):
-        return db.execute(q).fetchone()[0]
+    scope_where, scope_params = store.scope_clause(scope, "p")
 
     proj = cfg["_project"]
     vendor_path = Path(cfg["_dir"]) / cfg.get("vendor_file", "vendors.txt")
@@ -53,19 +53,33 @@ def run(store, cfg, out_dir):
         else set()
     )
 
-    total = C("SELECT COUNT(*) FROM phrases")
-    uniq = C("SELECT COUNT(DISTINCT norm) FROM phrases")
+    total = db.execute("SELECT COUNT(*) FROM phrases p " + scope_where, scope_params).fetchone()[0]
+    uniq = db.execute(
+        "SELECT COUNT(DISTINCT p.norm) FROM phrases p " + scope_where, scope_params
+    ).fetchone()[0]
     dupes = total - uniq
-    core = C("SELECT COUNT(*) FROM phrases WHERE status='kept'")
-    core_exact10 = C("SELECT COUNT(*) FROM phrases WHERE status='kept' AND exact>=10")
-    core_noexact = C("SELECT COUNT(*) FROM phrases WHERE status='kept' AND exact IS NULL")
-    n_clusters = C(
-        "SELECT COUNT(DISTINCT cluster_id) FROM phrases WHERE status='kept' AND cluster_id IS NOT NULL"
-    )
-    drop_n = C("SELECT COUNT(*) FROM phrases WHERE status='dropped'")
-    rev_n = C("SELECT COUNT(*) FROM phrases WHERE status='review'")
+    where = (scope_where + " AND " if scope_where else " WHERE ") + "p.status='kept'"
+    core = db.execute("SELECT COUNT(*) FROM phrases p" + where, scope_params).fetchone()[0]
+    core_exact10 = db.execute(
+        "SELECT COUNT(*) FROM phrases p" + where + " AND p.exact>=10", scope_params
+    ).fetchone()[0]
+    core_noexact = db.execute(
+        "SELECT COUNT(*) FROM phrases p" + where + " AND p.exact IS NULL", scope_params
+    ).fetchone()[0]
+    n_clusters = db.execute(
+        "SELECT COUNT(DISTINCT p.cluster_id) FROM phrases p" + where + " AND p.cluster_id IS NOT NULL",
+        scope_params,
+    ).fetchone()[0]
+    drop_n = db.execute(
+        "SELECT COUNT(*) FROM phrases p " + scope_where + (" AND " if scope_where else " WHERE ") + "p.status='dropped'",
+        scope_params,
+    ).fetchone()[0]
+    rev_n = db.execute(
+        "SELECT COUNT(*) FROM phrases p " + scope_where + (" AND " if scope_where else " WHERE ") + "p.status='review'",
+        scope_params,
+    ).fetchone()[0]
     # Informational phrases are the blog core, not junk: count them separately.
-    info_n = C("SELECT COUNT(*) FROM phrases WHERE status='kept' AND route='info'")
+    info_n = db.execute("SELECT COUNT(*) FROM phrases p" + where + " AND p.route='info'", scope_params).fetchone()[0]
     sp = store.spend()
 
     wb = Workbook()
@@ -95,8 +109,9 @@ def run(store, cfg, out_dir):
 
     rows = db.execute(
         "SELECT p.norm, p.base, p.quoted, p.exact, c.name FROM phrases p LEFT JOIN clusters c ON p.cluster_id=c.id "
-        "WHERE p.status='kept' AND p.route!='info' "
-        "ORDER BY COALESCE(p.exact,0) DESC, p.base DESC"
+        + (scope_where + " AND " if scope_where else " WHERE ")
+        + "p.status='kept' AND p.route!='info' ORDER BY COALESCE(p.exact,0) DESC, p.base DESC",
+        scope_params,
     ).fetchall()
     _sheet(
         wb.create_sheet("Core"),
@@ -107,7 +122,9 @@ def run(store, cfg, out_dir):
 
     info_rows = db.execute(
         "SELECT p.norm,p.base,p.quoted,p.exact,c.name FROM phrases p LEFT JOIN clusters c ON p.cluster_id=c.id "
-        "WHERE p.status='kept' AND p.route='info' ORDER BY p.base DESC"
+        + (scope_where + " AND " if scope_where else " WHERE ")
+        + "p.status='kept' AND p.route='info' ORDER BY p.base DESC",
+        scope_params,
     ).fetchall()
     _sheet(
         wb.create_sheet("Info"),
@@ -118,10 +135,11 @@ def run(store, cfg, out_dir):
 
     crows = []
     for cl in db.execute(
-        "SELECT c.id, c.name, c.coherence, COUNT(p.id) n, COALESCE(SUM(p.exact),0) se "
+        "SELECT c.id, c.name, c.coherence, COUNT(p.id) n, SUM(p.exact) se "
         "FROM clusters c JOIN phrases p ON p.cluster_id=c.id "
-        "WHERE p.status='kept' GROUP BY c.id HAVING n>=2 "
-        "ORDER BY se DESC, n DESC"
+        + (scope_where + " AND " if scope_where else "WHERE ")
+        + "p.status='kept' GROUP BY c.id HAVING n>=2 ORDER BY se DESC, n DESC",
+        scope_params,
     ).fetchall():
         doms = collections.Counter(
             x["domain"]
@@ -142,6 +160,9 @@ def run(store, cfg, out_dir):
 
     rows = db.execute(
         "SELECT norm,base,status,reason,reason_stage FROM phrases WHERE status IN ('dropped','dead','review') ORDER BY base DESC"
+        if scope == "all"
+        else "SELECT p.norm,p.base,p.status,p.reason,p.reason_stage FROM phrases p " + scope_where + " AND p.status IN ('dropped','dead','review') ORDER BY p.base DESC"
+        , scope_params if scope != "all" else ()
     ).fetchall()
     _sheet(
         wb.create_sheet("Rejected"),
@@ -158,4 +179,4 @@ def run(store, cfg, out_dir):
         f"excel: {out} | core={core} (exact>=10: {core_exact10}, no exact: {core_noexact}) "
         f"info={info_n} review={rev_n} dropped={drop_n} duplicates={dupes} clusters={n_clusters}"
     )
-    return {"core": core, "file": str(out)}
+    return {"core": core, "file": str(out), "scope": scope}

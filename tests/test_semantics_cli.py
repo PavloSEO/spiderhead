@@ -158,7 +158,9 @@ def test_mcp_runner_refuses_paid_stages_without_confirmation(tmp_path, monkeypat
 
     monkeypatch.setattr(collect, "Wordstat", forbidden)
     refused = run_quiet("collect", project, allowed=("collect",))
-    assert refused["ok"] is False and refused["paid"] is True
+    assert refused["ok"] is True
+    assert refused["result"]["requires_confirmation"] is True
+    assert refused["result"]["estimate"]["paid_calls_made"] == 0
     assert run_quiet("collect", project, allowed=("clean",))["ok"] is False
 
 
@@ -183,3 +185,99 @@ def test_paid_stage_charges_are_tagged_in_the_shared_journal(tmp_path, monkeypat
     (entry,) = spend.read_all()
     assert entry["extra"] == {"semantics_project": str(project), "semantics_stage": "collect"}
     assert result["result"]["spend"]["yandex_requests"] == 1
+
+
+def test_import_preview_applies_mapping_and_counts_duplicates_without_writes(sem_store, tmp_path):
+    from seohead.semantics.stages.import_phrases import plan
+
+    fixture = Path(__file__).parent / "fixtures" / "semantics" / "import-mapped.csv"
+    sem_store.upsert("industrial pumps", base=10)
+    sem_store.commit()
+    before = sem_store.db.execute("SELECT COUNT(*) FROM phrases").fetchone()[0]
+    preview = plan(
+        sem_store,
+        config.load(tmp_path),
+        fixture,
+        mapping={"query": "Keyword", "frequency": "Searches", "group": "Category", "url": "URL", "comment": "Comment"},
+        merge="update",
+    )
+    assert preview["applied_mapping"]["query"] == "Keyword"
+    assert preview["unique_queries"] == 2
+    assert preview["duplicates_in_input"] == 1
+    assert preview["already_in_core"] == 1
+    assert preview["preview"][0]["values"]["group_name"] == "Pumps"
+    assert preview["preview"][0]["values"]["subgroup"] == "Vertical"
+    assert sem_store.db.execute("SELECT COUNT(*) FROM phrases").fetchone()[0] == before
+
+
+def test_xlsx_import_preview_selects_requested_sheet(sem_store, tmp_path):
+    from openpyxl import Workbook
+
+    from seohead.semantics.stages.import_phrases import plan
+
+    path = tmp_path / "mapped.xlsx"
+    workbook = Workbook()
+    default = workbook.active
+    default.title = "Instructions"
+    default.append(["not a query"])
+    sheet = workbook.create_sheet("Queries")
+    sheet.append(["Keyword", "Searches"])
+    sheet.append(["industrial pumps", 240])
+    workbook.save(path)
+    preview = plan(
+        sem_store,
+        config.load(tmp_path),
+        path,
+        sheet="Queries",
+        mapping={"query": "Keyword", "frequency": "Searches"},
+    )
+    assert preview["sheet"] == "Queries"
+    assert preview["unique_queries"] == 1
+    assert preview["preview"][0]["values"]["base"] == 240
+
+
+def test_selected_insight_task_preview_and_revision_guard(tmp_path):
+    from seohead.projects.coverage import coverage_status, initialize_coverage
+    from seohead.projects.workspace import create_project
+    from seohead.semantics.read_model import create_insight_tasks
+    from seohead.semantics.store import Store
+
+    project = tmp_path / "shop"
+    create_project(project, "https://example.test/")
+    initialize_coverage(project)
+    with Store(project / "semantics" / "sya.db") as store:
+        cluster_id = store.upsert_cluster("industrial pumps")
+        store.upsert("industrial pumps", base=240)
+        store.assign_cluster("industrial pumps", cluster_id)
+        store.set_status("industrial pumps", "kept")
+    revision = coverage_status(project)["revision"]
+    selection = [{"rule_id": "landing.unassigned", "cluster_id": cluster_id}]
+    preview = create_insight_tasks(
+        project,
+        "2026-09-01..2026-09-07",
+        ["gsc"],
+        selection,
+        dry_run=True,
+    )
+    assert preview["written"] == 0
+    assert preview["expected_revision"] == revision
+    assert coverage_status(project)["revision"] == revision
+
+    with pytest.raises(ValueError, match="revision changed"):
+        create_insight_tasks(
+            project,
+            "2026-09-01..2026-09-07",
+            ["gsc"],
+            selection,
+            expected_revision=revision - 1,
+            confirm=True,
+        )
+    result = create_insight_tasks(
+        project,
+        "2026-09-01..2026-09-07",
+        ["gsc"],
+        selection,
+        expected_revision=revision,
+        confirm=True,
+    )
+    assert result["written"] == 1 and result["executed"] == 0

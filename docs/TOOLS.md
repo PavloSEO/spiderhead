@@ -840,7 +840,8 @@ turns on automatically for crawl modes (`--crawl`, `--crawl-list`, `--load-crawl
 `--sitemap` is given; pass `--no-live-recheck` to keep it off.
 
 **MCP.** The same set under the `seo_*` names plus the `sf_*` audit tools and the
-`seo_semantics_*` tools (192 + 5 + 4):
+`seo_semantics_*` semantic-core tools. Their stage, import/export, cluster, landing and
+insight contracts are documented in [SEMANTICS.md](SEMANTICS.md):
 
 ```bash
 seohead mcp        # stdio
