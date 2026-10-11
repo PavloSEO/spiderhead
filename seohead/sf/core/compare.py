@@ -29,6 +29,7 @@ or it no longer does.
 from __future__ import annotations
 
 import json
+import threading
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Callable
@@ -510,6 +511,7 @@ def compare(
     compression: str = "none",
     resume: bool = False,
     progress: Callable[[Any], None] | None = None,
+    cancel_event: threading.Event | None = None,
 ) -> dict[str, Any]:
     """Diff two audit.json documents into the four sets, per check.
 
@@ -561,6 +563,7 @@ def compare(
             compression=compression,
             resume=resume,
             progress=progress,
+            cancel_event=cancel_event,
         )
     for source in (before_source, after_source):
         if hasattr(source, "iter_collection") and any(

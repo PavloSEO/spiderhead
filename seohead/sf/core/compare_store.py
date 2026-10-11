@@ -8,12 +8,16 @@ manifest; no inline sample stands in for the full comparison population.
 from __future__ import annotations
 
 import atexit
+import ctypes
+import errno
 import gzip
 import hashlib
 import json
 import os
 import shutil
 import sqlite3
+import stat
+import sys
 import tempfile
 import threading
 import zlib
@@ -47,6 +51,48 @@ _INDEX_BATCH = 10_000
 _READ_INDEX_LIMIT = 1
 _READ_INDEXES: OrderedDict[tuple[Any, ...], "_ReadIndex"] = OrderedDict()
 _READ_INDEXES_LOCK = threading.RLock()
+_SQLITE_MAX_INTEGER = (1 << 63) - 1
+
+
+def _check_cancel(cancel_event: threading.Event | None) -> None:
+    if cancel_event is not None and cancel_event.is_set():
+        raise CompareError("comparison was cancelled")
+
+
+def _rename_directory_noreplace(source: Path, destination: Path) -> None:
+    """Atomically publish a directory without replacing any existing destination."""
+    libc = ctypes.CDLL(None, use_errno=True)
+    if sys.platform == "darwin" and hasattr(libc, "renamex_np"):
+        rename = libc.renamex_np
+        rename.argtypes = (ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint)
+        rename.restype = ctypes.c_int
+        result = rename(os.fsencode(source), os.fsencode(destination), 0x00000004)  # RENAME_EXCL
+    elif sys.platform.startswith("linux") and hasattr(libc, "renameat2"):
+        rename = libc.renameat2
+        rename.argtypes = (ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint)
+        rename.restype = ctypes.c_int
+        result = rename(-100, os.fsencode(source), -100, os.fsencode(destination), 1)  # AT_FDCWD, RENAME_NOREPLACE
+    else:
+        if destination.exists() or destination.is_symlink():
+            raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(destination))
+        os.rename(source, destination)
+        return
+    if result != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), str(destination))
+
+
+def _safe_member(path: Path, *, directory: bool = False, optional: bool = False, max_links: int = 1) -> None:
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        if optional:
+            return
+        raise CompareError(f"comparison checkpoint member is missing: {path.name}")
+    if stat.S_ISLNK(info.st_mode) or (not stat.S_ISDIR(info.st_mode) if directory else not stat.S_ISREG(info.st_mode)):
+        raise CompareError(f"comparison checkpoint member is unsafe: {path.name}")
+    if not directory and info.st_nlink > max_links:
+        raise CompareError(f"comparison checkpoint member has unexpected hard links: {path.name}")
 
 
 def _json(value: Any) -> str:
@@ -212,6 +258,7 @@ def _index_collection(
     job_id: str,
     progress_base: int,
     progress_total: int | None,
+    cancel_event: threading.Event | None,
 ) -> int:
     source_backed = isinstance(source, AuditV2Reader)
     offset = int(_state_value(con, checkpoint_key, 0))
@@ -226,6 +273,7 @@ def _index_collection(
     else:
         rows = ((ordinal, row) for ordinal, row in enumerate(_iter_rows(source, name)) if ordinal >= offset)
     for ordinal, row in rows:
+        _check_cancel(cancel_event)
         last_offset = ordinal + 1
         if name == "pages":
             if not isinstance(row, Mapping) or not isinstance(row.get("url"), str) or not row["url"]:
@@ -310,9 +358,11 @@ def _bind(
     progress: Callable[[Any], None] | None = None,
     job_id: str = "",
     total: int | None = None,
+    cancel_event: threading.Event | None = None,
 ) -> None:
     completed = 0
     for (before_url,) in con.execute("SELECT url FROM pages WHERE side=0 ORDER BY url"):
+        _check_cancel(cancel_event)
         completed += 1
         after_url, kind = _mapped_url(before_url, declaration)
         if after_url is None:
@@ -361,6 +411,7 @@ def _export(
     *,
     compression: str = "none",
     on_progress: Callable[[int], None] | None = None,
+    cancel_event: threading.Event | None = None,
 ) -> dict[str, Any]:
     digest = hashlib.sha256()
     count = 0
@@ -376,6 +427,7 @@ def _export(
             else nullcontext(raw)
         ) as stream:
             for row in rows:
+                _check_cancel(cancel_event)
                 data = (_json(row) + "\n").encode("utf-8")
                 stream.write(data)
                 if not compressed:
@@ -621,8 +673,8 @@ def read_compare_page(
     """Read a bounded page; retain a disk index for repeated pages in this process."""
     if not isinstance(name, str):
         raise CompareError("file must be a comparison stream name")
-    if type(offset) is not int or offset < 0:
-        raise CompareError("offset must be a non-negative integer")
+    if type(offset) is not int or not 0 <= offset <= _SQLITE_MAX_INTEGER:
+        raise CompareError("offset must be an integer from 0 through 9223372036854775807")
     if type(limit) is not int or not 1 <= limit <= 500:
         raise CompareError("limit must be an integer 1..500")
     if sort not in {"url", "check", "severity"}:
@@ -668,9 +720,9 @@ def read_compare_page(
         raise CompareError(f"comparison data file is unavailable for {name!r}") from exc
     if data_path.is_symlink():
         raise CompareError("comparison file must not be a symbolic link")
-    file_signature = (file_info.st_dev, file_info.st_ino, file_info.st_size, file_info.st_mtime_ns)
+    file_signature = (file_info.st_dev, file_info.st_ino, file_info.st_size, file_info.st_mtime_ns, file_info.st_ctime_ns)
     key = (str(manifest_path), name, hashlib.sha256(raw_manifest).hexdigest(), file_signature,
-           manifest_info.st_dev, manifest_info.st_ino, manifest_info.st_size, manifest_info.st_mtime_ns)
+           manifest_info.st_dev, manifest_info.st_ino, manifest_info.st_size, manifest_info.st_mtime_ns, manifest_info.st_ctime_ns)
     with _READ_INDEXES_LOCK:
         index = _READ_INDEXES.get(key)
         if index is None:
@@ -805,29 +857,45 @@ def _facts(con: sqlite3.Connection, before_source: Any, after_source: Any):
         }
 
 
-def _publish(root: Path, destination: Path) -> None:
-    """Publish manifest last; on failure remove only this attempt's owned entries."""
-    destination.mkdir()  # Exclusive creation; never adopt an existing directory.
-    directory = destination.lstat()
-    owned: dict[Path, os.stat_result] = {}
+def _publish(root: Path, destination: Path, *, job_id: str, cancel_event: threading.Event | None) -> None:
+    """Atomically publish the complete package without replacing foreign output."""
+    reservation = destination.with_name(f".{destination.name}.compare-publish-{job_id}")
     try:
-        for path in sorted(root.iterdir(), key=lambda path: path.name == "compare.json"):
-            target = destination / path.name
-            owned[target] = path.lstat()
-            # Hard-link publication refuses a raced-in file instead of overwriting it.
-            os.link(path, target, follow_symlinks=False)
-        fsync_directory(destination)
+        fd = os.open(reservation, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError:
+        _safe_member(reservation)
+        if reservation.stat().st_size != 0:
+            raise CompareError("comparison publish reservation is malformed")
+    else:
+        with os.fdopen(fd, "wb") as stream:
+            stream.flush()
+            os.fsync(stream.fileno())
+        fsync_directory(destination.parent)
+
+    if destination.exists():
+        _safe_member(destination, directory=True)
+        members = list(destination.iterdir())
+        if not members:
+            raise FileExistsError(f"comparison output directory already exists and is not owned by this job: {destination}")
+        # Recover only a prior hard-link publication whose every visible file is still
+        # the exact staged inode. Empty or foreign directories are never adopted.
+        for member in members:
+            staged = root / member.name
+            if member.is_symlink() or not member.is_file() or not staged.is_file() or not os.path.samefile(member, staged):
+                raise CompareError(f"comparison publish destination contains an unowned member: {member.name}")
+        for member in members:
+            member.unlink()
+        destination.rmdir()
+    _check_cancel(cancel_event)
+    try:
+        _rename_directory_noreplace(root, destination)
+        fsync_directory(destination.parent)
+        reservation.unlink()
         fsync_directory(destination.parent)
     except BaseException:
-        # A replaced directory or member belongs to someone else; do not remove it.
         with suppress(OSError):
-            if os.path.samestat(directory, destination.lstat()):
-                for path, info in reversed(owned.items()):
-                    with suppress(OSError):
-                        if os.path.samestat(info, path.lstat()):
-                            path.unlink()
-                with suppress(OSError):
-                    destination.rmdir()
+            if reservation.is_file() and not reservation.is_symlink() and reservation.stat().st_size == 0:
+                reservation.unlink()
         raise
 
 
@@ -841,6 +909,7 @@ def compare_to_files(
     compression: str = "none",
     resume: bool = False,
     progress: Callable[[Any], None] | None = None,
+    cancel_event: threading.Event | None = None,
 ) -> dict[str, Any]:
     """Write or resume a disk-backed comparison with a validated output cache."""
     from seohead.core.verification import source_identity
@@ -853,6 +922,29 @@ def compare_to_files(
     destination.parent.mkdir(parents=True, exist_ok=True)
     work = destination.with_name(f".{destination.name}.compare-work")
     if destination.exists():
+        if resume and (destination / "compare.json").is_file() is False:
+            reservation = destination.with_name(f".{destination.name}.compare-publish-{job_id}")
+            if reservation.exists() and work.is_dir() and not work.is_symlink():
+                try:
+                    _safe_member(reservation)
+                    if reservation.stat().st_size != 0:
+                        raise CompareError("comparison publish reservation is malformed")
+                    _safe_member(work / "output", directory=True)
+                    members = list(destination.iterdir())
+                    staged = work / "output"
+                    owned = bool(members) and all(
+                        not member.is_symlink()
+                        and member.is_file()
+                        and (staged / member.name).is_file()
+                        and os.path.samefile(member, staged / member.name)
+                        for member in members
+                    )
+                    if owned:
+                        for member in members:
+                            member.unlink()
+                        destination.rmdir()
+                except (OSError, CompareError):
+                    pass
         if destination.is_symlink() or not (destination / "compare.json").is_file():
             raise FileExistsError(f"comparison output already exists: {destination}")
         cached_manifest = destination / "compare.json"
@@ -879,6 +971,11 @@ def compare_to_files(
             for _row_data in iter_compare_rows(destination / "compare.json", name):
                 pass
         _discard_completed_checkpoint(work, job_id)
+        reservation = destination.with_name(f".{destination.name}.compare-publish-{job_id}")
+        with suppress(OSError, ValueError, TypeError):
+            _safe_member(reservation, optional=True)
+            if reservation.exists() and reservation.stat().st_size == 0:
+                reservation.unlink()
         _notify(progress, job_id=job_id, state="finished", stage="cached", completed=1, total=1)
         return {**cached, "manifest": str(destination / "compare.json"), "out_dir": str(destination), "cache_hit": True}
 
@@ -903,16 +1000,19 @@ def compare_to_files(
                 "stage": "indexing",
             }
         atomic_write_bytes(work / "job.json", (_json(initial_job) + "\n").encode("utf-8"))
+    _safe_member(work, directory=True)
     work_info = work.lstat()
     job_path = work / "job.json"
     succeeded = False
     try:
+        _safe_member(job_path)
         job = json.loads(job_path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise CompareError("comparison checkpoint is unreadable; it was preserved") from exc
-    if job.get("schema_version") != "compare.job.v1" or job.get("job_id") != job_id:
+    if not isinstance(job, Mapping) or job.get("schema_version") != "compare.job.v1" or job.get("job_id") != job_id:
         raise CompareError("comparison checkpoint belongs to different inputs or options")
     lock_path = work / ".writer.lock"
+    _safe_member(lock_path, optional=True)
     lock_fd = open_lock(lock_path)
     try:
         lock_exclusive(lock_fd)
@@ -921,10 +1021,12 @@ def compare_to_files(
         raise CompareError("comparison job already has an active writer") from exc
 
     def checkpoint(state: str, stage: str, **extra: Any) -> None:
+        _check_cancel(cancel_event)
         job.update(state=state, stage=stage, updated_at=__import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(), **extra)
         atomic_write_bytes(job_path, (_json(job) + "\n").encode("utf-8"), durable=True)
 
     def report(state: str, stage: str, completed: int | None, total: int | None, reason: str | None = None) -> None:
+        _check_cancel(cancel_event)
         checkpoint(state, stage, completed=completed, total=total, reason=reason)
         _notify(progress, job_id=job_id, state=state, stage=stage, completed=completed, total=total, reason=reason)
 
@@ -941,6 +1043,12 @@ def compare_to_files(
             progress(update)
 
     try:
+        _safe_member(work / "output", directory=True)
+        _safe_member(work / "index.sqlite", optional=True)
+        for suffix in ("-journal", "-wal", "-shm"):
+            _safe_member(work / f"index.sqlite{suffix}", optional=True)
+        for member in (work / "output").iterdir():
+            _safe_member(member, max_links=2)
         root = work / "output"
         db_path = work / "index.sqlite"
         before_defs, after_defs = _segment_definitions(before), _segment_definitions(after)
@@ -972,6 +1080,46 @@ def compare_to_files(
                 raise CompareError("comparison checkpoint index belongs to different inputs")
 
             phase = _state_value(con, "phase", "indexing")
+            valid_phases = {"indexing", "binding", "classify_before", "classify_after", "export"}
+            if phase not in valid_phases:
+                raise CompareError("comparison checkpoint has an invalid phase")
+            for side, source in ((0, before), (1, after)):
+                for name in ("pages", "issues"):
+                    total = counts[(side, name)]
+                    offset = _state_value(con, f"indexed:{side}:{name}", 0)
+                    if type(offset) is not int or offset < 0 or (total is not None and offset > total):
+                        raise CompareError("comparison checkpoint has an invalid source cursor")
+                    actual, maximum = con.execute(
+                        f"SELECT count(*),COALESCE(max(ordinal),-1) FROM {name} WHERE side=?", (side,)
+                    ).fetchone()
+                    if actual != offset or maximum >= offset:
+                        raise CompareError("comparison checkpoint cursor does not match indexed rows")
+                total_issues = counts[(side, "issues")]
+                cursor = _state_value(con, f"classified:{side}", 0)
+                actual = con.execute("SELECT count(*) FROM issues WHERE side=? AND ordinal<?", (side, cursor if type(cursor) is int else 0)).fetchone()[0]
+                if type(cursor) is not int or cursor < 0 or (total_issues is not None and cursor > total_issues) or actual != min(cursor, total_issues or cursor):
+                    raise CompareError("comparison checkpoint has an invalid classification cursor")
+            if phase != "indexing":
+                for side in (0, 1):
+                    for name in ("pages", "issues"):
+                        if _state_value(con, f"indexed:{side}:{name}", 0) != counts[(side, name)]:
+                            raise CompareError("comparison checkpoint phase skips unfinished source indexing")
+            if phase in {"classify_before", "classify_after", "export"}:
+                expected_before = counts[(0, "issues")]
+                if _state_value(con, "classified:0", 0) != expected_before:
+                    raise CompareError("comparison checkpoint skips unfinished before-side classification")
+            if phase in {"classify_after", "export"}:
+                expected_after = counts[(1, "issues")]
+                if _state_value(con, "classified:1", 0) != expected_after:
+                    raise CompareError("comparison checkpoint skips unfinished after-side classification")
+            if phase == "export":
+                before_count, after_count = counts[(0, "issues")], counts[(1, "issues")]
+                delta_count = con.execute("SELECT count(*) FROM delta").fetchone()[0]
+                matched = con.execute(
+                    "SELECT count(*) FROM issues b JOIN issues a ON a.side=1 AND a.check_key=b.check_key AND a.comparison_url=b.comparison_url WHERE b.side=0"
+                ).fetchone()[0]
+                if before_count + after_count != delta_count + 2 * matched:
+                    raise CompareError("comparison checkpoint classification does not conserve findings")
             if phase == "indexing":
                 completed = 0
                 order = ((0, before, "pages", before_segments), (0, before, "issues", before_segments),
@@ -982,6 +1130,7 @@ def compare_to_files(
                         con, source, side, name, ordered_segments,
                         checkpoint_key=f"indexed:{side}:{name}", progress=persist_progress,
                         job_id=job_id, progress_base=base, progress_total=total_index,
+                        cancel_event=cancel_event,
                     )
                     completed += done
                 _set_state(con, "phase", "binding")
@@ -1001,6 +1150,7 @@ def compare_to_files(
                         progress=persist_progress,
                         job_id=job_id,
                         total=page_total,
+                        cancel_event=cancel_event,
                     )
                 con.execute("CREATE UNIQUE INDEX IF NOT EXISTS issue_identity ON issues(side,check_key,comparison_url)")
                 con.execute("CREATE INDEX IF NOT EXISTS page_identity ON pages(side,comparison_url)")
@@ -1018,6 +1168,7 @@ def compare_to_files(
                 partial_other = bool(_run(after if side == 0 else before).get("crawl_partial"))
                 present_bucket, absent_bucket = (("left", "disappeared") if side == 0 else ("entered", "appeared"))
                 while True:
+                    _check_cancel(cancel_event)
                     rows = con.execute(
                         "SELECT ordinal FROM issues WHERE side=? AND ordinal>=? ORDER BY ordinal LIMIT ?",
                         (side, offset, _INDEX_BATCH),
@@ -1083,9 +1234,11 @@ def compare_to_files(
                 latest = 0
                 def on_progress(count: int) -> None:
                     nonlocal latest
+                    _check_cancel(cancel_event)
                     latest = count
                     report("running", f"export_{name}", count, total)
-                files[name] = _export(output_root, name, rows, compression=compression, on_progress=on_progress)
+                _check_cancel(cancel_event)
+                files[name] = _export(output_root, name, rows, compression=compression, on_progress=on_progress, cancel_event=cancel_event)
                 checkpoint("running", "export", files=files, completed_file=name, completed_rows=latest)
 
             for bucket in _BUCKETS[:-1]:
@@ -1231,7 +1384,8 @@ def compare_to_files(
             staged.unlink()
             fsync_directory(root)
             report("running", "publishing", 0, 1)
-            _publish(root, destination)
+            _check_cancel(cancel_event)
+            _publish(root, destination, job_id=job_id, cancel_event=cancel_event)
             checkpoint("finished", "complete", files=files, completed=1, total=1)
             _notify(progress, job_id=job_id, state="finished", stage="complete", completed=1, total=1)
             succeeded = True

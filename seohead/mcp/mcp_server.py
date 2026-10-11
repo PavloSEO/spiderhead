@@ -1265,6 +1265,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         """
         import asyncio
         import queue
+        import threading
 
         from seohead.mcp.mcp_progress import ProgressReporter
 
@@ -1279,6 +1280,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             if reporter.enabled:
                 updates.put(update)
 
+        cancel_event = threading.Event()
         async with reporter:
             task = asyncio.create_task(
                 asyncio.to_thread(
@@ -1291,10 +1293,23 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                     compression=compression,
                     resume=resume,
                     progress=collect,
+                    cancel_event=cancel_event,
                 )
             )
-            while not task.done():
-                await asyncio.sleep(0.5)
+            try:
+                while not task.done():
+                    await asyncio.sleep(0.5)
+                    while not updates.empty():
+                        update = updates.get()
+                        detail = (
+                            f"{update.stage}: {update.completed} / {update.total}"
+                            if update.total is not None
+                            else f"{update.stage}: {update.completed} completed; total unknown"
+                        )
+                        try:
+                            await reporter.elapsed(detail)
+                        except Exception:
+                            pass
                 while not updates.empty():
                     update = updates.get()
                     detail = (
@@ -1306,18 +1321,16 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                         await reporter.elapsed(detail)
                     except Exception:
                         pass
-            while not updates.empty():
-                update = updates.get()
-                detail = (
-                    f"{update.stage}: {update.completed} / {update.total}"
-                    if update.total is not None
-                    else f"{update.stage}: {update.completed} completed; total unknown"
-                )
+                return _checked(await task)
+            except asyncio.CancelledError:
+                cancel_event.set()
+                # The worker checks this token at every indexing/classification/export batch
+                # and immediately before entering the publish step.
                 try:
-                    await reporter.elapsed(detail)
+                    await asyncio.shield(task)
                 except Exception:
                     pass
-            return _checked(await task)
+                raise
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_compare_read(

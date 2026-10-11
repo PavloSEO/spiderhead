@@ -2800,6 +2800,7 @@ def compare_crawls(
     compression: str = "none",
     resume: bool = False,
     progress: Any = None,
+    cancel_event: Any = None,
 ) -> dict[str, Any]:
     """Diff two audits: which findings were fixed, which are new, which pages
     dropped out of the crawl entirely. See seohead.sf.core.compare for why
@@ -2820,6 +2821,7 @@ def compare_crawls(
             compression=compression,
             resume=resume,
             progress=progress,
+            cancel_event=cancel_event,
         )
     finally:
         if not hasattr(before, "iter_collection") and hasattr(before_doc, "close"):
