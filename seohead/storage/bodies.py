@@ -251,6 +251,7 @@ def read_page_document(con: sqlite3.Connection, url: str, *, max_decoded_bytes: 
 
 
 MAX_WINDOW_CHARS = 64 * 1024
+MAX_DOCUMENT_BYTES = 64 * 1024 * 1024
 
 
 def read_document_window(
@@ -281,7 +282,113 @@ def read_document_window(
         "lines": len(text.splitlines()),
         "encoding": decoder["decoder_charset"],
         "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "raw_body_sha256": con.execute(
+            "SELECT body_sha256 FROM documents WHERE document_id=?", (document_id,)
+        ).fetchone()[0],
         "text": window,
+    }
+
+
+def read_document_content(
+    con: sqlite3.Connection,
+    document_id: int,
+    *,
+    max_decoded_bytes: int,
+) -> dict[str, object]:
+    """Read one complete retained document under an explicit decoded-byte cap."""
+    if type(max_decoded_bytes) is not int or not 1 <= max_decoded_bytes <= MAX_DOCUMENT_BYTES:
+        raise ScanError(f"document byte limit must be 1..{MAX_DOCUMENT_BYTES}")
+    text, decoder = _read_document(con, document_id, max_decoded_bytes=max_decoded_bytes)
+    row = con.execute(
+        "SELECT d.representation,d.body_sha256,r.content_type FROM documents d "
+        "LEFT JOIN responses r ON r.response_id=d.source_response_id WHERE d.document_id=?",
+        (document_id,),
+    ).fetchone()
+    if row is None or row[1] is None:
+        raise ScanError("document body disappeared during read")
+    scan = con.execute(
+        "SELECT scan_uuid,evidence_revision FROM scan WHERE singleton=1"
+    ).fetchone()
+    return {
+        "scan_uuid": scan[0] if scan is not None else None,
+        "evidence_revision": scan[1] if scan is not None else None,
+        "document_id": document_id,
+        "representation": row[0],
+        "content_type": row[2],
+        "raw_body_sha256": row[1],
+        "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "encoding": decoder["decoder_charset"],
+        "decoder": decoder,
+        "total_chars": len(text),
+        "lines": len(text.splitlines()),
+        "text": text,
+    }
+
+
+def read_page_document_content(
+    con: sqlite3.Connection,
+    url: str,
+    *,
+    representation: str = "static",
+    variant_key: str | None = None,
+    max_decoded_bytes: int,
+) -> dict[str, object]:
+    """Resolve one exact retained page document and return its content with identity."""
+    if type(url) is not str or not url or len(url) > 8192:
+        raise ScanError("document URL must be exact nonempty text of at most 8192 characters")
+    if representation not in {"static", "rendered", "legacy_fragment"}:
+        raise ScanError("representation must be static, rendered, or legacy_fragment")
+    if variant_key is not None and type(variant_key) is not str:
+        raise ScanError("variant_key must be a string or null")
+    variants = [
+        row[0]
+        for row in con.execute(
+            "SELECT DISTINCT r.variant_key FROM documents d JOIN urls u USING(url_id) "
+            "LEFT JOIN responses r ON r.response_id=d.source_response_id "
+            "WHERE u.url=? AND d.representation=? ORDER BY r.variant_key LIMIT 2",
+            (url, representation),
+        )
+    ]
+    if not variants:
+        return {"state": "unavailable", "reason": "document_not_in_corpus", "url": url}
+    if variant_key is None and len(variants) > 1:
+        return {
+            "state": "unavailable",
+            "reason": "multiple_http_variants_require_variant_key",
+            "url": url,
+            "representation": representation,
+        }
+    selected_variant = variant_key if variant_key is not None else variants[0]
+    row = con.execute(
+        "SELECT d.document_id,d.body_state,d.body_reason FROM documents d "
+        "JOIN urls u USING(url_id) LEFT JOIN responses r ON r.response_id=d.source_response_id "
+        "LEFT JOIN pages p ON p.url_id=d.url_id WHERE u.url=? AND d.representation=? "
+        "AND COALESCE(r.variant_key,'')=COALESCE(?,'') "
+        "ORDER BY (p.document_id=d.document_id) DESC,d.document_id DESC LIMIT 1",
+        (url, representation, selected_variant),
+    ).fetchone()
+    if row is None:
+        return {
+            "state": "unavailable",
+            "reason": "requested_http_variant_not_in_corpus",
+            "url": url,
+            "representation": representation,
+            "variant_key": variant_key,
+        }
+    if row[1] != "complete":
+        return {
+            "state": "unavailable",
+            "reason": f"{row[1]}/{row[2]}",
+            "url": url,
+            "document_id": row[0],
+            "representation": representation,
+            "variant_key": selected_variant,
+        }
+    return {
+        "state": "available",
+        "url": url,
+        "variant_key": selected_variant,
+        **read_document_content(con, row[0], max_decoded_bytes=max_decoded_bytes),
     }
 
 

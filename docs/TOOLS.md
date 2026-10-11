@@ -52,8 +52,8 @@ and inputs remain in the nearby route sections and generated tool reference.
 `redirects-generate` · `regions-check` · `regions-tree` · `remediation-cases` · `remediation-create` ·
 `remediation-ingest` · `remediation-recheck` · `remediation-record-verification` · `remediation-report` ·
 `remediation-summary` · `remediation-transition` · `render-check` · `report-build` · `robots-check` ·
-`scan-body-diff` · `scan-content-search` · `scan-content-search-page` · `scan-evidence` · `scan-export` ·
-`scan-extract` · `scan-fragment-links` · `scan-graph` · `scan-import-urls` · `scan-inspect` ·
+`scan-body-diff` · `scan-body-read` · `scan-content-search` · `scan-content-search-page` · `scan-evidence` ·
+`scan-extract` · `scan-findings-page` · `scan-fragment-links` · `scan-graph` · `scan-import-urls` · `scan-inspect` ·
 `scan-link-inspect` · `scan-list` · `scan-navigation` · `scan-pin` · `scan-prune` · `scan-reanalyze` ·
 `scan-rendered-routes` · `scan-requeue` · `scan-sitemap-generate` · `scan-snapshot` · `scan-status` ·
 `scan-structured-blocks` · `scan-url-detail` · `scan-url-history` · `scan-url-query` · `scenario-list` ·
@@ -149,6 +149,7 @@ not the geographic region `key`; `summary` takes the singular `region_index`.
 | `project-new` | Create a portable local project with site facts and custom template/profile references; does not execute a checklist | no |
 | `project-open` | Validate and open a saved project without rewriting it | no |
 | `project-status` | Show scan history and explicit pending checklist/preparation states | no |
+| `project-archive` / `project-restore` | Write or restore a checksummed portable project archive; optional body and scan-retention selection | creates a new archive/project directory |
 | `project-sources-link` | Bind a provider resource ID (`--service`, `--resource`, optional `--label`) to a project in `sources.json`; no provider call or discovery | no |
 | `project-sources-unlink` | Remove one `(service, resource)` binding from `sources.json` | no |
 | `project-sources-list` | List the project's resource bindings with `status: selected` | no |
@@ -472,16 +473,18 @@ without deleting its scan. The exact arguments and defaults are in the generated
 |---|---|---|
 | `scan-list` | Validates and lists metadata for `*.sqlite` files in one existing directory without reading retained body BLOBs. It stops at 10,000 files and 64 MiB of metadata, and reports unreadable candidates under `errors` rather than treating them as scans. | — |
 | `scan-inspect` | Reads one allowed table (`pages`, `links`, `forms`, `decisions`, `frontier`, `query_variants`, `context_items`, `responses`, `documents`, `resource_refs`, or `audit`) as a paginated view. At most 1,000 rows and 8 MiB of row payload are returned; `has_more`/`truncated` says when the caller must narrow or continue. | — |
-| `scan-url-detail` | Reads one exact native URL's bounded retained page, redacted request/response headers, redirect chain and forms. Query values and sensitive headers are redacted; HTML body bytes are not returned. Legacy and Screaming Frog sources name this evidence as unavailable. | — |
+| `scan-url-detail` | Reads one exact native URL's bounded source HTML window, redacted request/response headers, redirect chain and forms. Query values and sensitive headers are redacted; the body window carries raw and decoded hashes. Legacy and Screaming Frog sources name this evidence as unavailable. | — |
+| `scan-body-read` | Reads one bounded retained static/rendered HTML window by exact URL, with document identity, raw-body SHA-256, decoded-text SHA-256 and encoding. Ambiguous HTTP variants require an explicit variant key; unavailable bodies remain named. | — |
+| `scan-findings-page` | Reads one sorted and filtered page of saved findings. An optional exact URL selector returns findings for that URL; it never runs checks. | — |
 | `scan-url-query` | Server-side filter, sort and pagination over the whole `pages` table of one saved scan (up to 200 rows per call, projected columns, AND-combined filters from a fixed column and operator allow-list). Returns `total`, `filtered_total` (`null` with `filtered_total_state: capped` when the count exceeds its time budget), scan coverage labels and the `seohead.scan-url-query.v1` format. Sorting by `url`, `status_code`, `page_ordinal` or `url_id` uses indexes; any other column needs a filter leaving at most 100,000 rows, else `reason_code: sort_not_indexed`. Failures carry a machine-readable `reason_code`. | — |
 | `scan-link-inspect` | Reads an observed shortest path, cursor-paginated reverse inlinks, one retained document's per-link placement/heading context, or (`--view links`) the paged outgoing/incoming links of one URL. It returns scan identity and explicit partial/unavailable evidence; traversal, body and result sizes are bounded. | — |
-| `scan-status` | Separates queued, inflight, done, and excluded native frontier rows from committed page HTTP outcome classes and no-response records. It reports interrupted captures as unfinished; imported scans name their absent native frontier as unavailable rather than an empty queue. The scan is accepted by a light header/schema check and the response carries `validation: "light"`; `full_validation: true` (or earlier full validation of the same bytes) reports `"full"`. | — |
+| `scan-status` | Separates queued, inflight, done, and excluded native frontier rows from committed page HTTP outcome classes and no-response records. It reports `integrity.state` as `not_checked`, `ok` or `damaged`, an available check time, affected scan IDs, nullable damaged-page count when it cannot be localized, and checkpoint availability. A missing file is `not_checked` with `missing_file`; it is never an empty scan. | — |
 | `scan-rendered-routes` | Reads stored eligible static/rendered `a[href]` route evidence offline. It never queues or fetches a route; relation is `unknown` until both representation coverages are complete. | — |
 | `scan-snapshot` | Makes a validated, portable single-file SQLite copy. `--out` may name a new file or an existing directory; a directory receives a UTC timestamp, host, and short scan UUID filename. Existing destinations are never overwritten. | writes a new file |
 | `scan-export` | Exports retained scan data under the versioned `scan_export.v1` contract as CSV, XLSX, JSON, or XML. Accepts a `scan.v1` artifact or an SF Analyzer `audit.json`; validates `--records`/`--fields` before writing; XLSX splits oversized record types into numbered sheets and records every partition; XML uses the documented `scan-export` root element and namespace. | writes new files |
 | `scan-pin` | Explicitly pins a scan, or unpins it with `--unpin`, so retention will not select it. | changes scan metadata |
 | `scan-prune` | Produces a retention plan by default. Deletion needs `--apply` and the exact reviewed plan. | deletes only with `--apply` |
-| `scan-body-diff` | Compares matching retained body hashes from two validated scans; optional text output is bounded and only applies to compatible textual evidence. A changed body is not an SEO score or verdict. | — |
+| `scan-body-diff` | Compares retained bodies across scans or static versus rendered bodies in one scan. Optional text output is bounded and applies to compatible textual evidence; a changed body is not an SEO verdict. | — |
 | `scan-evidence` | Reads one bounded saved-evidence section: capabilities, corpus, structured data, rendered routes, resources, or timeline. It never fetches or replays a scan. | — |
 | `scan-extract` | Applies closed declarative extraction rules to retained complete bodies only. It is offline, body-retention limited, and does not persist the ad-hoc result. | — |
 | `scan-content-search` | Searches all retained complete textual documents offline for a literal string (or a Python regular expression with `kind="regex"`; a document over the regex time budget is unavailable, never absent), including HEAD, raw HTML, body text, or CSS-selected markup. Static/rendered coverage is explicit: unavailable bodies stay unknown, never absent. GTM/GA4/analytics tags are useful audit inputs; a tag's presence does not prove it fired. | writes a new indexed local result package |
@@ -538,6 +541,14 @@ seohead scan-prune --directory . > plan.json
 
 # hash-first comparison; text materialization is explicit and bounded
 seohead scan-body-diff --left before.sqlite --right after.sqlite --url https://example.com/ --text --max-bytes 5242880 --max-lines 10000
+# compare the static response with the rendered DOM retained in the same scan
+seohead scan-body-diff --left native.sqlite --right native.sqlite --url https://example.com/ --left-representation static --right-representation rendered --text
+seohead scan-body-read --scan native.sqlite --url https://example.com/ --representation static --offset 0 --length 4096
+seohead scan-findings-page --project ./shop --url https://example.com/ --limit 100
+
+# portable archive options keep the source project unchanged
+seohead project archive --project ./shop --out ./shop.zip --exclude-bodies-older-than-days 90
+seohead project archive --project ./shop --out ./recent.zip --keep-newest-scans 5
 
 # read retained evidence or make an ad-hoc offline extraction; neither fetches a URL
 seohead scan evidence --scan native.sqlite --section structured

@@ -671,7 +671,7 @@ def _projection_truncated(value: Any, *, depth: int = 0) -> bool:
     return False
 
 
-def _v2_findings_page(row, *, offset, limit, query, sort, descending):
+def _v2_findings_page(row, *, offset, limit, query, url, sort, descending):
     """Let SQLite bound sorting/paging; never materialize unrelated audit collections."""
     from seohead.storage.audit_v2 import AuditV2Reader
 
@@ -683,8 +683,12 @@ def _v2_findings_page(row, *, offset, limit, query, sort, descending):
         )
         predicate = "pointer='/issues' AND instr(casefold(" + expression + "),?)>0"
         needle = query.casefold().strip()
+        parameters: tuple[Any, ...] = (needle,)
+        if url is not None:
+            predicate += " AND COALESCE(NULLIF(json_extract(value_json,'$.target_url'),''),json_extract(value_json,'$.url'))=?"
+            parameters += (url,)
         matched = reader.con.execute(
-            "SELECT COUNT(*) FROM items WHERE " + predicate, (needle,)
+            "SELECT COUNT(*) FROM items WHERE " + predicate, parameters
         ).fetchone()[0]
         value = f"json_extract(value_json,'$.{sort}')"
         if sort == "target_url":
@@ -710,7 +714,7 @@ def _v2_findings_page(row, *, offset, limit, query, sort, descending):
             + " ORDER BY "
             + order
             + " LIMIT ? OFFSET ?",
-            (needle, limit, offset),
+            (*parameters, limit, offset),
         )
         return (
             reader.count("/issues"),
@@ -726,6 +730,7 @@ def findings_page(
     offset: int = 0,
     limit: int = FINDING_PAGE_SIZE,
     query: str = "",
+    url: str | None = None,
     sort: str = "severity",
     descending: bool = False,
 ) -> dict[str, Any]:
@@ -741,6 +746,8 @@ def findings_page(
         raise ValueError("finding limit must be from 1 to 100")
     if type(query) is not str or len(query) > 256:
         raise ValueError("finding query must be text of at most 256 characters")
+    if url is not None and (type(url) is not str or not url or len(url) > 8192):
+        raise ValueError("finding URL must be exact nonempty text of at most 8192 characters")
     if sort not in _FINDING_SORTS:
         raise ValueError("finding sort must be severity, check, target_url or id")
     row = _scan_row(directory, scan_uuid)
@@ -748,7 +755,7 @@ def findings_page(
 
     if audit_v2_path(row["path"]).exists():
         source_count, matched_count, selected = _v2_findings_page(
-            row, offset=offset, limit=limit, query=query, sort=sort, descending=descending
+            row, offset=offset, limit=limit, query=query, url=url, sort=sort, descending=descending
         )
         return _finding_page_result(
             row, query, sort, descending, source_count, matched_count, selected, offset, limit
@@ -765,6 +772,12 @@ def findings_page(
                 str(issue.get(key, ""))
                 for key in ("id", "check", "severity", "target_url", "url", "message", "text")
             ).casefold()
+        ]
+    if url is not None:
+        indexed = [
+            (ordinal, issue)
+            for ordinal, issue in indexed
+            if (issue.get("target_url") or issue.get("url")) == url
         ]
 
     def sort_key(item: tuple[int, dict[str, Any]]) -> tuple[bool, Any, int]:
