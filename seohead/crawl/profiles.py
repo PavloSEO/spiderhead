@@ -49,10 +49,50 @@ def saved_names() -> list[str]:
 def path_for(name: str) -> str:
     """Path of a saved profile, for ``crawl-site --config``."""
     target = _file_for(name)
+    if target.is_symlink():
+        raise ProfileError(f"crawl profile {name!r} must not be a symlink")
     if not target.is_file():
         known = ", ".join(saved_names()) or "none"
         raise ProfileError(f"no crawl profile {name!r}; saved profiles: {known}")
     return str(target)
+
+
+def name_for_path(path: str) -> str | None:
+    """Return the saved profile name for its exact file path, if one owns it."""
+    candidate = pathlib.Path(path).resolve()
+    for name in saved_names():
+        try:
+            if pathlib.Path(path_for(name)).resolve() == candidate:
+                return name
+        except ProfileError:
+            continue
+    return None
+
+
+def show(name: str) -> dict[str, object]:
+    """Return the validated, credential-free JSON stored for ``name``."""
+    target = _file_for(name)
+    if target.is_symlink():
+        raise ProfileError(f"crawl profile {name!r} must not be a symlink")
+    if not target.is_file():
+        known = ", ".join(saved_names()) or "none"
+        raise ProfileError(f"no crawl profile {name!r}; saved profiles: {known}")
+    try:
+        with target.open(encoding="utf-8") as handle:
+            body = json.load(handle)
+    except OSError as exc:
+        raise ProfileError(f"cannot read crawl profile {name!r}: {exc}") from exc
+    except ValueError as exc:
+        raise ProfileError(f"crawl profile {name!r} is not valid JSON: {exc}") from exc
+    if not isinstance(body, dict):
+        raise ProfileError(f"crawl profile {name!r} must contain an object")
+    try:
+        validated = crawl_settings.load(str(target))
+    except crawl_settings.ConfigError as exc:
+        raise ProfileError(str(exc)) from exc
+    if validated["http"]["credential_headers"] or validated["http"]["auth"]:
+        raise ProfileError("a crawl profile cannot contain HTTP authentication settings")
+    return body
 
 
 def delete(name: str) -> None:
@@ -80,9 +120,9 @@ def save(name: str, config_file: str) -> str:
         validated = crawl_settings.load(config_file)
     except crawl_settings.ConfigError as exc:
         raise ProfileError(str(exc)) from exc
-    if validated["http"]["credential_headers"]:
+    if validated["http"]["credential_headers"] or validated["http"]["auth"]:
         raise ProfileError(
-            "a profile cannot store http.credential_headers; pass credentials at crawl time"
+            "a profile cannot store HTTP authentication settings; configure credentials at crawl time"
         )
     target.parent.mkdir(parents=True, exist_ok=True)
     atomic_write_bytes(

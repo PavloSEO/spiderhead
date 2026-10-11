@@ -164,6 +164,7 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
             note="Resumes retained crawl evidence and continues network collection.",
         ),
         _form("local_config", "config"),
+        _form("local_profile", "profile", note="Selects a saved local crawl profile by name."),
         _form(
             "project_directory",
             "project",
@@ -171,6 +172,12 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         ),
     ),
     _command("crawl-describe-settings", "crawl_describe_settings", _form("no_input")),
+    _command(
+        "crawl-control",
+        "crawl_control",
+        _form("project_directory", "project"),
+        _form("selector", "run_id", "action"),
+    ),
     _command("scan-reanalyze", "scan_reanalyze", _form("scan_artifact", "input_path")),
     _command(
         "scan-graph",
@@ -1489,6 +1496,7 @@ _KIND_LABELS = {
     "provider_query": "Provider query",
     "provider_identifier": "Provider identifier",
     "local_config": "Local configuration",
+    "local_profile": "Saved crawl profile",
     "local_directory": "Local directory",
     "project_directory": "Project directory",
     "no_input": "No direct input",

@@ -414,6 +414,8 @@ details (adaptive back-off, which checks come back `skipped` and why) and
 | Command | What it does | Side effects |
 |---|---|---|
 | `crawl-site` | Follows links from a start URL on the same host, respects `robots.txt`, and audits the result. `scope.include_extensions` / `scope.exclude_extensions` filter discovered URL-path suffixes before requests; `scope.include_media_types` / `scope.exclude_media_types` filter response bodies after `Content-Type` arrives while retaining response and link evidence. A URL crawl writes one collision-safe native SQLite artifact under `./scans/` by default; `--out-dir` is the explicit legacy directory route. Not full Screaming Frog parity — checks needing evidence a native crawl cannot produce (redirect chains, near-duplicates, readability, ...) come back `skipped`, never a false clean | writes a native scan, or legacy files under explicit `--out-dir` |
+| `crawl-profile` | Lists, shows as JSON, or deletes named local crawler profiles. Shown profiles are validated and cannot contain HTTP authentication settings. | reads local profile files; delete removes the named profile |
+| `crawl-control` | Requests a checkpointed pause or stop for an active native project scan selected by run ID. | writes a one-shot project control request |
 | `crawl-diagnose` | Explains low progress from a retained native SQLite scan (`--scan`) or legacy run (`--run`): frontier, decisions, robots/scope/depth/budgets, content types, rendering eligibility and recorded failures. Shows exact bounded decision samples and explicit next steps; the total number of site URLs stays unknown. No crawl or network request. | reads files |
 | `crawl-diagnose-export` | Explicitly writes a redacted JSON copy of the same offline diagnosis with `--export PATH`; unknown freeform labels and scan identity are removed, and existing files are never overwritten. | creates one file |
 | `compare-crawls` | Diffs two audit documents into `entered` / `left` / `appeared` / `disappeared` findings, so a fix is distinguished from a page that simply dropped out of the crawl. An optional closed `url-correspondence.v1` declaration pairs a release migration only by declared origin/path pairs and returns a `release_review.v1` artifact with facts and finding deltas; no title/content inference occurs. Refuses known-different effective crawl settings unless the operator explicitly passes `--force`. | — |
@@ -422,6 +424,24 @@ details (adaptive back-off, which checks come back `skipped` and why) and
 | `crawl-import` | Reads a local manifest-mapped CSV crawl bundle and returns `third_party_crawl.v1` with foreign source identity, pages/links/statuses/redirects, exact field coverage, duplicate counts and input hashes. This is not a native scan or SF audit. | reads the manifest and listed CSV files |
 | `segment-diff` | Answers "which pages exist in one segment and not in another" from one crawl, using the site's own hreflang declarations as the authority. Mirrored paths are a fallback only where the site's declared pairs prove it mirrors them; a partially crawled target segment yields no absences at all, because a page nobody fetched is not a page that is missing. Reads a native crawl whose config declared `scope.segments`, not an SF export | — |
 | `crawl-describe-settings` | Lists every `crawl-site` config setting — dotted path, type, default, description, and whether it is results-affecting — generated from `seohead/crawl/settings.py`. Same source as `crawl-site --config-help`, reachable over MCP for an agent with no filesystem access | — |
+
+Native `crawl-site` runs without a project by default and supports Site, List and Sitemap input
+modes. Its SQLite output is available to the ordinary paged `scan-url-query` and CSV export
+commands while the scan is being written. Results are retained under `./scans/` by default;
+the owner has not yet decided the lifetime policy for a future temporary/in-memory project-less
+result handle.
+
+Native site crawls remove `utm_*` and `fbclid` parameters from fetched GET targets by default;
+other query fields remain in their original order and encoding. Set
+`scope.normalize_tracking_parameters=false` when those names identify distinct content. Crawl
+results also expose a `crawl-load-estimate.v1`: configured request-rate ceiling and a minimum
+duration floor for a finite URL budget. Disk size remains `null` with a reason because page,
+link and body sizes vary; configured storage caps are reported as budgets, not estimates.
+
+`crawl-control` accepts only an active native project run whose controller process identity is
+still live and whose retained scan is still running. The worker consumes one request at a crawl
+boundary, records the stop reason and checkpoints the frontier; the retained scan can be resumed
+explicitly afterward.
 
 Native `crawl-site` can use an explicit `http.proxy` policy from JSON config, CLI `--set`, or
 MCP overrides. It supports one HTTP forward proxy for HTTP and HTTPS CONNECT, with credentials

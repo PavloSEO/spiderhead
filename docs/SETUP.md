@@ -331,6 +331,38 @@ arguments — the most local statement of intent wins.
 Use `http.headers` only for non-credential request headers such as `Accept-Language`. Authentication
 headers, cookies, API keys, and tokens are refused there: put them in host-bound
 `http.credential_headers` as `env:VARIABLE` references and set `http.credentials_acknowledged=true`.
+For username/password login, use `http.auth` with an exact host, `scheme` (`basic` or `digest`),
+and `username_env` / `password_env` references such as `env:CRAWL_USER`; set
+`http.auth_acknowledged=true`. These references are resolved only for that host, Digest challenge
+retries consume another rate/request-budget turn, and authenticated scans cannot be resumed from
+their retained redacted config. Profiles refuse authentication settings. Authenticated runs require
+`cache.mode=off` and HTTP uses HTTPS only. Example config shape:
+
+```json
+{
+  "http": {
+    "auth_acknowledged": true,
+    "auth": [
+      {
+        "host": "example.test",
+        "scheme": "digest",
+        "username_env": "env:CRAWL_USER",
+        "password_env": "env:CRAWL_PASSWORD"
+      }
+    ]
+  }
+}
+```
+
+To ask the origin for zstd-compressed response bodies, set `http.zstd=true`. Python 3.14+ uses its
+standard-library decoder; older Python versions need the optional `zstd` extra. This is opt-in and
+requires `cache.mode=off`; compressed content is decoded under the same response-body limit before
+parsing or retention. The scan records the setting, while its load estimate reports disk size as
+unavailable until body-size evidence exists.
+
+```bash
+python -m pip install -e '.[zstd]'
+```
 
 For a native crawl through an HTTP forward proxy, set `http.proxy` explicitly. The default is
 direct and ignores ambient `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, and `NO_PROXY`. An anonymous

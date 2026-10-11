@@ -711,7 +711,12 @@ def fetch_one(
                     **conditional_headers,
                 }
                 sent_headers = request
-                if capture_observer is None:
+                requests_zstd = any(
+                    name.lower() == "accept-encoding"
+                    and "zstd" in {part.strip().lower() for part in value.split(",")}
+                    for name, value in request.items()
+                )
+                if capture_observer is None and not requests_zstd:
                     response = client.get(target, headers=request, extensions=extensions)
                 else:
                     from seohead.crawl.capture import (
@@ -748,6 +753,10 @@ def fetch_one(
                                 if isinstance(exc, EntityDecodeError):
                                     capture_failure_reason = "fetch_failed"
                                 captured_text = ""
+                        # When zstd was explicitly negotiated without native body
+                        # capture, use HTTPX's raw stream and the same bounded
+                        # decoder. This works with stdlib compression.zstd and
+                        # does not depend on HTTPX's optional zstd decoder.
             observed_protocol = str(getattr(response, "http_version", "") or "") or None
             break
         except BlockedRedirectError as exc:
@@ -765,6 +774,8 @@ def fetch_one(
                 throttle.record_success()
             emit(reason="fetch_failed")
             return record, None
+        except RequestBudgetExhausted:
+            raise
         except Exception as exc:
             kind = _classify_fetch_error(exc)
             if kind == "timeout" and attempt < retry_on_timeout:
@@ -1156,6 +1167,7 @@ def collect_urls(
     fetcher: Callable[[str], Any] | None = None,
     sleeper: Callable[[float], None] = time.sleep,
     credential_headers: list[dict[str, Any]] | None = None,
+    http_auth: list[dict[str, Any]] | None = None,
     clock: Callable[[], float] = time.monotonic,
     max_response_bytes: int = MAX_RESPONSE_BYTES,
     max_url_length: int = 2000,
@@ -1273,11 +1285,15 @@ def collect_urls(
             # target's title and body, the Location is never seen, and redirect
             # auditing is impossible — the old and new URL become duplicates.
             from seohead.recon.net import crawl_transport_options
+            from seohead.crawl.auth import host_bound_auth
 
+            client_headers = {"User-Agent": user_agent or UA}
+            client_headers.update(extra_request_headers or {})
             client, _ = http_client(
                 timeout,
                 follow_redirects=False,
-                headers={"User-Agent": user_agent or UA},
+                headers=client_headers,
+                auth=host_bound_auth(http_auth or [], dispatch_gate.wait_turn),
                 **crawl_transport_options(proxy_route),
             )
             stack.callback(client.close)

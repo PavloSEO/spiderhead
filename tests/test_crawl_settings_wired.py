@@ -23,7 +23,7 @@ import json
 
 from seohead.crawl.collect import CrawlResult, collect_urls, fetch_one
 from seohead.crawl.settings import DEFAULTS, _flatten
-from seohead.crawl.spider import SpiderResult, crawl_site
+from seohead.crawl.spider import SpiderResult, crawl_site, normalize_get_parameters
 from seohead.crawl.throttle import MAX_DELAY_S, Throttle
 from tests._crawl_fakes import FakeResponse, _fetcher, page
 
@@ -208,6 +208,48 @@ def test_max_query_variants_per_path_configured_caps_the_budget():
 def test_default_max_query_variants_per_path_allows_more_before_capping():
     result = _crawl(SITE_QUERY_VARIANTS)
     assert len(_search_urls(result)) == 4
+
+
+def test_native_site_crawl_normalizes_common_tracking_parameters():
+    assert normalize_get_parameters(
+        "https://example.test/p?utm_source=x&Keep=%2F&FBCLID=y#fragment"
+    ) == "https://example.test/p?Keep=%2F#fragment"
+    responses = {
+        "https://example.com/robots.txt": ROBOTS_OK,
+        "https://example.com/?keep=1": page(
+            "/page?utm_source=mail&keep=2", "/page?fbclid=click&keep=2"
+        ),
+        "https://example.com/page?keep=2": page(),
+    }
+    result = crawl_site(
+        "https://example.com/?utm_campaign=spring&keep=1",
+        fetcher=_fetcher(responses),
+        sleeper=lambda _s: None,
+        min_delay=0,
+    )
+    fetched = [page.url for page in result.pages]
+    assert fetched.count("https://example.com/page?keep=2") == 1
+    assert "https://example.com/?keep=1" in fetched
+
+
+def test_tracking_parameter_normalization_can_be_disabled():
+    responses = {
+        "https://example.com/robots.txt": ROBOTS_OK,
+        "https://example.com/": page("/page?utm_source=mail", "/page?fbclid=click"),
+        "https://example.com/page?utm_source=mail": page(),
+        "https://example.com/page?fbclid=click": page(),
+    }
+    result = crawl_site(
+        "https://example.com/",
+        fetcher=_fetcher(responses),
+        sleeper=lambda _s: None,
+        min_delay=0,
+        normalize_tracking_parameters=False,
+    )
+    assert {page.url for page in result.pages} >= {
+        "https://example.com/page?utm_source=mail",
+        "https://example.com/page?fbclid=click",
+    }
 
 
 SITE_NOFOLLOW_QUERY_BUDGET = {

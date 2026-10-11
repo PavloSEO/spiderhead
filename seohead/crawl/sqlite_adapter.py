@@ -38,6 +38,7 @@ from seohead.crawl.spider import (
     _fetch_robots,
     _fold_failure_streaks,
     _strip_fragment,
+    normalize_get_parameters,
 )
 from seohead.crawl.throttle import RequestBudgetExhausted, Throttle
 from seohead.crawl.user_agents import same_robots_identity
@@ -152,7 +153,9 @@ def _runtime(
 
 
 def _headers(settings: dict[str, Any], url: str) -> dict[str, str] | None:
-    headers = dict(settings["http"]["headers"])
+    from seohead.crawl.settings import request_headers
+
+    headers = dict(request_headers(settings) or {})
     headers.update(
         resolve_credential_headers(
             settings["http"]["credential_headers"], urlsplit(url).hostname or ""
@@ -196,18 +199,27 @@ def _resource_observations(record, parsed, captures, settings):
 
 @contextmanager
 def _client_context(
-    settings: dict[str, Any], fetcher: Callable[[str], Any] | None, proxy_route=None
+    settings: dict[str, Any],
+    fetcher: Callable[[str], Any] | None,
+    proxy_route=None,
+    request_gate: Callable[[], None] | None = None,
 ) -> Iterator[Any]:
     """The same guarded, no-follow client used by the legacy spider."""
     if fetcher is not None:
         yield None
         return
     from seohead.recon.net import crawl_transport_options
+    from seohead.crawl.auth import host_bound_auth
+    from seohead.crawl.settings import request_headers
+
+    headers = {"User-Agent": settings["http"]["user_agent"] or UA}
+    headers.update(request_headers(settings) or {})
 
     client, _http2 = http_client(
         settings["http"]["timeout_seconds"],
         follow_redirects=False,
-        headers={"User-Agent": settings["http"]["user_agent"] or UA},
+        headers=headers,
+        auth=host_bound_auth(settings["http"]["auth"], request_gate),
         **crawl_transport_options(proxy_route),
     )
     try:
@@ -312,6 +324,11 @@ def _document_batch(
         record_edge=record_edge,
         reject=reject,
         mark_link_partial=mark_partial,
+        normalize_target=(
+            normalize_get_parameters
+            if settings["scope"]["normalize_tracking_parameters"]
+            else None
+        ),
     )
     forms, omitted = form_edges(parsed, source_url)
     batch.forms.extend(dataclasses.asdict(form) for form in forms)
@@ -431,6 +448,8 @@ def crawl_to_scan(
         )
     limit = checked_url_budget(settings["limits"]["max_urls"])
     start = normalize_url(start_url)
+    if settings["scope"]["normalize_tracking_parameters"]:
+        start = normalize_get_parameters(start)
     host = (urlsplit(start).hostname or "").lower()
     if not host:
         raise ValueError("SQLite scan collection requires a crawlable start URL")
@@ -506,11 +525,17 @@ def crawl_to_scan(
         with scan_context as scan:
             try:
                 yield scan
-            except KeyboardInterrupt:
+            except KeyboardInterrupt as exc:
                 scan.recover_inflight()
                 scan.record_events(adapter_events)
                 scan.record_request_count(dispatch_gate.requests_used)
-                scan.interrupt("operator interrupted (SIGINT)")
+                action = getattr(exc, "action", None)
+                reason = (
+                    f"operator requested {action}"
+                    if action in {"pause", "stop"}
+                    else "operator interrupted (SIGINT)"
+                )
+                scan.interrupt(reason)
                 outcome = scan.resume_snapshot(include_edges=True)
                 interrupted_run = ScanRun(
                     path=str(scan.path),
@@ -536,7 +561,7 @@ def crawl_to_scan(
     # counts, while the ordered fold-back below still awaits exactly the same
     # futures in exactly the same lease order.
     with (
-        _client_context(settings, fetcher, proxy_route) as client,
+        _client_context(settings, fetcher, proxy_route, dispatch_gate.wait_turn) as client,
         checkpoint_interrupt() as scan,
         ThreadPoolExecutor(max_workers=max(1, throttle.concurrency)) as fetch_pool,
     ):
@@ -683,6 +708,8 @@ def crawl_to_scan(
             # performs canonical membership internally without altering evidence.
             def seed_entry(url: str) -> dict[str, Any]:
                 requested = url.strip()
+                if settings["scope"]["normalize_tracking_parameters"]:
+                    requested = normalize_get_parameters(requested)
                 reason = scope.rejection(requested, host)
                 if (
                     not reason

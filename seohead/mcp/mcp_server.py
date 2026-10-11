@@ -279,6 +279,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         sitemap: str | None = None,
         sitemap_only: bool = False,
         config: str | None = None,
+        profile: str | None = None,
         max_urls: int | None = None,
         max_depth: int | None = None,
         min_delay: float | None = None,
@@ -315,8 +316,9 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         grows into, not a fixed thread count. ``sitemap`` seeds the crawl from a
         sitemap's declared URLs in addition to following links from ``url``, and
         reconciles the two sources (declared vs. observed). ``config`` is a path
-        to a crawler config file (JSON) on this machine, the same file
-        ``crawl-site --config`` reads. ``max_urls``, ``max_depth``, ``min_delay``,
+        to a crawler config file (JSON) on this machine; ``profile`` selects a
+        saved local crawl profile by name. They are mutually exclusive.
+        ``max_urls``, ``max_depth``, ``min_delay``,
         ``robots`` and ``concurrency`` are left unset by default: an omitted
         override preserves whatever ``config`` (or its own defaults) already
         says, exactly like the CLI's flags -- pass one explicitly only to
@@ -369,6 +371,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 sitemap=sitemap,
                 sitemap_only=sitemap_only or None,
                 config=config,
+                profile=profile,
                 max_urls=max_urls,
                 max_depth=max_depth,
                 min_delay=min_delay,
@@ -391,6 +394,13 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         if project is not None:
             result = with_project_notice(result, project, None)
         return _checked(result)
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_crawl_control(
+        project: str, run_id: str, action: Literal["pause", "stop"]
+    ) -> dict[str, Any]:
+        """Request a native project crawl to checkpoint and pause or stop by its run ID."""
+        return _checked(handlers.crawl_control(project=project, run_id=run_id, action=action))
 
     @mcp.tool(annotations=pure, structured_output=True)
     def seo_crawl_describe_settings() -> dict[str, Any]:

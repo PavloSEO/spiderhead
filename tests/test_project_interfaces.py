@@ -67,6 +67,62 @@ def test_project_crawl_defaults_and_explicit_output_precedence(tmp_path, monkeyp
     assert captured["scan_out"] == explicit
 
 
+def test_project_default_crawl_profile_layers_project_overrides(tmp_path, monkeypatch):
+    from seohead.crawl import profiles
+    from seohead.projects.runtime import project_policy
+
+    project = tmp_path / "shop"
+    create_project(project, "https://example.test/")
+    profile_dir = tmp_path / "profiles"
+    monkeypatch.setenv(profiles.DIR_ENV, str(profile_dir))
+    config = tmp_path / "crawl.json"
+    config.write_text('{"speed":{"concurrency":2}}', encoding="utf-8")
+    profiles.save("catalog", str(config))
+    policy = project_policy(str(project))["policy"]
+    policy["crawl_profile"] = "catalog"
+    policy["crawl_overrides"] = {"speed.concurrency": 3}
+    project_policy(str(project), policy=policy, apply=True, expected_revision=0)
+    captured = {}
+
+    def capture(_url, **kwargs):
+        captured.update(kwargs)
+        return {"finish_reason": "finished"}
+
+    monkeypatch.setattr("seohead.mcp.scan_handlers.crawl_site_scan", capture)
+    monkeypatch.setattr(handlers, "_record_scoped_evidence", lambda *_args: {})
+    result = handlers.crawl_site(
+        project=str(project), producer_build="a" * 40, approve_large_crawl=True
+    )
+    assert captured["settings"]["speed"]["concurrency"] == 3
+    assert result["finish_reason"] == "finished"
+
+
+def test_crawl_control_is_registered_for_cli_and_mcp(tmp_path, monkeypatch):
+    project = tmp_path / "shop"
+    create_project(project, "https://example.test/")
+    args = cli.build_parser().parse_args(
+        [
+            "crawl-control",
+            "--project",
+            str(project),
+            "--run-id",
+            "a" * 32,
+            "--action",
+            "pause",
+        ]
+    )
+    handler_name, kwargs = cli._build_kwargs("crawl-control", args)
+    assert handler_name == "crawl_control"
+    assert kwargs == {"project": str(project), "run_id": "a" * 32, "action": "pause"}
+    monkeypatch.setattr(
+        handlers,
+        "crawl_control",
+        lambda **values: {"ok": True, **values},
+    )
+    tool = build_server()._tool_manager.get_tool("seo_crawl_control")
+    assert tool.fn(project=str(project), run_id="a" * 32, action="stop")["action"] == "stop"
+
+
 def test_project_native_crawl_persists_live_phases_and_final_counters(tmp_path, monkeypatch):
     project = tmp_path / "shop"
     create_project(project, "https://example.test/")

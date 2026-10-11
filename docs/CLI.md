@@ -29,6 +29,8 @@ is `project-progress`; `seohead logs bots` is `logs-bots`.
 | `sf save-config` | Copy the most recent SF crawl configuration into a reusable base config file. |
 | `semantics <stage>` | Accumulating semantic core in its own SQLite database: `init`, `import`, `collect`, `clean`, `graph`, `exact`, `cluster`, `competitors`, `synonyms`, `report`, `excel`, `mine`, `sitematch`, `relevance`, `status`, `export`, each with `--project DIR`. `collect`, `synonyms`, `cluster` and `exact` are paid; see [SEMANTICS.md](SEMANTICS.md). |
 | `mcp` | Start the local stdio MCP server; `--profile` selects `full`, `audit`, `infra`, `quick-check` or `router` ([MCP profiles](MCP_PROFILES.md)). |
+| `crawl-profile` | List, inspect or delete named crawler profiles saved with `crawl-site --save-profile`. |
+| `crawl-control` | Request a durable native project crawl to pause or stop by its active run ID. |
 | `watch` | Optional Rich terminal observer for one project beside an AI chat ([terminal observer](TERMINAL.md)). Needs the `tui` extra. |
 | `tui` | Interactive terminal shell over the same handlers ([TERMINAL.md](TERMINAL.md)). Needs the `tui` extra. |
 | `scan`, `project`, `logs`, `skill`, `scenario` | Grouped aliases for the `scan-*`, `project-*`, `logs-*`, `skill-*` and `scenario-*` commands below. |
@@ -39,6 +41,25 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 `seohead semantics`; the paid one refuses to run without `confirm_paid=true`.
 
 ## Collect a site
+
+Named crawl profiles are credential-free saved crawler configurations. Inspect or
+remove one with `seohead crawl-profile show NAME` or `seohead crawl-profile delete NAME`;
+list available names with `seohead crawl-profile list`. `crawl-site --profile NAME`
+and MCP `seo_crawl_site(profile=NAME)` select the same local profile. A profile and
+an explicit config file cannot be selected together; explicit crawl overrides still apply.
+
+To pause or stop a native project crawl started by another process, pass its active
+run ID from `project-status` or `project-activity`:
+
+```bash
+seohead crawl-control --project ./shop --run-id RUN_ID --action pause
+seohead crawl-site --resume ./shop/scans/scan.sqlite --project ./shop
+```
+
+The request is consumed at the next crawl progress boundary and the scan writer saves
+its frontier before returning. `stop` also leaves that checkpoint available for an
+explicit resume. The command refuses stale IDs, non-native runs, and a controller whose
+recorded process identity is no longer live.
 
 | Command | What it does | Effects |
 |---|---|---|

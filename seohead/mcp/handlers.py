@@ -690,11 +690,19 @@ def _record_crawl_failure(project_root: Path, reason: str) -> None:
         record_failure(project_root, reason)
 
 
+def crawl_control(project: str, run_id: str, action: str) -> dict[str, Any]:
+    """Request a checkpointed pause or stop for an active native project crawl."""
+    from seohead.projects.run_control import request
+
+    return request(project, run_id, action)
+
+
 def crawl_site(
     url: str | None = None,
     urls: list[str] | None = None,
     urls_file: str | None = None,
     config: str | None = None,
+    profile: str | None = None,
     max_urls: int | None = None,
     max_depth: int | None = None,
     min_delay: float | None = None,
@@ -748,13 +756,24 @@ def crawl_site(
     line than this one (see ``seohead.crawl.progress``).
     """
     project_root = None
+    project_settings_policy = None
+    if profile is None and config is not None:
+        from seohead.crawl.profiles import name_for_path
+
+        profile = name_for_path(config)
+        if profile is not None:
+            config = None
     if sitemap_only and not sitemap:
         raise ValueError("sitemap_only requires an explicit sitemap")
     if project is not None:
         from seohead.projects.workspace import open_project
+        from seohead.projects.runtime import project_policy
 
         opened = open_project(project)
         project_root = Path(opened["path"])
+        project_settings_policy = project_policy(str(project_root))["policy"]
+        if resume is None and config is None and profile is None:
+            profile = project_settings_policy.get("crawl_profile")
         if (
             resume is None
             and url is None
@@ -775,6 +794,7 @@ def crawl_site(
                 ("urls", urls),
                 ("urls_file", urls_file),
                 ("config", config),
+                ("profile", profile),
                 ("max_urls", max_urls),
                 ("max_depth", max_depth),
                 ("min_delay", min_delay),
@@ -808,7 +828,8 @@ def crawl_site(
             )
             if not gate["ok"]:
                 return {"ok": False, "error": gate["reason"], "admission": gate}
-            from seohead.projects.run_observation import NativeRunReporter, finish, start
+            from seohead.projects.run_control import ControlledRunReporter
+            from seohead.projects.run_observation import finish, start
 
             try:
                 within_project = Path(resume).resolve().is_relative_to(project_root.resolve())
@@ -842,7 +863,7 @@ def crawl_site(
                     aggregate_max_requests_per_second=pacer.max_requests_per_second,
                     run_id=observer_run_id,
                 )
-                reporter = NativeRunReporter(project_root, observed["id"], progress)
+                reporter = ControlledRunReporter(project_root, observed["id"], progress)
                 try:
                     result = resume_scan(
                         resume,
@@ -873,10 +894,14 @@ def crawl_site(
                             if result.get("partial") or result.get("audit_available") is False
                             else "finished"
                         ),
-                        reason=str(
-                            result.get("audit_reason") or "audit_unavailable"
-                            if result.get("audit_available") is False
-                            else result.get("finish_reason") or "finished"
+                        reason=(
+                            f"operator_{reporter.control_action}"
+                            if reporter.control_action
+                            else str(
+                                result.get("audit_reason") or "audit_unavailable"
+                                if result.get("audit_available") is False
+                                else result.get("finish_reason") or "finished"
+                            )
                         ),
                         counters=reporter.counters(),
                     )
@@ -884,6 +909,18 @@ def crawl_site(
                     **result,
                     **rate_fields(resume_data["settings"]),
                     "observer_run_id": observed["id"],
+                    **(
+                        {
+                            "control": {
+                                "action": reporter.control_action,
+                                "state": "paused"
+                                if reporter.control_action == "pause"
+                                else "stopped",
+                            }
+                        }
+                        if reporter.control_action
+                        else {}
+                    ),
                     "checklist_evidence": _record_crawl_evidence(project_root, resume),
                 }
         from seohead.crawl.settings import rate_fields
@@ -910,6 +947,13 @@ def crawl_site(
     if not url and not urls:
         raise ValueError("url, urls, or urls_file required")
 
+    if profile is not None:
+        if config is not None:
+            raise ValueError("profile and config are mutually exclusive")
+        from seohead.crawl.profiles import path_for
+
+        config = path_for(profile)
+
     # Defaults, then file, then environment, then these explicit arguments.
     # ``overrides`` carries whatever the caller reached for by dotted path -- the
     # CLI's --set and --max-urls-per-second. Only a named argument that was
@@ -929,10 +973,15 @@ def crawl_site(
         if value is not None:
             resolved_overrides[path] = value
     base_overrides = None
+    if project_settings_policy is not None:
+        base_overrides = project_settings_policy["crawl_overrides"]
+        if profile is not None:
+            # A named profile is the project's base configuration; project policy
+            # overrides and explicit call arguments layer over it.
+            resolved_overrides = {**base_overrides, **resolved_overrides}
+            base_overrides = None
     if project_root is not None:
-        from seohead.projects.runtime import admission, project_policy
-
-        base_overrides = project_policy(str(project_root))["policy"]["crawl_overrides"]
+        from seohead.projects.runtime import admission
     if user_agent is not None and user_agent != "":
         # A preset name or one custom string sets the request identity and the robots token
         # together, so the rules matched are the rules of the crawler the site sees.
@@ -1129,7 +1178,7 @@ def crawl_site(
         pacer = None
         if project_root is not None:
             from seohead.projects.origin_pacing import ProjectOriginPacer
-            from seohead.projects.run_observation import NativeRunReporter, start
+            from seohead.projects.run_observation import start
 
             try:
                 within_project = Path(scan_out).resolve().is_relative_to(project_root.resolve())
@@ -1159,7 +1208,9 @@ def crawl_site(
                     aggregate_max_requests_per_second=pacer.max_requests_per_second,
                     run_id=observer_run_id,
                 )
-                reporter = NativeRunReporter(project_root, observed["id"], progress)
+                from seohead.projects.run_control import ControlledRunReporter
+
+                reporter = ControlledRunReporter(project_root, observed["id"], progress)
         if pacer is None:
             # Outside a project the schedule lives in the user state directory, so
             # concurrent crawls of one host still share one aggregate ceiling.
@@ -1214,10 +1265,14 @@ def crawl_site(
                         if result.get("partial") or result.get("audit_available") is False
                         else "finished"
                     ),
-                    reason=str(
-                        result.get("audit_reason") or "audit_unavailable"
-                        if result.get("audit_available") is False
-                        else result.get("finish_reason") or "finished"
+                    reason=(
+                        f"operator_{reporter.control_action}"
+                        if reporter.control_action
+                        else str(
+                            result.get("audit_reason") or "audit_unavailable"
+                            if result.get("audit_available") is False
+                            else result.get("finish_reason") or "finished"
+                        )
                     ),
                     counters=reporter.counters(),
                 )
@@ -1225,6 +1280,18 @@ def crawl_site(
                 **result,
                 **crawl_config.rate_fields(settings),
                 "observer_run_id": observed["id"],
+                **(
+                    {
+                        "control": {
+                            "action": reporter.control_action,
+                            "state": "paused"
+                            if reporter.control_action == "pause"
+                            else "stopped",
+                        }
+                    }
+                    if reporter.control_action
+                    else {}
+                ),
                 "checklist_evidence": _record_scoped_evidence(project_root, url, scan_out),
             }
         return {**result, **crawl_config.rate_fields(settings)}
@@ -1328,6 +1395,7 @@ def crawl_site(
             forms_path=os.path.join(out_dir, ".forms_resume.jsonl") if out_dir else None,
             decisions_path=decisions_path,
             credential_headers=settings["http"]["credential_headers"],
+            http_auth=settings["http"]["auth"],
             # Checkpointed only when there is somewhere durable to put it; a
             # crawl with no out_dir has nothing to resume into anyway.
             state_path=os.path.join(out_dir, "crawl_state.json") if out_dir else None,
@@ -1346,7 +1414,7 @@ def crawl_site(
             classify_links=settings["link_position"]["classify"],
             link_position_rules=settings["link_position"]["rules"] or None,
             cache=cache,
-            extra_request_headers=settings["http"]["headers"] or None,
+            extra_request_headers=crawl_config.request_headers(settings),
             adaptive=settings["speed"]["adaptive"],
             store_hyperlinks=settings["discovery"]["hyperlinks"]["store"],
             crawl_hyperlinks=settings["discovery"]["hyperlinks"]["crawl"],
@@ -1362,6 +1430,7 @@ def crawl_site(
             progress=progress,
             spool_evidence=True,
             proxy_route=proxy_route,
+            normalize_tracking_parameters=settings["scope"]["normalize_tracking_parameters"],
         )
         discovery = {
             "mode": "spider",
@@ -1400,6 +1469,7 @@ def crawl_site(
             out_path=pages_resume_path,
             cache=cache,
             proxy_route=proxy_route,
+            http_auth=settings["http"]["auth"],
         )
         discovery = {
             "mode": "list",
@@ -7421,6 +7491,7 @@ _RAW_HANDLERS = {
     "redirects_check": redirects_check,
     "sitemap_crawl": sitemap_crawl,
     "crawl_site": crawl_site,
+    "crawl_control": crawl_control,
     "verify_fixes": verify_fixes,
     "crawl_describe_settings": crawl_describe_settings,
     "images_download": images_download,

@@ -602,6 +602,16 @@ to record a standalone sitemap observation explicitly. The URL must share the
 project origin and have no credentials, query or fragment. Counts distinguish
 parsed sitemap documents from declared page URLs; no HTML crawl is inferred.
 
+### Named crawl profile defaults
+
+`project-policy` may set `crawl_profile` to a saved local crawl profile name.
+When a crawl has no explicit `--config` or `--profile`, that profile supplies
+its base settings and `crawl_overrides` plus the call's explicit options layer
+over it. Profiles live in the user configuration directory, so every machine
+that opens the project must have the named profile saved locally. Missing
+profiles are reported when the crawl starts; reading project status stays
+available.
+
 ### Evidence verification budgets
 
 A project policy may explicitly set `evidence_hash.max_bytes` and

@@ -529,6 +529,18 @@ def test_screenshot_is_saved_when_enabled(fake_stack, tmp_path):
     assert fake_stack["page"].screenshot_calls[0]["full_page"] is True
 
 
+def test_first_screen_screenshot_is_configurable(fake_stack, tmp_path):
+    config = _rendering_config()
+    config["artifacts"].update(screenshots=True, screenshot_mode="first_screen")
+    result = render_document(
+        "https://example.com/",
+        config,
+        artifacts_dir=str(tmp_path),
+    )
+    assert result["screenshot_state"] == "staged"
+    assert fake_stack["page"].screenshot_calls[0]["full_page"] is False
+
+
 def test_no_screenshot_without_an_artifacts_dir(fake_stack):
     config = _rendering_config()
     config["artifacts"]["screenshots"] = True
