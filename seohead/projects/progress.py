@@ -21,6 +21,7 @@ _STATE_NAMES = (
     "deliverable",
     "excluded",
     "not_agreed",
+    "not_run",
 )
 
 
@@ -41,8 +42,11 @@ def _item_state(item: dict[str, Any]) -> str:
         return "blocked"
     if item.get("complete"):
         return "completed"
-    if applicability == "pending_exclusion" or item.get("execution_kind") == "manual":
+    if applicability == "pending_exclusion":
         return "review"
+    if item.get("execution_kind") == "manual":
+        # Never attempted is not waiting for review; only an attempt is.
+        return "not_run" if item.get("attempt_status", "not_run") == "not_run" else "review"
     if item.get("execution_kind") == "deliverable":
         return "deliverable"
     return "remaining"
@@ -177,6 +181,8 @@ def _next_action(item: dict[str, Any], state: str) -> dict[str, Any] | None:
         action = "refresh the stale evidence and rerun the task"
     elif state == "unavailable":
         action = "resolve the unavailable input and retry the task"
+    elif state == "not_run":
+        action = "complete the agreed manual check and record its attempt"
     elif state == "review":
         action = "review the exclusion or complete the required signoff"
     elif state == "deliverable":

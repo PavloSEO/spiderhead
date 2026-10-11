@@ -262,6 +262,14 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                     )
                     if isinstance(key, str)
                 }
+                by_check = {
+                    key: count
+                    for key, count in reader.con.execute(
+                        "SELECT json_extract(value_json,'$.check'),COUNT(*) FROM items "
+                        "WHERE pointer='/issues' GROUP BY json_extract(value_json,'$.check')"
+                    )
+                    if isinstance(key, str)
+                }
                 first = reader.con.execute(
                     "SELECT value_json FROM items WHERE pointer='/issues' ORDER BY ordinal LIMIT 20"
                 )
@@ -278,8 +286,10 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                         "reason": None,
                         "total": total,
                         "by_severity": severity,
+                        "by_check": by_check,
                         "items": first,
                         "truncated": total > len(first),
+                        "next_offset": len(first) if total > len(first) else None,
                     },
                     skipped_checks=skipped,
                 )
@@ -292,6 +302,7 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                 "reason": str(exc),
                 "total": None,
                 "by_severity": {},
+                "by_check": {},
                 "items": [],
                 "truncated": False,
             },
@@ -299,11 +310,15 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
         )
         return evidence
     by_severity: dict[str, int] = {}
+    by_check: dict[str, int] = {}
     finding_items = []
     for issue in retained["issues"]:
         severity = issue.get("severity") if isinstance(issue, dict) else None
         if isinstance(severity, str):
             by_severity[severity] = by_severity.get(severity, 0) + 1
+        check = issue.get("check") if isinstance(issue, dict) else None
+        if isinstance(check, str):
+            by_check[check] = by_check.get(check, 0) + 1
         if isinstance(issue, dict) and len(finding_items) < 20:
             finding_items.append(
                 {
@@ -324,8 +339,12 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
             "reason": None,
             "total": sum(by_severity.values()),
             "by_severity": by_severity,
+            "by_check": by_check,
             "items": finding_items,
             "truncated": len(retained["issues"]) > len(finding_items),
+            "next_offset": len(finding_items)
+            if len(retained["issues"]) > len(finding_items)
+            else None,
         },
         skipped_checks=retained["skipped_checks"],
     )

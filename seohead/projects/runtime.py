@@ -334,7 +334,13 @@ def _competitor_workspaces(root: Path, candidates: list[dict]) -> list[dict]:
                         "value": candidate["source"],
                         "provenance": "project preparation",
                         "observed_at": candidate["observed_at"],
-                    }
+                    },
+                    {
+                        "name": "entered_url",
+                        "value": candidate["url"],
+                        "provenance": "operator-entered competitor URL",
+                        "observed_at": candidate["observed_at"],
+                    },
                 ],
             )
         _, child_project = _load(child)
@@ -828,23 +834,35 @@ def aggregate_coverage(
     seen = {project["project_uuid"]}
     for child in children:
         relative = child.get("directory")
-        if (
-            not isinstance(relative, str)
-            or Path(relative).is_absolute()
-            or ".." in Path(relative).parts
-            or not relative.startswith("competitors/")
-        ):
-            raise ValueError("unsafe competitor project reference")
-        path = root / relative
-        if path.is_symlink() or not path.resolve().is_relative_to(root):
-            raise ValueError("unsafe competitor project reference")
-        _, metadata = _load(path)
-        if (
-            metadata["project_uuid"] != child.get("project_uuid")
-            or metadata["site"]["target"] != _competitor_identity(child.get("url"))
-            or metadata["project_uuid"] in seen
-        ):
-            raise ValueError("competitor project identity mismatch")
+        try:
+            if (
+                not isinstance(relative, str)
+                or Path(relative).is_absolute()
+                or ".." in Path(relative).parts
+                or not relative.startswith("competitors/")
+            ):
+                raise ValueError("unsafe competitor project reference")
+            path = root / relative
+            if path.is_symlink() or not path.resolve().is_relative_to(root):
+                raise ValueError("unsafe competitor project reference")
+            _, metadata = _load(path)
+            if (
+                metadata["project_uuid"] != child.get("project_uuid")
+                or metadata["site"]["target"] != _competitor_identity(child.get("url"))
+                or metadata["project_uuid"] in seen
+            ):
+                raise ValueError("competitor project identity mismatch")
+        except (OSError, ValueError, KeyError) as exc:
+            # A damaged competitor workspace leaves its own row unavailable; the owner opens.
+            sites.append(
+                {
+                    "directory": relative,
+                    "project_uuid": child.get("project_uuid"),
+                    "site": child.get("url"),
+                    "checklist": {"state": "unavailable", "reason": str(exc), "counts": None},
+                }
+            )
+            continue
         seen.add(metadata["project_uuid"])
         child_key = str(path.resolve())
         if child_key not in views:
