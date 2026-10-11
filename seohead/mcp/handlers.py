@@ -4579,14 +4579,85 @@ def wayback_history(
 
 
 def cloudflare_traffic(
-    zone: str | None = None, since: str | None = None, until: str | None = None
+    zone: str | None = None,
+    since: str | None = None,
+    until: str | None = None,
+    project: str | None = None,
+    include_configuration: bool = False,
 ) -> dict[str, Any]:
-    """Bot and human traffic from Cloudflare edge analytics (aggregated, not raw logs)."""
-    if not zone:
-        raise ValueError("zone required (Cloudflare zone name)")
+    """Read Cloudflare edge analytics by zone name or a selected project binding."""
+    if bool(zone) == bool(project):
+        raise ValueError("pass exactly one of zone or project")
     from seohead.data_sources import cloudflare as core
 
-    return core.traffic(zone, since=since, until=until)
+    return core.traffic(
+        zone,
+        project=project,
+        since=since,
+        until=until,
+        include_configuration=include_configuration,
+    )
+
+
+def cloudflare_history(
+    project: str | None = None,
+    zone_id: str | None = None,
+    snapshot_id: int | None = None,
+    limit: int = 20,
+    offset: int = 0,
+    include_facts: bool = False,
+    facts_offset: int = 0,
+    facts_limit: int = 100,
+) -> dict[str, Any]:
+    """Read retained aggregate Cloudflare snapshots from a local project."""
+    if not project:
+        raise ValueError("project required")
+    from seohead.data_sources.cloudflare_history import list_snapshots
+
+    return list_snapshots(
+        project=project,
+        zone_id=zone_id,
+        snapshot_id=snapshot_id,
+        limit=limit,
+        offset=offset,
+        include_facts=include_facts,
+        facts_offset=facts_offset,
+        facts_limit=facts_limit,
+    )
+
+
+def cloudflare_logpush_import(
+    input_path: str,
+    project: str,
+    max_events: int = 10_000,
+) -> dict[str, Any]:
+    """Import a supplied Logpush JSON Lines file into the project's local logstore."""
+    from seohead.data_sources.cloudflare_logs import import_logpush_file
+
+    return import_logpush_file(input_path, project, max_events=max_events)
+
+
+def cloudflare_instant_logs(
+    project: str,
+    confirm_live_capture: bool = False,
+    max_seconds: int = 10,
+    max_events: int = 100,
+    max_bytes: int = 1_048_576,
+    sample: int = 10,
+    cancel_event: Any = None,
+) -> dict[str, Any]:
+    """Explicitly create and bound a transient Cloudflare Instant Logs capture."""
+    from seohead.data_sources.cloudflare_logs import instant_logs_capture
+
+    return instant_logs_capture(
+        project,
+        confirm_live_capture=confirm_live_capture,
+        max_seconds=max_seconds,
+        max_events=max_events,
+        max_bytes=max_bytes,
+        sample=sample,
+        cancel_event=cancel_event,
+    )
 
 
 def crtsh_subdomains(domain: str | None = None) -> dict[str, Any]:
@@ -6113,6 +6184,20 @@ def provider_collect(
     return core(provider, operation, request, artifact_dir=artifact_dir)
 
 
+def provider_artifact_read(
+    artifact_ref: str,
+    artifact_dir: str,
+    offset: int = 0,
+    limit: int = 25,
+) -> dict[str, Any]:
+    """Read a bounded, allowlisted PageSpeed summary from a caller-owned local artifact dir."""
+    from seohead.data_sources.provider_artifacts import read_pagespeed_artifact
+
+    return read_pagespeed_artifact(
+        artifact_ref, artifact_dir, offset=offset, limit=limit
+    )
+
+
 def provider_join(
     crawl_pages: list[dict[str, Any]],
     evidence_rows: list[dict[str, Any]],
@@ -7213,6 +7298,9 @@ _RAW_HANDLERS = {
     "wayback_history": wayback_history,
     "crtsh_subdomains": crtsh_subdomains,
     "cloudflare_traffic": cloudflare_traffic,
+    "cloudflare_history": cloudflare_history,
+    "cloudflare_logpush_import": cloudflare_logpush_import,
+    "cloudflare_instant_logs": cloudflare_instant_logs,
     "gsc_query": gsc_query,
     "webmaster_url_queries": webmaster_url_queries,
     "miratext_analyze": miratext_analyze,
@@ -7317,6 +7405,7 @@ _RAW_HANDLERS = {
     "provider_credential": provider_credential,
     "provider_discover": provider_discover,
     "provider_collect": provider_collect,
+    "provider_artifact_read": provider_artifact_read,
     "provider_join": provider_join,
     "evidence_normalize": evidence_normalize,
     "evidence_join": evidence_join,

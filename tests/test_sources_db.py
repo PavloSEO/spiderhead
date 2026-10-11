@@ -174,6 +174,29 @@ def test_adapter_exception_marks_failed_without_leaking_exception_text(tmp_path)
     assert sources_db.status(db)["sources"][0]["coverage"]["failed"] == ["2026-01-01"]
 
 
+@pytest.mark.parametrize(
+    ("failure", "expected"),
+    [
+        ({"status": 403, "error": "forbidden"}, "no_access"),
+        ({"status": 401, "error": "invalid_grant"}, "invalid_grant"),
+        ({"status": 400, "error": "insufficient_scope"}, "insufficient_scope"),
+        ({"status": 500, "error": "unavailable"}, "failed"),
+    ],
+)
+def test_sync_retains_only_explicit_provider_access_failure_classes(tmp_path, failure, expected):
+    db = tmp_path / "sources.sqlite"
+    sources_db.sync(
+        db,
+        "gsc",
+        "sc-domain:example.test",
+        start_date="2026-01-01",
+        end_date="2026-01-01",
+        fetchers={"gsc": lambda *_: {"ok": False, "retry": False, **failure}},
+    )
+    status = sources_db.status(db)["sources"][0]
+    assert status["last_attempts"]["2026-01-01"] == expected
+
+
 def test_incomplete_days_are_reported_and_refetched(tmp_path):
     db = tmp_path / "s.sqlite"
 

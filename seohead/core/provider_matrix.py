@@ -391,6 +391,29 @@ WORKFLOWS: tuple[WorkflowRow, ...] = (
         csv_fallback="not applicable",
     ),
     WorkflowRow(
+        workflow="cloudflare-edge-and-log-evidence",
+        use_case="Read aggregated per-URL edge facts and explicitly import a bounded edge-log interval",
+        providers=(_reg("cloudflare"),),
+        surface=("cloudflare-traffic", "cloudflare-history", "provider-collect"),
+        status="supported",
+        auth="Cloudflare API token; Zone Read + Account Analytics Read, with Logs Read for Logpull",
+        cost_quota=(
+            "GraphQL analytics is free within Cloudflare quota; Logpull is Enterprise-only, "
+            "at most one hour per request and seven days of history"
+        ),
+        privacy=(
+            "Aggregated traffic history stores no IPs; explicit Logpull imports IP-level rows "
+            "to a private project logs artifact"
+        ),
+        limitations=(
+            "Adaptive GraphQL facts are grouped daily data, not raw requests. Configured "
+            "redirect/WAF rules are not proof of per-request matches. Logpull always requires "
+            "an explicit project binding, end time at least five minutes old, and never enables "
+            "DNS verification"
+        ),
+        csv_fallback="not applicable — provider-native daily history and explicit log import",
+    ),
+    WorkflowRow(
         workflow="evidence-join",
         use_case="Attach external URL-keyed rows to a crawl and surface orphan candidates for explicit review",
         providers=(

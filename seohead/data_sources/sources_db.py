@@ -273,17 +273,36 @@ def _mark_requested(
 
 
 def _mark_failed(
-    connection: sqlite3.Connection, source: str, resource: str, days: list[str]
+    connection: sqlite3.Connection,
+    source: str,
+    resource: str,
+    days: list[str],
+    *,
+    attempt_state: str = "failed",
 ) -> None:
+    if attempt_state not in {"failed", "no_access", "invalid_grant", "insufficient_scope"}:
+        attempt_state = "failed"
     at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     with connection:
         for day in days:
             connection.execute(
                 "UPDATE sync_log SET state=CASE WHEN complete=1 THEN state ELSE 'failed' END,"
-                " last_attempt_state='failed', last_attempt_at=?"
+                " last_attempt_state=?, last_attempt_at=?"
                 " WHERE source=? AND resource=? AND date=?",
-                (at, source, resource, day),
+                (attempt_state, at, source, resource, day),
             )
+
+
+def _failure_state(result: dict[str, Any]) -> str:
+    """Retain only explicit access-failure classes, never provider error text."""
+    error = str(result.get("error") or "").casefold()
+    if "invalid_grant" in error:
+        return "invalid_grant"
+    if "insufficient_scope" in error or "insufficient scope" in error:
+        return "insufficient_scope"
+    if result.get("status") in (401, 403):
+        return "no_access"
+    return "failed"
 
 
 def _number(value: Any) -> float | None:
@@ -441,7 +460,7 @@ def _fetch_metrika(resource: str, start: str, end: str) -> dict[str, Any]:
     except MissingCredential as exc:
         return {"ok": False, "error": str(exc)}
     except MetrikaError as exc:
-        return {"ok": False, "error": exc.message}
+        return {"ok": False, "error": exc.message, "status": exc.status}
     data = body.get("data") if isinstance(body, dict) else None
     if not isinstance(data, list):
         return {"ok": False, "error": "malformed Metrika report data", "retry": False}
@@ -487,7 +506,12 @@ def _failure(result: dict[str, Any]) -> dict[str, Any]:
     """Retry transient failures, but do not loop on a quota refusal or a client error."""
     status = result.get("status")
     retry = not isinstance(status, int) or status >= 500
-    return {"ok": False, "error": result.get("error"), "retry": retry}
+    return {
+        "ok": False,
+        "error": result.get("error"),
+        "status": status,
+        "retry": retry,
+    }
 
 
 _WEBMASTER_INDICATORS = ["TOTAL_SHOWS", "TOTAL_CLICKS", "AVG_SHOW_POSITION", "AVG_CLICK_POSITION"]
@@ -652,7 +676,13 @@ def sync(
                 if attempt < RETRIES:
                     time.sleep(RETRY_PAUSE * (attempt + 1))
             if not result.get("ok"):
-                _mark_failed(connection, source, resource, chunk)
+                _mark_failed(
+                    connection,
+                    source,
+                    resource,
+                    chunk,
+                    attempt_state=_failure_state(result),
+                )
                 return {
                     "ok": False,
                     "source": source,

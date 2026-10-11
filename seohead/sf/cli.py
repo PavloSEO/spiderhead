@@ -59,6 +59,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="validated local project workspace for read-only live observation",
     )
     run.add_argument(
+        "--gsc-inspect",
+        action="store_true",
+        help="explicitly inspect up to 50 URLs with the bound Search Console property",
+    )
+    run.add_argument(
         "--profile",
         choices=["lite", "full", "custom"],
         default=None,
@@ -580,6 +585,8 @@ def main(argv: list[str] | None = None) -> int:
                     fetch_all_inlinks=args.fetch_all_inlinks or None,
                     live_recheck=args.live_recheck,
                     output_dir=os.path.join(args.out, "exports"),
+                    project_dir=args.project,
+                    inspect_gsc=args.gsc_inspect,
                     url_rewrite=(auth_proxy.base_url, auth_proxy.origin) if auth_proxy else None,
                     log=log,
                     **observer_kwargs,

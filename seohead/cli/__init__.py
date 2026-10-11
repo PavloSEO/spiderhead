@@ -109,6 +109,9 @@ COMMANDS = (
     "wayback-history",
     "crtsh-subdomains",
     "cloudflare-traffic",
+    "cloudflare-history",
+    "cloudflare-logpush-import",
+    "cloudflare-instant-logs",
     "gsc-query",
     "webmaster-url-queries",
     "miratext-analyze",
@@ -200,6 +203,7 @@ COMMANDS = (
     "provider-readiness",
     "provider-verify",
     "provider-collect",
+    "provider-artifact-read",
     "provider-join",
     "evidence-normalize",
     "evidence-join",
@@ -898,6 +902,10 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         for name in ("provider", "operation", "artifact_dir"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "provider-artifact-read":
+        for name in ("artifact_ref", "artifact_dir", "offset", "limit"):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
     elif cmd == "evidence-normalize":
         for name in ("file", "mapping", "sheet", "site_origin", "out_dir"):
             if getattr(args, name, None) is not None:
@@ -1325,10 +1333,35 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     if cmd == "crtsh-subdomains" and args.domain:
         kw["domain"] = args.domain
     if cmd == "cloudflare-traffic":
-        for name in ("zone", "since", "until"):
+        for name in ("zone", "since", "until", "project"):
             value = getattr(args, name, None)
             if value:
                 kw[name] = value
+        if getattr(args, "include_configuration", False):
+            kw["include_configuration"] = True
+    if cmd == "cloudflare-history":
+        for name in ("project", "zone_id", "snapshot_id"):
+            value = getattr(args, name, None)
+            if value:
+                kw[name] = value
+        for name in ("limit", "offset", "facts_offset", "facts_limit"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        if getattr(args, "include_facts", False):
+            kw["include_facts"] = True
+    if cmd == "cloudflare-logpush-import":
+        for name in ("input_path", "project", "max_events"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    if cmd == "cloudflare-instant-logs":
+        for name in ("project", "max_seconds", "max_events", "max_bytes", "sample"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        if getattr(args, "confirm_live_capture", False):
+            kw["confirm_live_capture"] = True
     if cmd == "gsc-query":
         if args.site_url:
             kw["site_url"] = args.site_url
@@ -2302,10 +2335,36 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--to-date", dest="to_date", help="latest timestamp, e.g. 20260101")
     if cmd == "cloudflare-traffic":
         _source_flag(sub, "--zone", help="Cloudflare zone name, e.g. example.com")
+        _source_flag(sub, "--project", help="project with one selected Cloudflare zone binding")
+        sub.add_argument(
+            "--include-configuration",
+            action="store_true",
+            help="read AI-related zone settings and bounded redirect/custom-WAF rulesets",
+        )
         sub.add_argument(
             "--since", help="first UTC day, YYYY-MM-DD (default: 6 days before --until)"
         )
         sub.add_argument("--until", help="last UTC day, YYYY-MM-DD (default: today)")
+    if cmd == "cloudflare-history":
+        _source_flag(sub, "--project", help="local project containing Cloudflare history")
+        sub.add_argument("--zone-id", dest="zone_id", help="optional zone ID filter")
+        sub.add_argument("--snapshot-id", dest="snapshot_id", type=int, help="optional exact snapshot ID filter")
+        sub.add_argument("--limit", type=int, default=20, help="snapshots per page, 1..100")
+        sub.add_argument("--offset", type=int, default=0, help="zero-based snapshot offset")
+        sub.add_argument("--include-facts", action="store_true", help="include bounded URL/day fact rows; default is metadata-only")
+        sub.add_argument("--facts-offset", dest="facts_offset", type=int, default=0, help="fact offset within each returned snapshot")
+        sub.add_argument("--facts-limit", dest="facts_limit", type=int, default=100, help="facts per snapshot page, 1..500")
+    if cmd == "cloudflare-logpush-import":
+        _source_flag(sub, "--file", dest="input_path", help="caller-supplied UTF-8 Logpush JSON Lines file")
+        _source_flag(sub, "--project", help="local project that owns the logstore")
+        sub.add_argument("--max-events", type=int, default=10_000, help="maximum records to import")
+    if cmd == "cloudflare-instant-logs":
+        _source_flag(sub, "--project", help="project with one selected Cloudflare zone binding")
+        sub.add_argument("--confirm-live-capture", action="store_true", help="confirm creating a transient Instant Logs session")
+        sub.add_argument("--max-seconds", type=int, default=10, help="capture duration, 1..60 seconds")
+        sub.add_argument("--max-events", type=int, default=100, help="maximum records to retain, 1..1000")
+        sub.add_argument("--max-bytes", type=int, default=1_048_576, help="maximum received frame bytes, 1..8388608")
+        sub.add_argument("--sample", type=int, default=10, help="Cloudflare sample interval, 1..100")
     if cmd == "crtsh-subdomains":
         _source_flag(sub, "--domain", help="domain to search Certificate Transparency logs for")
     if cmd == "gsc-query":
@@ -2989,6 +3048,11 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "provider-collect":
         _source_flag(sub, "--operation", help="declared read-only provider operation")
         _source_flag(sub, "--artifact-dir", help="restricted local raw-evidence directory")
+    if cmd == "provider-artifact-read":
+        _source_flag(sub, "--artifact-ref", dest="artifact_ref", help="local-artifact digest reference")
+        _source_flag(sub, "--artifact-dir", help="the directory used by the collection call")
+        sub.add_argument("--offset", type=int, default=0, help="zero-based sample offset")
+        sub.add_argument("--limit", type=int, default=25, help="sample rows to return, 1..25")
     if cmd == "evidence-normalize":
         _source_flag(
             sub,

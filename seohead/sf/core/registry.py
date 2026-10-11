@@ -1650,6 +1650,108 @@ CHECKS: dict[str, dict[str, Any]] = {
         "message": "Structured data lacks required properties in the bundled local rich-result rules",
         "fix": "Fill the required properties for the declared type and validate the result; local eligibility does not guarantee Google display.",
     },
+    "GSC_ORPHAN": {
+        "severity": "warning",
+        "source": "provider:gsc_search_analytics",
+        "message": "Search Console reports impressions for a same-origin URL absent from the crawl",
+        "fix": "Check the retained page and crawl scope, then restore, redirect, or remove the URL from search when appropriate.",
+    },
+    "NO_SEARCH_DATA": {
+        "severity": "notice",
+        "source": "provider:gsc_search_analytics",
+        "message": "Indexable crawled URL has no retained Search Console impressions",
+        "fix": "Review indexing, canonicalization, demand, and the measured reporting window before changing the page.",
+    },
+    "NON_INDEXABLE_WITH_SEARCH_DATA": {
+        "severity": "warning",
+        "source": "provider:gsc_search_analytics",
+        "message": "Non-indexable crawled URL has Search Console impressions",
+        "fix": "Review the URL's indexability and canonical signals; keep the current state only when it is intentional.",
+    },
+    "GSC_INDEXED_WITH_ISSUES": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Search Console reports an indexed URL with AMP or rich-result issues",
+        "fix": "Review the specific AMP or rich-result inspection evidence for the sampled URL.",
+    },
+    "GSC_AMP_INVALID": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Search Console reports an invalid AMP result",
+        "fix": "Review the AMP inspection result and repair or remove obsolete AMP markup.",
+    },
+    "GSC_RICH_RESULTS_INVALID": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Search Console reports invalid structured data for a rich result",
+        "fix": "Review the inspected rich-result item and correct errors reported by Search Console.",
+    },
+    "GSC_INDEXABLE_NOT_INDEXED": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Crawl reports an indexable URL that Search Console does not index",
+        "fix": "Review Search Console's coverage state, canonical, fetch state, and indexing directives.",
+    },
+    "GSC_USER_CANONICAL_NOT_SELECTED": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Google selected a different canonical URL than the declared canonical",
+        "fix": "Align internal links, redirects, sitemap membership, and the declared canonical with the preferred URL.",
+    },
+    "GSC_URL_NOT_ON_GOOGLE": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Search Console reports that the inspected URL is not on Google",
+        "fix": "Review the sampled URL's Search Console coverage state and correct blocking or canonical issues where appropriate.",
+    },
+    "GA_ORPHAN_URL": {
+        "severity": "warning",
+        "source": "provider:ga4_history",
+        "message": "GA4 reports a landing URL absent from the crawl",
+        "fix": "Check whether the URL is intentionally retired, blocked, redirected, or missing from the crawl population.",
+    },
+    "NO_GA_DATA": {
+        "severity": "notice",
+        "source": "provider:ga4_history",
+        "message": "Indexable crawled URL has no retained GA4 sessions",
+        "fix": "Review the measured period and analytics tagging before treating the absence as a page defect.",
+    },
+    "NON_INDEXABLE_WITH_GA_DATA": {
+        "severity": "warning",
+        "source": "provider:ga4_history",
+        "message": "Non-indexable crawled URL has GA4 sessions",
+        "fix": "Review whether the URL should be indexable; keep its current state only when that is intentional.",
+    },
+    "BOUNCE_RATE_ABOVE_70": {
+        "severity": "notice",
+        "source": "provider:metrika_history",
+        "message": "Yandex Metrika reports a bounce rate above 70 percent",
+        "fix": "Review the measured URL and its traffic source; bounce rate is a diagnostic signal, not a ranking verdict.",
+    },
+    "METRIKA_ORPHAN_URL": {
+        "severity": "warning",
+        "source": "provider:metrika_history",
+        "message": "Yandex Metrika reports a landing URL absent from the crawl",
+        "fix": "Check whether the URL is intentionally retired, blocked, redirected, or missing from the crawl population.",
+    },
+    "NO_METRIKA_DATA": {
+        "severity": "notice",
+        "source": "provider:metrika_history",
+        "message": "Indexable crawled URL has no retained Yandex Metrika visits",
+        "fix": "Review the measured period and Metrika tagging before treating the absence as a page defect.",
+    },
+    "NON_INDEXABLE_WITH_METRIKA_DATA": {
+        "severity": "warning",
+        "source": "provider:metrika_history",
+        "message": "Non-indexable crawled URL has Yandex Metrika visits",
+        "fix": "Review whether the URL should be indexable; keep its current state only when that is intentional.",
+    },
+    "METRIKA_BOUNCE_RATE_ABOVE_70": {
+        "severity": "notice",
+        "source": "provider:metrika_history",
+        "message": "Yandex Metrika reports a bounce rate above 70 percent",
+        "fix": "Review the measured URL and its traffic source; bounce rate is a diagnostic signal, not a ranking verdict.",
+    },
 }
 
 

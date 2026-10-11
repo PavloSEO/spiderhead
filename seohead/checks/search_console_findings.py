@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlunsplit
 
 from seohead.checks.external_join import orphan_urls
 from seohead.data_sources.evidence_join import join_evidence
@@ -18,8 +18,29 @@ GSC_ORPHAN = "GSC_ORPHAN"
 NO_SEARCH_DATA = "NO_SEARCH_DATA"
 NON_INDEXABLE_WITH_SEARCH_DATA = "NON_INDEXABLE_WITH_SEARCH_DATA"
 CHECK_IDS = (GSC_ORPHAN, NO_SEARCH_DATA, NON_INDEXABLE_WITH_SEARCH_DATA)
+INSPECTION_CHECKS = {
+    "GSC_INDEXED_WITH_ISSUES": "URL is on Google, But Has Issues",
+    "GSC_AMP_INVALID": "AMP URL is Invalid",
+    "GSC_RICH_RESULTS_INVALID": "Rich Result is Invalid",
+    "GSC_INDEXABLE_NOT_INDEXED": "Indexable URL Not Indexed",
+    "GSC_USER_CANONICAL_NOT_SELECTED": "User-Declared Canonical Not Selected",
+    "GSC_URL_NOT_ON_GOOGLE": "URL Is Not on Google",
+}
 
 NO_EVIDENCE_REASON = "no Search Console evidence"
+
+
+def _public_url(value: str) -> str:
+    parts = urlsplit(value)
+    host = parts.hostname or ""
+    if ":" in host and not host.startswith("["):
+        host = f"[{host}]"
+    try:
+        port = parts.port
+    except ValueError:
+        port = None
+    netloc = f"{host}:{port}" if port is not None else host
+    return urlunsplit((parts.scheme, netloc, parts.path, "", ""))
 
 
 def _indexable(page: Mapping[str, Any]) -> bool | None:
@@ -120,3 +141,94 @@ def evaluate(
 
     findings["_skipped"] = skipped
     return findings
+
+
+def evaluate_inspections(
+    crawl_pages: Iterable[Mapping[str, Any]],
+    inspections: Iterable[Mapping[str, Any]],
+    *,
+    requested: int,
+    deferred: int = 0,
+) -> dict[str, Any]:
+    """Map explicit, bounded URL Inspection responses to six positive sample findings.
+
+    No unsampled URL is inferred clean. Empty check lists describe the inspected sample only.
+    """
+    pages = {page.get("url"): page for page in crawl_pages}
+    rows = [dict(item) for item in inspections if isinstance(item, Mapping)]
+    findings = {name: [] for name in INSPECTION_CHECKS}
+    failed = 0
+    for row in rows:
+        status = row.get("index_status")
+        if (
+            row.get("state") != "complete"
+            or not isinstance(row.get("url"), str)
+            or not isinstance(status, Mapping)
+            or status.get("verdict") not in {"PASS", "FAIL", "NEUTRAL"}
+        ):
+            failed += 1
+            continue
+        url = row["url"]
+        amp = row.get("amp_result") or {}
+        rich = row.get("rich_results_result") or {}
+        verdict = status.get("verdict")
+        amp_verdict = amp.get("verdict")
+        rich_verdict = rich.get("verdict")
+
+        def add(check: str, details: dict[str, Any]) -> None:
+            findings[check].append(
+                {
+                    "url": url,
+                    "details": {**details, "inspected_at": row.get("inspected_at")},
+                }
+            )
+
+        if verdict == "PASS" and (amp_verdict == "FAIL" or rich_verdict == "FAIL"):
+            add(
+                "GSC_INDEXED_WITH_ISSUES",
+                {"amp_verdict": amp_verdict, "rich_results_verdict": rich_verdict},
+            )
+        if amp_verdict == "FAIL":
+            add("GSC_AMP_INVALID", {"amp_verdict": amp_verdict})
+        if rich_verdict == "FAIL":
+            add("GSC_RICH_RESULTS_INVALID", {"rich_results_verdict": rich_verdict})
+        crawl_indexable = _indexable(pages.get(url, {}))
+        if crawl_indexable is True and verdict in {"FAIL", "NEUTRAL"}:
+            add(
+                "GSC_INDEXABLE_NOT_INDEXED",
+                {"verdict": verdict, "coverage_state": status.get("coverageState")},
+            )
+        user_canonical = status.get("userCanonical")
+        google_canonical = status.get("googleCanonical")
+        if (
+            isinstance(user_canonical, str)
+            and user_canonical
+            and isinstance(google_canonical, str)
+            and google_canonical
+            and normalize_join_key(user_canonical) != normalize_join_key(google_canonical)
+        ):
+            add(
+                "GSC_USER_CANONICAL_NOT_SELECTED",
+                {
+                    "user_canonical": user_canonical,
+                    "google_canonical": google_canonical,
+                    "safe_user_canonical": _public_url(user_canonical),
+                    "safe_google_canonical": _public_url(google_canonical),
+                },
+            )
+        if verdict in {"FAIL", "NEUTRAL"}:
+            add(
+                "GSC_URL_NOT_ON_GOOGLE",
+                {"verdict": verdict, "coverage_state": status.get("coverageState")},
+            )
+    return {
+        "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+        "requested": requested,
+        "inspected": len(rows) - failed,
+        "failed": failed,
+        "deferred": deferred,
+        "sampled": bool(rows),
+        "reason": "no retained URL Inspection sample" if not rows else None,
+        "findings": findings,
+        "sf_checks": dict(INSPECTION_CHECKS),
+    }

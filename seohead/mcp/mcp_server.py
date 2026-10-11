@@ -1772,15 +1772,109 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_cloudflare_traffic(
-        zone: str, since: str | None = None, until: str | None = None
+        zone: str | None = None,
+        since: str | None = None,
+        until: str | None = None,
+        project: str | None = None,
+        include_configuration: bool = False,
     ) -> dict[str, Any]:
-        """Bot and human traffic for a Cloudflare zone from edge GraphQL analytics (read-only,
-        free): bots x URLs x status codes x cache status per day, in the same shape as
-        seo_log_analyze. Use it when origin logs are absent. It is aggregated data
-        (source=cloudflare-aggregated), not raw logs: no client IPs, so bots cannot be verified
-        by reverse DNS. Dates are UTC YYYY-MM-DD; the Free plan keeps 32 days. The token is read
-        from CLOUDFLARE_API_TOKEN or SEOHEAD_CLOUDFLARE_TOKEN_FILE."""
-        return _checked(handlers.cloudflare_traffic(zone=zone, since=since, until=until))
+        """Read Cloudflare edge GraphQL analytics by zone name or project binding. Pass exactly
+        one of zone or project; project requires one selected Cloudflare zone ID binding. Returns
+        aggregated bot/human summaries and bounded URL/day edge/origin status, cache, redirect
+        status and Cloudflare verified-bot category facts. Set include_configuration=true for
+        extra bounded AI zone settings, redirect/custom-WAF rules, and destination-redacted Logpush
+        job summaries. These are configured rules, not proof of per-request matches. It is not a raw log: it has no client
+        IPs, sub-day timestamps or rule IDs, so reverse-DNS verification is unavailable. Dates are
+        UTC YYYY-MM-DD; the Free plan keeps 32 days. A read-only token needs Zone Read and Account
+        Analytics Read. Token is read from CLOUDFLARE_API_TOKEN or SEOHEAD_CLOUDFLARE_TOKEN_FILE."""
+        return _checked(
+            handlers.cloudflare_traffic(
+                zone=zone,
+                since=since,
+                until=until,
+                project=project,
+                include_configuration=include_configuration,
+            )
+        )
+
+    @mcp.tool(annotations=pure, structured_output=True)
+    def seo_cloudflare_history(
+        project: str,
+        zone_id: str | None = None,
+        snapshot_id: int | None = None,
+        limit: int = 20,
+        offset: int = 0,
+        include_facts: bool = False,
+        facts_offset: int = 0,
+        facts_limit: int = 100,
+    ) -> dict[str, Any]:
+        """Read retained, bounded Cloudflare aggregate snapshots from a local project. History
+        defaults to metadata-only; set include_facts for a bounded page of URL/day counts and
+        cache/status/bot dimensions. It contains no client IP logs and makes no provider request."""
+        return _checked(
+            handlers.cloudflare_history(
+                project=project,
+                zone_id=zone_id,
+                snapshot_id=snapshot_id,
+                limit=limit,
+                offset=offset,
+                include_facts=include_facts,
+                facts_offset=facts_offset,
+                facts_limit=facts_limit,
+            )
+        )
+
+    @mcp.tool(annotations=fetch, structured_output=True)
+    def seo_cloudflare_logpush_import(
+        input_path: str, project: str, max_events: int = 10_000
+    ) -> dict[str, Any]:
+        """Import a caller-supplied UTF-8 Logpush JSON Lines file into the selected project's
+        local logstore. This operation reads only the supplied local file and makes no provider
+        request; input is capped at 16 MiB and 10,000 records."""
+        return _checked(
+            handlers.cloudflare_logpush_import(
+                input_path=input_path, project=project, max_events=max_events
+            )
+        )
+
+    @mcp.tool(annotations=fetch, structured_output=True)
+    async def seo_cloudflare_instant_logs(
+        project: str,
+        confirm_live_capture: bool = False,
+        max_seconds: int = 10,
+        max_events: int = 100,
+        max_bytes: int = 1_048_576,
+        sample: int = 10,
+    ) -> dict[str, Any]:
+        """Explicitly create one short, bounded Instant Logs session for a Business/Enterprise
+        project zone. Requires confirm_live_capture=true. A session already active for the zone is
+        left untouched. Only an allowlisted sample is imported locally; canceling closes this
+        client's socket and Cloudflare automatically expires idle sessions."""
+        import asyncio
+        import threading
+
+        cancelled = threading.Event()
+        task = asyncio.create_task(
+            asyncio.to_thread(
+                handlers.cloudflare_instant_logs,
+                project=project,
+                confirm_live_capture=confirm_live_capture,
+                max_seconds=max_seconds,
+                max_events=max_events,
+                max_bytes=max_bytes,
+                sample=sample,
+                cancel_event=cancelled,
+            )
+        )
+        try:
+            return _checked(await asyncio.shield(task))
+        except asyncio.CancelledError:
+            cancelled.set()
+            try:
+                await asyncio.shield(task)
+            except Exception:
+                pass
+            raise
 
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_crtsh_subdomains(domain: str) -> dict[str, Any]:
@@ -3032,6 +3126,19 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         """
         return _checked(
             handlers.provider_collect(provider, operation, request, artifact_dir=artifact_dir)
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_provider_artifact_read(
+        artifact_ref: str, artifact_dir: str, offset: int = 0, limit: int = 25
+    ) -> dict[str, Any]:
+        """Read a bounded PageSpeed summary from an existing provider artifact. The reader
+        validates the local artifact reference and returns an allowlisted, sanitized sample page;
+        it never returns the raw saved envelope or makes a provider request."""
+        return _checked(
+            handlers.provider_artifact_read(
+                artifact_ref, artifact_dir, offset=offset, limit=limit
+            )
         )
 
     @mcp.tool(annotations=pure, structured_output=True)
