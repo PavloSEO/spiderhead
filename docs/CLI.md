@@ -13,7 +13,7 @@ describe what a tool *may* do; most writes need an explicit flag such as `--appl
 and paid providers keep their sandbox or preview defaults where one exists.
 
 Grouped CLI forms are aliases: `seohead scan list` is `scan-list` and `seohead project progress`
-is `project-progress`.
+is `project-progress`; `seohead logs bots` is `logs-bots`.
 
 ## Entry points that are not single tools
 
@@ -27,7 +27,7 @@ is `project-progress`.
 | `mcp` | Start the local stdio MCP server; `--profile` selects `full`, `audit`, `infra`, `quick-check` or `router` ([MCP profiles](MCP_PROFILES.md)). |
 | `watch` | Optional Rich terminal observer for one project beside an AI chat ([terminal observer](TERMINAL.md)). Needs the `tui` extra. |
 | `tui` | Interactive terminal shell over the same handlers ([TERMINAL.md](TERMINAL.md)). Needs the `tui` extra. |
-| `scan`, `project`, `skill`, `scenario` | Grouped aliases for the `scan-*`, `project-*`, `skill-*` and `scenario-*` commands below. |
+| `scan`, `project`, `logs`, `skill`, `scenario` | Grouped aliases for the `scan-*`, `project-*`, `logs-*`, `skill-*` and `scenario-*` commands below. |
 
 The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf_audit_tasks`,
 `sf_list_exports`) expose the Screaming Frog analyzer to agents. The `seo_semantics_*` MCP tools
@@ -106,7 +106,11 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `crtsh-subdomains` | Subdomains discovered from public Certificate Transparency logs (crt.sh). | network |
 | `cloudflare-traffic` | Bot and human traffic for a Cloudflare zone from edge analytics (aggregated, not raw logs), shaped like `log-analyze`. | network |
 | `wayback-history` | Every recorded Wayback Machine snapshot of a URL, oldest first: timestamp, HTTP status, and MIME type at capture time. | network |
-| `log-analyze` | Analyse a web server access log (Apache/Nginx Common or Combined, IIS W3C; gzip-compressed files are read directly). | network |
+| `log-analyze` | Analyse a supplied access log with exact IP totals and bounded per-IP evidence. DNS is explicit. | network |
+| `logs-import` | Retain supplied access-log files or a directory in a fresh local project artifact. | writes |
+| `logs-summary` | Read exact paged URL/IP/bot/date/status/section aggregates. | offline, read-only |
+| `logs-join` | Join log visits with a retained native scan; missing evidence stays unavailable. | offline, read-only |
+| `logs-bots` | Read per-IP DNS evidence or explicitly refresh a bounded local cache. | network, writes |
 | `regions-check` | Audit a site's regional structure: subdomains (msk.site.ru), folders (site.ru/msk/) and satellite domains (site-msk.ru). | network |
 | `backlinks-check` | Verify backlinks from a list of donor pages: is the link still there, its anchor and rel, whether it passes weight (nofollow/ugc/sponsored), and whether the donor… | network |
 

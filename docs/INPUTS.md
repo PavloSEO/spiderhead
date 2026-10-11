@@ -73,7 +73,11 @@ and this decision makes no backend migration.
 | `ai-column` | Inline corpus (`items`)<br>Scan artifact (`scan`)<br>Inline text (`prompt`)<br>Inline JSON (`urls, rows`)<br>Local file (`csv_path`)<br>Selector (`column, max_pages`) | Dry-run needs only supplied normalized page text.; Uses retained normalized page content offline.; Required instruction, at most 2000 characters.; Optional URL selection and caller-supplied values; no provider call.; Formula-safe CSV of the column values. |
 | `social-meta-check` | Live URL (`url`)<br>Inline JSON (`og, twitter`) | — |
 | `soft404-check` | Live URL (`url`) | — |
-| `log-analyze` | Local log (`path`) | — |
+| `log-analyze` | Local log (`path`)<br>Selector (`verify_bots, max_lines, offset, limit, max_dns, bot, ip`) | — |
+| `logs-import` | Local log (`path`)<br>Project directory (`project`)<br>Selector (`max_lines, max_files`) | — |
+| `logs-summary` | Local file (`source`)<br>Selector (`view, limit, offset, bot, family, ip, date_from, date_to, status, section`) | — |
+| `logs-join` | Local file (`source`)<br>Scan artifact (`scan`)<br>Selector (`view, base_url, family, bot, date_from, date_to, limit, offset`) | — |
+| `logs-bots` | Local file (`source`)<br>Selector (`verify_bots, limit, offset, bot, family, ip, verdict, max_dns`) | — |
 | `regions-check` | Live URL (`url`) | — |
 | `render-check` | Live URL (`url`)<br>Inline JSON (`transport_config`) | Optional local/remote Playwright transport selection; endpoint is named by environment variable. |
 | `site-audit` | Live URL (`url`)<br>URL list (`urls`) | — |
