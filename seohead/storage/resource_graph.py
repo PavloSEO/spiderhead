@@ -828,7 +828,24 @@ def _image_dimensions(body: bytes | None) -> tuple[int | None, int | None]:
             warnings.simplefilter("error")
             with Image.open(BytesIO(body)) as image:
                 width, height = image.size
-                orientation = image.getexif().get(274, 1)
+                if image.format == "PNG":
+                    # PNG metadata may follow IDAT. Pillow's PNG getexif() calls
+                    # load() to reach it, decoding pixels; walk retained chunks instead.
+                    offset = 8
+                    while offset + 12 <= len(body):
+                        length = int.from_bytes(body[offset : offset + 4], "big")
+                        end = offset + length + 12
+                        if end > len(body):
+                            return None, None
+                        kind = body[offset + 4 : offset + 8]
+                        if kind == b"eXIf":
+                            image.info["exif"] = body[offset + 8 : end - 4]
+                        offset = end
+                        if kind == b"IEND":
+                            break
+                    else:
+                        return None, None
+                orientation = Image.Image.getexif(image).get(274, 1)
                 if type(orientation) is not int or not 1 <= orientation <= 8:
                     return None, None
                 if orientation in {5, 6, 7, 8}:

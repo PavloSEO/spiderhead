@@ -1,6 +1,6 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-11T09:33:06Z
+- **Generated:** 2026-10-11T12:08:50Z
 
 ## Health summary
 
@@ -237,22 +237,22 @@ Each check below describes more than half the crawled pages. That can be true --
 | Sitemap URL returns a 3xx response | missing export: sitemap_redirects |
 | Sitemap contains a non-indexable URL | missing export: sitemap_non_indexable |
 | Link fragment identifies no element on the destination page | export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan |
-| The supplied Lighthouse LCP discovery audit reports an opportunity | not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected |
-| The supplied Lighthouse dependency-tree audit reports a request-chain opportunity | not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected |
-| The supplied Lighthouse layout-shift audit reports culprits | not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected |
-| The supplied Lighthouse image-delivery audit reports an opportunity | not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected |
-| The supplied Lighthouse forced-reflow audit reports an opportunity | not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected |
-| The supplied Lighthouse bootup-time audit reports expensive script execution | not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected |
-| A heavy image has more intrinsic width than its displayed device pixels need | not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded |
-| An image has less intrinsic width than its displayed device pixels need | not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded |
-| CSS or JavaScript source is substantially unused in the captured navigation window | not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded |
-| Captured HTML and declared resources exceed the configured page byte budget | not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets |
-| A captured resource exceeds the configured individual byte budget | not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets |
-| A captured resource has no long-lived public cache policy | not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets |
-| An observed stylesheet font-face lacks an accepted font-display value | not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets |
-| Captured CSS or JavaScript does not look minified (heuristic) | not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets |
-| Different script URLs on one page contain identical captured source bytes | not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets |
-| Captured JavaScript has an unconditional legacy or polyfill marker (heuristic) | not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets |
+| The supplied Lighthouse LCP discovery audit reports an opportunity | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| The supplied Lighthouse dependency-tree audit reports a request-chain opportunity | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| The supplied Lighthouse layout-shift audit reports culprits | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| The supplied Lighthouse image-delivery audit reports an opportunity | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| The supplied Lighthouse forced-reflow audit reports an opportunity | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| The supplied Lighthouse bootup-time audit reports expensive script execution | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| A heavy image has more intrinsic width than its displayed device pixels need | not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages |
+| An image has less intrinsic width than its displayed device pixels need | not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages |
+| CSS or JavaScript source is substantially unused in the captured navigation window | not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages |
+| Observed navigation responses or HTML alone exceed the configured content-decoded byte budget | not fully measured by this native crawl: runtime response weight is absent or bounded; captured HTML alone is a lower bound |
+| A captured resource exceeds the configured individual byte budget | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| A captured resource has no long-lived public cache policy | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| An observed stylesheet font-face lacks an accepted font-display value | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| Captured CSS or JavaScript does not look minified (heuristic) | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| Different script URLs on one page contain identical captured source bytes | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| Captured JavaScript has an unconditional legacy or polyfill marker (heuristic) | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
 | A <head> script or stylesheet blocks first paint (no async/defer, no non-matching media) | no Render Blocking Resources column (needs a native seohead crawl) |
 | More than one <meta name="description"> element is present | no meta description count evidence (native crawl only) |
 | Page has an H1 but no H2 headings | requirements.require_h2 is false; the check was not evaluated |

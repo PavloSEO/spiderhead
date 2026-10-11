@@ -6,6 +6,8 @@ is checked for the fields the comparison needs.
 
 from __future__ import annotations
 
+import struct
+import zlib
 from io import BytesIO
 
 import pytest
@@ -81,15 +83,33 @@ def test_unproved_replaced_content_geometry_is_not_a_size_finding():
 
 
 @pytest.mark.parametrize("orientation", range(1, 9))
-def test_file_dimensions_follow_exif_orientation_without_decoding_pixels(monkeypatch, orientation):
+@pytest.mark.parametrize("format", ["JPEG", "PNG"])
+def test_file_dimensions_follow_exif_orientation_without_decoding_pixels(
+    monkeypatch, orientation, format
+):
     buffer = BytesIO()
     exif = Image.Exif()
     exif[274] = orientation
-    Image.new("RGB", (300, 600), "red").save(buffer, format="JPEG", exif=exif)
+    Image.new("RGB", (300, 600), "red").save(buffer, format=format, exif=exif)
     monkeypatch.setattr(Image.Image, "load", lambda *args: pytest.fail("pixel decoding forbidden"))
     assert _image_dimensions(buffer.getvalue()) == (
         (600, 300) if orientation in {5, 6, 7, 8} else (300, 600)
     )
+
+
+def test_png_exif_after_idat_is_read_without_decoding_pixels(monkeypatch):
+    buffer = BytesIO()
+    Image.new("RGB", (3, 6), "red").save(buffer, format="PNG")
+    exif = Image.Exif()
+    exif[274] = 6
+    data = b"eXIf" + exif.tobytes()[6:]
+    chunk = struct.pack(">I", len(data) - 4) + data + struct.pack(">I", zlib.crc32(data))
+    png = buffer.getvalue()
+    late = png[:-12] + chunk + png[-12:]
+    monkeypatch.setattr(Image.Image, "load", lambda *args: pytest.fail("pixel decoding forbidden"))
+    assert _image_dimensions(png) == (3, 6)
+    assert _image_dimensions(late) == (6, 3)
+    assert _image_dimensions(late[:-5]) == (None, None)
 
 
 def test_invalid_exif_orientation_does_not_claim_unrotated_dimensions():

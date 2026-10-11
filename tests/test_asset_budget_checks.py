@@ -293,6 +293,15 @@ def test_old_recorded_asset_defaults_keep_the_original_fingerprint():
     assert _resume_fingerprint(current, recorded) != fingerprint(recorded)
 
 
+def test_resource_budget_override_is_preserved_at_both_config_boundaries():
+    native = load(overrides={"analysis.asset_thresholds.resource_max_bytes": 12345})
+    assert native["analysis"]["asset_thresholds"]["resource_max_bytes"] == 12345
+    config = load_config(None)
+    config["thresholds"]["resource_max_bytes"] = 12345
+    validate_config(config)
+    assert config["thresholds"]["resource_max_bytes"] == 12345
+
+
 def test_render_findings_survive_scan_reopening(tmp_path):
     path = tmp_path / "layout.sqlite"
     evidence = {
