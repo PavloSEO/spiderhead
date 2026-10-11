@@ -274,6 +274,7 @@ class ToolRedirectsScreen(Screen):
 
     # ---- state --------------------------------------------------------------------------------------------------
     def _input_changed(self):
+        self._invalidate_export()
         self.source_text = self.input.toPlainText()
         self._recompute()
         self.debounce.start()
@@ -315,6 +316,7 @@ class ToolRedirectsScreen(Screen):
     def _target_edited(self, text):
         if self.selected is None or self.selected >= len(self.items):
             return
+        self._invalidate_export()
         source = self.items[self.selected][0]
         self.edits[source] = text.strip()
         self._recompute()
@@ -325,14 +327,18 @@ class ToolRedirectsScreen(Screen):
         self._start_export()
 
     # ---- export through the core --------------------------------------------------------------------------------
-    def _start_export(self):
+    def _invalidate_export(self):
         self.generation += 1
-        exports = [{"from": source, "to": target} for source, target, check in self.items if check in EXPORTABLE]
+        self.job.cancel()
         self.rules_text = ""
         self.copy_button.setEnabled(False)
         self.save_button.setEnabled(False)
+        self._show_code("", "")
+
+    def _start_export(self):
+        self._invalidate_export()
+        exports = [{"from": source, "to": target} for source, target, check in self.items if check in EXPORTABLE]
         if not exports:
-            self.job.cancel()
             self._show_code("", tr("Нет строк с целью для выгрузки"))
             return
         arguments = ["redirects-generate", "--input", json.dumps({"redirects": exports}, ensure_ascii=False),

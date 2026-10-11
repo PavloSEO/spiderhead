@@ -87,6 +87,39 @@ class ToolRedirectsScreenTests(unittest.TestCase):
         screen._rules_done(old_token, {"rules": ["stale"]})
         self.assertEqual(screen.rules_text, "")
 
+    def test_mapping_edits_invalidate_rules_before_debounce(self):
+        for edit in ("input", "target"):
+            with self.subTest(edit=edit):
+                screen = self.make("/a/, /b/\n")
+                screen.debounce.stop()
+                screen._start_export()
+                _arguments, old_token = self.calls[-1]
+                screen._rules_done(old_token, {"rules": ["old rules"]})
+                self.assertTrue(screen.copy_button.isEnabled())
+                self.assertTrue(screen.save_button.isEnabled())
+                cancelled = []
+                screen.job.cancel = lambda: cancelled.append(True)
+                self.calls.clear()
+                if edit == "input":
+                    screen.input.setPlainText("/a/, /c/\n")
+                else:
+                    screen.selected = 0
+                    screen._target_edited("/c/")
+                self.assertTrue(cancelled)
+                self.assertTrue(screen.debounce.isActive())
+                self.assertEqual(self.calls, [])  # a new export still waits for the debounce
+                self.assertEqual(screen.rules_text, "")
+                self.assertEqual(screen.code.toPlainText(), "")
+                self.assertFalse(screen.copy_button.isEnabled())
+                self.assertFalse(screen.save_button.isEnabled())
+                screen._rules_done(old_token, {"rules": ["stale rules"]})
+                screen._rules_failed(old_token, "stale error")
+                self.assertEqual(screen.rules_text, "")
+                self.assertEqual(screen.code.toPlainText(), "")
+                self.assertFalse(screen.copy_button.isEnabled())
+                self.assertFalse(screen.save_button.isEnabled())
+                screen.debounce.stop()
+
     def test_no_exportable_rows_says_so_without_calling_the_core(self):
         screen = self.make("/d/\n")
         self.calls.clear()
