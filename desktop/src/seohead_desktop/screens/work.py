@@ -9,7 +9,7 @@ from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4
 
-from PyQt5.QtCore import QAbstractTableModel, Qt
+from PyQt5.QtCore import QAbstractTableModel, QTimer, Qt
 from PyQt5.QtWidgets import (
     QDialog,
     QFormLayout,
@@ -35,7 +35,15 @@ from PyQt5.QtWidgets import (
 
 from .. import i18n
 from ..i18n import tr, trf
-from ..local_owner_actions import LocalOwnerActions, manual_signoff_request
+from ..local_owner_actions import (
+    LocalOwnerActions,
+    competitor_scan_arguments,
+    competitor_scan_cancel_arguments,
+    competitor_scan_status_arguments,
+    manual_signoff_request,
+    run_competitor_scan_command,
+)
+from ..schedule_core import ScheduleJobs
 from ..ui.controls import Note, Segmented
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import (
@@ -72,6 +80,7 @@ TASK_KINDS = {
     "scenario": "Сценарий",
     "custom": "Своя задача",
 }
+COMPETITOR_SCAN_TIMEOUT_SECONDS = 7 * 60 * 60 + 15 * 60  # 20 sites / 3 workers, plus completion grace
 RUN_KINDS = {
     "crawl": "Новый скан",
     "resume": "Продолжение",
@@ -354,6 +363,24 @@ class TaskDetail(QFrame):
         self.scan_competitors_button.setIcon(material_icon("play_arrow"))
         self.scan_competitors_button.clicked.connect(self._scan_task_competitors)
         self.scan_competitors_button.hide()
+        self.cancel_competitors_button = QPushButton(tr("Запросить остановку"))
+        self.cancel_competitors_button.setProperty("role", "secondary")
+        self.cancel_competitors_button.clicked.connect(self._cancel_task_competitors)
+        self.cancel_competitors_button.hide()
+        self.competitor_run_status = QLabel()
+        self.competitor_run_status.setProperty("text_style", "meta")
+        self.competitor_run_status.setWordWrap(True)
+        self.competitor_run_status.hide()
+        self.competitor_jobs = ScheduleJobs(self)
+        self.competitor_poll_timer = QTimer(self)
+        self.competitor_poll_timer.setInterval(1500)
+        self.competitor_poll_timer.timeout.connect(self._poll_task_competitors)
+        self._competitor_run_id = None
+        self._competitor_project = None
+        self._competitor_task_id = None
+        self._competitor_poll_pending = False
+        self._competitor_cancel_pending = False
+        self._competitor_terminal = False
         self._row = None
         self._result = None
         self.owner_actions = LocalOwnerActions(self)
@@ -374,6 +401,15 @@ class TaskDetail(QFrame):
         self.body_layout.setSpacing(14)
         self.scroll.setWidget(self.body)
         outer.addWidget(self.scroll, 1)
+        self.competitor_actions = QWidget()
+        self.competitor_actions_layout = QVBoxLayout(self.competitor_actions)
+        self.competitor_actions_layout.setContentsMargins(16, 0, 16, 12)
+        self.competitor_actions_layout.setSpacing(8)
+        self.competitor_actions_layout.addWidget(self.scan_competitors_button)
+        self.competitor_actions_layout.addWidget(self.competitor_run_status)
+        self.competitor_actions_layout.addWidget(self.cancel_competitors_button)
+        self.competitor_actions.hide()
+        outer.addWidget(self.competitor_actions)
 
     def _section(self, title):
         label = QLabel(tr(title).upper())
@@ -404,6 +440,9 @@ class TaskDetail(QFrame):
         self.comment_button.hide()
         self.approve_button.hide()
         self.scan_competitors_button.hide()
+        self.competitor_run_status.hide()
+        self.cancel_competitors_button.hide()
+        self.competitor_actions.hide()
 
     def show_item(self, row, result):
         """``row`` is the list row (always available), ``result`` the task-detail answer for that id or None."""
@@ -493,6 +532,7 @@ class TaskDetail(QFrame):
             if isinstance(value, str) and value.strip():
                 self._text(trf("{label}: {value}", label=tr(label), value=value.strip()))
         competitors = task.get("competitors")
+        has_competitors = isinstance(competitors, list) and bool(competitors)
         if isinstance(competitors, list) and competitors:
             self._section("Лимиты сканов конкурентов")
             self._text(
@@ -509,8 +549,7 @@ class TaskDetail(QFrame):
                 cap = competitor.get("max_urls")
                 if isinstance(url, str) and type(cap) is int:
                     self._text(f"{url} · {number(cap)} URLs")
-            tools = getattr(self.host, "_mcp_tools", None)
-            available = tools is None or "seo_project_competitors_scan" in tools
+            available = bool(getattr(self.host, "core_executable", None))
             self.scan_competitors_button.setVisible(True)
             self.scan_competitors_button.setEnabled(
                 available and type((result or {}).get("revision")) is int
@@ -521,9 +560,10 @@ class TaskDetail(QFrame):
                         "Эта версия ядра не поддерживает запуск конкурентов из задачи."
                     )
                 )
-            self.body_layout.addWidget(self.scan_competitors_button)
+            self.competitor_actions.show()
         else:
             self.scan_competitors_button.hide()
+        self._show_task_competitor_run(task, row, result, has_competitors)
         comments = task.get("comments") if isinstance(task.get("comments"), list) else []
         comment_total = task.get("comments_total")
         if comments or comment_total:
@@ -611,6 +651,209 @@ class TaskDetail(QFrame):
             )
         self.body_layout.addStretch(1)
 
+    def _show_task_competitor_run(self, task, row, result, has_competitors):
+        run = task.get("competitor_run")
+        if (
+            self._competitor_view_is_current()
+            and not self._competitor_terminal
+            and self._competitor_task_id != row.get("id")
+        ):
+            self.competitor_run_status.setText(
+                trf(
+                    "Другой запуск ещё выполняется · ID запуска: {run_id}",
+                    run_id=self._competitor_run_id,
+                )
+            )
+            self.competitor_run_status.show()
+            self.cancel_competitors_button.show()
+            self.cancel_competitors_button.setEnabled(not self._competitor_cancel_pending)
+            self.scan_competitors_button.setVisible(has_competitors)
+            self.scan_competitors_button.setEnabled(False)
+            self.competitor_actions.show()
+            return
+        if not isinstance(run, dict):
+            if (
+                self._competitor_view_is_current()
+                and not self._competitor_terminal
+            ):
+                text = (
+                    "Скан задачи выполняется · ID запуска: {run_id}"
+                    if self._competitor_task_id == row.get("id")
+                    else "Другой запуск ещё выполняется · ID запуска: {run_id}"
+                )
+                self.competitor_run_status.setText(
+                    trf(text, run_id=self._competitor_run_id)
+                )
+                self.competitor_run_status.show()
+                self.cancel_competitors_button.show()
+                self.cancel_competitors_button.setEnabled(
+                    not self._competitor_cancel_pending
+                )
+                self.scan_competitors_button.setVisible(has_competitors)
+                self.scan_competitors_button.setEnabled(False)
+                self.competitor_actions.show()
+                return
+            self.competitor_run_status.hide()
+            self.cancel_competitors_button.hide()
+            self.scan_competitors_button.setText(tr("Сканировать конкурентов из задачи"))
+            self.scan_competitors_button.setEnabled(has_competitors and (
+                bool(getattr(self.host, "core_executable", None))
+                and type((result or {}).get("revision")) is int
+            ))
+            self.competitor_poll_timer.stop()
+            self._competitor_run_id = None
+            self._competitor_project = None
+            self._competitor_task_id = None
+            self.competitor_actions.setVisible(has_competitors)
+            return
+
+        run_id = run.get("run_id")
+        state = run.get("state")
+        if state == "unavailable":
+            self.competitor_run_status.setText(
+                tr("История запусков недоступна; новый запуск заблокирован.")
+            )
+            self.competitor_run_status.show()
+            self.scan_competitors_button.setEnabled(False)
+            self.scan_competitors_button.setToolTip(
+                tr("Проверьте историю сканов проекта перед новым запуском.")
+            )
+            if (
+                self._competitor_view_is_current()
+                and not self._competitor_terminal
+                and self._competitor_task_id == row.get("id")
+            ):
+                self.cancel_competitors_button.show()
+                self.cancel_competitors_button.setEnabled(
+                    not self._competitor_cancel_pending
+                )
+                if not self.competitor_poll_timer.isActive():
+                    self.competitor_poll_timer.start()
+            else:
+                self.cancel_competitors_button.hide()
+                self.competitor_poll_timer.stop()
+                self._competitor_run_id = None
+                self._competitor_project = None
+                self._competitor_task_id = None
+            self.competitor_actions.show()
+            return
+
+        if not isinstance(run_id, str):
+            self.competitor_run_status.setText(
+                tr("Ссылка на скан не содержит корректный ID запуска.")
+            )
+            self.competitor_run_status.show()
+            self.scan_competitors_button.setEnabled(False)
+            self.cancel_competitors_button.hide()
+            return
+
+        if run.get("resumable") is not True:
+            self.competitor_poll_timer.stop()
+            self.competitor_run_status.setText(
+                trf(
+                    "Последний запуск: {state} · {done} из {total} сайтов · ID запуска: {run_id}",
+                    state=tr(state or "unknown"),
+                    done=run.get("completed_sites", 0),
+                    total=run.get("total_sites", 0),
+                    run_id=run_id,
+                )
+            )
+            self.competitor_run_status.show()
+            self.cancel_competitors_button.hide()
+            self.scan_competitors_button.setText(tr("Сканировать конкурентов из задачи"))
+            self.scan_competitors_button.setEnabled(
+                has_competitors
+                and bool(getattr(self.host, "core_executable", None))
+                and type((result or {}).get("revision")) is int
+            )
+            self.competitor_actions.setVisible(has_competitors)
+            self._competitor_run_id = None
+            self._competitor_project = None
+            self._competitor_task_id = None
+            return
+
+        if (
+            type(run.get("coverage_revision")) is not int
+            or run.get("coverage_revision") != (result or {}).get("revision")
+            or not has_competitors
+        ):
+            self.competitor_run_status.setText(
+                tr("Незавершённый скан несовместим с текущей задачей; запуск заблокирован.")
+            )
+            self.competitor_run_status.show()
+            self.scan_competitors_button.setEnabled(False)
+            self.cancel_competitors_button.hide()
+            return
+        try:
+            competitor_scan_status_arguments(self.host.project_directory, run_id)
+        except ValueError:
+            self.competitor_run_status.setText(
+                tr("Ссылка на скан не содержит корректный ID запуска.")
+            )
+            self.competitor_run_status.show()
+            self.scan_competitors_button.setEnabled(False)
+            self.cancel_competitors_button.hide()
+            return
+
+        if (
+            self._competitor_run_id
+            and not self._competitor_terminal
+            and self._competitor_run_id != run_id
+        ):
+            self.competitor_run_status.setText(
+                trf(
+                    "Другой запуск ещё выполняется · ID запуска: {run_id}",
+                    run_id=self._competitor_run_id,
+                )
+            )
+            self.competitor_run_status.show()
+            self.cancel_competitors_button.show()
+            self.cancel_competitors_button.setEnabled(not self._competitor_cancel_pending)
+            self.scan_competitors_button.setEnabled(False)
+            self.competitor_actions.show()
+            return
+
+        if (
+            self._competitor_run_id != run_id
+            or self._competitor_project != self.host.project_directory
+            or self._competitor_task_id != row.get("id")
+        ):
+            self._competitor_run_id = run_id
+            self._competitor_project = self.host.project_directory
+            self._competitor_task_id = row.get("id")
+            self._competitor_terminal = False
+        self.competitor_run_status.setText(
+            trf(
+                "{state} · {done} из {total} сайтов · ID запуска: {run_id}",
+                state=tr(state or "unknown"),
+                done=run.get("completed_sites", 0),
+                total=run.get("total_sites", 0),
+                run_id=run_id,
+            )
+        )
+        self.competitor_run_status.show()
+        if state in {"running", "cancel_requested"}:
+            self.scan_competitors_button.setText(tr("Сканировать конкурентов из задачи"))
+            self.scan_competitors_button.setEnabled(False)
+            self.cancel_competitors_button.setEnabled(state == "running")
+            self.cancel_competitors_button.show()
+            if not self.competitor_poll_timer.isActive():
+                self.competitor_poll_timer.start()
+                self._poll_task_competitors()
+        elif state == "interrupted":
+            self.competitor_poll_timer.stop()
+            self.scan_competitors_button.setText(tr("Продолжить сканы конкурентов"))
+            self.scan_competitors_button.setEnabled(
+                bool(getattr(self.host, "core_executable", None))
+            )
+            self.cancel_competitors_button.hide()
+        else:
+            self.competitor_run_status.setText(
+                tr("Для продолжения проверьте состояние скана в проекте.")
+            )
+            self.scan_competitors_button.setEnabled(False)
+            self.cancel_competitors_button.hide()
+
     def _edit_task(self):
         item = (self._result or {}).get("item") or {}
         definition = item.get("definition")
@@ -681,10 +924,24 @@ class TaskDetail(QFrame):
         competitors = task.get("competitors") if isinstance(task, dict) else None
         if not competitors or not isinstance(self._result, dict):
             return
+        prior_run = task.get("competitor_run") if isinstance(task, dict) else None
+        if isinstance(prior_run, dict) and prior_run.get("state") == "unavailable":
+            self.host.statusBar().showMessage(
+                tr("История запусков недоступна; новый запуск заблокирован.")
+            )
+            return
+        resume = (
+            isinstance(prior_run, dict)
+            and prior_run.get("resumable") is True
+            and prior_run.get("state") == "interrupted"
+            and isinstance(prior_run.get("run_id"), str)
+        )
         dialog = ModalDialog(
-            "Сканировать конкурентов из задачи?",
+            "Продолжить скан конкурентов?" if resume else "Сканировать конкурентов из задачи?",
             "Каждый сайт должен быть в списке конкурентов проекта. Ядро применит лимиты URL "
-            "и сохранит результаты.",
+            "и сохранит результаты; незавершённые сайты продолжатся с сохранённых точек."
+            if resume
+            else "и сохранит результаты.",
             icon="travel_explore",
             tone="warning",
             width=560,
@@ -696,35 +953,236 @@ class TaskDetail(QFrame):
                 if isinstance(url, str) and type(cap) is int:
                     dialog.body.addWidget(QLabel(f"{url} · {number(cap)} URLs"))
         dialog.add_button("Отмена", "text", on_click=dialog.reject)
-        dialog.add_button("Запустить сканы", "primary", icon="play_arrow", on_click=dialog.accept)
+        dialog.add_button(
+            "Продолжить сканы" if resume else "Запустить сканы",
+            "primary",
+            icon="play_arrow",
+            on_click=dialog.accept,
+        )
         if dialog.exec_() != QDialog.Accepted:
             return
+        if not self.host.core_executable:
+            self.host.statusBar().showMessage(tr("Локальное ядро недоступно."))
+            return
+        run_id = prior_run.get("run_id") if resume else str(uuid4())
+        project = self.host.project_directory
+        item_id = self._row.get("id")
+        revision = self._result.get("revision")
+        try:
+            arguments = competitor_scan_arguments(
+                project,
+                item_id,
+                revision,
+                run_id,
+                approve_large_crawl=(
+                    prior_run.get("approve_large_crawl") is True if resume else False
+                ),
+                producer_build=(
+                    prior_run.get("producer_build") if resume else None
+                ),
+            )
+        except ValueError as exc:
+            self.host.statusBar().showMessage(str(exc))
+            return
+        self._competitor_run_id = run_id
+        self._competitor_project = project
+        self._competitor_task_id = item_id
+        self._competitor_terminal = False
+        self.competitor_run_status.setText(
+            trf("Запускается · ID запуска: {run_id}", run_id=run_id)
+        )
+        self.competitor_run_status.show()
+        self.cancel_competitors_button.setEnabled(True)
+        self.cancel_competitors_button.show()
         self.scan_competitors_button.setEnabled(False)
-        self.host.start_command(
-            "competitors-scan",
-            "seo_project_competitors_scan",
-            {
-                "directory": self.host.project_directory,
-                "task_id": self._row.get("id"),
-                "expected_revision": self._result["revision"],
-                "confirm": True,
-                "concurrency": 3,
-                "approve_large_crawl": False,
-            },
+        self.competitor_poll_timer.start()
+        self._poll_task_competitors()
+        executable = self.host.core_executable
+        self.competitor_jobs.submit(
+            lambda: run_competitor_scan_command(
+                executable, arguments, timeout=COMPETITOR_SCAN_TIMEOUT_SECONDS
+            ),
             self._competitors_scanned,
+            self._competitor_start_failed,
+            self,
         )
 
     def _competitors_scanned(self, result):
-        if not isinstance(result, dict) or result.get("ok") is False:
+        if not self._competitor_view_is_current():
             return
-        rows = result.get("results") if isinstance(result.get("results"), list) else []
-        done = sum(row.get("state") in {"completed", "finished"} for row in rows if isinstance(row, dict))
-        self.host.statusBar().showMessage(
-            trf("Сканы конкурентов завершены: {done} из {total}.", done=done, total=len(rows))
+        if not isinstance(result, dict) or result.get("ok") is not True:
+            self._competitor_start_failed(tr("Ядро не вернуло итог сканов."))
+            return
+        self._update_competitor_run(result)
+        if result.get("state") in {"completed", "partial", "failed", "cancelled", "interrupted"}:
+            self._finish_competitor_run(result)
+
+    def _competitor_view_is_current(self):
+        return (
+            isinstance(self._competitor_run_id, str)
+            and isinstance(self._competitor_project, str)
         )
-        self.host.refresh_project()
-        item_id = self._row.get("id") if self._row else None
-        if isinstance(item_id, str):
+
+    def _poll_task_competitors(self):
+        if not self._competitor_view_is_current() or self._competitor_poll_pending:
+            return
+        try:
+            arguments = competitor_scan_status_arguments(
+                self._competitor_project, self._competitor_run_id
+            )
+        except ValueError as exc:
+            self._competitor_start_failed(str(exc))
+            return
+        self._competitor_poll_pending = True
+        executable = self.host.core_executable
+        self.competitor_jobs.submit(
+            lambda: run_competitor_scan_command(
+                executable, arguments, timeout=30
+            ),
+            self._competitor_status_received,
+            self._competitor_status_failed,
+            self,
+        )
+
+    def _competitor_status_received(self, result):
+        self._competitor_poll_pending = False
+        if not self._competitor_view_is_current():
+            return
+        if not isinstance(result, dict) or result.get("ok") is not True:
+            self._competitor_status_failed(tr("Состояние запуска недоступно."))
+            return
+        self._update_competitor_run(result)
+        if result.get("state") in {"completed", "partial", "failed", "cancelled", "interrupted"}:
+            self._finish_competitor_run(result)
+
+    def _competitor_status_failed(self, _message):
+        self._competitor_poll_pending = False
+        if self._competitor_view_is_current():
+            self.competitor_run_status.setText(
+                trf(
+                    "Проверка состояния не удалась; повторяем · ID запуска: {run_id}",
+                    run_id=self._competitor_run_id,
+                )
+            )
+
+    def _competitor_start_failed(self, message):
+        if not self._competitor_view_is_current() or self._competitor_terminal:
+            return
+        self.competitor_run_status.setText(
+            trf(
+                "Нет ответа запуска ({message}); проверка продолжается · ID: {run_id}",
+                message=message,
+                run_id=self._competitor_run_id,
+            )
+        )
+        self.host.statusBar().showMessage(
+            tr("Ответ запуска не получен; состояние продолжает проверяться.")
+        )
+
+    def _update_competitor_run(self, result):
+        run_id = result.get("run_id") if isinstance(result.get("run_id"), str) else self._competitor_run_id
+        state = result.get("state") if isinstance(result.get("state"), str) else "starting"
+        rows = result.get("results") if isinstance(result.get("results"), list) else []
+        completed = sum(
+            row.get("state") in {"completed", "partial", "failed", "cancelled", "interrupted"}
+            for row in rows
+            if isinstance(row, dict)
+        )
+        self.competitor_run_status.setText(
+            trf(
+                "{state} · {done} из {total} сайтов · ID запуска: {run_id}",
+                state=tr(state),
+                done=completed,
+                total=len(rows),
+                run_id=run_id,
+            )
+        )
+
+    def _cancel_task_competitors(self):
+        if not self._competitor_view_is_current() or self._competitor_cancel_pending:
+            return
+        try:
+            arguments = competitor_scan_cancel_arguments(
+                self._competitor_project, self._competitor_run_id
+            )
+        except ValueError as exc:
+            self.host.statusBar().showMessage(str(exc))
+            return
+        self._competitor_cancel_pending = True
+        self.cancel_competitors_button.setEnabled(False)
+        self.competitor_run_status.setText(
+            trf(
+                "Запрашивается остановка · ID запуска: {run_id}",
+                run_id=self._competitor_run_id,
+            )
+        )
+        executable = self.host.core_executable
+        self.competitor_jobs.submit(
+            lambda: run_competitor_scan_command(
+                executable, arguments, timeout=30
+            ),
+            self._competitor_cancel_received,
+            self._competitor_cancel_failed,
+            self,
+        )
+
+    def _competitor_cancel_received(self, result):
+        self._competitor_cancel_pending = False
+        if not self._competitor_view_is_current() or self._competitor_terminal:
+            return
+        if isinstance(result, dict) and result.get("ok") is True:
+            self._update_competitor_run(result)
+            if result.get("state") == "cancel_requested":
+                self.competitor_run_status.setText(
+                    trf(
+                        "Остановка запрошена; ядро завершает текущий шаг · ID: {run_id}",
+                        run_id=self._competitor_run_id,
+                    )
+                )
+            elif result.get("state") in {"completed", "partial", "failed", "cancelled", "interrupted"}:
+                self._finish_competitor_run(result)
+        else:
+            self._competitor_cancel_failed(tr("Ядро не подтвердило запрос остановки."))
+
+    def _competitor_cancel_failed(self, message):
+        self._competitor_cancel_pending = False
+        if not self._competitor_view_is_current() or self._competitor_terminal:
+            return
+        self.cancel_competitors_button.setEnabled(True)
+        self.competitor_run_status.setText(
+            trf(
+                "Запрос остановки не подтверждён: {message} · ID: {run_id}",
+                message=message,
+                run_id=self._competitor_run_id,
+            )
+        )
+
+    def _finish_competitor_run(self, result):
+        self._competitor_terminal = True
+        self.competitor_poll_timer.stop()
+        self.scan_competitors_button.setEnabled(True)
+        self.cancel_competitors_button.hide()
+        rows = result.get("results") if isinstance(result.get("results"), list) else []
+        done = sum(
+            row.get("state") in {"completed", "partial"}
+            for row in rows
+            if isinstance(row, dict)
+        )
+        self.host.statusBar().showMessage(
+            trf(
+                "Сканы конкурентов: {done} из {total} завершены, состояние {state}.",
+                done=done,
+                total=len(rows),
+                state=tr(result.get("state", "unknown")),
+            )
+        )
+        item_id = self._competitor_task_id
+        if self._competitor_project == self.host.project_directory:
+            self.host.refresh_project()
+        if (
+            self._competitor_project == self.host.project_directory
+            and isinstance(item_id, str)
+        ):
             self.host.select_project_task(item_id)
 
     def _signoff_succeeded(self, _result, project, item_id):

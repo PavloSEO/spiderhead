@@ -5,12 +5,40 @@ import unittest
 
 from seohead_desktop.local_owner_actions import (
     accept_goal_arguments,
+    competitor_scan_arguments,
+    competitor_scan_cancel_arguments,
+    competitor_scan_status_arguments,
     manual_signoff_request,
     run_owner_action,
 )
 
 
 class LocalOwnerActionsTests(unittest.TestCase):
+    def test_competitor_scan_commands_share_a_caller_run_id_and_resume_settings(self):
+        run_id = "f8b826c6-c622-4000-8d41-090f683ea2bc"
+        args = competitor_scan_arguments(
+            "project",
+            "custom:competitor-audit",
+            7,
+            run_id,
+            approve_large_crawl=True,
+            producer_build="a" * 40,
+        )
+        self.assertEqual(args[:1], ["project-competitors-scan"])
+        self.assertEqual(args[args.index("--run-id") + 1], run_id)
+        self.assertIn("--approve-large-crawl", args)
+        self.assertEqual(args[args.index("--producer-build") + 1], "a" * 40)
+        self.assertEqual(
+            competitor_scan_status_arguments("project", run_id),
+            ["project-competitors-scan-status", "--directory", "project", "--run-id", run_id],
+        )
+        self.assertEqual(
+            competitor_scan_cancel_arguments("project", run_id),
+            ["project-competitors-scan-cancel", "--directory", "project", "--run-id", run_id],
+        )
+        with self.assertRaises(ValueError):
+            competitor_scan_arguments("project", "custom:task", 7, run_id.upper())
+
     def test_goal_acceptance_uses_revisioned_local_cli_route(self):
         self.assertEqual(
             accept_goal_arguments("project", "inbox:goal-1", 7),
