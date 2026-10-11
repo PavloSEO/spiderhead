@@ -34,9 +34,18 @@ are synthetic examples; put real private exports and snapshots outside the repos
 }
 ```
 
+A standalone offline example uses an explicitly empty synthetic source:
+
 ```bash
-seohead backlinks-profile < /data/links/profile.json
-seohead backlinks-profile --domain example.test --db /data/links/backlinks.sqlite --history
+seohead backlinks-profile --input '{"domain":"example.test","evidence":[{"source":"generic","rows":[],"complete":true}]}'
+```
+
+A retained synthetic history can be prepared and read as follows. For real work, replace the
+empty evidence with your explicit imports or source rows and use a private database path.
+
+```bash
+echo '{"domain":"example.test","db":"./backlinks.sqlite","evidence":[{"source":"generic","rows":[],"complete":true}]}' | seohead backlinks-profile
+seohead backlinks-profile --domain example.test --db ./backlinks.sqlite --history
 ```
 
 Supported source names: `generic`, `gsc`, `ahrefs`, `majestic`, `moz`, `semrush`, `dataforseo`,
@@ -175,12 +184,13 @@ retries deduplicate. History reports `newly_observed`, `confirmed_lost`, and
 
 ```bash
 seohead backlinks-disavow --domains donor.test,another.test \
-  --urls https://page-donor.test/article --output /data/links/disavow.txt
+  --urls https://page-donor.test/article
 ```
 
 MCP `seo_backlinks_disavow` accepts explicit `domains`, `urls`, and optional `output`. The result
-includes text and counts. File publication is exclusive, preserves existing lists, and never
-submits to a search engine. The selection must be reviewed separately from spam heuristics.
+includes text and counts. Pass `--output /data/links/disavow.txt` only after creating its parent
+directory. File publication is exclusive, preserves existing lists, and never submits to a
+search engine. The selection must be reviewed separately from spam heuristics.
 
 Primary contracts: [Yandex samples](https://yandex.com/dev/webmaster/doc/en/reference/host-links-external-samples),
 [Bing GetUrlLinks](https://learn.microsoft.com/en-us/dotnet/api/microsoft.bing.webmaster.api.interfaces.iwebmasterapi.geturllinks?view=bing-webmaster-dotnet),
