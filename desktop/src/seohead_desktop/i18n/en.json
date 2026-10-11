@@ -2461,5 +2461,6 @@
  "Разделы с пометкой «нужен проект» откроются после открытия или создания проекта": "Sections marked «needs project» open after a project is opened or created",
  "Не запускалась": "Never run",
  "Проверки скана. Число рядом с проверкой — находки по всему скану от ядра; список URL — из первых {n} находок.": "Scan checks. The number next to a check is the core's count of findings for the whole scan; the URL list comes from the first {n} findings.",
- "число находок этой проверки в скане": "number of findings of this check in the scan"
+ "число находок этой проверки в скане": "number of findings of this check in the scan",
+ "Граф строится вокруг URL, выбранного на экране URL.": "The graph is built around the URL selected on the URL screen."
 }

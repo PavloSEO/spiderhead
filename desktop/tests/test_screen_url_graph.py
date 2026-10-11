@@ -133,3 +133,42 @@ class GraphWalkTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LinkGraphScreenTests(unittest.TestCase):
+    """The «Граф ссылок» section follows the URL selected on the URL screen and stays empty without one."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = qt.app()
+
+    def host(self, current_url):
+        class UrlScreen:
+            detail_data = None
+
+        class Host:
+            selected_scan_path = "/scan.sqlite"
+
+        host = Host()
+        url_screen = UrlScreen()
+        url_screen.current_url = current_url
+        host.screens = {"url": url_screen}
+        return host, url_screen
+
+    def test_empty_state_without_a_url(self):
+        host, _ = self.host(None)
+        screen = url_graph.LinkGraphScreen(host)
+        screen.refresh()
+        self.assertIs(screen.stack.currentWidget(), screen.empty)
+
+    def test_follows_the_selected_url(self):
+        host, url_screen = self.host("A")
+        screen = url_graph.LinkGraphScreen(host)
+        FakeCore(screen.graph)
+        screen.refresh()
+        self.assertIs(screen.stack.currentWidget(), screen.graph)
+        self.assertEqual(screen.graph.nodes.get("A"), 0)
+        url_screen.current_url = "B"
+        screen.refresh()
+        self.assertEqual(screen.graph.nodes.get("B"), 0)
+        self.assertEqual(screen.graph.nodes.get("A"), 1)  # the previous centre is now a neighbour of B
