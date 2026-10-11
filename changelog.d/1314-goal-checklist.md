@@ -1,0 +1,4 @@
+- Accepting an owner goal adds only that goal's checklist task. It no longer reconciles the whole built-in catalogue into `coverage.json`; built-in rows are added on demand when one is touched.
+- A busy checklist names the live holder (for example a running native crawl and its pid) instead of calling the lock a leftover. The lock records its writer pid; a lock with no live holder is still reported as a leftover.
+- A workflow run blocked by a failed, unavailable, skipped or interrupted step is still resumable, and a later pending step may be checkpointed past a non-success step. Steps still must be checkpointed in registered order, and an interrupted run still refuses further steps.
+- An agent-recorded review no longer makes a manual or deliverable item owner-complete. The item stays waiting for owner signoff or a non-agent reviewer.
