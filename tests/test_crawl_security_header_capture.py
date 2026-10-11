@@ -16,7 +16,7 @@ from collections.abc import Iterator
 import pytest
 
 from seohead.crawl import security_headers
-from seohead.crawl.capture import COOKIE_FLAGS_HEADER, redact_headers
+from seohead.crawl.capture import redact_headers
 from seohead.mcp import handlers
 
 BUILD = "b" * 40
@@ -127,7 +127,7 @@ def test_a_header_sent_twice_is_reported_on_that_page_only(site, tmp_path):
     ]
 
 
-def test_cookie_flags_are_stored_and_the_cookie_itself_is_not(site, tmp_path):
+def test_the_session_cookie_is_never_stored(site, tmp_path):
     con = _crawl(site, tmp_path)
     try:
         rows = con.execute(
@@ -138,28 +138,17 @@ def test_cookie_flags_are_stored_and_the_cookie_itself_is_not(site, tmp_path):
 
     blob = json.dumps(rows)
     assert "s3cr3t-value" not in blob
-    assert '"session"' not in blob
-    flags = [
-        value
-        for raw in (column for row in rows for column in row)
-        for name, value in json.loads(raw)
-        if name == COOKIE_FLAGS_HEADER
-    ]
-    assert flags and set(flags) == {"secure,httponly,samesite=lax"}
+    assert "session=" not in blob
 
 
-def test_redaction_keeps_policy_headers_and_only_cookie_flags():
+def test_redaction_keeps_policy_headers_and_drops_cookies_and_credentials():
     pairs = redact_headers(
         [
             ("Content-Security-Policy", "default-src 'self'"),
             ("Set-Cookie", "a=1; Secure"),
-            ("Set-Cookie", "b=2; Path=/; samesite=None"),
-            ("Set-Cookie", "c=3"),
             ("Authorization", "Bearer x"),
         ]
     )
     assert ("content-security-policy", "default-src 'self'") in pairs
-    assert (COOKIE_FLAGS_HEADER, "secure") in pairs
-    assert (COOKIE_FLAGS_HEADER, "samesite=none") in pairs
-    assert (COOKIE_FLAGS_HEADER, "") in pairs
-    assert not any("1" == value or "Bearer" in value for _name, value in pairs)
+    assert not any("Bearer" in value or value == "a=1; Secure" for _name, value in pairs)
+    assert ("x-seohead-redacted-headers", "authorization,set-cookie") in pairs

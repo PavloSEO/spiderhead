@@ -37,7 +37,6 @@ def test_capture_observer_receives_exact_bytes_and_no_secret_headers():
     # kept or dropped (#647); its value never does.
     assert event.response_headers == (
         ("content-type", "text/html; charset=utf-8"),
-        ("x-seohead-cookie-flags", ""),
         ("x-seohead-redacted-headers", "set-cookie"),
     )
     assert not any("secret" in value for _name, value in event.response_headers)

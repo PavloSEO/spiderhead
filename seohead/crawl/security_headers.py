@@ -31,7 +31,15 @@ HEADER_CHECKS: dict[str, str] = {
 DUPLICATE_CHECK = "DUPLICATE_SECURITY_HEADER"
 CHECK_IDS: tuple[str, ...] = (*HEADER_CHECKS, DUPLICATE_CHECK)
 
-_SECURITY_HEADERS = (*HEADER_CHECKS.values(), "permissions-policy")
+# Content-Security-Policy is left out on purpose: a site may send several policies, and the browser
+# enforces each one, so a repeated CSP is not a defect.
+_SECURITY_HEADERS = (
+    "strict-transport-security",
+    "x-content-type-options",
+    "x-frame-options",
+    "referrer-policy",
+    "permissions-policy",
+)
 
 _HTML_TYPES = frozenset({"text/html", "application/xhtml+xml"})
 
