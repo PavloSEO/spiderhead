@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from typing import Any
 
 from bs4 import BeautifulSoup
@@ -35,6 +36,56 @@ def _nodes(value: Any) -> list[dict[str, Any]]:
         elif isinstance(current, list):
             stack.extend(reversed(current))
     return result
+
+
+def _has_schema_rdfa(soup: BeautifulSoup) -> bool:
+    """Recognize Schema.org RDFa properties as retained structured markup."""
+    from seohead.checks.parser import is_inert_template_content
+    from seohead.checks.schema_org import MAX_MARKUP_NODES
+
+    def schema_namespace(value: str) -> bool:
+        return bool(re.match(r"^https?://(?:www\.)?schema\.org(?:/|$)", value.strip(), re.I))
+
+    for tag in soup.find_all(True, limit=MAX_MARKUP_NODES):
+        if not any(tag.has_attr(attribute) for attribute in ("typeof", "property", "rel", "rev")):
+            continue
+        if is_inert_template_content(tag):
+            continue
+        if tag.has_attr("typeof"):
+            return True
+        terms = []
+        for attribute in ("property", "rel", "rev"):
+            value = tag.get(attribute) or []
+            terms.extend(value if isinstance(value, list) else str(value).split())
+        if any(
+            term.startswith("schema:")
+            or schema_namespace(term)
+            or term.lower().startswith("schema.org/")
+            for term in terms
+        ):
+            return True
+        ancestors = [tag, *tag.parents]
+        if any(
+            node.has_attr("vocab") and schema_namespace(str(node.get("vocab") or ""))
+            for node in ancestors
+        ):
+            return True
+        if not any(node.has_attr("vocab") for node in ancestors) and any(
+            term and ":" not in term and not term.startswith("_") for term in terms
+        ):
+            return True
+        prefix_text = " ".join(str(node.get("prefix") or "") for node in ancestors if hasattr(node, "get"))
+        prefix_map = {
+            name: namespace
+            for name, namespace in re.findall(r"(\w[\w-]*):\s+(\S+)", prefix_text)
+        }
+        if any(
+            ":" in term
+            and schema_namespace(prefix_map.get(term.split(":", 1)[0], ""))
+            for term in terms
+        ):
+            return True
+    return False
 
 
 def _validation(html: str | None, base_url: str | None = None) -> dict[str, Any]:
@@ -194,7 +245,9 @@ def structured_payload(
     # Non-JSON-LD formats are validated by the same bundled vocabulary. They
     # must not read as absent merely because the JSON-LD block list is empty.
     non_json_markup = False
-    if isinstance(html, str):
+    from seohead.checks.schema_org import MAX_HTML_BYTES
+
+    if isinstance(html, str) and len(html.encode("utf-8", errors="replace")) <= MAX_HTML_BYTES:
         soup = BeautifulSoup(html, features="lxml")
         from seohead.checks.parser import is_inert_template_content
 
@@ -202,7 +255,7 @@ def structured_payload(
             not is_inert_template_content(tag)
             for tag in soup.find_all(attrs={"itemscope": True})
             + soup.find_all(attrs={"typeof": True})
-        )
+        ) or _has_schema_rdfa(soup)
     state = (
         "malformed"
         if invalid

@@ -261,7 +261,7 @@ because the rules could not be read, so the command never claims crawling is all
 
 | Command | What it does |
 |---|---|
-| `schema-check` | JSON-LD, Microdata and common RDFa validation **in two layers**: the bundled vocabulary (`domainIncludes`/`rangeIncludes`, inheritance, deprecated terms and literal values) and local Google rich-result requirements; unsupported RDFa constructs are partial evidence |
+| `schema-check` | JSON-LD, Microdata and offline RDFa subject-graph validation **in two layers**: the bundled vocabulary (`domainIncludes`/`rangeIncludes`, inheritance, deprecated terms and literal values) and local Google rich-result requirements; RDFa relations, reverse relations, resource/literal values and `inlist` collections share the same graph validator, while configured HTML/node/token/triple limits produce explicit partial coverage |
 | `schema-build` | Builds a suggested connected `@graph` with `@id`s for the page type; `--type` sets the type manually when the classifier is unsure |
 | `social-meta-check` | Open Graph and Twitter Card: what is there, what is missing, what contradicts the content |
 | `citability-check` | How quotable a text is for an AI answer: direct answers, facts, structure. Fetching a URL scores the resolved content area's Markdown (nav/footer excluded), not the raw whole-document text |
