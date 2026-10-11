@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 MAX_DETAILS = 20
@@ -67,17 +68,45 @@ def measure_mobile_layout(page: Any) -> dict[str, Any]:
         return {"state": "unavailable", "reason": type(exc).__name__}
     if not isinstance(measured, dict):
         return {"state": "unavailable", "reason": "renderer returned no layout evidence"}
-    overflow_px = measured.get("content_overflow_px")
+    integer_fields = (
+        "viewport_width_px",
+        "document_width_px",
+        "content_overflow_px",
+        "small_text_count",
+        "small_target_count",
+    )
+    if any(type(measured.get(name)) is not int or measured[name] < 0 for name in integer_fields):
+        return {"state": "unavailable", "reason": "renderer returned malformed layout evidence"}
+    if measured["viewport_width_px"] == 0:
+        return {"state": "unavailable", "reason": "renderer returned malformed layout evidence"}
+    if measured["content_overflow_px"] != max(
+        0, measured["document_width_px"] - measured["viewport_width_px"]
+    ):
+        return {"state": "unavailable", "reason": "renderer returned inconsistent layout widths"}
     small_text = measured.get("small_text_elements")
     small_targets = measured.get("small_target_elements")
+    overflow_elements = measured.get("overflow_elements")
     if (
-        type(overflow_px) is not int
-        or not isinstance(small_text, list)
+        not isinstance(small_text, list)
         or not isinstance(small_targets, list)
+        or not isinstance(overflow_elements, list)
+        or len(small_text) > MAX_DETAILS
+        or len(small_targets) > MAX_DETAILS
+        or len(overflow_elements) > MAX_DETAILS
+        or measured["small_text_count"] < len(small_text)
+        or measured["small_target_count"] < len(small_targets)
+        or type(measured.get("capped")) is not bool
     ):
         return {"state": "unavailable", "reason": "renderer returned malformed layout evidence"}
-    capped = bool(measured.get("capped"))
-    return {
+    if not all(_valid_text_detail(item) for item in small_text):
+        return {"state": "unavailable", "reason": "renderer returned malformed text-size evidence"}
+    if not all(_valid_target_detail(item) for item in small_targets):
+        return {"state": "unavailable", "reason": "renderer returned malformed target-size evidence"}
+    if not all(_valid_overflow_detail(item) for item in overflow_elements):
+        return {"state": "unavailable", "reason": "renderer returned malformed overflow evidence"}
+    capped = measured["capped"]
+    overflow_px = measured["content_overflow_px"]
+    evidence = {
         "schema": "mobile_layout.v1",
         "state": "partial" if capped else "complete",
         "reason": "element inspection cap reached" if capped else "",
@@ -85,12 +114,112 @@ def measure_mobile_layout(page: Any) -> dict[str, Any]:
         "document_width_px": measured.get("document_width_px"),
         "content_overflow_px": overflow_px,
         "content_overflow": overflow_px > 0,
-        "small_text_count_lower_bound": int(measured.get("small_text_count") or 0),
-        "small_target_count_lower_bound": int(measured.get("small_target_count") or 0),
+        "small_text_count_lower_bound": measured["small_text_count"],
+        "small_target_count_lower_bound": measured["small_target_count"],
         "thresholds": {"small_text_below_px": MIN_TEXT_PX, "small_target_below_px": MIN_TARGET_PX},
         "details": {
-            "overflow_elements": measured.get("overflow_elements", [])[:MAX_DETAILS],
+            "overflow_elements": overflow_elements,
             "small_text_elements": small_text[:MAX_DETAILS],
             "small_target_elements": small_targets[:MAX_DETAILS],
         },
     }
+    if not validate_mobile_layout_evidence(evidence):
+        return {"state": "unavailable", "reason": "renderer returned malformed layout evidence"}
+    return evidence
+
+
+def validate_mobile_layout_evidence(value: Any) -> bool:
+    """Reject malformed persisted layout records instead of reading them as zero."""
+    if not isinstance(value, dict) or value.get("schema") != "mobile_layout.v1":
+        return False
+    if value.get("state") not in {"complete", "partial"} or not isinstance(
+        value.get("reason"), str
+    ):
+        return False
+    for name in (
+        "viewport_width_px",
+        "document_width_px",
+        "content_overflow_px",
+        "small_text_count_lower_bound",
+        "small_target_count_lower_bound",
+    ):
+        if type(value.get(name)) is not int or value[name] < 0:
+            return False
+    if value["viewport_width_px"] == 0:
+        return False
+    if (
+        value["content_overflow_px"]
+        != max(0, value["document_width_px"] - value["viewport_width_px"])
+        or type(value.get("content_overflow")) is not bool
+        or value["content_overflow"] != (value["content_overflow_px"] > 0)
+    ):
+        return False
+    thresholds = value.get("thresholds")
+    if not isinstance(thresholds, dict) or any(
+        type(thresholds.get(key)) is not int or thresholds[key] <= 0
+        for key in ("small_text_below_px", "small_target_below_px")
+    ):
+        return False
+    details = value.get("details")
+    if not isinstance(details, dict):
+        return False
+    for name in ("overflow_elements", "small_text_elements", "small_target_elements"):
+        if not isinstance(details.get(name), list) or len(details[name]) > MAX_DETAILS:
+            return False
+    if value["small_text_count_lower_bound"] < len(details["small_text_elements"]):
+        return False
+    if value["small_target_count_lower_bound"] < len(details["small_target_elements"]):
+        return False
+    if not all(_valid_overflow_detail(item) for item in details["overflow_elements"]):
+        return False
+    if not all(_valid_text_detail(item) for item in details["small_text_elements"]):
+        return False
+    return all(_valid_target_detail(item) for item in details["small_target_elements"])
+
+
+def _valid_number(value: Any) -> bool:
+    if type(value) not in {int, float}:
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
+
+
+def _valid_text_detail(value: Any) -> bool:
+    return (
+        isinstance(value, dict)
+        and isinstance(value.get("tag"), str)
+        and isinstance(value.get("text"), str)
+        and _valid_number(value.get("font_size_px"))
+        and type(value.get("x")) is int
+        and type(value.get("y")) is int
+    )
+
+
+def _valid_target_detail(value: Any) -> bool:
+    return (
+        isinstance(value, dict)
+        and isinstance(value.get("tag"), str)
+        and isinstance(value.get("role"), str)
+        and isinstance(value.get("text"), str)
+        and type(value.get("width_px")) is int
+        and type(value.get("height_px")) is int
+        and type(value.get("x")) is int
+        and type(value.get("y")) is int
+        and value["width_px"] >= 0
+        and value["height_px"] >= 0
+    )
+
+
+def _valid_overflow_detail(value: Any) -> bool:
+    return (
+        isinstance(value, dict)
+        and isinstance(value.get("tag"), str)
+        and isinstance(value.get("id"), str)
+        and isinstance(value.get("class_name"), str)
+        and type(value.get("right_px")) is int
+        and type(value.get("width_px")) is int
+        and type(value.get("y")) is int
+        and value["width_px"] >= 0
+    )

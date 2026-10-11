@@ -431,6 +431,7 @@ def _pinned_browser_route(
     max_response_bytes: int = _BROWSER_RESPONSE_BYTES,
     weight_observer: _BrowserWeight | None = None,
     network_observer: _BrowserNetworkEvidence | None = None,
+    action_phase: Callable[[], bool] | None = None,
 ) -> tuple[Callable[[Any], None], list[str]]:
     """Build a Playwright fulfiller backed by the shared pinned HTTP transport."""
     if type(max_response_bytes) is not int or max_response_bytes < 1:
@@ -453,6 +454,23 @@ def _pinned_browser_route(
         request = route.request
         url = str(request.url)
         method = str(request.method).upper()
+        in_action_phase = bool(action_phase and action_phase())
+        action_side_effect = in_action_phase and (
+            method == "POST"
+            or (method == "GET" and getattr(request, "resource_type", "") == "document")
+        )
+        if action_side_effect:
+            reason = (
+                "page actions may not send POST requests"
+                if method == "POST"
+                else "page actions may not navigate to another document"
+            )
+            if network_observer is not None:
+                network_observer.blocked(request, reason)
+            if weight_observer is not None:
+                weight_observer.omit(reason, completed_request=True)
+            route.abort("blockedbyclient")
+            return
         if method not in _BROWSER_METHODS:
             reason = (
                 "browser method is unsupported by pinned rendering"
@@ -556,6 +574,44 @@ def _pinned_browser_route(
             abort(route, f"pinned browser request failed: {_network_error_summary(exc, policy)}")
 
     return handler, limitations
+
+
+def _bounded_action_evaluator(context: Any, page: Any):
+    """Return an isolated Chromium evaluator with a CDP execution deadline."""
+    session = context.new_cdp_session(page)
+    session.send("Runtime.enable")
+    session.send("Page.enable")
+    frame_tree = session.send("Page.getFrameTree")
+    frame_id = frame_tree["frameTree"]["frame"]["id"]
+    world = session.send(
+        "Page.createIsolatedWorld",
+        {"frameId": frame_id, "worldName": "SpiderHeadPageActions"},
+    )
+    execution_context_id = world["executionContextId"]
+
+    def evaluate(script: str, argument: Any, timeout_ms: int) -> Any:
+        if type(timeout_ms) is not int or timeout_ms < 1:
+            raise TimeoutError("page action time budget exhausted")
+        expression = (
+            f"({script})()"
+            if argument is None
+            else f"({script})({json.dumps(argument, ensure_ascii=True)})"
+        )
+        response = session.send(
+            "Runtime.evaluate",
+            {
+                "expression": expression,
+                "contextId": execution_context_id,
+                "returnByValue": True,
+                "awaitPromise": False,
+                "timeout": timeout_ms,
+            },
+        )
+        if response.get("exceptionDetails"):
+            raise RuntimeError("bounded page action evaluation failed")
+        return (response.get("result") or {}).get("value")
+
+    return evaluate, session
 
 
 def _guard_websocket_route(
@@ -2061,11 +2117,13 @@ def render_document(
             actual_browser = browser if browser is not None else getattr(context, "browser", None)
             renderer["engine_version"] = str(getattr(actual_browser, "version", "unknown"))
             try:
+                action_state = {"active": False}
                 route_handler, browser_limitations = _pinned_browser_route(
                     network_client,
                     request_gate=request_gate,
                     weight_observer=weight,
                     network_observer=network_evidence,
+                    action_phase=lambda: action_state["active"],
                 )
                 network_evidence.begin()
                 context.route("**/*", route_handler)
@@ -2093,9 +2151,37 @@ def render_document(
                 action_cfg = rendering_config.get("actions", [])
                 preset_cfg = rendering_config.get("presets", [])
                 if action_cfg or preset_cfg:
-                    from seohead.checks.page_actions import run_actions
+                    if engine != "chromium":
+                        renderer["page_actions"] = {
+                            "schema": "page_actions.v1",
+                            "state": "unavailable",
+                            "reason": "bounded page actions require Chromium CDP runtime deadlines",
+                        }
+                    else:
+                        action_state["active"] = True
+                        action_session = None
+                        try:
+                            from seohead.checks.page_actions import run_actions
 
-                    renderer["page_actions"] = run_actions(page, action_cfg, preset_cfg)
+                            evaluate_action, action_session = _bounded_action_evaluator(
+                                context, page
+                            )
+                            renderer["page_actions"] = run_actions(
+                                page,
+                                action_cfg,
+                                preset_cfg,
+                                evaluate=evaluate_action,
+                            )
+                        except Exception as exc:
+                            renderer["page_actions"] = {
+                                "schema": "page_actions.v1",
+                                "state": "unavailable",
+                                "reason": type(exc).__name__,
+                            }
+                        finally:
+                            if action_session is not None:
+                                with contextlib.suppress(Exception):
+                                    action_session.detach()
                 if browser_cfg.get("resize_to_content"):
                     cap = int(browser_cfg.get("resize_to_content_max_height_px", 15000))
                     content_height = int(page.evaluate("document.documentElement.scrollHeight"))

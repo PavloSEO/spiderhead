@@ -135,6 +135,9 @@ run actions under the permission model (#977); neither is enabled by this implem
   budget is recorded in the step result, and a value is reported only when every step it depends
   on succeeded.
 - Network access during actions stays inside the existing pinned route guard.
+- Explicit actions refuse form/link clicks and block POST requests and document navigation
+  during the action phase. Page code can still issue a state-changing GET; actions are therefore
+  opt-in, not guaranteed read-only.
 - Who may run actions depends on the agent permission model (#977). Until #977 is decided, the
   contract is recorded without permissions.
 - Implementation status: the closed data-only actions (`click`, `scroll`, `wait_for_selector`,

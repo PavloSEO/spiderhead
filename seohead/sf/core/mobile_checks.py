@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 
+from seohead.checks.mobile_layout import validate_mobile_layout_evidence
+
 from .context import AuditContext
 
 CHECKS = (
@@ -36,7 +38,7 @@ def check_mobile_render_layout(ctx: AuditContext) -> None:
             evidence = None
         if not isinstance(evidence, dict):
             continue
-        if evidence.get("state") not in {"complete", "partial"}:
+        if not validate_mobile_layout_evidence(evidence):
             unavailable += 1
             continue
         measured += 1

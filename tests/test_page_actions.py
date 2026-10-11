@@ -72,7 +72,7 @@ def test_extract_is_selector_based_and_has_no_script_field():
 def test_named_presets_are_explicit_and_bounded():
     steps, budget = preset_actions(["expand_tabs", "read_datalayer"])
     assert len(steps) == 6
-    assert budget == 5 * 5000
+    assert budget == 5 * 5000 + 5000
     with pytest.raises(ValueError, match="unknown page action preset"):
         preset_actions(["anything"])
 
@@ -98,23 +98,32 @@ class _Locator:
 
 
 class _Page:
-    def __init__(self):
+    def __init__(self, clock=None, click_safe=True):
         self.locators = {"a": _Locator(["/one", "/two"])}
         self.waits = []
         self.scrolls = []
+        self.clock = clock
+        self.click_safe = click_safe
 
     def locator(self, selector):
         return self.locators.setdefault(selector, _Locator())
 
-    def evaluate(self, script, pixels):
+    def evaluate(self, script, argument, timeout_ms):
+        assert timeout_ms > 0
+        if "querySelectorAll" in script:
+            if "return {count:" in script:
+                return {"count": 1, "safe": self.click_safe}
+            return {"values": ["/one", "/two"], "omitted": 0}
         assert script == "pixels => window.scrollBy(0, pixels)"
-        self.scrolls.append(pixels)
+        self.scrolls.append(argument)
 
     def wait_for_selector(self, selector, timeout):
         self.waits.append((selector, timeout))
 
     def wait_for_timeout(self, ms):
         self.waits.append(ms)
+        if self.clock is not None:
+            self.clock.value += ms / 1000
 
 
 def test_runner_returns_per_step_results_without_executable_input():
@@ -126,7 +135,42 @@ def test_runner_returns_per_step_results_without_executable_input():
             {"action": "scroll", "pixels": 400},
             {"action": "extract", "selector": "a", "attribute": "href"},
         ],
+        evaluate=page.evaluate,
     )
     assert evidence["state"] == "complete"
     assert evidence["steps"][2]["value"] == ["/one", "/two"]
     assert page.scrolls == [400]
+
+
+class _Clock:
+    def __init__(self):
+        self.value = 0.0
+
+    def __call__(self):
+        return self.value
+
+
+def test_runner_enforces_one_cumulative_deadline():
+    clock = _Clock()
+    page = _Page(clock)
+    evidence = run_actions(
+        page,
+        [{"action": "wait_ms", "ms": 10_000}] * 6,
+        evaluate=page.evaluate,
+        clock=clock,
+    )
+    assert evidence["budget_ms"] == 60_000
+    assert evidence["state"] == "partial"
+    assert evidence["steps"][-1]["state"] == "partial"
+
+
+def test_runner_refuses_form_or_navigation_click_targets():
+    page = _Page(click_safe=False)
+    evidence = run_actions(
+        page,
+        [{"action": "click", "selector": "button.submit"}],
+        evaluate=page.evaluate,
+    )
+    assert evidence["state"] == "partial"
+    assert evidence["steps"][0]["state"] == "unavailable"
+    assert page.locators.get("button.submit", _Locator()).clicked == 0

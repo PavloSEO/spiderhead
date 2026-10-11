@@ -43,8 +43,12 @@ Desktop mode labels map to crawl settings as **Off** = `rendering.mode: raw`, **
 then carries overflow, computed text-size and interactive-target measurements. Checks stay
 unavailable when no mobile render was captured.
 
-Page actions run only when the project opts into them. They use bounded selectors and values, and
-the named presets expand-tabs, load-more, and read-dataLayer never accept caller JavaScript:
+Page actions run only when the project opts into them. The bounded action runner currently
+requires Chromium. It refuses form/link clicks, blocks POST requests and document navigation
+during the action phase, and applies a deadline to the full action list. Actions are not
+guaranteed read-only: page code can still issue a state-changing GET while handling an allowed
+button click. The named presets expand-tabs, load-more, and read-dataLayer never accept caller
+JavaScript:
 
 ```json
 {"rendering":{"mode":"js","presets":["expand_tabs","load_more"],
