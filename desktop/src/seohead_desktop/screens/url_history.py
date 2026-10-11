@@ -14,11 +14,12 @@ from PyQt5.QtWidgets import QFrame, QHBoxLayout, QHeaderView, QLabel, QTableWidg
 from .. import theming
 from ..i18n import joined, tr, trf
 from ..ui.kit import StatePanel, style_table, unavailable_tip
+from ..ui.presentation import short_run_id
 from .scan_common import number
 from .url_detail import clean, first_response, stamp_text
 from .url_query import CoreJob, detail_arguments, reason_text, seconds_to_ms
 
-MAX_SCANS = 12   # the most recent saved scans; each one is a separate core call
+MAX_SCANS = 12   # the selected scan and the most recent others; one core call per scan
 COLUMNS = ("Скан", "Дата", "HTTP", "Title", "Слов", "Ответ, мс", "Изменения")
 
 
@@ -45,17 +46,18 @@ def entry_from(payload):
         "words": words if type(words) is int else None,
         "ms": seconds_to_ms(page.get("response_time")),
         "received": first_response(payload).get("received_at"),
+        "uuid": (payload.get("source") or {}).get("scan_uuid"),
     }
 
 
 def changes(entry, previous):
-    """What changed against the previous scan where the URL was read; the first answer is «Первое появление»."""
+    """Compare answers within the bounded selection, not the URL's entire history."""
     if entry["state"] == "missing":
         return tr("Не найден в скане")
     if entry["state"] == "error":
         return tr("Ядро не вернуло ответ")
     if previous is None:
-        return tr("Первое появление")
+        return tr("Первое появление в выборке")
     parts = []
     if entry["status"] != previous["status"]:
         parts.append(trf("Ответ {now} (было {was})", now=entry["status"] or tr("Нет данных"), was=previous["status"] or tr("Нет данных")))
@@ -132,6 +134,7 @@ class HistoryPage(QWidget):
         self.generation = 0
         self.loaded_for = None
         self.scans = []
+        self.total_scans = 0
         self.entries = []
         self.job = CoreJob(ctx.host_ref, self)
         self.job.done.connect(self._done)
@@ -187,7 +190,7 @@ class HistoryPage(QWidget):
 
     def activate(self):
         scans = self._scans()
-        key = (self.ctx.url, tuple(row["path"] for row in scans))
+        key = (self.ctx.scan, self.ctx.url, self.total_scans, tuple(row["path"] for row in scans))
         if not self.ctx.url or not scans:
             self.loaded_for = None
             return self._render()
@@ -202,8 +205,17 @@ class HistoryPage(QWidget):
     def _scans(self):
         rows = getattr(self.ctx.host_ref, "scan_model", None)
         rows = [row for row in (rows.rows if rows is not None else []) if isinstance(row.get("path"), str)]
+        selected = next((row for row in rows if row["path"] == self.ctx.scan), None)
+        if selected is None and self.ctx.scan:
+            source = (self.ctx.detail or {}).get("source") or {}
+            selected = {"path": self.ctx.scan, "uuid": source.get("scan_uuid")}
+            rows.append(selected)
         rows.sort(key=lambda row: str(row.get("created_at") or ""))
-        return rows[-MAX_SCANS:]
+        self.total_scans = len(rows)
+        recent = rows[-MAX_SCANS:]
+        if selected is not None and selected not in recent:
+            recent = [selected, *recent[1:]]
+        return recent
 
     def _next(self):
         if len(self.entries) >= len(self.scans):
@@ -237,7 +249,10 @@ class HistoryPage(QWidget):
                 return self._show("error", tr("Не удалось прочитать историю"), failed[-1]["text"])
             return self._show("loading", tr("Читаю историю URL…"), trf("Скан {n} из {total}", n=len(self.entries) + 1, total=len(self.scans)))
         if not any(entry["state"] == "ok" for entry in self.entries):
-            return self._show("empty", tr("В сканах нет этого URL"), tr("Ни один сохранённый скан проекта не содержит этот адрес."))
+            failed = [entry for entry in self.entries if entry["state"] == "error"]
+            if failed:
+                return self._show("error", tr("Не удалось прочитать историю"), failed[-1]["text"])
+            return self._show("empty", tr("В прочитанных сканах нет этого URL"), tr("Этот адрес не найден в прочитанных сканах. Другие сканы проекта могли остаться за пределами выборки."))
         self._show("table")
         self._fill_table()
 
@@ -253,11 +268,13 @@ class HistoryPage(QWidget):
     def _fill_table(self):
         self.table.setRowCount(0)
         previous = None
-        for index, (scan, entry) in enumerate(zip(self.scans, self.entries), start=1):
+        for scan, entry in zip(self.scans, self.entries):
             ok = entry["state"] == "ok"
             status = entry.get("status") if ok else None
+            uuid = entry.get("uuid") or scan.get("uuid")
+            current = tr("Текущий скан") if scan["path"] == self.ctx.scan else ""
             cells = [
-                f"№{index}",
+                joined(" · ", [short_run_id(uuid) or tr("Нет данных"), current]),
                 stamp_text(scan.get("created_at")) or tr("Нет данных"),
                 str(status) if status is not None else tr("Нет данных"),
                 (entry.get("title") if ok else None) or tr("Нет данных"),
@@ -269,15 +286,21 @@ class HistoryPage(QWidget):
             self.table.insertRow(row)
             for column, text in enumerate(cells):
                 item = QTableWidgetItem(text)
+                if column == 0:
+                    item.setToolTip(str(uuid or ""))
                 if column in (2, 4, 5):
                     item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self.table.setItem(row, column, item)
             if ok:
                 previous = entry
         self._set_metrics()
+        notes = []
+        if self.total_scans > len(self.scans):
+            notes.append(trf("Показано {shown} из {total} сканов: выбранный и самые новые. Изменения сравниваются только внутри этой выборки.", shown=len(self.scans), total=self.total_scans))
         if any(entry.get("status") is not None and entry["status"] >= 500 for entry in self.entries):
-            self.note.setText(tr("Ответ 5xx в скане: время и слова там не сохранены — «Нет данных», а не ноль."))
-            self.note.setVisible(True)
+            notes.append(tr("Ответ 5xx в скане: время и слова там не сохранены — «Нет данных», а не ноль."))
+        self.note.setText(joined("\n", notes))
+        self.note.setVisible(bool(notes))
 
     def _set_metrics(self):
         ok = [entry for entry in self.entries if entry["state"] == "ok"]
