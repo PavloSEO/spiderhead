@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**202 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**205 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -91,6 +91,9 @@ python scripts/generate_checks_reference.py
 | `LOW_TEXT_RATIO` | notice | SF-derived | Low text-to-HTML ratio | Increase the proportion of meaningful visible content or reduce unnecessary markup. |
 | `DUPLICATE_BY_HASH` | warning | SF-derived | Exact duplicate content (identical hash) | Consolidate duplicates with canonicalization or rewrite them to serve distinct search intent. |
 | `NEAR_DUPLICATE` | warning | SF-derived | Near-duplicate content | Differentiate the pages with substantive content or consolidate them into one canonical page. |
+| `SEMANTIC_SIMILARITY_CANDIDATE` | notice | heuristic:explicit_embedding_adapter | Pages have adapter-measured topical similarity; review candidate | Review intent and useful internal linking. Semantic similarity alone does not prove duplicate content or cannibalization. |
+| `TITLE_LOW_SEMANTIC_RELEVANCE` | notice | heuristic:explicit_embedding_adapter | Title has low adapter-measured similarity to the page content; review candidate | Review whether the title describes the page's actual content and intent; the model score alone is not proof of irrelevance. |
+| `H1_LOW_SEMANTIC_RELEVANCE` | notice | heuristic:explicit_embedding_adapter | H1 has low adapter-measured similarity to the page content; review candidate | Review whether the heading describes the page's actual content and intent; the model score alone is not proof of irrelevance. |
 | `LOREM_IPSUM_PLACEHOLDER` | warning | crawl:lorem_ipsum_count | The Lorem Ipsum placeholder passage appears in the page's own content area | Replace the placeholder passage with real, reviewed copy before the page goes live or stays indexed. |
 
 ## 7.G — images

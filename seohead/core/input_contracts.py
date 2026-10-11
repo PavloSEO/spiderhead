@@ -1309,7 +1309,11 @@ SF_CONTRACTS: tuple[CommandContract, ...] = (
         _form("local_file", "load_crawl", note="Saved .seospider crawl; requires licensed SF CLI"),
         _form("local_file", "crawl_list", note="URL-list file for licensed SF live traversal"),
         _form("legacy_directory", "exports_dir"),
-        _form("local_config", "config"),
+        _form(
+            "local_config",
+            "config",
+            note="SF audit configuration; semantic_similarity requires an explicit adapter declaration and supplied vectors. No model is selected by default.",
+        ),
         _form("local_file", "auth_config", note="Optional SF authentication profile."),
         _form(
             "inline_text",

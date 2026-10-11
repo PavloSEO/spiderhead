@@ -17,7 +17,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 data, not an accident.
 
 The current registry has 187 commands and 196 callable tools,
-with 202 audit checks. These are inventories, not coverage on every input.
+with 205 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
 ## Generated command inventory
@@ -728,8 +728,24 @@ assignment or by the audit's already validated segment rules. It records
 assignment provenance and keeps candidate, declared, confirmed, and unassigned
 states separate; it does not infer a shared implementation from repeated findings.
 
-**202 checks**: 12 critical, 93 warnings, 97 notices. Sources: SF exports,
+**205 checks**: 12 critical, 93 warnings, 100 notices. Sources: SF exports,
 derived metrics, inlink exports, the sitemap module, and heuristics.
+
+Native scans with retained bodies evaluate DOM depth/node count and content-area exact/near
+duplicates offline, reading each page's selected document by exact URL. The duplicate fallback
+uses finite document (10,000), text-input (16 MiB), shingle (1,000,000) and candidate-comparison
+(250,000) budgets. Missing or invalid bodies and exhausted budgets stay explicit; partial
+findings carry coverage. A non-stored crawl has no body source for these checks.
+
+SF configuration can explicitly enable semantic review with `semantic_similarity.adapter`
+and caller-supplied `embeddings` rows (`url`, `body`, `title`, `h1` vectors). An adapter declaration
+contains `kind`, `model_id`, `model_version`, `settings` and `data_transfer`; an external declaration
+also requires `external_authorized=true`. Core callers may instead inject a local embedding adapter.
+`threshold` controls topical similarity (default 0.82), `relevance_threshold` controls title/H1
+review (0.35), `max_documents` defaults to 1,000, and comparisons default to 250,000. A durable
+`cache_path` is optional; otherwise the cache exists only for the run. No model is downloaded or
+selected automatically. These notice-level findings are review candidates, and the semantic SF
+coverage rows remain gaps until a real adapter is selected and validated.
 
 **Two modes.** A crawls by itself through the SF CLI (license required). B
 works from ready exports and is self-sufficient. Mode B is covered by tests
@@ -772,7 +788,7 @@ seohead mcp        # stdio
 
 ## Where to go next
 - [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — every tool's arguments, types, defaults, cost, and failure modes, generated from the MCP definitions
-- [CHECKS.md](CHECKS.md) — the 202 checks the SF crawl audit runs, generated from the registry
+- [CHECKS.md](CHECKS.md) — the 205 checks the SF crawl audit runs, generated from the registry
 - [ARCHITECTURE.md](ARCHITECTURE.md) — layers, invariants, where new code goes
 - [SKILLS.md](SKILLS.md) — which skill drives which tool
 - [DECISIONS.md](DECISIONS.md) — why it was decided this way and not another

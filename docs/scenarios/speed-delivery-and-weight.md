@@ -65,10 +65,10 @@ one prerequisite worth stating in advance:
 seohead sf run --exports-dir docs/examples/exports --out report --tasks
 ```
 
-The DOM checks read stored HTML. Without `input.html_store_dir` — a Screaming Frog crawl run with
-Store HTML enabled — they are reported as skipped, with that reason attached, rather than as
-clean. A skipped check that looks like a passed check is how an audit lies without saying
-anything false.
+The DOM checks read the selected document retained in a native scan or the SF stored HTML
+directory (`input.html_store_dir`). A non-stored crawl has no retained body. Disabled retention,
+size limits and incomplete or invalid bodies produce explicit reasons; partial findings carry
+the measured coverage. They never turn unavailable HTML into a clean result.
 
 **5. Verify, then hand it over.**
 
@@ -97,9 +97,9 @@ particular and is therefore fixed by nobody in particular.
 
 ## What it costs
 
-One request per page and per asset checked, one crawl for the site-wide picture, and — only if
-you want the DOM checks — a Screaming Frog crawl with HTML storage, which is disk rather than
-money. No paid API at any step.
+One request per page and per asset checked, one crawl for the site-wide picture, and retained
+HTML for the DOM checks (native scan storage or SF Store HTML). Offline reanalysis reuses those
+bodies without fetching pages again. No paid API at any step.
 
 ## What it cannot answer
 

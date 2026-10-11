@@ -150,7 +150,7 @@ def check_html_weight(ctx: AuditContext) -> dict[str, Any]:
 
 
 # --------------------------------------------------------------------------
-# DOM depth / nodes — only when SF stored the (rendered) HTML
+# DOM depth / nodes — selected native document or SF stored HTML
 # --------------------------------------------------------------------------
 def _dom_metrics(html: str) -> tuple[int, int]:
     """Return (max nesting depth, element count) — single O(n) DFS, no parent walks."""
@@ -170,47 +170,66 @@ def _dom_metrics(html: str) -> tuple[int, int]:
     return max_depth, nodes
 
 
-def _coverage_note(matched: int, total: int, min_coverage: float) -> str | None:
-    """Describe a low-coverage stored-HTML sample, or None when coverage is fine.
+def _stored_html_reader(ctx: AuditContext):
+    """Share a bounded HTML reader across DOM, literal and semantic checks."""
+    from seohead.storage import ScanError
+    from seohead.storage.bodies import read_page_document
+    from seohead.storage.corpus_inputs import MAX_DOCUMENT_BYTES
 
-    ``matched == 0`` is the caller's own full-miss case, not this one's; a
-    ``total`` of zero means nothing was ever in scope, which is not a coverage
-    problem either.
-    """
-    if matched == 0 or total == 0:
+    if ctx.scan_con is not None:
+        return lambda url: read_page_document(
+            ctx.scan_con, url, max_decoded_bytes=MAX_DOCUMENT_BYTES
+        )
+    html_dir = ctx.config.get("input", {}).get("html_store_dir")
+    index = _build_html_index(html_dir) if html_dir and os.path.isdir(html_dir) else None
+
+    def read(url):
+        if index is None:
+            raise ScanError("no stored HTML (input.html_store_dir not set; crawl was not stored)")
+        path = _match_html_file(index, url)
+        if not path:
+            raise ScanError("stored HTML present but no files mapped to crawled URLs")
+        with open(path, "rb") as stream:
+            raw = stream.read(MAX_DOCUMENT_BYTES + 1)
+        if len(raw) > MAX_DOCUMENT_BYTES:
+            raise ScanError("stored HTML exceeds decoded byte limit")
+        return raw.decode("utf-8", errors="replace")
+
+    return read
+
+
+def _body_coverage(matched: int, total: int, omitted: Counter) -> str | None:
+    if not omitted:
         return None
-    coverage = matched / total
-    if coverage >= min_coverage:
-        return None
-    return f"stored HTML matched only {matched} of {total} indexable pages ({coverage:.0%})"
+    reasons = "; ".join(f"{reason} ({count})" for reason, count in sorted(omitted.items()))
+    return f"stored HTML matched only {matched} of {total} indexable pages; {reasons}"
 
 
 def check_dom(ctx: AuditContext) -> None:
-    html_dir = ctx.config.get("input", {}).get("html_store_dir")
-    if not html_dir or not os.path.isdir(html_dir):
-        ctx.skip("DOM_TOO_DEEP", "no stored HTML (input.html_store_dir not set)")
-        ctx.skip("DOM_TOO_MANY_NODES", "no stored HTML (input.html_store_dir not set)")
+    from seohead.storage import ScanError
+
+    if not any(ctx.enabled(check) for check in ("DOM_TOO_DEEP", "DOM_TOO_MANY_NODES")):
         return
+    read = _stored_html_reader(ctx)
     t = ctx.thresholds
-    index = _build_html_index(html_dir)
     pages = ctx.indexable_html_pages()
     total = len(pages)
-    min_coverage = t.get("html_store_coverage_min", 0.5)
-    # Count against the fixed file index, then re-iterate the page view. The
-    # coverage note remains exact without retaining every matched Page model.
-    matched = sum(1 for page in pages if _match_html_file(index, page.url))
-    coverage_note = _coverage_note(matched, total, min_coverage)
+    omitted: Counter = Counter()
+    matched = 0
     for page in pages:
-        path = _match_html_file(index, page.url)
-        if not path:
-            continue
         try:
-            with open(path, encoding="utf-8", errors="replace") as fh:
-                depth, nodes = _dom_metrics(fh.read())
-        except Exception:
+            depth, nodes = _dom_metrics(read(page.url))
+        except (ScanError, OSError, ValueError) as exc:
+            omitted[str(exc)] += 1
             continue
+        matched += 1
         page.metrics["dom_depth"] = depth
         page.metrics["dom_nodes"] = nodes
+    coverage_note = _body_coverage(matched, total, omitted)
+    for page in pages:
+        depth, nodes = page.metrics.get("dom_depth"), page.metrics.get("dom_nodes")
+        if depth is None or nodes is None:
+            continue
         if depth > t["dom_depth_max"]:
             details = {"dom_depth": depth, "max": t["dom_depth_max"]}
             if coverage_note:
@@ -221,14 +240,13 @@ def check_dom(ctx: AuditContext) -> None:
             if coverage_note:
                 details["html_coverage"] = coverage_note
             ctx.add("DOM_TOO_MANY_NODES", target_url=page.url, details=details)
-    if matched == 0:
-        reason = "stored HTML present but no files mapped to crawled URLs"
-        ctx.skip("DOM_TOO_DEEP", reason)
-        ctx.skip("DOM_TOO_MANY_NODES", reason)
-    elif coverage_note:
+    if coverage_note:
         reason = f"{coverage_note} — DOM size not assessed for the rest"
         ctx.skip("DOM_TOO_DEEP", reason)
         ctx.skip("DOM_TOO_MANY_NODES", reason)
+    elif not total:
+        ctx.skip("DOM_TOO_DEEP", "no indexable HTML pages")
+        ctx.skip("DOM_TOO_MANY_NODES", "no indexable HTML pages")
 
 
 def _build_html_index(html_dir: str) -> dict[str, str]:
@@ -272,24 +290,25 @@ def _match_html_file(index: dict[str, str], url: str) -> str | None:
 
 
 # --------------------------------------------------------------------------
-# Near-duplicate content — only when SF stored the HTML and did not already
-# compute this itself (issue #15, item 3)
+# Near-duplicate content — retained native document or SF stored HTML when
+# the export did not already compute this itself (issue #15, item 3)
 # --------------------------------------------------------------------------
 def check_content_duplication(ctx: AuditContext) -> None:
     """NEAR_DUPLICATE / DUPLICATE_BY_HASH computed from stored page text.
 
-    Near-duplicate clustering is an all-pairs comparison — any pair may
-    include a page not yet fetched — so it can only run once the crawl is
-    complete, over a stored corpus (issue #15, item 3). Screaming Frog's own
+    Clustering runs over the collected corpus, with explicit finite document,
+    byte, shingle and comparison budgets. Screaming Frog's own
     Near Duplicates/Hash columns already answer this when the crawl exported
     them (``check_content``/``check_duplicates`` in rules.py); this only fills
-    whichever half is missing, reusing the same ``input.html_store_dir`` HTML
-    store ``check_dom`` reads, scoped to the configured content area so a
+    whichever half is missing, reusing the selected retained native document
+    or ``input.html_store_dir`` that ``check_dom`` reads, scoped to the content area so a
     shared nav/footer does not make every page look alike, and delegating the
     actual clustering to :func:`seohead.checks.duplicate.find_duplicates`
     (SimHash + LSH), which excludes exact-duplicate pairs from the near-dup
     clusters on its own.
     """
+    if not any(ctx.enabled(check) for check in ("NEAR_DUPLICATE", "DUPLICATE_BY_HASH")):
+        return
     has_native_near = ctx.internal_df is not None and find_column(
         ctx.internal_df, ["No. Near Duplicates"]
     )
@@ -303,49 +322,81 @@ def check_content_duplication(ctx: AuditContext) -> None:
     if has_native_near and has_native_hash:
         return  # nothing left for the stored-text pass to add
 
-    html_dir = ctx.config.get("input", {}).get("html_store_dir")
-    if not html_dir or not os.path.isdir(html_dir):
-        if not has_native_near:
-            ctx.skip("NEAR_DUPLICATE", "no stored HTML (input.html_store_dir not set)")
-        if not has_native_hash:
-            ctx.skip("DUPLICATE_BY_HASH", "no stored HTML (input.html_store_dir not set)")
-        return
-
     from bs4 import BeautifulSoup
 
     from seohead.checks.content_area import extract_area_text, resolve_content_area
-    from seohead.checks.duplicate import find_duplicates
+    from seohead.checks.duplicate import DuplicateBudgetExceeded, content_hash, find_duplicates
+    from seohead.storage import ScanError
+    from seohead.storage.corpus_inputs import (
+        MAX_CORPUS_DOCUMENTS,
+        MAX_CORPUS_INPUT_BYTES,
+        MAX_DUPLICATE_CANDIDATE_COMPARISONS,
+        MAX_DUPLICATE_SHINGLES,
+    )
 
-    index = _build_html_index(html_dir)
+    read = _stored_html_reader(ctx)
     content_cfg = ctx.config.get("content_area", {})
     candidate_pages = ctx.indexable_html_pages()
     total = len(candidate_pages)
-    min_coverage = ctx.thresholds.get("html_store_coverage_min", 0.5)
+    omitted: Counter = Counter()
     items: list[dict[str, Any]] = []
+    input_bytes = 0
+    visited = 0
     for page in candidate_pages:
-        path = _match_html_file(index, page.url)
-        if not path:
-            continue
+        if len(items) >= MAX_CORPUS_DOCUMENTS:
+            omitted["duplicate document limit exceeded"] += total - visited
+            break
+        visited += 1
         try:
-            with open(path, encoding="utf-8", errors="replace") as fh:
-                html = fh.read()
-        except OSError:
+            html = read(page.url)
+        except (ScanError, OSError, ValueError) as exc:
+            omitted[str(exc)] += 1
             continue
         root, _strategy = resolve_content_area(BeautifulSoup(html, "html.parser"), content_cfg)
-        items.append({"id": page.url, "text": extract_area_text(root)})
+        text = extract_area_text(root)
+        if not text.strip():
+            omitted["no comparable content-area text"] += 1
+            continue
+        size = len(text.encode("utf-8"))
+        if input_bytes + size > MAX_CORPUS_INPUT_BYTES:
+            omitted["duplicate input-byte budget exceeded"] += total - visited + 1
+            break
+        input_bytes += size
+        items.append({"id": page.url, "text": text})
 
-    if not items:
-        reason = "stored HTML present but no files mapped to crawled URLs"
+    coverage_note = _body_coverage(len(items), total, omitted)
+    if len(items) < 2:
+        reason = coverage_note or "fewer than two comparable indexable page bodies"
         if not has_native_near:
             ctx.skip("NEAR_DUPLICATE", reason)
         if not has_native_hash:
             ctx.skip("DUPLICATE_BY_HASH", reason)
         return
 
-    coverage_note = _coverage_note(len(items), total, min_coverage)
-
     threshold = ctx.thresholds.get("near_duplicate_similarity", 0.92)
-    result = find_duplicates(items, threshold=threshold)
+    try:
+        result = find_duplicates(
+            items,
+            threshold=threshold,
+            max_shingles=MAX_DUPLICATE_SHINGLES,
+            max_candidate_comparisons=MAX_DUPLICATE_CANDIDATE_COMPARISONS,
+        )
+    except DuplicateBudgetExceeded as exc:
+        if not has_native_near:
+            ctx.skip("NEAR_DUPLICATE", str(exc))
+        # Exact hashes do not depend on a candidate/shingle budget. Preserve
+        # their measurement when the independently bounded near pass stops.
+        exact_groups: dict[str, list[str]] = {}
+        for item in items:
+            exact_groups.setdefault(content_hash(item["text"]), []).append(item["id"])
+        result = {
+            "clusters": [],
+            "exact_duplicates": [
+                {"hash": digest, "members": members}
+                for digest, members in exact_groups.items()
+                if len(members) > 1
+            ],
+        }
 
     if not has_native_near:
         for cluster in result["clusters"]:
@@ -357,6 +408,9 @@ def check_content_duplication(ctx: AuditContext) -> None:
                 details = {
                     "cluster_min_similarity": cluster["min_similarity"],
                     "cluster_size": len(members),
+                    "comparison_url": next(member for member in members if member != url),
+                    "status_code": ctx.page_by_url[url].status_code,
+                    "method": "content_area_simhash_lsh",
                 }
                 if coverage_note:
                     details["html_coverage"] = coverage_note
@@ -375,7 +429,13 @@ def check_content_duplication(ctx: AuditContext) -> None:
             if group is None:
                 continue
             for url in members:
-                details = {"duplicate_count": len(members)}
+                details = {
+                    "duplicate_count": len(members),
+                    "comparison_url": next(member for member in members if member != url),
+                    "status_code": ctx.page_by_url[url].status_code,
+                    "content_hash": exact["hash"],
+                    "method": "content_area_text_hash",
+                }
                 if coverage_note:
                     details["html_coverage"] = coverage_note
                 ctx.add(
@@ -434,8 +494,11 @@ def check_templated_titles(ctx: AuditContext) -> None:
 
 
 def run_heuristics(ctx: AuditContext) -> dict[str, Any]:
+    from .semantic_checks import check_semantic_content
+
     stats = check_html_weight(ctx)
     check_dom(ctx)
     check_content_duplication(ctx)
+    check_semantic_content(ctx)
     check_templated_titles(ctx)
     return stats

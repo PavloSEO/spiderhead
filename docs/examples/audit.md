@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-11T02:10:14Z
+- **Generated:** 2026-10-11T10:19:15Z
 
 ## Health summary
 
-> **No health score.** only 94 of 202 checks could run (46% coverage); too little evidence to score.
+> **No health score.** only 94 of 205 checks could run (46% coverage); too little evidence to score.
 
-_94 of 202 checks could run; the score is not comparable to a run with full evidence_
+_94 of 205 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 108 skipped, 74 silent, 0 disabled (of 202 total)
+- Checks: **20 fired**, 111 skipped, 74 silent, 0 disabled (of 205 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -320,10 +320,13 @@ Each check below describes more than half the crawled pages. That can be true --
 | Content-shaped page declares no author or byline markup | no Trust Signals column (native crawl or a same-named custom extraction) -- no author markup evidence at all |
 | Content-shaped page declares no publication or update date | no Trust Signals column and no Last Modified column -- no date evidence at all |
 | Content-shaped page has no observable outbound reference in its body content | no External Outlinks column and no all_inlinks export -- nothing to count outbound citations from |
-| DOM nesting is too deep | no stored HTML (input.html_store_dir not set) |
-| DOM contains too many nodes | no stored HTML (input.html_store_dir not set) |
+| DOM nesting is too deep | stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest |
+| DOM contains too many nodes | stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest |
 | Exact duplicate content (identical hash) | SF native Hash column already covers this |
-| Near-duplicate content | no stored HTML (input.html_store_dir not set) |
+| Near-duplicate content | stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) |
+| Pages have adapter-measured topical similarity; review candidate | no semantic embedding adapter is selected |
+| Title has low adapter-measured similarity to the page content; review candidate | no semantic embedding adapter is selected |
+| H1 has low adapter-measured similarity to the page content; review candidate | no semantic embedding adapter is selected |
 | Templated titles share a common prefix or suffix across most pages | too few titles to assess templating |
 | robots.txt does not declare a Sitemap directive | no sitemap URL to check (no export, no --sitemap, and live_recheck disabled) |
 | robots.txt blocks JavaScript or CSS resources required for rendering | no sitemap URL to check (no export, no --sitemap, and live_recheck disabled) |

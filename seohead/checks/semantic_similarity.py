@@ -22,6 +22,7 @@ from itertools import islice
 from pathlib import Path
 from typing import Any, Protocol
 
+from seohead.checks.text_normalize import normalize_text
 from seohead.core.common import canonical_json
 from seohead.core.sqlite import open_writer
 
@@ -94,7 +95,7 @@ class ProviderEmbeddingAdapter:
         }
 
     def embed(self, texts: Sequence[str]) -> Sequence[Sequence[float]]:
-        if not self.allow_external:
+        if self.allow_external is not True:
             raise PermissionError("external semantic provider is not explicitly authorized")
         return self.embedder(texts)
 
@@ -133,7 +134,7 @@ def adapter_identity(adapter: EmbeddingAdapter) -> dict[str, Any]:
         raise ValueError(
             f"{declared['kind']} adapter must declare data_transfer={expected_transfer!r}"
         )
-    if declared["kind"] == "provider" and not declared.get("external_authorized", False):
+    if declared["kind"] == "provider" and declared.get("external_authorized") is not True:
         raise PermissionError("external semantic provider is not explicitly authorized")
     # Keep cache/report identity reproducible without leaking local model paths,
     # credential references or arbitrary adapter implementation fields.
@@ -167,6 +168,8 @@ def _vector(value: Sequence[float]) -> list[float]:
         raise ValueError("embedding vector has an invalid dimension")
     if any(not math.isfinite(part) for part in vector):
         raise ValueError("embedding vector contains a non-finite value")
+    if not any(vector):
+        raise ValueError("embedding vector has zero magnitude")
     return vector
 
 
@@ -237,12 +240,131 @@ class EmbeddingCache:
 def _cosine(left: Sequence[float], right: Sequence[float]) -> float:
     if len(left) != len(right):
         raise ValueError("embedding vectors have inconsistent dimensions")
-    denominator = math.sqrt(sum(value * value for value in left)) * math.sqrt(
-        sum(value * value for value in right)
-    )
-    if denominator == 0:
+    left_scale = max(map(abs, left), default=0)
+    right_scale = max(map(abs, right), default=0)
+    if not left_scale or not right_scale:
         raise ValueError("embedding vector has zero magnitude")
-    return sum(a * b for a, b in zip(left, right, strict=True)) / denominator
+    left = [value / left_scale for value in left]
+    right = [value / right_scale for value in right]
+    denominator = math.hypot(*left) * math.hypot(*right)
+    return max(-1.0, min(1.0, sum(a * b for a, b in zip(left, right, strict=True)) / denominator))
+
+
+def _embed_documents(documents, adapter, cache, identity, coverage):
+    """Resolve bounded, normalized inputs through the shared adapter/cache boundary."""
+    usable: list[tuple[dict[str, Any], list[float]]] = []
+    pending: list[tuple[dict[str, Any], str]] = []
+    for document in documents:
+        source_hash = document.get("normalized_sha256")
+        text = document.get("text")
+        if not isinstance(source_hash, str) or not isinstance(text, str) or not text:
+            reason = "normalized retained content is unavailable"
+            coverage["omitted_documents"] += 1
+            coverage["omission_reasons"][reason] = coverage["omission_reasons"].get(reason, 0) + 1
+            continue
+        key = cache_key(source_hash, identity)
+        cached = cache.get(key)
+        if cached is None:
+            supplied = document.get("embedding")
+            if supplied is not None:
+                validated = _vector(supplied)
+                cache.put(key, source_hash, identity, validated)
+                usable.append((document, validated))
+            else:
+                pending.append((document, key))
+        else:
+            usable.append((document, cached))
+    if pending:
+        vectors = adapter.embed([item[0]["text"] for item in pending])
+        if len(vectors) != len(pending):
+            raise ValueError("embedding adapter returned a different number of vectors")
+        for (document, key), vector in zip(pending, vectors, strict=True):
+            validated = _vector(vector)
+            cache.put(key, document["normalized_sha256"], identity, validated)
+            usable.append((document, validated))
+    coverage["analyzed_documents"] = len(usable)
+    coverage["state"] = "partial" if coverage["omitted_documents"] else "complete"
+    return usable
+
+
+def analyze_semantic_relevance(
+    documents: Sequence[dict[str, Any]],
+    adapter: EmbeddingAdapter,
+    cache: EmbeddingCache,
+    *,
+    threshold: float = 0.35,
+    fields: Sequence[str] = ("title", "h1"),
+) -> dict[str, Any]:
+    """Compare each supplied title/H1 to its own retained body, using embeddings only.
+
+    Body vectors reuse the same cache as semantic grouping. Missing headings are
+    omissions, never low-relevance findings. All scores remain review evidence.
+    """
+    if not 0 <= threshold <= 1:
+        raise ValueError("semantic relevance threshold must be in [0, 1]")
+    if len(documents) > MAX_DOCUMENTS:
+        raise ValueError("semantic document limit exceeded")
+    if not fields or set(fields) - {"title", "h1"}:
+        raise ValueError("semantic relevance fields must select title or h1")
+    identity = adapter_identity(adapter)
+    inputs = []
+    missing = {field: 0 for field in fields}
+    missing_vectors = {field: 0 for field in fields}
+    for item in documents:
+        inputs.append({**item, "field": "body"})
+        for field in missing:
+            text = normalize_text(str(item.get(field) or ""))
+            if not text:
+                missing[field] += 1
+                continue
+            heading = {
+                "url": item["url"],
+                "field": field,
+                "text": text,
+                "normalized_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+            }
+            if item.get(f"{field}_embedding") is not None:
+                heading["embedding"] = item[f"{field}_embedding"]
+            elif (
+                isinstance(adapter, DeclaredEmbeddingAdapter)
+                and cache.get(cache_key(heading["normalized_sha256"], identity)) is None
+            ):
+                missing_vectors[field] += 1
+                continue
+            inputs.append(heading)
+    coverage = {"omitted_documents": 0, "omission_reasons": {}}
+    usable = _embed_documents(inputs, adapter, cache, identity, coverage)
+    vectors = {(item["url"], item["field"]): vector for item, vector in usable}
+    scores = []
+    for item in documents:
+        body = vectors.get((item["url"], "body"))
+        if body is None:
+            continue
+        for field in missing:
+            heading = vectors.get((item["url"], field))
+            if heading is not None:
+                similarity = _cosine(body, heading)
+                scores.append(
+                    {
+                        "url": item["url"],
+                        "field": field,
+                        "similarity": round(similarity, 6),
+                        "threshold": threshold,
+                        "low_relevance": similarity < threshold,
+                        "source_sha256": item["normalized_sha256"],
+                    }
+                )
+    return {
+        "adapter": identity,
+        "scores": scores,
+        "missing_headings": missing,
+        "unavailable_vectors": missing_vectors,
+        "coverage": {
+            "eligible_pairs": len(documents) * len(fields),
+            "analyzed_pairs": len(scores),
+            "state": "complete" if len(scores) == len(documents) * len(fields) else "partial",
+        },
+    }
 
 
 def analyze_semantic_documents(
@@ -287,41 +409,7 @@ def analyze_semantic_documents(
         omitted = (total - len(selected)) if total is not None else 1
         coverage["omitted_documents"] += omitted
         coverage["omission_reasons"]["semantic document limit exceeded"] = omitted
-    usable: list[tuple[dict[str, Any], list[float]]] = []
-    pending: list[tuple[dict[str, Any], str]] = []
-    for document in selected:
-        source_hash = document.get("normalized_sha256")
-        text = document.get("text")
-        if not isinstance(source_hash, str) or not isinstance(text, str) or not text:
-            reason = "normalized retained content is unavailable"
-            coverage["omitted_documents"] += 1
-            coverage["omission_reasons"][reason] = coverage["omission_reasons"].get(reason, 0) + 1
-            continue
-        key = cache_key(source_hash, identity)
-        cached = cache.get(key)
-        if cached is None:
-            supplied = document.get("embedding")
-            if supplied is not None:
-                validated = _vector(supplied)
-                cache.put(key, source_hash, identity, validated)
-                usable.append((document, validated))
-            else:
-                pending.append((document, key))
-        else:
-            usable.append((document, cached))
-    if pending:
-        vectors = adapter.embed([item[0]["text"] for item in pending])
-        if len(vectors) != len(pending):
-            raise ValueError("embedding adapter returned a different number of vectors")
-        for (document, key), vector in zip(pending, vectors, strict=True):
-            validated = _vector(vector)
-            cache.put(key, document["normalized_sha256"], identity, validated)
-            usable.append((document, validated))
-    coverage["analyzed_documents"] = len(usable)
-    if coverage["omitted_documents"]:
-        coverage["state"] = "partial"
-    else:
-        coverage["state"] = "complete"
+    usable = _embed_documents(selected, adapter, cache, identity, coverage)
 
     parent = list(range(len(usable)))
 

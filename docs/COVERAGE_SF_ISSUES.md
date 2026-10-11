@@ -15,16 +15,16 @@ here is written about *our own* behaviour.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| check | 142 | a registry check finds it |
+| check | 144 | a registry check finds it |
 | tool | 32 | a command outside the crawl registry finds it |
-| partial | 19 | we find part of it; the missing part is stated |
+| partial | 17 | we find part of it; the missing part is stated |
 | gap | 3 | we should find it and do not |
 | out of scope | 124 | a decision, with its reason |
 | **total** | **320** | |
 
 108 of the out-of-scope entries are two whole categories declined as single
 decisions — accessibility and AMP, each explained in its own section below. Of the
-remaining 212 issues, **174 are found today**, 19 are
+remaining 212 issues, **176 are found today**, 17 are
 found in part, 3 are gaps worth closing, and
 16 need something we have decided not to build.
 
@@ -141,9 +141,9 @@ having, because the alternative is an absence nobody has noticed.
 | Grammar Errors | check | `GRAMMAR_ERRORS` | from an SF export column; not computed |
 | Soft 404 Pages | tool | `soft404-check` |  |
 | Lorem Ipsum Placeholder | check | `LOREM_IPSUM_PLACEHOLDER` | matched as the full multi-word passage within the resolved content area, never a substring of the whole document, so a page merely mentioning it once outside the content area is not flagged |
-| Near Duplicates | partial | `NEAR_DUPLICATE` | an SF export's native "No. Near Duplicates" column is read directly and answers this fully; the SimHash-based fallback that answers it without one needs HTML stored to disk (input.html_store_dir), which a native `crawl-site` run never writes, so that run always skips this one by name instead |
-| Semantically Similar | gap | — | needs an embedding adapter; the semantic-similarity command and MCP tool take caller-supplied vectors or a local adapter, but no adapter ships and the SF run does not call it yet, so the row stays open. simhash finds near-duplicates by shingles, not by meaning |
-| Low Relevance Content | gap | — | needs a query or a topic model to be relevant to |
+| Near Duplicates | check | `NEAR_DUPLICATE` | SF native columns or bounded SimHash/LSH over content-area text from the native scan's selected retained document or input.html_store_dir; missing bodies and exhausted analysis budgets are explicit omissions |
+| Semantically Similar | gap | — | SF-run now invokes adapter-measured semantic candidates only when an explicit local adapter or declared caller-supplied vectors are selected. No adapter ships; the default is explicitly unavailable and the row stays a gap until an adapter is chosen and validated. SimHash compares shingles, not meaning |
+| Low Relevance Content | gap | — | an explicit embedding adapter can compare title and H1 against normalized retained body text as review candidates. This does not establish query relevance; no model is selected by default, so the row stays a gap pending an adapter decision |
 | Low Content Pages | check | `THIN_CONTENT` `LOW_TEXT_RATIO` |  |
 | Readability Difficult | check | `READABILITY_DIFFICULT` `LONG_SENTENCES` |  |
 | Readability Very Difficult | check | `READABILITY_DIFFICULT` |  |
@@ -300,7 +300,7 @@ having, because the alternative is an absence nobody has noticed.
 | Reduce Unused JavaScript | out of scope | — | needs coverage instrumentation from a real render |
 | Reduce JavaScript Execution Time | out of scope | — | needs a CPU profile |
 | Minimize Main-Thread Work | out of scope | — | needs a CPU profile |
-| Optimize DOM Size | partial | `DOM_TOO_MANY_NODES` `DOM_TOO_DEEP` | needs HTML stored to disk (input.html_store_dir) to measure; a Screaming Frog export configured to store HTML supplies it, but a native `crawl-site` run never writes one, so that run always skips both by name instead |
+| Optimize DOM Size | check | `DOM_TOO_MANY_NODES` `DOM_TOO_DEEP` | reads the selected retained native document or SF stored HTML; unretained, over-budget and invalid bodies are reported with their true reason |
 | Font Display | tool | `asset-weight-check` |  |
 
 ## Mobile

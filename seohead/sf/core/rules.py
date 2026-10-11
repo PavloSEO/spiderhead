@@ -1236,8 +1236,9 @@ def check_duplicates(ctx: AuditContext) -> None:
     emit(by_h2, "H2_DUPLICATE")
     if has_hash:
         emit(by_hash, "DUPLICATE_BY_HASH")
-    else:
-        ctx.skip("DUPLICATE_BY_HASH", "no Hash/Page Hash column in Internal:All")
+    # With no SF hash, the retained-body heuristic owns both measurement and
+    # its actual unavailable/partial reason. Missing this column alone does
+    # not mean duplicate content is unmeasured.
 
 
 # --------------------------------------------------------------------------

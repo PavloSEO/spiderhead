@@ -37,6 +37,36 @@ def test_default_config_validates_clean():
     validate_config(load_config(None))  # must not raise
 
 
+@pytest.mark.parametrize(
+    "name,value",
+    [
+        ("threshold", float("nan")),
+        ("threshold", 0),
+        ("threshold", True),
+        ("relevance_threshold", 1.1),
+        ("max_documents", 10001),
+        ("max_documents", True),
+        ("max_candidate_comparisons", -1),
+        ("max_candidate_comparisons", 250001),
+        ("adapter", "implicit-model"),
+        ("embeddings", {}),
+        ("cache_path", []),
+    ],
+)
+def test_semantic_configuration_rejects_invalid_thresholds_and_budgets(name, value):
+    cfg = load_config(None)
+    cfg["semantic_similarity"][name] = value
+    with pytest.raises(ConfigError, match=f"semantic_similarity.{name}"):
+        validate_config(cfg)
+
+
+def test_semantic_configuration_requires_object():
+    cfg = load_config(None)
+    cfg["semantic_similarity"] = []
+    with pytest.raises(ConfigError, match="semantic_similarity must be an object"):
+        validate_config(cfg)
+
+
 def test_valid_severity_override_validates_clean():
     cfg = load_config(None)
     cfg["severity_overrides"] = {"TITLE_MISSING": "notice"}

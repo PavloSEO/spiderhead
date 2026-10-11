@@ -55,6 +55,17 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "profile": "full",  # lite | full | custom
     "exports": profile_exports(),
     "input": {"mode": "auto", "exports_dir": "exports", "html_store_dir": None},
+    # No implicit model or provider: an explicit declaration and supplied
+    # vectors (or a core caller's local adapter) enable semantic review.
+    "semantic_similarity": {
+        "adapter": None,
+        "embeddings": [],
+        "cache_path": None,
+        "threshold": 0.82,
+        "relevance_threshold": 0.35,
+        "max_documents": 1000,
+        "max_candidate_comparisons": 250000,
+    },
     "filters": {
         "content_type_include": ["text/html"],
         "exclude_extensions": [
@@ -271,6 +282,35 @@ def validate_config(cfg: dict[str, Any]) -> None:
         validate_canonical_policy(cfg.get("canonical_policy", {}))
     except ValueError as exc:
         errors.append(str(exc))
+
+    semantic = cfg.get("semantic_similarity", {})
+    if not isinstance(semantic, dict):
+        errors.append("semantic_similarity must be an object")
+    else:
+        for name in ("threshold", "relevance_threshold"):
+            value = semantic.get(name, DEFAULT_CONFIG["semantic_similarity"][name])
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(value)
+                or not 0 < value <= 1
+            ):
+                errors.append(f"semantic_similarity.{name} must be finite and in (0, 1]")
+        for name, minimum, maximum in (
+            ("max_documents", 1, 10000),
+            ("max_candidate_comparisons", 0, 250000),
+        ):
+            value = semantic.get(name, DEFAULT_CONFIG["semantic_similarity"][name])
+            if type(value) is not int or not minimum <= value <= maximum:
+                errors.append(
+                    f"semantic_similarity.{name} must be an integer in [{minimum}, {maximum}]"
+                )
+        if semantic.get("adapter") is not None and not isinstance(semantic["adapter"], dict):
+            errors.append("semantic_similarity.adapter must be an object or null")
+        if not isinstance(semantic.get("embeddings", []), list):
+            errors.append("semantic_similarity.embeddings must be an array")
+        if semantic.get("cache_path") is not None and not isinstance(semantic["cache_path"], str):
+            errors.append("semantic_similarity.cache_path must be a local path or null")
 
     if errors:
         raise ConfigError("; ".join(errors))

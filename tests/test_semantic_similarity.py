@@ -11,6 +11,7 @@ from seohead.checks.semantic_similarity import (
     LocalEmbeddingAdapter,
     ProviderEmbeddingAdapter,
     analyze_semantic_documents,
+    analyze_semantic_relevance,
 )
 
 
@@ -69,6 +70,21 @@ def test_missing_adapter_is_unavailable_and_never_invents_a_lexical_score(tmp_pa
     assert result["ok"] is False
     assert result["coverage"]["state"] == "unavailable"
     assert result["groups"] == []
+
+
+@pytest.mark.parametrize("authorization", [False, "false", "true", 1, None])
+def test_provider_authorization_requires_literal_true(tmp_path, authorization):
+    adapter = ProviderEmbeddingAdapter(
+        "fixture",
+        "fixture",
+        "1",
+        lambda texts: pytest.fail("unauthorized embed call"),
+        allow_external=authorization,
+    )
+    with pytest.raises(PermissionError, match="not explicitly authorized"):
+        analyze_semantic_documents(_documents(), adapter, EmbeddingCache(tmp_path / "cache.sqlite"))
+    with pytest.raises(PermissionError, match="not explicitly authorized"):
+        adapter.embed(["private retained text"])
 
 
 def test_provider_is_opt_in_before_any_embed_call(tmp_path):
@@ -149,3 +165,37 @@ def test_cache_entry_quota_evicts_oldest_vectors(tmp_path):
 
     assert cache.get("a" * 64) is None
     assert cache.get("b" * 64) == [2.0]
+
+
+def test_relevance_reuses_body_vectors_and_reports_missing_headings(tmp_path):
+    calls = []
+    adapter = LocalEmbeddingAdapter(
+        "m", "1", "/m", lambda texts: calls.append(list(texts)) or [[1, 0] for _ in texts]
+    )
+    cache = EmbeddingCache(tmp_path / "relevance.sqlite")
+    docs = [{**_documents()[0], "title": "A pump title", "h1": ""}]
+    analyze_semantic_documents(docs, adapter, cache)
+    first = analyze_semantic_relevance(docs, adapter, cache)
+    second = analyze_semantic_relevance(docs, adapter, cache)
+    assert first == second
+    assert first["missing_headings"] == {"title": 0, "h1": 1}
+    assert first["scores"][0]["low_relevance"] is False
+    assert len(calls) == 2 and len(calls[1]) == 1
+
+
+@pytest.mark.parametrize("vector", ([0.0], [float("inf")], []))
+def test_single_document_invalid_vector_never_reports_complete(tmp_path, vector):
+    adapter = LocalEmbeddingAdapter("m", "1", "/m", lambda texts: [vector])
+    with pytest.raises(ValueError, match="embedding vector"):
+        analyze_semantic_documents(
+            _documents()[:1], adapter, EmbeddingCache(tmp_path / "cache.sqlite")
+        )
+
+
+def test_extreme_finite_vectors_do_not_overflow_into_false_clean_results(tmp_path):
+    adapter = LocalEmbeddingAdapter("m", "1", "/m", lambda texts: [[1e308, 1e308] for _ in texts])
+    result = analyze_semantic_documents(
+        _documents()[:2], adapter, EmbeddingCache(tmp_path / "cache.sqlite")
+    )
+    assert result["ok"] is True
+    assert result["groups"][0]["evidence"][0]["similarity"] == 1
