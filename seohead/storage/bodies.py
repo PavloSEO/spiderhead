@@ -369,6 +369,16 @@ def _read_document_parts(
     return text, decoder, raw
 
 
+def _read_document(
+    con: sqlite3.Connection, document_id: int, *, max_decoded_bytes: int
+) -> tuple[str, dict[str, str]]:
+    """Keep the original private reader shape for storage extensions during integration."""
+    text, decoder, _raw = _read_document_parts(
+        con, document_id, max_decoded_bytes=max_decoded_bytes
+    )
+    return text, decoder
+
+
 def read_document_navigation(con, document_id: int) -> dict[str, object]:
     """Read bounded navigation evidence without fetching or interpreting its cause."""
     from seohead.checks.navigation import expand_navigation, retain_navigation

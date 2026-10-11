@@ -11,6 +11,7 @@ import pytest
 
 from seohead.storage import ScanError
 from seohead.storage.bodies import (
+    _read_document,
     MAX_WINDOW_CHARS,
     decode_entity,
     encode_body,
@@ -196,6 +197,18 @@ def test_read_document_validates_entity_lineage_and_named_unavailable_state():
     )
     with pytest.raises(ScanError, match="unavailable: unavailable/not_in_corpus"):
         read_document(con, 1, max_decoded_bytes=100)
+
+
+def test_private_document_reader_keeps_its_two_value_shape():
+    con = _con()
+    sha = _body(con, b"caf\xe9")
+    _response(con, sha)
+    document_id = _document(con, sha)
+
+    text, decoder = _read_document(con, document_id, max_decoded_bytes=100)
+
+    assert text == "café"
+    assert decoder["decoder_charset"] == "iso8859-1"
 
 
 def test_read_document_handles_legacy_reencoded_text_and_rendered_dom_separately():
