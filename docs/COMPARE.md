@@ -24,13 +24,16 @@ The new output directory contains:
 - `unchanged.ndjson`: both original rows, as `before` and `after`, for each shared
   finding key. A shared key does **not** assert equal evidence. Both evidence
   objects remain available even when details or suppression fields changed.
+- `segment_changes.ndjson`: every delta and unchanged pair annotated with the
+  shared primary segment and change bucket, when segment rules are comparable.
 - `by_check.ndjson`: full counts for the four delta categories per check.
 - With correspondence: `correspondence.ndjson` and `facts.ndjson`, including
   unmatched declarations and measured/absent/unavailable page facts.
 
 Each file entry has a relative `path`, `format`, `rows`, `bytes`, and SHA-256.
 The returned result includes the absolute `manifest` and `out_dir` paths.
-The manifest is published last, after all streams have been written and flushed.
+The complete directory is published atomically after every stream and the manifest
+have been written and flushed.
 Existing destination directories are rejected, including empty directories.
 Temporary SQL data is removed; it is not part of the artifact contract.
 

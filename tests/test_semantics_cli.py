@@ -102,10 +102,22 @@ def test_import_preserves_existing_frequencies_and_rolls_back_bad_files(tmp_path
     main(["init", "--project", str(project)])
     with Store(project / "sya.db") as store:
         store.upsert("synthetic phrase", base=99)
-        store.set_fields("synthetic phrase", exact=0)
+        store.set_fields(
+            "synthetic phrase",
+            exact=0,
+            group_name="Owner group",
+            url="https://owner.test/",
+            comment="Owner note",
+        )
+        store.upsert("curated phrase", base=80)
+        store.set_fields("curated phrase", exact=6, comment="Curated note")
+        store.set_status("curated phrase", "dropped", reason="owner decision", stage="review")
     source = tmp_path / "input.csv"
     source.write_text(
-        "norm;base;quoted;exact;pos_g\nsynthetic phrase;1;7;5;3\nunmeasured phrase;;;0;\n",
+        "norm;base;quoted;exact;pos_g;group;url;comment\n"
+        "synthetic phrase;1;7;5;3;Import group;https://import.test/;Import note\n"
+        "unmeasured phrase;;;0;;;;\n"
+        "curated phrase;1;2;3;4;Import group;https://import.test/;Import note\n",
         encoding="utf-8",
     )
     assert main(["import", "--project", str(project), "--file", str(source)]) == 0
@@ -113,6 +125,14 @@ def test_import_preserves_existing_frequencies_and_rolls_back_bad_files(tmp_path
         rows = {row["norm"]: row for row in store.phrases()}
     assert (rows["synthetic phrase"]["base"], rows["synthetic phrase"]["exact"]) == (99, 0)
     assert rows["synthetic phrase"]["status"] == "kept"
+    assert (
+        rows["synthetic phrase"]["group_name"],
+        rows["synthetic phrase"]["url"],
+        rows["synthetic phrase"]["comment"],
+    ) == ("Owner group", "https://owner.test/", "Owner note")
+    assert rows["curated phrase"]["status"] == "dropped"
+    assert (rows["curated phrase"]["base"], rows["curated phrase"]["exact"]) == (80, 6)
+    assert rows["curated phrase"]["comment"] == "Curated note"
     assert json.loads((project / "pool.json").read_text(encoding="utf-8"))
 
     bad = tmp_path / "bad.csv"

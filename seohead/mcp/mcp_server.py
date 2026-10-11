@@ -3303,7 +3303,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         """Read a bounded project action log, filtering by interface, outcome or text."""
         return _checked(
             handlers.project_action_log(
-                directory,
+                directory=directory,
                 offset=offset,
                 limit=limit,
                 client=client,
@@ -3540,14 +3540,21 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
         if action != "status":
             require_mcp_allowed(f"provider.credential.{action}")
-        return _checked(handlers.provider_credential(provider, component, action, confirm))
+        return _checked(
+            handlers.provider_credential(
+                provider=provider,
+                component=component,
+                action=action,
+                confirm=confirm,
+            )
+        )
 
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_provider_discover(
         provider: Literal["google", "yandex", "topvisor"], domain: str | None = None
     ) -> dict[str, Any]:
         """List account-visible provider resources; discovery does not bind or select them."""
-        return _checked(handlers.provider_discover(provider, domain))
+        return _checked(handlers.provider_discover(provider=provider, domain=domain))
 
     @mcp.tool(annotations=paid, structured_output=True)
     def seo_provider_collect(
@@ -3571,7 +3578,12 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         validates the local artifact reference and returns an allowlisted, sanitized sample page;
         it never returns the raw saved envelope or makes a provider request."""
         return _checked(
-            handlers.provider_artifact_read(artifact_ref, artifact_dir, offset=offset, limit=limit)
+            handlers.provider_artifact_read(
+                artifact_ref=artifact_ref,
+                artifact_dir=artifact_dir,
+                offset=offset,
+                limit=limit,
+            )
         )
 
     @mcp.tool(annotations=pure, structured_output=True)
@@ -3800,7 +3812,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         )
 
     @mcp.tool(annotations=create_files, structured_output=True)
-    def seo_project_export_start(
+    def seo_project_export(
         directory: str,
         dataset: Literal["tasks", "task_comments", "task_history", "compare"],
         fmt: str,
@@ -3815,7 +3827,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         recorded in project export history. No network request is made.
         """
         return _checked(
-            handlers.project_export_start(
+            handlers.project_export(
                 directory=directory,
                 dataset=dataset,
                 fmt=fmt,

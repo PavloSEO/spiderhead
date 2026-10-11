@@ -218,7 +218,10 @@ def test_retained_spelling_accepts_only_explicit_injected_backend_and_word_list(
     document = {
         "state": "available",
         "url": "https://example.test/p",
-        "text": "<html><body><main>Brand word.</main></body></html>",
+        "text": (
+            "<html><body><main>Brand appears in this sufficiently long English "
+            "paragraph for reliable language routing.</main></body></html>"
+        ),
     }
     skipped = inspect_retained_document(document)
     checked = inspect_retained_document(document, backend=Backend(), ignore_words=["brand"])
@@ -252,7 +255,8 @@ def test_retained_spelling_uses_the_same_data_nosnippet_filtered_content_area():
             "state": "available",
             "url": "https://example.test/p",
             "text": (
-                "<html><body><main><p>Visibleword.</p>"
+                "<html><body><main><p>Visibleword appears in this sufficiently long English "
+                "sentence for reliable language routing.</p>"
                 "<p data-nosnippet>Private marker text.</p></main></body></html>"
             ),
         },
@@ -295,6 +299,8 @@ def test_query_excerpt_redacts_common_token_and_secret_key_names():
     result = _bounded_query_excerpt(text, start, start + len("visible"))
     for secret in ("auth-value", "access-value", "client value", "api-value"):
         assert secret not in result["text"]
+    assert result["start_offset"] == 1
+    assert result["text"].startswith("[REDACTED]")
     assert result["text"].count("[REDACTED]") == 4
 
 
@@ -368,9 +374,9 @@ def test_retained_metadata_and_query_excerpt_share_local_profiles(monkeypatch, t
     retained = result["tasks"][0]["retained_document"]
     assert retained["metadata"]["pixel_widths"]["local-layout"] == {
         "title": 30,
-        "description": 54,
+        "description": 57,
     }
-    assert retained["query_excerpt"]["pixel_widths"]["local-layout"]["description"] == 33
+    assert retained["query_excerpt"]["pixel_widths"]["local-layout"]["description"] == 36
     assert (
         retained["query_excerpt"]["previews"]["local-layout"]["description"]["truncated"] is False
     )

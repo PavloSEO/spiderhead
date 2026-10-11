@@ -369,7 +369,7 @@ def test_configuration_flag_reads_zone_ai_settings_and_bounded_rulesets(tmp_path
     )
     assert result["configuration"]["logpush"]["jobs"][0]["dataset"] == "http_requests"
     assert "destination_conf" not in json.dumps(result)
-    assert result["configuration_requests"] == len(cloudflare.AI_SETTINGS) + len(
-        cloudflare.RULE_PHASES
+    assert result["configuration_requests"] == (
+        len(cloudflare.AI_SETTINGS) + len(cloudflare.RULE_PHASES) + 1
     )
     assert len(calls) == 1 + result["configuration_requests"] + result["queries"]

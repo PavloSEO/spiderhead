@@ -920,6 +920,7 @@ def provider_verify(
                 "state": "verification_input_required",
                 "readiness_state": readiness,
                 "permission_state": "unknown",
+                "authenticated_account": False,
                 "target_access": "not_requested",
                 "verified": False,
                 "required_fields": list(required)
@@ -1001,6 +1002,11 @@ def provider_verify(
         "quota_mode": _REGISTRY[provider]["quota_mode"],
         "quota_state": result.get("quota_state", "unknown"),
         "response_time_ms": round((time.monotonic() - started) * 1000, 1),
+        **(
+            {"environment": result["environment"]}
+            if provider == "dataforseo_backlinks" and "environment" in result
+            else {}
+        ),
         **({"token_status": result["token_status"]} if "token_status" in result else {}),
         **(
             {

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from seohead.core import filesystem
@@ -68,7 +70,7 @@ def test_action_log_fails_fast_when_another_writer_holds_the_lock(project, monke
     monkeypatch.setattr(filesystem, "lock_exclusive", contended)
 
     with (
-        pytest.raises(ValueError, match="another writer owns the project workspace"),
+        pytest.raises(ValueError, match="project workspace is busy"),
         project_write_lock(project, timeout_seconds=0),
     ):
         pass
@@ -115,3 +117,23 @@ def test_page_does_not_create_or_change_project_files(project):
         if path.is_file()
     }
     assert after == before
+
+
+def test_page_normalizes_legacy_rows_without_rewriting_them(project):
+    path = project / "actions.jsonl"
+    row = {
+        "sequence": 1,
+        "occurred_at": "2026-10-11T10:00:00Z",
+        "client": "cli",
+        "action": "project.settings.update",
+        "outcome": "applied",
+        "detail": "Legacy action",
+        "proposal_id": None,
+    }
+    path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    original = path.read_bytes()
+
+    result = page(project)
+
+    assert result["items"][0]["operation_id"] is None
+    assert path.read_bytes() == original

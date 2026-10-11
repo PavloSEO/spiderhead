@@ -50,7 +50,10 @@ def _settings(directory: str | Path) -> tuple[Path, dict[str, Any], dict[str, An
     current = read_document(root, SETTINGS_FILE)
     if current is not None and (
         set(current)
-        != {"format", "version", "project_uuid", "revision", "settings", "last_operation_id"}
+        not in (
+            {"format", "version", "project_uuid", "revision", "settings"},
+            {"format", "version", "project_uuid", "revision", "settings", "last_operation_id"},
+        )
         or current["format"] != SETTINGS_FORMAT
         or type(current["version"]) is not int
         or current["version"] != 1
@@ -63,14 +66,16 @@ def _settings(directory: str | Path) -> tuple[Path, dict[str, Any], dict[str, An
         or not _LABEL.fullmatch(current["settings"].get("label", ""))
         or not current["settings"].get("label", "").strip()
         or (
-            current["last_operation_id"] is not None
+            current.get("last_operation_id") is not None
             and (
-                type(current["last_operation_id"]) is not str
+                type(current.get("last_operation_id")) is not str
                 or not re.fullmatch(r"[0-9a-f]{32}", current["last_operation_id"])
             )
         )
     ):
         raise ValueError("project settings have an unsupported shape")
+    if current is not None and "last_operation_id" not in current:
+        current = {**current, "last_operation_id": None}
     return root, project, current
 
 
@@ -180,7 +185,27 @@ def _proposal_document(
     ):
         raise ValueError("settings proposal store has an unsupported shape")
     if current is not None:
-        for proposal in current["proposals"]:
+        legacy_keys = {
+            "id",
+            "created_at",
+            "client",
+            "status",
+            "kind",
+            "base_revision",
+            "changes",
+            "decided_at",
+        }
+        for index, proposal in enumerate(current["proposals"]):
+            if isinstance(proposal, dict) and set(proposal) == legacy_keys:
+                decision = (
+                    "deny"
+                    if proposal.get("status") == "denied"
+                    else "approve"
+                    if proposal.get("status") in {"applied", "stale"}
+                    else None
+                )
+                proposal = {**proposal, "action_sequence": None, "decision": decision}
+                current["proposals"][index] = proposal
             if not isinstance(proposal, dict) or set(proposal) != {
                 "id",
                 "created_at",
@@ -205,8 +230,13 @@ def _proposal_document(
                 or proposal["kind"] not in {"project_settings", "crawl_policy"}
                 or type(proposal["base_revision"]) is not int
                 or proposal["base_revision"] < 0
-                or type(proposal["action_sequence"]) is not int
-                or proposal["action_sequence"] < 1
+                or (
+                    proposal["action_sequence"] is not None
+                    and (
+                        type(proposal["action_sequence"]) is not int
+                        or proposal["action_sequence"] < 1
+                    )
+                )
                 or (
                     proposal["decision"] is not None
                     and (
@@ -379,19 +409,22 @@ def review_proposal(
     if proposal["status"] in {"applied", "denied", "stale"}:
         if proposal["decision"] != decision:
             raise ValueError("settings proposal already has a different terminal decision")
-        from .action_log import resolve_pending
-
         result = {"ok": True, "revision": revision, "proposal": proposal}
-        try:
-            resolve_pending(
-                root,
-                proposal["action_sequence"],
-                outcome=proposal["status"],
-                detail=_review_detail(proposal["status"], proposal["kind"]),
-                proposal_id=proposal_id,
-            )
-        except (OSError, ValueError):
-            result["audit_warning"] = "Proposal status is saved; its action row remains pending."
+        if proposal["action_sequence"] is not None:
+            from .action_log import resolve_pending
+
+            try:
+                resolve_pending(
+                    root,
+                    proposal["action_sequence"],
+                    outcome=proposal["status"],
+                    detail=_review_detail(proposal["status"], proposal["kind"]),
+                    proposal_id=proposal_id,
+                )
+            except (OSError, ValueError):
+                result["audit_warning"] = (
+                    "Proposal status is saved; its action row remains pending."
+                )
         return result
     changes = proposal["changes"]
     if proposal["kind"] == "project_settings":
@@ -458,19 +491,20 @@ def review_proposal(
         "proposals": proposals,
     }
     write_document(root, PROPOSALS_FILE, document, expected_revision=revision)
-    from .action_log import resolve_pending
-
     result = {"ok": True, "revision": document["revision"], "proposal": proposal}
-    try:
-        resolve_pending(
-            root,
-            proposal["action_sequence"],
-            outcome=status,
-            detail=_review_detail(status, proposal["kind"]),
-            proposal_id=proposal_id,
-        )
-    except (OSError, ValueError):
-        result["audit_warning"] = "Proposal status is saved; its action row remains pending."
+    if proposal["action_sequence"] is not None:
+        from .action_log import resolve_pending
+
+        try:
+            resolve_pending(
+                root,
+                proposal["action_sequence"],
+                outcome=status,
+                detail=_review_detail(status, proposal["kind"]),
+                proposal_id=proposal_id,
+            )
+        except (OSError, ValueError):
+            result["audit_warning"] = "Proposal status is saved; its action row remains pending."
     return result
 
 

@@ -3843,11 +3843,11 @@ Append a comment to a custom project task with an optional scan/finding link.
 The comment records its actor and timestamp. expected_revision prevents overwriting a
 newer checklist update. This writes local project metadata and makes no network request.
 
-### `project-export-start`
+### `project-export`
 
 **Category:** `project` · **Project-aware:** yes
 
-MCP name: `seo_project_export_start`
+MCP name: `seo_project_export`
 
 Start a complete task, task-comments, task-history or compare.v2 export under reports/.
 

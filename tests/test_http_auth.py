@@ -95,8 +95,11 @@ def test_concurrent_digest_flows_serialize_shared_nonce_state(monkeypatch):
                     active -= 1
 
             advance_shared_state()
-            yield request
+            response = yield request
+            assert response.status_code == 401
+            assert response.headers.get("WWW-Authenticate", "").startswith("Digest ")
             advance_shared_state()
+            request.headers["Authorization"] = 'Digest username="crawler", nonce="n"'
             yield request
 
     monkeypatch.setattr(httpx, "DigestAuth", SharedStateDigest)

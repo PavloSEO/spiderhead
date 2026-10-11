@@ -222,14 +222,46 @@ def test_instant_logs_cancel_closes_socket_and_does_not_touch_foreign_session(
 ):
     project = _project(tmp_path)
     _enterprise(monkeypatch)
-    session = "b" * 32
+    requests = []
 
     def transport(method, url, body, token):
+        requests.append(method)
+        assert method == "GET"
+        return {"success": True, "result": []}
+
+    cancelled = threading.Event()
+    cancelled.set()
+    result = cloudflare_logs.instant_logs_capture(
+        project["path"],
+        confirm_live_capture=True,
+        token=TOKEN,
+        transport=transport,
+        websocket_factory=lambda url, **kwargs: pytest.fail(
+            "cancelled before session creation must not open a socket"
+        ),
+        cancel_event=cancelled,
+    )
+    assert result["stop_reason"] == "cancelled"
+    assert requests == ["GET"]
+
+
+def test_mid_capture_cancel_closes_only_the_owned_socket_without_stop_request(
+    tmp_path, monkeypatch
+):
+    project = _project(tmp_path)
+    _enterprise(monkeypatch)
+    session = "e" * 32
+    requests = []
+    cancelled = threading.Event()
+
+    def transport(method, url, body, token):
+        requests.append((method, url))
+        if method == "GET":
+            return {"success": True, "result": []}
+        assert method == "POST"
         return {
             "success": True,
-            "result": []
-            if method == "GET"
-            else {
+            "result": {
                 "destination_conf": f"wss://logs.cloudflare.com/instant-logs/ws/sessions/{session}"
             },
         }
@@ -238,14 +270,13 @@ def test_instant_logs_cancel_closes_socket_and_does_not_touch_foreign_session(
         closed = False
 
         def recv(self, *, timeout):
-            raise AssertionError("pre-cancelled capture must not receive")
+            cancelled.set()
+            return ""
 
         def close(self):
             self.closed = True
 
     socket = Socket()
-    cancelled = threading.Event()
-    cancelled.set()
     result = cloudflare_logs.instant_logs_capture(
         project["path"],
         confirm_live_capture=True,
@@ -254,6 +285,9 @@ def test_instant_logs_cancel_closes_socket_and_does_not_touch_foreign_session(
         websocket_factory=lambda url, **kwargs: socket,
         cancel_event=cancelled,
     )
-    assert result["stop_reason"] == "cancelled"
+
+    assert result["ok"] and result["stop_reason"] == "cancelled"
     assert socket.closed
+    assert [method for method, _url in requests] == ["GET", "POST"]
+    assert all("/logpush/edge/jobs" in url for _method, url in requests)
     assert result["provider_session"].startswith("socket closed")

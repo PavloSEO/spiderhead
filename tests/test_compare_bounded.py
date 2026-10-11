@@ -87,8 +87,8 @@ def test_file_compare_conserves_every_row_and_matches_legacy(tmp_path):
         "disappeared.ndjson",
         "entered.ndjson",
         "left.ndjson",
-        "unchanged.ndjson",
         "segment_changes.ndjson",
+        "unchanged.ndjson",
     ]
 
 
@@ -167,9 +167,7 @@ def test_compare_v2_reader_sorts_filters_and_reuses_process_index(tmp_path, monk
         yield from original(*args, **kwargs)
 
     monkeypatch.setattr(compare_store, "iter_compare_rows", counted)
-    page = read_compare_page(
-        result["manifest"], "disappeared", limit=1, sort="url", direction="asc"
-    )
+    page = read_compare_page(result["manifest"], "left", limit=1, sort="url", direction="asc")
     assert page["total"] == 2 and page["returned"] == 1 and page["has_more"] is True
     assert page["rows"][0]["target_url"] == A
     assert calls == 1
@@ -178,7 +176,7 @@ def test_compare_v2_reader_sorts_filters_and_reuses_process_index(tmp_path, monk
         raise AssertionError("the process-local page index should serve subsequent pages")
 
     monkeypatch.setattr(compare_store, "iter_compare_rows", no_rescan)
-    filtered = read_compare_page(result["manifest"], "disappeared", contains="b.test", limit=10)
+    filtered = read_compare_page(result["manifest"], "left", contains="example.test/b", limit=10)
     assert filtered["total"] == 1
     assert filtered["rows"][0]["target_url"] == B
 

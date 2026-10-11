@@ -66,12 +66,14 @@ def test_ga4_readiness_matches_existing_collection_credentials(
     verification = providers.provider_verify("ga4")
 
     assert readiness["state"] == doctor["readiness_state"] == "configured_unverified"
-    assert doctor["state"] == verification["state"] == "credential_present"
+    assert doctor["state"] == "credential_present"
+    assert verification["state"] == "verification_input_required"
+    assert verification["authenticated_account"] is False
     assert readiness["credential_components"] == {
         "oauth_bearer": credential in {"oauth_bearer", "both"},
         "service_account": credential in {"service_account", "both"},
     }
-    assert verification["permission_state"] == "unsupported"
+    assert verification["permission_state"] == "unknown"
     assert readiness["permission_state"] == "not_verified"
     assert readiness["target_access"] == verification["target_access"] == "not_requested"
     assert readiness["verified"] is verification["verified"] is False
@@ -551,7 +553,7 @@ def test_dataforseo_account_metadata_rejects_malformed_200_envelopes():
     }
     assert _account_metadata_result(valid)["rates"] == {"serp": {}}
 
-    malformed = {**valid, "tasks": [{"status_code": 20000, "result": [None]}]}
+    malformed = {**valid, "tasks": [{"status_code": 20000, "result": [{}]}]}
     with pytest.raises(DataForSEOError, match="quota or pricing metadata"):
         _account_metadata_result(malformed)
 

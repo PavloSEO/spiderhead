@@ -439,6 +439,14 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
             if supported and not item.get("_rdfa_has_schema_type", False):
                 item["@type"] = []
             item["_vocab_supported"] = item["_vocab_supported"] or supported
+        if not supported:
+            foreign_context = vocab or "non-Schema.org RDFa terms"
+            warning = (
+                f"Foreign vocabulary {foreign_context} was excluded from Schema.org validation"
+            )
+            warnings = item.setdefault("_markup_warnings", [])
+            if warning not in warnings:
+                warnings.append(warning)
         return item
 
     def append(subject_entity: dict[str, Any], property_name: str, value: Any) -> bool:
@@ -542,7 +550,13 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
         if is_inert_template_content(tag):
             continue
         if depth > 64:
-            reasons.add("RDFa nesting exceeds the validation depth limit (64)")
+            reason = "RDFa nesting exceeds the validation depth limit (64)"
+            reasons.add(reason)
+            owner = entities.get(inherited_subject)
+            if owner is not None:
+                errors = owner.setdefault("_markup_errors", [])
+                if reason not in errors:
+                    errors.append(reason)
             continue
         if rel_count >= MAX_MARKUP_NODES:
             reasons.add(f"RDFa processing stopped at the {MAX_MARKUP_NODES}-node limit")

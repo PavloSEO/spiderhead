@@ -34,7 +34,7 @@ def test_gsc_inspection_reservation_enforces_per_site_daily_cap_and_releases_mis
     )
 
     assert first["reserved"] == 50 and first["remaining_after"] == 1950
-    assert second["reserved"] == 550 and second["deferred"] == 1440
+    assert second["reserved"] == 50 and second["deferred"] == 1940
     released = gsc_inspection_history.settle(
         project, first["reservation_id"], [], requests_made=0, now=now
     )

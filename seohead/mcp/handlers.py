@@ -7118,7 +7118,7 @@ def project_competitors_scan_cancel(directory: str, run_id: str) -> dict[str, An
     return core(directory=directory, run_id=run_id)
 
 
-def project_export_start(
+def project_export(
     directory: str,
     dataset: str,
     fmt: str,
@@ -8714,7 +8714,7 @@ _RAW_HANDLERS = {
     "project_competitors_scan": project_competitors_scan,
     "project_competitors_scan_status": project_competitors_scan_status,
     "project_competitors_scan_cancel": project_competitors_scan_cancel,
-    "project_export_start": project_export_start,
+    "project_export": project_export,
     "project_export_status": project_export_status,
     "project_export_cancel": project_export_cancel,
     "project_exports_page": project_exports_page,

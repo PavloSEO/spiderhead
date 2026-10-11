@@ -43,8 +43,12 @@ def _text(value: Any, label: str, maximum: int = MAX_TEXT, *, empty: bool = True
 
 
 def _validate(row: Any) -> dict[str, Any]:
-    if not isinstance(row, dict) or set(row) != _KEYS:
+    if not isinstance(row, dict) or set(row) not in (
+        _KEYS,
+        _KEYS - {"operation_id"},
+    ):
         raise ValueError("project action has an unsupported shape")
+    row = {**row, "operation_id": row.get("operation_id")}
     if type(row["sequence"]) is not int or row["sequence"] < 1:
         raise ValueError("project action sequence is invalid")
     if (

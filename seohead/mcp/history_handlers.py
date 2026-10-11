@@ -605,33 +605,39 @@ def _scan_url_detail(
             "FROM forms WHERE page_url_id=? ORDER BY form_id LIMIT ? OFFSET ?",
             (url_row["url_id"], form_limit + 1, form_offset),
         ).fetchall()
-        source_html: dict[str, Any] = {"state": "unavailable", "reason": "not_retained"}
-        if page["document_id"] is not None:
-            from seohead.storage.bodies import read_document_window
+        from seohead.storage.bodies import read_page_document_content
 
-            doc = con.execute(
-                "SELECT representation,body_state,body_reason FROM documents WHERE document_id=?",
-                (page["document_id"],),
-            ).fetchone()
-            if doc is not None and doc["body_state"] == "complete":
-                source_html = {
-                    "state": "available",
-                    "representation": doc["representation"],
-                    **read_document_window(
-                        con,
-                        page["document_id"],
-                        offset=body_offset,
-                        length=body_length,
-                        max_decoded_bytes=max_body_bytes,
-                    ),
-                }
-            elif doc is not None:
-                source_html = {
-                    "state": "unavailable",
-                    "reason": f"{doc['body_state']}/{doc['body_reason']}",
-                    "document_id": page["document_id"],
-                    "representation": doc["representation"],
-                }
+        retained = read_page_document_content(
+            con,
+            url,
+            representation="static",
+            max_decoded_bytes=max_body_bytes,
+        )
+        if retained["state"] == "available":
+            text = retained["text"]
+            window = text[body_offset : body_offset + body_length]
+            source_html = {
+                "state": "available",
+                "representation": "static",
+                "document_id": retained["document_id"],
+                "offset": body_offset,
+                "length": len(window),
+                "total_chars": retained["total_chars"],
+                "truncated": body_offset + len(window) < len(text),
+                "lines": retained["lines"],
+                "encoding": retained["encoding"],
+                "sha256": retained["sha256"],
+                "raw_body_sha256": retained["raw_body_sha256"],
+                "text": window,
+            }
+        else:
+            source_html = {
+                "state": "unavailable",
+                "reason": retained.get("reason", "not_retained"),
+                "representation": "static",
+            }
+            if retained.get("document_id") is not None:
+                source_html["document_id"] = retained["document_id"]
         detail = {
             "ok": True,
             "state": "available",

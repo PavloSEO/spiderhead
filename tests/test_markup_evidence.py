@@ -375,7 +375,7 @@ def test_native_healthy_markup_stays_silent_for_all_implemented_checks(tmp_path)
         '<div vocab="https://schema.org/" typeof="Article"><span property="bogus">bad</span><a rel="author" href="#ada">Ada</a></div>',
     ],
 )
-def test_partial_rdfa_never_becomes_absent_and_proven_errors_survive(tmp_path, html):
+def test_invalid_rdfa_never_becomes_absent_and_proven_errors_survive(tmp_path, html):
     path = _scan(tmp_path, [(URL, html)])
     con = open_scan(path, require_audit=False)
     try:
@@ -384,7 +384,10 @@ def test_partial_rdfa_never_becomes_absent_and_proven_errors_survive(tmp_path, h
                 "SELECT payload_json FROM context_items WHERE kind='structured_evidence'"
             ).fetchone()[0]
         )
-        assert payload["state"] == "unavailable"
+        assert payload["state"] == "structurally_invalid"
+        assert payload["reason"] == "Schema.org graph validation found structural errors"
+        assert payload["validation"]["structural_state"] == "structurally_invalid"
+        assert payload["validation"]["entity_errors"] > 0
         ctx = _ctx(con)
         check_document_markup(ctx)
         fired = {issue.check for issue in ctx.issues}

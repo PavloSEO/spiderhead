@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sqlite3
 
 from seohead.mcp import handlers
 from seohead.mcp.mcp_server import build_server
+from seohead.storage.bodies import read_page_document_content
 from tests.test_scan_body_diff_integration import (
     PAGE_URL,
     _renderer,
@@ -32,6 +34,42 @@ def test_body_read_returns_a_window_and_both_hash_identities(tmp_path):
     assert result["text"] == "café"
     assert result["raw_body_sha256"] == hashlib.sha256(raw).hexdigest()
     assert result["sha256"] == hashlib.sha256(raw.decode().encode()).hexdigest()
+
+
+def test_selected_page_excludes_unbound_diagnostic_variant(tmp_path):
+    path = tmp_path / "scan.sqlite"
+    raw = b"<html>selected page</html>"
+    _static_and_rendered_scan(
+        path,
+        static=raw,
+        diagnostic=b"<html>diagnostic latest</html>",
+        renderer=_renderer(PAGE_URL),
+    )
+    with sqlite3.connect(path) as scan:
+        documents = scan.execute(
+            "SELECT document_id,source_response_id FROM documents "
+            "WHERE representation='static' ORDER BY document_id"
+        ).fetchall()
+        selected_id, selected_response = documents[0]
+        diagnostic_response = documents[-1][1]
+        url_id = scan.execute("SELECT url_id FROM urls WHERE url=?", (PAGE_URL,)).fetchone()[0]
+        scan.execute(
+            "UPDATE pages SET document_id=?,representation='static' WHERE url_id=?",
+            (selected_id, url_id),
+        )
+        scan.execute("DELETE FROM context_items WHERE kind='resource_inventory'")
+        scan.execute(
+            "UPDATE responses SET variant_key='selected-v1' WHERE response_id=?",
+            (selected_response,),
+        )
+        scan.execute(
+            "UPDATE responses SET variant_key='diagnostic-v2' WHERE response_id=?",
+            (diagnostic_response,),
+        )
+        result = read_page_document_content(scan, PAGE_URL, max_decoded_bytes=1024)
+    assert result["state"] == "available"
+    assert result["document_id"] == selected_id
+    assert result["text"] == raw.decode()
 
 
 def test_body_read_cli_and_mcp_share_the_bounded_reader(tmp_path, capsys):

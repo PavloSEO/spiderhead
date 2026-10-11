@@ -303,7 +303,9 @@ def test_legacy_absolute_resume_path_rebases_inside_restored_project(tmp_path):
     old_scan = tmp_path / "old-project" / "scans" / "resume.sqlite"
     old_scan.parent.mkdir(parents=True)
     old_scan.write_text("synthetic scan", encoding="utf-8")
-    project = _project(tmp_path / "restored")
+    restored_parent = tmp_path / "restored"
+    restored_parent.mkdir()
+    project = _project(restored_parent)
     rebased = project / "scans" / old_scan.name
     rebased.write_text("restored scan", encoding="utf-8")
 

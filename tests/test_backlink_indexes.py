@@ -215,7 +215,7 @@ def test_moz_backlinks_uses_explicit_json_rpc_operation_and_keeps_unknown_rel(
     assert result["rows"][0]["rel"] == ["sponsored", "custom-rel"]
     assert result["rows"][0]["is_canonical"] is True
     assert result["rows"][0]["is_redirect"] is False
-    assert result["next_token"] == "opaque-next" and result["truncated"] is False
+    assert result["next_token"] == "opaque-next" and result["truncated"] is True
     assert result["receipt"]["cost"] is None
     assert result["receipt"]["extra"]["cost_unknown"] is True
     assert "synthetic-moz-token" not in json.dumps(result)

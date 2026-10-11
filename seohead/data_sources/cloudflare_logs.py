@@ -280,6 +280,7 @@ def instant_logs_capture(
             "state": "cancelled",
             "plan": plan_state,
             "reason": "capture cancelled before session creation",
+            "stop_reason": "cancelled",
         }
     body = {
         "fields": ",".join(INSTANT_FIELDS),

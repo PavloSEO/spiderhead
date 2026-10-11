@@ -236,8 +236,10 @@ def test_archive_preserves_validated_project_state_and_skips_measurement_cache(t
     (project / ".schedule.lock").write_text("coordination only", encoding="utf-8")
     (project / "project-measurement.json").write_text('{"cache":true}', encoding="utf-8")
 
+    legacy_settings = (project / "project-settings.json").read_bytes()
     out = tmp_path / "state.zip"
     result = archive_project(project, out)
+    assert (project / "project-settings.json").read_bytes() == legacy_settings
 
     expected = {
         "events.jsonl",

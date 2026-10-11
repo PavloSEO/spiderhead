@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import os
 from pathlib import Path
 
@@ -40,6 +41,108 @@ def test_project_label_update_requires_current_revision(project):
         update_label(project, "Stale", expected_revision=0)
 
 
+def test_legacy_settings_operation_identity_defaults_without_rewriting(project):
+    project_uuid = json.loads((project / "project.json").read_text(encoding="utf-8"))[
+        "project_uuid"
+    ]
+    path = project / settings_module.SETTINGS_FILE
+    path.write_text(
+        json.dumps(
+            {
+                "format": settings_module.SETTINGS_FORMAT,
+                "version": 1,
+                "project_uuid": project_uuid,
+                "revision": 1,
+                "settings": {"label": "Legacy label"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    original = path.read_bytes()
+
+    result = read_settings(project)
+
+    assert result["operation_id"] is None
+    assert path.read_bytes() == original
+
+
+def test_legacy_policy_operation_identity_defaults_without_rewriting(project):
+    from seohead.projects.runtime import POLICY_FORMAT
+
+    project_uuid = json.loads((project / "project.json").read_text(encoding="utf-8"))[
+        "project_uuid"
+    ]
+    path = project / "crawl-policy.json"
+    path.write_text(
+        json.dumps(
+            {
+                "format": POLICY_FORMAT,
+                "project_uuid": project_uuid,
+                "revision": 1,
+                "policy": copy.deepcopy(DEFAULT_POLICY),
+            }
+        ),
+        encoding="utf-8",
+    )
+    original = path.read_bytes()
+
+    result = project_policy(str(project))
+
+    assert result["operation_id"] is None
+    assert path.read_bytes() == original
+
+
+def test_legacy_proposal_metadata_defaults_without_rewriting(project):
+    project_uuid = json.loads((project / "project.json").read_text(encoding="utf-8"))[
+        "project_uuid"
+    ]
+    created_at = "2026-10-11T10:00:00Z"
+    path = project / settings_module.PROPOSALS_FILE
+    path.write_text(
+        json.dumps(
+            {
+                "format": settings_module.PROPOSALS_FORMAT,
+                "version": 1,
+                "project_uuid": project_uuid,
+                "revision": 1,
+                "proposals": [
+                    {
+                        "id": "a" * 32,
+                        "created_at": created_at,
+                        "client": "mcp",
+                        "status": "pending",
+                        "kind": "project_settings",
+                        "base_revision": 0,
+                        "changes": {"label": "Later"},
+                        "decided_at": None,
+                    },
+                    {
+                        "id": "b" * 32,
+                        "created_at": created_at,
+                        "client": "mcp",
+                        "status": "applied",
+                        "kind": "project_settings",
+                        "base_revision": 0,
+                        "changes": {"label": "Earlier"},
+                        "decided_at": created_at,
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    original = path.read_bytes()
+
+    result = list_proposals(project)
+
+    by_id = {item["id"]: item for item in result["items"]}
+    assert by_id["a" * 32]["action_sequence"] is None
+    assert by_id["a" * 32]["decision"] is None
+    assert by_id["b" * 32]["action_sequence"] is None
+    assert by_id["b" * 32]["decision"] == "approve"
+    assert path.read_bytes() == original
+
+
 def test_mcp_settings_proposal_needs_local_owner_review(project):
     created = propose_settings(project, {"label": "Proposed label"}, expected_revision=0)
     assert created["proposal"]["status"] == "pending"
@@ -64,7 +167,7 @@ def test_settings_proposal_lock_fails_fast_when_contended(project, monkeypatch):
 
     @contextmanager
     def contended(_root):
-        raise ValueError("another writer owns the project workspace")
+        raise ValueError("project workspace is busy; another writer owns it")
         yield
 
     monkeypatch.setattr(settings_module, "project_write_lock", contended)

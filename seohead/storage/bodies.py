@@ -273,6 +273,16 @@ def read_page_document(con: sqlite3.Connection, url: str, *, max_decoded_bytes: 
 
 MAX_WINDOW_CHARS = 64 * 1024
 MAX_DOCUMENT_BYTES = 64 * 1024 * 1024
+_DOCUMENT_CANDIDATE = (
+    "(p.document_id=d.document_id OR i.item_key IS NOT NULL OR ("
+    "NOT EXISTS(SELECT 1 FROM pages selected_page JOIN documents selected_doc "
+    "ON selected_doc.document_id=selected_page.document_id "
+    "WHERE selected_doc.url_id=d.url_id AND selected_doc.representation=d.representation) "
+    "AND NOT EXISTS(SELECT 1 FROM context_items active JOIN documents selected_doc "
+    "ON active.item_key='document:'||selected_doc.document_id "
+    "WHERE active.kind='resource_inventory' AND selected_doc.url_id=d.url_id "
+    "AND selected_doc.representation=d.representation)))"
+)
 
 
 def read_document_window(
@@ -368,7 +378,11 @@ def read_page_document_content(
         for row in con.execute(
             "SELECT DISTINCT r.variant_key FROM documents d JOIN urls u USING(url_id) "
             "LEFT JOIN responses r ON r.response_id=d.source_response_id "
-            "WHERE u.url=? AND d.representation=? ORDER BY r.variant_key LIMIT 2",
+            "LEFT JOIN pages p ON p.url_id=d.url_id "
+            "LEFT JOIN context_items i ON i.kind='resource_inventory' "
+            "AND i.item_key='document:'||d.document_id "
+            "WHERE u.url=? AND d.representation=? AND " + _DOCUMENT_CANDIDATE + " "
+            "ORDER BY r.variant_key LIMIT 2",
             (url, representation),
         )
     ]
@@ -385,9 +399,13 @@ def read_page_document_content(
     row = con.execute(
         "SELECT d.document_id,d.body_state,d.body_reason FROM documents d "
         "JOIN urls u USING(url_id) LEFT JOIN responses r ON r.response_id=d.source_response_id "
-        "LEFT JOIN pages p ON p.url_id=d.url_id WHERE u.url=? AND d.representation=? "
+        "LEFT JOIN pages p ON p.url_id=d.url_id "
+        "LEFT JOIN context_items i ON i.kind='resource_inventory' "
+        "AND i.item_key='document:'||d.document_id "
+        "WHERE u.url=? AND d.representation=? AND " + _DOCUMENT_CANDIDATE + " "
         "AND COALESCE(r.variant_key,'')=COALESCE(?,'') "
-        "ORDER BY (p.document_id=d.document_id) DESC,d.document_id DESC LIMIT 1",
+        "ORDER BY (p.document_id=d.document_id) DESC,(i.item_key IS NOT NULL) DESC,"
+        "d.document_id DESC LIMIT 1",
         (url, representation, selected_variant),
     ).fetchone()
     if row is None:

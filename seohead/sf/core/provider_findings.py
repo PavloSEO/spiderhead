@@ -309,9 +309,13 @@ def _gsc_findings(
             if isinstance(item, dict) and isinstance(item.get("url"), str):
                 item["safe_url"] = _public_url(item["url"])
                 item["url_id"] = _url_id(item["url"])
-    result["coverage"] = {key: value for key, value in history.items() if key != "rows"}
-    result["findings"], result["truncated_findings"] = _cap_findings(result["findings"])
-    return result
+    findings, truncated = _cap_findings(result)
+    return {
+        "schema_version": "search_console_findings.v1",
+        "findings": findings,
+        "coverage": {key: value for key, value in history.items() if key != "rows"},
+        "truncated_findings": truncated,
+    }
 
 
 def _inspection_urls(pages: list[dict[str, Any]], existing: list[dict[str, Any]]) -> list[str]:
@@ -495,10 +499,7 @@ def _cloudflare_history(
     source_omitted = source_omitted if type(source_omitted) is int and source_omitted >= 0 else 0
     page_omitted = snapshot.get("url_facts_page_omitted", 0)
     page_omitted = page_omitted if type(page_omitted) is int and page_omitted >= 0 else 0
-    omitted = max(
-        0,
-        source_omitted + page_omitted + len(facts) - MAX_FINDING_URLS,
-    )
+    omitted = source_omitted + page_omitted + max(0, len(facts) - MAX_FINDING_URLS)
     source_truncated = bool(snapshot.get("url_facts_source_truncated")) or source_omitted > 0
     if source_truncated or page_omitted or omitted:
         reasons.append("retained URL facts are truncated or paged")

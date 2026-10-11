@@ -8,7 +8,7 @@ import sqlite3
 from typing import Any
 
 from . import ScanError
-from .bodies import decode_entity, read_body
+from .bodies import _DOCUMENT_CANDIDATE, decode_entity, read_body
 
 _MAX_BYTES = 64 * 1024 * 1024
 _MAX_LINES = 1_000_000
@@ -39,7 +39,10 @@ def _observation(
         con,
         "SELECT DISTINCT r.variant_key FROM documents d JOIN urls u ON u.url_id=d.url_id "
         "LEFT JOIN responses r ON r.response_id=d.source_response_id "
-        "WHERE u.url=? AND d.representation=? LIMIT 2",
+        "LEFT JOIN pages p ON p.url_id=d.url_id "
+        "LEFT JOIN context_items i ON i.kind='resource_inventory' "
+        "AND i.item_key='document:'||d.document_id "
+        "WHERE u.url=? AND d.representation=? AND " + _DOCUMENT_CANDIDATE + " LIMIT 2",
         identity,
     )
     if not variants:
@@ -61,7 +64,7 @@ def _observation(
         "LEFT JOIN pages p ON p.url_id=d.url_id "
         "LEFT JOIN context_items i ON i.kind='resource_inventory' "
         "AND i.item_key='document:'||d.document_id "
-        "WHERE u.url=? AND d.representation=?" + clause + " "
+        "WHERE u.url=? AND d.representation=?" + clause + " AND " + _DOCUMENT_CANDIDATE + " "
         "ORDER BY (p.document_id=d.document_id) DESC,(i.item_key IS NOT NULL) DESC,"
         "d.document_id DESC LIMIT 1",
         values,
@@ -243,9 +246,18 @@ def body_diff(
     if type(text) is not bool:
         raise ValueError("text must be a boolean")
     _limits(max_bytes, max_lines)
-    left_row, left_problem = _observation(_connection(left), url, left_representation, variant_key)
+    cross_representation = left_representation != right_representation
+    left_row, left_problem = _observation(
+        _connection(left),
+        url,
+        left_representation,
+        None if cross_representation and left_representation == "rendered" else variant_key,
+    )
     right_row, right_problem = _observation(
-        _connection(right), url, right_representation, variant_key
+        _connection(right),
+        url,
+        right_representation,
+        None if cross_representation and right_representation == "rendered" else variant_key,
     )
     result_representation = (
         left_representation
@@ -278,7 +290,11 @@ def body_diff(
             ),
         )
     assert left_row is not None and right_row is not None
-    if variant_key is None and left_row["variant_key"] != right_row["variant_key"]:
+    if (
+        variant_key is None
+        and not (cross_representation and "rendered" in {left_representation, right_representation})
+        and left_row["variant_key"] != right_row["variant_key"]
+    ):
         return result(
             "not_comparable",
             "HTTP variants differ between selected observations; variant_key is required",

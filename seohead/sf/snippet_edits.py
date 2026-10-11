@@ -185,7 +185,7 @@ def _font_sha256(path: Path) -> str:
 def _bounded_query_excerpt(text: str, start: int, end: int) -> dict[str, Any]:
     left = max(0, start - MAX_QUERY_EXCERPT_CHARS // 3)
     right = min(len(text), end + MAX_QUERY_EXCERPT_CHARS * 2 // 3)
-    excerpt = _CREDENTIAL_PATTERN.sub(r"\1\2[REDACTED]", text[left:right])
+    excerpt = _redacted_slice(text, left, right)
     if len(excerpt) > MAX_QUERY_EXCERPT_CHARS:
         excerpt = excerpt[: MAX_QUERY_EXCERPT_CHARS - 1] + "…"
     query_end_limit = (
@@ -200,6 +200,27 @@ def _bounded_query_excerpt(text: str, start: int, end: int) -> dict[str, Any]:
         "context_truncated": left > 0 or right < len(text),
         "match_in_excerpt": start - left >= 0 and end - left <= query_end_limit,
     }
+
+
+def _redacted_slice(text: str, start: int, end: int) -> str:
+    """Match credentials in the full text before cropping, replacing any overlapping span."""
+    cursor = start
+    parts: list[str] = []
+    for match in _CREDENTIAL_PATTERN.finditer(text):
+        if match.end() <= start:
+            continue
+        if match.start() >= end:
+            break
+        overlap_start = max(start, match.start())
+        overlap_end = min(end, match.end())
+        if overlap_start > cursor:
+            parts.append(text[cursor:overlap_start])
+        if overlap_end > cursor:
+            parts.append("[REDACTED]")
+            cursor = overlap_end
+    if cursor < end:
+        parts.append(text[cursor:end])
+    return "".join(parts)
 
 
 def inspect_retained_document(

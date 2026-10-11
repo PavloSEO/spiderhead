@@ -885,7 +885,7 @@ def compare_markdown(manifest_path: str | Path, *, max_bytes: int = 65_536) -> s
                     lines.append(
                         f"- {name}: pages {before_pages} → {after_pages} "
                         f"({after_pages - before_pages:+}); findings {before_issues} → "
-                        f"{after_issues} ({after_issues - before_issues:+}); "
+                        f"{after_issues} ({after_issues - before_issues:+}). Change buckets: "
                         + ", ".join(f"{bucket} {changes.get(bucket, 0)}" for bucket in _BUCKETS)
                         + "."
                     )

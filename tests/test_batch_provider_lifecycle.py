@@ -227,6 +227,8 @@ def test_cancel_marks_waiting_flow_and_repeat_cancel_is_idempotent(tmp_path, mon
         "flow_id": record["flow_id"],
         "status": "cancelled",
         "expires_at": record["expires_at"],
+        "connected_at": None,
+        "token_expires_at": None,
     }
     assert status["access_verified"] is False
 

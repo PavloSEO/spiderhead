@@ -61,9 +61,13 @@ def test_project_gsc_history_is_joined_to_audit_pages_without_a_provider_call(mo
 
     gsc = result["sources"]["gsc"]
     assert gsc["state"] == "complete"
-    assert gsc["findings"]["GSC_ORPHAN"] == [
-        {"url": "https://example.test/outside", "details": {"impressions": 10.0}}
-    ]
+    orphans = gsc["findings"]["GSC_ORPHAN"]
+    assert len(orphans) == 1
+    orphan = orphans[0]
+    assert orphan["url"] == "https://example.test/outside"
+    assert orphan["safe_url"] == "https://example.test/outside"
+    assert orphan["details"] == {"impressions": 10.0}
+    assert orphan["url_id"].startswith("url:v1:")
     assert "project.test" not in str(result)
 
 

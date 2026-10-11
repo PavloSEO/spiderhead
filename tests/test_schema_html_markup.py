@@ -173,7 +173,8 @@ def test_rdfa_subject_graph_lists_typed_literals_and_reverse_edges():
     base = "https://example.test/article/"
     result = schema.check_schema(html=markup, document_base_url=base)
     assert result["markup_coverage"][1]["status"] == "checked"
-    assert result["graph"]["linked_by_id"] >= 2
+    # Both RDF predicates identify Grace, so the distinct referenced-ID count is one.
+    assert result["graph"]["linked_by_id"] == 1
     person = next(
         e for e in result["entities"] if e["types"] == ["Person"] and e["id"].endswith("#ada")
     )
@@ -257,7 +258,7 @@ def test_rdfa_property_copy_is_iterative_bounded_and_removes_patterns():
     nodes, _, reasons = schema._extract_rdfa(
         schema.BeautifulSoup(markup, "lxml"), "https://example.test/article/"
     )
-    by_id = {node.get("@id"): node for node in nodes}
+    by_id = {"#" + node.get("@id", "").rsplit("#", 1)[-1]: node for node in nodes}
     assert by_id["#event"]["name"] == "Shared name"
     assert by_id["#article"]["name"] == "Chained name"
     assert by_id["#article"]["description"] == "Shared description"
@@ -392,14 +393,17 @@ def test_untyped_microdata_names_the_html_attribute_to_fix():
     assert result["entities"][0]["errors"][0].startswith("Missing itemtype;")
 
 
-def test_foreign_redeclaration_of_rdfa_subject_remains_unsupported():
+def test_foreign_redeclaration_does_not_erase_explicit_schema_type():
     result = schema.check_schema(
         html="""
         <div vocab="https://schema.org/" typeof="Product" about="#item"><span property="name">X</span></div>
         <div vocab="https://example.org/" typeof="Product" about="#item"></div>"""
     )
-    assert result["rich_results"] == []
-    assert result["entities"][0]["warnings"]
+    assert [item["type"] for item in result["rich_results"]] == ["Product"]
+    product = next(entity for entity in result["entities"] if entity["types"] == ["Product"])
+    assert any(
+        "Foreign vocabulary https://example.org/" in warning for warning in product["warnings"]
+    )
 
 
 @pytest.mark.parametrize("format", ["microdata", "rdfa"])

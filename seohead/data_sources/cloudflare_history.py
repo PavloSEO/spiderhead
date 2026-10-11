@@ -21,7 +21,7 @@ MAX_SNAPSHOT_BYTES = 32 * 1024 * 1024
 MAX_SNAPSHOTS = 1_000
 MAX_PAGE_BYTES = 2 * 1024 * 1024
 MAX_FACT_PAGE = 500
-MAX_ROWS_WITH_FACTS = 100
+MAX_ROWS_WITH_FACTS = 8
 
 
 def _path(project: str) -> Path:
@@ -248,6 +248,8 @@ def list_snapshots(
                     {
                         "url_facts": facts,
                         "url_facts_source_truncated": bool(payload.get("url_facts_truncated")),
+                        "url_facts_truncated": bool(payload.get("url_facts_truncated"))
+                        or bool(stored_omitted),
                         "url_facts_omitted": stored_omitted,
                         "url_facts_total_retained": len(all_facts),
                         "url_facts_offset": facts_offset,

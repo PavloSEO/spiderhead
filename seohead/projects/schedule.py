@@ -411,6 +411,7 @@ def _competitor_targets(root: Path, project: dict[str, Any]) -> list[dict[str, A
                 "directory": str(child_root),
                 "directory_relative": relative,
                 "url": row["url"],
+                "project_uuid": child_project["project_uuid"],
                 "root": child_root,
                 "project": child_project,
             }

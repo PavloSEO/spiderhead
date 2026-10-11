@@ -281,10 +281,17 @@ def run(store, cfg, file, *, sheet=None, mapping=None, merge="add"):
         phrase, values = item["query"], item["values"]
         is_new = store.upsert(phrase, src="import", region=region)
         added += int(is_new)
+        current = store.db.execute("SELECT * FROM phrases WHERE norm=?", (phrase,)).fetchone()
         if not is_new and merge == "add":
             skipped += 1
+            # Add mode never overwrites an existing phrase's imported or curated
+            # fields. It may promote only the untouched default status when this
+            # file contains direct evidence of observed demand.
+            if current["status"] == "new" and has_observed_demand(
+                values.get("impr"), values.get("pos_y"), values.get("pos_g")
+            ):
+                store.set_status(phrase, "kept", reason="observed search demand", stage="import")
             continue
-        current = store.db.execute("SELECT * FROM phrases WHERE norm=?", (phrase,)).fetchone()
         changed = (
             values
             if merge in {"update", "replace"}

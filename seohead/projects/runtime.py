@@ -80,7 +80,7 @@ def project_write_lock(root: str | Path, *, timeout_seconds: float = 5.0):
                 break
             except OSError as exc:
                 if time.monotonic() >= deadline:
-                    raise ValueError("another writer owns the project workspace") from exc
+                    raise ValueError("project workspace is busy; another writer owns it") from exc
                 time.sleep(min(0.01, max(0.0, deadline - time.monotonic())))
         held[key] = 1
         try:
@@ -215,6 +215,8 @@ def project_policy(
             )
         ):
             raise ValueError("unsupported or mismatched project crawl policy")
+        if current is not None and "operation_id" not in current:
+            current = {**current, "operation_id": None}
         selected = validate_policy(
             policy if policy is not None else current["policy"] if current else DEFAULT_POLICY
         )
