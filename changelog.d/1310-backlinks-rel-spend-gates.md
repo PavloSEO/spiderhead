@@ -8,5 +8,6 @@
   rel token observations, anchors, referring domains, filters and transparent spam review signals.
   Add CLI/MCP profile and reviewed disavow export routes without automatic submissions.
 - Add mixed rel-token and outbound sponsored-disclosure review notices from retained native
-  evidence, preserving unavailable context and sponsored/ugc/nofollow classes in reports and donor
+  evidence, preserving unavailable context, null counts for entirely unparsed HTML populations,
+  and sponsored/ugc/nofollow classes in reports and donor
   checks without changing the frozen retained-scan schema.

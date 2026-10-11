@@ -8,7 +8,9 @@ robots directives remain separate.
 
 `summary.link_rel` counts each qualifying token independently. A mixed edge counts
 in every applicable class; `counts_overlap=true` prevents adding these categories
-as though they were disjoint. `unqualified` means none of these three tokens was
+as though they were disjoint. HTML parse coverage is named separately: unparsed pages make
+the result partial, and an entirely unparsed population with no observed edge is unavailable
+with null counts rather than a measured zero. `unqualified` means none of these three tokens was
 observed, and does not guarantee indexing or ranking signals.
 
 `MIXED_LINK_REL` is a notice for two or more of `nofollow`, `sponsored` and `ugc` on

@@ -322,3 +322,36 @@ def test_single_qualifying_rel_token_does_not_raise_mixed_notice():
     result = SpiderResult(pages=[_page()], links=[_edge(("ugc", "noopener"))])
     audit = _audit_with_rel_capture(result, url=ROOT)
     assert "MIXED_LINK_REL" not in {item["check"] for item in audit["issues"]}
+
+
+def test_unparsed_html_does_not_prove_zero_qualified_links():
+    from seohead.crawl.spider import SpiderResult
+    from tests.test_crawl_link_findings_coverage import _audit_with_rel_capture, _page, _skips
+
+    page = _page()
+    page.body_unavailable = "oversized"
+    audit = _audit_with_rel_capture(SpiderResult(pages=[page], links=[]), url=ROOT)
+    summary = audit["summary"]["link_rel"]
+    assert summary["state"] == "unavailable" and summary["measured"] is False
+    assert summary["by_rel"]["total"] is None
+    assert summary["coverage"]["html_pages_unavailable"] == 1
+    assert "MIXED_LINK_REL" in _skips(audit)
+    assert "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE" in _skips(audit)
+
+
+def test_partial_html_rel_counts_name_unmeasured_pages_and_keep_positive_evidence():
+    from seohead.crawl.spider import SpiderResult
+    from tests.test_crawl_link_findings_coverage import _audit_with_rel_capture, _page
+
+    missing = _page()
+    missing.url = ROOT + "missing"
+    missing.body_unavailable = "oversized"
+    audit = _audit_with_rel_capture(
+        SpiderResult(pages=[_page(), missing], links=[_edge(("nofollow", "ugc"))]), url=ROOT
+    )
+    summary = audit["summary"]["link_rel"]
+    assert summary["state"] == "partial" and summary["measured"] is True
+    assert summary["by_rel"]["mixed"] == 1
+    assert summary["coverage"]["html_pages_unavailable"] == 1
+    assert "not measured" in summary["reason"]
+    assert "MIXED_LINK_REL" in {item["check"] for item in audit["issues"]}

@@ -305,7 +305,7 @@ def tasks_all_failed(body: dict) -> bool:
 
 def _run(
     client: DataForSEOClient, kind: str, payload: list[dict], items_count: int
-) -> tuple[list[dict], list[str], float, bool]:
+) -> tuple[list[dict], list[str], float | None, bool]:
     body = client.post(ENDPOINTS[kind], payload, operation=f"{kind}.{client.env}")
     if not isinstance(body, dict):
         spend.record(
@@ -508,7 +508,7 @@ def _call(
     spend_ceiling_usd: float | None = None,
     prices: dict | None = None,
     row_limit: int = 0,
-) -> tuple[DataForSEOClient, list[dict], list[str], float, bool] | dict:
+) -> tuple[DataForSEOClient, list[dict], list[str], float | None, bool] | dict:
     """Gate before constructing a client; never send a production call implicitly."""
     quote, refusal = _preflight(
         kind,

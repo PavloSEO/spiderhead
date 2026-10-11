@@ -2070,6 +2070,28 @@ def _audit_crawl_result(
             for item in graph.iter_mixed_rel() if graph else link_findings.mixed_rel_links(links):
                 ctx.add("MIXED_LINK_REL", target_url=item["target_url"], details=item)
             link_rel_summary = graph.rel_summary() if graph else link_findings.rel_summary(links)
+            from seohead.sf.core.rules import _body_unavailable
+
+            html_total = html_unavailable = 0
+            for page in ctx.html_pages():
+                html_total += 1
+                html_unavailable += int(_body_unavailable(page.metrics.get("_record", {})))
+            link_rel_summary["coverage"] = {
+                "html_pages": html_total,
+                "html_pages_unavailable": html_unavailable,
+                "scope": "captured link occurrences; unparsed pages are excluded",
+            }
+            link_rel_summary["state"] = "partial" if html_unavailable else "complete"
+            if html_unavailable:
+                link_rel_summary["reason"] = (
+                    f"{html_unavailable} HTML page(s) were not parsed; their rel and disclosure evidence was not measured"
+                )
+            if html_total == html_unavailable and not link_rel_summary["by_rel"]["total"]:
+                reason = "no parsed HTML page or captured link occurrence provides rel evidence"
+                link_rel_summary.update(measured=False, state="unavailable", reason=reason)
+                link_rel_summary["by_rel"] = {key: None for key in link_rel_summary["by_rel"]}
+                ctx.skip("MIXED_LINK_REL", reason)
+                ctx.skip("OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE", reason)
             if graph:
                 disclosure = graph.sponsored_disclosures(site_host)
                 link_rel_summary["disclosure"] = {
