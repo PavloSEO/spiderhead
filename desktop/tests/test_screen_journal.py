@@ -1,6 +1,8 @@
 import os
 import re
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -86,7 +88,7 @@ class JournalTests(unittest.TestCase):
         self.assertGreater(shown[0].at, shown[-1].at)
         self.feed([many])
         self.assertEqual(sum(len(group) for group in self.screen.model.groups), LIMIT)
-        self.assertEqual(self.screen.foot_text.text(), "Показаны последние 200 событий")
+        self.assertTrue(self.screen.foot_text.full_text.startswith("Показаны последние 200 событий"))
 
     def test_identical_events_in_a_row_fold_into_one_unfoldable_row(self):
         many = run(event_list=[{"at": f"2026-10-09T08:00:{i:02d}Z", "code": "progress", "phase": "collection"} for i in range(42)])
@@ -112,11 +114,14 @@ class JournalTests(unittest.TestCase):
         self.assertEqual(self.screen.filter, "scan")
         self.assertEqual(self.screen.model.rowCount(), 4)  # every event of the core is a run event
 
-    def test_footer_says_the_paged_journal_waits_for_the_core(self):
+    def test_footer_limit_note_is_a_single_line_and_the_button_opens_app_logs(self):
         self.feed([run()])
-        waiting = [label.text() for label in self.screen.findChildren(QLabel) if label.text().startswith("Недоступно")]
-        self.assertEqual(waiting, ["Недоступно в этой версии ядра"])
-        self.assertEqual(self.screen.foot_text.text(), "Показаны последние 4 событий")
+        self.assertEqual(self.screen.foot_text.full_text, "Показаны последние 4 событий: постраничное чтение журнала ещё не поддержано ядром")
+        self.assertEqual(self.screen.open_folder.text(), "Открыть папку логов")
+        self.screen.resize(800, 800)
+        self.app.processEvents()
+        label = self.screen.foot_text
+        self.assertLessEqual(label.fontMetrics().horizontalAdvance(label.text()), label.width())
 
     def test_search_filters_the_loaded_events_and_offers_a_reset(self):
         self.feed([run(), live_run()])
@@ -134,14 +139,16 @@ class JournalTests(unittest.TestCase):
         self.assertIsNone(self.screen.state)
         self.assertEqual(sum(len(group) for group in self.screen.model.groups), 8)
 
-    def test_data_changes_refresh_and_open_folder_uses_the_project_directory(self):
+    def test_data_changes_refresh_and_the_button_opens_the_app_logs_folder_without_the_core(self):
         self.feed([run()])
         self.assertEqual(self.screen.model.rowCount(), 4)
         self.feed([run(), live_run()])
         self.assertEqual(self.screen.model.rowCount(), 8)
-        with patch("seohead_desktop.screens.journal.QDesktopServices.openUrl") as opened:
-            self.screen.open_folder.click()
-        self.assertEqual(opened.call_args[0][0].toLocalFile(), "/project/qa")
+        with tempfile.TemporaryDirectory() as home, patch("seohead_desktop.screens.journal.app_logs_directory", return_value=Path(home, "SEOHEAD")):
+            with patch("seohead_desktop.screens.journal.QDesktopServices.openUrl") as opened:
+                self.screen.open_folder.click()
+            self.assertTrue(Path(home, "SEOHEAD").is_dir())
+        self.assertEqual(opened.call_args[0][0].toLocalFile(), str(Path(home, "SEOHEAD")))
 
     def test_english_leaves_no_russian_in_visible_texts(self):
         self.feed([run(), live_run()])

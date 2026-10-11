@@ -6,6 +6,8 @@ The core reports only run events (time, phase, code) with no actor and no text, 
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from PyQt5.QtCore import QAbstractTableModel, Qt, QUrl
 from PyQt5.QtGui import QColor, QDesktopServices
 from PyQt5.QtWidgets import (
@@ -24,12 +26,12 @@ from PyQt5.QtWidgets import (
 
 from .. import i18n, theming
 from ..i18n import tr, trf
-from ..ui.icons import material_icon
-from ..ui.kit import StatePanel, no_project_panel, style_table, waiting_badge
+from ..ui.icons import MaterialIconLabel, material_icon
+from ..ui.kit import StatePanel, no_project_panel, style_table
 from ..ui.presentation import short_run_id
 from . import scan_common
 from .base import Screen
-from .scan_common import CODES, EVENT_ICONS, JOURNAL_ISSUE, PHASES, parse_time
+from .scan_common import CODES, EVENT_ICONS, PHASES, parse_time
 
 LIMIT = 200
 KIND_NAMES = {"native": "встроенный краулер", "sitemap": "карта сайта", "screaming_frog": "Screaming Frog"}
@@ -37,6 +39,35 @@ ICON_ROLES = {"started": "success", "failed": "error", "finished": "success"}
 FILTERS = (("all", "apps", "Все"), ("scan", "manage_search", "Сканы"), ("agent", "smart_toy", "Агент"), ("me", "person", "Вы"), ("app", "desktop_windows", "Приложение"))
 AVAILABLE_SOURCES = {"all", "scan"}
 COLUMNS = ("Время", "Источник", "Событие", "Запуск скана")
+UNAVAILABLE_SOURCE = "Источник не указан: ядро не записывает действия агента, ваши действия и события приложения в журнал. Недоступно в этой версии ядра"
+
+
+def app_logs_directory():
+    """Folder of the app logs; it is read by the app itself, so it does not need the core."""
+    return Path.home() / "Library" / "Logs" / "SEOHEAD"
+
+
+class ElidedLabel(QLabel):
+    """One line that elides to the width it is given; the full text stays in the tooltip."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.full_text = ""
+        self.setMinimumWidth(0)
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+
+    def set_full_text(self, text):
+        self.full_text = text
+        self.setToolTip(text)
+        self._elide()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._elide()
+
+    def _elide(self):
+        width = self.width()
+        self.setText(self.fontMetrics().elidedText(self.full_text, Qt.ElideRight, width) if width > 0 else self.full_text)
 
 
 class Event:
@@ -200,7 +231,7 @@ class JournalScreen(Screen):
                 pill.clicked.connect(lambda _checked=False, value=key: self.set_filter(value))
             else:
                 pill.setEnabled(False)
-                pill.setToolTip(tr("Источник не указан: ядро не записывает действия агента, ваши действия и события приложения в журнал. Недоступно в этой версии ядра"))
+                pill.setToolTip(f"{tr(label)}. {tr(UNAVAILABLE_SOURCE)}")
             self.pills[key] = pill
             bar_layout.addWidget(pill)
         bar_layout.addStretch(1)
@@ -209,8 +240,8 @@ class JournalScreen(Screen):
         self.search.setAccessibleName(tr("Поиск в журнале"))
         self.search.setClearButtonEnabled(True)
         self.search.addAction(material_icon("search", theming.roles()["text_3"]), QLineEdit.LeadingPosition)
-        self.search.setMinimumWidth(220)
-        self.search.setMaximumWidth(240)
+        self.search.setMinimumWidth(200)
+        self.search.setMaximumWidth(280)
         self.search.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.search.textChanged.connect(self.set_query)
         bar_layout.addWidget(self.search)
@@ -236,15 +267,14 @@ class JournalScreen(Screen):
         foot_layout = QHBoxLayout(foot)
         foot_layout.setContentsMargins(16, 6, 16, 6)
         foot_layout.setSpacing(8)
-        self.foot_text = QLabel()
+        foot_layout.addWidget(MaterialIconLabel("warning", 18, color=theming.roles()["warning"]))
+        self.foot_text = ElidedLabel()
         self.foot_text.setProperty("text_style", "meta")
-        self.foot_text.setWordWrap(True)
         foot_layout.addWidget(self.foot_text, 1)
-        foot_layout.addWidget(waiting_badge(JOURNAL_ISSUE))
-        self.open_folder = QPushButton(tr("Открыть папку проекта"))
+        self.open_folder = QPushButton(tr("Открыть папку логов"))
         self.open_folder.setProperty("size", "pill")
         self.open_folder.setIcon(material_icon("folder_open"))
-        self.open_folder.clicked.connect(self.reveal_project)
+        self.open_folder.clicked.connect(self.reveal_logs)
         foot_layout.addWidget(self.open_folder)
         root.addWidget(foot)
         i18n.signals.changed.connect(self._language_changed)
@@ -269,9 +299,10 @@ class JournalScreen(Screen):
         self.query = text.strip().lower()
         self.refresh()
 
-    def reveal_project(self):
-        if self.host.project_directory:
-            QDesktopServices.openUrl(QUrl.fromLocalFile(self.host.project_directory))
+    def reveal_logs(self):
+        path = app_logs_directory()
+        path.mkdir(parents=True, exist_ok=True)
+        QDesktopServices.openUrl(QUrl.fromLocalFile(str(path)))
 
     def _set_state(self, kind, panel=None):
         if self.state is not None:
@@ -305,7 +336,6 @@ class JournalScreen(Screen):
             self._set_state(kind, build() if build else None)
         self.model.set_rows(shown, today)
         loaded = len(self.events)
-        self.foot_text.setText(
-            trf("Показаны последние {n} событий", n=loaded) if loaded
+        self.foot_text.set_full_text(
+            trf("Показаны последние {n} событий: постраничное чтение журнала ещё не поддержано ядром", n=loaded) if loaded
             else tr("Журнал проекта читается только как события запусков"))
-        self.open_folder.setEnabled(bool(host.project_directory))
