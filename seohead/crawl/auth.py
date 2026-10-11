@@ -48,7 +48,11 @@ def host_bound_auth(
                     self._authenticators[host] = auth
             flow = auth.auth_flow(request)
             try:
-                outgoing = next(flow)
+                # DigestAuth keeps nonce-count and challenge state on the shared
+                # authenticator. Advance each generator only while holding its
+                # lock, then release before yielding the request to HTTPX/network.
+                with self._lock:
+                    outgoing = next(flow)
             except StopIteration:
                 return
             response = yield outgoing
