@@ -107,9 +107,8 @@ def test_native_duplicates_are_persisted_queryable_and_exact_url_bound(tmp_path)
     assert all(issue["details"]["comparison_url"] != issue["target_url"] for issue in exact + near)
     query = scan_url_query(str(path), issue_check="duplicate_by_hash", columns=["url"])
     assert query["ok"], query
-    # The current query surface does not ship a per-issue URL index. Do not
-    # confuse its explicit unavailable result with no duplicate findings.
-    assert query["state"] == "unavailable" and query["reason_code"] == "issue_index_missing"
+    assert query["state"] == "available"
+    assert {row["url"] for row in query["rows"]} == {BASE + "/a", BASE + "/a/"}
     with open_scan(path) as con:
         assert PARAGRAPH in read_page_document(con, BASE + "/a/", max_decoded_bytes=5_000_000)
         assert "astronomy" in read_page_document(

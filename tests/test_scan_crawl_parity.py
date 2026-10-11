@@ -96,6 +96,8 @@ def _scan_records(path):
         ):
             data = {}
             for field in dataclasses.fields(PageRecord):
+                if field.name == "render_blocking":
+                    continue  # Derived source-head evidence has no frozen pages column.
                 source = {
                     "url": "url",
                     "redirect_chain": "redirect_chain_json",
@@ -150,7 +152,9 @@ def _scan_records(path):
             (row["url"], row["reason"])
             for row in con.execute("SELECT url, reason FROM decisions ORDER BY decision_id")
         )
-        config = json.loads(con.execute("SELECT config_json FROM scan").fetchone()[0])
+        from seohead.storage.native_scan import read_effective_config
+
+        config = read_effective_config(con)
     finally:
         con.close()
     return pages, links, forms, decisions, config
@@ -205,8 +209,14 @@ def test_sqlite_adapter_matches_legacy_observations_and_decisions(monkeypatch, t
         sleeper=lambda _seconds: None,
     )
     pages, links, forms, decisions, config = _scan_records(scan_path)
-    assert [dataclasses.asdict(page) for page in pages] == [
-        dataclasses.asdict(page) for page in legacy.pages
+    # Compare shared stored scalar observations; retained asset checks separately
+    # verify source-head render-blocking evidence rather than a physical column.
+    assert [
+        {key: value for key, value in dataclasses.asdict(page).items() if key != "render_blocking"}
+        for page in pages
+    ] == [
+        {key: value for key, value in dataclasses.asdict(page).items() if key != "render_blocking"}
+        for page in legacy.pages
     ]
     assert [dataclasses.asdict(link) for link in links] == [
         dataclasses.asdict(link) for link in legacy.links
