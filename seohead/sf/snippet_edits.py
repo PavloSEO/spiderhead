@@ -34,7 +34,8 @@ MAX_RETAINED_BODY_BYTES = 64 * 1024 * 1024
 DEFAULT_RETAINED_BODY_BYTES = 8 * 1024 * 1024
 MAX_QUERY_EXCERPT_CHARS = 320
 _CREDENTIAL_PATTERN = re.compile(
-    r"(?i)\b(authorization|bearer|token|api[_-]?key|secret|password)\s*([:=])\s*"
+    r"(?i)(?<![a-z0-9])(authorization|bearer|access[_-]?token|refresh[_-]?token|token|"
+    r"api[_ -]?key|client[_ -]?secret|secret|password|passwd|cookie|set-cookie)\s*([:=])\s*"
     r"(?:bearer\s+)?(?:'[^']*'|\"[^\"]*\"|[^\s<'\">]+)"
 )
 
@@ -252,13 +253,19 @@ def inspect_retained_document(
     page = parser.parse_html(html, url)
     soup = BeautifulSoup(html, features="lxml")
     root, content_area_strategy = resolve_content_area(soup, content_area)
-    for excluded in root.select("[data-nosnippet]"):
-        excluded.decompose()
-    visible = extract_area_text(root)
+    content_root_excluded = root.has_attr("data-nosnippet")
+    if content_root_excluded:
+        visible = ""
+    else:
+        for excluded in root.select("[data-nosnippet]"):
+            excluded.decompose()
+        visible = extract_area_text(root)
     excerpt: dict[str, Any]
-    if query is not None and not isinstance(query, str):
+    if content_root_excluded:
+        excerpt = {"state": "unavailable", "reason": "content area is marked data-nosnippet"}
+    elif query is not None and not isinstance(query, str):
         raise ValueError("search query must be text")
-    if query is None or not query.strip():
+    elif query is None or not query.strip():
         excerpt = {"state": "unavailable", "reason": "search query was not supplied"}
     elif len(query) > 512:
         excerpt = {"state": "unavailable", "reason": "search query exceeds 512 characters"}
@@ -294,6 +301,7 @@ def inspect_retained_document(
         backend,
         content_area=content_area,
         ignore_words=ignored,
+        visible_text_override=visible,
     )
     return {
         "state": "complete",

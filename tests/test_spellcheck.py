@@ -87,3 +87,14 @@ def test_only_unknown_script_text_is_skipped_not_zero():
     result = spellcheck.run(html, FakeBackend())
     assert result["state"] == "skipped"
     assert result["skipped_blocks"] >= 1
+
+
+def test_visible_text_override_is_used_for_findings_and_snippet_context():
+    backend = FakeBackend({"safe": []})
+    result = spellcheck.run(
+        "<html><body><main>private marker</main></body></html>",
+        backend,
+        visible_text_override="A safe visible sentence.",
+    )
+    assert backend.calls == [("en", "A safe visible sentence.")]
+    assert result["state"] == "complete"

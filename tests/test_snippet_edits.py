@@ -228,6 +228,74 @@ def test_retained_spelling_accepts_only_explicit_injected_backend_and_word_list(
     assert checked["spelling"]["findings_total"] == 0
 
 
+def test_retained_spelling_uses_the_same_data_nosnippet_filtered_content_area():
+    from seohead.sf.snippet_edits import inspect_retained_document
+
+    class Backend:
+        name = "local-test"
+
+        def __init__(self):
+            self.calls = []
+
+        def check(self, text, _lang):
+            self.calls.append(text)
+            position = text.find("Visibleword")
+            return (
+                [{"word": "Visibleword", "offset": position, "suggestions": []}]
+                if position >= 0
+                else []
+            )
+
+    backend = Backend()
+    result = inspect_retained_document(
+        {
+            "state": "available",
+            "url": "https://example.test/p",
+            "text": (
+                "<html><body><main><p>Visibleword.</p>"
+                "<p data-nosnippet>Private marker text.</p></main></body></html>"
+            ),
+        },
+        backend=backend,
+    )
+    assert result["spelling"]["findings_total"] == 1
+    assert all("Private marker" not in call for call in backend.calls)
+    assert all("Private marker" not in finding["snippet"] for finding in result["spelling"]["findings"])
+
+
+def test_data_nosnippet_on_the_selected_root_hides_all_root_text():
+    from seohead.sf.snippet_edits import inspect_retained_document
+
+    result = inspect_retained_document(
+        {
+            "state": "available",
+            "url": "https://example.test/p",
+            "text": '<html><body><main data-nosnippet>Hiddenword query</main></body></html>',
+        },
+        query="query",
+    )
+    assert result["visible_text"]["characters"] == 0
+    assert result["query_excerpt"] == {
+        "state": "unavailable",
+        "reason": "content area is marked data-nosnippet",
+    }
+    assert result["spelling"]["state"] == "skipped"
+
+
+def test_query_excerpt_redacts_common_token_and_secret_key_names():
+    from seohead.sf.snippet_edits import _bounded_query_excerpt
+
+    text = (
+        "Authorization: Bearer auth-value access_token=access-value "
+        "client_secret='client value' API key: api-value visible"
+    )
+    start = text.index("visible")
+    result = _bounded_query_excerpt(text, start, start + len("visible"))
+    for secret in ("auth-value", "access-value", "client value", "api-value"):
+        assert secret not in result["text"]
+    assert result["text"].count("[REDACTED]") == 4
+
+
 def test_saved_scan_context_uses_exact_urls_and_keeps_source_identity(monkeypatch, tmp_path):
     from seohead import storage
     from seohead.storage import bodies
