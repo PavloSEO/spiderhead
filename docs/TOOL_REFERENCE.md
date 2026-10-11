@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**175 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 184 in total.
+**178 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 187 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -2255,6 +2255,49 @@ Read or explicitly update operator crawl defaults and project admission threshol
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
+### `project-competitors-add`
+
+MCP name: `seo_project_competitors_add`
+
+Record supplied competitor candidates as separate local workspaces, without crawling.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `competitors` | `list` | `required` |
+| `consumer` | `str | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+Each item needs url, source and observed_at. Scans are started separately per workspace.
+
+### `project-competitors-list`
+
+MCP name: `seo_project_competitors_list`
+
+List the recorded competitor candidates and their local workspaces; no change.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `project-competitors-remove`
+
+MCP name: `seo_project_competitors_remove`
+
+Drop one recorded competitor from the shortlist. Its local workspace and scans stay on disk, untouched; no crawl runs.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `url` | `str` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
 ### `project-prepare`
 
 MCP name: `seo_project_prepare`
@@ -2269,13 +2312,16 @@ Prepare an existing project with a bounded native crawl and saved sitemap covera
 | `approve_large_crawl` | `bool` | `False` |
 | `producer_build` | `str | None` | `None` |
 | `consumer` | `str | None` | `None` |
+| `max_urls` | `int | None` | `None` |
 
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
 
 **Behavior and failure modes**
 
-Competitors must be supplied candidates with provenance; absent sources stay pending.
-All site checklists remain separate. Paid provider calls are never hidden in preparation.
+Reuses the latest suitable saved scan when one answers the request. ``max_urls`` sets the
+owner's URL cap for a new crawl. Competitors must be supplied candidates with provenance;
+absent sources stay pending. All site checklists remain separate. Paid provider calls are
+never hidden in preparation.
 
 ### `project-start`
 
@@ -2778,8 +2824,13 @@ Use a closed project workflow: status, bounded start/prepare, or an evidence-bac
 | `fmt` | `str` | `'md'` |
 | `out` | `str | None` | `None` |
 | `approve_large_crawl` | `bool` | `False` |
+| `max_urls` | `int | None` | `None` |
 
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+A report without ``audit`` is built from the project's latest complete audited scan.
 
 ### `tool-catalog`
 

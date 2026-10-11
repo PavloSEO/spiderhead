@@ -777,3 +777,66 @@ def test_hash_policy_rejects_unbounded_or_ambiguous_limits(tmp_path, key, value)
     policy["evidence_hash"][key] = value
     with pytest.raises(ValueError, match="evidence_hash"):
         project_policy(str(project), policy=policy, apply=True, expected_revision=0)
+
+
+def test_blocked_run_lets_a_later_step_skip_a_failed_earlier_step(tmp_path):
+    from seohead.projects.catalogue import load_catalogue
+
+    project = tmp_path / "project"
+    create_project(project, "https://example.test/")
+    initialize_coverage(project)
+    first, second = [item for item, entry in load_catalogue().items() if entry["kind"] == "check"][
+        :2
+    ]
+    started = start(
+        project,
+        scenario_id="scenario:full-audit",
+        steps=[first, second],
+        context=_accepted_context(project),
+    )
+    run_id = started["run"]["id"]
+    failed = checkpoint(
+        project,
+        run_id=run_id,
+        step_id=first,
+        state="failed",
+        evidence=[],
+        expected_revision=started["revision"],
+    )
+    assert failed["run"]["state"] == "blocked"
+    skipped = checkpoint(
+        project,
+        run_id=run_id,
+        step_id=second,
+        state="skipped",
+        evidence=[],
+        expected_revision=failed["revision"],
+    )
+    assert [item["state"] for item in skipped["run"]["steps"]] == ["failed", "skipped"]
+    assert skipped["run"]["state"] == "blocked"
+
+
+def test_later_step_still_waits_for_a_pending_earlier_step(tmp_path):
+    from seohead.projects.catalogue import load_catalogue
+
+    project = tmp_path / "project"
+    create_project(project, "https://example.test/")
+    initialize_coverage(project)
+    first, second = [item for item, entry in load_catalogue().items() if entry["kind"] == "check"][
+        :2
+    ]
+    started = start(
+        project,
+        scenario_id="scenario:full-audit",
+        steps=[first, second],
+        context=_accepted_context(project),
+    )
+    with pytest.raises(ValueError, match="registered order"):
+        checkpoint(
+            project,
+            run_id=started["run"]["id"],
+            step_id=second,
+            state="skipped",
+            evidence=[],
+            expected_revision=started["revision"],
+        )

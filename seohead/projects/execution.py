@@ -539,7 +539,8 @@ def checkpoint(
     if state not in _STEP_STATES:
         raise ValueError("checkpoint state is invalid")
     run = next((item for item in document["runs"] if item["id"] == run_id), None)
-    if run is None or run["state"] != "running":
+    # A blocked run has a non-success step that the operator may skip past: later steps proceed.
+    if run is None or run["state"] not in {"running", "blocked"}:
         raise ValueError("workflow run is not running")
     step = next((item for item in run["steps"] if item["id"] == step_id), None)
     if step is None or step["state"] != "pending":

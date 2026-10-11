@@ -84,12 +84,12 @@ def _event(url: str, body: bytes) -> CaptureEvent:
     )
 
 
-def _save_audit(scan: NativeScan) -> None:
+def _save_audit(scan: NativeScan, settings: dict | None = None) -> None:
     from seohead.crawl.sql_sitemap import prepare_sitemap_reconciliation
     from seohead.mcp.handlers import _audit_crawl_result
     from seohead.mcp.scan_handlers import _rebuild_page_result
 
-    settings = _metadata()["config"]
+    settings = settings or _metadata()["config"]
     result = _rebuild_page_result(scan)
     result.start_page_evidence = {
         "html": "<html>body</html>",

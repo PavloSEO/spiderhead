@@ -16,7 +16,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 `{"ok": false, "error": "..."}` instead of raising. An unreachable site is
 data, not an accident.
 
-The current registry has 175 commands and 184 callable tools,
+The current registry has 178 commands and 187 callable tools,
 with 202 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
@@ -41,7 +41,7 @@ and inputs remain in the nearby route sections and generated tool reference.
 `project-checklist-update` · `project-event-append` · `project-event-page` · `project-facts` ·
 `project-inbox-acknowledge` · `project-inbox-goal` · `project-inbox-list` · `project-inbox-read` ·
 `project-inbox-submit` · `project-inbox-triage` · `project-inbox-unread` · `project-new` · `project-observe` ·
-`project-open` · `project-policy` · `project-prepare` · `project-priorities` · `project-progress` ·
+`project-competitors-add` · `project-competitors-list` · `project-competitors-remove` · `project-open` · `project-policy` · `project-prepare` · `project-priorities` · `project-progress` ·
 `project-scans` · `project-sources-link` · `project-sources-list` · `project-sources-unlink` · `project-start`
 · `project-status` · `project-task-detail` · `project-view-delete` · `project-view-list` ·
 `project-view-rename` · `project-view-save` · `project-view-show` · `provider-auth` · `provider-collect` ·
@@ -158,6 +158,9 @@ not the geographic region `key`; `summary` takes the singular `region_index`.
 | `project-policy` | Preview or explicitly save the bounded crawl/admission policy; applying it requires the current policy revision | no |
 | `project-prepare` | Runs the declared bounded preparation path: checklist initialization, a policy-bounded crawl, supplied competitor workspace setup, and an inspectable initial plan | yes |
 | `project-start` | Creates a new local project then enters the same bounded preparation path | yes |
+| `project-competitors-add` | Records supplied competitor candidates as separate local workspaces, without crawling | yes |
+| `project-competitors-list` | Reads the recorded competitor candidates and their workspaces | no |
+| `project-competitors-remove` | Drops one recorded competitor from the shortlist; the workspace stays on disk | yes |
 
 The nested aliases are `seohead project new`, `seohead project open`,
 `seohead project status`, `seohead project facts`, `seohead project checklist-init`,
@@ -752,7 +755,7 @@ turns on automatically for crawl modes (`--crawl`, `--crawl-list`, `--load-crawl
 `--sitemap` is given; pass `--no-live-recheck` to keep it off.
 
 **MCP.** The same set under the `seo_*` names plus the `sf_*` audit tools and the
-`seo_semantics_*` tools (175 + 5 + 4):
+`seo_semantics_*` tools (178 + 5 + 4):
 
 ```bash
 seohead mcp        # stdio

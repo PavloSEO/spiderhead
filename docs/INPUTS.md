@@ -146,6 +146,9 @@ and this decision makes no backend migration.
 | `project-policy` | Project directory (`directory`)<br>Inline JSON (`policy`) | Optional data-only policy; preview by default. Apply requires expected_revision. |
 | `project-prepare` | Project directory (`directory`)<br>Inline JSON (`template`)<br>Inline JSON (`competitors`) | Optional data-only project template.; Optional bounded competitor inputs. |
 | `project-start` | Project directory (`directory`)<br>Live URL (`target`)<br>Inline JSON (`facts`)<br>Inline JSON (`template`)<br>Inline JSON (`competitors`) | Optional supplied project facts.; Optional data-only project template.; Optional bounded competitor inputs. |
+| `project-competitors-add` | Project directory (`directory`)<br>Inline JSON (`competitors`) | Required list of candidates with url, source and observed_at. |
+| `project-competitors-list` | Project directory (`directory`) | — |
+| `project-competitors-remove` | Project directory (`directory`)<br>Live URL (`url`) | The recorded competitor URL to drop from the shortlist. |
 | `skill-list` | No direct input | — |
 | `skill-show` | Selector (`name`) | — |
 | `scenario-list` | No direct input | — |
@@ -164,7 +167,7 @@ and this decision makes no backend migration.
 | `bi-bigquery-plan` | Local directory (`package`)<br>Selector (`dataset, operation`) | Offline optional-load plan; no project selection, billing, authentication, or write. |
 | `bi-destination-apply` | Local directory (`package`)<br>Selector (`target, destination, operation`)<br>Inline JSON (`apply`)<br>Inline JSON (`reconcile`) | Never accepts credentials; a missing host client fails before any destination write.; Requires true and a host-injected authorized client.; Explicitly reconciles a retained uncertain request before any retry; requires apply=true. |
 | `inspect-url` | Live URL (`url`)<br>Inline JSON (`checks`) | Optional bounded selection of closed investigation checks. |
-| `audit-workflow` | Project directory (`directory`)<br>Selector (`action`)<br>Live URL (`target`)<br>Audit document (`audit`) | status, start, prepare, or report.; Required only for action=start.; Required only for action=report. |
+| `audit-workflow` | Project directory (`directory`)<br>Selector (`action`)<br>Live URL (`target`)<br>Audit document (`audit`) | status, start, prepare, or report.; Required only for action=start.; Optional for action=report; omitted, the project's latest complete audited scan is used. |
 | `workflow-status` | Project directory (`directory`) | — |
 | `workflow-start` | Project directory (`directory`); requires `scenario_id, steps` | — |
 | `workflow-checkpoint` | Project directory (`directory`); requires `run_id, step_id, state, expected_revision` | — |

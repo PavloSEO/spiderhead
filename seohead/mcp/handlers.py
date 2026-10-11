@@ -5336,6 +5336,7 @@ def project_prepare(
     competitors: list | None = None,
     approve_large_crawl: bool = False,
     producer_build: str | None = None,
+    max_urls: int | None = None,
 ) -> dict[str, Any]:
     from seohead.projects.runtime import prepare_project
 
@@ -5346,7 +5347,26 @@ def project_prepare(
         competitors=competitors,
         approve_large_crawl=approve_large_crawl,
         producer_build=producer_build,
+        max_urls=max_urls,
     )
+
+
+def project_competitors_add(directory: str, competitors: list) -> dict[str, Any]:
+    from seohead.projects.runtime import add_competitors
+
+    return add_competitors(directory, competitors)
+
+
+def project_competitors_list(directory: str) -> dict[str, Any]:
+    from seohead.projects.runtime import list_competitors
+
+    return list_competitors(directory)
+
+
+def project_competitors_remove(directory: str, url: str) -> dict[str, Any]:
+    from seohead.projects.runtime import remove_competitor
+
+    return remove_competitor(directory, url)
 
 
 def project_start(
@@ -6014,6 +6034,7 @@ def audit_workflow(
     fmt: str = "md",
     out: str | None = None,
     approve_large_crawl: bool = False,
+    max_urls: int | None = None,
 ) -> dict[str, Any]:
     """Expose a closed project workflow rather than an unrestricted action dispatcher."""
     if action == "status":
@@ -6034,9 +6055,23 @@ def audit_workflow(
             template=template,
             competitors=competitors,
             approve_large_crawl=approve_large_crawl,
+            max_urls=max_urls,
         )
     if action == "report":
-        return report_build(audit=audit, fmt=fmt, out=out, project=directory)
+        from seohead.projects.runtime import latest_project_scan
+        from seohead.reports import STREAMED_PROJECT_ERROR
+
+        source = audit if audit is not None else str(latest_project_scan(directory))
+        result = report_build(audit=source, fmt=fmt, out=out, project=directory)
+        if not result.get("ok") and result.get("error") == STREAMED_PROJECT_ERROR:
+            # Streamed audit.v2 cannot bind the checklist snapshot; build it unbound and say so.
+            result = report_build(audit=source, fmt=fmt, out=out, project=None)
+            if result.get("ok"):
+                result["notice"] = (
+                    "project checklist snapshot not bound: the scan is a streamed audit.v2, "
+                    "so this report is unbound and carries no coverage snapshot"
+                )
+        return result
     raise ValueError("action must be status, start, prepare, or report")
 
 
@@ -6623,6 +6658,9 @@ _RAW_HANDLERS = {
     "tool_catalog": tool_catalog,
     "project_policy": project_policy,
     "project_prepare": project_prepare,
+    "project_competitors_add": project_competitors_add,
+    "project_competitors_list": project_competitors_list,
+    "project_competitors_remove": project_competitors_remove,
     "project_start": project_start,
     "skill_list": skill_list,
     "skill_show": skill_show,

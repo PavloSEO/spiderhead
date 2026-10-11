@@ -2447,6 +2447,35 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             )
         )
 
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_competitors_add(
+        directory: str,
+        competitors: list,
+        consumer: str | None = None,
+    ) -> dict[str, Any]:
+        """Record supplied competitor candidates as separate local workspaces, without crawling.
+
+        Each item needs url, source and observed_at. Scans are started separately per workspace.
+        """
+        return _checked(
+            with_project_notice(
+                handlers.project_competitors_add(directory, competitors=competitors),
+                directory,
+                consumer,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_competitors_list(directory: str) -> dict[str, Any]:
+        """List the recorded competitor candidates and their local workspaces; no change."""
+        return _checked(handlers.project_competitors_list(directory))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_competitors_remove(directory: str, url: str) -> dict[str, Any]:
+        """Drop one recorded competitor from the shortlist. Its local workspace and scans stay
+        on disk, untouched; no crawl runs."""
+        return _checked(handlers.project_competitors_remove(directory, url=url))
+
     @mcp.tool(annotations=create_files_from_web, structured_output=True)
     def seo_project_prepare(
         directory: str,
@@ -2455,11 +2484,14 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         approve_large_crawl: bool = False,
         producer_build: str | None = None,
         consumer: str | None = None,
+        max_urls: int | None = None,
     ) -> dict[str, Any]:
         """Prepare an existing project with a bounded native crawl and saved sitemap coverage.
 
-        Competitors must be supplied candidates with provenance; absent sources stay pending.
-        All site checklists remain separate. Paid provider calls are never hidden in preparation.
+        Reuses the latest suitable saved scan when one answers the request. ``max_urls`` sets the
+        owner's URL cap for a new crawl. Competitors must be supplied candidates with provenance;
+        absent sources stay pending. All site checklists remain separate. Paid provider calls are
+        never hidden in preparation.
         """
         return _checked(
             with_project_notice(
@@ -2469,6 +2501,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                     competitors=competitors,
                     approve_large_crawl=approve_large_crawl,
                     producer_build=producer_build,
+                    max_urls=max_urls,
                 ),
                 directory,
                 consumer,
@@ -2906,8 +2939,12 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         fmt: str = "md",
         out: str | None = None,
         approve_large_crawl: bool = False,
+        max_urls: int | None = None,
     ) -> dict[str, Any]:
-        """Use a closed project workflow: status, bounded start/prepare, or an evidence-backed report."""
+        """Use a closed project workflow: status, bounded start/prepare, or an evidence-backed report.
+
+        A report without ``audit`` is built from the project's latest complete audited scan.
+        """
         return _checked(
             handlers.audit_workflow(
                 directory=directory,
@@ -2919,6 +2956,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 fmt=fmt,
                 out=out,
                 approve_large_crawl=approve_large_crawl,
+                max_urls=max_urls,
             )
         )
 

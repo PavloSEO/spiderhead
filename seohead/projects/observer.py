@@ -17,7 +17,7 @@ from typing import Any
 
 from .inbox import list_entries, unread_summary
 from .progress import project_progress
-from .workspace import _load, project_status
+from .workspace import _load, _target, project_status
 
 LOG_BYTES = 32 * 1024
 FINDING_PAGE_SIZE = 50
@@ -522,7 +522,7 @@ def _competitor_sites(
             child_root, child_project = _load(child)
             if child_project["project_uuid"] != candidate.get("project_uuid"):
                 raise ValueError("competitor project identity mismatch")
-            if child_project["site"]["target"] != candidate.get("url"):
+            if child_project["site"]["target"] != _target(candidate.get("url")):
                 raise ValueError("competitor site identity mismatch")
             sites.append(
                 _site_projection(
@@ -1165,7 +1165,7 @@ def observe_activity(directory: str | Path) -> dict:
             child_root, metadata = _load(child)
             if metadata["project_uuid"] != candidate.get("project_uuid") or metadata["site"][
                 "target"
-            ] != candidate.get("url"):
+            ] != _target(candidate.get("url")):
                 raise ValueError("competitor project identity mismatch")
             sites.append(
                 {
