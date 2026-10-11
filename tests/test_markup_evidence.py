@@ -252,7 +252,11 @@ def test_missing_latest_static_amp_context_never_inherits_sibling_or_older_pass(
 ):
     import sqlite3
 
-    html = '<html amp lang="en"><body><main>AMP</main></body></html>'
+    from tests.test_markup import amp_document
+
+    # A valid sibling isolates omitted evidence; a malformed sibling already
+    # fires checks, which cannot also occupy the mutually exclusive skip bucket.
+    html = amp_document()
     path = _scan(tmp_path, [(URL, html), (AMP, html)])
     writer = sqlite3.connect(path)
     writer.row_factory = sqlite3.Row
