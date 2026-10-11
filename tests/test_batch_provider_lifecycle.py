@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import socket
 import threading
+import time
 import urllib.parse
 from datetime import datetime, timedelta, timezone
 
@@ -399,3 +400,73 @@ def test_cancel_during_oauth_exchange_prevents_grant_persistence(tmp_path, monke
     assert failures and "oauth_flow_not_waiting" in str(failures[0])
     assert not (config_root / "gsc" / "oauth.json").exists()
     assert oauth_flow.load_flow(path)["flow_id"] == flow["flow_id"]
+
+
+def test_concurrent_oauth_start_cannot_replace_flow_during_callback_commit(tmp_path, monkeypatch):
+    config_root = tmp_path / "config"
+    monkeypatch.setattr(oauth, "CONFIG_ROOT", config_root)
+    monkeypatch.setenv("GSC_OAUTH_CLIENT_ID", "synthetic-client.apps.example.test")
+    monkeypatch.setenv("GSC_OAUTH_CLIENT_SECRET", "synthetic-client-secret")
+    monkeypatch.setenv("GSC_OAUTH_REDIRECT_URI", "http://localhost:8765/oauth/callback")
+    flow_path = config_root / "gsc" / "oauth-flow.json"
+    _, state = oauth_flow.create_flow(flow_path, datetime.now(timezone.utc))
+    callback_has_lock = threading.Event()
+    finish_verification = threading.Event()
+    original_verify = oauth_flow.verify_callback_state
+    calls = 0
+
+    def pause_during_locked_verify(path, supplied_state, now):
+        nonlocal calls
+        calls += 1
+        flow = original_verify(path, supplied_state, now)
+        if calls == 2:
+            callback_has_lock.set()
+            if not finish_verification.wait(timeout=2):
+                raise RuntimeError("test callback commit timed out")
+        return flow
+
+    monkeypatch.setattr(oauth_flow, "verify_callback_state", pause_during_locked_verify)
+    monkeypatch.setattr(
+        oauth,
+        "_default_exchange",
+        lambda _payload: {
+            "access_token": "synthetic-access-token",
+            "refresh_token": "synthetic-refresh-token",
+            "expires_in": 3600,
+            "scope": _SCOPE,
+        },
+    )
+    callback_results = []
+    callback_errors = []
+    start_errors = []
+    start_attempted = threading.Event()
+
+    def callback():
+        try:
+            callback_results.append(oauth.manage_grant("gsc", "callback", state=state, code="code"))
+        except Exception as exc:
+            callback_errors.append(exc)
+
+    def start_again():
+        start_attempted.set()
+        try:
+            oauth.manage_grant("gsc", "start")
+        except Exception as exc:
+            start_errors.append(exc)
+
+    callback_worker = threading.Thread(target=callback)
+    callback_worker.start()
+    assert callback_has_lock.wait(timeout=1)
+    start_worker = threading.Thread(target=start_again)
+    start_worker.start()
+    assert start_attempted.wait(timeout=1)
+    time.sleep(0.05)
+    finish_verification.set()
+    callback_worker.join(timeout=2)
+    start_worker.join(timeout=2)
+
+    assert not callback_worker.is_alive() and not start_worker.is_alive()
+    assert not callback_errors
+    assert callback_results[0]["flow"]["status"] == "connected"
+    assert start_errors and "durable OAuth grant already exists" in str(start_errors[0])
+    assert (config_root / "gsc" / "oauth.json").is_file()

@@ -213,7 +213,7 @@ def manage_grant(
                 raise ValueError(
                     "a durable OAuth grant already exists; disconnect it before reconnecting"
                 )
-            flow, raw_state = oauth_flow.create_flow(flow_path, now)
+            flow, raw_state = oauth_flow._create_flow_unlocked(flow_path, now)
         query = urllib.parse.urlencode(
             {
                 "client_id": client_id,

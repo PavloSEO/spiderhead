@@ -76,6 +76,12 @@ def create_flow(path: Path, now: datetime) -> tuple[dict[str, Any], str]:
 
     Returns the stored record and the raw state, which is never written to disk.
     """
+    with flow_lock(path):
+        return _create_flow_unlocked(path, now)
+
+
+def _create_flow_unlocked(path: Path, now: datetime) -> tuple[dict[str, Any], str]:
+    """Write a new flow while the caller holds :func:`flow_lock`."""
     _check_path(path)
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     state = secrets.token_urlsafe(24)
