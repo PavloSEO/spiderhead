@@ -55,12 +55,15 @@ def _checked(result: Any) -> Any:
 
 def build_server(profile: str = "full", progress_notifications: bool = False):  # -> FastMCP
     runlog.set_interface("mcp")
-    from mcp.server.fastmcp import FastMCP
+    from mcp.server.fastmcp import Context, FastMCP
     from mcp.server.fastmcp.exceptions import ToolError
     from mcp.types import ToolAnnotations
 
     from seohead.mcp import mcp_control
     from seohead.mcp.mcp_profiles import profile_tools
+
+    # FastMCP resolves injected Context annotations from this module's globals.
+    globals()["Context"] = Context
 
     class ControlledMCP(FastMCP):
         async def call_tool(self, name, arguments):
@@ -1755,6 +1758,96 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         """
         return _checked(handlers.sources_doctor())
 
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_doctor(
+        projects_directory: str | None = None,
+        config_path: str | None = None,
+        sf_cli: str | None = None,
+    ) -> dict[str, Any]:
+        """Inspect Python, browser, SF, MCP, SQLite and optional project-directory readiness.
+
+        This is a local read-only diagnostic. It does not write a probe file, launch a browser,
+        crawl a site, or establish Screaming Frog licence validity.
+        """
+        return _checked(
+            handlers.doctor(
+                projects_directory=projects_directory,
+                config_path=config_path,
+                sf_cli=sf_cli,
+            )
+        )
+
+    @mcp.tool(annotations=create_files_from_web, structured_output=True)
+    def seo_update_check(
+        consent: bool, automatic: bool = False, max_releases: int = 5
+    ) -> dict[str, Any]:
+        """Check bounded stable core releases after explicit consent and retain the check result.
+
+        The daily mode only reuses a result checked within 24 hours; it never starts a scheduler.
+        No request is made when consent is false. Changelog text and asset lists are capped.
+        """
+        return _checked(
+            handlers.update_check(
+                consent=consent,
+                automatic=automatic,
+                max_releases=max_releases,
+            )
+        )
+
+    @mcp.tool(annotations=create_files_from_web, structured_output=True)
+    async def seo_update_download(
+        ctx: Context,
+        consent: bool,
+        tag: str,
+        asset_name: str,
+        out: str,
+        max_bytes: int = 262144000,
+    ) -> dict[str, Any]:
+        """Download a checksummed wheel or source archive from a previously checked release.
+
+        The destination must be a new local file. The core reports progress, honors MCP request
+        cancellation, and never installs or executes the downloaded package.
+        """
+        import asyncio
+        import threading
+
+        cancel = threading.Event()
+        loop = asyncio.get_running_loop()
+        last_reported = 0
+
+        def report_progress(received: int, total: int | None) -> None:
+            nonlocal last_reported
+            if received - last_reported < 1024 * 1024 and (total is None or received < total):
+                return
+            last_reported = received
+            try:
+                future = asyncio.run_coroutine_threadsafe(ctx.report_progress(received, total), loop)
+                future.add_done_callback(lambda completed: completed.exception())
+            except (AttributeError, RuntimeError):
+                return
+
+        worker = asyncio.create_task(
+            asyncio.to_thread(
+                handlers.update_download,
+                consent=consent,
+                tag=tag,
+                asset_name=asset_name,
+                out=out,
+                max_bytes=max_bytes,
+                progress=report_progress,
+                cancelled=cancel.is_set,
+            )
+        )
+        try:
+            return _checked(await asyncio.shield(worker))
+        except asyncio.CancelledError:
+            cancel.set()
+            try:
+                await asyncio.shield(worker)
+            except Exception:
+                pass
+            raise
+
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_wayback_history(
         url: str,
@@ -2043,6 +2136,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         scan_limit: int = 20,
         run_offset: StrictInt = 0,
         run_limit: StrictInt = 20,
+        since_revision: str | None = None,
     ) -> dict[str, Any]:
         """Read the bounded project observer snapshot: tasks, methods, competitors,
         retained scan state and the execution-log tail.  It never starts work or
@@ -2054,7 +2148,9 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         plus one terminal page, newest admitted first. run_offset must be nonnegative
         and run_limit 1..100. Totals cover at most 100 retained records per site,
         not lifetime history; earlier evictions were not counted. A changed runs
-        revision requires the caller to restart terminal pagination.
+        revision requires the caller to restart terminal pagination. Pass the
+        returned opaque revision as since_revision to receive a small
+        not_modified response when the snapshot has not changed.
         """
         return _checked(
             handlers.project_observe(
@@ -2063,6 +2159,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 scan_limit=scan_limit,
                 run_offset=run_offset,
                 run_limit=run_limit,
+                since_revision=since_revision,
             )
         )
 
@@ -3151,12 +3248,17 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         )
 
     @mcp.tool(annotations=read_files, structured_output=True)
-    def seo_project_activity(directory: str) -> dict[str, Any]:
+    def seo_project_activity(
+        directory: str, since_revision: str | None = None
+    ) -> dict[str, Any]:
         """Read lightweight current activity for a local project and its sites.
 
-        Reads saved local evidence only; does not collect, fetch or modify it.
+        Reads saved local evidence only; does not collect, fetch or modify it. Pass the returned
+        opaque revision as since_revision to receive a small not_modified response.
         """
-        return _checked(handlers.project_activity(directory=directory))
+        return _checked(
+            handlers.project_activity(directory=directory, since_revision=since_revision)
+        )
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_project_checklist_page(

@@ -6,12 +6,13 @@ FastMCP's public `remove_tool()` method. Build a fresh server to choose another 
 | Profile | Advertised surface |
 |---|---|
 | `full` | Compatibility mode: every registered tool remains available. |
-| `audit` | Audit workflow, catalog, and bounded SF audit tools. |
-| `infra` | Inspect/catalog plus domain, CDN, technology, security, headers, robots, sitemap, and regions. |
-| `quick-check` | Inspect/catalog plus small URL checks. |
-| `router` | Inspect, audit workflow, and catalog only. |
+| `audit` | Core doctor, audit workflow, catalog, and bounded SF audit tools. |
+| `infra` | Core doctor, inspect/catalog plus domain, CDN, technology, security, headers, robots, sitemap, and regions. |
+| `quick-check` | Core doctor, inspect/catalog plus small URL checks. |
+| `router` | Core doctor, inspect, audit workflow, and catalog. |
 
-The root bindings provide `seo_inspect_url`, `seo_audit_workflow`, and `seo_tool_catalog` before
+The root bindings provide `seo_inspect_url`, `seo_audit_workflow`, `seo_tool_catalog`, and the
+read-only `seo_doctor` diagnostics tool before
 selecting a restricted profile. `seo_tool_run` is intentionally excluded from `router`: a generic
 action-and-any-payload tool would bypass real tool schemas and their paid, write, and network
 guards. The catalog may describe allowed low-level tools without advertising every one as an MCP

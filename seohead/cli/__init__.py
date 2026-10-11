@@ -94,6 +94,9 @@ COMMANDS = (
     "serp-fetch",
     "spend-report",
     "sources-doctor",
+    "doctor",
+    "update-check",
+    "update-download",
     "sources-sync",
     "sources-status",
     "sources-export",
@@ -833,7 +836,14 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "project-observe":
-        for name in ("directory", "consumer", "scan_limit", "run_offset", "run_limit"):
+        for name in (
+            "directory",
+            "consumer",
+            "scan_limit",
+            "run_offset",
+            "run_limit",
+            "since_revision",
+        ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd in {"skill-show", "scenario-show"}:
@@ -890,6 +900,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     }:
         for name in (
             "directory",
+            "since_revision",
             "item_id",
             "offset",
             "limit",
@@ -2612,6 +2623,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument(
             "--run-limit", type=int, help="terminal runs per site, 1..100 (default: 20)"
         )
+        sub.add_argument("--since-revision", help="opaque observer revision from the previous response")
     if cmd.startswith("project-inbox-"):
         _source_flag(sub, "--directory", help="validated local project workspace")
     if cmd.startswith("project-event-"):
@@ -2825,6 +2837,8 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "project-view-rename",
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
+        if cmd == "project-activity":
+            sub.add_argument("--since-revision", help="opaque activity revision from the previous response")
     if cmd in {"project-view-show", "project-view-delete", "project-view-rename"}:
         sub.add_argument("--name", help="saved finding view name")
     if cmd == "project-view-rename":
@@ -3246,7 +3260,28 @@ def build_parser() -> argparse.ArgumentParser:
     subs = p.add_subparsers(dest="command", metavar="<command>")
     version = subs.add_parser("version", help="core version, formats and commands")
     version.add_argument("--json", action="store_true", help="print machine-readable core info")
+    version.add_argument(
+        "--required-core-revision",
+        help="compare this exact packaged Desktop core revision with the running core",
+    )
+    doctor = subs.add_parser("doctor", help="inspect local core prerequisites without writes")
+    doctor.add_argument("--json", action="store_true", help="print machine-readable diagnostics")
+    doctor.add_argument("--projects-directory", help="existing projects directory to inspect")
+    doctor.add_argument("--config", default="config.json", help="SF configuration path")
+    doctor.add_argument("--sf-cli", help="explicit Screaming Frog CLI path")
+    update_check = subs.add_parser("update-check", help="check core releases after explicit consent")
+    update_check.add_argument("--consent", action="store_true", required=True)
+    update_check.add_argument("--automatic", action="store_true", help="reuse a fresh result for a consented daily check")
+    update_check.add_argument("--max-releases", type=int, default=5)
+    update_download = subs.add_parser("update-download", help="download a checksummed core release asset")
+    update_download.add_argument("--consent", action="store_true", required=True)
+    update_download.add_argument("--tag", required=True)
+    update_download.add_argument("--asset", dest="asset_name", required=True)
+    update_download.add_argument("--out", required=True)
+    update_download.add_argument("--max-bytes", type=int, default=250 * 1024 * 1024)
     for cmd in COMMANDS:
+        if cmd in {"doctor", "update-check", "update-download"}:
+            continue  # these commands have dedicated options above
         epilog = (
             CRAWL_SITE_HELP_NOTE
             if cmd == "crawl-site"
@@ -3464,14 +3499,88 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if cmd == "version":
         from seohead.core.core_info import core_info
+        from seohead.mcp.tool_reference import load_seo_tools, load_sf_tools, load_semantics_tools
 
-        info = core_info(COMMANDS)
+        tools = [*load_seo_tools(), *load_sf_tools(), *load_semantics_tools()]
+        info = core_info(
+            COMMANDS,
+            [tool.name for tool in tools],
+            required_core_revision=args.required_core_revision,
+        )
         if args.json:
             print(json.dumps(info, ensure_ascii=False, indent=2))
         else:
             rev = f" ({info['revision'][:7]})" if info["revision"] else ""
             print(f"seohead {info['package_version']}{rev}")
         return 0
+    if cmd == "doctor":
+        from seohead.core.doctor import doctor as run_doctor
+
+        result = run_doctor(
+            projects_directory=args.projects_directory,
+            config_path=args.config,
+            sf_cli=args.sf_cli,
+        )
+        if args.json:
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        else:
+            for name, component in result.items():
+                if name == "format":
+                    continue
+                if isinstance(component, dict) and "state" in component:
+                    print(f"{name}: {component['state']}")
+                    if component.get("reason"):
+                        print(f"  {component['reason']}")
+                elif isinstance(component, dict):
+                    print(f"{name}:")
+                    for subname, subcomponent in component.items():
+                        if isinstance(subcomponent, dict) and "state" in subcomponent:
+                            print(f"  {subname}: {subcomponent['state']}")
+                            if subcomponent.get("reason"):
+                                print(f"    {subcomponent['reason']}")
+        return 0
+    if cmd == "update-check":
+        from seohead.core.update import check_updates
+
+        result = check_updates(
+            consent=args.consent,
+            automatic=args.automatic,
+            max_releases=args.max_releases,
+        )
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result.get("ok") else 1
+    if cmd == "update-download":
+        import signal
+        import threading
+
+        from seohead.core.update import download_update
+
+        cancel = threading.Event()
+        prior_sigint = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, lambda *_args: cancel.set())
+        last_reported = 0
+
+        def report_progress(received: int, total: int | None) -> None:
+            nonlocal last_reported
+            if received == 0 or total is not None and received >= total or received - last_reported >= 1024 * 1024:
+                label = str(total) if total is not None else "unknown"
+                print(f"download progress: {received}/{label} bytes", file=sys.stderr)
+                last_reported = received
+
+        try:
+            result = download_update(
+                consent=args.consent,
+                tag=args.tag,
+                asset_name=args.asset_name,
+                out=args.out,
+                max_bytes=args.max_bytes,
+                progress=report_progress,
+                cancelled=cancel.is_set,
+            )
+        finally:
+            signal.signal(signal.SIGINT, prior_sigint)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result.get("ok") else 1
     if cmd == "sf":
         # The crawl-audit subsystem owns its parser; preserve and forward its argument tail.
         from seohead.sf.cli import main as sf_main

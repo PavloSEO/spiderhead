@@ -20,6 +20,7 @@ _PROFILE_TOOLS = {
             "seo_inspect_url",
             "seo_audit_workflow",
             "seo_tool_catalog",
+            "seo_doctor",
             "sf_audit_run",
             "sf_audit_summary",
             "sf_audit_issues",
@@ -31,6 +32,7 @@ _PROFILE_TOOLS = {
         {
             "seo_inspect_url",
             "seo_tool_catalog",
+            "seo_doctor",
             "seo_domain_profile",
             "seo_cdn_check",
             "seo_tech_detect",
@@ -45,6 +47,7 @@ _PROFILE_TOOLS = {
         {
             "seo_inspect_url",
             "seo_tool_catalog",
+            "seo_doctor",
             "seo_parse",
             "seo_headers_check",
             "seo_robots_check",
@@ -54,7 +57,7 @@ _PROFILE_TOOLS = {
         }
     ),
     # The router excludes seo_tool_run: an action:any schema could bypass real tool guards.
-    "router": frozenset({"seo_inspect_url", "seo_audit_workflow", "seo_tool_catalog"}),
+    "router": frozenset({"seo_inspect_url", "seo_audit_workflow", "seo_tool_catalog", "seo_doctor"}),
 }
 
 

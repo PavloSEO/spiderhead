@@ -68,7 +68,47 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         _form("scan_artifact", "input_path"),
         _form("selector", "document_id", "limit", "offset"),
     ),
-    _command("project-activity", "project_activity", _form("project_directory", "directory")),
+    _command(
+        "doctor",
+        "doctor",
+        _form("project_directory", "projects_directory", note="Optional directory access check."),
+        _form("local_config", "config_path"),
+        _form("local_file", "sf_cli", note="Optional Screaming Frog executable path."),
+    ),
+    _command(
+        "update-check",
+        "update_check",
+        _form(
+            "selector",
+            "consent",
+            "automatic",
+            "max_releases",
+            note="Network access requires consent; no scheduler starts.",
+        ),
+    ),
+    _command(
+        "update-download",
+        "update_download",
+        _form(
+            "selector",
+            "consent",
+            "tag",
+            "asset_name",
+            "max_bytes",
+            note="Downloads only an asset from a previously checked release.",
+        ),
+        _form("local_file", "out", note="New destination file; the package is not installed."),
+    ),
+    _command(
+        "project-activity",
+        "project_activity",
+        _form("project_directory", "directory"),
+        _form(
+            "selector",
+            "since_revision",
+            note="Optional opaque observer revision for a compact unchanged response.",
+        ),
+    ),
     _command(
         "project-checklist-page",
         "project_checklist_page",
@@ -665,6 +705,11 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
             "run_offset",
             "run_limit",
             note="Per-site terminal run page; all stored running records remain visible.",
+        ),
+        _form(
+            "selector",
+            "since_revision",
+            note="Optional opaque observer revision for a compact unchanged response.",
         ),
     ),
     _command(

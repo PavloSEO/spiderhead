@@ -35,6 +35,72 @@ def test_create_open_status_and_move_preserve_relative_artifact_references(tmp_p
     assert project_status(moved)["scans"]["items"] == []
 
 
+def test_status_keeps_unmeasured_operational_fields_explicit(tmp_path):
+    project = tmp_path / "status"
+    create_project(project, "https://example.test/")
+
+    status = project_status(project)
+
+    assert status["summary"]["running_scan"]["running"] is None
+    assert status["summary"]["running_scan"]["reason"]
+    assert status["summary"]["open_tasks"]["count"] is None
+    assert status["summary"]["open_tasks"]["reason"]
+    assert status["summary"]["latest_scan"]["uuid"] is None
+    assert status["summary"]["latest_scan"]["reason"]
+    assert status["summary"]["folder_health"]["state"] == "ok"
+    assert status["agent_state"]["connected"] is None
+    assert status["agent_state"]["last_seen_at"] is None
+    assert status["agent_state"]["reason"]
+    assert status["storage"]["relative_path"] == "scans"
+    assert status["storage"]["total_bytes"] is None
+    assert status["storage"]["scan_count"] is None
+    assert status["storage"]["reason"]
+
+
+def test_status_counts_only_current_applicable_custom_tasks():
+    result = workspace._open_tasks(
+        {
+            "state": "initialized",
+            "items": [
+                {"id": "custom:open", "complete": False, "stale": False},
+                {"id": "custom:done", "complete": True, "stale": False},
+                {"id": "custom:stale", "complete": False, "stale": True},
+                {
+                    "id": "custom:excluded",
+                    "complete": False,
+                    "stale": False,
+                    "applicability": "excluded",
+                },
+                {"id": "check:missing-title", "complete": False, "stale": False},
+            ],
+        }
+    )
+
+    assert result["count"] == 1
+    assert result["state"] == "measured"
+    assert result["scope"] == "primary_project_custom_checklist"
+
+
+def test_settings_overlay_is_returned_without_rewriting_project_manifest(tmp_path, monkeypatch):
+    project = tmp_path / "settings"
+    create_project(project, "https://example.test/", label="Manifest label")
+    before = (project / "project.json").read_bytes()
+    monkeypatch.setattr(
+        workspace,
+        "_settings",
+        lambda _root: {"revision": 7, "settings": {"label": "Current label"}},
+    )
+
+    opened = open_project(project)
+    status = project_status(project)
+
+    assert opened["project"]["site"]["label"] == "Current label"
+    assert opened["project"]["settings_revision"] == 7
+    assert status["project"]["site"]["label"] == "Current label"
+    assert status["project"]["settings_revision"] == 7
+    assert (project / "project.json").read_bytes() == before
+
+
 def test_creation_never_overwrites_and_conflicting_identity_refuses(tmp_path):
     project = tmp_path / "example"
     create_project(project, "https://example.test/")

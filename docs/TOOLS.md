@@ -16,7 +16,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 `{"ok": false, "error": "..."}` instead of raising. An unreachable site is
 data, not an accident.
 
-The current registry has 192 commands and 201 callable tools,
+The current registry has 195 commands and 204 callable tools,
 with 248 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
@@ -66,6 +66,26 @@ and inputs remain in the nearby route sections and generated tool reference.
 `workflow-start` · `workflow-status`
 <!-- generated-command-inventory:end -->
 See [Server logs](SERVER_LOGS.md) for import, join and DNS evidence contracts.
+
+## Core identity, diagnosis and updates
+
+`seohead version --json` reports the versioned core handshake, supported project/scan/ledger
+formats, the CLI and MCP tool names, verified package revision/build time and the exact-revision
+Desktop compatibility policy. Pass `--required-core-revision` with the revision pinned by a Desktop
+bundle to receive a `compatible` boolean; it remains null when either revision is unavailable.
+Older package manifests without a build timestamp retain a verified revision and report the
+timestamp as unavailable.
+
+`doctor` / `seo_doctor` inspect local Python, Playwright, Chromium-on-PATH, Screaming Frog CLI,
+MCP, SQLite locking and optional project-directory permission flags. They do not write a probe,
+launch a browser, crawl a target or infer Screaming Frog license validity from executable presence.
+
+`update-check` and `seo_update_check` require explicit consent before reading the bounded stable
+GitHub release feed and saving the result. A consented automatic caller can reuse that result for
+24 hours; SpiderHead does not start a scheduler. `update-download` and `seo_update_download`
+download only an asset listed by the last checked release, verify its SHA-256 against release
+metadata or `SHA256SUMS.txt`, enforce a byte limit, report progress and remove partial output on
+cancellation. Downloads are saved to a new file and are never installed or executed.
 
 ## Offline bounded comparison
 

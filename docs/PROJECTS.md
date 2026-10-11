@@ -59,6 +59,18 @@ seohead project status --directory ./example-project
 seohead project progress --directory ./example-project --limit 20 --offset 0
 ```
 
+`project-status` adds a compact operational summary alongside the existing scan list, checklist and
+preparation state. It reports the current collector and sampled counters, the latest retained scan's
+lifecycle/completeness, and whether retained scan metadata has read errors. Open tasks count current,
+applicable, incomplete custom checklist items in the primary project; competitor projects retain
+their own counts. If the checklist is not initialized, the count is `null` with a reason. Agent
+`last_seen_at` is the latest recorded MCP action; `connected` remains `null` because a timestamped
+request does not prove a current connection. `heartbeat_source` is present only for the explicit
+agent-heartbeat action. Scan-directory size comes from the persisted measurement; unavailable
+measurements remain `null` with a reason. A missing collector observation is unknown, not proof
+that no collector is running. The storage path is project-relative (`scans`); the scan list's
+current byte values are not reported as a persisted project-size measurement.
+
 The directory contains `project.json`, `scans/`, `reports/`, `log.md`, and, after
 the first saved view, `finding-views.json`, and, after the first event, `events.jsonl`.
 `events.jsonl` is the structured project log: one JSON line per event with a sequence,
@@ -211,6 +223,12 @@ view. `active_total` counts stored running states even when their PID is abandon
 or unknown; observation never rewrites these states. `terminal_total` and
 `pagination` describe terminal rows only. Use `next_offset` to continue, and
 restart pagination when `revision` changes to avoid mixing different snapshots.
+`project-observe` and `project-activity` also return an opaque SHA-256 revision.
+Pass it back as `since_revision` (CLI `--since-revision`, MCP argument
+`since_revision`) to receive only `{ok, revision, not_modified: true}` when the
+stable projection has not changed. A changed projection returns the full bounded
+payload with `not_modified: false`. The check still reads and projects current
+local state; the conditional form reduces repeated response size.
 Named flags override explicitly supplied JSON values; absent flags preserve them.
 
 Run history retains at most 100 records per project. Starting a run at capacity

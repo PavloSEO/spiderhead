@@ -176,6 +176,7 @@ def project_observe(
     scan_limit: int = 20,
     run_offset: int = 0,
     run_limit: int = 20,
+    since_revision: str | None = None,
 ) -> dict[str, Any]:
     from seohead.projects.observer import observe
 
@@ -185,6 +186,7 @@ def project_observe(
         scan_limit=scan_limit,
         run_offset=run_offset,
         run_limit=run_limit,
+        since_revision=since_revision,
     )
 
 

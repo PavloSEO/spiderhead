@@ -22,6 +22,10 @@ is `project-progress`; `seohead logs bots` is `logs-bots`.
 | `sf run` | Audit existing Screaming Frog CSV/XLSX exports offline (`--exports-dir`), or run a separately installed, licensed SF CLI first (`--crawl`). Writes `audit.json`/`audit.md`; `--tasks` adds the prioritized backlog. |
 | `sf tasks` | Build `tasks.json`/`tasks.md` from an existing `audit.json` or scan artifact. |
 | `sf doctor` | Diagnose SF CLI discovery and optional dependencies. |
+| `doctor` | Inspect local Python, Playwright, Chromium, SF CLI, MCP, SQLite locking and optional project-directory access without writing a probe file. Use `--json` for the versioned diagnostic payload; SF license validity remains unknown until an authoritative status source is available. |
+| `version --json` | Read the core handshake: package/build identity, supported project/scan/ledger contracts and CLI/MCP tools. Add `--required-core-revision SHA` to compare against a Desktop bundle's pinned core revision. |
+| `update-check --consent` | Read a bounded stable GitHub release feed and persist the last result. `--automatic` reuses a fresh result; no scheduler is started. |
+| `update-download --consent --tag TAG --asset NAME --out FILE` | Download one checksummed wheel or source archive from the last checked release, with bounded progress and Ctrl+C cancellation. It never installs the asset. |
 | `sf save-config` | Copy the most recent SF crawl configuration into a reusable base config file. |
 | `semantics <stage>` | Accumulating semantic core in its own SQLite database: `init`, `import`, `collect`, `clean`, `graph`, `exact`, `cluster`, `competitors`, `synonyms`, `report`, `excel`, `mine`, `sitematch`, `relevance`, `status`, `export`, each with `--project DIR`. `collect`, `synonyms`, `cluster` and `exact` are paid; see [SEMANTICS.md](SEMANTICS.md). |
 | `mcp` | Start the local stdio MCP server; `--profile` selects `full`, `audit`, `infra`, `quick-check` or `router` ([MCP profiles](MCP_PROFILES.md)). |
@@ -190,8 +194,8 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-sources-unlink` | Remove one resource binding from `sources.json`; no provider call. | writes |
 | `project-sources-list` | List resource bindings of a project. | offline, read-only |
 | `project-progress` | Show a compact, paginated project checklist view and its next actions. | offline, read-only |
-| `project-observe` | Read the bounded project observer snapshot: tasks, methods, competitors, retained scan state and the execution-log tail. | offline, read-only |
-| `project-activity` | Read lightweight current activity for a local project and its sites. | offline, read-only |
+| `project-observe` | Read the bounded project observer snapshot: tasks, methods, competitors, retained scan state and the execution-log tail. Pass `--since-revision` to return a compact `not_modified` response for an unchanged snapshot. | offline, read-only |
+| `project-activity` | Read lightweight current activity for a local project and its sites. Pass `--since-revision` to return a compact `not_modified` response for an unchanged snapshot. | offline, read-only |
 | `project-scans` | Read a bounded page of retained project scans with evidence metadata. | offline, read-only |
 | `project-task-detail` | Read one project task definition, evidence and bounded history. | offline, read-only |
 | `project-checklist-init` | Initialize or reconcile a local checklist without executing a check, skill, or scenario. | writes |
@@ -280,6 +284,9 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | Command | What it does | Effects |
 |---|---|---|
 | `tool-catalog` | Search complete source-derived tool metadata and load argument details only on request. | offline, read-only |
+| `doctor` | Inspect local prerequisites and optional project-directory access. Permission flags are advisory; no write probe, browser launch or crawl is performed. | offline, read-only |
+| `update-check` | Read a bounded stable release feed only with explicit consent; store the result for a consented daily caller. | network, writes |
+| `update-download` | Download a checksum-verified wheel or source archive to a new file with progress and cancellation; does not install it. | network, writes |
 | `skill-list` | List the packaged, source-derived method playbooks without executing them. | offline, read-only |
 | `skill-show` | Return a packaged skill's exact text and definition identity. | offline, read-only |
 | `scenario-list` | List the packaged workflow scenarios with their ordered steps, without running them. | offline, read-only |

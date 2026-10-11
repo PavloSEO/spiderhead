@@ -57,8 +57,9 @@ command fails and names the variable — never the value. CI sets two sentinels
 ## Outbound destinations
 
 Nothing leaves the machine unless the operator runs the feature. There is no
-background traffic: no telemetry collector, no update check, no crash reporter,
-no daemon. The MCP server is a stdio child process, not a network service.
+background traffic: no telemetry collector, no crash reporter, no daemon. The
+update check is caller-invoked and requires explicit consent; the core does not
+start a scheduler. The MCP server is a stdio child process, not a network service.
 
 | Destination | Reached by | What is sent | Optional? |
 |---|---|---|---|
@@ -79,6 +80,7 @@ no daemon. The MCP server is a stdio child process, not a network service.
 | `api.indexnow.org/indexnow` | `indexnow-submit` | The submitted URL list plus the submission key | Confirmed write; disabled by default |
 | `web.archive.org/cdx/search/cdx` | `wayback-history` | The queried URL | Public service, no credential |
 | `crt.sh` | `crtsh-subdomains` | The queried domain | Public service, no credential |
+| `api.github.com` and `github.com` release assets | `update-check`, `update-download` | Public release metadata, then one explicitly selected asset name | Explicit caller consent; downloads are checksum-verified and never installed |
 
 What is **not** sent anywhere: crawl evidence, scan artifacts, retained page
 bodies, report files, the run journal, the spend ledger, or provider

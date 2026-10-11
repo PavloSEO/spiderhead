@@ -73,6 +73,8 @@ def _arguments(func: ast.FunctionDef) -> tuple[Argument, ...]:
     out = []
     for arg, default in zip(args.args, defaults, strict=True):
         type_str = ast.unparse(arg.annotation) if arg.annotation is not None else "Any"
+        if type_str.endswith("Context"):
+            continue
         default_str = "required" if default is None else ast.unparse(default)
         out.append(Argument(arg.arg, type_str, default_str))
     return tuple(out)

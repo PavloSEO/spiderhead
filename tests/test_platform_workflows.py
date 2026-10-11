@@ -117,7 +117,12 @@ def test_real_stdio_mcp_starts_and_lists_router_tools():
         ):
             await session.initialize()
             names = {tool.name for tool in (await session.list_tools()).tools}
-            assert names == {"seo_audit_workflow", "seo_inspect_url", "seo_tool_catalog"}
+            assert names == {
+                "seo_audit_workflow",
+                "seo_doctor",
+                "seo_inspect_url",
+                "seo_tool_catalog",
+            }
             result = await session.call_tool("seo_tool_catalog", {"query": "scan", "limit": 2})
             assert not result.isError
 

@@ -5313,6 +5313,50 @@ def project_status(directory: str, consumer: str | None = None) -> dict[str, Any
     return project_basic_status(directory, consumer=consumer)
 
 
+def doctor(
+    projects_directory: str | None = None,
+    config_path: str | None = None,
+    sf_cli: str | None = None,
+) -> dict[str, Any]:
+    from seohead.core.doctor import doctor as core_doctor
+
+    return core_doctor(
+        projects_directory=projects_directory,
+        config_path=config_path,
+        sf_cli=sf_cli,
+    )
+
+
+def update_check(
+    consent: bool, automatic: bool = False, max_releases: int = 5
+) -> dict[str, Any]:
+    from seohead.core.update import check_updates
+
+    return check_updates(consent=consent, automatic=automatic, max_releases=max_releases)
+
+
+def update_download(
+    consent: bool,
+    tag: str,
+    asset_name: str,
+    out: str,
+    max_bytes: int = 250 * 1024 * 1024,
+    progress=None,
+    cancelled=None,
+) -> dict[str, Any]:
+    from seohead.core.update import download_update
+
+    return download_update(
+        consent=consent,
+        tag=tag,
+        asset_name=asset_name,
+        out=out,
+        max_bytes=max_bytes,
+        progress=progress,
+        cancelled=cancelled,
+    )
+
+
 def project_sources_link(
     directory: str, service: str, resource: str, label: str | None = None
 ) -> dict[str, Any]:
@@ -5831,6 +5875,7 @@ def project_observe(
     scan_limit: int = 20,
     run_offset: int = 0,
     run_limit: int = 20,
+    since_revision: str | None = None,
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_observe as core
 
@@ -5840,6 +5885,7 @@ def project_observe(
         scan_limit=scan_limit,
         run_offset=run_offset,
         run_limit=run_limit,
+        since_revision=since_revision,
     )
 
 
@@ -6435,11 +6481,11 @@ def scan_navigation(
     return core(input_path=input_path, document_id=document_id, limit=limit, offset=offset)
 
 
-def project_activity(directory: str) -> dict[str, Any]:
+def project_activity(directory: str, since_revision: str | None = None) -> dict[str, Any]:
     """Read lightweight current activity for a local project and its sites."""
     from seohead.projects.observer import observe_activity as core
 
-    return core(directory=directory)
+    return core(directory=directory, since_revision=since_revision)
 
 
 def project_checklist_page(
@@ -7114,6 +7160,9 @@ def scan_import_urls(input_path: str, urls_file: str, backup_path: str) -> dict[
 
 
 _RAW_HANDLERS = {
+    "doctor": doctor,
+    "update_check": update_check,
+    "update_download": update_download,
     "parse": parse,
     "redirects_generate": redirects_generate,
     "redirects_check": redirects_check,

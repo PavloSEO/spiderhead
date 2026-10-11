@@ -7,7 +7,9 @@ scan-history and inbox stores.  It owns no crawl, task, finding, or job state.
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
+import re
 from collections import OrderedDict
 from contextlib import closing
 from datetime import datetime, timezone
@@ -46,6 +48,8 @@ _FINDINGS_CACHE_LIMIT = 8
 _FINDINGS_CACHE_MAX_BYTES = 8 * 1024 * 1024
 _FINDINGS_CACHE: OrderedDict[tuple[Any, ...], dict[str, Any]] = OrderedDict()
 _FINDINGS_CACHE_LOCK = RLock()
+_REVISION = re.compile(r"[0-9a-f]{64}\Z")
+_VOLATILE_REVISION_KEYS = {"observed_at", "age_seconds", "current_rate_per_second"}
 
 
 def _log(root: Path) -> dict[str, Any]:
@@ -55,6 +59,35 @@ def _log(root: Path) -> dict[str, Any]:
         stream.seek(max(0, size - LOG_BYTES))
         text = stream.read(LOG_BYTES).decode("utf-8", errors="replace")
     return {"text": text, "truncated": size > LOG_BYTES, "bytes": size}
+
+
+def _stable_projection(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {
+            key: _stable_projection(item)
+            for key, item in value.items()
+            if key not in _VOLATILE_REVISION_KEYS
+        }
+    if isinstance(value, list):
+        return [_stable_projection(item) for item in value]
+    return value
+
+
+def _revisioned(
+    payload: dict[str, Any], since_revision: str | None
+) -> dict[str, Any]:
+    if since_revision is not None and (
+        not isinstance(since_revision, str) or not _REVISION.fullmatch(since_revision)
+    ):
+        raise ValueError("since_revision must be a 64-character lowercase SHA-256 token")
+    stable = _stable_projection(payload)
+    encoded = json.dumps(
+        stable, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode("utf-8")
+    revision = hashlib.sha256(encoded).hexdigest()
+    if since_revision == revision:
+        return {"ok": True, "revision": revision, "not_modified": True}
+    return {**payload, "revision": revision, "not_modified": False}
 
 
 def _stat_state(path: Path) -> tuple[int, int, int, int] | None:
@@ -875,8 +908,13 @@ def observe(
     scan_limit: int = 20,
     run_offset: int = 0,
     run_limit: int = 20,
+    since_revision: str | None = None,
 ) -> dict[str, Any]:
     """Return a bounded observer snapshot without changing project evidence."""
+    if since_revision is not None and (
+        not isinstance(since_revision, str) or not _REVISION.fullmatch(since_revision)
+    ):
+        raise ValueError("since_revision must be a 64-character lowercase SHA-256 token")
     if type(scan_limit) is not int or not 1 <= scan_limit <= 100:
         raise ValueError("scan_limit must be from 1 to 100")
     _pagination(0, run_offset, run_limit)
@@ -1008,7 +1046,7 @@ def observe(
     )
     if consumer is not None:
         snapshot["inbox_unread"] = unread_summary(root, consumer=consumer)
-    return snapshot
+    return _revisioned(snapshot, since_revision)
 
 
 def _pagination(total: int, offset: int, limit: int) -> dict:
@@ -1154,8 +1192,14 @@ def scans_page(directory: str | Path, *, offset: int = 0, limit: int = 20) -> di
     }
 
 
-def observe_activity(directory: str | Path) -> dict:
+def observe_activity(
+    directory: str | Path, *, since_revision: str | None = None
+) -> dict:
     """Cheap collector telemetry; never open retained scans or compute task coverage."""
+    if since_revision is not None and (
+        not isinstance(since_revision, str) or not _REVISION.fullmatch(since_revision)
+    ):
+        raise ValueError("since_revision must be a 64-character lowercase SHA-256 token")
     from .run_observation import status as run_status
     from .runtime import preparation_status
 
@@ -1205,8 +1249,8 @@ def observe_activity(directory: str | Path) -> dict:
                     "runs": {"state": "unavailable", "reason": str(exc), "items": []},
                 }
             )
-    return {
+    return _revisioned({
         "ok": True,
         "observed_at": datetime.now(timezone.utc).isoformat(),
         "sites": {"total": len(sites), "items": sites},
-    }
+    }, since_revision)

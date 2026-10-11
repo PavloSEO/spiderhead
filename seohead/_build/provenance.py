@@ -19,6 +19,7 @@ from base64 import urlsafe_b64encode
 from collections.abc import Collection
 from csv import reader
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,7 @@ class PackagedProvenance:
 
     version: str
     revision: str
+    built_at: str | None = None
 
 
 def package_source_files(source_root: Path) -> tuple[str, ...]:
@@ -87,10 +89,20 @@ def build_manifest(source_root: Path, *, version: str, revision: str) -> dict[st
     files = package_source_files(source_root)
     if not files:
         raise BuildProvenanceError("packaged provenance has no runtime source files")
+    source_date_epoch = os.environ.get("SOURCE_DATE_EPOCH")
+    try:
+        built_at = (
+            datetime.fromtimestamp(int(source_date_epoch), timezone.utc)
+            if source_date_epoch is not None
+            else datetime.now(timezone.utc)
+        )
+    except (OverflowError, OSError, ValueError) as exc:
+        raise BuildProvenanceError("SOURCE_DATE_EPOCH must be a valid Unix timestamp") from exc
     return {
         "manifest_version": MANIFEST_VERSION,
         "package_version": version,
         "revision": revision,
+        "built_at": built_at.isoformat(timespec="seconds").replace("+00:00", "Z"),
         "files": {relative: _digest(source_root / relative) for relative in files},
     }
 
@@ -153,7 +165,10 @@ def validate_manifest(
 ) -> PackagedProvenance:
     """Validate schema and every packaged Python hash without mutating runtime files."""
     value = _read_manifest(source_root) if manifest is None else manifest
-    if set(value) != {"manifest_version", "package_version", "revision", "files"}:
+    if set(value) not in (
+        {"manifest_version", "package_version", "revision", "files"},
+        {"manifest_version", "package_version", "revision", "built_at", "files"},
+    ):
         raise BuildProvenanceError("packaged producer metadata has an unsupported schema")
     if type(value["manifest_version"]) is not int or value["manifest_version"] != MANIFEST_VERSION:
         raise BuildProvenanceError("packaged producer metadata version is unsupported")
@@ -161,6 +176,20 @@ def validate_manifest(
         raise BuildProvenanceError("packaged producer metadata has an invalid package version")
     if not isinstance(value["revision"], str) or not _REVISION.fullmatch(value["revision"]):
         raise BuildProvenanceError("packaged producer metadata has an invalid Git revision")
+    built_at = value.get("built_at")
+    if "built_at" in value:
+        if not isinstance(built_at, str):
+            raise BuildProvenanceError("packaged producer metadata has an invalid build time")
+        try:
+            parsed_built_at = datetime.fromisoformat(built_at.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise BuildProvenanceError("packaged producer metadata has an invalid build time") from exc
+        if (
+            parsed_built_at.tzinfo is None
+            or parsed_built_at.utcoffset() != timezone.utc.utcoffset(parsed_built_at)
+            or not built_at.endswith("Z")
+        ):
+            raise BuildProvenanceError("packaged producer metadata has an invalid build time")
     files = value["files"]
     if not isinstance(files, dict) or not files:
         raise BuildProvenanceError("packaged producer metadata has no source hashes")
@@ -172,7 +201,9 @@ def validate_manifest(
             raise BuildProvenanceError("packaged producer metadata has an invalid source hash")
         if not _SHA256.fullmatch(expected_hash) or _digest(source_root / relative) != expected_hash:
             raise BuildProvenanceError(f"packaged producer source hash does not match: {relative}")
-    return PackagedProvenance(version=value["package_version"], revision=value["revision"])
+    return PackagedProvenance(
+        version=value["package_version"], revision=value["revision"], built_at=built_at
+    )
 
 
 def _verify_installed_manifest_record(path: Path) -> None:
