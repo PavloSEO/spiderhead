@@ -183,6 +183,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--metrics-json",
         help="Optional JSON map of named local font profiles for measured pixel widths",
     )
+    snippets.add_argument("--scan", help="Optional saved scan.v1 artifact for retained-page context")
+    snippets.add_argument("--query", help="Explicit search query for a retained-page text excerpt")
+    snippets.add_argument(
+        "--representation",
+        choices=("static", "rendered", "legacy_fragment"),
+        default="static",
+    )
+    snippets.add_argument("--variant-key", help="Optional exact retained browser variant")
+    snippets.add_argument("--content-area-json", help="Optional content-area configuration JSON")
+    snippets.add_argument("--max-body-bytes", type=int, default=8 * 1024 * 1024)
     return parser
 
 
@@ -441,6 +451,8 @@ def _run_snippet_edits(args) -> int:
     from pathlib import Path
 
     from .snippet_edits import (
+        attach_retained_context,
+        attach_retained_measurements,
         build_snippet_tasks,
         measure_snippet_edits,
         parse_snippet_csv,
@@ -451,9 +463,32 @@ def _run_snippet_edits(args) -> int:
         text = Path(args.csv).read_text(encoding="utf-8-sig")
         parsed = parse_snippet_csv(text)
         tasks = build_snippet_tasks(parsed)
-        if args.metrics_json:
-            metrics = json.loads(Path(args.metrics_json).read_text(encoding="utf-8"))
+        if args.query and not args.scan:
+            raise ValueError("--query requires --scan")
+        metrics = (
+            json.loads(Path(args.metrics_json).read_text(encoding="utf-8"))
+            if args.metrics_json
+            else None
+        )
+        if metrics is not None:
             tasks["measurements"] = measure_snippet_edits(parsed["edits"], metrics)
+        if args.scan:
+            content_area = (
+                json.loads(Path(args.content_area_json).read_text(encoding="utf-8"))
+                if args.content_area_json
+                else None
+            )
+            tasks = attach_retained_context(
+                tasks,
+                args.scan,
+                representation=args.representation,
+                variant_key=args.variant_key,
+                query=args.query,
+                content_area=content_area,
+                max_decoded_bytes=args.max_body_bytes,
+            )
+            if metrics is not None:
+                tasks = attach_retained_measurements(tasks, metrics)
         path = write_snippet_tasks(tasks, args.out)
     except (OSError, ValueError, json.JSONDecodeError) as err:
         print(f"error: cannot export snippet tasks: {err}", file=sys.stderr)

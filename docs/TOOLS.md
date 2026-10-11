@@ -778,6 +778,7 @@ seohead sf run --crawl https://example.com --out report --tasks         # mode A
 seohead sf doctor                                                    # diagnostics
 seohead sf tasks --json report/audit.json                            # backlog from a report
 seohead sf snippet-edits --csv proposed.csv --out snippet-tasks.json  # import -> review tasks
+seohead sf snippet-edits --csv proposed.csv --scan ./scan.sqlite --query "red pump" --out snippet-tasks.json
 ```
 
 Note: `sf tasks` takes the audit path via the required `--json` flag, not as
@@ -785,16 +786,40 @@ a positional argument (`seohead/sf/cli.py`).
 
 `sf snippet-edits` imports a bounded CSV with `url` plus `title` and/or `description` and exports
 each valid row as an unapplied `snippet_tasks.v1` review candidate. Bad rows retain their source
-line and reason; an existing output file is never replaced. The matching MCP tool
+line and reason; each task and proposed goal reference carries the decoded input CSV content
+hash and source line. An existing output file is never replaced. The matching MCP tool
 `sf_snippet_edits` accepts supplied CSV text and writes the same artifact. Optional named font
-profiles can measure local-font text widths (`font_path`, `font_size`), but these measurements do
-not predict search-engine rendering or truncation. No Google/Yandex profile, pixel threshold, or
-new check id is selected by default; `TITLE_TOO_LONG` and `DESC_TOO_LONG` remain the existing audit
-checks for measurements actually present in the audit evidence.
+profiles measure the proposed text with a caller-supplied local font and exact title/description
+widths. Each result records the font filename and SHA-256, font size, width map, and any caller-declared
+engine, device, locale, and source. A local fit preview records the source width, available width,
+displayed text, displayed width, and whether this local ellipsis rule shortened it; it makes no
+claim about a search engine's rendered result.
 
-The optional metrics file is a JSON object keyed by caller-chosen profile names, for example
-`{"local-font":{"font_path":"./font.ttf","font_size":20}}`. Widths are rounded up to whole
-pixels. Font files and sizes are explicit inputs and are not distributed with the toolkit.
+For example, a profile contains `font_path`, `font_size_px`, `widths_px` (with `title` and/or
+`description`), and optional provenance fields such as `device`, `locale`, and `source`. A single
+`available_width_px` may replace `widths_px` when both fields use the same width. The font file and
+the width values come from the caller; SpiderHead does not select a font, viewport, or threshold.
+Google says snippets are query-specific, generated from page content and sometimes meta
+descriptions, and shortened to fit device width. Yandex says titles may vary by query and are
+limited by device-screen width, while description text is chosen for query relevance. Neither
+publishes the font metrics or fixed pixel budgets needed to claim an exact engine preview ([Google
+snippet documentation](https://developers.google.com/search/docs/appearance/snippet), [Yandex
+title and description](https://yandex.ru/support/webmaster/ru/search-results/title-and-description),
+[Yandex title guidance](https://yandex.ru/support/webmaster/ru/search-results/title)).
+No engine-specific profile, audit pixel threshold, or new check id is selected by default;
+`TITLE_TOO_LONG` and `DESC_TOO_LONG` remain the existing audit checks for measurements actually
+present in the audit evidence.
+
+Passing `--scan` adds content and metadata from the exact retained URL and selected representation,
+with no fetch fallback. An explicit `--query` adds a bounded excerpt from the retained content area;
+`data-nosnippet` text is excluded and common credential-shaped values in the excerpt are redacted.
+Results carry scan UUID, document id, representation, raw-body
+hash and decoded-text hash. When metrics are supplied, the same profiles measure retained
+title/description metadata and the query excerpt. Body decoding is capped at 8 MiB by default
+(`--max-body-bytes`, up to 64 MiB); a missing or over-budget document stays unavailable. The
+spelling result in CLI/MCP artifacts is `skipped`, never clean. The pure helper accepts a
+caller-injected backend, but no CLI/MCP backend is packaged or selected. The equivalent MCP
+arguments are `retained_scan`, `query`, `representation`, and optional `content_area`.
 
 Retained-text spelling has a backend-neutral core in `seohead/checks/spellcheck.py`. With no
 backend it returns `skipped`, never a clean spelling result. Hunspell dictionaries and a grammar
