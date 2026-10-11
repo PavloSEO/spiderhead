@@ -1365,6 +1365,12 @@ CHECKS: dict[str, dict[str, Any]] = {
         "message": "Received Content-Type conflicts with an unambiguous URL filename extension",
         "fix": "Confirm the response Content-Type and URL extension describe the intended resource; this is a declaration consistency signal, not full MIME validation.",
     },
+    "BODY_MIME_MISMATCH": {
+        "severity": "warning",
+        "source": "crawl:body_mime",
+        "message": "Retained response body does not match its declared Content-Type",
+        "fix": "Serve the resource with a Content-Type that matches its body, or return the intended body.",
+    },
     "URL_SESSION_ID": {
         "severity": "warning",
         "source": "SF-derived",

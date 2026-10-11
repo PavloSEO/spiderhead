@@ -2195,6 +2195,28 @@ def _audit_crawl_result(
         for check_id in security_headers.CHECK_IDS:
             ctx.skip(check_id, "crawl was not stored; per-URL response headers are not retained")
 
+    # Body MIME is separate from the existing extension-vs-header consistency check: it uses
+    # the exact retained response body and reports unsupported or missing evidence as a skip.
+    from seohead.crawl import body_mime
+
+    if stored_scan is not None:
+        body_evidence = body_mime.evaluate(stored_scan.con)
+        for item in body_evidence["findings"]:
+            ctx.add(body_mime.CHECK_ID, target_url=item["target_url"], details=item)
+        if not body_evidence["findings"]:
+            if body_evidence["pages_unmeasured"]:
+                ctx.skip(
+                    body_mime.CHECK_ID,
+                    f"{body_evidence['pages_unmeasured']} page response body/bodies were unavailable, exceeded the byte limit, or had an ambiguous signature",
+                )
+            elif not body_evidence["pages_measured"]:
+                ctx.skip(
+                    body_mime.CHECK_ID,
+                    "no retained page response had a supported Content-Type and recognizable body signature",
+                )
+    else:
+        ctx.skip(body_mime.CHECK_ID, "crawl was not stored; per-URL response bodies are unavailable")
+
     if stored_scan is not None:
         from seohead.storage.retained_link_findings import RetainedLinkFindings
 

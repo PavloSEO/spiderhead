@@ -100,11 +100,7 @@ CATEGORIES: dict[str, list[Entry]] = {
         _c("Missing X-Content-Type-Options Header", "MISSING_X_CONTENT_TYPE_OPTIONS"),
         _c("Missing X-Frames-Options Header", "MISSING_X_FRAME_OPTIONS"),
         _c("Missing Secure Referrer-Policy Header", "MISSING_REFERRER_POLICY"),
-        _p(
-            "Bad Content Type",
-            "content type is recorded and drives HTML detection, but a mismatch between the "
-            "declared type and the body is not asserted",
-        ),
+        _c("Bad Content Type", "BODY_MIME_MISMATCH", "DECLARED_MIME_MISMATCH"),
     ],
     "URL": [
         _c("Multiple Slashes", "URL_MULTIPLE_SLASHES"),
