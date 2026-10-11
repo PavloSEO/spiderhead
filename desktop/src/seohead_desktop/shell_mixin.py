@@ -124,7 +124,7 @@ class ShellMixin:
         """26 px bar: transient messages on the left, source / display mode / core on the right."""
         bar = self.statusBar()
         bar.setSizeGripEnabled(False)
-        bar.setContentsMargins(0, 0, 8, 0)  # keep the right-hand core/source text 8 px off the window edge in every theme
+        bar.setContentsMargins(0, 0, 12, 0)  # keep the right-hand core/source text off the window edge in every theme
         self.source_badge = ElidedLabel("Проект не открыт")
         self.source_badge.setObjectName("sourceBadge")
         self.source_badge.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)

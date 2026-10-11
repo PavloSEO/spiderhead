@@ -64,6 +64,7 @@ def render_modal(dialog, width, height, theme, lang):
     window = MainWindow(persistent=False)
     window.prefs.set("view.theme", theme)
     window.prefs.set("view.language", lang)
+    window.prefs.set("shell.onboarding_done", True)  # clean background: no first-run wizard behind the dialog
     window.show_startup_workspace()
     if OPTIONS.get("project"):
         open_project(window, OPTIONS["project"])
@@ -77,7 +78,7 @@ def render_modal(dialog, width, height, theme, lang):
     window.render(image)
     size = dialog.size().boundedTo(image.size() * 0.92)
     dialog.setAttribute(Qt.WA_DontShowOnScreen, True)
-    cap = getattr(dialog, "capture_max", (920, 640))
+    cap = getattr(dialog, "capture_max", (1100, 720))  # the dialog's own default size
     dialog.resize(min(size.width(), cap[0]), min(size.height(), cap[1]))
     dialog.show()
     QApplication.processEvents()

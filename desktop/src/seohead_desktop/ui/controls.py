@@ -115,6 +115,7 @@ class SettingRow(QFrame):
         self.title = QLabel(title)
         self.title.setProperty("text_style", "control")
         self.title.setWordWrap(True)
+        self.title.setMinimumWidth(200)
         text.addWidget(self.title)
         self.later_badge = QLabel("Заработает позже")   # under the label: a badge beside it squeezes the label
         self.later_badge.setProperty("later", True)

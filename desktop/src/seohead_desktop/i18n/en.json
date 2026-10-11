@@ -2492,5 +2492,7 @@
  "Цель 301": "301 target",
  "— не указана —": "— not set —",
  "Старые адреса → правила": "Old addresses → rules",
- "Вставьте старые адреса выше: таблица заполнится по строкам списка.": "Paste the old addresses above: the table fills in line by line."
+ "Вставьте старые адреса выше: таблица заполнится по строкам списка.": "Paste the old addresses above: the table fills in line by line.",
+ "Сведения": "Info",
+ "Исходник": "Source code"
 }
