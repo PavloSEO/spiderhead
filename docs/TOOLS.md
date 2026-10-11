@@ -823,9 +823,12 @@ arguments are `retained_scan`, `query`, `representation`, and optional `content_
 
 Retained-text spelling has a backend-neutral core in `seohead/checks/spellcheck.py`. With no
 backend it returns `skipped`, never a clean spelling result. Hunspell dictionaries and a grammar
-service are not installed or called by default. Backend packaging, dictionary provenance/licensing,
-project word lists, and wiring into retained-body analysis remain owner decisions. Existing
-`SPELLING_ERRORS` and `GRAMMAR_ERRORS` audit checks consume supplied SF fields. The existing
+service are not installed or called by default. A Python host may inject a backend and per-call
+`ignore_words`; no persistent project dictionary is configured. Hunspell dictionary provenance
+and licensing remain open. The retained-document helper returns per-URL spelling results, but does
+not promote them into native audit findings without an approved backend and check policy. Existing
+`SPELLING_ERRORS` and `GRAMMAR_ERRORS` audit checks consume supplied SF fields. Grammar-service
+integration remains separate. The existing
 `H2_MISSING`, `HEADING_SKIP`, and `READABILITY_DIFFICULT` checks are reused; this feature adds no
 duplicate variants or unapproved “very difficult” threshold.
 
