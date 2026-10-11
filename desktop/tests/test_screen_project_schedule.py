@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PyQt5.QtWidgets import QCheckBox, QLabel
+from PyQt5.QtWidgets import QLabel
 
 from seohead_desktop import i18n, schedule_core
 from seohead_desktop.app import load_theme
@@ -23,14 +23,33 @@ MODULE = "seohead_desktop.screens.project_schedule_page"
 def core_state(**changes):
     """What read_schedule returns for a project whose schedule.json has these settings (the core's shape)."""
     settings = copy.deepcopy(schedule_core.DEFAULT_SETTINGS)
-    settings.update({"enabled": True, "weekdays": ["mon", "thu"], "month_days": [1], "time_zone": "Europe/Minsk",
-                     "include_competitors": True})
-    settings["crawl"].update({"mode": "sitemap", "sitemap_url": "https://example.by/sitemap.xml", "max_urls": 4000,
-                              "min_delay_seconds": 2.0})
+    settings.update(
+        {
+            "enabled": True,
+            "weekdays": ["mon", "thu"],
+            "month_days": [1],
+            "time_zone": "Europe/Minsk",
+            "include_competitors": True,
+        }
+    )
+    settings["crawl"].update(
+        {
+            "mode": "sitemap",
+            "sitemap_url": "https://example.by/sitemap.xml",
+            "max_urls": 4000,
+            "min_delay_seconds": 2.0,
+        }
+    )
     settings["user_agent"] = {"preset": "bingbot", "custom": None}
-    state = {"revision": 7, "settings": settings, "next_run": "12.10.2026 01:00",
-             "last_run": {"at": "05.10.2026 01:00", "status": "ok"}, "zone": "Europe/Minsk", "resume": False,
-             "due_now": False}
+    state = {
+        "revision": 7,
+        "settings": settings,
+        "next_run": "12.10.2026 01:00",
+        "last_run": {"at": "05.10.2026 01:00", "status": "ok"},
+        "zone": "Europe/Minsk",
+        "resume": False,
+        "due_now": False,
+    }
     state.update(changes)
     return state
 
@@ -95,7 +114,10 @@ class ScheduleTabTests(unittest.TestCase):
             page = SchedulePage(self.host)
             self.wait(lambda: page.state is not None)
         self.assertTrue(page.enabled.isChecked())
-        self.assertEqual(sorted(name for name, check in page.weekdays.items() if check.isChecked()), ["mon", "thu"])
+        self.assertEqual(
+            sorted(name for name, check in page.weekdays.items() if check.isChecked()),
+            ["mon", "thu"],
+        )
         self.assertEqual(page.month_days.text(), "1")
         self.assertEqual(page.time_zone.currentData(), "Europe/Minsk")
         self.assertIn("Следующий запуск: 12.10.2026 01:00", page.status.text())
@@ -111,7 +133,10 @@ class ScheduleTabTests(unittest.TestCase):
             sent.append((executable, directory, revision, settings))
             return core_state(revision=8)
 
-        with patch(f"{MODULE}.read_schedule", return_value=core_state()), patch(f"{MODULE}.save_schedule", side_effect=save):
+        with (
+            patch(f"{MODULE}.read_schedule", return_value=core_state()),
+            patch(f"{MODULE}.save_schedule", side_effect=save),
+        ):
             page = SchedulePage(self.host)
             self.wait(lambda: page.state is not None)
             page.enabled.setChecked(False)
@@ -125,7 +150,10 @@ class ScheduleTabTests(unittest.TestCase):
         page.close()
 
     def test_bad_month_days_are_refused_before_any_core_call(self):
-        with patch(f"{MODULE}.read_schedule", return_value=core_state()), patch(f"{MODULE}.save_schedule") as save:
+        with (
+            patch(f"{MODULE}.read_schedule", return_value=core_state()),
+            patch(f"{MODULE}.save_schedule") as save,
+        ):
             page = SchedulePage(self.host)
             self.wait(lambda: page.state is not None)
             page.month_days.setText("1, пятнадцать")
@@ -138,7 +166,10 @@ class ScheduleTabTests(unittest.TestCase):
         def refuse(*_args):
             raise ValueError("schedule revision conflict")
 
-        with patch(f"{MODULE}.read_schedule", return_value=core_state()), patch(f"{MODULE}.save_schedule", side_effect=refuse):
+        with (
+            patch(f"{MODULE}.read_schedule", return_value=core_state()),
+            patch(f"{MODULE}.save_schedule", side_effect=refuse),
+        ):
             page = SchedulePage(self.host)
             self.wait(lambda: page.state is not None)
             page.save()
@@ -149,8 +180,13 @@ class ScheduleTabTests(unittest.TestCase):
 
     def test_custom_user_agent_enables_the_field_and_is_saved_on_the_default_preset(self):
         sent = []
-        with patch(f"{MODULE}.read_schedule", return_value=core_state()), \
-                patch(f"{MODULE}.save_schedule", side_effect=lambda *a: (sent.append(a[3]), core_state())[1]):
+        with (
+            patch(f"{MODULE}.read_schedule", return_value=core_state()),
+            patch(
+                f"{MODULE}.save_schedule",
+                side_effect=lambda *a: (sent.append(a[3]), core_state())[1],
+            ),
+        ):
             page = CrawlPage(self.host)
             self.wait(lambda: page.state is not None)
             self.assertFalse(page.custom.isEnabled())
@@ -163,7 +199,10 @@ class ScheduleTabTests(unittest.TestCase):
         page.close()
 
     def test_empty_custom_user_agent_is_refused_locally(self):
-        with patch(f"{MODULE}.read_schedule", return_value=core_state()), patch(f"{MODULE}.save_schedule") as save:
+        with (
+            patch(f"{MODULE}.read_schedule", return_value=core_state()),
+            patch(f"{MODULE}.save_schedule") as save,
+        ):
             page = CrawlPage(self.host)
             self.wait(lambda: page.state is not None)
             page.preset.setCurrentIndex(page.preset.findData("custom"))
@@ -175,8 +214,13 @@ class ScheduleTabTests(unittest.TestCase):
 
     def test_crawl_page_sends_mode_list_delay_budget_and_slice(self):
         sent = []
-        with patch(f"{MODULE}.read_schedule", return_value=core_state()), \
-                patch(f"{MODULE}.save_schedule", side_effect=lambda *a: (sent.append(a[3]), core_state())[1]):
+        with (
+            patch(f"{MODULE}.read_schedule", return_value=core_state()),
+            patch(
+                f"{MODULE}.save_schedule",
+                side_effect=lambda *a: (sent.append(a[3]), core_state())[1],
+            ),
+        ):
             page = CrawlPage(self.host)
             self.wait(lambda: page.state is not None)
             page.mode.setCurrentIndex(page.mode.findData("list"))
@@ -186,8 +230,10 @@ class ScheduleTabTests(unittest.TestCase):
             page.save()
             self.wait(lambda: sent)
         crawl = sent[0]["crawl"]
-        self.assertEqual((crawl["mode"], crawl["urls"], crawl["min_delay_seconds"], crawl["max_urls"]),
-                         ("list", ["https://example.by/a", "https://example.by/b"], 0.5, 1500))
+        self.assertEqual(
+            (crawl["mode"], crawl["urls"], crawl["min_delay_seconds"], crawl["max_urls"]),
+            ("list", ["https://example.by/a", "https://example.by/b"], 0.5, 1500),
+        )
         page.close()
 
     def test_no_page_shows_sample_schedules_or_issue_numbers(self):
@@ -197,7 +243,10 @@ class ScheduleTabTests(unittest.TestCase):
         visible = " ".join(label.text() for label in page.findChildren(QLabel))
         self.assertNotIn("Полный обход", visible)
         self.assertNotIn("#", visible)
-        self.assertEqual(len(page.findChildren(QCheckBox)), 9)  # enabled, seven weekdays, competitors
+        self.assertEqual(len(page.weekdays), 7)
+        self.assertEqual(len(page.month_buttons), 31)
+        self.assertTrue(page.enabled.isCheckable())
+        self.assertTrue(page.competitors.isCheckable())
         page.close()
 
     def test_overview_summary_states(self):

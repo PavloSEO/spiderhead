@@ -163,13 +163,13 @@ class Note(QFrame):
 
     ICONS = {"warn": "warning", "info": "lightbulb", "error": "error", "success": "check_circle"}
 
-    def __init__(self, kind, title, text="", action=None, parent=None):
+    def __init__(self, kind, title, text="", action=None, parent=None, icon=None):
         super().__init__(parent)
         self.setProperty("note", kind)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(12, 10, 12, 10)
         layout.setSpacing(10)
-        layout.addWidget(MaterialIconLabel(self.ICONS[kind], 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop)
+        layout.addWidget(MaterialIconLabel(icon or self.ICONS[kind], 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop)
         body = QLabel(trf("<b>{title}</b> {text}", title=title, text=text) if text else trf("<b>{title}</b>", title=title))
         body.setTextFormat(Qt.RichText)
         body.setWordWrap(True)

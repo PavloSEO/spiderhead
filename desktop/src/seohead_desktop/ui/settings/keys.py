@@ -8,7 +8,6 @@ from pathlib import Path
 from PyQt5.QtCore import QEvent, Qt, pyqtSignal
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import (
-    QBoxLayout,
     QFileDialog,
     QFrame,
     QHBoxLayout,
@@ -29,15 +28,13 @@ ID, ICON, TITLE = "keys", "keyboard", "Горячие клавиши"
 HINT = "Сочетания по группам; конфликты подсвечиваются"
 SCHEMA = shortcuts.schema()
 
-COLUMNS_MIN_WIDTH = 720
-
 _MODIFIER_KEYS = {Qt.Key_Control, Qt.Key_Shift, Qt.Key_Alt, Qt.Key_Meta, Qt.Key_AltGr}
 
 
 class KeyCapture(QFrame):
     """Key caps of one shortcut; click (or Enter/Space) starts recording, Esc cancels it."""
 
-    captured = pyqtSignal(str)       # portable text of the recorded chord
+    captured = pyqtSignal(str)  # portable text of the recorded chord
     recording_changed = pyqtSignal(bool)
 
     def __init__(self, accessible_name, parent=None):
@@ -57,7 +54,9 @@ class KeyCapture(QFrame):
         prompt_layout = QHBoxLayout(self._prompt)
         prompt_layout.setContentsMargins(6, 0, 6, 0)
         prompt_layout.setSpacing(6)
-        self._prompt_icon = MaterialIconLabel("radio_button_unchecked", 16, color=theming.roles()["on_selected"])
+        self._prompt_icon = MaterialIconLabel(
+            "radio_button_unchecked", 16, color=theming.roles()["on_selected"]
+        )
         prompt_layout.addWidget(self._prompt_icon)
         prompt_text = QLabel("Нажмите сочетание…")
         prompt_text.setProperty("kbd_prompt", True)
@@ -68,7 +67,9 @@ class KeyCapture(QFrame):
         self.set_value("")
 
     def _retint(self, _name):
-        self._prompt_icon.set_material_icon("radio_button_unchecked", theming.roles()["on_selected"])
+        self._prompt_icon.set_material_icon(
+            "radio_button_unchecked", theming.roles()["on_selected"]
+        )
 
     def set_value(self, portable, bad=False):
         while self._caps.count():
@@ -84,7 +85,13 @@ class KeyCapture(QFrame):
                 cap.setProperty("na", True)
             self._caps.addWidget(cap)
             cap.setVisible(not self._recording)
-        self.setAccessibleName(trf("{title}: {keys}", title=self._title, keys=shortcuts.display(portable) or "не задано"))
+        self.setAccessibleName(
+            trf(
+                "{title}: {keys}",
+                title=self._title,
+                keys=shortcuts.display(portable) or "не задано",
+            )
+        )
 
     def is_recording(self):
         return self._recording
@@ -116,7 +123,7 @@ class KeyCapture(QFrame):
         super().focusOutEvent(event)
 
     def event(self, event):
-        if self._recording and event.type() == QEvent.ShortcutOverride:   # let ⌘W, ⌘, … be recorded
+        if self._recording and event.type() == QEvent.ShortcutOverride:  # let ⌘W, ⌘, … be recorded
             event.accept()
             return True
         return super().event(event)
@@ -131,7 +138,13 @@ class KeyCapture(QFrame):
         if event.key() == Qt.Key_Escape:
             self.stop()
         elif event.key() not in _MODIFIER_KEYS:
-            chord = int(event.modifiers() & (Qt.ControlModifier | Qt.ShiftModifier | Qt.AltModifier | Qt.MetaModifier)) | event.key()
+            chord = (
+                int(
+                    event.modifiers()
+                    & (Qt.ControlModifier | Qt.ShiftModifier | Qt.AltModifier | Qt.MetaModifier)
+                )
+                | event.key()
+            )
             self.stop()
             self.captured.emit(QKeySequence(chord).toString(QKeySequence.PortableText))
 
@@ -160,7 +173,7 @@ class ShortcutRow(SettingRow):
         self.setProperty("setting_key", shortcuts.key(action.id))
         self.setProperty("shortcut", True)
         self.layout().setContentsMargins(0, 6, 0, 6)
-        self._pending = None            # (portable, replaceable) of a recorded chord waiting for 'Заменить'
+        self._pending = None  # (portable, replaceable) of a recorded chord waiting for 'Заменить'
         if action.fixed:
             self.capture.setEnabled(False)
             self.capture.setToolTip("Сочетание фиксировано")
@@ -171,7 +184,11 @@ class ShortcutRow(SettingRow):
         self.refresh()
 
     def value(self):
-        return self.action.default if self.action.fixed else self.store.get(shortcuts.key(self.action.id))
+        return (
+            self.action.default
+            if self.action.fixed
+            else self.store.get(shortcuts.key(self.action.id))
+        )
 
     def refresh(self):
         pending = self._pending[0] if self._pending else None
@@ -180,7 +197,10 @@ class ShortcutRow(SettingRow):
         self.replace_button.setVisible(bool(self._pending and self._pending[1]))
         if bool(self._pending) != bool(self.property("conflict")):
             self.setProperty("conflict", bool(self._pending))
-            for widget in [self, *self.findChildren(QWidget)]:   # descendants do not restyle with the parent
+            for widget in [
+                self,
+                *self.findChildren(QWidget),
+            ]:  # descendants do not restyle with the parent
                 polish(widget)
 
     def _clear_state(self):
@@ -194,12 +214,20 @@ class ShortcutRow(SettingRow):
 
     def _on_captured(self, portable):
         normal, error = shortcuts.normalise(portable)
-        other = shortcuts.conflict(self.store, self.action.id, normal) if normal is not None else None
+        other = (
+            shortcuts.conflict(self.store, self.action.id, normal) if normal is not None else None
+        )
         if normal is None:
             self.set_error(error)
         elif other is not None:
             self._pending = (normal, not other.fixed)
-            self.set_error(trf("{keys} уже занято: «{title}»", keys=shortcuts.display(normal), title=other.title))
+            self.set_error(
+                trf(
+                    "{keys} уже занято: «{title}»",
+                    keys=shortcuts.display(normal),
+                    title=other.title,
+                )
+            )
         else:
             self.store.set(shortcuts.key(self.action.id), normal)
         self.refresh()
@@ -214,7 +242,7 @@ class ShortcutRow(SettingRow):
         self._clear_state()
         default = self.action.default
         other = shortcuts.conflict(self.store, self.action.id, default)
-        if other is not None:           # the default is taken by a customised action: clear that one first
+        if other is not None:  # the default is taken by a customised action: clear that one first
             self.store.set(shortcuts.key(other.id), "")
         self.store.set(shortcuts.key(self.action.id), default)
         self.refresh()
@@ -234,16 +262,13 @@ class KeysPage(QWidget):
         for index, groups in enumerate((shortcuts.GROUPS[:2], shortcuts.GROUPS[2:])):
             for group in groups:
                 columns[index].append(group_label(group))
-                columns[index].extend(r for a, r in zip(shortcuts.ACTIONS, self.rows.values()) if a.group == group)
+                columns[index].extend(
+                    r for a, r in zip(shortcuts.ACTIONS, self.rows.values()) if a.group == group
+                )
         columns[1].append(self._transfer_buttons())
         self._columns = two_columns(*columns)
         layout.addWidget(self._columns)
         store.changed.connect(self._on_changed)
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        narrow = self.width() < COLUMNS_MIN_WIDTH   # 800x800 window: one column instead of horizontal scroll
-        self._columns.layout().setDirection(QBoxLayout.TopToBottom if narrow else QBoxLayout.LeftToRight)
 
     def _transfer_buttons(self):
         box = QWidget()
@@ -278,22 +303,38 @@ class KeysPage(QWidget):
                 row.refresh()
 
     def export_file(self):
-        path, _filter = QFileDialog.getSaveFileName(self, tr("Экспорт сочетаний"), "seohead-shortcuts.json", "JSON (*.json)")
+        path, _filter = QFileDialog.getSaveFileName(
+            self, tr("Экспорт сочетаний"), "seohead-shortcuts.json", "JSON (*.json)"
+        )
         if path:
             try:
-                Path(path).write_text(json.dumps(shortcuts.export_bindings(self.store), ensure_ascii=False, indent=2), encoding="utf-8")
+                Path(path).write_text(
+                    json.dumps(shortcuts.export_bindings(self.store), ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
                 self._say(tr("Сочетания сохранены в файл"))
             except OSError as exc:
                 self._say(trf("Не удалось записать файл: {reason}", reason=exc.strerror or exc))
 
     def import_file(self):
-        path, _filter = QFileDialog.getOpenFileName(self, tr("Импорт сочетаний"), "", "JSON (*.json)")
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Импорт сочетаний"), "", "JSON (*.json)"
+        )
         if path:
             try:
-                error = shortcuts.import_bindings(self.store, json.loads(Path(path).read_text(encoding="utf-8")))
+                error = shortcuts.import_bindings(
+                    self.store, json.loads(Path(path).read_text(encoding="utf-8"))
+                )
             except (OSError, ValueError) as exc:
-                error = trf("Не удалось прочитать файл: {reason}", reason=getattr(exc, "strerror", None) or exc)
-            self._say(trf("Не импортировано. {error}", error=error) if error else tr("Сочетания загружены из файла"))
+                error = trf(
+                    "Не удалось прочитать файл: {reason}",
+                    reason=getattr(exc, "strerror", None) or exc,
+                )
+            self._say(
+                trf("Не импортировано. {error}", error=error)
+                if error
+                else tr("Сочетания загружены из файла")
+            )
 
 
 def build_page(store, context):

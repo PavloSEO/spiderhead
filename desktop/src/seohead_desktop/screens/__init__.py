@@ -12,6 +12,7 @@ SCREENS = {"scans": "scans:ScansScreen", "journal": "journal:JournalScreen", "wo
            "issues": "issues:IssuesScreen", "url": "url:UrlScreen", "reports": "project_export:ProjExportScreen"}
 # name -> "module:Class"; screens outside the navigation slots (start, first-run wizard), appended after the pages
 EXTRAS = {"start": "start:StartScreen", "onboarding": "onboarding:OnboardingScreen", "backlinks": "backlinks:BacklinksScreen", "logs_bots": "logs_bots:LogsBotsScreen",
+          "project_settings": "project_sources_page:ProjectSettingsPage",
           "help": "help:HelpScreen", "new_tab": "new_tab:NewTabScreen", "fatal": "fatal:FatalStatesScreen",
           "semantics_io": "semantics_io:SemImportScreen", "tools": "tools:ToolsScreen",
           "semantics": "semantics:SemanticsScreen", "tool_run": "tool_run:ToolRunScreen",
