@@ -173,16 +173,13 @@ class ShellV2Tests(unittest.TestCase):
         from seohead_desktop.screens.graph import GraphScreen
         from seohead_desktop.ui.kit import StatePanel
 
-        for section in ("methods",):
-            self.assertTrue(self.window.navigation.select_section(section))
-            page = self.window.pages.currentWidget()
-            self.assertIn(page, self.window.placeholder_pages.values())
-            panel = page.findChild(StatePanel)
-            self.assertEqual(panel.title.text(), "Граф ссылок" if section == "graph" else "Раздел готовится")
-            self.assertNotRegex(panel.text.text() + panel.title.text(), r"#\d")
-            if section == "graph":
-                self.assertEqual(panel.kind, "waiting")
-                self.assertEqual(panel.issue_label.property("waiting_issue"), 975)
+        from seohead_desktop.screens.tool_redirects import ToolRedirectsScreen
+
+        self.assertTrue(self.window.navigation.select_section("methods"))
+        page = self.window.pages.currentWidget()
+        self.assertIsInstance(page, ToolRedirectsScreen)
+        self.assertIn(page, self.window.placeholder_pages.values())
+        self.assertNotRegex("\n".join(label.text() for label in page.findChildren(QLabel)), r"#\d")
 
         self.assertTrue(self.window.navigation.select_section("crawler"))
         page = self.window.pages.currentWidget()
