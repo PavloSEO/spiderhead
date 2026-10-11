@@ -3061,8 +3061,11 @@ def backlinks_profile(
 
     if history_only:
         from seohead.data_sources.backlink_history import snapshot_history
+        from seohead.recon.net import normalize_domain
 
-        return snapshot_history(db=db, project=project, domain=domain, limit=limit, offset=offset)
+        return snapshot_history(
+            db=db, project=project, domain=normalize_domain(domain), limit=limit, offset=offset
+        )
 
     from seohead.recon.net import normalize_domain
 

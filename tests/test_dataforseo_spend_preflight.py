@@ -260,6 +260,12 @@ def test_profile_retained_history_handler_never_collects(monkeypatch, tmp_path):
     )
     history = handlers.backlinks_profile("example.com", db=str(database), history_only=True)
     assert history["total"] == 1
+    assert (
+        handlers.backlinks_profile("https://example.com/", db=str(database), history_only=True)[
+            "total"
+        ]
+        == 1
+    )
 
 
 @pytest.mark.parametrize("body", [[], None, "not an object"])
