@@ -124,6 +124,7 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
             note="Resumes retained crawl evidence and continues network collection.",
         ),
         _form("local_config", "config"),
+        _form("local_profile", "profile", note="Selects a saved local crawl profile by name."),
         _form(
             "project_directory",
             "project",
@@ -1428,6 +1429,7 @@ _KIND_LABELS = {
     "provider_query": "Provider query",
     "provider_identifier": "Provider identifier",
     "local_config": "Local configuration",
+    "local_profile": "Saved crawl profile",
     "local_directory": "Local directory",
     "project_directory": "Project directory",
     "no_input": "No direct input",

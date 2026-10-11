@@ -49,10 +49,38 @@ def saved_names() -> list[str]:
 def path_for(name: str) -> str:
     """Path of a saved profile, for ``crawl-site --config``."""
     target = _file_for(name)
+    if target.is_symlink():
+        raise ProfileError(f"crawl profile {name!r} must not be a symlink")
     if not target.is_file():
         known = ", ".join(saved_names()) or "none"
         raise ProfileError(f"no crawl profile {name!r}; saved profiles: {known}")
     return str(target)
+
+
+def show(name: str) -> dict[str, object]:
+    """Return the validated, credential-free JSON stored for ``name``."""
+    target = _file_for(name)
+    if target.is_symlink():
+        raise ProfileError(f"crawl profile {name!r} must not be a symlink")
+    if not target.is_file():
+        known = ", ".join(saved_names()) or "none"
+        raise ProfileError(f"no crawl profile {name!r}; saved profiles: {known}")
+    try:
+        with target.open(encoding="utf-8") as handle:
+            body = json.load(handle)
+    except OSError as exc:
+        raise ProfileError(f"cannot read crawl profile {name!r}: {exc}") from exc
+    except ValueError as exc:
+        raise ProfileError(f"crawl profile {name!r} is not valid JSON: {exc}") from exc
+    if not isinstance(body, dict):
+        raise ProfileError(f"crawl profile {name!r} must contain an object")
+    try:
+        validated = crawl_settings.load(str(target))
+    except crawl_settings.ConfigError as exc:
+        raise ProfileError(str(exc)) from exc
+    if validated["http"]["credential_headers"]:
+        raise ProfileError("a crawl profile cannot contain http.credential_headers")
+    return body
 
 
 def delete(name: str) -> None:

@@ -46,6 +46,41 @@ def test_empty_store_says_none(store):
         profiles.path_for("anything")
 
 
+def test_show_returns_validated_profile_json(store, tmp_path):
+    source = _write(tmp_path / "a.json", {"speed": {"concurrency": 3}})
+    profiles.save("fast", source)
+    assert profiles.show("fast") == {"speed": {"concurrency": 3}}
+
+
+def test_show_refuses_credentials_in_a_manually_edited_profile(store, tmp_path):
+    store.mkdir()
+    (store / "private.json").write_text(
+        json.dumps(
+            {
+                "http": {
+                    "credentials_acknowledged": True,
+                    "credential_headers": [
+                        {"host": "example.com", "headers": {"Authorization": "env:SEOHEAD_TOKEN"}}
+                    ],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(profiles.ProfileError, match="cannot contain http.credential_headers"):
+        profiles.show("private")
+
+
+def test_show_and_select_refuse_profile_symlinks(store, tmp_path):
+    source = _write(tmp_path / "outside.json", {})
+    store.mkdir()
+    (store / "linked.json").symlink_to(source)
+    with pytest.raises(profiles.ProfileError, match="must not be a symlink"):
+        profiles.show("linked")
+    with pytest.raises(profiles.ProfileError, match="must not be a symlink"):
+        profiles.path_for("linked")
+
+
 @pytest.mark.parametrize("name", ["", "Has Caps", "../escape", "a" * 65, "-leading"])
 def test_names_outside_the_safe_pattern_are_refused(store, tmp_path, name):
     with pytest.raises(profiles.ProfileError, match="profile name"):
@@ -137,6 +172,12 @@ def test_cli_lists_and_deletes_profiles(store, tmp_path, capsys):
     assert cli.main(["crawl-profile", "delete", "alpha"]) == 0
     assert json.loads(capsys.readouterr().out) == {"profile": "alpha", "deleted": True}
     assert profiles.saved_names() == ["beta"]
+
+
+def test_cli_shows_profile_as_json(store, tmp_path, capsys):
+    profiles.save("alpha", _write(tmp_path / "a.json", {"speed": {"concurrency": 3}}))
+    assert cli.main(["crawl-profile", "show", "alpha"]) == 0
+    assert json.loads(capsys.readouterr().out) == {"speed": {"concurrency": 3}}
 
 
 def test_cli_delete_of_an_unknown_profile_fails(store, capsys):

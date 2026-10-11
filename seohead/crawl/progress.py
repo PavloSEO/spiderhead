@@ -1,4 +1,4 @@
-"""Live crawl progress: what the crawl knows right now, never a completion estimate.
+"""Live crawl progress: measured rate and an estimate over the current frontier.
 
 A native crawl of a large site used to print one rate line and then nothing for
 an hour (issue #619). Everything an operator needs was already in the spider --
@@ -6,9 +6,9 @@ the frontier, the fetched count, the URL budget -- and none of it reached them.
 
 The one thing this module refuses to do is imply a total it does not have. A
 crawler discovers its own workload: the frontier grows as links are found, so
-"25%" is a percentage of what is known *now*, and the set it is a percentage of
+"25%" and the ETA describe only what is known *now*, and the set they describe
 will very likely be larger a minute from now. That is said in a header line
-printed once, and the number itself is labelled "known", never "total".
+printed once, and the population is labelled "known", never "total".
 
 The denominator is ``fetched + queued``, capped at the URL budget:
 
@@ -36,6 +36,7 @@ import os
 import time
 from collections import deque
 from collections.abc import Callable
+from math import ceil
 from typing import TextIO
 
 # How often the line is refreshed. A redraw is cheap and the eye wants motion;
@@ -158,8 +159,8 @@ class CrawlProgress:
         return (
             "crawl-site: progress below is pages fetched of the URLs known so far "
             f"(fetched + queued, {population}). The frontier grows "
-            "as links are found, so the percentage is of what is known now, not of the site, "
-            "and it is not an estimate of when the crawl will finish."
+            "as links are found, so the percentage and ETA cover only the current known frontier, "
+            "not the whole site or total crawl duration."
         )
 
     def line(self, fetched: int, queued: int, *, elapsed: float, rate: float | None) -> str:
@@ -170,6 +171,11 @@ class CrawlProgress:
             f"{fetched} fetched",
             f"{known} known ({percent})",
             "rate n/a" if rate is None else f"{rate:.1f} req/s",
+            (
+                f"known ETA ~{_format_elapsed(ceil((known - fetched) / rate))}"
+                if rate is not None and rate > 0
+                else "known ETA n/a"
+            ),
             _format_elapsed(elapsed),
         ]
         artifact = self._artifact_bytes()

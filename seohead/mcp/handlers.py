@@ -686,6 +686,7 @@ def crawl_site(
     urls: list[str] | None = None,
     urls_file: str | None = None,
     config: str | None = None,
+    profile: str | None = None,
     max_urls: int | None = None,
     max_depth: int | None = None,
     min_delay: float | None = None,
@@ -766,6 +767,7 @@ def crawl_site(
                 ("urls", urls),
                 ("urls_file", urls_file),
                 ("config", config),
+                ("profile", profile),
                 ("max_urls", max_urls),
                 ("max_depth", max_depth),
                 ("min_delay", min_delay),
@@ -900,6 +902,13 @@ def crawl_site(
         urls = iter_url_list(urls_file)
     if not url and not urls:
         raise ValueError("url, urls, or urls_file required")
+
+    if profile is not None:
+        if config is not None:
+            raise ValueError("profile and config are mutually exclusive")
+        from seohead.crawl.profiles import path_for
+
+        config = path_for(profile)
 
     # Defaults, then file, then environment, then these explicit arguments.
     # ``overrides`` carries whatever the caller reached for by dotted path -- the
