@@ -3059,18 +3059,17 @@ def backlinks_profile(
     """
     from seohead.recon.backlink_profile import build_backlink_profile, fetch_backlink_source
 
-    if history_only:
-        from seohead.data_sources.backlink_history import snapshot_history
-        from seohead.recon.net import normalize_domain
-
-        return snapshot_history(
-            db=db, project=project, domain=normalize_domain(domain), limit=limit, offset=offset
-        )
-
     from seohead.recon.net import normalize_domain
 
-    if not normalize_domain(domain):
+    normalized_domain = normalize_domain(domain)
+    if not normalized_domain:
         raise ValueError("domain must be a valid hostname or HTTP(S) URL")
+    if history_only:
+        from seohead.data_sources.backlink_history import snapshot_history
+
+        return snapshot_history(
+            db=db, project=project, domain=normalized_domain, limit=limit, offset=offset
+        )
     if db and project:
         raise ValueError("pass db or project, not both")
     for item in sources or []:
@@ -3091,7 +3090,7 @@ def backlinks_profile(
             from seohead.data_sources.dataforseo import backlink_call
 
             operation = item.get("operation", "backlinks")
-            result = backlink_call(operation, domain, **request)
+            result = backlink_call(operation, normalized_domain, **request)
             collected.append(
                 {
                     "source": source,
@@ -3107,7 +3106,11 @@ def backlinks_profile(
             from seohead.data_sources.backlink_indexes import collect
 
             collected.append(
-                {"source": source, "result": collect(source, domain, **request), "complete": False}
+                {
+                    "source": source,
+                    "result": collect(source, normalized_domain, **request),
+                    "complete": False,
+                }
             )
         else:
             raise ValueError("unsupported backlink source")

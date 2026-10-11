@@ -331,3 +331,18 @@ def test_serp_quote_includes_depth_and_search_operator_surcharges(monkeypatch):
 def test_serp_depth_is_bounded_before_transport(depth):
     with pytest.raises(ValueError, match="depth"):
         dataforseo.serp("synthetic", depth=depth)
+
+
+def test_url_shaped_profile_domain_is_normalized_before_paid_source(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        dataforseo,
+        "backlink_call",
+        lambda operation, target, **kw: (
+            calls.append(target) or {"ok": False, "state": "confirmation_required"}
+        ),
+    )
+    handlers.backlinks_profile("https://example.com/", sources=[{"source": "dataforseo"}])
+    assert calls == ["example.com"]
+    with pytest.raises(ValueError, match="domain"):
+        handlers.backlinks_profile("", history_only=True, db="unread.sqlite")
