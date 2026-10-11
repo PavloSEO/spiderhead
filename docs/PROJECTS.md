@@ -20,6 +20,31 @@ collection policy, saved scans, tasks, review decisions and outputs. Start with
 accepts or rejects a proposed goal. None of these is permission to execute free text. A workflow
 requires the accepted goal, registered prompt and current incomplete custom task IDs.
 
+Accepting a proposed goal creates its stable `custom:goal-…` checklist task once. The task keeps
+the proposed text as its description and remains incomplete until the normal checklist workflow
+records an outcome. Acceptance does not start a crawl, approve a manual review, or mark the task
+complete. Custom task definitions can also carry `assignee`, `description`,
+`acceptance_criterion`, a typed `finding_ref` (`scan_id` plus `finding_id`), and a `method_ref` for a
+registered skill or scenario. The optional `competitors` field is a bounded list of `{url,
+max_urls}` entries for per-site task caps. Storing candidates and limits starts no scans; each
+competitor crawl remains an explicit action. These are checklist metadata and remain covered by
+the checklist's expected-revision write contract.
+
+`project-checklist-page` is filter-before-page and returns `total`, `next_offset`, and
+`previous_offset` for bounded offset/limit navigation. Each task row reports `task.state`,
+`task.executor`, `task.actor`, and `task.next_step`; absent values remain null. Per-task
+`affected_urls` has a nullable count plus `measured` or `not_measured` state and reason. The
+count is emitted only when retained measurement evidence enumerates affected URLs; a crawl's
+measured population is not substituted for a count of affected URLs. `project-task-detail` returns
+up to 20 recent comments, total count and truncation state. `project-task-comment` appends an
+attributed comment under the checklist revision and can store a typed scan or finding identity.
+The reference is metadata; recording it does not verify or fetch the referenced evidence.
+
+The existing `updated` sort field still means the newest execution-record timestamp. Whether it
+should instead be named `updated_at`, and whether definition-only state/priority edits should move
+it without adding execution evidence, remains an owner decision. No timestamp is fabricated for
+those edits.
+
 Use the revision returned by the latest read when writing. Old definitions, changed artifacts,
 changed scope or stale dependencies can leave work stale or unfinished; a handoff must include
 those reasons, the next action and its expected evidence, not just a completion count. Competitor
@@ -476,6 +501,60 @@ filters. A BI cohort selection is a different dataset and does not replace a fin
 `report-build --project DIRECTORY` includes the validated checklist coverage, reasons,
 scope and measurement in a human report without fetching or rerunning the audit. The
 original JSON audit remains unchanged, and `--out` still controls the destination.
+
+### Owner tasks, exports, and competitor scans
+
+Custom project tasks retain optional assignee, description, acceptance criterion, typed
+finding/method references, per-competitor URL caps, comments, and revisioned execution history.
+Task writes use the checklist revision returned by `project-checklist-page` or
+`project-task-detail`. Clear optional text, finding, or method fields with `null`; clear the
+competitor list with `[]`. A measured affected-URL count is populated only from an exact saved-scan
+selection for its finding reference. Unsupported, capped, missing, or stale evidence remains
+explicitly unmeasured; it is not inferred from a sample.
+
+Accepted goals can become stable custom tasks through the local owner workflow. MCP can submit
+or triage proposals, but cannot accept a goal or provide owner signoff. A caller-supplied actor
+or reviewer name is attribution, not proof of owner identity. Ordinary task metadata and
+comments remain revision-checked local writes.
+
+Project exports are local artifacts under `reports/` with bounded, newest-first history in
+`exports.json`. Separate `tasks`, `task_comments`, and `task_history` datasets preserve every
+checklist item actually stored in the project, every attributed custom-task comment, and the
+append-only definition/attempt history. Task rows retain `kind`, catalogue `source_hash`, and
+`operation` separately, and never synthesize catalogue items absent from the project. All three
+datasets are available in JSON, CSV, and XLSX without packing unbounded history into one cell.
+Compare exports preserve the compare.v2 rows and source identities. Long exports expose job
+progress and a cancel request, and history records the artifact receipt. XLSX output is subject
+to the spreadsheet format's row limit; no overflow policy is inferred here. Export status and
+history reads do not create files.
+
+```bash
+seohead project export --directory ./shop-project --dataset task_comments \
+  --format csv --output task-comments.csv
+seohead project export --directory ./shop-project --dataset task_history \
+  --format xlsx --output task-history.xlsx
+```
+
+Task-scoped competitor scans accept only a current custom task and registered competitor
+workspaces. Each child scan obeys its per-site cap and selected bounded concurrency. This is an
+explicit one-shot action independent of persisted cadence and does not modify scheduler state.
+Progress and per-child result identities are retained locally so interrupted runs can resume
+unfinished children without restarting completed scans.
+
+```bash
+seohead project competitors-scan --directory ./shop-project \
+  --task-id custom:competitor-review --expected-revision 4 --confirm \
+  --run-id 00000000-0000-4000-8000-000000000002
+seohead project competitors-scan-status --directory ./shop-project \
+  --run-id 00000000-0000-4000-8000-000000000002
+seohead project competitors-scan-cancel --directory ./shop-project \
+  --run-id 00000000-0000-4000-8000-000000000002
+```
+
+Delivery adapters remain opt-in and require configured credentials/authorization. A delivery
+that may have reached its provider but lacks a durable receipt is marked uncertain for status
+reconciliation; it is never blindly retried. Local export generation and copy-link preparation
+do not deliver or publish an artifact.
 
 ### Definitions, evidence, and reusable templates
 

@@ -944,7 +944,14 @@ def local_deliver(directory: str | Path, *, scan_id: str, expected_revision: int
     root, project = _workspace_load(directory)
     from seohead.projects.service_delivery import DeliveryReceipts, MonitorServiceDelivery
 
-    receipt_path = _new_report_target(_reports_root(root), "monitor-delivery-receipts.sqlite")
+    reports = _reports_root(root)
+    receipt_path = reports / "monitor-delivery-receipts.sqlite"
+    if (
+        not receipt_path.parent.resolve().is_relative_to(reports.resolve())
+        or os.path.lexists(receipt_path)
+        and (receipt_path.is_symlink() or not receipt_path.is_file())
+    ):
+        raise ValueError("monitor delivery receipt store is unsafe")
     service = MonitorServiceDelivery(
         project_uuid=project["project_uuid"],
         allowed_destinations={"local:receipt"},

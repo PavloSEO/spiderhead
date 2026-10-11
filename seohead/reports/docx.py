@@ -183,6 +183,18 @@ def write(document: dict[str, Any], path: pathlib.Path) -> None:
                 )
         elif checklist.get("reason"):
             doc.add_paragraph(f"Reason: {checklist['reason']}")
+        task_kpis = checklist.get("task_kpis") or {}
+        if task_kpis:
+            affected = task_kpis.get("affected_urls") or {}
+            doc.add_paragraph(
+                "Custom tasks: "
+                f"{task_kpis.get('complete', 0)} complete / {task_kpis.get('total', 0)} total; "
+                f"{task_kpis.get('assigned', 0)} assigned; affected URLs: "
+                f"{affected.get('count') if affected.get('count') is not None else 'unavailable'} "
+                f"({affected.get('state', 'unavailable')}; "
+                f"{affected.get('measured_tasks', 0)} measured, "
+                f"{affected.get('unmeasured_tasks', 0)} unmeasured)."
+            )
         for item in checklist.get("items") or []:
             if not isinstance(item, dict):
                 continue
@@ -203,6 +215,8 @@ def write(document: dict[str, Any], path: pathlib.Path) -> None:
                         f"Stale: {item.get('stale', '')}",
                         f"Scope: {value_text(item.get('scope'))}",
                         f"Measurement: {value_text(item.get('measurement'))}",
+                        f"Task: {value_text(item.get('task'))}",
+                        f"Affected URLs: {value_text(item.get('affected_urls'))}",
                         f"Reason: {item.get('reason', checklist.get('reason', ''))}",
                     )
                 ),

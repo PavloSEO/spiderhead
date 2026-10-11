@@ -1,8 +1,7 @@
 """Portable project archive: one zip with a SHA-256 manifest, restorable on any OS.
 
-First slice of #996. Scope is what exists on main today: project.json, log.md, the optional
-inbox/coverage stores, top-level SQLite stores, and the scans/ and reports/ directories. The event
-journal (#983), bindings (#990) and the core version handshake (#979) are not on main yet.
+Project-local archive set: project and settings metadata, bounded action/event histories,
+inbox/coverage/export stores, top-level SQLite stores, and scans/ and reports/ artifacts.
 """
 
 from __future__ import annotations
@@ -27,7 +26,17 @@ from seohead.projects.workspace import PROJECT_FORMAT, UTC, _directory, _load, o
 ARCHIVE_FORMAT = "seohead.project-archive.v1"
 ARCHIVE_VERSION = 1
 MANIFEST = "manifest.json"
-_FILES = ("project.json", "log.md", "inbox.json", "coverage.json")
+_FILES = (
+    "project.json",
+    "project-settings.json",
+    "settings-proposals.json",
+    "log.md",
+    "events.jsonl",
+    "actions.jsonl",
+    "inbox.json",
+    "coverage.json",
+    "exports.json",
+)
 _DIRECTORIES = ("scans", "reports")
 # Name-based exclusion: credentials are never archived, whatever the store that holds them.
 _CREDENTIAL = re.compile(
@@ -93,11 +102,47 @@ def _snapshot(source: Path, destination: Path) -> None:
         src.backup(dst)
 
 
+def _validate_project_stores(root: Path) -> None:
+    """Consume each present local store through its authoritative read validator."""
+    from seohead.projects.workspace import _load
+
+    _, project = _load(root)
+    if (root / "project-settings.json").exists():
+        from seohead.projects.project_settings import read_settings
+
+        read_settings(root)
+    if (root / "settings-proposals.json").exists():
+        from seohead.projects.project_settings import list_proposals
+
+        list_proposals(root, offset=0, limit=1)
+    if (root / "events.jsonl").exists():
+        from seohead.projects.event_log import page
+
+        page(root, offset=0, limit=1)
+    if (root / "actions.jsonl").exists():
+        from seohead.projects.action_log import page
+
+        page(root, offset=0, limit=1)
+    if (root / "coverage.json").exists():
+        from seohead.projects.coverage import _read
+
+        _read(root, project)
+    if (root / "inbox.json").exists():
+        from seohead.projects.inbox import list_entries
+
+        list_entries(root, consumer="archive-validation", offset=0, limit=1)
+    if (root / "exports.json").exists():
+        from seohead.projects.exports import exports_page
+
+        exports_page(root, offset=0, limit=1)
+
+
 def archive_project(
     directory: str | Path, out: str | Path, *, dry_run: bool = False
 ) -> dict[str, Any]:
     """Write one zip for a validated project; dry_run only reports the plan and size estimate."""
     root, document = _load(directory)
+    _validate_project_stores(root)
     target = Path(out)
     if not target.name or ".." in target.parts:
         raise ValueError("archive output must be a plain file path")
@@ -216,7 +261,7 @@ def restore_project(archive: str | Path, to: str | Path) -> dict[str, Any]:
                         dst.write(chunk)
                 if size != expected["size"] or digest.hexdigest() != expected["sha256"]:
                     raise ValueError(f"archive member failed verification: {info.filename!r}")
-            _load(staging)
+            _validate_project_stores(staging)
             if os.path.lexists(dest):
                 raise ValueError("restore target appeared during restore; nothing was replaced")
             os.rename(staging, dest)

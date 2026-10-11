@@ -1,0 +1,34 @@
+{
+  "directory": "./shop-project",
+  "expected_revision": 3,
+  "item": {
+    "id": "custom:review-missing-title",
+    "title": "Review pages missing a title",
+    "description": "Confirm that the selected pages have an appropriate title element.",
+    "assignee": "web-team",
+    "acceptance_criterion": "A retained scan shows an appropriate title for each affected page; the owner reviews the evidence.",
+    "finding_ref": {
+      "scan_id": "00000000-0000-4000-8000-000000000001",
+      "finding_id": "TITLE_MISSING"
+    },
+    "method_ref": "scenario:project-control",
+    "competitors": [
+      {
+        "url": "https://competitor.example.test/",
+        "max_urls": 250
+      }
+    ],
+    "scope": {
+      "site": "https://shop.example.test/",
+      "template": null,
+      "urls": []
+    },
+    "dependencies": [],
+    "execution_kind": "manual",
+    "priority": "P1",
+    "enabled": true,
+    "order": 10,
+    "operation": null,
+    "source_hash": null
+  }
+}
