@@ -256,7 +256,7 @@ def test_start_requires_an_accepted_goal_and_registered_prompt(tmp_path):
     project = tmp_path / "project"
     create_project(project, "https://example.test/")
     initialize_coverage(project)
-    with pytest.raises(ValueError, match="accepted goal_id, prompt_reference, and task_ids"):
+    with pytest.raises(ValueError, match="requires goal_id"):
         start(
             project,
             scenario_id="scenario:full-audit",

@@ -605,6 +605,7 @@ def crawl_site_scan(
             result=sitemap_seed,
             request_gate=request_gate,
             proxy_route=proxy_route,
+            start_url=url,
         )
 
     from seohead.crawl.sqlite_adapter import crawl_to_scan

@@ -1,0 +1,3 @@
+- `workflow-start` needs only an accepted owner goal: `--goal-id` (or `context.goal_id`) is enough. The registered prompt defaults to `skill:workflow/full-audit-v1` and the checklist task defaults to the one accepting the goal created (`custom:goal-<entry>`). Refusals name the owner command that fixes the missing link. The options are documented in `seohead workflow-start --help`.
+- Checklist populations accept partial objects: only `kind` and `source` are required, and the other keys default to unset. A refused population names its missing or unknown keys.
+- Native project crawls fall back to the origin's `/sitemap.xml` when robots.txt declares no sitemap. An absent fallback is recorded as incomplete but does not interrupt the crawl.
