@@ -158,3 +158,28 @@ def test_help_documents_the_derivation_and_owner_steps(capsys):
     assert "--goal-id" in text
     assert "skill:workflow/full-audit-v1" in text
     assert "inbox-goal --directory DIR --entry-id ENTRY --state accepted" in text
+
+
+def test_cli_goal_id_with_non_object_context_names_the_context_refusal(project, capsys):
+    goal = _accepted_goal(project)
+    code = main(
+        [
+            "workflow-start",
+            "--directory",
+            str(project),
+            "--goal-id",
+            goal,
+            "--input",
+            json.dumps(
+                {
+                    "scenario_id": "scenario:full-audit",
+                    "steps": ["check:TITLE_MISSING"],
+                    "context": "not-an-object",
+                }
+            ),
+        ]
+    )
+    err = capsys.readouterr().err
+    assert code != 0
+    assert "workflow context has unsupported fields" in err
+    assert "not a mapping" not in err

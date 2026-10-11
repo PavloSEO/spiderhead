@@ -647,8 +647,10 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     }:
         if getattr(args, "directory", None):
             kw["directory"] = args.directory
+        context = kw.get("context")
         if cmd == "workflow-start" and getattr(args, "goal_id", None):
-            kw["context"] = {**(kw.get("context") or {}), "goal_id": args.goal_id}
+            if context is None or isinstance(context, dict):
+                kw["context"] = {**(context or {}), "goal_id": args.goal_id}
     elif cmd in {
         "remediation-create",
         "remediation-ingest",
