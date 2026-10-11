@@ -286,6 +286,7 @@
  "Скан частичный. Находки — только по обойдённой части; «нет данных» не равно нулю. Не закрывайте задачи по неполному скану.": "The scan is partial. Findings cover only the crawled part; “no data” is not zero. Do not close tasks on an incomplete scan.",
  "Показаны проверки из первых {n} находок. Счётчики по каждой проверке и полный список — ждут ядра.": "Checks of the first {n} findings are shown. Per-check counters and the full list wait for the core.",
  "Найдена в скане": "Found in the scan",
+ "Появится, когда будут задачи и журнал исправлений": "Will appear once tasks and the fix log exist",
  "Откройте проект, чтобы увидеть проблемы его сканов.": "Open a project to see the issues of its scans.",
  "Нет выбранного скана": "No scan selected",
  "Проблемы показываются по сохранённому скану проекта.": "Issues are shown for a saved scan of the project.",

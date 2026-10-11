@@ -244,6 +244,8 @@ class LaneStrip(QWidget):
             chip.setAlignment(Qt.AlignCenter)
             caption = QLabel(tr(text))
             caption.setProperty("text_style", "meta")
+            if number > 1:
+                chip.setToolTip(tr("Появится, когда будут задачи и журнал исправлений"))
             layout.addWidget(chip)
             layout.addWidget(caption)
             self.chips.append((number, chip, caption, rule if number > 1 else None))
@@ -485,6 +487,10 @@ class IssuesScreen(Screen):
         for button, text in ((self.open_url, "Открыть в URL"), (self.to_task, "В задачу"), (self.recheck, "Перепроверить")):
             button.setText("" if narrow else tr(text))
             button.setToolTip(button.toolTip() or tr(text))
+        for number, chip, caption, rule in self.lane_found.chips:
+            if number > 1:
+                for widget in (chip, caption, rule):
+                    widget.setVisible(not narrow)
         for column in (1, 3):  # constant «—» and «Найдена в скане» only steal width from address and evidence when narrow
             self.table.setColumnHidden(column, narrow)
 
