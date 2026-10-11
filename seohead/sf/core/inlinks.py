@@ -285,6 +285,20 @@ def check_anchor_text(ctx: AuditContext) -> None:
         )
 
 
+def _hreflang_unavailable(ctx, sf_reason: str) -> str:
+    """Why an hreflang check cannot answer, in the words of the run that produced it.
+
+    An SF run names the export that would enable the check. A native crawl has no export to
+    name: it either retained declarations, in which case this check has no native measure, or
+    it retained none at all.
+    """
+    if ctx.scan_con is None:
+        return sf_reason
+    if ctx.native_hreflang and ctx.native_hreflang.get("declarations"):
+        return "not measured by this native crawl"
+    return "the native crawl retained no hreflang declarations"
+
+
 # ---------------------------------------------------------------------------
 # hreflang -> broken target
 # ---------------------------------------------------------------------------
@@ -405,7 +419,9 @@ def check_hreflang_targets(ctx: AuditContext) -> None:
     if df is None or df.empty:
         ctx.skip(
             "HREFLANG_BROKEN_TARGET",
-            "no all_hreflang export (export Bulk Export → Links → All Hreflang to enable)",
+            _hreflang_unavailable(
+                ctx, "no all_hreflang export (export Bulk Export → Links → All Hreflang to enable)"
+            ),
         )
         return
 
@@ -470,7 +486,9 @@ def check_hreflang_unlinked_targets(ctx: AuditContext) -> None:
     if df is None or df.empty:
         ctx.skip(
             "HREFLANG_UNLINKED_TARGET",
-            "no all_hreflang export (export Bulk Export → Links → All Hreflang to enable)",
+            _hreflang_unavailable(
+                ctx, "no all_hreflang export (export Bulk Export → Links → All Hreflang to enable)"
+            ),
         )
         return
     if not any(_rec(p).get("inlinks") is not None for p in ctx.pages):
@@ -561,7 +579,10 @@ def check_hreflang_quality(ctx: AuditContext) -> None:
     if df is None or df.empty:
         for check_id in _HREFLANG_QUALITY_CHECKS:
             ctx.skip(
-                check_id, "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)"
+                check_id,
+                _hreflang_unavailable(
+                    ctx, "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)"
+                ),
             )
         return
 
@@ -728,7 +749,9 @@ def check_hreflang_reciprocity(ctx: AuditContext) -> None:
     if df is None or df.empty:
         ctx.skip(
             "HREFLANG_MISSING_RETURN_LINK",
-            "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
+            _hreflang_unavailable(
+                ctx, "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)"
+            ),
         )
         return
 
@@ -829,7 +852,10 @@ def check_hreflang_noindex_targets(ctx: AuditContext) -> None:
     else:
         df = ctx.exports.get("all_hreflang")
         if df is None or df.empty:
-            ctx.skip("HREFLANG_NOINDEX_TARGET", "no all_hreflang declaration export")
+            ctx.skip(
+                "HREFLANG_NOINDEX_TARGET",
+                _hreflang_unavailable(ctx, "no all_hreflang declaration export"),
+            )
             return
         for rec in records_from_df(df, HREFLANG_FIELD_MAP):
             source, destination = rec.get("source_url"), rec.get("destination_url")
@@ -958,7 +984,9 @@ def check_hreflang_confirmation_consistency(ctx: AuditContext) -> None:
     if df is None or df.empty:
         ctx.skip(
             "HREFLANG_INCONSISTENT_CONFIRMATION",
-            "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
+            _hreflang_unavailable(
+                ctx, "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)"
+            ),
         )
         return
 

@@ -195,6 +195,36 @@ def _drop_retained_only_checks(audit: dict) -> dict:
 _RETAINED_RUN_FIELDS = {"scan_uuid", "config_fingerprint", "corpus_partial", "source_kind"}
 
 
+# Skip reasons for these checks are worded in native terms on a stored native scan and in SF
+# export terms on the legacy path (epic #1314, native-checks). Their id, finding and task must
+# still match exactly; only the reason text is allowed to differ.
+_PATH_WORDED_SKIPS = frozenset(
+    {
+        "IMG_MISSING_ALT",
+        "IMG_MISSING_DIMENSIONS",
+        "IMG_OVER_KB",
+        "MIXED_CONTENT",
+        "TITLE_MULTIPLE",
+        "SITEMAP_URL_3XX",
+        "SITEMAP_URL_4XX_5XX",
+        "SITEMAP_URL_NON_INDEXABLE",
+    }
+    | {
+        "HREFLANG_BROKEN_TARGET",
+        "HREFLANG_ERROR",
+        "HREFLANG_INCONSISTENT_CONFIRMATION",
+        "HREFLANG_INVALID_CODE",
+        "HREFLANG_MISSING_RETURN_LINK",
+        "HREFLANG_MISSING_SELF_REFERENCE",
+        "HREFLANG_MISSING_XDEFAULT",
+        "HREFLANG_MULTIPLE_ENTRIES",
+        "HREFLANG_NOINDEX_TARGET",
+        "HREFLANG_NOT_CANONICAL",
+        "HREFLANG_UNLINKED_TARGET",
+    }
+)
+
+
 def _label_budget_stop(audit):
     """Name a URL-budget stop the same way on both paths (see the parity tests below)."""
     run = audit["run"]
@@ -224,8 +254,11 @@ def _outcome(audit, *, retained_run=None):
 
     def normalize(value):
         if isinstance(value, dict):
+            path_worded = value.get("id") in _PATH_WORDED_SKIPS and "reason" in value
             return {
-                key: 0.0
+                key: "path-specific wording"
+                if path_worded and key == "reason"
+                else 0.0
                 if key in measured_duration_fields and type(child) in (int, float)
                 else normalize(child)
                 for key, child in value.items()
@@ -235,6 +268,12 @@ def _outcome(audit, *, retained_run=None):
         return value
 
     result = _drop_retained_only_checks(semantic_audit(audit))
+    # Skip records are a set of (check, reason): the two paths reach the same skips in a
+    # different order, and the order of skip calls is not part of the audit contract.
+    if "checks_skipped" in result["run"]:
+        result["run"]["checks_skipped"] = sorted(
+            result["run"]["checks_skipped"], key=lambda item: item["id"]
+        )
     result["run"].pop("generated_at")
     for key in retained_run or {}:
         result["run"].pop(key)

@@ -336,6 +336,60 @@ def _emit_from_export(ctx: AuditContext, key: str, check_id: str) -> int:
     return len(urls)
 
 
+_NATIVE_SITEMAP_STATUS = ("SITEMAP_URL_4XX_5XX", "SITEMAP_URL_3XX", "SITEMAP_URL_NON_INDEXABLE")
+
+
+def _native_sitemap_status(ctx: AuditContext, entries: list[dict[str, Any]]) -> None:
+    """SITEMAP_URL_4XX_5XX, SITEMAP_URL_3XX and SITEMAP_URL_NON_INDEXABLE from a native crawl.
+
+    A sitemap-listed URL is judged by the crawl's own fetch of that URL. A listed URL the
+    crawl never requested has no status: it is counted, and when that leaves a check with
+    no finding the check says so, rather than reading the unrequested URLs as clean.
+    """
+    listed = _normalized_index(e["loc"] for e in entries)
+    if not listed:
+        for check_id in _NATIVE_SITEMAP_STATUS:
+            ctx.skip(check_id, "no sitemap entries were fetched to compare")
+        return
+    crawled = {normalize_url(p.url): p for p in ctx.pages}
+    unmeasured = 0
+    for key, loc in listed.items():
+        page = crawled.get(key)
+        code = page.status_code if page is not None else None
+        if not isinstance(code, int):
+            unmeasured += 1
+            continue
+        details = {"in_sitemap": True, "status_code": code}
+        if code >= 400:
+            ctx.add("SITEMAP_URL_4XX_5XX", target_url=loc, details=details)
+        elif 300 <= code < 400:
+            ctx.add("SITEMAP_URL_3XX", target_url=loc, details=details)
+        elif page.indexability and not page.is_indexable:
+            ctx.add(
+                "SITEMAP_URL_NON_INDEXABLE",
+                target_url=loc,
+                details={**details, "indexability": page.indexability},
+            )
+    if unmeasured:
+        reason = (
+            f"{unmeasured} sitemap URL(s) were not requested by this crawl, "
+            "so their status is unmeasured"
+        )
+        for check_id in _NATIVE_SITEMAP_STATUS:
+            ctx.skip(check_id, reason)
+
+
+def settle_native_sitemap_status(ctx: AuditContext, reason: str) -> None:
+    """Leave no native sitemap-status check silent when its sitemap was never compared.
+
+    _native_sitemap_status settles these checks whenever it runs. A native run that never
+    reached that step (no sitemap fetch at all) still has to say why they did not answer.
+    """
+    for check_id in _NATIVE_SITEMAP_STATUS:
+        if not ctx.settled(check_id):
+            ctx.skip(check_id, reason)
+
+
 # The sitemap protocol's own limits, not thresholds anybody should configure: a file over
 # either one is invalid rather than merely large.
 MAX_SITEMAP_URLS_PER_FILE = 50_000
@@ -573,6 +627,9 @@ def run_sitemap(
         reason = "no sitemap entries were fetched to compare"
         ctx.skip("SITEMAP_URL_DUPLICATED", reason)
         ctx.skip("SITEMAP_STALE_LASTMOD", reason)
+
+    if ctx.scan_con is not None:
+        _native_sitemap_status(ctx, sitemap_entries)
 
     # Prefer the richer source for the URL set / lastmod analysis.
     sitemap_locs = [e["loc"] for e in sitemap_entries] or sf_in

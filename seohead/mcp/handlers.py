@@ -1733,6 +1733,9 @@ def _audit_crawl_result(
             "SITEMAP_TOO_LARGE",
             "SITEMAP_URL_DUPLICATED",
             "SITEMAP_STALE_LASTMOD",
+            "SITEMAP_URL_4XX_5XX",
+            "SITEMAP_URL_3XX",
+            "SITEMAP_URL_NON_INDEXABLE",
         ):
             ctx.skip(check, reason)
         measured: dict[str, Any] = {}
@@ -1750,6 +1753,10 @@ def _audit_crawl_result(
             crawl_partial=bool(getattr(result, "partial", False)),
             **sitemap_kwargs,
         )
+        if stored_scan is not None:
+            from seohead.sf.core.sitemap_coverage import settle_native_sitemap_status
+
+            settle_native_sitemap_status(ctx, "no sitemap was compared by this crawl")
     # Only surfaced when something was actually measured. run_sitemap always
     # returns its keys, and a run with no sitemap at all would otherwise report
     # urls_in_sitemap: 0 -- which reads as "the sitemap is empty" when the truth
