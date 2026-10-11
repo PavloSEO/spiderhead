@@ -820,6 +820,6 @@ local path. It does not automatically classify a donor as harmful or submit a se
 
 `dataforseo-estimate` is an offline quote using a supplied current `appendix/user_data` price
 snapshot. Query count, maximum billed rows and caller-declared cache hits stay visible; unknown
-pricing stays unavailable. Production Google calls require `confirm_paid=true`; backlink calls
+pricing stays unavailable. SERP quotes require the query and include depth/operator adjustments. Production Google calls require `confirm_paid=true`; backlink calls
 also require explicit enablement/account/cost approval. A supplied `spend_ceiling_usd` is enforced
 before transport and requires known pricing. Project/month currency limits await the owner decision.

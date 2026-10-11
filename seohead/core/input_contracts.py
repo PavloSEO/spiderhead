@@ -453,7 +453,14 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         "dataforseo-estimate",
         "dataforseo_estimate",
         _form(
-            "inline_json", "operation", "query_count", "row_limit", "cache_hits", "prices", "env"
+            "inline_json",
+            "operation",
+            "query_count",
+            "row_limit",
+            "cache_hits",
+            "prices",
+            "env",
+            "query",
         ),
     ),
     _command(

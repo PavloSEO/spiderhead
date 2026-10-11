@@ -1029,6 +1029,7 @@ Calculate a quote offline using a supplied appendix/user_data price snapshot.
 | `prices` | `dict[str, Any] | None` | `None` |
 | `env` | `str | None` | `None` |
 | `refresh_prices` | `bool` | `False` |
+| `query` | `str | None` | `None` |
 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 

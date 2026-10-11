@@ -260,3 +260,68 @@ def test_profile_retained_history_handler_never_collects(monkeypatch, tmp_path):
     )
     history = handlers.backlinks_profile("example.com", db=str(database), history_only=True)
     assert history["total"] == 1
+
+
+@pytest.mark.parametrize("body", [[], None, "not an object"])
+def test_non_object_paid_response_still_has_an_unknown_receipt(monkeypatch, tmp_path, body):
+    monkeypatch.setenv("SEOHEAD_SPEND_LOG", str(tmp_path / "spend.jsonl"))
+
+    class Client:
+        env = "sandbox"
+
+        def __init__(self, **kwargs):
+            pass
+
+        def post(self, *args, **kwargs):
+            return body
+
+    monkeypatch.setattr(dataforseo, "DataForSEOClient", Client)
+    result = dataforseo.search_volume(["synthetic"])
+    assert result["ok"] is False and result["state"] == "failed"
+    assert spend.report()["by_source"] == {}
+    receipt = spend.report()["uncertain"][0]
+    assert receipt["extra"]["response_received"] is True
+    assert receipt["extra"]["cost_unknown"] is True
+
+
+def test_serp_quote_includes_depth_and_search_operator_surcharges(monkeypatch):
+    quote = prices("serp", request=0.002, row=0)
+    assert (
+        dataforseo.estimate("serp", env="prod", prices=quote, row_limit=30, query="synthetic")[
+            "cost_usd"
+        ]
+        == 0.006
+    )
+    result = dataforseo.estimate(
+        "serp", env="prod", prices=quote, row_limit=30, query="site:example.test synthetic"
+    )
+    assert result["cost_usd"] == 0.03
+    assert result["billable_serp_pages_per_query"] == 3
+    assert result["search_operator_multiplier"] == 5
+    assert (
+        dataforseo.estimate(
+            "serp", env="prod", prices=quote, row_limit=30, query="site%3Aexample.test"
+        )["cost_usd"]
+        == 0.03
+    )
+    assert dataforseo.estimate("serp", env="prod", prices=quote)["state"] == "unavailable"
+    monkeypatch.setattr(
+        dataforseo,
+        "DataForSEOClient",
+        lambda **kw: pytest.fail("ceiling must refuse before client"),
+    )
+    result = dataforseo.serp(
+        "site:example.test synthetic",
+        env="prod",
+        confirm_paid=True,
+        depth=30,
+        prices=quote,
+        spend_ceiling_usd=0.02,
+    )
+    assert result["state"] == "spend_limit_exceeded"
+
+
+@pytest.mark.parametrize("depth", [0, 201, True])
+def test_serp_depth_is_bounded_before_transport(depth):
+    with pytest.raises(ValueError, match="depth"):
+        dataforseo.serp("synthetic", depth=depth)

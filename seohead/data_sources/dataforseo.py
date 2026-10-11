@@ -23,8 +23,10 @@ import base64
 import json
 import math
 import os
+import re
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import date, timedelta
 
@@ -305,6 +307,22 @@ def _run(
     client: DataForSEOClient, kind: str, payload: list[dict], items_count: int
 ) -> tuple[list[dict], list[str], float, bool]:
     body = client.post(ENDPOINTS[kind], payload, operation=f"{kind}.{client.env}")
+    if not isinstance(body, dict):
+        spend.record(
+            SOURCE,
+            f"{kind}.{client.env}",
+            cost=0.0,
+            unit="usd",
+            items=items_count,
+            extra={
+                "env": client.env,
+                "response_received": True,
+                "response_malformed": True,
+                "cost_unknown": True,
+                "charge_status": "unknown",
+            },
+        )
+        raise DataForSEOError(0, "provider response must be an object; charge is unknown")
     raw_cost = body.get("cost")
     cost = (
         float(raw_cost)
@@ -337,6 +355,7 @@ def estimate(
     cache_hits: int = 0,
     prices: dict | None = None,
     env: str | None = None,
+    query: str | None = None,
 ) -> dict:
     """Estimate a bounded call using a supplied appendix/user_data price snapshot.
 
@@ -375,6 +394,23 @@ def estimate(
             cost_usd=0.0, state="complete", reason="sandbox or cached data incurs no new charge"
         )
         return result
+    serp_pages = max(1, math.ceil(row_limit / 10)) if operation == "serp" else 1
+    search_multiplier = 1
+    if operation == "serp":
+        if query is None:
+            result["reason"] = "the SERP query is required to account for search-operator pricing"
+            return result
+        if not isinstance(query, str):
+            raise ValueError("query must be a string")
+        if re.search(
+            r"\b(?:allinanchor|allintext|allintitle|allinurl|cache|define|definition|filetype|id|inanchor|info|intext|intitle|inurl|link|site):",
+            urllib.parse.unquote_plus(query),
+            re.I,
+        ):
+            search_multiplier = 5
+        result.update(
+            billable_serp_pages_per_query=serp_pages, search_operator_multiplier=search_multiplier
+        )
     node = prices or {}
     for part in ENDPOINTS[operation].split("/")[1:]:
         node = node.get(part, {}) if isinstance(node, dict) else {}
@@ -402,7 +438,11 @@ def estimate(
             result["reason"] = "the supplied price uses an unsupported billing unit"
             return result
     try:
-        total = (per_request + per_result * row_limit) * (query_count - cache_hits)
+        total = (
+            (per_request * serp_pages + per_result * row_limit)
+            * search_multiplier
+            * (query_count - cache_hits)
+        )
     except OverflowError:
         total = float("inf")
     if not math.isfinite(total):
@@ -426,8 +466,9 @@ def _preflight(
     prices: dict | None,
     row_limit: int,
     require_confirmation: bool = False,
+    query: str | None = None,
 ) -> tuple[dict, dict | None]:
-    quote = estimate(operation, row_limit=row_limit, prices=prices, env=env)
+    quote = estimate(operation, row_limit=row_limit, prices=prices, env=env, query=query)
     if spend_ceiling_usd is not None and (
         isinstance(spend_ceiling_usd, bool)
         or not isinstance(spend_ceiling_usd, (int, float))
@@ -476,6 +517,7 @@ def _call(
         spend_ceiling_usd=spend_ceiling_usd,
         prices=prices,
         row_limit=row_limit,
+        query=payload[0].get("keyword") if kind == "serp" else None,
     )
     if refusal:
         return refusal
@@ -663,6 +705,8 @@ def serp(
     prices: dict | None = None,
 ) -> dict:
     """Return the live Google organic results that currently rank for a query."""
+    if type(depth) is not int or not 1 <= depth <= 200:
+        raise ValueError("depth must be between 1 and 200")
     blocked = geo_guard(country, location_code)
     if blocked:
         return blocked

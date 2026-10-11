@@ -1138,7 +1138,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     if cmd == "dataforseo-estimate":
         if getattr(args, "refresh_prices", False):
             kw["refresh_prices"] = True
-        for name in ("operation", "query_count", "row_limit", "cache_hits", "env"):
+        for name in ("operation", "query_count", "row_limit", "cache_hits", "env", "query"):
             value = getattr(args, name, None)
             if value is not None:
                 kw[name] = value
@@ -2041,6 +2041,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             action="store_true",
             help="explicit free account appendix/user_data price lookup",
         )
+        sub.add_argument("--query", help="SERP query, including priced search operators")
         sub.add_argument("--query-count", type=int, help="number of proposed requests")
         sub.add_argument("--row-limit", type=int, help="maximum billed result rows per request")
         sub.add_argument("--cache-hits", type=int, help="caller-declared requests already cached")

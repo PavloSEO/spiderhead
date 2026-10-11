@@ -1,6 +1,8 @@
 - Gate Google DataForSEO production calls before client construction, expose offline quotes from
-  supplied provider prices, and enforce known per-call USD ceilings before transport. Expand
-  bounded backlink-index operations and journal missing costs as uncertain receipts. Project/month
+  supplied provider prices, account for SERP depth and search-operator charges, and enforce known
+  per-call USD ceilings before transport. Expand
+  bounded backlink-index operations and journal missing costs or malformed response shapes as
+  uncertain receipts. Project/month
   currency limits remain pending an owner decision.
 - Merge explicit backlink source/import evidence into private local history snapshots with full
   rel token observations, anchors, referring domains, filters and transparent spam review signals.

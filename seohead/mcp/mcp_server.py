@@ -1217,6 +1217,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         prices: dict[str, Any] | None = None,
         env: str | None = None,
         refresh_prices: bool = False,
+        query: str | None = None,
     ) -> dict[str, Any]:
         """Calculate a quote offline using a supplied appendix/user_data price snapshot.
 
@@ -1233,6 +1234,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 prices=prices,
                 env=env,
                 refresh_prices=refresh_prices,
+                query=query,
             )
         )
 

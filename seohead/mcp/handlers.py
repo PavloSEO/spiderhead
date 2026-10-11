@@ -3881,6 +3881,7 @@ def dataforseo_estimate(
     prices: dict[str, Any] | None = None,
     env: str | None = None,
     refresh_prices: bool = False,
+    query: str | None = None,
 ) -> dict[str, Any]:
     """Quote supplied prices offline; refresh_prices explicitly reads free account prices."""
     from seohead.data_sources.dataforseo import estimate
@@ -3909,6 +3910,7 @@ def dataforseo_estimate(
         cache_hits=cache_hits,
         prices=prices,
         env=env,
+        query=query,
     )
     return {"ok": quote["state"] == "complete", **quote}
 

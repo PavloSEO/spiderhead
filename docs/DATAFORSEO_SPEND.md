@@ -9,7 +9,9 @@ production needs explicit production/cost approval. A cache key is provenance, n
 free [appendix/user_data endpoint](https://docs.dataforseo.com/v3/appendix-user-data/); the existing
 `DataForSEOClient.balance()` read now returns its `prices` object. `dataforseo-estimate --refresh-prices` explicitly reads this free endpoint. No price lookup happens
 implicitly before paid transport. The account endpoint excludes extra paid parameters; these
-bounded adapters do not send those parameters. Stale snapshots can differ from actual billing.
+bounded adapters do not send additional optional premium switches. SERP estimates account
+for requested groups of ten results and the documented fivefold search-operator multiplier
+(including percent-decoded operators); a production SERP quote needs the actual query. Stale snapshots can differ from actual billing.
 
 ```sh
 seohead dataforseo-estimate --input '{"operation":"backlinks","env":"prod","row_limit":100,"query_count":1,"cache_hits":0,"prices":{"backlinks":{"backlinks":{"live":{"priority_normal":[{"cost_type":"per_request","cost":0.02},{"cost_type":"per_result","cost":0.00003}]}}}}}'
@@ -32,3 +34,6 @@ rows against the declared limit, and never fetches another page automatically. T
 `backlinks_summary`, `backlinks`, `referring_domains`, `backlinks_history` and
 `domain_pages_summary`; [Backlinks API documentation](https://docs.dataforseo.com/v3/backlinks-backlinks-live/)
 describes the indexed population, which is not a claim of complete coverage of the web.
+
+[Google organic Live Advanced pricing parameters](https://docs.dataforseo.com/v3/serp-se-type-live-advanced/)
+define the SERP depth and search-operator adjustments used by the preflight.
