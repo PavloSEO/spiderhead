@@ -173,6 +173,16 @@ def build_parser() -> argparse.ArgumentParser:
     save.add_argument(
         "--force", action="store_true", help="Overwrite the destination when it already exists"
     )
+
+    snippets = sub.add_parser(
+        "snippet-edits", help="Import snippet edits from CSV and export review tasks"
+    )
+    snippets.add_argument("--csv", required=True, help="CSV with url and title/description columns")
+    snippets.add_argument("--out", required=True, help="New JSON task file; existing files are kept")
+    snippets.add_argument(
+        "--metrics-json",
+        help="Optional JSON map of named local font profiles for measured pixel widths",
+    )
     return parser
 
 
@@ -426,6 +436,34 @@ def _run_tasks(args) -> int:
     return 0
 
 
+def _run_snippet_edits(args) -> int:
+    import json
+    from pathlib import Path
+
+    from .snippet_edits import (
+        build_snippet_tasks,
+        measure_snippet_edits,
+        parse_snippet_csv,
+        write_snippet_tasks,
+    )
+
+    try:
+        text = Path(args.csv).read_text(encoding="utf-8-sig")
+        parsed = parse_snippet_csv(text)
+        tasks = build_snippet_tasks(parsed)
+        if args.metrics_json:
+            metrics = json.loads(Path(args.metrics_json).read_text(encoding="utf-8"))
+            tasks["measurements"] = measure_snippet_edits(parsed["edits"], metrics)
+        path = write_snippet_tasks(tasks, args.out)
+    except (OSError, ValueError, json.JSONDecodeError) as err:
+        print(f"error: cannot export snippet tasks: {err}", file=sys.stderr)
+        return 1
+    print(f"wrote {tasks['summary']['tasks']} snippet task(s) to {path}")
+    if tasks["summary"]["rejected_rows"]:
+        print(f"rejected rows: {tasks['summary']['rejected_rows']}", file=sys.stderr)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "tasks":
@@ -434,6 +472,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_doctor(args)
     if args.command == "save-config":
         return _run_save_config(args)
+    if args.command == "snippet-edits":
+        return _run_snippet_edits(args)
     if args.command != "run":
         return 1
 

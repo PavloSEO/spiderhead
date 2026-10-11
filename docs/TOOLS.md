@@ -777,10 +777,32 @@ seohead sf run --exports-dir docs/examples/exports --out report --tasks   # mode
 seohead sf run --crawl https://example.com --out report --tasks         # mode A
 seohead sf doctor                                                    # diagnostics
 seohead sf tasks --json report/audit.json                            # backlog from a report
+seohead sf snippet-edits --csv proposed.csv --out snippet-tasks.json  # import -> review tasks
 ```
 
 Note: `sf tasks` takes the audit path via the required `--json` flag, not as
 a positional argument (`seohead/sf/cli.py`).
+
+`sf snippet-edits` imports a bounded CSV with `url` plus `title` and/or `description` and exports
+each valid row as an unapplied `snippet_tasks.v1` review candidate. Bad rows retain their source
+line and reason; an existing output file is never replaced. The matching MCP tool
+`sf_snippet_edits` accepts supplied CSV text and writes the same artifact. Optional named font
+profiles can measure local-font text widths (`font_path`, `font_size`), but these measurements do
+not predict search-engine rendering or truncation. No Google/Yandex profile, pixel threshold, or
+new check id is selected by default; `TITLE_TOO_LONG` and `DESC_TOO_LONG` remain the existing audit
+checks for measurements actually present in the audit evidence.
+
+The optional metrics file is a JSON object keyed by caller-chosen profile names, for example
+`{"local-font":{"font_path":"./font.ttf","font_size":20}}`. Widths are rounded up to whole
+pixels. Font files and sizes are explicit inputs and are not distributed with the toolkit.
+
+Retained-text spelling has a backend-neutral core in `seohead/checks/spellcheck.py`. With no
+backend it returns `skipped`, never a clean spelling result. Hunspell dictionaries and a grammar
+service are not installed or called by default. Backend packaging, dictionary provenance/licensing,
+project word lists, and wiring into retained-body analysis remain owner decisions. Existing
+`SPELLING_ERRORS` and `GRAMMAR_ERRORS` audit checks consume supplied SF fields. The existing
+`H2_MISSING`, `HEADING_SKIP`, and `READABILITY_DIFFICULT` checks are reused; this feature adds no
+duplicate variants or unapproved “very difficult” threshold.
 
 `tasks_pipeline.group_by` accepts `check`, `issue`, or `check_assignment`.
 The last mode groups a check only by an operator-declared template/component URL

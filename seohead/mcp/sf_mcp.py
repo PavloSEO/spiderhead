@@ -1,4 +1,4 @@
-"""MCP server (stdio) exposing the audit core through five agent-callable tools.
+"""MCP server (stdio) exposing the audit core through six agent-callable tools.
 
 Requires the optional ``mcp`` dependency::
 
@@ -410,6 +410,37 @@ def register(mcp):  # pragma: no cover - needs the SDK
         if diagnostics:
             result["input_diagnostics"] = diagnostics
         return result
+
+    @mcp.tool(annotations=create_local_files, structured_output=True)
+    def sf_snippet_edits(
+        csv_text: str,
+        out: str,
+        metrics: dict[str, dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """Import supplied snippet CSV text and write unapplied review tasks to a new JSON file.
+
+        The CSV needs ``url`` and at least one of ``title`` or ``description``. Empty edit cells
+        leave that field unchanged. Optional ``metrics`` names local font profiles with
+        ``font_path`` and ``font_size``; their widths are typography measurements, not Google or
+        Yandex truncation predictions. Existing output files are never replaced.
+        """
+        from seohead.sf.snippet_edits import (
+            build_snippet_tasks,
+            measure_snippet_edits,
+            parse_snippet_csv,
+            write_snippet_tasks,
+        )
+
+        parsed = parse_snippet_csv(csv_text)
+        tasks = build_snippet_tasks(parsed)
+        if metrics is not None:
+            tasks["measurements"] = measure_snippet_edits(parsed["edits"], metrics)
+        path = write_snippet_tasks(tasks, out)
+        return {
+            "schema_version": tasks["schema_version"],
+            "summary": tasks["summary"],
+            "task_file": os.path.abspath(path),
+        }
 
     return mcp
 
