@@ -34,6 +34,8 @@ def _properties(node: Any, path: str, out: list[dict[str, Any]]) -> None:
         return
     if isinstance(node, dict):
         for key, value in node.items():
+            if len(out) >= MAX_PROPERTIES:
+                break
             child = f"{path}.{key}" if path else key
             if isinstance(value, (dict, list)) and value:
                 _properties(value, child, out)
@@ -41,6 +43,8 @@ def _properties(node: Any, path: str, out: list[dict[str, Any]]) -> None:
                 out.append({"path": child, "value": _preview(value)})
     elif isinstance(node, list):
         for index, value in enumerate(node):
+            if len(out) >= MAX_PROPERTIES:
+                break
             child = f"{path}[{index}]"
             if isinstance(value, (dict, list)) and value:
                 _properties(value, child, out)
@@ -89,6 +93,7 @@ def structured_blocks(html: str | None) -> dict[str, Any]:
         entry: dict[str, Any] = {
             "ordinal": ordinal,
             "line": tag.sourceline,
+            "column": tag.sourcepos,
             "state": "parse_error",
             "types": [],
             "errors": 0,
@@ -96,7 +101,9 @@ def structured_blocks(html: str | None) -> dict[str, Any]:
             "error": None,
             "messages": [],
             "properties": [],
+            "property_limit_reached": False,
             "source_json": None,
+            "parsed_json": None,
             "source_truncated": False,
             "raw_excerpt": raw[:EXCERPT_CHARS],
         }
@@ -109,12 +116,17 @@ def structured_blocks(html: str | None) -> dict[str, Any]:
             except (ValueError, TypeError) as exc:
                 entry["error"] = str(exc)
             else:
+                # Retain the actual JSON tree before the validator adds private
+                # graph annotations to its independent flattened nodes.
+                entry["parsed_json"] = block if len(raw) <= SOURCE_CHARS else None
+                context, supported = schema_org._block_vocab(block)
                 schema_org._flatten(block, nodes)
                 for node in nodes:
-                    node.setdefault("_vocab_context", "https://schema.org")
-                    node.setdefault("_vocab_supported", True)
+                    node.setdefault("_vocab_context", context)
+                    node.setdefault("_vocab_supported", supported)
                 entry["types"] = _unique_types(nodes)
                 _properties(block, "", entry["properties"])
+                entry["property_limit_reached"] = len(entry["properties"]) >= MAX_PROPERTIES
                 source = json.dumps(block, ensure_ascii=False, indent=2)
                 entry["source_truncated"] = len(source) > SOURCE_CHARS
                 entry["source_json"] = source[:SOURCE_CHARS]
@@ -161,5 +173,6 @@ def structured_blocks(html: str | None) -> dict[str, Any]:
         "reason": "",
         "block_count": len(parsed),
         "parse_error_count": sum(entry["state"] == "parse_error" for entry in parsed),
+        "rules_version": schema_org.RICH_RESULTS_RULES_VERSION,
         "blocks": parsed,
     }
