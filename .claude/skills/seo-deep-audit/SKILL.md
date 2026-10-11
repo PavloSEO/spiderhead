@@ -97,7 +97,7 @@ installed, actively licensed Screaming Frog CLI.
 seohead sf run --crawl https://<domain> --out report --tasks
 ```
 The **full** profile is the default (maximum available coverage), and the sitemap is automatically
-obtained from robots. The registry contains 183 checks, but only checks supported by the available
+obtained from robots. The registry contains 210 checks, but only checks supported by the available
 exports and enabled SF modules can run. If the output contains many `skipped` results
 (MIXED_CONTENT/STRUCTURED_DATA/SPELLING/DOM_*), enable them once through the `sf-config` skill
 (create `audit.seospiderconfig`); the tool will pick it up automatically. If SF/a license is not

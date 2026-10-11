@@ -12997,7 +12997,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "0ba0d9564dc6084473bc223ef6d656f4fa0398c11de8ebd9e2eeffe85e267a41",
+        "source_hash": "03bc92c20651a7acdca4e3a1b683150a41cc67e93486103f8d675efde4ba0832",
         "title": "seo-deep-audit"
       },
       "definitions": [
@@ -13017,7 +13017,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "0ba0d9564dc6084473bc223ef6d656f4fa0398c11de8ebd9e2eeffe85e267a41",
+            "source_hash": "03bc92c20651a7acdca4e3a1b683150a41cc67e93486103f8d675efde4ba0832",
             "title": "seo-deep-audit"
           },
           "observed_at": "2026-09-09T00:00:00Z"
