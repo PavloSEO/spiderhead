@@ -1164,7 +1164,7 @@ companions and a hashed manifest; no policy is selected by default. See
 ```bash
 seohead scan-graph --scan scan.sqlite --section /catalog/ --positions content,breadcrumbs
 seohead scan-graph --scan scan.sqlite --around https://example.com/product/ --depth 2
-seohead scan-graph --scan before.sqlite --compare-to after.sqlite --aggregate sections
+seohead scan-graph --scan after.sqlite --compare-to before.sqlite --aggregate sections
 seohead scan-reanalyze --scan old.sqlite --out batch-1.sqlite --step links.position --max-documents 100
 seohead scan-reanalyze --scan batch-1.sqlite --out batch-2.sqlite --step links.position --max-documents 100
 seohead scan-sitemap-generate --scan scan.sqlite --out-dir generated-sitemaps \
@@ -1184,3 +1184,5 @@ reports unavailable/truncated bodies rather than treating them as empty pages.
 
 Graph comparison applies section, position and representation filters across both scans.
 The `around` option limits the displayed current graph; it does not narrow comparison scope.
+
+Graph diff additions and new orphans belong to the input scan relative to `--compare-to`.
