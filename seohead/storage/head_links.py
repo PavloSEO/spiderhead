@@ -64,7 +64,9 @@ def validate_context(con, item, payload):
         or len(declarations) > 100
         or any(
             not isinstance(row, dict)
-            or set(row) != {"rel", "href", "target"}
+            or not {"rel", "href", "target"}
+            <= set(row)
+            <= {"rel", "href", "target", "hreflang", "lang", "media", "type"}
             or any(type(value) is not str for value in row.values())
             for row in declarations
         )

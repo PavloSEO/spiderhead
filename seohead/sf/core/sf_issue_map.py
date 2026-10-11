@@ -251,7 +251,7 @@ CATEGORIES: dict[str, list[Entry]] = {
         _c(
             "Invalid Attribute In Annotation",
             "CANONICAL_INVALID_ATTRIBUTE",
-            note="native selected-document annotations preserve raw rel/href text; malformed separators, missing href and non-HTTP(S) targets are observable; unknown well-formed relation keywords remain unknown",
+            note="native selected-document annotations preserve raw rel/href and alternate-version attributes; canonical links carrying hreflang/lang/media/type are ignored for canonicalization; malformed separators and hrefs are also observable; unknown well-formed relation keywords remain unknown",
         ),
         _c("Contains Fragment URL", "CANONICAL_FRAGMENT"),
         _c("Outside <head>", "CANONICAL_OUTSIDE_HEAD"),

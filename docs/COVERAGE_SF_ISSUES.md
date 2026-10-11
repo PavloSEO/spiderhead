@@ -166,7 +166,7 @@ having, because the alternative is an absence nobody has noticed.
 |---|---|---|---|
 | Multiple Conflicting | check | `CANONICAL_MULTIPLE` |  |
 | Non-Indexable Canonical | check | `CANONICAL_NON_INDEXABLE` |  |
-| Invalid Attribute In Annotation | check | `CANONICAL_INVALID_ATTRIBUTE` | native selected-document annotations preserve raw rel/href text; malformed separators, missing href and non-HTTP(S) targets are observable; unknown well-formed relation keywords remain unknown |
+| Invalid Attribute In Annotation | check | `CANONICAL_INVALID_ATTRIBUTE` | native selected-document annotations preserve raw rel/href and alternate-version attributes; canonical links carrying hreflang/lang/media/type are ignored for canonicalization; malformed separators and hrefs are also observable; unknown well-formed relation keywords remain unknown |
 | Contains Fragment URL | check | `CANONICAL_FRAGMENT` |  |
 | Outside <head> | check | `CANONICAL_OUTSIDE_HEAD` |  |
 | Canonicalised | check | `CANONICALISED` |  |

@@ -403,7 +403,15 @@ def extract_head_links(soup: BeautifulSoup, base_url: str) -> list[dict[str, str
             target = urljoin(base_url, href.strip()) if href.strip() else ""
         except ValueError:
             target = ""
-        declarations.append({"rel": rel, "href": href, "target": target})
+        declaration = {"rel": rel, "href": href, "target": target}
+        # Google ignores canonicals carrying alternate-version attributes.
+        for name in ("hreflang", "lang", "media", "type"):
+            if name in tag.attrs:
+                value = tag.get(name)
+                declaration[name] = (
+                    value if isinstance(value, str) else "" if value is None else str(value)
+                )
+        declarations.append(declaration)
         if len(declarations) == 100:
             break
     return declarations

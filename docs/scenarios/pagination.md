@@ -46,6 +46,9 @@ seohead sf run --exports-dir ./exports --out report --tasks
 
 Both inputs feed the same findings. Raw malformed canonical attributes require native parsed
 annotation evidence; an ordinary SF Internal:All canonical cell cannot reconstruct raw markup.
+Canonical annotations carrying `hreflang`, `lang`, `media` or `type` are reported by
+`CANONICAL_INVALID_ATTRIBUTE`: those alternate-version attributes belong on separate link
+annotations. See [Google's canonical link guidance](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls).
 
 **4. Export All Inlinks too, because the anchor check needs a page's own link inventory.**
 

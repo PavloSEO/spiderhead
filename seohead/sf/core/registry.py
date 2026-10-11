@@ -700,8 +700,8 @@ CHECKS: dict[str, dict[str, Any]] = {
     "CANONICAL_INVALID_ATTRIBUTE": {
         "severity": "warning",
         "source": "crawl:head_links",
-        "message": "Canonical annotation has a malformed relation or href attribute",
-        "fix": "Use an HTML whitespace-separated canonical relation and a non-empty HTTP(S) href; raw attributes are included in the evidence.",
+        "message": "Canonical annotation contains unsupported alternate-version attributes or malformed rel/href",
+        "fix": "Remove hreflang, lang, media and type from the canonical link; declare alternates separately. Use an HTML whitespace-separated canonical relation and a non-empty HTTP(S) href. Raw attributes are included in the evidence.",
     },
     "CANONICAL_CROSS_ORIGIN": {
         "severity": "notice",

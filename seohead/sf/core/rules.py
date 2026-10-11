@@ -1480,8 +1480,17 @@ def check_canonical_annotations(ctx: AuditContext) -> None:
             rel = declaration["rel"]
             if not re.search(r"(?:^|[\s,;])canonical(?:$|[\s,;])", rel, re.I):
                 continue
+            alternate_attributes = {
+                name: declaration[name]
+                for name in ("hreflang", "lang", "media", "type")
+                if name in declaration
+            }
             reason = None
-            if not _rel_has("canonical")(rel) or re.search(r"[,;]|[^\S \t\r\n\f]", rel):
+            if alternate_attributes:
+                reason = (
+                    "canonical includes alternate-version attributes ignored for canonicalization"
+                )
+            elif not _rel_has("canonical")(rel) or re.search(r"[,;]|[^\S \t\r\n\f]", rel):
                 reason = "canonical relation uses a non-HTML whitespace or punctuation separator"
             elif not declaration["href"].strip():
                 reason = "canonical href is empty or missing"

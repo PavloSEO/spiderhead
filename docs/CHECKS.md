@@ -201,7 +201,7 @@ python scripts/generate_checks_reference.py
 
 | Check id | Severity | Evidence | Fires on | Fix |
 |---|---|---|---|---|
-| `CANONICAL_INVALID_ATTRIBUTE` | warning | crawl:head_links | Canonical annotation has a malformed relation or href attribute | Use an HTML whitespace-separated canonical relation and a non-empty HTTP(S) href; raw attributes are included in the evidence. |
+| `CANONICAL_INVALID_ATTRIBUTE` | warning | crawl:head_links | Canonical annotation contains unsupported alternate-version attributes or malformed rel/href | Remove hreflang, lang, media and type from the canonical link; declare alternates separately. Use an HTML whitespace-separated canonical relation and a non-empty HTTP(S) href. Raw attributes are included in the evidence. |
 | `CANONICAL_CROSS_ORIGIN` | notice | SF-derived | Canonical changes the declaring URL host or protocol | Confirm that cross-host or protocol consolidation is intentional and that the target is the preferred URL. |
 | `CANONICAL_CHAIN` | warning | SF-derived | Canonical chain: the target canonicalizes to another URL (two or more steps) | Point the canonical directly to the final canonical URL in one step and break any canonical loops. |
 | `CANONICAL_TO_REDIRECT` | warning | SF-derived | Canonical points to a redirecting URL (3xx) | Point the canonical to the final 200-status URL; otherwise search engines must resolve conflicting canonical signals. |

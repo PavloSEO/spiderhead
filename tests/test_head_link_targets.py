@@ -435,3 +435,33 @@ def test_head_context_ids_outside_sqlite_integer_range_are_rejected_before_bindi
     )
     with pytest.raises(ScanError, match="context is invalid"):
         validate_context(None, item, json.loads(item["payload_json"]))
+
+
+@pytest.mark.parametrize(
+    "attribute,value",
+    [
+        ("hreflang", "en-GB"),
+        ("lang", "en"),
+        ("media", "screen"),
+        ("type", "text/html"),
+        ("hreflang", ""),
+    ],
+)
+def test_canonical_alternate_version_attributes_match_the_published_issue(
+    tmp_path, attribute, value
+):
+    head = f'<link rel="canonical" href="{BASE}" {attribute}="{value}">'
+    parsed = parse_html(_html(extra_head=head), BASE)
+    assert parsed["canonical"] == BASE
+    assert parsed["head_links"][0][attribute] == value
+    audit = _capture(tmp_path, {BASE: _Response(_html(extra_head=head))})
+    issue = _issues(audit, "CANONICAL_INVALID_ATTRIBUTE")[0]
+    assert issue["details"]["annotations"][0][attribute] == value
+    assert "alternate-version attributes" in issue["details"]["annotations"][0]["reason"]
+
+
+def test_separate_canonical_and_hreflang_annotations_are_not_invalid(tmp_path):
+    audit = _capture(
+        tmp_path, {BASE: _Response(_html(("en", "/"), extra_head=_head("canonical", BASE)))}
+    )
+    assert not _issues(audit, "CANONICAL_INVALID_ATTRIBUTE")
