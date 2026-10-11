@@ -10,7 +10,7 @@ It detects the format from sample lines. IIS column positions come from each
 rearrange or change fields during a file.
 
 Files are processed line by line so a multi-gigabyte log does not require matching
-memory. Gzip-compressed logs are detected by content and read the same way. High-cardinality accumulators are capped to bound memory use.
+memory. Gzip-compressed logs are detected by content and read the same way. Path accumulators are capped; exact IP aggregates use a temporary disk-backed SQLite table.
 
 Bot verification
 ----------------
@@ -37,9 +37,14 @@ import ipaddress
 import itertools
 import re
 import socket
-from collections import Counter, defaultdict
+import sqlite3
+import threading
+import time
+from collections import Counter, OrderedDict, defaultdict
 from collections.abc import Iterable
+from contextlib import closing
 from datetime import datetime, timedelta, timezone
+from queue import Empty, Queue
 from typing import Any
 
 # Official reverse-DNS suffixes. A non-empty tuple means the bot is verifiable.
@@ -134,7 +139,10 @@ _MONTHS = {
 }
 
 MAX_TRACKED_PATHS = 5000
-MAX_TRACKED_IPS = 2000
+DNS_CACHE_TTL = 3600
+_DNS_CACHE: OrderedDict = OrderedDict()
+_DNS_LOCK = threading.Lock()
+_DNS_WORKERS = threading.BoundedSemaphore(4)
 RDNS_TIMEOUT = 3.0
 # DNS canary used to confirm PTR lookups work at all; Google's public resolver has
 # a stable reverse record.
@@ -314,43 +322,90 @@ def verify_bot_rdns(
             "reason": "No official PTR suffix is available for this bot",
             "hostname": None,
         }
-    old = socket.getdefaulttimeout()
-    socket.setdefaulttimeout(timeout)
     try:
-        try:
-            hostname, _, _ = socket.gethostbyaddr(ip)
-        except (socket.herror, socket.gaierror):
-            return {"verified": False, "reason": "No PTR record was found", "hostname": None}
-        except OSError as exc:
-            return {"verified": None, "reason": f"DNS is unavailable: {exc}", "hostname": None}
-        low = hostname.lower()
-        if not any(low.endswith(s) for s in suffixes):
-            return {
-                "verified": False,
-                "reason": f"PTR hostname {hostname} is outside the official domains",
-                "hostname": hostname,
-            }
-        try:
-            _, _, addrs = socket.gethostbyname_ex(hostname)
-        except OSError as exc:
-            return {
-                "verified": None,
-                "reason": f"Forward resolution of {hostname} is unavailable: {exc}",
-                "hostname": hostname,
-            }
-        if ip in addrs:
-            return {
-                "verified": True,
-                "reason": "PTR and forward resolution confirm the same IP",
-                "hostname": hostname,
-            }
+        address = ipaddress.ip_address(ip)
+    except ValueError:
+        return {"verified": None, "hostname": None, "reason": "Invalid IP address"}
+    result_queue: Queue = Queue(maxsize=1)
+    worker_gate = _DNS_WORKERS
+    if not worker_gate.acquire(blocking=False):
         return {
-            "verified": False,
-            "reason": f"PTR hostname {hostname} does not resolve back to {ip}",
-            "hostname": hostname,
+            "verified": None,
+            "hostname": None,
+            "forward_addresses": [],
+            "forward_match": None,
+            "reason": "DNS resolver worker capacity is exhausted",
         }
-    finally:
-        socket.setdefaulttimeout(old)
+
+    def lookup():
+        result = {
+            "verified": None,
+            "hostname": None,
+            "forward_addresses": [],
+            "forward_match": None,
+        }
+        try:
+            hostname, _, _ = socket.gethostbyaddr(str(address))
+            hostname = hostname.lower().rstrip(".")
+            result["hostname"] = hostname
+            if not any(hostname.endswith(s.lower()) for s in suffixes):
+                result.update(verified=False, reason="PTR hostname is outside the official domains")
+            else:
+                if address.version == 4:
+                    _, _, addrs = socket.gethostbyname_ex(hostname)
+                else:
+                    addrs = [
+                        row[4][0] for row in socket.getaddrinfo(hostname, None, socket.AF_INET6)
+                    ]
+                addrs = sorted({str(ipaddress.ip_address(value)) for value in addrs})
+                match = str(address) in addrs
+                result.update(
+                    verified=match,
+                    forward_match=match,
+                    forward_addresses=addrs,
+                    reason="PTR and forward resolution confirm the same IP"
+                    if match
+                    else f"PTR hostname {hostname} does not resolve back to {ip}",
+                )
+        except socket.herror as exc:
+            # Only HOST_NOT_FOUND / NO_DATA prove an absent record. TRY_AGAIN is unavailable.
+            result.update(
+                verified=False if exc.errno in (1, 4) else None,
+                reason="No PTR record was found" if exc.errno in (1, 4) else "DNS is unavailable",
+            )
+        except (OSError, ValueError) as exc:
+            result["reason"] = (
+                f"Forward DNS is unavailable: {exc}"
+                if result["hostname"]
+                else f"DNS is unavailable: {exc}"
+            )
+        finally:
+            worker_gate.release()
+        result_queue.put(result)
+
+    # System resolver calls can ignore socket timeouts. A daemon worker gives the caller a
+    # hard deadline without changing process-wide socket defaults or waiting at shutdown.
+    try:
+        threading.Thread(target=lookup, daemon=True).start()
+    except RuntimeError:
+        worker_gate.release()
+        return {
+            "verified": None,
+            "hostname": None,
+            "forward_addresses": [],
+            "forward_match": None,
+            "reason": "DNS resolver worker is unavailable",
+        }
+    try:
+        return result_queue.get(timeout=timeout)
+    except Empty:
+        return {
+            "verified": None,
+            "hostname": None,
+            "forward_addresses": [],
+            "forward_match": None,
+            "reason": "DNS verification deadline exceeded",
+        }
 
 
 def _dns_available(timeout: float = RDNS_TIMEOUT) -> bool:
@@ -359,15 +414,8 @@ def _dns_available(timeout: float = RDNS_TIMEOUT) -> bool:
     Without the canary, blocked DNS could make every bot appear fake, which is the
     most damaging false conclusion this analyzer could report.
     """
-    old = socket.getdefaulttimeout()
-    socket.setdefaulttimeout(timeout)
-    try:
-        socket.gethostbyaddr(DNS_CANARY)
-        return True
-    except OSError:
-        return False
-    finally:
-        socket.setdefaulttimeout(old)
+    result = verify_bot_rdns(DNS_CANARY, (".google",), timeout=timeout)
+    return result.get("hostname") is not None
 
 
 def _section(path: str) -> str:
@@ -379,18 +427,54 @@ def _section(path: str) -> str:
 
 
 def analyze_log(
-    path: str, *, verify_bots: bool = False, max_lines: int = 5_000_000, sample_size: int = 50
+    path: str,
+    *,
+    verify_bots: bool = False,
+    max_lines: int = 5_000_000,
+    sample_size: int = 50,
+    offset: int = 0,
+    limit: int = 100,
+    max_dns: int = 20,
+    bot: str | None = None,
+    ip: str | None = None,
 ) -> dict[str, Any]:
     """Parse a log and calculate aggregates; only bot verification uses the network."""
+    for name, value, minimum, maximum in (
+        ("max_lines", max_lines, 1, 100_000_000),
+        ("sample_size", sample_size, 1, 1000),
+        ("offset", offset, 0, 100_000_000),
+        ("limit", limit, 1, 500),
+        ("max_dns", max_dns, 0, 100),
+    ):
+        if type(value) is not int or not minimum <= value <= maximum:
+            raise ValueError(f"{name} must be an integer in {minimum}..{maximum}")
+    if type(verify_bots) is not bool:
+        raise ValueError("verify_bots must be a boolean")
+    if ip:
+        ipaddress.ip_network(ip, strict=False)
     try:
         handle = _open_log(path)
     except OSError as exc:
         return {"ok": False, "path": path, "error": str(exc)}
 
     try:
-        return _analyze_handle(
-            handle, path, verify_bots=verify_bots, max_lines=max_lines, sample_size=sample_size
-        )
+        with closing(sqlite3.connect("")) as ips:
+            ips.execute(
+                "CREATE TABLE ips (bot TEXT, family TEXT, ip TEXT, visits INTEGER, last_visit TEXT, PRIMARY KEY(bot, ip))"
+            )
+            return _analyze_handle(
+                handle,
+                path,
+                verify_bots=verify_bots,
+                max_lines=max_lines,
+                sample_size=sample_size,
+                ips=ips,
+                offset=offset,
+                limit=limit,
+                max_dns=max_dns,
+                bot_filter=bot,
+                ip_filter=ip,
+            )
     except (OSError, EOFError) as exc:
         # A truncated or corrupt .gz raises mid-stream. Report it as data: partial counts
         # from a broken archive must not be presented as a complete analysis.
@@ -416,7 +500,18 @@ def _open_log(path: str):
 
 
 def _analyze_handle(
-    handle, path: str, *, verify_bots: bool, max_lines: int, sample_size: int
+    handle,
+    path: str,
+    *,
+    verify_bots: bool,
+    max_lines: int,
+    sample_size: int,
+    ips,
+    offset: int,
+    limit: int,
+    max_dns: int,
+    bot_filter: str | None,
+    ip_filter: str | None,
 ) -> dict[str, Any]:
     with handle:
         sample = []
@@ -436,17 +531,15 @@ def _analyze_handle(
         iis = _IISParser() if fmt == "iis" else None
         parse = iis.parse if iis else _parse_apache
 
-        total = parsed = skipped = 0
+        total = parsed = skipped = unknown_agent = 0
         truncated = False
         by_family: dict[str, Counter] = defaultdict(Counter)
         bot_hits: Counter = Counter()
         bot_bytes: Counter = Counter()
-        bot_ips: dict[str, set] = defaultdict(set)
         status_by_family: dict[str, Counter] = defaultdict(Counter)
         section_by_family: dict[str, Counter] = defaultdict(Counter)
         paths_by_family: dict[str, Counter] = defaultdict(Counter)
         paths_truncated: set[str] = set()
-        ips_truncated: set[str] = set()
         daily: Counter = Counter()
         first_time = last_time = None
 
@@ -469,9 +562,12 @@ def _analyze_handle(
                 continue
             parsed += 1
 
+            if not row.get("user_agent"):
+                unknown_agent += 1
             bot = detect_bot(row.get("user_agent"))
-            family = bot["family"] if bot else "human"
-            name = bot["name"] if bot else "human"
+            fallback = "human" if row.get("user_agent") else "unknown"
+            family = bot["family"] if bot else fallback
+            name = bot["name"] if bot else fallback
 
             by_family[family][name] += 1
             status_by_family[family][row["status"]] += 1
@@ -490,28 +586,54 @@ def _analyze_handle(
             if bot:
                 bot_hits[name] += 1
                 bot_bytes[name] += row.get("bytes") or 0
-                # Once the tracked-IP set fills, a brand-new address must be recorded as
-                # refused rather than silently dropped -- otherwise unique_ips reports the
-                # same value for 2,000 and 200,000 distinct sources with no way to tell
-                # an exact count from a saturated sample (#330).
-                ip_value = row["ip"]
-                if ip_value in bot_ips[name] or len(bot_ips[name]) < MAX_TRACKED_IPS:
-                    bot_ips[name].add(ip_value)
-                else:
-                    ips_truncated.add(name)
+                when = row.get("time")
+                ips.execute(
+                    "INSERT INTO ips VALUES (?, ?, ?, 1, ?) ON CONFLICT(bot, ip) DO UPDATE SET "
+                    "visits=visits+1, last_visit=CASE WHEN excluded.last_visit > last_visit OR last_visit IS NULL "
+                    "THEN excluded.last_visit ELSE last_visit END",
+                    (name, family, row["ip"], when.isoformat() if when else None),
+                )
             when = row.get("time")
             if when:
                 daily[when.date().isoformat()] += 1
                 first_time = when if first_time is None or when < first_time else first_time
                 last_time = when if last_time is None or when > last_time else last_time
 
-    verification = _verify_batch(bot_ips, verify_bots)
+    counts = dict(ips.execute("SELECT bot, count(*) FROM ips GROUP BY bot"))
+    total_ips = ips.execute("SELECT count(DISTINCT ip) FROM ips").fetchone()[0]
+    selected = []
+    matched = 0
+    network = ipaddress.ip_network(ip_filter, strict=False) if ip_filter else None
+    for name, family, address, visits, last_visit in ips.execute(
+        "SELECT * FROM ips ORDER BY bot, ip"
+    ):
+        if bot_filter and bot_filter not in (name, family):
+            continue
+        if network and (not _is_ip(address) or ipaddress.ip_address(address) not in network):
+            continue
+        if offset <= matched < offset + limit:
+            selected.append(
+                {
+                    "bot": name,
+                    "family": family,
+                    "ip": address,
+                    "visits": visits,
+                    "last_visit": last_visit,
+                }
+            )
+        matched += 1
+    verification = _verify_rows(selected, verify_bots, max_dns)
 
     result: dict[str, Any] = {
         "ok": True,
         "path": path,
         "format": fmt,
         "lines": {"total": total, "parsed": parsed, "skipped": skipped, "truncated": truncated},
+        "bot_detection": {
+            "available": unknown_agent < parsed,
+            "unknown_user_agent": unknown_agent,
+            "reason": "User-agent fields are missing" if unknown_agent else None,
+        },
         "period": {
             "from": first_time.isoformat() if first_time else None,
             "to": last_time.isoformat() if last_time else None,
@@ -522,8 +644,8 @@ def _analyze_handle(
                 "name": n,
                 "hits": h,
                 "bytes": bot_bytes[n],
-                "unique_ips": len(bot_ips[n]),
-                "unique_ips_truncated": n in ips_truncated,
+                "unique_ips": counts[n],
+                "unique_ips_truncated": False,
             }
             for n, h in bot_hits.most_common(40)
         ],
@@ -531,7 +653,16 @@ def _analyze_handle(
         "sections_by_family": {f: dict(c.most_common(20)) for f, c in section_by_family.items()},
         "top_paths_by_family": {f: dict(c.most_common(15)) for f, c in paths_by_family.items()},
         "paths_truncated": sorted(paths_truncated),
-        "ips_truncated": sorted(ips_truncated),
+        "ips_truncated": [],
+        "unique_bot_ips": total_ips,
+        "bot_ips": {
+            "rows": verification["checks"],
+            "total": matched,
+            "offset": offset,
+            "limit": limit,
+            "has_more": matched > offset + len(selected),
+            "next_offset": offset + len(selected) if matched > offset + len(selected) else None,
+        },
         "daily": dict(sorted(daily.items())),
         "verification": verification,
     }
@@ -539,32 +670,82 @@ def _analyze_handle(
     return result
 
 
-def _verify_batch(bot_ips: dict[str, set], enabled: bool) -> dict[str, Any]:
-    """Verify bot authenticity using a sample IP from each detected bot family."""
-    if not enabled:
-        return {
-            "checked": False,
-            "reason": "Verification is disabled because it requires network access; enable it explicitly",
-        }
-    if not _dns_available():
-        return {
-            "checked": False,
-            "dns_available": False,
-            "reason": "Reverse DNS is unavailable from this machine, so bot authenticity "
-            "cannot be checked. This does not mean the bots are fake.",
-        }
+def _cached_verification(ip: str, suffixes: Iterable[str]) -> dict[str, Any]:
+    key = (ip, tuple(suffixes))
+    now = time.monotonic()
+    with _DNS_LOCK:
+        entry = _DNS_CACHE.get(key)
+        if entry and now - entry[0] < DNS_CACHE_TTL:
+            return {**entry[1], "cached": True}
+    result = {**verify_bot_rdns(ip, key[1]), "checked_at": time.time()}
+    with _DNS_LOCK:
+        _DNS_CACHE[key] = (now, result)
+        _DNS_CACHE.move_to_end(key)
+        while len(_DNS_CACHE) > 1024:
+            _DNS_CACHE.popitem(last=False)
+    return {**result, "cached": False}
 
-    checks: list[dict[str, Any]] = []
-    for name, ips in bot_ips.items():
-        sample_ip = next((i for i in sorted(ips) if _is_ip(i)), None)
-        if sample_ip is None:
-            continue
-        suffixes = next((s for _, n, _, s in BOT_PATTERNS if n == name), ())
-        if not suffixes:
-            continue
-        verdict = verify_bot_rdns(sample_ip, suffixes)
-        checks.append({"bot": name, "ip": sample_ip, **verdict})
-    return {"checked": True, "dns_available": True, "checks": checks}
+
+def _verify_rows(rows: list[dict[str, Any]], enabled: bool, max_dns: int = 20) -> dict[str, Any]:
+    """Verify only the explicit bounded page; never extrapolate one IP to a family."""
+    checks = []
+    requests = 0
+
+    def cached(row):
+        suffixes = next((s for _, n, _, s in BOT_PATTERNS if n == row["bot"]), ())
+        with _DNS_LOCK:
+            entry = _DNS_CACHE.get((row["ip"], tuple(suffixes)))
+            return bool(entry and time.monotonic() - entry[0] < DNS_CACHE_TTL)
+
+    eligible = any(
+        next((s for _, n, _, s in BOT_PATTERNS if n == row["bot"]), ())
+        and _is_ip(row["ip"])
+        and not cached(row)
+        for row in rows
+    )
+    available = _dns_available() if enabled and max_dns and eligible else None
+    for row in rows:
+        suffixes = next((s for _, n, _, s in BOT_PATTERNS if n == row["bot"]), ())
+        result = {
+            "verified": None,
+            "hostname": None,
+            "forward_addresses": [],
+            "forward_match": None,
+            "cached": False,
+            "reason": "DNS verification was not requested",
+        }
+        if enabled and not suffixes:
+            result["reason"] = "No official PTR suffix is available for this bot"
+        elif enabled and not _is_ip(row["ip"]):
+            result["reason"] = "Invalid IP address"
+        elif enabled and cached(row):
+            result = _cached_verification(row["ip"], suffixes)
+        elif enabled and available is False:
+            result["reason"] = "Reverse DNS is unavailable; this does not mean the bot is fake"
+        elif enabled and requests < max_dns:
+            result = _cached_verification(row["ip"], suffixes)
+            requests += int(not result["cached"])
+            if not result["cached"]:
+                time.sleep(0.05)
+        elif enabled:
+            result["reason"] = "DNS request budget exhausted; request another bounded page"
+        verdict = (
+            "verified"
+            if result.get("verified") is True
+            else "fake"
+            if result.get("verified") is False
+            else "unchecked"
+        )
+        checks.append({**row, **result, "verdict": verdict})
+    return {
+        "checked": enabled and any(row.get("checked_at") is not None for row in checks),
+        "requested": enabled,
+        "dns_available": available,
+        "checks": checks,
+        "dns_checks": requests,
+        "canary_requests": int(available is not None),
+        "reason": "Verification applies only to this page; unchecked rows are not authenticity verdicts",
+    }
 
 
 def _is_ip(value: str) -> bool:
@@ -587,7 +768,11 @@ def _findings(r: dict[str, Any]) -> list[str]:
         )
 
     fams = r["by_family"]
-    if "googlebot" not in fams:
+    if r.get("bot_detection", {}).get("unknown_user_agent"):
+        out.append(
+            "Bot classification is unavailable for rows without a user-agent; absent bot labels do not prove absent visits"
+        )
+    if "googlebot" not in fams and not r.get("bot_detection", {}).get("unknown_user_agent"):
         out.append(
             "Googlebot does not appear in the log; the site may not be crawled, "
             "or the log period may be too short"
@@ -603,7 +788,7 @@ def _findings(r: dict[str, Any]) -> list[str]:
         )
 
     for family, statuses in r["status_by_family"].items():
-        if family == "human":
+        if family in ("human", "unknown"):
             continue
         errors = sum(c for s, c in statuses.items() if s >= 400)
         total = sum(statuses.values()) or 1
