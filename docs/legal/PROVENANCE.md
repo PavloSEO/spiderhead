@@ -25,7 +25,7 @@ implementations. Publicly relevant inspirations and data licences are listed in
 
 Counts shown in `docs/TOOLS.md` and `docs/CHECKS.md` are checked against source registries:
 
-- 178 shared handlers exposed through the CLI and `seo_*` MCP tools;
+- 183 shared handlers exposed through the CLI and `seo_*` MCP tools;
 - five Screaming Frog-specific `sf_*` MCP tools;
 - 202 audit checks in the crawl registry;
 - 25 technical workflow skills plus eight packaged SEO playbooks;

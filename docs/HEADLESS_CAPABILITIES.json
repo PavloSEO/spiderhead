@@ -1,7 +1,7 @@
 {
   "schema": "seohead.headless-capabilities.v1",
   "inventory_source": "seohead.crawl.settings.describe_settings",
-  "inventory_sha256": "1dfd0e5831ae9c8066bdf0348fd16359216be8c233c8fc8e0b61cad94392b32f",
+  "inventory_sha256": "b7cc8b16ca14b3f9601565a08cc772681818cd0da5e972bf80eed1a0a47bcc5a",
   "settings_count": 114,
   "settings": [
     {
@@ -1651,7 +1651,7 @@
     {
       "path": "robots.user_agent_token",
       "type": "str",
-      "default": "SEOHEAD-Tools",
+      "default": "",
       "results_affecting": true,
       "description": "The User-Agent token matched against robots.txt rules.",
       "family": "robots",

@@ -796,6 +796,37 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         ),
     ),
     _command(
+        "schedule-show",
+        "schedule_show",
+        _form("project_directory", "directory"),
+    ),
+    _command(
+        "schedule-set",
+        "schedule_set",
+        _form("project_directory", "directory"),
+        _form("selector", "expected_revision", note="Required; current schedule revision."),
+        _form("inline_json", "settings", note="Partial schedule.json settings to merge."),
+    ),
+    _command(
+        "schedule-run-due",
+        "schedule_run_due",
+        _form("project_directory", "directory"),
+    ),
+    _command(
+        "schedule-install",
+        "schedule_install",
+        _form("project_directory", "directory"),
+        _form("selector", "kind", note="launchd, cron or windows."),
+        _form("local_file", "dest", "python"),
+    ),
+    _command(
+        "schedule-uninstall",
+        "schedule_uninstall",
+        _form("project_directory", "directory"),
+        _form("selector", "kind"),
+        _form("local_file", "dest"),
+    ),
+    _command(
         "project-competitors-list",
         "project_competitors_list",
         _form("project_directory", "directory"),

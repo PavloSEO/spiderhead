@@ -57,7 +57,7 @@ _MEDIA_TYPE_FILTER_REASONS = frozenset(
 )
 
 MAX_DEPTH_CEILING = 20
-ROBOTS_TOKEN = "SEOHEAD-Tools"
+ROBOTS_TOKEN = "SpiderHeadBot"
 # The same shape ``parse_robots`` returns, because this stands in for its result on
 # every path where robots.txt could not be read: a different shape here is not an
 # empty ruleset, it is a ruleset the scan artifact refuses to store (#629).

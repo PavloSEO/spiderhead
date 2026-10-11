@@ -409,7 +409,7 @@ Money rules for this layer: [GOTCHAS.md](GOTCHAS.md).
 ## MCP server
 
 ```bash
-seohead mcp        # stdio server, all 178 seo_* tools + 5 sf_* audit tools
+seohead mcp        # stdio server, all 183 seo_* tools + 5 sf_* audit tools
 ```
 
 Client config (`.mcp.json` in this repo does exactly this):

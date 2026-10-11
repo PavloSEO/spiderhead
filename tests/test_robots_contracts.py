@@ -152,7 +152,7 @@ def test_blank_user_agent_group_never_overrides_wildcard_or_absorbs_its_rules():
 
 def test_spider_uses_its_selected_agent_crawl_delay():
     robots_text = (
-        "User-agent: SEOHEAD-Tools\nCrawl-delay: 10\nUser-agent: OtherBot\nCrawl-delay: 2\n"
+        "User-agent: SpiderHeadBot\nCrawl-delay: 10\nUser-agent: OtherBot\nCrawl-delay: 2\n"
     )
 
     result = crawl_site(
