@@ -1168,7 +1168,7 @@ seohead scan-graph --scan before.sqlite --compare-to after.sqlite --aggregate se
 seohead scan-reanalyze --scan old.sqlite --out batch-1.sqlite --step links.position --max-documents 100
 seohead scan-reanalyze --scan batch-1.sqlite --out batch-2.sqlite --step links.position --max-documents 100
 seohead scan-sitemap-generate --scan scan.sqlite --out-dir generated-sitemaps \
-  --sitemap-base-url https://example.com/ --include-images --exclude '*?*'
+  --sitemap-base-url https://example.com/ --include-images --exclude '*[?]*'
 ```
 
 Graph results are versioned JSON chunks with explicit totals, node/edge budgets and clipping.
@@ -1181,3 +1181,6 @@ Sitemap generation writes local files into a new directory and refuses existing 
 Deployment URL scope determines eligible page URLs; the sitemap index contains absolute URLs
 for the generated files. Unknown modification dates are omitted, and optional image coverage
 reports unavailable/truncated bodies rather than treating them as empty pages.
+
+Graph comparison applies section, position and representation filters across both scans.
+The `around` option limits the displayed current graph; it does not narrow comparison scope.

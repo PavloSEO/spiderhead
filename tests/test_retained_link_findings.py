@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
 from pathlib import Path
@@ -211,3 +212,133 @@ def test_search_routes_are_independent_of_question_mark_and_case():
         item.target_url.endswith("/research/article") and item.check == "URL_INTERNAL_SEARCH"
         for item in ctx.issues
     )
+
+
+def test_native_findings_persist_and_are_visible_to_url_query(tmp_path, monkeypatch):
+    import socket
+
+    from seohead.crawl.sqlite_adapter import crawl_to_scan
+    from seohead.mcp.handlers import scan_url_query
+    from seohead.mcp.reanalysis_handlers import reanalyze_scan
+    from seohead.storage.audit_v2 import AuditV2Reader
+    from tests.test_scan_analysis_parity import _fixture, _settings
+    from tests.test_scan_crawl_parity import _fetcher, _Response, _runtime_versions
+
+    fixture = _fixture()
+    fixture["https://example.test/"] = _Response(
+        200,
+        "<html><head><title>Fixture</title></head><body><main>"
+        "<a href='/gone'>Old product</a><a href='/server'>Server</a>"
+        "<a href='/first'>Old route</a><a href='/search/books'></a></main></body></html>",
+    )
+    fixture.update(
+        {
+            "https://example.test/gone": _Response(404, "missing"),
+            "https://example.test/server": _Response(503, "failed"),
+            "https://example.test/first": _Response(301, "", {"location": "/second"}),
+            "https://example.test/second": _Response(302, "", {"location": "/gone"}),
+            "https://example.test/search/books": _Response(
+                200, "<html><body>Results</body></html>"
+            ),
+        }
+    )
+    source = tmp_path / "captured.sqlite"
+    crawl_to_scan(
+        "https://example.test/",
+        scan_out=str(source),
+        settings=_settings("complete"),
+        producer_version="3.0.0",
+        producer_revision="a" * 40,
+        runtime_versions=_runtime_versions(),
+        fetcher=_fetcher(fixture),
+        sleeper=lambda _: None,
+    )
+    before = hashlib.sha256(source.read_bytes()).hexdigest()
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("native retained findings attempted network")
+
+    monkeypatch.setattr(socket.socket, "connect", forbidden)
+    monkeypatch.setattr(socket, "create_connection", forbidden)
+    derived = tmp_path / "derived.sqlite"
+    result = reanalyze_scan(str(source), str(derived), producer_build="b" * 40)
+    assert result["audit_available"]
+    with AuditV2Reader(derived) as audit:
+        items = list(audit.iter_collection("/issues"))
+        skipped = {row["id"]: row["reason"] for row in audit.header["run"]["checks_skipped"]}
+        assert "EXTERNAL_NO_RESPONSE" in skipped
+        assert "export" not in skipped["EXTERNAL_NO_RESPONSE"]
+    checks = {item["check"] for item in items}
+    assert {
+        "BROKEN_INTERNAL_LINK",
+        "LINK_TO_5XX",
+        "REDIRECT_CHAIN",
+        "INTERNAL_LINK_NO_ANCHOR",
+        "URL_INTERNAL_SEARCH",
+    } <= checks
+    broken = next(item for item in items if item["check"] == "BROKEN_INTERNAL_LINK")
+    assert broken["locations"][0]["anchor"] == "Old product"
+    chain = next(item for item in items if item["check"] == "REDIRECT_CHAIN")
+    assert [hop["status_code"] for hop in chain["details"]["hop_list"]] == [301, 302, 404]
+    query = scan_url_query(input_path=str(derived), issue_check="broken-internal-link")
+    assert "https://example.test/gone" in json.dumps(query)
+    assert hashlib.sha256(source.read_bytes()).hexdigest() == before
+
+
+def test_new_cli_scan_flags_reach_shared_handlers(monkeypatch, capsys):
+    from seohead import cli
+    from seohead.mcp import handlers
+
+    calls = []
+    monkeypatch.setitem(
+        handlers.HANDLERS, "scan_graph", lambda **kwargs: calls.append(kwargs) or {"ok": True}
+    )
+    monkeypatch.setitem(
+        handlers.HANDLERS,
+        "scan_sitemap_generate",
+        lambda **kwargs: calls.append(kwargs) or {"ok": True},
+    )
+    assert (
+        cli.main(
+            [
+                "scan-graph",
+                "--scan",
+                "saved.sqlite",
+                "--positions",
+                "content,breadcrumbs",
+                "--depth",
+                "3",
+            ]
+        )
+        == 0
+    )
+    assert calls[-1] == {
+        "input_path": "saved.sqlite",
+        "positions": "content,breadcrumbs",
+        "depth": 3,
+    }
+    assert (
+        cli.main(
+            [
+                "scan",
+                "sitemap-generate",
+                "--scan",
+                "saved.sqlite",
+                "--out-dir",
+                "generated",
+                "--sitemap-base-url",
+                "https://example.test/",
+                "--include-images",
+                "--exclude",
+                "*?*",
+            ]
+        )
+        == 0
+    )
+    assert calls[-1] == {
+        "input_path": "saved.sqlite",
+        "out_dir": "generated",
+        "sitemap_base_url": "https://example.test/",
+        "include_images": True,
+        "exclude": ["*?*"],
+    }

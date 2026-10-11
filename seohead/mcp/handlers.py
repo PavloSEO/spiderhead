@@ -2135,15 +2135,16 @@ def _audit_crawl_result(
                     "INTERNAL_LINK_NO_ANCHOR",
                 ):
                     ctx.skip(check, "native scan retains no hyperlink occurrences")
-            if (
-                stored_scan.con.execute(
-                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='external_checks'"
-                ).fetchone()
-                is None
-            ):
+            external_summary = getattr(result, "external_summary", None)
+            if not external_summary:
                 ctx.skip(
                     "EXTERNAL_NO_RESPONSE",
                     "native external destination checks were not captured; enable discovery.external.crawl",
+                )
+            elif not sum(int(external_summary.get(key) or 0) for key in ("fetched", "failed")):
+                ctx.skip(
+                    "EXTERNAL_NO_RESPONSE",
+                    "captured external phase attempted no measurable destinations; its summary records skipped or blocked targets",
                 )
 
     # A broken bookmark is not a link-status problem: the fragment resolves

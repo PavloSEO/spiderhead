@@ -833,3 +833,6 @@ record redirect chain/loop hop lists and checked external no-response outcomes, 
 empty internal anchors from generic text, and reconcile sitemap members with retained HTTP,
 canonical, noindex and robots evidence. Finding location samples carry exact omitted counts;
 all original contributing links remain pageable through `scan-url-links`.
+
+Graph comparison applies section, position and representation filters across both scans.
+The `around` option limits the displayed current graph; it does not narrow comparison scope.

@@ -309,7 +309,7 @@ def generate_sitemaps(
         base = _loc(sitemap_base_url)
         if urlsplit(base).query or not urlsplit(base).path.endswith("/"):
             raise ValueError("sitemap_base_url must be an HTTP(S) directory URL ending in /")
-        con = open_scan(scan, require_audit=False, query_timeout_seconds=10)
+        con = open_scan(scan, require_audit=False)
         header = dict(con.execute("SELECT * FROM scan").fetchone())
         origin = _origin(_loc(header["start_url"] or base))
         if _origin(base) != origin:

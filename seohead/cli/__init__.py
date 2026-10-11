@@ -1681,7 +1681,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             help="position documents per derived batch; only with --step links.position",
         )
     if cmd in {"scan-graph", "scan-sitemap-generate"}:
-        _source_flag(sub, "--source", dest="input_path", help="retained SQLite scan to read")
+        _source_flag(
+            sub, "--scan", "--source", dest="input_path", help="retained SQLite scan to read"
+        )
     if cmd == "scan-sitemap-generate":
         sub.add_argument("--out-dir", help="fresh output directory for sitemap XML files")
         sub.add_argument(
