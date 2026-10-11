@@ -447,6 +447,9 @@ class _AuditV2ReportView:
                 yield finding
 
 
+STREAMED_PROJECT_ERROR = "project checklist coverage is unavailable for streamed audit.v2 inputs"
+
+
 def _build_audit_v2_report(
     reader: Any,
     fmt: str,
@@ -480,7 +483,7 @@ def _build_audit_v2_report(
     if project is not None:
         return {
             "ok": False,
-            "error": "project checklist coverage is unavailable for streamed audit.v2 inputs",
+            "error": STREAMED_PROJECT_ERROR,
         }
     if fmt == "pdf" and pdf_policy is None:
         return {
