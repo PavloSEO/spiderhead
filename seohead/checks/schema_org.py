@@ -75,6 +75,13 @@ _SCHEMA_ORG_HOSTS = {"schema.org", "www.schema.org"}
 _SCHEMA_ORG_CTX_RE = re.compile(r"^https?://([^/?#]+)", re.IGNORECASE)
 
 MAX_HTML_BYTES = 5_000_000
+MAX_MARKUP_NODES = 50_000
+MAX_RDFA_TRIPLES = 20_000
+MAX_RDFA_TOKENS = 50_000
+MAX_RDFA_COPY_ROUNDS = 128
+MAX_RDFA_COPY_STEPS = 100_000
+_RDFA_COPY = "http://www.w3.org/ns/rdfa#copy"
+_RDFA_PATTERN = "http://www.w3.org/ns/rdfa#Pattern"
 
 
 @lru_cache(maxsize=1)
@@ -107,7 +114,7 @@ def _strip(value: Any) -> str:
     """Return a term name without its prefix or vocabulary URL."""
     if not isinstance(value, str):
         return ""
-    return value.rsplit("/", 1)[-1].rsplit(":", 1)[-1].strip()
+    return value.rsplit("#", 1)[-1].rsplit("/", 1)[-1].rsplit(":", 1)[-1].strip()
 
 
 def _types_of(node: dict[str, Any]) -> list[str]:
@@ -352,118 +359,486 @@ def _extract_microdata(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, A
 
 
 def _rdfa_term(value: str, vocab: str, prefixes: dict[str, str]) -> tuple[str, bool]:
-    value = value.strip("[]")
+    value = value.strip().strip("[]")
     if ":" in value and not value.startswith(("http://", "https://")):
         prefix, local = value.split(":", 1)
-        value = prefixes.get(prefix, prefix + ":") + local
+        value = prefixes.get(prefix.lower(), prefix + ":") + local
     elif ":" not in value:
-        value = vocab.rstrip("/") + "/" + value if vocab else value
+        if vocab:
+            normalized_vocab = vocab
+            if vocab.lower().rstrip("/") in {
+                "http://schema.org",
+                "https://schema.org",
+                "http://www.schema.org",
+                "https://www.schema.org",
+            }:
+                normalized_vocab = vocab.rstrip("/") + "/"
+            value = normalized_vocab + value
     return (_strip(value), True) if _is_schema_org_context(value) else (value, False)
 
 
 def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]], int, list[str]]:
-    """Extract common RDFa subjects; report advanced constructs as partial coverage.
+    """Build bounded Schema.org entities from RDFa subjects and relationships.
 
-    This is a Schema.org HTML reader, not a general RDFa triple processor. rel,
-    rev and RDF collections are left explicitly unavailable instead of guessing
-    their graph semantics. No remote vocabularies or contexts are fetched.
+    This offline reader handles RDFa 1.1 subject changes, CURIEs, resource and
+    literal objects, reverse relations, and ``inlist`` collections. It never
+    resolves remote vocabularies. Limits turn incomplete extraction into an
+    explicit partial-coverage reason instead of a clean result.
     """
-    nodes: list[dict[str, Any]] = []
-    by_subject: dict[str, dict[str, Any]] = {}
+    attributes = (
+        "about",
+        "datatype",
+        "inlist",
+        "prefix",
+        "profile",
+        "property",
+        "rel",
+        "rev",
+        "typeof",
+        "vocab",
+    )
+    if not any(soup.find(attrs={attribute: True}) for attribute in attributes):
+        return [], 0, []
     reasons: set[str] = set()
-    count = 0
-    pending = [(soup, "", {"schema": "https://schema.org/"}, None)]
+    entities: dict[str, dict[str, Any]] = {}
+    lists: dict[tuple[str, str], list[Any]] = {}
+    rel_count = 0
+    token_count = 0
+    triple_count = 0
+    typed_count = 0
+
+    def iri(value: str, document_base: str, vocab: str, prefixes: dict[str, str]) -> str:
+        value = value.strip()
+        if value.startswith("[") and value.endswith("]"):
+            value = value[1:-1]
+        if value.startswith("_:"):
+            return value
+        if ":" in value and not value.startswith(("http://", "https://")):
+            prefix, local = value.split(":", 1)
+            if prefix in prefixes:
+                return urljoin(document_base, prefixes[prefix] + local)
+        return urljoin(document_base, value)
+
+    def entity(subject: str, vocab: str, supported: bool) -> dict[str, Any]:
+        item = entities.get(subject)
+        if item is None:
+            item = {
+                "@type": [],
+                "@id": subject,
+                "_format": "rdfa",
+                "_path": f"rdfa[{len(entities) + 1}]",
+                "_vocab_context": vocab
+                or ("https://schema.org/" if supported else "unspecified RDFa vocabulary"),
+                "_vocab_supported": supported,
+                "_rdfa_has_schema_type": False,
+            }
+            entities[subject] = item
+        else:
+            if supported and not item["_vocab_supported"]:
+                item["_vocab_context"] = vocab or "https://schema.org/"
+            if supported and not item.get("_rdfa_has_schema_type", False):
+                item["@type"] = []
+            item["_vocab_supported"] = item["_vocab_supported"] or supported
+        return item
+
+    def append(subject_entity: dict[str, Any], property_name: str, value: Any) -> bool:
+        current = subject_entity.get(property_name)
+        if current is None:
+            subject_entity[property_name] = value
+            return True
+        elif isinstance(current, list):
+            if value not in current:
+                current.append(value)
+                return True
+        elif current != value:
+            subject_entity[property_name] = [current, value]
+            return True
+        return False
+
+    def object_value(
+        tag: Tag, doc_base: str, vocab: str, prefixes: dict[str, str], language: str | None
+    ) -> Any:
+        if tag.has_attr("datatype"):
+            if tag.has_attr("content"):
+                lexical: Any = str(tag["content"])
+            elif tag.has_attr("datetime"):
+                lexical = str(tag["datetime"])
+            else:
+                lexical = tag.get_text(" ", strip=True)
+            datatype = str(tag.get("datatype") or "")
+            if datatype:
+                datatype_iri = iri(datatype, doc_base, vocab, prefixes)
+                if datatype_iri in {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML",
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral",
+                }:
+                    reasons.add("RDFa XML/HTML literal serialization is unavailable")
+                    return None
+                return {
+                    "@value": lexical,
+                    "@type": datatype_iri,
+                }
+            value = lexical
+        elif tag.has_attr("content"):
+            value: Any = str(tag["content"])
+        elif tag.has_attr("datetime"):
+            value = str(tag["datetime"])
+        elif any(tag.has_attr(a) for a in ("resource", "href", "src")):
+            href = next(tag[a] for a in ("resource", "href", "src") if tag.has_attr(a))
+            value = {"@id": iri(str(href), doc_base, vocab, prefixes)}
+        else:
+            value = tag.get_text(" ", strip=True)
+        if language and not (isinstance(value, dict) and "@id" in value):
+            literal = value.get("@value", value) if isinstance(value, dict) else value
+            value = {"@value": literal, "@language": str(language)}
+        return value
+
+    # State is inherited element-by-element as required by RDFa. Each state
+    # carries the current subject and any incomplete rel/rev awaiting a child.
+    pending: list[
+        tuple[
+            Tag,
+            str,
+            str,
+            dict[str, str],
+            str,
+            list[tuple[str, str, bool, bool, bool, int]],
+            str | None,
+            int,
+        ]
+    ] = [
+        (
+            soup,
+            base,
+            "",
+            {
+                "schema": "https://schema.org/",
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "rdfa": "http://www.w3.org/ns/rdfa#",
+                "xsd": "http://www.w3.org/2001/XMLSchema#",
+            },
+            base or "_:document",
+            [],
+            None,
+            0,
+        )
+    ]
+    waiting_started: set[int] = set()
+    waiting_resolved: set[int] = set()
+    next_waiting_id = 0
+    pattern_subjects: set[str] = set()
+    copy_edges: list[tuple[str, str]] = []
     while pending:
-        tag, vocab, prefixes, parent = pending.pop()
+        (
+            tag,
+            doc_base,
+            inherited_vocab,
+            prefixes,
+            inherited_subject,
+            waiting,
+            inherited_language,
+            depth,
+        ) = pending.pop()
         if is_inert_template_content(tag):
             continue
-        vocab = str(tag.get("vocab", vocab))
-        prefixes = dict(prefixes)
-        for prefix, iri in re.findall(r"(\w[\w-]*):\s+(\S+)", str(tag.get("prefix") or "")):
-            prefixes[prefix] = iri
-        for attr, value in tag.attrs.items():
+        if depth > 64:
+            reasons.add("RDFa nesting exceeds the validation depth limit (64)")
+            continue
+        if rel_count >= MAX_MARKUP_NODES:
+            reasons.add(f"RDFa processing stopped at the {MAX_MARKUP_NODES}-node limit")
+            break
+        rel_count += 1
+        if rel_count > MAX_RDFA_TOKENS:
+            reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TOKENS}-token limit")
+            break
+
+        doc_base = urljoin(doc_base, str(tag.get("xml:base") or ""))
+        if str(tag.get("profile") or "").strip():
+            reasons.add("RDFa remote profile processing is disabled for offline validation")
+        if tag.has_attr("vocab"):
+            declared_vocab = str(tag.get("vocab") or "")
+            vocab = urljoin(doc_base, declared_vocab) if declared_vocab else ""
+        else:
+            vocab = inherited_vocab
+        local_prefixes = dict(prefixes)
+        for prefix, namespace in re.findall(r"(\w[\w-]*):\s+(\S+)", str(tag.get("prefix") or "")):
+            local_prefixes[prefix.lower()] = urljoin(doc_base, namespace)
+        for attr, namespace in tag.attrs.items():
             if attr.startswith("xmlns:"):
-                prefixes[attr[6:]] = str(value)
-        types = [_rdfa_term(t, vocab, prefixes) for t in _tokens(tag, "typeof")]
-        props = [_rdfa_term(p, vocab, prefixes) for p in _tokens(tag, "property")]
-        if not types and parent is None and not any(supported for _, supported in props):
-            props = []  # Foreign metadata (for example Open Graph) is not Schema.org evidence.
-        current = parent
-        if any(tag.has_attr(a) for a in ("rel", "rev", "inlist")) and (types or props or parent):
-            reasons.add("RDFa rel/rev/inlist graph semantics are not supported")
-        reused = False
-        if types:
-            count += 1
-            subject = tag.get("about")
-            if subject is None and (props or parent is None):
-                subject = tag.get("resource") or tag.get("href") or tag.get("src")
-            subject = urljoin(base, str(subject)) if subject is not None else None
-            current = by_subject.get(subject) if subject else None
-            reused = current is not None
-            if current is None:
-                current = {
-                    "@type": [],
-                    "_format": "rdfa",
-                    "_path": f"rdfa[{count}]",
-                    "_vocab_context": vocab or "/".join(t for t, _ in types),
-                    "_vocab_supported": all(supported for _, supported in types),
-                }
-                if subject:
-                    current["@id"] = subject
-                    by_subject[subject] = current
-                nodes.append(current)
-            current["@type"] = list(dict.fromkeys(current["@type"] + [t for t, _ in types]))
-            current["_vocab_supported"] = current["_vocab_supported"] and all(
-                supported for _, supported in types
-            )
-        elif tag.has_attr("about"):
-            subject = urljoin(base, str(tag["about"]))
-            current = by_subject.get(subject)
-            if current is None and props:
-                reasons.add("RDFa properties on an untyped subject cannot be validated")
-            # about changes the subject even when it has no type declaration.
-        elif tag.has_attr("resource") and not props and parent is not None:
-            current = by_subject.get(urljoin(base, str(tag["resource"])))
-            if current is None:
-                reasons.add("RDFa resource subject changes without typeof are not normalized")
-        if props:
-            owner = parent if types else current
-            if owner is None:
-                reasons.add("RDFa property has no typed subject")
-            else:
-                for prop, supported in props:
-                    if not supported:
-                        owner.setdefault("_markup_warnings", []).append(
-                            f"Property {prop} uses an unsupported vocabulary; validation was skipped"
-                        )
-                        reasons.add("RDFa contains properties from an unsupported vocabulary")
-                        continue
-                    if types:
-                        value = {"@id": current["@id"]} if reused else current
-                    else:
-                        value = _html_value(tag, base, rdfa=True)
-                        if not tag.has_attr("content") and any(
-                            tag.has_attr(attr) for attr in ("resource", "href", "src")
-                        ):
-                            ranges = load_vocab()["properties"].get(prop, {}).get("r", [])
-                            if ranges and not _literal_ok(value, ranges, load_vocab()):
-                                value = {"@id": value}
-                    if tag.has_attr("datatype") and str(tag["datatype"]):
-                        reasons.add("RDFa explicit datatypes are not normalized")
-                    _append_property(owner, prop, value)
-        pending.extend(
-            (child, vocab, prefixes, current) for child in reversed(tag.find_all(recursive=False))
+                local_prefixes[attr[6:].lower()] = urljoin(doc_base, str(namespace))
+        if tag.has_attr("xml:lang"):
+            language = str(tag.get("xml:lang") or "") or None
+        elif tag.has_attr("lang"):
+            language = str(tag.get("lang") or "") or None
+        else:
+            language = inherited_language
+
+        raw_types = [_rdfa_term(token, vocab, local_prefixes) for token in _tokens(tag, "typeof")]
+        raw_props = [_rdfa_term(token, vocab, local_prefixes) for token in _tokens(tag, "property")]
+        raw_rels = [_rdfa_term(token, vocab, local_prefixes) for token in _tokens(tag, "rel")]
+        raw_revs = [_rdfa_term(token, vocab, local_prefixes) for token in _tokens(tag, "rev")]
+        schema_types = [item for item in raw_types if item[1]]
+        types = schema_types or raw_types
+        props = [item for item in raw_props if item[1]]
+        rels = [item for item in raw_rels if item[1]]
+        revs = [item for item in raw_revs if item[1]]
+        token_count += len(raw_types) + len(raw_props) + len(raw_rels) + len(raw_revs)
+        if token_count > MAX_RDFA_TOKENS:
+            reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TOKENS}-token limit")
+            break
+
+        subject = (
+            iri(str(tag["about"]), doc_base, vocab, local_prefixes)
+            if tag.has_attr("about")
+            else inherited_subject
         )
-    # Nodes linked by property containment must not also be emitted as roots.
-    contained = {
-        id(v)
-        for n in nodes
-        for k, value in n.items()
-        if not k.startswith(("@", "_"))
-        for v in (value if isinstance(value, list) else [value])
-        if isinstance(v, dict)
-    }
-    return [n for n in nodes if id(n) not in contained], count, sorted(reasons)
+        resource = next(
+            (tag[a] for a in ("resource", "href", "src") if tag.has_attr(a)), None
+        )
+        object_subject = (
+            iri(str(resource), doc_base, vocab, local_prefixes) if resource is not None else None
+        )
+        if types and not tag.has_attr("about"):
+            if waiting:
+                subject = object_subject or f"_:rdfa{rel_count}"
+            elif object_subject is not None:
+                subject = object_subject
+            elif tag.name in {"html", "head", "body"}:
+                subject = urljoin(doc_base, "")
+            else:
+                subject = f"_:rdfa{rel_count}"
+
+        current = subject
+        if types:
+            typed_count += len(types)
+            current_entity = entity(subject, vocab, bool(schema_types))
+            if any(name == _RDFA_PATTERN for name, _ in raw_types):
+                pattern_subjects.add(subject)
+            has_schema_type = current_entity.get("_rdfa_has_schema_type", False)
+            if schema_types and not has_schema_type:
+                current_entity["@type"] = []
+                current_entity["_rdfa_has_schema_type"] = True
+            if schema_types or not current_entity["_vocab_supported"]:
+                current_entity["@type"] = list(
+                    dict.fromkeys(current_entity["@type"] + [name for name, _ in types])
+                )
+            triple_count += len(types)
+            if triple_count > MAX_RDFA_TRIPLES:
+                reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TRIPLES}-triple limit")
+                break
+        if waiting and (types or tag.has_attr("about")):
+            for relation_subject, predicate, reverse, supported, inlist, waiting_id in waiting:
+                waiting_resolved.add(waiting_id)
+                triple_count += 1
+                if triple_count > MAX_RDFA_TRIPLES:
+                    reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TRIPLES}-triple limit")
+                    break
+                if reverse:
+                    owner_subject, value = subject, {"@id": relation_subject}
+                else:
+                    owner_subject, value = relation_subject, {"@id": subject}
+                owner = entity(owner_subject, vocab, supported)
+                if inlist:
+                    lists.setdefault((owner_subject, predicate), []).append(value)
+                else:
+                    append(owner, predicate, value)
+            waiting = []
+
+        # A typed child reached through a property is the property's resource
+        # object, while its own descendant properties remain on that subject.
+        copy_predicates = [predicate for predicate, _ in raw_props if predicate == _RDFA_COPY]
+        if props or copy_predicates:
+            literal_property = tag.has_attr("content") or tag.has_attr("datatype")
+            owner_subject = (
+                inherited_subject
+                if types and not tag.has_attr("about") and not literal_property
+                else subject
+            )
+            owner = entity(owner_subject, vocab, any(supported for _, supported in props))
+            if types and not tag.has_attr("about") and not literal_property:
+                value: Any = {"@id": subject}
+                if owner_subject != subject:
+                    current_entity = entity(subject, vocab, all(supported for _, supported in types))
+                    current_entity["_rdfa_contained"] = True
+                    current_entity["_rdfa_parent"] = owner_subject
+            else:
+                value = object_value(tag, doc_base, vocab, local_prefixes, language)
+            if value is None:
+                continue
+            for _ in copy_predicates:
+                if isinstance(value, dict) and isinstance(value.get("@id"), str):
+                    copy_edges.append((owner_subject, value["@id"]))
+                    triple_count += 1
+                    if triple_count > MAX_RDFA_TRIPLES:
+                        reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TRIPLES}-triple limit")
+                        break
+            for prop, _ in props:
+                triple_count += 1
+                if triple_count > MAX_RDFA_TRIPLES:
+                    reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TRIPLES}-triple limit")
+                    break
+                if tag.has_attr("inlist"):
+                    lists.setdefault((owner_subject, prop), []).append(value)
+                else:
+                    append(owner, prop, value)
+
+        relation_subject = inherited_subject if types and not tag.has_attr("about") else subject
+        target = object_subject
+        if target is None and types and not tag.has_attr("about"):
+            target = subject
+        for relation, supported in rels:
+            if target is None:
+                next_waiting_id += 1
+                waiting_id = next_waiting_id
+                waiting_started.add(waiting_id)
+                waiting = [
+                    *waiting,
+                    (relation_subject, relation, False, supported, tag.has_attr("inlist"), waiting_id),
+                ]
+                continue
+            owner = entity(relation_subject, vocab, supported)
+            triple_count += 1
+            if triple_count > MAX_RDFA_TRIPLES:
+                reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TRIPLES}-triple limit")
+                break
+            if tag.has_attr("inlist"):
+                lists.setdefault((relation_subject, relation), []).append({"@id": target})
+            else:
+                append(owner, relation, {"@id": target})
+        for relation, supported in revs:
+            if target is None:
+                next_waiting_id += 1
+                waiting_id = next_waiting_id
+                waiting_started.add(waiting_id)
+                waiting = [
+                    *waiting,
+                    (relation_subject, relation, True, supported, tag.has_attr("inlist"), waiting_id),
+                ]
+                continue
+            owner = entity(target, vocab, supported)
+            triple_count += 1
+            if triple_count > MAX_RDFA_TRIPLES:
+                reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TRIPLES}-triple limit")
+                break
+            if tag.has_attr("inlist"):
+                lists.setdefault((target, relation), []).append({"@id": relation_subject})
+            else:
+                append(owner, relation, {"@id": relation_subject})
+
+        children = list(tag.find_all(recursive=False))
+        if rels and object_subject is not None:
+            current = object_subject
+        for child in reversed(children):
+            pending.append((child, doc_base, vocab, local_prefixes, current, waiting, language, depth + 1))
+
+    if waiting_started - waiting_resolved:
+        reasons.add("RDFa incomplete rel/rev relationship has no resource or subject descendant")
+    for (subject, prop), values in lists.items():
+        item = entity(subject, "", True)
+        existing = item.get(prop)
+        if existing is None:
+            item[prop] = values
+        elif isinstance(existing, list):
+            item[prop] = [*existing, *values]
+        else:
+            item[prop] = [existing, *values]
+
+    edge_set = set(copy_edges)
+    valid_edges = list(dict.fromkeys(copy_edges))
+    valid_edges = [edge for edge in valid_edges if edge[1] in pattern_subjects]
+    edges_by_subject: dict[str, list[str]] = {}
+    for subject, target in copy_edges:
+        targets = edges_by_subject.setdefault(subject, [])
+        if target not in targets:
+            targets.append(target)
+    if len(valid_edges) != len(edge_set):
+        reasons.add("RDFa property-copy target is missing or is not an rdfa:Pattern")
+    copy_rounds = 0
+    copy_steps = 0
+
+    def charge_copy(add_triple: bool) -> bool:
+        nonlocal copy_steps, triple_count
+        copy_steps += 1
+        if copy_steps > MAX_RDFA_COPY_STEPS:
+            reasons.add(f"RDFa property copying stopped at the {MAX_RDFA_COPY_STEPS}-step limit")
+            return False
+        if add_triple:
+            if triple_count >= MAX_RDFA_TRIPLES:
+                reasons.add(f"RDFa property copying stopped at the {MAX_RDFA_TRIPLES}-triple limit")
+                return False
+            triple_count += 1
+        return True
+
+    while valid_edges and copy_rounds < MAX_RDFA_COPY_ROUNDS:
+        copy_rounds += 1
+        changed = False
+        budget_hit = False
+        for subject, target in tuple(valid_edges):
+            if not charge_copy(False):
+                budget_hit = True
+                break
+            pattern = entities.get(target)
+            destination = entities.get(subject)
+            if pattern is None or destination is None:
+                reasons.add("RDFa property-copy subject is unavailable")
+                continue
+            for property_name, raw_value in pattern.items():
+                if property_name.startswith("_"):
+                    continue
+                values = raw_value if isinstance(raw_value, list) else [raw_value]
+                if property_name == "@type":
+                    copied_types = [item for item in values if item != _RDFA_PATTERN]
+                    current_types = destination.setdefault("@type", [])
+                    for type_name in copied_types:
+                        if not charge_copy(True):
+                            budget_hit = True
+                            break
+                        if type_name not in current_types:
+                            current_types.append(type_name)
+                            changed = True
+                    if budget_hit:
+                        break
+                    continue
+                if property_name.startswith("@"):
+                    continue
+                for value in values:
+                    if not charge_copy(True):
+                        budget_hit = True
+                        break
+                    if append(destination, property_name, value):
+                        changed = True
+                if budget_hit:
+                    break
+            if budget_hit:
+                break
+            nested_targets = edges_by_subject.get(target, [])
+            for nested_target in nested_targets:
+                nested_edge = (subject, nested_target)
+                if nested_target not in pattern_subjects:
+                    reasons.add("RDFa property-copy target is missing or is not an rdfa:Pattern")
+                    continue
+                if not charge_copy(True):
+                    budget_hit = True
+                    break
+                if nested_edge not in edge_set:
+                    edge_set.add(nested_edge)
+                    copy_edges.append(nested_edge)
+                    edges_by_subject.setdefault(subject, []).append(nested_target)
+                    valid_edges.append(nested_edge)
+                    changed = True
+            if budget_hit:
+                break
+        if budget_hit:
+            valid_edges = []
+            break
+        if not changed:
+            break
+    else:
+        if valid_edges:
+            reasons.add(f"RDFa property copying stopped at the {MAX_RDFA_COPY_ROUNDS}-round limit")
+    for pattern_subject in pattern_subjects:
+        entities.pop(pattern_subject, None)
+    return list(entities.values()), typed_count, sorted(reasons)
 
 
 # JSON has no comments and permits no trailing comma. Both appear constantly in
@@ -515,17 +890,22 @@ def _flatten(
         _flatten(payload["@graph"], out, f"{path}@graph", contained, parent_key, depth + 1)
         # An @graph wrapper may have properties, but it is not treated as an entity.
         return
+    if "@value" in payload:
+        return  # JSON-LD value objects are literals, not graph entities.
     # A pure {"@id": ...} object is a reference, not an entity definition. Treating
     # it as a node would suppress dangling-reference detection by self-definition.
     if set(payload) <= {"@id"}:
         return
     node = dict(payload)
+    rdfa_parent = node.pop("_rdfa_parent", None)
+    rdfa_contained = node.pop("_rdfa_contained", False)
+    node.pop("_rdfa_has_schema_type", None)
     node_path = node.get("_path") or path or "@root"
     node["_path"] = node_path
-    node["_contained"] = contained
+    node["_contained"] = contained or rdfa_contained
     node_key = node.get("@id") or f"_path:{node_path}"
     node["_key"] = node_key
-    node["_parent_key"] = parent_key if contained else None
+    node["_parent_key"] = rdfa_parent or (parent_key if contained else None)
     out.append(node)
     if depth >= 64:
         node["_markup_errors"] = [
@@ -641,6 +1021,13 @@ def _check_node(node: dict[str, Any], vocab: dict[str, Any], known_ids: set[str]
         values = value if isinstance(value, list) else [value]
         for v in values:
             if isinstance(v, dict):
+                if "@value" in v:
+                    if not _literal_ok(v.get("@value"), prop["r"], vocab):
+                        warnings.append(
+                            f"{key}: typed literal value does not match expected ranges "
+                            f"({', '.join(prop['r'][:3])})"
+                        )
+                    continue
                 sub = _types_of(v)
                 if sub and prop["r"]:
                     ok = any(set(type_chain(s, vocab)) & set(prop["r"]) for s in sub)
@@ -834,6 +1221,29 @@ def check_schema(
             return {"ok": False, "url": target, "error": str(exc)}
         result.update(url=target, final_url=str(resp.url), status_code=resp.status_code)
 
+    if len(html.encode("utf-8", errors="replace")) > MAX_HTML_BYTES:
+        reason = f"HTML exceeds the {MAX_HTML_BYTES}-byte schema validation limit"
+        result.update(
+            vocabulary={"fetched": False, "types": 0, "properties": 0},
+            blocks=0,
+            blocks_found=0,
+            blocks_invalid=0,
+            vocabularies=[],
+            parse_errors=[],
+            graph={"nodes": 0, "with_id": 0, "linked_by_id": 0, "top_level": 0, "islands": [], "is_graph": False},
+            entities=[],
+            rich_results=[],
+            rules_version=RICH_RESULTS_RULES_VERSION,
+            other_markup={"microdata": False, "rdfa": False},
+            markup_counts={"microdata": 0, "rdfa": 0},
+            markup_coverage=[
+                {"format": "microdata", "status": "partial", "reasons": [reason]},
+                {"format": "rdfa", "status": "partial", "reasons": [reason]},
+            ],
+        )
+        result["findings"] = [f"Structured-data validation coverage is partial: {reason}"]
+        return result
+
     vocab = load_vocab()
     soup = BeautifulSoup(html, features="lxml")
     blocks, parse_errors, blocks_found = _extract_blocks(soup)
@@ -897,14 +1307,14 @@ def check_schema(
         rules_version=RICH_RESULTS_RULES_VERSION,
         other_markup={
             "microdata": bool(microdata_count),
-            "rdfa": bool(rdfa_count or rdfa_reasons),
+            "rdfa": bool(rdfa_count or rdfa_reasons or rdfa),
         },
         markup_counts={"microdata": microdata_count, "rdfa": rdfa_count},
         markup_coverage=[
             {"format": "microdata", "status": "checked" if microdata_count else "absent"},
             {
                 "format": "rdfa",
-                "status": "partial" if rdfa_reasons else "checked" if rdfa_count else "absent",
+                "status": "partial" if rdfa_reasons else "checked" if rdfa_count or rdfa else "absent",
                 "reasons": rdfa_reasons,
             },
         ],

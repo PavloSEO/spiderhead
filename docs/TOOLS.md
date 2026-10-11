@@ -261,7 +261,7 @@ because the rules could not be read, so the command never claims crawling is all
 
 | Command | What it does |
 |---|---|
-| `schema-check` | JSON-LD, Microdata and common RDFa validation **in two layers**: the bundled vocabulary (`domainIncludes`/`rangeIncludes`, inheritance, deprecated terms and literal values) and local Google rich-result requirements; unsupported RDFa constructs are partial evidence |
+| `schema-check` | JSON-LD, Microdata and offline RDFa subject-graph validation **in two layers**: the bundled vocabulary (`domainIncludes`/`rangeIncludes`, inheritance, deprecated terms and literal values) and local Google rich-result requirements; RDFa uses HTML's undefined default vocabulary, resource/literal values, relations, `inlist` and iterative property copying; HTML/node/token/triple/copy-step/copy-round limits produce explicit partial coverage |
 | `schema-build` | Builds a suggested connected `@graph` with `@id`s for the page type; `--type` sets the type manually when the classifier is unsure |
 | `social-meta-check` | Open Graph and Twitter Card: what is there, what is missing, what contradicts the content |
 | `citability-check` | How quotable a text is for an AI answer: direct answers, facts, structure. Fetching a URL scores the resolved content area's Markdown (nav/footer excluded), not the raw whole-document text |
@@ -483,9 +483,11 @@ without deleting its scan. The exact arguments and defaults are in the generated
 | `scan-prune` | Produces a retention plan by default. Deletion needs `--apply` and the exact reviewed plan. | deletes only with `--apply` |
 | `scan-body-diff` | Compares matching retained body hashes from two validated scans; optional text output is bounded and only applies to compatible textual evidence. A changed body is not an SEO score or verdict. | — |
 | `scan-evidence` | Reads one bounded saved-evidence section: capabilities, corpus, structured data, rendered routes, resources, or timeline. It never fetches or replays a scan. | — |
+| `scan-structured-blocks` | Reads one exact retained URL and representation, returning bounded JSON-LD source blocks, per-format JSON-LD/Microdata/RDFa results, retained structured/language evidence, and local offline Schema.org validation. Use `--variant-key` when the saved URL has multiple HTTP variants. | — |
 | `scan-extract` | Applies closed declarative extraction rules to retained complete bodies only. It is offline, body-retention limited, and does not persist the ad-hoc result. | — |
-| `scan-content-search` | Searches all retained complete textual documents offline for a literal string (or a Python regular expression with `kind="regex"`; a document over the regex time budget is unavailable, never absent), including HEAD, raw HTML, body text, or CSS-selected markup. Static/rendered coverage is explicit: unavailable bodies stay unknown, never absent. GTM/GA4/analytics tags are useful audit inputs; a tag's presence does not prove it fired. | writes a new indexed local result package |
+| `scan-content-search` | Searches retained complete textual documents offline for a literal string (or a Python regular expression with `kind="regex"`), including HEAD, raw HTML, body text, or CSS-selected markup. Each document reports every returned match offset (zero-based Unicode code points, end-exclusive), one-based line, and `match_index`/`match_total`; a per-URL filter narrows the read. Optional redacted windows contain at most six lines and 4,000 characters. Exact match totals remain visible if the 10,000-offset or 64 KiB record limit truncates returned occurrences, and coverage becomes partial. Regexes are unavailable when a wall-clock deadline cannot be enforced; unavailable bodies remain unknown, never absent. A package is capped at 512 MiB and reports incomplete coverage if that limit stops the scan. | writes a new indexed local result package |
 | `scan-content-search-page` | Reads at most 100 rows of that derived package using validated offsets and integrity checks, with unchanged global coverage counters. This operation never reopens or fetches the site. | — |
+| `custom-extract-sample` | Previews declared CSS, XPath or regex extractors against HTML supplied in the request. The optional URL is a label only; this tool never fetches it. | — |
 | `marketing-inventory` | Correlates CTA and form/iframe fields per supplied DOM occurrence. It never fetches, submits forms, or inspects iframe contents; an explicit new output directory writes local JSON and formula-safe CSV. | optional local artifact write |
 | `scan-fragment-links` | Evaluates every fragment-bearing `a[href]` in retained complete HTML/DOM and reports whether each `#fragment` identifies a target in the retained destination document (WHATWG scroll-to-the-fragment matching: serialized fragment against ids and `<a name>` first, then the percent/UTF-8-decoded value against both, then `top`). Static and rendered representations are measured independently; missing, truncated, unsupported or budget-exhausted bodies stay named skips, never broken findings. It never fetches a destination. | — |
 | `scan-requeue` | Requeues a restricted saved URL/page selection only after creating a mandatory verified backup. | writes artifact and backup |
@@ -541,6 +543,7 @@ seohead scan-body-diff --left before.sqlite --right after.sqlite --url https://e
 
 # read retained evidence or make an ad-hoc offline extraction; neither fetches a URL
 seohead scan evidence --scan native.sqlite --section structured
+seohead scan-structured-blocks --scan native.sqlite --url https://example.test/page --representation static
 seohead scan extract --scan native.sqlite --input '{"rules":[{"id":"product-name","kind":"text","selector":"h1","operator":"matches","value":"Product *","max_matches":1}]}'
 ```
 

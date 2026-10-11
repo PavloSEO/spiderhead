@@ -3388,15 +3388,19 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         case_sensitive: bool = False,
         include_snippets: bool = False,
         kind: Literal["literal", "regex"] = "literal",
+        url: str | None = None,
     ) -> dict[str, Any]:
         """Search one closed retained scan offline and create an indexed local NDJSON package.
 
         The tool never fetches or reconstructs a body. Static and rendered are
         separate requests; a missing body remains unavailable rather than an
-        absence. It returns only source identity, counts and output paths.
+        absence. Each serialized record is limited to 64 KiB and each package
+        to 512 MiB; hitting the package limit returns an explicitly incomplete
+        package. It returns source identity, counts and output paths.
         ``include_snippets`` is opt-in and redacts common credential-shaped values.
         ``kind="regex"`` treats ``query`` as a regular expression; a document
-        that exceeds the per-document regex budget is unavailable, not absent.
+        that exceeds the per-document regex budget, or runs where that deadline
+        cannot be enforced, is unavailable, not absent.
         """
         return _checked(
             handlers.scan_content_search(
@@ -3410,8 +3414,20 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 case_sensitive=case_sensitive,
                 include_snippets=include_snippets,
                 kind=kind,
+                url=url,
             )
         )
+
+    @mcp.tool(annotations=pure, structured_output=True)
+    def seo_custom_extract_sample(
+        html: str, extractors: list[dict], url: str = ""
+    ) -> dict[str, Any]:
+        """Preview declared extractors against supplied HTML without fetching a URL.
+
+        ``url`` is an output label only. Pass the HTML already held locally and
+        an explicit extractor list; this tool has no network path.
+        """
+        return _checked(handlers.custom_extract_sample(html, extractors, url=url))
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_scan_content_search_page(
@@ -3456,12 +3472,18 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_scan_structured_blocks(
-        input_path: str, url: str, representation: str = "static"
+        input_path: str,
+        url: str,
+        representation: str = "static",
+        variant_key: str | None = None,
     ) -> dict[str, Any]:
-        """Describe one retained page's JSON-LD blocks: line, state, graph findings and source JSON, offline."""
+        """Read bounded retained structured data and offline Schema.org validation for one exact URL."""
         return _checked(
             handlers.scan_structured_blocks(
-                input_path=input_path, url=url, representation=representation
+                input_path=input_path,
+                url=url,
+                representation=representation,
+                variant_key=variant_key,
             )
         )
 
