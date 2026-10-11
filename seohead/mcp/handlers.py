@@ -3080,7 +3080,6 @@ def backlinks_profile(
     No sources means offline analysis only; absence never proves a link was lost.
     """
     from seohead.recon.backlink_profile import build_backlink_profile, fetch_backlink_source
-
     from seohead.recon.net import normalize_domain
 
     normalized_domain = normalize_domain(domain)
