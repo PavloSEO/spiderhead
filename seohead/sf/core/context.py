@@ -831,6 +831,10 @@ class AuditContext:
         }
 
     # -- config-aware helpers ----------------------------------------------
+    def settled(self, check_id: str) -> bool:
+        """Whether a check already has a finding or a skip reason."""
+        return check_id in self._fired_ids or check_id in self._skipped_ids
+
     def enabled(self, check_id: str) -> bool:
         cfg = self.config.get("checks", {}).get(check_id, {})
         return cfg.get("enabled", True)
@@ -931,7 +935,9 @@ class AuditContext:
             if check_id in native:
                 continue
             gone = missing_requirements(check_id, available)
-            if gone:
+            if gone and self.scan_con is not None:
+                self.skip(check_id, "not measured by this native crawl")
+            elif gone:
                 self.skip(check_id, "missing export: " + ", ".join(gone))
 
     def retract(self, check_id: str, reason: str) -> None:
