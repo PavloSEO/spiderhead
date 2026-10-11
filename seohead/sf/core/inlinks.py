@@ -675,7 +675,7 @@ def _check_not_canonical(
         # #176 audit: correct by construction. A redirecting twin under this key rarely
         # carries a canonical tag of its own (SF's parser reads canonical off the fetched
         # HTML, and a 3xx has none) — the 2xx variant is the one this check needs.
-        target = ctx.page_by_norm.get(norm_url(dest))
+        target = ctx.page_by_url.get(dest) or ctx.page_by_norm.get(norm_url(dest))
         canonical = (
             _rec(target).get("canonical")
             if target

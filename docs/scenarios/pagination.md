@@ -92,7 +92,10 @@ For opaque URLs, the check never invents page numbers. It reports an explicit co
 A declares `next=B`, while B declares `prev=C` instead of A (and the mirror direction).
 Correct reciprocal pairs stay silent. Missing reverse declarations, uncaptured targets,
 ambiguous successors and old scans without retained annotations remain unjudged with a reason.
-Cycles are reported by `PAGINATION_LOOP` alone. Raw declarations and document identity accompany
+Cycles are reported by `PAGINATION_LOOP` alone. Native graph identities preserve distinct slash
+paths and uncertain fragment-route documents remain unmeasured. Reciprocal contradictions also
+cover numbered neighbors in a chain whose first URL is unnumbered; duplicate forward/reverse
+reports of one broken successor are collapsed. Raw declarations and document identity accompany
 the contradiction finding.
 
 Findings are retained in the audit and can be selected with `scan-url-query --issue-check

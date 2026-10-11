@@ -16,6 +16,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
+import httpx
+
 from seohead.checks.parser import _rel_has, robots_directives, uses_ajax_crawling_scheme
 from seohead.core.canonical_policy import matching_canonical_rule
 
@@ -1442,10 +1444,17 @@ def check_canonical_annotations(ctx: AuditContext) -> None:
         source, target = urllib.parse.urlsplit(page.url), urllib.parse.urlsplit(canonical)
         if target.scheme not in {"http", "https"} or not target.hostname:
             continue
+        from seohead.storage.target_probes import canonical_identity
+
+        try:
+            source_host = canonical_identity(page.url)[1]
+            target_host = canonical_identity(canonical)[1]
+        except (ValueError, httpx.InvalidURL):
+            continue
         differences = [
             name
             for name, a, b in (
-                ("host", source.hostname, target.hostname),
+                ("host", source_host, target_host),
                 ("protocol", source.scheme, target.scheme),
             )
             if a != b
@@ -1478,7 +1487,7 @@ def check_canonical_annotations(ctx: AuditContext) -> None:
         invalid = []
         for declaration in declarations:
             rel = declaration["rel"]
-            if not re.search(r"(?:^|[\s,;])canonical(?:$|[\s,;])", rel, re.I):
+            if not re.search(r"(?:^|[\s,;])(?ai:canonical)(?:$|[\s,;])", rel):
                 continue
             alternate_attributes = {
                 name: declaration[name]
@@ -1490,7 +1499,7 @@ def check_canonical_annotations(ctx: AuditContext) -> None:
                 reason = (
                     "canonical includes alternate-version attributes ignored for canonicalization"
                 )
-            elif not _rel_has("canonical")(rel) or re.search(r"[,;]|[^\S \t\r\n\f]", rel):
+            elif not _rel_has("canonical")(rel):
                 reason = "canonical relation uses a non-HTML whitespace or punctuation separator"
             elif not declaration["href"].strip():
                 reason = "canonical href is empty or missing"
@@ -1543,8 +1552,15 @@ def _canonical_edges(ctx: AuditContext) -> tuple[dict[str, str], bool]:
             edges[a] = b
     for key, payload in ctx.target_probes.items():
         canonical = payload.get("canonical")
-        if canonical and norm_url(canonical) != key:
-            edges[key] = norm_url(canonical)
+        if canonical:
+            from seohead.storage.target_probes import canonical_identity
+
+            try:
+                different = canonical_identity(canonical) != canonical_identity(payload["url"])
+            except (ValueError, httpx.InvalidURL):
+                different = norm_url(canonical) != key
+            if different:
+                edges[key] = norm_url(canonical)
     return edges, has_any
 
 
@@ -1975,6 +1991,16 @@ def check_unlinked_canonical(ctx: AuditContext) -> None:
         )
 
 
+def _pagination_key(ctx: AuditContext, url: str) -> str:
+    """Native graph nodes use the collector's identities; exports retain their tolerance."""
+    if ctx.scan_con is not None:
+        from seohead.crawl.spider import _canonical_key
+
+        fragment = urllib.parse.urlsplit(url).fragment
+        return _canonical_key(url) + ("#" + fragment if fragment else "")
+    return norm_url(url)
+
+
 def pagination_records(ctx: AuditContext):
     """Stream unique pagination declarations from selected native HTML or SF rows."""
     if ctx.scan_con is None:
@@ -2015,27 +2041,31 @@ def _check_unnumbered_pagination(ctx: AuditContext, next_map: dict[str, str]):
     """Judge explicit reciprocal contradictions, never infer opaque page numbers."""
     _loops, cycling = pagination_loops(next_map)
     judged = set()
+    reported_forward = set()
     for page, rec in pagination_records(ctx):
-        source = norm_url(page.url)
+        source = _pagination_key(ctx, page.url)
         if source in cycling:
             continue
         for relation, reverse in (("next", "prev"), ("prev", "next")):
             target = rec.get("rel_" + relation)
             if not target or (
-                pagination_page_number(_display_url(ctx, source)) is not None
+                ctx.scan_con is None
+                and pagination_page_number(_display_url(ctx, source)) is not None
                 and pagination_page_number(target) is not None
             ):
                 continue
-            key = norm_url(target)
+            key = _pagination_key(ctx, target)
             if key in cycling:
                 continue
-            target_page = ctx.page_by_norm.get(key)
+            target_page = ctx.page_by_url.get(target) or ctx.page_by_norm.get(norm_url(target))
             if target_page is None:
                 continue
             target_rec = _rec(target_page)
             if ctx.scan_con is not None:
                 from seohead.storage.head_links import for_url
 
+                if _pagination_key(ctx, target_page.url) != key:
+                    continue
                 declarations = for_url(ctx.scan_con, target_page.url)
                 if declarations is None:
                     continue
@@ -2044,11 +2074,15 @@ def _check_unnumbered_pagination(ctx: AuditContext, next_map: dict[str, str]):
             if counterpart is None:
                 continue  # a missing statement does not establish a contradiction
             judged.add(source)
-            if norm_url(counterpart) == source:
+            if _pagination_key(ctx, counterpart) == source:
                 continue
+            reporter = source if relation == "next" else key
+            if reporter in reported_forward:
+                continue
+            reported_forward.add(reporter)
             ctx.add(
                 "PAGINATION_SEQUENCE_ERROR",
-                target_url=_display_url(ctx, source),
+                target_url=_display_url(ctx, reporter),
                 details={
                     "series": [_display_url(ctx, source), target],
                     "basis": "contradictory reciprocal pagination declarations",
@@ -2066,7 +2100,7 @@ def _check_unnumbered_pagination(ctx: AuditContext, next_map: dict[str, str]):
                     ],
                 },
             )
-    return judged
+    return judged, reported_forward
 
 
 def check_pagination(ctx: AuditContext) -> None:
@@ -2100,7 +2134,11 @@ def check_pagination(ctx: AuditContext) -> None:
             targets = ctx.pages_by_norm.get(norm_url(value)) or _probed_targets(
                 ctx, norm_url(value)
             )
-            target = ctx.page_by_norm.get(norm_url(value)) or (targets[0] if targets else None)
+            target = (
+                ctx.page_by_url.get(value)
+                or ctx.page_by_norm.get(norm_url(value))
+                or (targets[0] if targets else None)
+            )
             if target is None:
                 unmeasured += 1
                 continue
@@ -2215,10 +2253,12 @@ def check_pagination_series(ctx: AuditContext) -> None:
     on a partial one.
     """
     next_map: dict[str, str] = {}
+    complete_sources = 0
     for page, rec in pagination_records(ctx):
+        complete_sources += 1
         nxt = rec.get("rel_next")
         if nxt:
-            next_map[norm_url(page.url)] = norm_url(nxt)
+            next_map[_pagination_key(ctx, page.url)] = _pagination_key(ctx, nxt)
     if not next_map:
         ctx.skip("PAGINATION_LOOP", 'no rel="next" column in Internal:All')
         ctx.skip("UNLINKED_PAGINATION_SERIES", 'no rel="next" column in Internal:All')
@@ -2233,7 +2273,7 @@ def check_pagination_series(ctx: AuditContext) -> None:
     # #176 audit: display only, like the equivalent helper in check_canonical_chain — the
     # walk over next_map already decided the series and the loop before any URL is printed.
     def _url_of(n: str) -> str:
-        page = ctx.page_by_norm.get(n)
+        page = ctx.page_by_url.get(n) or ctx.page_by_norm.get(norm_url(n))
         return page.url if page is not None else n
 
     loops, in_loop = pagination_loops(next_map)
@@ -2243,6 +2283,27 @@ def check_pagination_series(ctx: AuditContext) -> None:
             target_url=_url_of(start),
             details={"series": [_url_of(n) for n in path], "loops_back_to": _url_of(loops_to)},
         )
+
+    if ctx.scan_con is not None:
+        from seohead.storage.head_links import eligible_count, for_url
+
+        incomplete = complete_sources < eligible_count(ctx.scan_con)
+        for destination in next_map.values():
+            target = ctx.page_by_url.get(destination) or ctx.page_by_norm.get(norm_url(destination))
+            if (
+                target is None
+                or not target.is_2xx
+                or not target.is_html
+                or _pagination_key(ctx, target.url) != destination
+                or for_url(ctx.scan_con, target.url) is None
+            ):
+                incomplete = True
+                break
+        if incomplete:
+            reason = "not measured completely by this native crawl: one or more pagination graph documents lack complete retained annotations"
+            ctx.skip("PAGINATION_LOOP", reason)
+            ctx.skip("UNLINKED_PAGINATION_SERIES", reason)
+            return  # known loops above remain findings; negative graph claims remain unavailable
 
     # The cheap per-page filters run before the walk, not after it, so a full
     # chain is only ever traversed for a head that can actually produce a
@@ -2255,7 +2316,7 @@ def check_pagination_series(ctx: AuditContext) -> None:
         # is_indexable and inlinks are properties of the live page, and a redirecting twin
         # under this key would report neither, so the 2xx-preferring representative is the
         # only variant "is this series head unlinked" can mean.
-        page = ctx.page_by_norm.get(start)
+        page = ctx.page_by_url.get(start) or ctx.page_by_norm.get(norm_url(start))
         if page is None or not page.is_indexable or _rec(page).get("crawl_depth") == 0:
             continue
         inlinks = _rec(page).get("inlinks")
@@ -2290,20 +2351,25 @@ def pagination_page_number(url: str) -> int | None:
     one does: the URL does not tell us which page it is, and a check that picks
     one of them is inventing the evidence it then reports on.
     """
-    parts = urllib.parse.urlsplit(url)
-    seen: set[int] = set()
-    for key, value in urllib.parse.parse_qsl(parts.query):
-        if key.strip().lower() in _PAGE_NUMBER_PARAMS and value.isdigit():
-            seen.add(int(value))
-    match = _PAGE_NUMBER_PATH_RE.search(parts.path)
-    if match:
-        seen.add(int(match.group(1)))
+    try:
+        parts = urllib.parse.urlsplit(url)
+        seen: set[int] = set()
+        for key, value in urllib.parse.parse_qsl(parts.query, keep_blank_values=True):
+            if key.strip().lower() in _PAGE_NUMBER_PARAMS:
+                if not value.isdecimal():
+                    return None
+                seen.add(int(value))
+        match = _PAGE_NUMBER_PATH_RE.search(parts.path)
+        if match:
+            seen.add(int(match.group(1)))
+    except ValueError:
+        return None  # malformed URLs and unsupported integer widths state no readable number
     return seen.pop() if len(seen) == 1 else None
 
 
 def _display_url(ctx: AuditContext, norm: str) -> str:
     """The crawled URL behind a normalized key, or the key itself when uncrawled."""
-    page = ctx.page_by_norm.get(norm)
+    page = ctx.page_by_url.get(norm) or ctx.page_by_norm.get(norm_url(norm))
     return page.url if page is not None else norm
 
 
@@ -2416,8 +2482,8 @@ def check_pagination_sequence(ctx: AuditContext) -> None:
     for page, rec in pagination_records(ctx):
         nxt = rec.get("rel_next")
         if nxt:
-            next_map[norm_url(page.url)] = norm_url(nxt)
-    reciprocal_judged = _check_unnumbered_pagination(ctx, next_map)
+            next_map[_pagination_key(ctx, page.url)] = _pagination_key(ctx, nxt)
+    reciprocal_judged, reciprocal_breaks = _check_unnumbered_pagination(ctx, next_map)
     if not next_map:
         ctx.skip("PAGINATION_SEQUENCE_ERROR", 'no rel="next" column in Internal:All')
         return
@@ -2465,7 +2531,7 @@ def check_pagination_sequence(ctx: AuditContext) -> None:
                 "to_page": numbers[i + 1],
             }
             for i, step in enumerate(steps)
-            if step != expected
+            if step != expected and path[i] not in reciprocal_breaks
         ]
         if not breaks:
             continue

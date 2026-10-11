@@ -465,3 +465,194 @@ def test_separate_canonical_and_hreflang_annotations_are_not_invalid(tmp_path):
         tmp_path, {BASE: _Response(_html(("en", "/"), extra_head=_head("canonical", BASE)))}
     )
     assert not _issues(audit, "CANONICAL_INVALID_ATTRIBUTE")
+
+
+@pytest.mark.parametrize(
+    "relation", ["canon\u0131cal", "canon\u0130cal", "CANON\u0131CAL", "custom-relation"]
+)
+def test_unknown_unicode_relation_keywords_are_not_invalid_canonicals(tmp_path, relation):
+    audit = _capture(tmp_path, {BASE: _Response(_html(extra_head=_head(relation, BASE)))})
+    assert not _issues(audit, "CANONICAL_INVALID_ATTRIBUTE")
+    parsed = parse_html(_html(extra_head=_head(relation, BASE)), BASE)
+    assert parsed["canonical"] is None and parsed["head_links"] == []
+
+
+def test_non_html_whitespace_does_not_create_hreflang_declarations():
+    parsed = parse_html(
+        _html(extra_head=f'<link rel="alternate\u00a0custom" hreflang="en" href="{BASE}">'), BASE
+    )
+    assert parsed["hreflang"] == []
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        BASE + "catalog?page=%C2%B2",
+        BASE + "catalog?page=" + "1" * 5000,
+        BASE + "page/" + "1" * 5000,
+        "http://[",
+    ],
+)
+def test_unreadable_page_tokens_remain_unjudged_instead_of_crashing(url):
+    from seohead.sf.core.rules import pagination_page_number
+
+    assert pagination_page_number(url) is None
+
+
+@pytest.mark.parametrize(
+    "unknown",
+    [
+        "custom,keyword",
+        "custom;keyword",
+        "custom\u00a0keyword",
+        "https://extension.example/relation?a=1,b=2",
+    ],
+)
+def test_valid_canonical_does_not_validate_unrelated_unknown_relation_tokens(tmp_path, unknown):
+    audit = _capture(
+        tmp_path, {BASE: _Response(_html(extra_head=_head("canonical " + unknown, BASE)))}
+    )
+    assert not _issues(audit, "CANONICAL_INVALID_ATTRIBUTE")
+
+
+@pytest.mark.parametrize(
+    "source,target",
+    [
+        ("https://bücher.example/", "https://xn--bcher-kva.example/"),
+        ("https://faß.example/", "https://xn--fa-hia.example:443/"),
+    ],
+)
+def test_equivalent_idn_canonical_is_not_cross_host_or_nonindexable(source, target):
+    import pandas as pd
+
+    from seohead.sf.config import load_config
+    from seohead.sf.core.context import AuditContext
+    from seohead.sf.core.loader import LoadedExports
+    from seohead.sf.core.rules import check_canonical_annotations
+    from seohead.storage.target_probes import indexability
+
+    exports = LoadedExports()
+    exports.frames["internal_all"] = pd.DataFrame(
+        [
+            {
+                "Address": source,
+                "Content Type": "text/html",
+                "Status Code": 200,
+                "Canonical Link Element 1": target,
+            }
+        ]
+    )
+    ctx = AuditContext(exports, load_config(None))
+    check_canonical_annotations(ctx)
+    assert not [issue for issue in ctx.issues if issue.check == "CANONICAL_CROSS_ORIGIN"]
+    assert (
+        indexability({"url": source, "status_code": 200, "noindex": False, "canonical": target})[
+            "state"
+        ]
+        == "indexable"
+    )
+
+
+@pytest.mark.parametrize(
+    "url",
+    [BASE + "catalog?page=2&page=abc", BASE + "catalog?page=2&page=", BASE + "page/2/?page=%C2%B2"],
+)
+def test_any_unreadable_declared_page_token_leaves_the_url_unjudged(url):
+    from seohead.sf.core.rules import pagination_page_number
+
+    assert pagination_page_number(url) is None
+
+
+@pytest.mark.parametrize("slash_noindex", [False, True])
+def test_pagination_target_uses_exact_captured_slash_variant(tmp_path, slash_noindex):
+    pages = {
+        BASE: _Response(
+            _html(
+                extra_head=_head("next", "/middle/"),
+                body='<a href="/middle">one</a><a href="/middle/">two</a>',
+            )
+        ),
+        BASE + "middle": _Response(
+            _html(extra_head='<meta name="robots" content="noindex">' if not slash_noindex else "")
+        ),
+        BASE + "middle/": _Response(
+            _html(extra_head='<meta name="robots" content="noindex">' if slash_noindex else "")
+        ),
+    }
+    audit = _capture(tmp_path, pages, max_urls=5)
+    findings = _issues(audit, "PAGINATION_NONINDEXABLE")
+    if slash_noindex:
+        assert findings and findings[0]["target_url"] == BASE + "middle/"
+    else:
+        assert not findings
+
+
+def test_native_finite_distinct_slash_pages_do_not_manufacture_a_pagination_loop(tmp_path):
+    audit = _capture(
+        tmp_path,
+        {
+            BASE: _Response(_html(body='<a href="/step">one</a><a href="/step/">two</a>')),
+            BASE + "step": _Response(
+                _html(extra_head=_head("next", "/step/"), body="<p>first page</p>")
+            ),
+            BASE + "step/": _Response(
+                _html(extra_head=_head("prev", "/step"), body="<p>second page</p>")
+            ),
+        },
+        max_urls=5,
+    )
+    assert not _issues(audit, "PAGINATION_LOOP")
+    assert not _issues(audit, "PAGINATION_SEQUENCE_ERROR")
+    assert "PAGINATION_SEQUENCE_ERROR" not in {row["id"] for row in audit["run"]["checks_skipped"]}
+
+
+def test_probed_default_port_self_canonical_does_not_create_a_chain(tmp_path):
+    audit = _capture(
+        tmp_path,
+        {
+            BASE: _Response(_html(extra_head=_head("canonical", "/preferred/"))),
+            BASE + "preferred/": _Response(
+                _html(extra_head=_head("canonical", "https://example.test:443/preferred/"))
+            ),
+        },
+    )
+    assert not _issues(audit, "CANONICAL_CHAIN")
+    assert not _issues(audit, "CANONICAL_NON_INDEXABLE")
+
+
+def test_fragment_only_next_does_not_invent_an_unobserved_javascript_route_loop(tmp_path):
+    audit = _capture(tmp_path, {BASE: _Response(_html(extra_head=_head("next", "#next-state")))})
+    assert not _issues(audit, "PAGINATION_LOOP")
+    assert "PAGINATION_LOOP" in {row["id"] for row in audit["run"]["checks_skipped"]}
+
+
+def test_missing_native_neighbor_annotations_leave_loop_absence_unmeasured(tmp_path):
+    audit = _capture(
+        tmp_path,
+        {
+            BASE: _Response(_html(extra_head=_head("next", "/uncaptured/"))),
+            BASE + "uncaptured/": _Response(_html()),
+        },
+    )
+    assert not _issues(audit, "PAGINATION_LOOP")
+    assert "PAGINATION_LOOP" in {row["id"] for row in audit["run"]["checks_skipped"]}
+
+
+def test_native_unnumbered_first_page_recalls_the_shop_pagination_defect(tmp_path):
+    root = "/catalog/"
+    targets = [root, root + "?page=2", root + "?page=3", root + "?page=4", root + "?page=5"]
+    pages = {
+        BASE: _Response(_html(body="".join(f'<a href="{target}">page</a>' for target in targets)))
+    }
+    for index, target in enumerate(targets):
+        nxt = targets[index + 1] if index + 1 < len(targets) else None
+        if index == 1:
+            nxt = targets[3]
+        head = (_head("next", nxt) if nxt else "") + (
+            _head("prev", targets[index - 1]) if index else ""
+        )
+        pages[BASE + target.lstrip("/")] = _Response(_html(extra_head=head))
+    audit = _capture(tmp_path, pages, max_urls=10)
+    issues = _issues(audit, "PAGINATION_SEQUENCE_ERROR")
+    assert len(issues) == 1 and issues[0]["target_url"] == BASE + "catalog/?page=2"
+    assert issues[0]["details"]["breaks"][0]["declared_return_url"] == BASE + "catalog/?page=3"

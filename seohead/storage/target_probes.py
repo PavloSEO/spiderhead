@@ -14,6 +14,8 @@ import json
 from typing import Any
 from urllib.parse import urlsplit
 
+import httpx
+
 KIND = "target_probe"
 SCHEMA_VERSION = "target_probe.v2"
 LEGACY_VERSION = "target_probe.v1"
@@ -179,10 +181,26 @@ def load(con: Any) -> dict[str, dict[str, Any]]:
     return {key[len("url:") :]: json.loads(payload) for key, payload in rows}
 
 
-def indexability(payload: dict[str, Any]) -> dict[str, str]:
-    """State exactly what the stored response and parsed directives establish."""
+def canonical_identity(url: str) -> tuple:
+    """Normalize authority with the HTTP client while retaining the analyzer URL policy."""
     from seohead.sf.core.normalize import norm_url
 
+    parts = urlsplit(norm_url(url))
+    authority = httpx.URL(scheme=parts.scheme, host=parts.hostname or "", port=parts.port)
+    userinfo = parts.netloc.rpartition("@")[0] if "@" in parts.netloc else ""
+    return (
+        authority.scheme,
+        authority.raw_host,
+        authority.port,
+        userinfo,
+        parts.path,
+        parts.query,
+        parts.fragment,
+    )
+
+
+def indexability(payload: dict[str, Any]) -> dict[str, str]:
+    """State exactly what the stored response and parsed directives establish."""
     status = payload.get("status_code")
     if type(status) is not int:
         return {"state": "unmeasured", "reason": "target probe has no HTTP status"}
@@ -193,8 +211,16 @@ def indexability(payload: dict[str, Any]) -> dict[str, str]:
     if payload.get("noindex") is None:
         return {"state": "unmeasured", "reason": "target probe did not measure HTML directives"}
     canonical = payload.get("canonical")
-    if canonical and norm_url(canonical) != norm_url(payload["url"]):
-        return {"state": "non_indexable", "reason": "canonicalized to another URL"}
+    if canonical:
+        try:
+            same = canonical_identity(canonical) == canonical_identity(payload["url"])
+        except (ValueError, httpx.InvalidURL):
+            return {
+                "state": "unmeasured",
+                "reason": "target probe canonical identity could not be normalized",
+            }
+        if not same:
+            return {"state": "non_indexable", "reason": "canonicalized to another URL"}
     return {"state": "indexable", "reason": "probed HTML has no noindex or cross-URL canonical"}
 
 

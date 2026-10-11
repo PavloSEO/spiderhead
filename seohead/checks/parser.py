@@ -394,7 +394,7 @@ def extract_head_links(soup: BeautifulSoup, base_url: str) -> list[dict[str, str
             continue
         rel = tag.get("rel") or ""
         rel = rel if isinstance(rel, str) else " ".join(rel)
-        candidate = re.search(r"(?:^|[\s,;])canonical(?:$|[\s,;])", rel, re.I)
+        candidate = re.search(r"(?:^|[\s,;])(?ai:canonical)(?:$|[\s,;])", rel)
         if not candidate and not any(_rel_has(token)(rel) for token in ("next", "prev")):
             continue
         href = tag.get("href") or ""
@@ -505,9 +505,7 @@ def _hreflang_tags(soup: BeautifulSoup) -> list[Any]:
         hreflang = tag.get("hreflang")
         if not hreflang:
             continue
-        rel_attr: str | list[str] = tag.get("rel") or []
-        rel_tokens = rel_attr.split() if isinstance(rel_attr, str) else list(rel_attr)
-        if any(isinstance(t, str) and t.lower() == "alternate" for t in rel_tokens):
+        if _rel_has("alternate")(tag.get("rel")):
             out.append(tag)
     return out
 
