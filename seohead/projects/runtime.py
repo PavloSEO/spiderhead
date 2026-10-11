@@ -826,6 +826,7 @@ def aggregate_coverage(
         }
     ]
     seen = {project["project_uuid"]}
+    unavailable = []
     for child in children:
         relative = child.get("directory")
         if (
@@ -838,13 +839,26 @@ def aggregate_coverage(
         path = root / relative
         if path.is_symlink() or not path.resolve().is_relative_to(root):
             raise ValueError("unsafe competitor project reference")
-        _, metadata = _load(path)
+        try:
+            _, metadata = _load(path)
+        except (OSError, ValueError) as exc:
+            unavailable.append({"directory": relative, "state": "unavailable", "reason": str(exc)})
+            continue
         if (
             metadata["project_uuid"] != child.get("project_uuid")
             or metadata["site"]["target"] != _competitor_identity(child.get("url"))
             or metadata["project_uuid"] in seen
         ):
-            raise ValueError("competitor project identity mismatch")
+            # A replaced or duplicated workspace no longer matches its preparation row: keep the
+            # owner's checklist readable and report this competitor instead of failing the project.
+            unavailable.append(
+                {
+                    "directory": relative,
+                    "state": "unavailable",
+                    "reason": "competitor project identity mismatch",
+                }
+            )
+            continue
         seen.add(metadata["project_uuid"])
         child_key = str(path.resolve())
         if child_key not in views:
@@ -862,7 +876,7 @@ def aggregate_coverage(
         {key: value for key, value in site.items() if key != "checklist"}
         | {"counts": site["checklist"].get("counts"), "state": site["checklist"]["state"]}
         for site in sites
-    ]
+    ] + unavailable
     if any(site["checklist"]["state"] != "initialized" for site in sites):
         result.update(
             state="not_initialized",
