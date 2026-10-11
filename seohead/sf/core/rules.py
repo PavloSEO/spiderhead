@@ -1994,10 +1994,8 @@ def check_unlinked_canonical(ctx: AuditContext) -> None:
 def _pagination_key(ctx: AuditContext, url: str) -> str:
     """Native graph nodes use the collector's identities; exports retain their tolerance."""
     if ctx.scan_con is not None:
-        from seohead.crawl.spider import _canonical_key
-
-        fragment = urllib.parse.urlsplit(url).fragment
-        return _canonical_key(url) + ("#" + fragment if fragment else "")
+        parts = urllib.parse.urlsplit(url)
+        return urllib.parse.urlunsplit(parts._replace(path=parts.path or "/"))
     return norm_url(url)
 
 

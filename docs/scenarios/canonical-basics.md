@@ -11,7 +11,7 @@ finds those, and stops before the ones that need a person.
 
 ## Covers
 
-- **Canonicals** — Missing · Canonical Is Relative · Contains Fragment URL · Outside <head>
+- **Canonicals** — Missing · Canonical Is Relative · Contains Fragment URL · Outside <head> · Invalid Attribute In Annotation
 
 ## The chain
 
@@ -55,6 +55,13 @@ the parsed tree, which step 2's crawl already resolved, tells the difference:
 The same canonical in a clean `<head>` never fires this. Neither Screaming Frog's own crawl nor
 a plain export from it can raise it either — the fact only exists where the parse tree was
 actually built.
+
+Native retained scans also preserve raw canonical `rel` and `href`, together with
+`hreflang`, `lang`, `media` and `type` attributes. `CANONICAL_INVALID_ATTRIBUTE` reports
+those four attributes because [Google ignores such canonical annotations](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls), and reports
+malformed relation separators or unusable canonical targets with the original declaration.
+Missing or capped retained annotations remain unmeasured; an SF export without raw attributes
+cannot establish that this check is clean.
 
 **4. Read the counts, not the issue list, first.**
 

@@ -10,19 +10,20 @@
     "crawl_partial": false,
     "crawl_finish_reason": null,
     "health_score_scope": null,
-    "health_score_basis": "94 of 202 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_basis": "95 of 204 checks could run; the score is not comparable to a run with full evidence",
     "check_coverage": {
-      "checks_total": 202,
+      "checks_total": 204,
       "checks_fired": 20,
-      "checks_skipped": 108,
+      "checks_skipped": 109,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
-      "checks_silent": 74,
+      "checks_silent": 75,
       "checks_silent_ids": [
         "BAD_REDIRECT_TYPE",
         "BLOCKED_BY_ROBOTS",
         "CANONICALISED",
         "CANONICAL_CHAIN",
+        "CANONICAL_CROSS_ORIGIN",
         "CANONICAL_FRAGMENT",
         "CANONICAL_HOMEPAGE_GROUP",
         "CANONICAL_NON_INDEXABLE",
@@ -94,7 +95,7 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.465
+      "coverage": 0.466
     }
   },
   "pipeline": {
