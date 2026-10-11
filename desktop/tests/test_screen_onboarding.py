@@ -9,7 +9,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import QCoreApplication, QEvent, Qt
 from PyQt5.QtTest import QTest
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QScrollArea
 
 from seohead_desktop import i18n
 from seohead_desktop.app import MainWindow, load_theme
@@ -68,6 +68,17 @@ class OnboardingTests(unittest.TestCase):
         self.window.recent_projects = [{"label": "Альфа", "path": str(self.base)}]
         self.window.show_startup_workspace()
         self.assertIs(self.window.pages.currentWidget(), self.window.extra_screens["start"])
+
+    def test_every_step_fits_an_800_px_window_without_horizontal_scroll(self):
+        self.window.resize(800, 600)
+        self.window.show()
+        self.app.processEvents()
+        wizard = self.wizard
+        scroll = wizard.findChild(QScrollArea)
+        for step in range(3):
+            wizard.go(step)
+            self.app.processEvents()
+            self.assertLessEqual(wizard.stack.minimumSizeHint().width(), scroll.viewport().width(), f"step {step + 1} is wider than the window")
 
     def test_steps_follow_the_sheet_and_the_counter_is_honest(self):
         self.window.show_startup_workspace()

@@ -1,0 +1,1 @@
+- Desktop Work reads every checklist page but shows the project tasks panel one page at a time, so a checklist of any size no longer fails with "at most 100 rows". Desktop opens the scan a full audit leaves behind (largest complete scan) when the owner has not picked one, and core discovery also checks the desktop interpreter's own environment (`sys.prefix`) before PATH.

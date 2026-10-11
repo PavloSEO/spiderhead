@@ -332,9 +332,13 @@ class ComparePanel(TablePanel):
         scans = list(islice(iter(items), PAGE_LIMIT + 1))
         if len(scans) > PAGE_LIMIT:
             raise ValueError("Scan chooser is bounded to one page")
+        fresh = self.before.currentData() is None and self.after.currentData() is None
+        latest = sorted(scans, key=lambda scan: scan.get("finished_at") or scan.get("created_at") or "", reverse=True)[:2]
         for combo in (self.before, self.after):
             previous = combo.currentData()
             selected_uuid = previous.get("uuid") if isinstance(previous, dict) else None
+            if selected_uuid is None and fresh and len(latest) == 2:  # first open: the two newest saved scans, before = older
+                selected_uuid = latest[1 if combo is self.before else 0].get("uuid")
             combo.blockSignals(True)
             combo.clear()
             combo.addItem("Выберите сохранённый скан", None)
@@ -346,6 +350,8 @@ class ComparePanel(TablePanel):
                     combo.setCurrentIndex(combo.count() - 1)
             combo.blockSignals(False)
         self._valid_pair()
+        if fresh and len(latest) == 2 and self.compare_button.isEnabled():
+            self.comparison_status.setText("Выбраны два последних скана: проверьте пару и нажмите «Сравнить сохранённые сканы»")
 
     def _valid_pair(self):
         before, after = self.before.currentData(), self.after.currentData()

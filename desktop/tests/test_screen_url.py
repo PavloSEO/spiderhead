@@ -56,6 +56,12 @@ print(open(fixtures + "/" + out).read())
 '''
 
 
+def tr_no_data():
+    from seohead_desktop.i18n import tr
+
+    return tr("Нет данных")
+
+
 class UrlBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -215,6 +221,27 @@ class UrlTests(UrlBase):
         detail = self.calls("scan-url-detail")
         self.assertTrue(detail)
         self.assertEqual(detail[-1][detail[-1].index("--url") + 1], self.screen.rows[2]["url"])
+
+    def test_inspector_takes_status_and_title_from_the_answer_when_the_table_has_no_row(self):
+        from seohead_desktop.i18n import tr
+
+        url = "http://shop.example.test:18431/catalog/stoly/"  # not on the first page of the table: opened by history
+        self.screen.current_url = url
+        self.screen.detail_data = None
+        self.screen._load_detail()
+        self.wait()
+        page = fixture("scan_url_detail_final.json")["page"]
+        self.assertEqual(self.screen.side.title.text(), page["title"])
+        self.assertNotEqual(self.screen.side.title.text(), tr("Нет данных"))
+        self.assertTrue(self.screen.side.http.isVisibleTo(self.screen.side))
+
+    def test_overview_shows_the_table_row_title_while_the_detail_is_loading(self):
+        from seohead_desktop.screens.url_detail import OverviewPage
+
+        overview = OverviewPage()
+        overview.fill({"url": "http://shop.example.test/a/", "status_code": 200, "title": "Кухня Верона"}, None, None, "loading")
+        self.assertEqual(overview.left.values["Title"].text(), "Кухня Верона")
+        self.assertNotEqual(overview.left.values["Title"].text(), tr_no_data())
 
     def test_query_error_is_an_honest_error_panel_with_retry(self):
         self.screen.job.cancel()
