@@ -11,7 +11,7 @@
     "source": null,
     "exports_dir": "docs/examples/exports",
     "sf_version_detected": null,
-    "generated_at": "2026-10-11T02:10:14Z",
+    "generated_at": "2026-10-11T09:33:06Z",
     "profile": "full",
     "exports_used": [
       "internal_all",
@@ -101,6 +101,74 @@
       {
         "id": "BROKEN_BOOKMARK",
         "reason": "export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan"
+      },
+      {
+        "id": "LCP_DISCOVERY",
+        "reason": "not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected"
+      },
+      {
+        "id": "NETWORK_DEPENDENCY_TREE",
+        "reason": "not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected"
+      },
+      {
+        "id": "LAYOUT_SHIFT_CULPRITS",
+        "reason": "not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected"
+      },
+      {
+        "id": "IMAGE_DELIVERY",
+        "reason": "not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected"
+      },
+      {
+        "id": "FORCED_REFLOW",
+        "reason": "not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected"
+      },
+      {
+        "id": "JS_EXECUTION_TIME",
+        "reason": "not measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON; no trace was collected"
+      },
+      {
+        "id": "IMG_INTRINSIC_OVERSIZED",
+        "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded"
+      },
+      {
+        "id": "IMG_UPSCALED",
+        "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded"
+      },
+      {
+        "id": "UNUSED_CSS_JS",
+        "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded"
+      },
+      {
+        "id": "HEAVY_PAGE_WEIGHT",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "RESOURCE_OVER_2MB",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "ASSET_SHORT_CACHE",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "FONT_DISPLAY_MISSING",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "UNMINIFIED_CSS_JS",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "DUPLICATED_JS",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "LEGACY_JS",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, partial or excludes dynamic requests; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "RENDER_BLOCKING",
+        "reason": "no Render Blocking Resources column (needs a native seohead crawl)"
       },
       {
         "id": "DESC_MULTIPLE",
@@ -536,9 +604,9 @@
     ],
     "health_score": null,
     "check_coverage": {
-      "checks_total": 202,
+      "checks_total": 219,
       "checks_fired": 20,
-      "checks_skipped": 108,
+      "checks_skipped": 125,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
       "checks_silent": 74,
@@ -618,10 +686,10 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.465
+      "coverage": 0.429
     },
-    "health_score_reason": "only 94 of 202 checks could run (46% coverage); too little evidence to score",
-    "health_score_basis": "94 of 202 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_reason": "only 94 of 219 checks could run (43% coverage); too little evidence to score",
+    "health_score_basis": "94 of 219 checks could run; the score is not comparable to a run with full evidence",
     "internal_linking": {
       "measured": false,
       "reason": "no all_inlinks export (needed for the complete internal edge list)"
