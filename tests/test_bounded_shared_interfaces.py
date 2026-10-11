@@ -260,6 +260,8 @@ def test_failed_observed_sitemap_is_terminal(tmp_path, monkeypatch):
 
 @pytest.mark.parametrize("compression", ["none", "gzip"])
 def test_compare_output_cli_mcp_preserve_full_manifest_and_source_counts(tmp_path, compression):
+    import asyncio
+
     from tests.test_compare_bounded import _source
     from tests.test_verify_fixes import A, B, _audit, _issue
 
@@ -282,8 +284,13 @@ def test_compare_output_cli_mcp_preserve_full_manifest_and_source_counts(tmp_pat
         compression,
     )
     tool = build_server()._tool_manager.get_tool("seo_compare_crawls")
-    b = tool.fn(
-        before=str(sources[0]), after=str(sources[1]), out_dir=str(right), compression=compression
+    b = asyncio.run(
+        tool.fn(
+            before=str(sources[0]),
+            after=str(sources[1]),
+            out_dir=str(right),
+            compression=compression,
+        )
     )
     assert a["schema_version"] == b["schema_version"] == "compare.v2"
     assert a["files"]["left"]["format"] == ("ndjson.gz" if compression == "gzip" else "ndjson")

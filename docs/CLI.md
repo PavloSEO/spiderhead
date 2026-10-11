@@ -56,11 +56,13 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `scan-status` | Summarize frontier work and committed page outcomes; expose integrity state, damage scope, and checkpoint availability. | offline, read-only |
 | `scan-inspect` | Read a bounded, paginated table view from one saved scan. | offline, read-only |
 | `scan-url-query` | Filter, sort and paginate the whole page table of one saved scan with total and filtered total. `--preset` applies a ready-made view; `--export PATH` writes all matching rows to a new CSV or XLSX file. | offline, read-only |
-| `scan-url-detail` | Read one exact native URL's bounded source HTML window, headers, redirects, page fields, and forms. | offline, read-only |
+| `scan-directory-tree` | Read a SQLite-backed bounded directory tree from retained page URLs; excess children fold into exact totals. | offline, read-only |
+| `headers-analyze` | Analyze redacted saved response headers and captured transport phases for one URL or a page of URLs; no live request. | offline, read-only |
+| `scan-url-detail` | Read one exact native URL's bounded source HTML window, redacted headers, redirects, page fields, and forms. | offline, read-only |
 | `scan-body-read` | Read a bounded retained static or rendered HTML window with raw and decoded hashes. | offline, read-only |
 | `scan-findings-page` | Read a sorted, filtered page of retained findings, optionally for one exact URL. | offline, read-only |
 | `scan-url-history` | Read one exact URL's state across the newest saved scans of a project (`--limit` 1..500, default 50). | offline, read-only |
-| `scan-link-inspect` | Inspect saved shortest paths, reverse inlinks, per-link DOM context, or one URL's paged links offline. | offline, read-only |
+| `scan-link-inspect` | Inspect saved shortest paths, reverse inlinks, per-link DOM context, or one URL's paged links offline. `--preset inlinks` and `--preset broken_links` apply named incoming/broken-link views. | offline, read-only |
 | `scan-navigation` | Read bounded observed navigation evidence from a retained local scan. | offline, read-only |
 | `scan-rendered-routes` | Read stored static/rendered route evidence without fetching routes. | offline, read-only |
 | `scan-evidence` | Read captured evidence, resource windows or the event timeline without fetching or migration. | offline, read-only |

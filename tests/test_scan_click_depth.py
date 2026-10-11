@@ -19,9 +19,9 @@ OUT = "https://outside.test/x"
 PAGES = (ROOT, CAT, SUB, DEEP, SIDE, ORPHAN)
 
 
-def _scan(tmp_path, *, links_retained=True):
+def _scan(tmp_path, *, links_retained=True, format_version="scan.v1"):
     path = tmp_path / "click.sqlite"
-    with NativeScan.create(path, **_metadata()) as scan:
+    with NativeScan.create(path, format_version=format_version, **_metadata()) as scan:
         if not links_retained:
             scan.begin_collection(links_available=False)
         # Every page is seeded at depth 0, the way a sitemap seeds them.
@@ -68,6 +68,23 @@ def test_filter_and_sort_use_click_depth(tmp_path):
     )
     assert got["ok"] is True, got
     assert sorted(r["click_depth"] for r in got["rows"]) == [0, 1, 1]
+
+
+def test_scan_v2_persists_an_indexed_click_depth_projection(tmp_path):
+    path = _scan(tmp_path, format_version="scan.v2")
+    import sqlite3
+
+    con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    try:
+        assert con.execute("SELECT COUNT(*) FROM scan_click_depth").fetchone()[0] == 5
+        assert con.execute(
+            "SELECT depth FROM scan_click_depth JOIN urls USING(url_id) WHERE url=?", (DEEP,)
+        ).fetchone()[0] == 2
+        assert con.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='index' AND name='scan_click_depth_depth'"
+        ).fetchone()
+    finally:
+        con.close()
 
 
 def test_scan_without_retained_links_refuses_click_depth_and_serves_other_columns(tmp_path):

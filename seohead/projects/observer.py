@@ -150,11 +150,16 @@ def _read_retained_findings(row: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(issues, list) or any(not isinstance(item, dict) for item in issues):
         raise ValueError("retained scan audit has no readable finding list")
     run = audit.get("run")
+    from seohead.storage.issue_counters import coverage_summary
+
     return {
         "issues": tuple(issues),
         "skipped_checks": copy.deepcopy(run.get("checks_skipped", []))
         if isinstance(run, dict)
         else [],
+        "check_coverage": coverage_summary(
+            (audit.get("summary") or {}).get("check_coverage")
+        ),
         "schema_version": audit.get("schema_version"),
         "generated_at": run.get("generated_at") if isinstance(run, dict) else None,
     }
@@ -230,6 +235,14 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                 "truncated": False,
             },
             "skipped_checks": None,
+            "check_coverage": {
+                "state": "unavailable",
+                "reason": "collection still running; no finalized audit coverage",
+                "checks_run": None,
+                "checks_skipped": None,
+                "checks_disabled": None,
+                "checks_total": None,
+            },
         }
     try:
         status = scan_status(path)
@@ -247,6 +260,14 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
         "frontier": status["frontier"],
         "committed_page_outcomes": status["committed_page_outcomes"],
         "sitemaps": {"fetch_summaries": {key: value for key, value in sitemap_rows}},
+        "check_coverage": {
+            "state": "unavailable",
+            "reason": "saved audit check coverage is unavailable",
+            "checks_run": None,
+            "checks_skipped": None,
+            "checks_disabled": None,
+            "checks_total": None,
+        },
     }
     try:
         from seohead.storage.audit_v2 import AuditV2Reader, audit_v2_path
@@ -280,6 +301,8 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                 skipped = reader.header.get("run", {}).get("checks_skipped", [])
                 if "/run/checks_skipped" in reader.collections:
                     skipped = list(reader.iter_collection("/run/checks_skipped"))
+                from seohead.storage.issue_counters import coverage_summary
+
                 evidence.update(
                     findings={
                         "state": "available",
@@ -292,6 +315,9 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                         "next_offset": len(first) if total > len(first) else None,
                     },
                     skipped_checks=skipped,
+                    check_coverage=coverage_summary(
+                        reader.header.get("summary", {}).get("check_coverage")
+                    ),
                 )
                 return evidence
         retained = _retained_findings(row)
@@ -307,6 +333,14 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                 "truncated": False,
             },
             skipped_checks=None,
+            check_coverage={
+                "state": "unavailable",
+                "reason": str(exc),
+                "checks_run": None,
+                "checks_skipped": None,
+                "checks_disabled": None,
+                "checks_total": None,
+            },
         )
         return evidence
     by_severity: dict[str, int] = {}
@@ -347,6 +381,7 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
             else None,
         },
         skipped_checks=retained["skipped_checks"],
+        check_coverage=retained["check_coverage"],
     )
     return evidence
 

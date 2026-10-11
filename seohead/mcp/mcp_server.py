@@ -1230,13 +1230,14 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         return _checked(handlers.facts_export(sites=sites))
 
     @mcp.tool(annotations=create_files, structured_output=True)
-    def seo_compare_crawls(
+    async def seo_compare_crawls(
         before: Any,
         after: Any,
         force: bool = False,
         correspondence: Any = None,
         out_dir: str | None = None,
         compression: Literal["none", "gzip"] = "none",
+        resume: bool = False,
     ) -> dict[str, Any]:
         """Diff two audit documents (dict, JSON path, or scan.v1 SQLite path) into four disjoint
         sets per finding: entered (new problem on a page that existed before),
@@ -1258,16 +1259,152 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         a package and never collects evidence or calls the network. Explicit
         compression='gzip' requires out_dir and preserves every row in deterministic
         .ndjson.gz files; manifests record compressed checksums and both byte counts.
-        Default compression='none' keeps uncompressed output.
+        Default compression='none' keeps uncompressed output. Exact-input results are
+        reusable from the same out_dir. A matching interrupted job requires resume=True;
+        its source identities and options are verified before any checkpoint is read.
+        """
+        import asyncio
+        import queue
+        import threading
+
+        from seohead.mcp.mcp_progress import ProgressReporter
+
+        try:
+            context = mcp.get_context()
+        except Exception:
+            context = None
+        reporter = ProgressReporter(context, "compare-crawls")
+        updates = queue.SimpleQueue()
+
+        def collect(update: Any) -> None:
+            if reporter.enabled:
+                updates.put(update)
+
+        cancel_event = threading.Event()
+        async with reporter:
+            task = asyncio.create_task(
+                asyncio.to_thread(
+                    handlers.compare_crawls,
+                    before=before,
+                    after=after,
+                    force=force,
+                    correspondence=correspondence,
+                    out_dir=out_dir,
+                    compression=compression,
+                    resume=resume,
+                    progress=collect,
+                    cancel_event=cancel_event,
+                )
+            )
+            try:
+                while not task.done():
+                    await asyncio.sleep(0.5)
+                    while not updates.empty():
+                        update = updates.get()
+                        detail = (
+                            f"{update.stage}: {update.completed} / {update.total}"
+                            if update.total is not None
+                            else f"{update.stage}: {update.completed} completed; total unknown"
+                        )
+                        try:
+                            await reporter.elapsed(detail)
+                        except Exception:
+                            pass
+                while not updates.empty():
+                    update = updates.get()
+                    detail = (
+                        f"{update.stage}: {update.completed} / {update.total}"
+                        if update.total is not None
+                        else f"{update.stage}: {update.completed} completed; total unknown"
+                    )
+                    try:
+                        await reporter.elapsed(detail)
+                    except Exception:
+                        pass
+                return _checked(await task)
+            except asyncio.CancelledError:
+                cancel_event.set()
+                # The worker checks this token at every indexing/classification/export batch
+                # and immediately before entering the publish step.
+                try:
+                    await asyncio.shield(task)
+                except Exception:
+                    pass
+                raise
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_read(
+        manifest_path: str,
+        file: str,
+        offset: int = 0,
+        limit: int = 200,
+        sort: Literal["url", "check", "severity"] = "url",
+        direction: Literal["asc", "desc"] = "asc",
+        contains: str | None = None,
+        segment: str | None = None,
+        change: Literal["entered", "left", "appeared", "disappeared", "unchanged"] | None = None,
+        max_bytes: int = 1_048_576,
+    ) -> dict[str, Any]:
+        """Read a bounded, sorted page from one integrity-checked compare.v2 file."""
+        return _checked(
+            handlers.compare_read(
+                manifest_path=manifest_path,
+                file=file,
+                offset=offset,
+                limit=limit,
+                sort=sort,
+                direction=direction,
+                contains=contains,
+                segment=segment,
+                change=change,
+                max_bytes=max_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_status(out_dir: str) -> dict[str, Any]:
+        """Read the checkpoint or completed cache state for one compare.v2 output path."""
+        return _checked(handlers.compare_status(out_dir=out_dir))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_compare_report(
+        manifest_path: str,
+        out_file: str,
+        max_bytes: int = 65_536,
+    ) -> dict[str, Any]:
+        """Write a new, bounded Markdown summary from a compare.v2 manifest."""
+        return _checked(
+            handlers.compare_report(
+                manifest_path=manifest_path,
+                out_file=out_file,
+                max_bytes=max_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_url(
+        before: Any,
+        after: Any,
+        url: str,
+        max_bytes: int = 65_536,
+        max_lines: int = 200,
+        left_representation: Literal["static", "rendered", "legacy_fragment"] = "static",
+        right_representation: Literal["static", "rendered", "legacy_fragment"] = "static",
+    ) -> dict[str, Any]:
+        """Show exact-URL before/after facts, finding deltas and a bounded body diff.
+
+        A URL absent from either scan is not classified as a fixed finding. Text is read only
+        from compatible retained native bodies; this call never fetches the URL.
         """
         return _checked(
-            handlers.compare_crawls(
+            handlers.compare_url(
                 before=before,
                 after=after,
-                force=force,
-                correspondence=correspondence,
-                out_dir=out_dir,
-                compression=compression,
+                url=url,
+                max_bytes=max_bytes,
+                max_lines=max_lines,
+                left_representation=left_representation,
+                right_representation=right_representation,
             )
         )
 
@@ -3707,6 +3844,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         facets: list[str] | str | None = None,
         issue_check: str | list[str] | None = None,
         issue_severity: str | None = None,
+        include_check_counts: bool = False,
     ) -> dict[str, Any]:
         """Filter, sort and paginate the page table of one saved scan across the whole scan.
 
@@ -3721,6 +3859,9 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         URLs. Check ids are case-insensitive. Missing saved findings return state unavailable
         with reason_code issue_index_missing. Skipped, disabled or absent saved checks return
         issue_check_unmeasured; a bounded audit read can return issue_selection_timeout.
+        Set include_check_counts to include exact saved whole-scan severity/check totals and
+        registry-wide fired, silent, skipped, disabled or unavailable states. Missing summary
+        data returns issue_summary.state=unavailable, never zero counters.
         No unfiltered result is substituted.
         """
         return _checked(
@@ -3738,6 +3879,58 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 preset=preset,
                 issue_check=issue_check,
                 issue_severity=issue_severity,
+                include_check_counts=include_check_counts,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_directory_tree(
+        input_path: str,
+        max_depth: int = 3,
+        max_children: int = 50,
+        max_nodes: int = 10_000,
+        max_bytes: int = 1_048_576,
+        timeout_seconds: float = 15.0,
+    ) -> dict[str, Any]:
+        """Read a bounded directory tree from retained page URLs using local SQLite only.
+
+        The tree counts pages at each path ancestor and folds omitted children into exact
+        `other_children`/`other_pages` totals. A temporary SQLite aggregation bounds Python memory.
+        It never fetches, replays, or mutates the scan.
+        """
+        return _checked(
+            handlers.scan_directory_tree(
+                input_path=input_path,
+                max_depth=max_depth,
+                max_children=max_children,
+                max_nodes=max_nodes,
+                max_bytes=max_bytes,
+                timeout_seconds=timeout_seconds,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_headers_analyze(
+        input_path: str,
+        url: str | None = None,
+        offset: int = 0,
+        limit: int = 100,
+        max_bytes: int = 1_048_576,
+        timeout_seconds: float = 15.0,
+    ) -> dict[str, Any]:
+        """Analyze redacted response headers and captured transport phases from a saved scan.
+
+        Reads retained local evidence only. Missing response headers or phases stay unavailable;
+        the command never probes the site or infers a measurement from total response time.
+        """
+        return _checked(
+            handlers.headers_analyze(
+                input_path=input_path,
+                url=url,
+                offset=offset,
+                limit=limit,
+                max_bytes=max_bytes,
+                timeout_seconds=timeout_seconds,
             )
         )
 
@@ -3766,6 +3959,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         status_class: str = "all",
         contains: str | None = None,
         sort: str = "order",
+        preset: str | None = None,
     ) -> dict[str, Any]:
         """Inspect saved shortest paths, reverse inlinks, per-link DOM context, or one URL's links.
 
@@ -3775,6 +3969,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         target (outgoing) or source (incoming); the status is null when that page was not
         scanned. Filters: link_type, follow, status_class (2xx..5xx, broken, error, unscanned),
         contains; sort (out only): order, url, status. At most 200 rows per page with offset;
+        preset=inlinks selects internal incoming links; preset=broken_links selects internal
+        outgoing links whose saved targets are broken.
         `total` and `filtered_total` are exact or flagged capped/null. The scan is opened
         read-only without full validation; failures carry a machine `reason_code`
         (url_not_found, scan_not_available, url_not_scanned, links_not_retained).
@@ -3816,6 +4012,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 status_class=status_class,
                 contains=contains,
                 sort=sort,
+                preset=preset,
             )
         )
 
