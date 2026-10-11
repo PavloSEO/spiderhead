@@ -2111,6 +2111,9 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
     # above -- with the option off there are none to read.
     result["trust_signals"] = extract_trust_signals(soup, result["jsonld"], final_url)
     result["duplicate_ids"] = extract_duplicate_ids(soup)
+    from seohead.checks.markup import markup_facts
+
+    result["markup"] = markup_facts(html, soup)
     if opts["links"]:
         content_config = options.get("content_area") if isinstance(options, dict) else None
         position_rules = options.get("link_position_rules") if isinstance(options, dict) else None

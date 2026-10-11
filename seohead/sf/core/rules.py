@@ -20,6 +20,7 @@ from seohead.checks.parser import robots_directives, uses_ajax_crawling_scheme
 from seohead.core.canonical_policy import matching_canonical_rule
 
 from .context import AuditContext
+from .markup_rules import check_document_markup
 from .models import Page
 from .normalize import norm_url
 
@@ -3326,6 +3327,7 @@ def check_native_exports(ctx: AuditContext) -> None:
 
 
 ALL_CHECKS = [
+    check_document_markup,
     check_native_structured_and_mixed,
     check_response_codes,
     check_indexability,
