@@ -228,9 +228,9 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 |---|---|---|
 | `monitor-configure` | Configure a disabled local incremental monitor; this starts no schedule or message delivery. | writes |
 | `monitor-schedule` | Claim or recover a local run; no timer, crawl, or delivery starts here. | writes |
-| `schedule-show` | Read scheduled-scan settings, last run, and the next due window. | offline, read-only |
-| `schedule-set` | Merge a partial update into the project schedule with an expected revision; starts nothing. | writes |
-| `schedule-run-due` | Run the project scheduled scans if due; refuses overlap and runs outside the window. | network, writes |
+| `schedule-show` | Read scheduled-scan settings, last run, next due window, and linked competitors' independent schedules. | offline, read-only |
+| `schedule-set` | Merge a partial update into this project's schedule with an expected revision; starts nothing. Use the competitor workspace directory to configure its cadence. | writes |
+| `schedule-run-due` | Run this project's and enabled competitors' independently due scans; refuses overlap and respects each site's window and budgets. | network, writes |
 | `schedule-install` | Write a launchd plist, cron line, or Task Scheduler command for run-due; never loads it. | writes |
 | `schedule-uninstall` | Remove a trigger file written by schedule-install; does not unload it. | writes |
 | `monitor-collect` | Preview or explicitly collect one previously claimed bounded monitor plan. | network, writes |

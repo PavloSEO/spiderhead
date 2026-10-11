@@ -12,6 +12,7 @@ from seohead.crawl import settings as crawl_settings
 from seohead.crawl.user_agents import DEFAULT_TOKEN, DEFAULT_USER_AGENT, resolve
 from seohead.projects import schedule, schedule_install
 from seohead.projects.schedule import due_state, infer_time_zone, next_due, validate
+from seohead.projects.runtime import add_competitors
 from seohead.projects.workspace import create_project
 
 
@@ -160,6 +161,75 @@ def test_run_due_passes_budgets_user_agent_and_writes_journal(tmp_path):
     # The same window never runs twice.
     again = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-12T01:00:00"))
     assert again["ran"] is False and len(calls) == 1
+
+
+def test_competitor_has_an_independent_monthly_schedule(tmp_path):
+    project = _project(tmp_path)
+    competitor = add_competitors(str(project), ["https://rival.example.test/"])[
+        "competitors"
+    ][0]
+    child = project / competitor["directory"]
+    schedule.configure(
+        project,
+        expected_revision=0,
+        enabled=True,
+        time_zone="UTC",
+        weekdays=["tue"],
+        include_competitors=True,
+    )
+    schedule.configure(
+        child,
+        expected_revision=0,
+        enabled=True,
+        time_zone="UTC",
+        weekdays=[],
+        month_days=[12],
+        user_agent={"preset": "bingbot", "custom": None},
+        crawl={"max_urls": 120, "max_requests": 240},
+    )
+
+    calls = []
+    result = schedule.run_due(
+        project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00")
+    )
+
+    assert result["ran"] is True and result["ok"] is True
+    assert result["runs"][0]["role"] == "competitor"
+    assert len(calls) == 1 and calls[0]["project"] == str(child)
+    assert calls[0]["user_agent"] == "bingbot"
+    assert calls[0]["max_urls"] == 120
+    assert json.loads((child / "schedule-state.json").read_text())["last_window"] == "2026-10-12"
+    assert not (project / "schedule-state.json").exists()
+
+
+def test_schedule_show_reports_each_competitors_own_next_run(tmp_path):
+    project = _project(tmp_path)
+    competitor = add_competitors(str(project), ["https://rival.example.test/"])[
+        "competitors"
+    ][0]
+    child = project / competitor["directory"]
+    schedule.configure(
+        project,
+        expected_revision=0,
+        enabled=True,
+        time_zone="UTC",
+        weekdays=["mon"],
+        include_competitors=True,
+    )
+    schedule.configure(
+        child,
+        expected_revision=0,
+        enabled=True,
+        time_zone="UTC",
+        weekdays=[],
+        month_days=[15],
+    )
+
+    shown = schedule.show(project, now=_utc("2026-10-12T02:00:00"))
+
+    assert shown["due"]["due"] is True
+    assert shown["competitors"][0]["due"]["due"] is False
+    assert shown["competitors"][0]["next_due_at"] == "2026-10-15T01:00:00Z"
 
 
 def test_run_due_refuses_overlap_and_stale_lock_is_reclaimed(tmp_path):

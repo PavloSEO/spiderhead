@@ -22,7 +22,7 @@ from seohead.core.common import utc_iso_z as _now
 from seohead.crawl.user_agents import resolve as resolve_user_agent
 
 from . import journal
-from .runtime import read_document, write_document
+from .runtime import _competitor_identity, read_document, write_document
 from .workspace import _load as _workspace_load
 
 FORMAT = "seohead.schedule.v1"
@@ -306,9 +306,29 @@ def _open(directory: str | Path) -> tuple[Path, dict[str, Any], dict[str, Any], 
 
 
 def show(directory: str | Path, *, now: datetime | None = None) -> dict[str, Any]:
-    _, project, settings, state = _open(directory)
+    root, project, settings, state = _open(directory)
     stamp = now or datetime.now(timezone.utc)
     host = urlsplit(project["site"]["target"]).hostname or ""
+    competitors = []
+    if settings["include_competitors"]:
+        for target in _competitor_targets(root, project):
+            child_root, child_project, child_settings, child_state = _open(target["directory"])
+            child_host = urlsplit(child_project["site"]["target"]).hostname or ""
+            configured = read_document(child_root, NAME) is not None
+            decision = due_state(
+                child_settings, child_host, stamp, child_state.get("last_window")
+            )
+            competitors.append(
+                {
+                    "url": target["url"],
+                    "directory": target["directory_relative"],
+                    "schedule_configured": configured,
+                    "revision": child_settings["revision"],
+                    "enabled": child_settings["enabled"],
+                    "due": decision,
+                    "next_due_at": next_due(child_settings, child_host, stamp),
+                }
+            )
     return {
         "ok": True,
         "revision": settings["revision"],
@@ -317,6 +337,7 @@ def show(directory: str | Path, *, now: datetime | None = None) -> dict[str, Any
         "resume_artifact": state.get("resume_artifact"),
         "due": due_state(settings, host, stamp, state.get("last_window")),
         "next_due_at": next_due(settings, host, stamp),
+        "competitors": competitors,
     }
 
 
@@ -354,23 +375,48 @@ def configure(
     return {"ok": True, "revision": normalized["revision"], "settings": normalized}
 
 
-def _targets(
-    directory: str | Path, settings: dict[str, Any], project: dict[str, Any]
-) -> list[dict[str, Any]]:
-    primary = {
-        "role": "primary",
-        "directory": str(Path(directory)),
-        "url": project["site"]["target"],
-    }
-    targets = [primary]
-    if settings["include_competitors"]:
-        root, _ = _workspace_load(directory)
-        prep = read_document(root, "preparation.json") or {}
-        for row in prep.get("competitors", []) or []:
-            if isinstance(row, dict) and row.get("directory") and row.get("url"):
-                targets.append(
-                    {"role": "competitor", "directory": row["directory"], "url": row["url"]}
-                )
+def _competitor_targets(root: Path, project: dict[str, Any]) -> list[dict[str, Any]]:
+    """Resolve only declared competitor workspaces that still match their saved identity."""
+    prep = read_document(root, "preparation.json") or {}
+    rows = prep.get("competitors", []) or []
+    if not isinstance(rows, list):
+        raise ValueError("invalid project competitor list")
+    targets = []
+    seen = {project["project_uuid"]}
+    for row in rows:
+        if not isinstance(row, dict) or not row.get("directory") or not row.get("url"):
+            continue
+        relative = row["directory"]
+        path_part = Path(relative) if isinstance(relative, str) else None
+        if (
+            path_part is None
+            or path_part.is_absolute()
+            or ".." in path_part.parts
+            or not relative.startswith("competitors/")
+        ):
+            raise ValueError("unsafe competitor project reference")
+        child = root / path_part
+        if child.is_symlink() or not child.resolve().is_relative_to(root.resolve()):
+            raise ValueError("unsafe competitor project reference")
+        child_root, child_project = _workspace_load(child)
+        if (
+            child_root != child.resolve()
+            or child_project["project_uuid"] != row.get("project_uuid")
+            or child_project["site"]["target"] != _competitor_identity(row["url"])
+            or child_project["project_uuid"] in seen
+        ):
+            raise ValueError("competitor project identity mismatch")
+        seen.add(child_project["project_uuid"])
+        targets.append(
+            {
+                "role": "competitor",
+                "directory": str(child_root),
+                "directory_relative": relative,
+                "url": row["url"],
+                "root": child_root,
+                "project": child_project,
+            }
+        )
     return targets
 
 
@@ -389,9 +435,7 @@ def _request(
     crawl = settings["crawl"]
     agent = settings["user_agent"]
     user_agent = agent["custom"] if agent["custom"] is not None else agent["preset"]
-    artifact = (
-        state.get("resume_artifact") if crawl["slice"] and target["role"] == "primary" else None
-    )
+    artifact = state.get("resume_artifact") if crawl["slice"] else None
     if artifact and crawl["mode"] == "spider":
         return {"resume": artifact, "project": target["directory"], "approve_large_crawl": False}
     base: dict[str, Any] = {
@@ -411,7 +455,7 @@ def _request(
             "sitemap": crawl["sitemap_url"],
             "sitemap_only": True,
         }
-    urls = _list_urls(root_dir, settings) if target["role"] == "primary" else []
+    urls = _list_urls(root_dir, settings)
     if not urls:
         raise ValueError("list mode has no URLs: set crawl.urls or monitor.json policy urls")
     return {**base, "urls": urls}
@@ -449,12 +493,81 @@ def run_due(
     """Run the scheduled scans for one project if they are due. Safe to call often."""
     stamp = now or datetime.now(timezone.utc)
     root, project, settings, state = _open(directory)
-    if settings.get("revision", 0) == 0 and read_document(root, NAME) is None:
-        return {"ok": True, "ran": False, "reason": "no schedule configured"}
-    host = urlsplit(project["site"]["target"]).hostname or ""
-    decision = due_state(settings, host, stamp, state.get("last_window"))
-    if not decision["due"]:
-        return {"ok": True, "ran": False, "reason": decision["reason"], "decision": decision}
+    configured = read_document(root, NAME) is not None
+    candidates = []
+    unavailable: list[dict[str, Any]] = []
+    if configured:
+        host = urlsplit(project["site"]["target"]).hostname or ""
+        primary_decision = due_state(settings, host, stamp, state.get("last_window"))
+        if primary_decision["due"]:
+            candidates.append(
+                {
+                    "role": "primary",
+                    "directory": str(root),
+                    "url": project["site"]["target"],
+                    "root": root,
+                    "project": project,
+                    "settings": settings,
+                    "state": state,
+                    "decision": primary_decision,
+                }
+            )
+    else:
+        primary_decision = {"due": False, "reason": "no schedule configured"}
+    if settings["include_competitors"]:
+        for target in _competitor_targets(root, project):
+            try:
+                child_root, child_project, child_settings, child_state = _open(
+                    target["directory"]
+                )
+                if read_document(child_root, NAME) is None:
+                    continue
+                host = urlsplit(child_project["site"]["target"]).hostname or ""
+                decision = due_state(
+                    child_settings, host, stamp, child_state.get("last_window")
+                )
+            except (OSError, ValueError, KeyError, TypeError) as exc:
+                unavailable.append(
+                    {
+                        "role": "competitor",
+                        "url": target["url"],
+                        "ok": False,
+                        "error": type(exc).__name__,
+                    }
+                )
+                continue
+            if decision["due"]:
+                candidates.append(
+                    {
+                        **target,
+                        "settings": child_settings,
+                        "state": child_state,
+                        "decision": decision,
+                    }
+                )
+    if not candidates:
+        if unavailable:
+            for item in unavailable:
+                journal.note(
+                    directory,
+                    source="scans",
+                    actor="schedule",
+                    text=f"competitor {item['url']} schedule unavailable: {item['error']}",
+                )
+            return {
+                "ok": False,
+                "ran": False,
+                "reason": "one or more competitor schedules are unavailable",
+                "competitors_due": 0,
+                "runs": unavailable,
+            }
+        return {
+            "ok": True,
+            "ran": False,
+            "reason": primary_decision["reason"],
+            "decision": primary_decision,
+            "competitors_due": 0,
+        }
     token = _acquire(root, stamp)
     if token is None:
         journal.note(
@@ -464,53 +577,112 @@ def run_due(
             text="skipped: a scheduled run already holds the lock",
         )
         return {"ok": True, "ran": False, "reason": "overlap refused"}
-    results: list[dict[str, Any]] = []
+    results: list[dict[str, Any]] = list(unavailable)
     try:
-        journal.note(
-            directory,
-            source="scans",
-            actor="schedule",
-            text=f"started window {decision['window']} mode {settings['crawl']['mode']}",
-        )
-        for target in _targets(directory, settings, project):
-            try:
-                kwargs = _request(settings, target, state, root)
-                outcome = scan(**kwargs)
-            except Exception as exc:  # one target's failure must not hide the others
-                # Configuration refusals carry their own bounded text; other errors are named by type only.
-                message = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
-                outcome = {"ok": False, "error": message}
-            entry = {
-                "role": target["role"],
-                "ok": bool(outcome.get("ok", True)),
-                "scan": outcome.get("scan"),
-                "partial": bool(outcome.get("partial", False)),
-                "finish_reason": outcome.get("finish_reason"),
-                "error": outcome.get("error") if not outcome.get("ok", True) else None,
-            }
-            results.append(entry)
-            if target["role"] == "primary":
-                if settings["crawl"]["slice"] and entry["partial"] and entry["scan"]:
-                    state["resume_artifact"] = entry["scan"]
-                else:
-                    state["resume_artifact"] = None
+        for item in unavailable:
             journal.note(
                 directory,
                 source="scans",
                 actor="schedule",
-                text=f"{target['role']} {'finished' if entry['ok'] else 'failed'}"
-                + (f" partial={entry['partial']}" if entry["ok"] else f" error={entry['error']}"),
+                text=f"competitor {item['url']} schedule unavailable: {item['error']}",
             )
-        state["last_window"] = decision["window"]
-        state["last_run_at"] = _now()
-        state["last_result"] = results
-        state["revision"] = state.get("revision", 0) + 1
-        write_document(root, STATE_NAME, state, expected_revision=None)
+        for target in candidates:
+            target_root = target["root"]
+            target_settings = target["settings"]
+            target_state = target["state"]
+            decision = target["decision"]
+            child_token = None
+            if target_root != root:
+                child_token = _acquire(target_root, stamp)
+            if target_root != root and child_token is None:
+                entry = {
+                    "role": target["role"],
+                    "url": target["url"],
+                    "ok": False,
+                    "scan": None,
+                    "partial": False,
+                    "finish_reason": None,
+                    "error": "overlap refused",
+                    "window": decision["window"],
+                }
+                results.append(entry)
+                journal.note(
+                    directory,
+                    source="scans",
+                    actor="schedule",
+                    text=f"competitor {target['url']} skipped: another scheduled run holds its lock",
+                )
+                continue
+            try:
+                try:
+                    journal.note(
+                        directory,
+                        source="scans",
+                        actor="schedule",
+                        text=f"started {target['role']} window {decision['window']} mode {target_settings['crawl']['mode']}",
+                    )
+                    if target_root != root:
+                        journal.note(
+                            target["directory"],
+                            source="scans",
+                            actor="schedule",
+                            text=f"started competitor scan window {decision['window']} mode {target_settings['crawl']['mode']}",
+                        )
+                    kwargs = _request(target_settings, target, target_state, target_root)
+                    outcome = scan(**kwargs)
+                except Exception as exc:  # one target's failure must not hide the others
+                    message = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
+                    outcome = {"ok": False, "error": message}
+                entry = {
+                    "role": target["role"],
+                    "url": target["url"],
+                    "ok": bool(outcome.get("ok", True)),
+                    "scan": outcome.get("scan"),
+                    "partial": bool(outcome.get("partial", False)),
+                    "finish_reason": outcome.get("finish_reason"),
+                    "error": outcome.get("error") if not outcome.get("ok", True) else None,
+                    "window": decision["window"],
+                }
+                results.append(entry)
+                if target_settings["crawl"]["slice"] and entry["partial"] and entry["scan"]:
+                    target_state["resume_artifact"] = entry["scan"]
+                else:
+                    target_state["resume_artifact"] = None
+                target_state["last_window"] = decision["window"]
+                target_state["last_run_at"] = _now()
+                target_state["last_result"] = [entry]
+                previous_revision = target_state.get("revision", 0)
+                target_state["revision"] = previous_revision + 1
+                write_document(
+                    target_root,
+                    STATE_NAME,
+                    target_state,
+                    expected_revision=previous_revision,
+                )
+                journal.note(
+                    directory,
+                    source="scans",
+                    actor="schedule",
+                    text=f"{target['role']} {'finished' if entry['ok'] else 'failed'}"
+                    + (f" partial={entry['partial']}" if entry["ok"] else f" error={entry['error']}"),
+                )
+                if target_root != root:
+                    journal.note(
+                        target["directory"],
+                        source="scans",
+                        actor="schedule",
+                        text=f"competitor {'finished' if entry['ok'] else 'failed'}"
+                        + (f" partial={entry['partial']}" if entry["ok"] else f" error={entry['error']}"),
+                    )
+            finally:
+                if child_token is not None:
+                    _release(target_root, child_token)
     finally:
         _release(root, token)
     return {
         "ok": all(item["ok"] for item in results),
         "ran": True,
-        "window": decision["window"],
+        "window": primary_decision.get("window") or candidates[0]["decision"]["window"],
+        "competitors_due": sum(item["role"] == "competitor" for item in candidates),
         "runs": results,
     }

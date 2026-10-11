@@ -25,6 +25,16 @@ changed scope or stale dependencies can leave work stale or unfinished; a handof
 those reasons, the next action and its expected evidence, not just a completion count. Competitor
 candidates stay separate site identities and require their own authorized scope and evidence.
 
+Scheduled crawls use the same revisioned `schedule.json` and runtime
+`schedule-state.json` in each project directory. Configure the owner's schedule and set
+`include_competitors` to allow linked competitors; then configure each competitor from its own
+workspace with `schedule-set`. Every site has its own time zone, days, window, crawl mode, request
+and URL budgets, user agent, last-run window and slice-resume artifact. The owner's installed
+hourly trigger checks all enabled schedules, so a monthly competitor scan can run on its own due
+window while the primary site runs weekly. A competitor with no enabled schedule is skipped.
+`schedule-show` reports each linked competitor's due state and next run. `schedule-install` only
+writes trigger instructions; it never activates them.
+
 ## Observation dashboard
 
 `seohead watch --project ./example-project` opens a local terminal dashboard.
