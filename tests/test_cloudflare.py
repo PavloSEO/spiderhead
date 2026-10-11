@@ -206,3 +206,60 @@ def test_token_is_read_from_env_then_file(tmp_path, monkeypatch):
     with pytest.raises(cloudflare.CloudflareError) as exc:
         cloudflare.read_token()
     assert "from-file" not in str(exc.value)
+
+
+def test_project_binding_resolves_cloudflare_zone_id_before_graphql(monkeypatch, tmp_path):
+    from seohead.projects import bindings
+
+    seen = []
+    monkeypatch.setattr(
+        bindings,
+        "list_bindings",
+        lambda project: {
+            "bindings": [
+                {
+                    "service": "cloudflare",
+                    "resource": "zone-id-1",
+                    "status": "selected",
+                }
+            ]
+        },
+    )
+
+    def send(method, url, body, token):
+        seen.append((method, url))
+        assert token == TOKEN
+        if method == "GET":
+            assert url == f"{cloudflare.API}/zones/zone-id-1"
+            return {
+                "success": True,
+                "result": {
+                    "id": "zone-id-1",
+                    "name": "example.com",
+                    "account": {"id": "account-1"},
+                    "plan": {"name": "Free Website"},
+                    "status": "active",
+                },
+            }
+        return {"data": {"viewer": {"accounts": [{"httpRequestsAdaptiveGroups": []}]}}}
+
+    result = cloudflare.traffic(
+        project=str(tmp_path),
+        since="2026-10-08",
+        until="2026-10-08",
+        transport=send,
+        token=TOKEN,
+    )
+    assert result["ok"] and result["zone"] == "example.com"
+    assert seen[0][1].endswith("/zones/zone-id-1")
+
+
+def test_project_binding_requires_one_selected_cloudflare_zone(monkeypatch):
+    from seohead.projects import bindings
+
+    monkeypatch.setattr(bindings, "list_bindings", lambda project: {"bindings": []})
+    result = cloudflare.traffic(
+        project="project.test", token=TOKEN, transport=lambda *args: pytest.fail("network")
+    )
+    assert result["ok"] is False
+    assert "exactly one selected Cloudflare zone binding" in result["error"]

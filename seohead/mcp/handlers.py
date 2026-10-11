@@ -4579,14 +4579,17 @@ def wayback_history(
 
 
 def cloudflare_traffic(
-    zone: str | None = None, since: str | None = None, until: str | None = None
+    zone: str | None = None,
+    since: str | None = None,
+    until: str | None = None,
+    project: str | None = None,
 ) -> dict[str, Any]:
-    """Bot and human traffic from Cloudflare edge analytics (aggregated, not raw logs)."""
-    if not zone:
-        raise ValueError("zone required (Cloudflare zone name)")
+    """Read Cloudflare edge analytics by zone name or a selected project binding."""
+    if bool(zone) == bool(project):
+        raise ValueError("pass exactly one of zone or project")
     from seohead.data_sources import cloudflare as core
 
-    return core.traffic(zone, since=since, until=until)
+    return core.traffic(zone, project=project, since=since, until=until)
 
 
 def crtsh_subdomains(domain: str | None = None) -> dict[str, Any]:

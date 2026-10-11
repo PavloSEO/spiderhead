@@ -1282,7 +1282,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     if cmd == "crtsh-subdomains" and args.domain:
         kw["domain"] = args.domain
     if cmd == "cloudflare-traffic":
-        for name in ("zone", "since", "until"):
+        for name in ("zone", "since", "until", "project"):
             value = getattr(args, name, None)
             if value:
                 kw[name] = value
@@ -2259,6 +2259,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--to-date", dest="to_date", help="latest timestamp, e.g. 20260101")
     if cmd == "cloudflare-traffic":
         _source_flag(sub, "--zone", help="Cloudflare zone name, e.g. example.com")
+        _source_flag(sub, "--project", help="project with one selected Cloudflare zone binding")
         sub.add_argument(
             "--since", help="first UTC day, YYYY-MM-DD (default: 6 days before --until)"
         )

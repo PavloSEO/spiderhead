@@ -15,7 +15,8 @@ and is labelled ``source: cloudflare-aggregated`` so nobody mistakes it for raw 
 
 The token is read from ``$CLOUDFLARE_API_TOKEN`` or the file named by
 ``$SEOHEAD_CLOUDFLARE_TOKEN_FILE`` (default ``~/.config/cloudflare/api-token``). It needs only
-read scopes (Account Analytics Read) and is never printed, logged, or put into an error message.
+read scopes (Zone Read and Account Analytics Read) and is never printed, logged, or put into an
+error message.
 Only GET requests and POSTs to the GraphQL endpoint (a read) are issued.
 """
 
@@ -155,6 +156,38 @@ def resolve_zone(zone: str, token: str, transport: Transport) -> dict[str, Any]:
     }
 
 
+def resolve_project_zone(project: str) -> str:
+    """Resolve one manually selected Cloudflare zone ID without provider access."""
+    from seohead.projects.bindings import list_bindings
+
+    result = list_bindings(project)
+    matches = [
+        item
+        for item in result["bindings"]
+        if item["service"] == "cloudflare" and item["status"] == "selected"
+    ]
+    if len(matches) != 1:
+        raise CloudflareError("project must have exactly one selected Cloudflare zone binding")
+    return matches[0]["resource"]
+
+
+def resolve_zone_id(zone_id: str, token: str, transport: Transport) -> dict[str, Any]:
+    """Resolve a bound zone ID through Cloudflare's read-only zone endpoint."""
+    payload = transport("GET", f"{API}/zones/{urllib.parse.quote(zone_id, safe='')}", None, token)
+    if not payload.get("success"):
+        raise CloudflareError(f"zone lookup failed: {_errors(payload)}")
+    row = payload.get("result")
+    if not isinstance(row, dict) or row.get("id") != zone_id:
+        raise CloudflareError("bound Cloudflare zone is not visible to this token")
+    return {
+        "id": row["id"],
+        "name": row["name"],
+        "account": (row.get("account") or {}).get("id"),
+        "plan": (row.get("plan") or {}).get("name"),
+        "status": row.get("status"),
+    }
+
+
 def _parse_day(value: str, name: str) -> date:
     try:
         return date.fromisoformat(value)
@@ -178,8 +211,9 @@ def _classify(ua: str, category: str) -> tuple[str, str]:
 
 
 def traffic(
-    zone: str,
+    zone: str | None = None,
     *,
+    project: str | None = None,
     since: str | None = None,
     until: str | None = None,
     transport: Transport | None = None,
@@ -188,12 +222,15 @@ def traffic(
 ) -> dict[str, Any]:
     """Summarise bot and human traffic for a zone over an inclusive UTC date range.
 
-    Defaults to the last 7 days ending today. One GraphQL query is made per day; a day that fills
-    the dataset's row cap is split into halves (down to one hour) so rows are not silently lost,
-    and only a one-hour window that still fills the cap is reported in ``truncated_days``.
+    Exactly one of ``zone`` (a zone name) or ``project`` (one selected Cloudflare zone binding)
+    is required. Defaults to the last 7 days ending today. One GraphQL query is made per day; a day
+    that fills the dataset's row cap is split into halves (down to one hour) so rows are not
+    silently lost, and only a one-hour window that still fills the cap is reported in
+    ``truncated_days``.
     """
-    if not zone:
-        raise ValueError("zone required (zone name, e.g. example.com)")
+    if bool(zone) == bool(project):
+        raise ValueError("pass exactly one of zone or project")
+    requested_zone = zone
     today = today or datetime.now(timezone.utc).date()
     end = _parse_day(until, "until") if until else today
     start = _parse_day(since, "since") if since else end - timedelta(days=6)
@@ -209,7 +246,11 @@ def traffic(
     send = transport or _default_transport
     try:
         secret = token or read_token()
-        info = resolve_zone(zone, secret, send)
+        if project:
+            requested_zone = resolve_project_zone(project)
+            info = resolve_zone_id(requested_zone, secret, send)
+        else:
+            info = resolve_zone(zone, secret, send)
         if not info["account"]:
             raise CloudflareError("the zone has no account id")
 
@@ -311,7 +352,7 @@ def traffic(
                     if category:
                         categories[name][category] += count
     except CloudflareError as exc:
-        return {"ok": False, "source": SOURCE, "zone": zone, "error": str(exc)}
+        return {"ok": False, "source": SOURCE, "zone": requested_zone, "error": str(exc)}
 
     # Aggregated, free provider: still counted so the ledger shows how often the API is used.
     spend.record("cloudflare", "graphql-traffic", cost=0.0, unit="requests", items=queries)

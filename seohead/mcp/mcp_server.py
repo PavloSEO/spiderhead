@@ -1772,15 +1772,21 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_cloudflare_traffic(
-        zone: str, since: str | None = None, until: str | None = None
+        zone: str | None = None,
+        since: str | None = None,
+        until: str | None = None,
+        project: str | None = None,
     ) -> dict[str, Any]:
-        """Bot and human traffic for a Cloudflare zone from edge GraphQL analytics (read-only,
-        free): bots x URLs x status codes x cache status per day, in the same shape as
-        seo_log_analyze. Use it when origin logs are absent. It is aggregated data
-        (source=cloudflare-aggregated), not raw logs: no client IPs, so bots cannot be verified
-        by reverse DNS. Dates are UTC YYYY-MM-DD; the Free plan keeps 32 days. The token is read
-        from CLOUDFLARE_API_TOKEN or SEOHEAD_CLOUDFLARE_TOKEN_FILE."""
-        return _checked(handlers.cloudflare_traffic(zone=zone, since=since, until=until))
+        """Read Cloudflare edge GraphQL analytics by zone name or project binding. Pass exactly
+        one of zone or project; project requires one selected Cloudflare zone ID binding. Returns
+        aggregated bot/human summaries and bounded URL/day edge/origin status, cache, redirect
+        status and Cloudflare verified-bot category facts. It is not a raw log: it has no client
+        IPs, sub-day timestamps or rule IDs, so reverse-DNS verification is unavailable. Dates are
+        UTC YYYY-MM-DD; the Free plan keeps 32 days. A read-only token needs Zone Read and Account
+        Analytics Read. Token is read from CLOUDFLARE_API_TOKEN or SEOHEAD_CLOUDFLARE_TOKEN_FILE."""
+        return _checked(
+            handlers.cloudflare_traffic(zone=zone, since=since, until=until, project=project)
+        )
 
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_crtsh_subdomains(domain: str) -> dict[str, Any]:
