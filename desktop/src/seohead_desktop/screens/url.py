@@ -1164,6 +1164,8 @@ class UrlScreen(Screen):
     def _render_detail(self, state, text=""):
         page = (self.detail_data or {}).get("page") if self.detail_data else None
         row = self._current_row() if state != "none" else {}
+        if page:  # status, title and counts of the answer fill what the table row lacks (a URL opened by history or from another screen)
+            row = {**row, **{key: value for key, value in page.items() if value is not None and key in ("status_code", "title", "word_count", "crawl_depth", "response_time")}}
         for view in (self.bottom, self.side):
             view.render(row, page, self.detail_data, state, text)
         self.bottom.back.setEnabled(bool(self.history))

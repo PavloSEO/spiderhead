@@ -27,6 +27,22 @@ class ComparePanelChooserTests(unittest.TestCase):
         self.assertEqual(self.panel.before.currentData()["uuid"], "scan-2")
         self.assertEqual(self.panel.after.currentData()["uuid"], "scan-1")
 
+    def test_first_open_preselects_the_two_newest_scans_and_says_so(self):
+        self.assertEqual(self.panel.after.currentData()["uuid"], "scan-2")
+        self.assertEqual(self.panel.before.currentData()["uuid"], "scan-1")
+        self.assertTrue(self.panel.compare_button.isEnabled())
+        self.assertIn("два последних скана", self.panel.comparison_status.text())
+
+    def test_a_pair_the_user_chose_is_kept_when_the_list_is_refreshed(self):
+        self.panel.before.setCurrentIndex(0)
+        self.panel.set_scans([
+            {"uuid": "scan-1", "path": "/x/a.sqlite", "finished_at": "2026-09-21T10:00:00Z"},
+            {"uuid": "scan-2", "path": "/x/b.sqlite", "finished_at": "2026-10-07T10:00:00Z"},
+            {"uuid": "scan-3", "path": "/x/c.sqlite", "finished_at": "2026-10-10T10:00:00Z"},
+        ])
+        self.assertIsNone(self.panel.before.currentData())
+        self.assertEqual(self.panel.after.currentData()["uuid"], "scan-2")
+
     def test_core_gap_is_shown_as_unavailable_not_as_data(self):
         badges = [child for child in self.panel.findChildren(object) if child.property("waiting_issue") == 938]
         self.assertEqual(len(badges), 1)

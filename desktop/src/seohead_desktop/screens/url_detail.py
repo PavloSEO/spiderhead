@@ -215,7 +215,7 @@ class OverviewPage(QWidget):
         reason = index_reason(page) if page else None
         reasons = (reason,) if reason and (badge or "").casefold() != reason.casefold() else ()
         self.left.set("Индексация", joined(" · ", [badge, *reasons]) if badge else None)
-        self.left.set("Title", clean(page.get("title")))
+        self.left.set("Title", clean(page.get("title")) or clean((row or {}).get("title")))  # the table row answers while the detail loads
         self.left.set("Canonical", clean(page.get("canonical")))
         self.left.set("Цель редиректа", clean(page.get("redirect_url")) or clean(page.get("final_url")))
         words, _depth, ms = page_metrics(row or {}, page)

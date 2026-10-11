@@ -246,6 +246,7 @@ class OnboardingScreen(Screen):
         line.addWidget(MaterialIconLabel("folder", 18, color="role:text_2"))
         self.folder_label = QLabel()
         self.folder_label.setProperty("text_style", "mono")
+        self.folder_label.setWordWrap(True)  # a long path wraps instead of widening the card past the window
         self.folder_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         line.addWidget(self.folder_label, 1)
         self.choose_button = QPushButton(tr("Выбрать…"))
@@ -415,14 +416,17 @@ class OnboardingScreen(Screen):
         line.setContentsMargins(16, 12, 16, 12)
         line.setSpacing(12)
         line.addWidget(MaterialIconLabel("hub", 20, color="role:text_muted"))
+        texts = QVBoxLayout()  # the link sits under the title so the card keeps its width at 800 px
+        texts.setSpacing(2)
         title = QLabel(tr("Подключить агента"))
         title.setProperty("text_style", "control")
-        line.addWidget(title, 1)
+        texts.addWidget(title)
         link = QPushButton(tr("Подробнее о MCP и подключении Claude"))
         link.setProperty("role", "text")
         link.setCursor(Qt.PointingHandCursor)
         link.clicked.connect(lambda: self.host.open_settings("mcp"))
-        line.addWidget(link)
+        texts.addWidget(link, 0, Qt.AlignLeft)
+        line.addLayout(texts, 1)
         self.connect_button = QPushButton(tr("Прописать…"))
         self.connect_button.setProperty("role", "tonal")
         self.connect_button.setEnabled(bool(self.host.core_executable))
@@ -433,18 +437,18 @@ class OnboardingScreen(Screen):
         self.later_note = Note("info", "Агента можно подключить позже.", "Подключение — в Настройках → MCP-сервер. Запись в конфиг требует разрешения.")
         layout.insertWidget(layout.count() - 1, self.later_note)
 
-        look = QHBoxLayout()
-        look.setSpacing(8)
+        look = QGridLayout()  # one choice per row: two side by side are wider than the 800 px window allows
+        look.setHorizontalSpacing(12)
+        look.setVerticalSpacing(8)
         self.theme_choice = Segmented([("light", tr("Светлая")), ("dark", tr("Тёмная")), ("system", tr("Как в системе"))],
                                       self.host.prefs.get("view.theme"), tr("Тема"))
         self.language_choice = Segmented([("ru", "Русский"), ("en", "English")], self.host.prefs.get("view.language"), tr("Язык"))
         self.theme_choice.changed.connect(lambda value: self.host.prefs.set("view.theme", value))
         self.language_choice.changed.connect(lambda value: self.host.prefs.set("view.language", value))
-        for caption, control in ((tr("Тема"), self.theme_choice), (tr("Язык"), self.language_choice)):
-            look.addWidget(QLabel(caption))
-            look.addWidget(control)
-            look.addSpacing(16)
-        look.addStretch(1)
+        for row, (caption, control) in enumerate(((tr("Тема"), self.theme_choice), (tr("Язык"), self.language_choice))):
+            look.addWidget(QLabel(caption), row, 0)
+            look.addWidget(control, row, 1, Qt.AlignLeft)
+        look.setColumnStretch(2, 1)
         layout.insertLayout(layout.count() - 1, look)
         self.sync_display()
         return page

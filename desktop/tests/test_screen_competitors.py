@@ -88,6 +88,28 @@ class CompetitorsScreenTests(unittest.TestCase):
     def screen(self, host):
         return CompetitorsScreen(host)
 
+    def test_the_project_menu_opens_the_competitors_screen(self):
+        import shutil
+        import tempfile
+
+        from seohead_desktop.app import MainWindow, load_theme
+
+        load_theme(self.app, "light")
+        base = tempfile.TemporaryDirectory()
+        self.addCleanup(base.cleanup)
+        window = MainWindow(persistent=False, core_executable=shutil.which("python3"))
+        try:
+            window.prefs.set("general.projects_folder", base.name)
+            actions = [action for menu in window.menuBar().actions() if menu.menu() for action in menu.menu().actions() if action.text() == "Конкуренты…"]
+            self.assertEqual(len(actions), 1)
+            actions[0].trigger()
+            self.app.processEvents()
+            self.assertIs(window.pages.currentWidget(), window.extra_screens["competitors"])
+        finally:
+            window.close()
+            window.deleteLater()
+            self.app.processEvents()
+
     def test_without_project_shows_no_project_state_and_no_commands(self):
         host = FakeHost(project=None)
         screen = self.screen(host)
