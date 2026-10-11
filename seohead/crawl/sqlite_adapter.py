@@ -40,6 +40,7 @@ from seohead.crawl.spider import (
     _strip_fragment,
 )
 from seohead.crawl.throttle import RequestBudgetExhausted, Throttle
+from seohead.crawl.user_agents import same_robots_identity
 from seohead.recon.net import UA, http_client, normalize_url
 from seohead.storage import MAX_RECORD_BYTES, ScanBackpressure, ScanError
 from seohead.storage.corpus import html_body_retention
@@ -567,13 +568,17 @@ def crawl_to_scan(
         if saved_robots is not None:
             if not isinstance(saved_robots, dict):
                 raise ScanError("resumable native scan is missing its robots summary")
+            saved_token = saved_robots.get("token")
             if (
                 saved_robots.get("policy") != robots_policy
-                or saved_robots.get("token") != robots_token
+                or not isinstance(saved_token, str)
+                or not same_robots_identity(saved_token, robots_token)
             ):
                 raise ScanError(
                     "resumable native scan robots policy differs from its stored context"
                 )
+            # Resume under the identity the scan started with, so its stored context stays one token.
+            robots_token = saved_token
             robots = saved_robots.get("parsed")
             robots_note = saved_robots.get("note")
             robots_state = saved_robots.get("fetch_state")

@@ -100,7 +100,11 @@ def _rules_for(parsed: ParsedRobots, user_agent: str) -> RobotsGroup:
     matching by substring meant a group naming a browser engine captured any
     agent whose string happened to contain it.
     """
+    from seohead.crawl.user_agents import token_aliases  # seohead.crawl imports this module
+
     ua = user_agent.lower()
+    # The default crawler still answers to its pre-rename name, as an exact match.
+    aliases = token_aliases(ua) - {ua}
     best_length = -1
     matches: list[RobotsGroup] = []
     star_matches: list[RobotsGroup] = []
@@ -121,6 +125,8 @@ def _rules_for(parsed: ParsedRobots, user_agent: str) -> RobotsGroup:
             # applies to "Googlebot-Image", but not the other way round.
             if (ua == token or ua.startswith(token)) and len(token) > group_best:
                 group_best = len(token)
+            elif token in aliases and len(ua) > group_best:
+                group_best = len(ua)
         if group_best > best_length:
             best_length, matches = group_best, [group]
         elif group_best >= 0 and group_best == best_length:

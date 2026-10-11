@@ -17,6 +17,9 @@ DEFAULT_PRESET = "spiderhead"
 DEFAULT_TOKEN = "SpiderHeadBot"
 DEFAULT_USER_AGENT = f"{DEFAULT_TOKEN}/{__version__} (+https://github.com/PavloSEO/spiderhead)"
 MAX_LENGTH = 512
+# Robots tokens the default identity used before the rename. Sites that wrote a
+# group for the old name keep it applied, and scans stored under it still resume.
+LEGACY_TOKENS = frozenset({"seohead-tools"})
 
 _GOOGLE = "+http://www.google.com/bot.html"
 _BING = "+http://www.bing.com/bingbot.htm"
@@ -136,3 +139,16 @@ def apply_defaults(http: dict[str, Any], robots: dict[str, Any]) -> None:
         http["user_agent"] = DEFAULT_USER_AGENT
     if not robots.get("user_agent_token"):
         robots["user_agent_token"] = resolve(http["user_agent"])[1]
+
+
+def token_aliases(token: str) -> frozenset[str]:
+    """Lower-cased robots names that address ``token``: itself plus, for the default, its old name."""
+    lowered = token.lower()
+    return frozenset({lowered}) | (
+        LEGACY_TOKENS if lowered == DEFAULT_TOKEN.lower() else frozenset()
+    )
+
+
+def same_robots_identity(a: str, b: str) -> bool:
+    """True when two robots tokens select the same groups."""
+    return a.lower() in token_aliases(b) or b.lower() in token_aliases(a)
