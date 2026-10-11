@@ -188,6 +188,10 @@ class _SettingsPage(QWidget):
         self.unavailable.setVisible(not available)
         self.form_widget.setEnabled(available)
         self.form_widget.setVisible(available)
+        enabled_frame = getattr(self, "enabled_frame", None)
+        if enabled_frame is not None:
+            enabled_frame.setEnabled(available)
+            enabled_frame.setVisible(available)
         self.save_button.setEnabled(available and self.state is not None)
         self.revert.setEnabled(available)
         self.availabilityChanged.emit(available)

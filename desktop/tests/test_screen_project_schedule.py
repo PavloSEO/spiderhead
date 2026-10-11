@@ -138,6 +138,8 @@ class ScheduleTabTests(unittest.TestCase):
         self.app.processEvents()
         self.assertFalse(page.save_button.isEnabled())
         self.assertFalse(page.form_widget.isEnabled())
+        self.assertFalse(page.enabled_frame.isEnabled())
+        self.assertTrue(page.enabled_frame.isHidden())
         self.assertEqual(len([w for w in page.findChildren(StatePanel) if w.kind == "waiting"]), 1)
         page.close()
 
@@ -146,6 +148,8 @@ class ScheduleTabTests(unittest.TestCase):
             page = SchedulePage(self.host)
             self.wait(lambda: page.state is not None)
         self.assertTrue(page.enabled.isChecked())
+        self.assertTrue(page.enabled_frame.isEnabled())
+        self.assertFalse(page.enabled_frame.isHidden())
         self.assertEqual(
             sorted(name for name, check in page.weekdays.items() if check.isChecked()),
             ["mon", "thu"],

@@ -217,7 +217,8 @@ class Stepper(QFrame):
         self.setProperty("stepper", True)
         self.edit = edit
         edit.setAlignment(Qt.AlignCenter)
-        edit.setFixedWidth(16777215)
+        edit.setMinimumWidth(0)
+        edit.setMaximumWidth(16777215)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
