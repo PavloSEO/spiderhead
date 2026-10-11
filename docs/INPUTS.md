@@ -96,6 +96,9 @@ and this decision makes no backend migration.
 | `metrika-report` | Provider query (`counter_id`) | — |
 | `metrika-traffic-pdf` | Provider query (`counter_id`); requires `date1, date2, out_dir`<br>Local file (`document`); requires `out_dir`<br>Local configuration (`brand`)<br>Inline JSON (`gsc_rows`) | Renders an existing traffic document offline; no Metrika request.; Optional brand JSON file or inline object.; Optional Search Console query rows. |
 | `google-keywords` | Provider query (`keywords`)<br>Provider query (`seed`) | — |
+| `dataforseo-estimate` | Inline JSON (`operation, query_count, row_limit, cache_hits, prices, env`) | — |
+| `backlinks-profile` | Provider query (`domain`)<br>Inline JSON (`imports, evidence, sources`)<br>Local file (`db`)<br>Project directory (`project`) | — |
+| `backlinks-disavow` | URL list (`urls, domains`)<br>Local file (`output`) | — |
 | `google-serp` | Provider query (`query`) | — |
 | `wayback-history` | Live URL (`url`) | — |
 | `cloudflare-traffic` | Provider query (`zone`) | — |

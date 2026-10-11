@@ -59,6 +59,8 @@ COMMANDS = (
     "tech-detect",
     "security-check",
     "backlinks-check",
+    "backlinks-profile",
+    "backlinks-disavow",
     "schema-check",
     "schema-build",
     "duplicate-check",
@@ -96,6 +98,7 @@ COMMANDS = (
     "metrika-report",
     "metrika-traffic-pdf",
     "google-keywords",
+    "dataforseo-estimate",
     "google-serp",
     "wayback-history",
     "crtsh-subdomains",
@@ -1125,6 +1128,47 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             kw["region"] = str(args.region)
         if getattr(args, "top", None) is not None:
             kw["top"] = args.top
+    if cmd in {"google-keywords", "google-serp"}:
+        if getattr(args, "confirm_paid", False):
+            kw["confirm_paid"] = True
+        for name in ("env", "spend_ceiling_usd"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    if cmd == "dataforseo-estimate":
+        if getattr(args, "refresh_prices", False):
+            kw["refresh_prices"] = True
+        for name in ("operation", "query_count", "row_limit", "cache_hits", "env"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    if cmd == "backlinks-profile":
+        for name in (
+            "domain",
+            "project",
+            "db",
+            "follow",
+            "state",
+            "target_prefix",
+            "min_spam_score",
+            "max_spam_score",
+            "limit",
+            "offset",
+        ):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        if getattr(args, "history_only", False):
+            kw["history_only"] = True
+        if getattr(args, "one_per_domain", False):
+            kw["one_per_domain"] = True
+    if cmd == "backlinks-disavow":
+        for name in ("domains", "urls"):
+            value = getattr(args, name, None)
+            if value:
+                kw[name] = _split_list(value)
+        if getattr(args, "output", None):
+            kw["output"] = args.output
     if cmd == "google-keywords":
         if getattr(args, "keywords", None):
             kw["keywords"] = _split_list(args.keywords)
@@ -1978,6 +2022,53 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--queries", help="comma-separated batch of search queries")
         sub.add_argument("--region", help="Yandex region ID (default 225)")
         sub.add_argument("--top", type=int, help="number of result positions (default 10)")
+    if cmd in {"google-keywords", "google-serp"}:
+        sub.add_argument(
+            "--confirm-paid", action="store_true", help="explicitly confirm production charges"
+        )
+        sub.add_argument(
+            "--env", choices=("sandbox", "prod"), help="provider environment (default sandbox)"
+        )
+        sub.add_argument(
+            "--spend-ceiling-usd",
+            type=float,
+            help="pre-call ceiling; supply current prices through --input",
+        )
+    if cmd == "dataforseo-estimate":
+        _source_flag(sub, "--operation", help="DataForSEO operation to quote offline")
+        sub.add_argument(
+            "--refresh-prices",
+            action="store_true",
+            help="explicit free account appendix/user_data price lookup",
+        )
+        sub.add_argument("--query-count", type=int, help="number of proposed requests")
+        sub.add_argument("--row-limit", type=int, help="maximum billed result rows per request")
+        sub.add_argument("--cache-hits", type=int, help="caller-declared requests already cached")
+        sub.add_argument("--env", choices=("sandbox", "prod"))
+    if cmd == "backlinks-profile":
+        _source_flag(
+            sub, "--domain", help="target hostname; imports/evidence/sources through --input JSON"
+        )
+        sub.add_argument("--project", help="retain private profile history in this local project")
+        sub.add_argument("--db", help="explicit private backlink history SQLite file")
+        sub.add_argument("--state", choices=("live", "lost", "unknown"))
+        sub.add_argument("--follow", choices=("normal", "nofollow", "sponsored", "ugc", "unknown"))
+        sub.add_argument("--target-prefix", help="filter targets under this URL prefix")
+        sub.add_argument("--min-spam-score", type=float)
+        sub.add_argument("--max-spam-score", type=float)
+        sub.add_argument(
+            "--history",
+            dest="history_only",
+            action="store_true",
+            help="read retained history metadata without collecting or writing",
+        )
+        sub.add_argument("--one-per-domain", action="store_true")
+        sub.add_argument("--limit", type=int)
+        sub.add_argument("--offset", type=int)
+    if cmd == "backlinks-disavow":
+        _source_flag(sub, "--domains", help="comma-separated reviewed donor domains")
+        _source_flag(sub, "--urls", help="comma-separated reviewed donor URLs")
+        sub.add_argument("--output", help="new local text file; never overwrites or submits")
     if cmd == "google-keywords":
         _source_flag(sub, "--keywords", help="comma-separated phrases for search-volume lookup")
         _source_flag(sub, "--seed", help="seed phrase for keyword expansion")

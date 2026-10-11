@@ -99,6 +99,14 @@
         "reason": "missing export: sitemap_non_indexable"
       },
       {
+        "id": "MIXED_LINK_REL",
+        "reason": "export input retains no full rel-token/context evidence; native retained links are required"
+      },
+      {
+        "id": "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
+        "reason": "export input retains no full rel-token/context evidence; native retained links are required"
+      },
+      {
         "id": "BROKEN_BOOKMARK",
         "reason": "export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan"
       },
@@ -536,9 +544,9 @@
     ],
     "health_score": null,
     "check_coverage": {
-      "checks_total": 202,
+      "checks_total": 204,
       "checks_fired": 20,
-      "checks_skipped": 108,
+      "checks_skipped": 110,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
       "checks_silent": 74,
@@ -618,10 +626,10 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.465
+      "coverage": 0.461
     },
-    "health_score_reason": "only 94 of 202 checks could run (46% coverage); too little evidence to score",
-    "health_score_basis": "94 of 202 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_reason": "only 94 of 204 checks could run (46% coverage); too little evidence to score",
+    "health_score_basis": "94 of 204 checks could run; the score is not comparable to a run with full evidence",
     "internal_linking": {
       "measured": false,
       "reason": "no all_inlinks export (needed for the complete internal edge list)"

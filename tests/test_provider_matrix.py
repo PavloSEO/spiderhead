@@ -71,6 +71,7 @@ def test_dedicated_refs_resolve_to_real_integrations():
         "indexnow",
         "topvisor",
         "miratext",
+        "backlink_indexes",
     }
     for name in dedicated:
         module = importlib.import_module(f"seohead.data_sources.{name}")
@@ -113,7 +114,13 @@ def test_dataforseo_registry_entry_covers_only_backlinks():
     # google-keywords/google-serp must not be attributed to the registry id that
     # declares only backlinks_summary and is off by default.
     entry = provider_registry()["providers"]["dataforseo_backlinks"]
-    assert entry["operations"] == ["backlinks_summary"]
+    assert entry["operations"] == [
+        "backlinks_summary",
+        "backlinks",
+        "referring_domains",
+        "backlinks_history",
+        "domain_pages_summary",
+    ]
     assert entry["default_enabled"] is False
     for workflow in ("google-demand", "serp-collection"):
         names = {ref.name for ref in _row(workflow).providers}
@@ -187,11 +194,12 @@ def test_registry_backlinks_route_is_separate_from_demand_paths(monkeypatch):
 
     calls = []
 
-    def fake_backlinks_summary(**request):
+    def fake_backlink_call(operation, **request):
+        assert operation == "backlinks_summary"
         calls.append(request)
         return {"ok": True, "state": "complete", "summary": {"target": request["target"]}}
 
-    monkeypatch.setattr(dataforseo, "backlinks_summary", fake_backlinks_summary)
+    monkeypatch.setattr(dataforseo, "backlink_call", fake_backlink_call)
     envelope = providers.provider_collect(
         "dataforseo_backlinks", "backlinks_summary", {"target": "example.com"}
     )
@@ -201,7 +209,12 @@ def test_registry_backlinks_route_is_separate_from_demand_paths(monkeypatch):
     assert evidence["operation"] == "backlinks_summary"
 
     row = _row("link-evidence")
-    assert [(ref.kind, ref.name) for ref in row.providers] == [("registry", "dataforseo_backlinks")]
+    assert [(ref.kind, ref.name) for ref in row.providers] == [
+        ("registry", "dataforseo_backlinks"),
+        ("registry", "yandex_webmaster"),
+        ("registry", "bing_webmaster"),
+        ("dedicated", "backlink_indexes"),
+    ]
 
 
 def test_crux_is_field_data_and_pagespeed_stays_lab_only():

@@ -7,8 +7,8 @@ description: >-
   indexable. It answers not only whether a link exists, but WHY it is missing or why
   it does not work. Use when asked to "check my backlinks," "are the links still
   live," "dofollow or nofollow," "is there a link to the site," "check the donor
-  pages," or "was the link removed." It does NOT discover someone else's backlink
-  profile (that requires Ahrefs/Majestic); it checks a KNOWN list of URLs. Triggers:
+  pages," or "was the link removed." It verifies a KNOWN donor list. For explicitly supplied index/CSV evidence use
+  backlinks-profile; this check does not discover donors on its own. Triggers:
   backlinks, links from donor pages, dofollow, nofollow, check links, link removed,
   is the link live, donor page.
 ---
@@ -23,10 +23,10 @@ the results by cause.
 
 Important scope boundary: this checks **your list** of donor pages (purchased links,
 crowd-marketing links, guest posts, directories); it does not investigate someone
-else's backlink profile. External databases (Ahrefs, Majestic, GSC) are not available
-here; a request to "show every link to the site" requires one of them.
+else's backlink profile. The separate `backlinks-profile` route merges explicit index, first-party and CSV evidence;
+no provider proves a complete list of every link to a site.
 
-The tool is `seohead backlinks-check` (CLI + MCP `seo_backlinks_check` + HTTP).
+The tool is `seohead backlinks-check` (CLI + local MCP `seo_backlinks_check`).
 
 ## Trigger
 - "check my backlinks," "are the links still live," "was the link removed";
@@ -71,7 +71,7 @@ The limit is 500 donor pages per run.
   `on_noindex_page` (the donor page is blocked from indexing, so no equity is passed).
 - `results[]` for each donor page: `found`, `status_code`, `donor_indexable`,
   `canonical`/`canonical_elsewhere`, `links[]` (for every link found: `href`, `anchor`,
-  `rel`, `follow`, `blocked_by`), and `reason`, which explains why the link is absent
+  `rel`, independent `normal`/`nofollow`/`sponsored`/`ugc` flags, `follow`, `blocked_by`), and `reason`, which explains why the link is absent
   or why it does not work.
 
 ## Decision points

@@ -1241,6 +1241,18 @@ CHECKS: dict[str, dict[str, Any]] = {
         "fix": "Remove sponsored and ugc from links to pages of this site. Keep them only on "
         "links that really lead to paid placements or user-submitted content.",
     },
+    "MIXED_LINK_REL": {
+        "severity": "notice",
+        "source": "crawl:link_findings",
+        "message": "A link combines nofollow, sponsored or ugc tokens",
+        "fix": "The combination is valid. Review whether each qualifying token describes the placement; retain intentional combinations and the full rel token set.",
+    },
+    "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE": {
+        "severity": "notice",
+        "source": "crawl:link_findings",
+        "message": "An outbound sponsored link has no recognized local disclosure text",
+        "fix": "Review the retained local text and add a clear reader-facing disclosure when needed. This bounded English/Russian text-marker heuristic does not establish legal compliance; CSS visibility, other languages and remote disclosures require manual review.",
+    },
     "HTTP_LINK_ON_HTTPS": {
         "severity": "notice",
         "source": "crawl:link_findings",
