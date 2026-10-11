@@ -60,6 +60,7 @@ _SENSITIVE = frozenset(
 # against, so a reader can never confuse the marker with the header it stands for.
 REDACTED_NAMES_HEADER = "x-seohead-redacted-headers"
 
+
 def header_pairs(headers: Any) -> tuple[tuple[str, str], ...]:
     items = (
         headers.multi_items()
