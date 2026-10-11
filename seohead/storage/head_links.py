@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from . import ScanError
+from . import MAX_RECORD_BYTES, ScanError
 
 VERSION = "head_links.v1"
 
@@ -19,17 +19,25 @@ def context_item(*, page_url_id: int, source_document_id: int, representation: s
         "representation": representation,
         "declarations": parsed["head_links"] if measured else None,
     }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    oversized = len(encoded.encode("utf-8")) > MAX_RECORD_BYTES
+    if oversized:
+        payload["declarations"] = None
+        encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+        measured = False
     return {
         "kind": "head_links",
         "item_key": f"page:{page_url_id}:document:{source_document_id}:representation:{representation}",
         "payload_version": "scan_context.v1",
-        "payload_json": json.dumps(payload, sort_keys=True, separators=(",", ":")),
+        "payload_json": encoded,
         "completeness": "partial"
         if measured and len(parsed["head_links"]) >= 100
         else "complete"
         if measured
         else "unavailable",
-        "reason": "head annotation limit reached"
+        "reason": "raw head annotations exceed native context byte limit"
+        if oversized
+        else "head annotation limit reached"
         if measured and len(parsed["head_links"]) >= 100
         else ""
         if measured
@@ -44,9 +52,9 @@ def validate_context(con, item, payload):
         != {"schema_version", "page_url_id", "source_document_id", "representation", "declarations"}
         or payload["schema_version"] != VERSION
         or type(payload["page_url_id"]) is not int
-        or payload["page_url_id"] < 1
+        or not 1 <= payload["page_url_id"] < 2**63
         or type(payload["source_document_id"]) is not int
-        or payload["source_document_id"] < 1
+        or not 1 <= payload["source_document_id"] < 2**63
         or payload["representation"] not in {"static", "rendered", "legacy_fragment"}
     ):
         raise ScanError("native head annotation context is invalid")
@@ -63,6 +71,10 @@ def validate_context(con, item, payload):
     ):
         raise ScanError("native head annotation declarations are invalid")
     measured = declarations is not None
+    unavailable_reason = item["reason"] in {
+        "head annotations were not parsed as eligible HTML",
+        "raw head annotations exceed native context byte limit",
+    }
     if (
         item["item_key"]
         != f"page:{payload['page_url_id']}:document:{payload['source_document_id']}:representation:{payload['representation']}"
@@ -80,6 +92,8 @@ def validate_context(con, item, payload):
             if measured and len(declarations) >= 100
             else ""
             if measured
+            else item["reason"]
+            if unavailable_reason
             else "head annotations were not parsed as eligible HTML"
         )
         or not con.execute(

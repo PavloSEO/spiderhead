@@ -402,3 +402,36 @@ def test_capped_pagination_sources_are_unmeasured_for_target_validation(tmp_path
         and "source annotations" in checks["PAGINATION_NONINDEXABLE"]
     )
     assert "PAGINATION_MULTIPLE" in checks
+
+
+def test_raw_head_context_over_native_scalar_limit_is_named_unavailable():
+    import json
+
+    from seohead.storage import MAX_RECORD_BYTES
+    from seohead.storage.head_links import context_item
+
+    raw = "/" + "x" * (MAX_RECORD_BYTES // 2)
+    item = context_item(
+        page_url_id=1,
+        source_document_id=1,
+        representation="static",
+        parsed={
+            "head_links": [{"rel": "canonical", "href": raw, "target": BASE + raw.lstrip("/")}]
+        },
+    )
+    assert item["completeness"] == "unavailable"
+    assert item["reason"] == "raw head annotations exceed native context byte limit"
+    assert len(item["payload_json"].encode()) <= MAX_RECORD_BYTES
+    assert json.loads(item["payload_json"])["declarations"] is None
+
+
+def test_head_context_ids_outside_sqlite_integer_range_are_rejected_before_binding():
+    import json
+
+    from seohead.storage.head_links import context_item, validate_context
+
+    item = context_item(
+        page_url_id=1, source_document_id=2**63, representation="static", parsed={"head_links": []}
+    )
+    with pytest.raises(ScanError, match="context is invalid"):
+        validate_context(None, item, json.loads(item["payload_json"]))
