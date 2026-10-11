@@ -12,6 +12,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QButtonGroup,
     QFrame,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -19,7 +20,9 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QSplitter,
     QTabBar,
+    QTabWidget,
     QToolButton,
     QVBoxLayout,
     QWidget,
@@ -56,17 +59,17 @@ OVERVIEW = (
     ("folder_open", "Внутренние", 1),
     ("description", "HTML", 2),
     ("javascript", "JavaScript", 2),
-    ("css", "CSS", 2),
-    ("image", "Изображения", 2),
+    ("code", "CSS", 2),
+    ("photo_size_select_large", "Изображения", 2),
     ("folder_open", "Коды ответа", 0),
     ("check_circle", "2xx успешно", 1),
-    ("turn_right", "3xx редирект", 1),
+    ("subdirectory_arrow_right", "3xx редирект", 1),
     ("warning", "4xx ошибка клиента", 1),
     ("error", "5xx ошибка сервера", 1),
     ("folder_open", "Title", 0),
     ("remove", "Отсутствует", 1),
     ("content_copy", "Дубли", 1),
-    ("straighten", "Длиннее 60 знаков", 1),
+    ("fit_width", "Длиннее 60 знаков", 1),
     ("folder", "Canonical", 0),
     ("folder", "Директивы", 0),
     ("folder", "Hreflang", 0),
@@ -82,6 +85,8 @@ COLUMNS = (
     ("Глубина", 72),
 )
 COLUMN_MIN = 80  # stretch columns never shrink below this; the header scrolls sideways instead
+DETAIL_TABS = ("Сведения", "Входящие", "Исходящие", "Изображения", "Ресурсы", "Сниппет", "Исходник", "HTTP-заголовки")
+DETAIL_FIELDS = (("Адрес", "Код ответа", "Индексация"), ("Title", "Глубина", "Время ответа"))
 DEFAULT_DETAILS = "Сведения появятся, когда будет выбран адрес краула"
 DEFAULT_STATUS = "Без проекта · данные краула недоступны"
 TEMPORARY_STATUS = "Без проекта · данные во временной папке до закрытия окна"
@@ -102,7 +107,15 @@ class CrawlerScreen(QWidget):
         body = QHBoxLayout()
         body.setContentsMargins(0, 0, 0, 0)
         body.setSpacing(0)
-        body.addLayout(self._main(), 1)
+        splitter = QSplitter(Qt.Vertical)
+        splitter.setChildrenCollapsible(False)
+        main = QWidget()
+        main.setLayout(self._main())
+        splitter.addWidget(main)
+        splitter.addWidget(self._detail_pane())
+        splitter.setStretchFactor(0, 3)
+        splitter.setStretchFactor(1, 2)
+        body.addWidget(splitter, 1)
         body.addWidget(self._overview())
         root.addLayout(body, 1)
         root.addWidget(self._status())
@@ -163,6 +176,11 @@ class CrawlerScreen(QWidget):
         start.setIcon(material_icon("play_arrow"))
         start.setToolTip(tr(UNAVAILABLE))
         row.addWidget(start)
+        tune = QToolButton()
+        tune.setIcon(material_icon("tune"))
+        tune.setToolTip(tr("Настройки скана"))
+        tune.setEnabled(False)
+        row.addWidget(tune)
         self._clear = QPushButton(tr("Очистить"))
         self._clear.setEnabled(False)
         row.addWidget(self._clear)
@@ -246,11 +264,38 @@ class CrawlerScreen(QWidget):
             ),
             1,
         )
+        return column
+
+    def _detail_pane(self):
+        pane = QWidget()
+        column = QVBoxLayout(pane)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(0)
         self._details = QLabel(tr(DEFAULT_DETAILS))
         self._details.setProperty("text_style", "meta")
         self._details.setContentsMargins(16, 10, 16, 10)
         column.addWidget(self._details)
-        return column
+        tabs = QTabWidget()
+        tabs.tabBar().setProperty("tabs", "underline")
+        tabs.tabBar().setUsesScrollButtons(True)
+        tabs.setEnabled(False)
+        for name in DETAIL_TABS:
+            page = QWidget()
+            if name == DETAIL_TABS[0]:
+                grid = QGridLayout(page)
+                grid.setContentsMargins(16, 12, 16, 12)
+                grid.setHorizontalSpacing(24)
+                grid.setVerticalSpacing(8)
+                for column_index, keys in enumerate(DETAIL_FIELDS):
+                    for row_index, key in enumerate(keys):
+                        caption = QLabel(tr(key))
+                        caption.setProperty("text_style", "meta")
+                        grid.addWidget(caption, row_index, column_index * 2)
+                        grid.addWidget(QLabel(), row_index, column_index * 2 + 1)
+                grid.setRowStretch(len(DETAIL_FIELDS[0]), 1)
+            tabs.addTab(page, tr(name))
+        column.addWidget(tabs, 1)
+        return pane
 
     def _table_header(self):
         header = QFrame()
@@ -313,7 +358,7 @@ class CrawlerScreen(QWidget):
         bar = QFrame()
         bar.setProperty("role", "status")
         row = QHBoxLayout(bar)
-        row.setContentsMargins(12, 4, 8, 4)
+        row.setContentsMargins(12, 4, 16, 4)
         row.setSpacing(20)
         state = QLabel(tr("Краул не запущен"))
         state.setProperty("badge", "mut")
