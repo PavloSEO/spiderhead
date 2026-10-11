@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-11T02:10:14Z
+- **Generated:** 2026-10-11T11:34:55Z
 
 ## Health summary
 
-> **No health score.** only 94 of 202 checks could run (46% coverage); too little evidence to score.
+> **No health score.** only 95 of 208 checks could run (46% coverage); too little evidence to score.
 
-_94 of 202 checks could run; the score is not comparable to a run with full evidence_
+_95 of 208 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 108 skipped, 74 silent, 0 disabled (of 202 total)
+- Checks: **20 fired**, 113 skipped, 75 silent, 0 disabled (of 208 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -237,6 +237,11 @@ Each check below describes more than half the crawled pages. That can be true --
 | Sitemap URL returns a 3xx response | missing export: sitemap_redirects |
 | Sitemap contains a non-indexable URL | missing export: sitemap_non_indexable |
 | Link fragment identifies no element on the destination page | export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan |
+| Internal hyperlink has empty anchor text | this check requires retained native scan evidence |
+| An explicitly checked external destination did not answer | this check requires retained native scan evidence |
+| Sitemap URL declares another canonical URL | this check requires retained native scan evidence |
+| Sitemap URL is blocked by the retained robots policy | this check requires retained native scan evidence |
+| An internally linked URL is blocked by robots.txt | this check requires retained native scan evidence |
 | More than one <meta name="description"> element is present | no meta description count evidence (native crawl only) |
 | Page has an H1 but no H2 headings | requirements.require_h2 is false; the check was not evaluated |
 | The H1 has no text of its own; its only content is an image's alt attribute | no H1 alt-text evidence (native crawl only) |

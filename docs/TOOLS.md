@@ -825,7 +825,8 @@ occurrence-identity mismatches remain `not_classified` with a reason in `scan-st
 retained same-origin, indexable, canonical HTTP 200 HTML pages. Supply an explicit deployment
 base URL ending in `/`, and a fresh output directory. It splits at 50,000 URL entries or 50 MiB
 uncompressed and writes a sitemap index. Optional image sitemaps use complete retained HTML;
-missing image bodies are reported. lastmod uses retained modification evidence and is omitted
+missing image bodies and unmeasured responses are reported. Known non-200 resource
+responses are excluded. lastmod uses retained modification evidence and is omitted
 when unknown. Exclusion globs are explicit. The command does not deploy the generated files.
 
 Native retained audits also group 4xx/5xx internal link targets with source pages and anchors,
