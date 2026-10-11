@@ -483,7 +483,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             handlers.backlinks_check(target=target, donors=donors, concurrency=concurrency)
         )
 
-    @mcp.tool(annotations=create_files_from_web, structured_output=True)
+    @mcp.tool(annotations=paid, structured_output=True)
     def seo_backlinks_profile(
         domain: str,
         history_only: bool = False,

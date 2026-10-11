@@ -453,7 +453,7 @@ Build a bounded backlink profile from explicit CSV/imported evidence or selected
 | `limit` | `int` | `1000` |
 | `offset` | `int` | `0` |
 
-**Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
+**Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
 
 **Behavior and failure modes**
 
