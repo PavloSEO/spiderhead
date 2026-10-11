@@ -1847,6 +1847,27 @@ def _audit_crawl_result(
             ctx.add("SITEMAP_ORPHAN", target_url=orphan_url, details={"in_sitemap": True})
         for extra_url in reconciled["linked_not_in_sitemap"]:
             ctx.add("URL_NOT_IN_SITEMAP", target_url=extra_url)
+        # Legacy unstored crawls retain the sitemap seed and fetched page records;
+        # saved scans use the dedicated retained sitemap taxonomy above.
+        from urllib.parse import urlsplit as _sitemap_split
+
+        from seohead.crawl.sitemap_findings import sitemap_url_problems
+
+        sitemap_host = _sitemap_split(start_norm).hostname or "" if url else ""
+        for item in sitemap_url_problems(
+            sitemap_seed["declared"],
+            getattr(result, "pages", []) or [],
+            getattr(result, "robots_blocked", None) or [],
+            sitemap_host,
+        ):
+            ctx.add(
+                item["check"],
+                target_url=item["target_url"],
+                details={
+                    "status_code": item["status_code"],
+                    "reasons": item["reasons"],
+                },
+            )
         # The site-level verdict belongs to whichever module did the comparison,
         # and here that is this one -- run_sitemap was told to skip it by name
         # (compare_with_crawl above) precisely so the two never answer the same

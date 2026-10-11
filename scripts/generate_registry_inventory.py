@@ -176,7 +176,8 @@ def _replace_check_counts(*, check: bool) -> list[Path]:
         updated = re.sub(r"\b\d+(?=-check\s+(?:registry|analyz|import))", str(len(CHECKS)), updated)
         updated = "".join(
             line
-            if "96 checks (the count before" in line or "139 checks when this audit was written" in line
+            if "96 checks (the count before" in line
+            or "139 checks when this audit was written" in line
             else re.sub(r"\b\d{2,4}(?=\s+checks\b)", str(len(CHECKS)), line)
             for line in updated.splitlines(keepends=True)
         )
