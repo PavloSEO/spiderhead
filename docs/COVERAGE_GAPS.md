@@ -104,23 +104,24 @@ missing. These observations support specialist review rather than an E-E-A-T sco
 
 ---
 
-## 3. Accessibility (category missing entirely)
+## 3. Accessibility (bounded static subset)
 
 | # | Name | Checks | Value | Mode | Home |
 |---|---|---|---|---|---|
 | 3.1 | ARIA roles and labels | Correctness of `role`/`aria-label`/`aria-*` | **high** | A (HTML/render) | new `a11y.py` (or Lighthouse) |
 | 3.2 | Color contrast | Text/background contrast per WCAG | medium | A (Lighthouse) | `a11y.py` |
 | 3.3 | Focus-visible / keyboard | Focus visibility, keyboard navigation | medium | A (Lighthouse) | `a11y.py` |
-| 3.4 | Form labels | A `<label>` for every form field | medium | A (HTML) | `a11y.py` |
-| 3.5 | Heading order (a11y) | Logical h1->h2->h3 nesting for screen readers | medium | A (HTML/render — SF gives counts, not order) | `a11y.py`, id `HEADING_ORDER_BAD` |
+| 3.4 | Form labels | A `<label>` for every form field | medium | **Partial**: retained HTML label/name heuristic via `A11Y_FORM_LABEL_MISSING`; full accessible-name and interaction evaluation remain unmeasured | `checks/markup.py` |
+| 3.5 | Heading order (a11y) | Logical h1->h2->h3 nesting for screen readers | medium | **Partial**: retained HTML heading-level jumps via `A11Y_HEADING_ORDER`; screen-reader navigation and rendered visibility remain unmeasured | `checks/markup.py` |
 | 3.6 | Skip link | A "skip to content" link | low | A (HTML) | `a11y.py` |
 | 3.7 | Link text (descriptive) | Anchors like "here", "click" are uninformative | medium | **DONE** as `GENERIC_ANCHOR_TEXT` (RU+EN dictionary) | `inlinks.py` |
 | 3.8 | Touch-target size | Tap target size for fingers | low | A (render) — consciously excluded earlier, revisit | `a11y.py` |
 | 3.9 | Table headers | `<th>` in data tables | low | A (HTML) | `a11y.py` |
 
-**Context.** Most a11y checks need HTML/rendering and are best closed by a
-Lighthouse integration, not home-grown. The pragmatic path is one external
-`lighthouse-a11y` skill relaying Google's standard audits.
+**Context.** Retained markup supplies bounded form-label and heading-order
+heuristics, not a WCAG conformance verdict. Contrast, keyboard interaction and
+screen-reader navigation remain outside this static subset; broader evaluation
+needs browser or specialist evidence.
 
 ---
 

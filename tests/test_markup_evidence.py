@@ -246,6 +246,43 @@ def test_native_defective_markup_fires_all_implemented_checks(tmp_path):
         con.close()
 
 
+@pytest.mark.parametrize("newer_document", [False, True])
+def test_missing_latest_static_amp_context_never_inherits_sibling_or_older_pass(
+    tmp_path, newer_document
+):
+    import sqlite3
+
+    html = '<html amp lang="en"><body><main>AMP</main></body></html>'
+    path = _scan(tmp_path, [(URL, html), (AMP, html)])
+    writer = sqlite3.connect(path)
+    writer.row_factory = sqlite3.Row
+    if newer_document:
+        document = dict(writer.execute("SELECT * FROM documents WHERE url_id=2").fetchone())
+        document.pop("document_id")
+        writer.execute(
+            "INSERT INTO documents ("
+            + ",".join(document)
+            + ") VALUES ("
+            + ",".join("?" for _ in document)
+            + ")",
+            tuple(document.values()),
+        )
+    else:
+        writer.execute(
+            "DELETE FROM context_items WHERE kind='markup_evidence' AND item_key LIKE 'page:2:%'"
+        )
+    writer.commit()
+    writer.close()
+    con = open_scan(path, require_audit=False)
+    try:
+        ctx = _ctx(con, targets=True)
+        check_document_markup(ctx)
+        assert set(AMP_CODES) | {"AMP_MISSING_HTML_ATTRIBUTE"} <= {item.id for item in ctx.skipped}
+        assert all(issue.target_url != AMP for issue in ctx.issues)
+    finally:
+        con.close()
+
+
 def test_native_healthy_markup_stays_silent_for_all_implemented_checks(tmp_path):
     html = """<!doctype html><html amp lang="en"><head><meta charset="utf-8">
       <meta name="viewport" content="width=device-width"><script async src="https://cdn.ampproject.org/v0.js"></script>

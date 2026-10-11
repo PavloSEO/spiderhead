@@ -3,7 +3,7 @@
 Generated from `docs/COVERAGE_GAPS.md` by `scripts/generate_coverage_gap_reconciliation.py`.
 A row is covered only when its actual Mode cell names a shipped check/tool; partial and out-of-scope are not readiness claims.
 
-**100 rows:** covered_registry_or_tool=56, missing=29, out_of_scope=8, partial=7.
+**100 rows:** covered_registry_or_tool=56, missing=29, out_of_scope=6, partial=9.
 
 | Row | Name | Reconciled state |
 |---|---|---|
@@ -24,8 +24,8 @@ A row is covered only when its actual Mode cell names a shipped check/tool; part
 | 3.1 | ARIA roles and labels | out_of_scope |
 | 3.2 | Color contrast | out_of_scope |
 | 3.3 | Focus-visible / keyboard | out_of_scope |
-| 3.4 | Form labels | out_of_scope |
-| 3.5 | Heading order (a11y) | out_of_scope |
+| 3.4 | Form labels | partial |
+| 3.5 | Heading order (a11y) | partial |
 | 3.6 | Skip link | out_of_scope |
 | 3.7 | Link text (descriptive) | covered_registry_or_tool |
 | 3.8 | Touch-target size | out_of_scope |

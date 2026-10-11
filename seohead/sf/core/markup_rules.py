@@ -51,15 +51,16 @@ def check_document_markup(ctx: AuditContext) -> None:
     # Static source markup owns AMP syntax; a serialized rendered DOM may repair
     # missing head/body tags and drop the original doctype.
     for row in con.execute(
-        "SELECT u.url,c.payload_json FROM context_items c JOIN documents d "
-        "ON c.item_key='page:'||d.url_id||':document:'||d.document_id||':representation:'||d.representation "
-        "JOIN urls u USING(url_id) JOIN pages p USING(url_id) "
-        "WHERE c.kind='markup_evidence' AND d.representation='static' "
-        "AND p.status_code BETWEEN 200 AND 299 AND lower(p.content_type) LIKE '%html%' "
-        "AND d.document_id=(SELECT MAX(newer.document_id) FROM documents newer "
-        "JOIN context_items nc ON nc.kind='markup_evidence' AND nc.item_key='page:'||newer.url_id||':document:'||newer.document_id||':representation:'||newer.representation "
-        "WHERE newer.url_id=d.url_id AND newer.representation='static')"
+        "SELECT u.url,c.payload_json FROM pages p JOIN urls u USING(url_id) "
+        "LEFT JOIN documents d ON d.document_id=(SELECT MAX(newer.document_id) "
+        "FROM documents newer WHERE newer.url_id=p.url_id AND newer.representation='static') "
+        "LEFT JOIN context_items c ON c.kind='markup_evidence' "
+        "AND c.item_key='page:'||d.url_id||':document:'||d.document_id||':representation:'||d.representation "
+        "WHERE p.status_code BETWEEN 200 AND 299 AND lower(p.content_type) LIKE '%html%'"
     ):
+        if row["payload_json"] is None:
+            unavailable.update((*AMP_CODES, "AMP_MISSING_HTML_ATTRIBUTE"))
+            continue
         payload = json.loads(row["payload_json"])
         facts = payload.get("facts")
         if payload["state"] == "unavailable" or not isinstance(facts, dict):

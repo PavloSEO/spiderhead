@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import pytest
+
 from seohead.checks.structured_blocks import SOURCE_CHARS, structured_blocks
 from seohead.mcp.evidence_handlers import scan_structured_blocks
 from seohead.storage import open_scan
 from seohead.storage.native_scan import NativeScan
-from tests.test_native_capture import _claim, _event
+from tests.test_native_capture import _claim, _event, _renderer
 from tests.test_scan_native import _metadata, _record, _runtime
 
 PRODUCT = (
@@ -173,5 +175,37 @@ def test_padded_case_jsonld_type_uses_same_parser_and_served_selector():
 def test_shared_relative_cross_format_identity_does_not_create_dangling_error():
     html = '<script type="application/ld+json">{"@type":"Article","headline":"A","author":{"@id":"#ada"}}</script><div itemscope itemtype="https://schema.org/Person" itemid="#ada"><span itemprop="name">Ada</span></div>'
     (block,) = structured_blocks(html, base_url="https://example.test/page")["blocks"]
+    assert block["errors"] == 0
+    assert block["parsed_json"]["author"]["@id"] == "#ada"
+
+
+@pytest.mark.parametrize("representation", ["static", "rendered"])
+def test_scan_normalizes_shared_ids_against_the_document_final_url(tmp_path, representation):
+    url = "https://example.test/old"
+    final_url = "https://example.test/new"
+    html = '<script type="application/ld+json">{"@type":"Article","headline":"A","author":{"@id":"#ada"}}</script><div itemscope itemtype="https://schema.org/Person" itemid="https://example.test/new#ada"><span itemprop="name">Ada</span></div>'
+    path = tmp_path / "redirected.sqlite"
+    with NativeScan.create(path, **_metadata()) as scan:
+        lease = _claim(scan, url)
+        record = _record(url)
+        record["final_url"] = final_url
+        scan.commit_page(
+            lease,
+            record,
+            captures=[_event(url, body=html.encode(), effective_url=final_url)],
+            runtime=_runtime(),
+        )
+        if representation == "rendered":
+            renderer = _renderer(url)
+            renderer["navigation"]["final_url"] = final_url
+            record["representation"] = "rendered"
+            scan.commit_render(
+                url,
+                record,
+                html=html,
+                renderer=renderer,
+                captured_at="2026-09-06T10:01:00Z",
+            )
+    (block,) = scan_structured_blocks(str(path), url, representation)["blocks"]
     assert block["errors"] == 0
     assert block["parsed_json"]["author"]["@id"] == "#ada"
