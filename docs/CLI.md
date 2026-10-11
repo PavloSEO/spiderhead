@@ -140,8 +140,8 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `marketing-inventory` | Inventory supplied CTA/form DOM occurrences without fetching or submitting forms. | writes |
 | `keywords-cluster` | Cluster keywords into topic groups (K-Means, DBSCAN, Agglomerative). | offline, read-only |
 | `images-download` | Download images from a URL list, setting the correct extension by content-type and skipping already-downloaded files. | network, writes |
-| `images-optimize` | Compress, convert, or resize raster images and conservatively minify SVG. | writes |
-| `redirects-generate` | Generate redirect rules (Apache mod_rewrite/Redirect, Nginx, or a custom template) from a list of {old_url, new_url} pairs. | offline, read-only |
+| `images-optimize` | Compress, convert, or resize raster images and conservatively minify SVG; `--quality auto` uses an SSIM threshold; optionally optimize up to 50 distinct images declared by a retained scan under a 100 MiB total download cap. | writes; scan mode also fetches images |
+| `redirects-generate` | Generate redirect rules (Apache mod_rewrite/Redirect, Nginx, WordPress Redirection CSV, or a custom template) and report local chains/loops. | offline, read-only |
 
 ## Compare, verify and remediate
 
@@ -279,7 +279,8 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 
 | Command | What it does | Effects |
 |---|---|---|
-| `tool-catalog` | Search complete source-derived tool metadata and load argument details only on request. | offline, read-only |
+| `tool-catalog` | Search source-derived tool metadata with category, project-awareness, and offset paging; load argument details only on request. | offline, read-only |
+| `url-check-batch` | Run up to 50 URL/check pairs from the supported single-URL checks over a URL list or retained scan page. | network, bounded |
 | `skill-list` | List the packaged, source-derived method playbooks without executing them. | offline, read-only |
 | `skill-show` | Return a packaged skill's exact text and definition identity. | offline, read-only |
 | `scenario-list` | List the packaged workflow scenarios with their ordered steps, without running them. | offline, read-only |

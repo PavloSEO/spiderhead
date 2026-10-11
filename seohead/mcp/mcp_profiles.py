@@ -49,6 +49,7 @@ _PROFILE_TOOLS = {
             "seo_headers_check",
             "seo_robots_check",
             "seo_redirects_check",
+            "seo_url_check_batch",
             "seo_schema_check",
             "seo_hreflang_check",
         }

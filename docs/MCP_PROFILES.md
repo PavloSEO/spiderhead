@@ -8,7 +8,7 @@ FastMCP's public `remove_tool()` method. Build a fresh server to choose another 
 | `full` | Compatibility mode: every registered tool remains available. |
 | `audit` | Audit workflow, catalog, and bounded SF audit tools. |
 | `infra` | Inspect/catalog plus domain, CDN, technology, security, headers, robots, sitemap, and regions. |
-| `quick-check` | Inspect/catalog plus small URL checks. |
+| `quick-check` | Inspect/catalog plus small URL checks, including the bounded URL-check batch. |
 | `router` | Inspect, audit workflow, and catalog only. |
 
 The root bindings provide `seo_inspect_url`, `seo_audit_workflow`, and `seo_tool_catalog` before

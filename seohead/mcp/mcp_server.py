@@ -465,17 +465,27 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         content-type and skipping already-downloaded files."""
         return _checked(handlers.images_download(urls=urls, output_dir=output_dir, options=options))
 
-    @mcp.tool(annotations=rewrite_files, structured_output=True)
+    @mcp.tool(annotations=rewrite_files_from_web, structured_output=True)
     def seo_images_optimize(
-        files: list[str], settings: dict[str, Any] | None = None
+        files: list[str] | None = None,
+        settings: dict[str, Any] | None = None,
+        scan: str | None = None,
+        max_images: int = 50,
     ) -> dict[str, Any]:
         """Compress, convert, or resize raster images and conservatively minify SVG.
 
-        Safe default: settings.out_dir is required. Source mutation needs
+        settings.quality="auto" chooses the lowest lossy quality meeting SSIM on an aligned 1024 px RGB thumbnail (0.98 by default).
+        settings.strip_exif=true removes EXIF. Safe default: settings.out_dir is required. Source mutation needs
         settings.in_place=true and creates a backup by default. Existing destinations
-        require settings.overwrite=true. Animated and multipage images are rejected.
+        require settings.overwrite=true. Animated and multipage images are rejected. A retained
+        scan may supply up to max_images declared image URLs; those images are downloaded through
+        the bounded network client, optimized into out_dir, and mapped back to source occurrences.
         """
-        return _checked(handlers.images_optimize(files=files, settings=settings))
+        return _checked(
+            handlers.images_optimize(
+                files=files, settings=settings, scan=scan, max_images=max_images
+            )
+        )
 
     @mcp.tool(annotations=pure, structured_output=True)
     def seo_keywords_cluster(
@@ -3345,11 +3355,34 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_tool_catalog(
-        query: str = "", limit: int = 10, include_arguments: bool = False
+        query: str = "", limit: int = 10, offset: int = 0, include_arguments: bool = False
     ) -> dict[str, Any]:
-        """Search complete source-derived tool metadata and load argument details only on request."""
+        """Search source-derived tool metadata with categories, project awareness, and bounded offset paging."""
         return _checked(
-            handlers.tool_catalog(query=query, limit=limit, include_arguments=include_arguments)
+            handlers.tool_catalog(
+                query=query, limit=limit, offset=offset, include_arguments=include_arguments
+            )
+        )
+
+    @mcp.tool(annotations=fetch, structured_output=True)
+    def seo_url_check_batch(
+        urls: list[str] | None = None,
+        checks: list[str] | None = None,
+        options: dict[str, Any] | None = None,
+        scan: str | None = None,
+        offset: int = 0,
+        max_urls: int = 50,
+    ) -> dict[str, Any]:
+        """Run up to 50 URL/check pairs from the supported single-URL checks over a URL list or a page of retained scan URLs. Per-pair network errors remain attached to their input URL."""
+        return _checked(
+            handlers.url_check_batch(
+                urls=urls,
+                checks=checks,
+                options=options,
+                scan=scan,
+                offset=offset,
+                max_urls=max_urls,
+            )
         )
 
     @mcp.tool(annotations=read_files, structured_output=True)

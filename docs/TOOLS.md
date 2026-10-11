@@ -200,12 +200,18 @@ missing definitions are explicitly unavailable. The view schema itself does not 
 | `scenario-show` | Retrieve one addressable packaged scenario without executing its steps | no |
 | `inspect-url` | Runs a bounded selection of metadata, headers, robots, redirects, structured-data, and render checks for one URL; representations and indexing outcomes remain separate | yes when selected checks read the target |
 | `audit-workflow` | Closed project action router: status, start, prepare, or report; it does not accept arbitrary handler names | depends on action |
-| `tool-catalog` | Searches source-derived tool metadata, optionally including argument shapes, without advertising every low-level schema | no |
+| `tool-catalog` | Searches source-derived tool metadata with category, project-awareness, and offset paging; argument shapes are opt-in | no |
+| `url-check-batch` | Runs up to 50 URL/check pairs from the supported single-URL checks; failures stay attached to their URL | yes |
 
 MCP startup can use the `full`, `audit`, `infra`, `quick-check`, or `router`
 profile. A restricted profile removes unavailable tool schemas at startup;
 the catalogue may still describe the route needed for a lower-level operation.
 See [MCP profiles and progress](MCP_PROFILES.md).
+
+`tool-catalog` filters before paging, accepts `offset` and a `limit` from 1 to 50, and returns
+the category and project-awareness flag with each result. Playbook list/show responses expose
+front-matter description, version, and explicitly declared applicability/requirements; missing
+fields appear in `metadata_unavailable` rather than being inferred from prose.
 
 ## How to read the tables
 
@@ -246,7 +252,7 @@ the report says `http_version_measurable: false`.
 | `headers-check` | The full response header set with the SEO-relevant ones decoded | — |
 | `asset-weight-check` | Fetches a page's linked CSS/JS and reports render-blocking resources, oversized files, duplicate libraries (by content hash), missing minification, missing `font-display`, legacy polyfilled JS, and missing compression/long-lived caching. Unused-code and cross-page outlier checks need rendering/multiple pages and are reported under `skipped` | — |
 | `redirects-check` | The live redirect chain to the final URL: hop count, codes, where the loop is | — |
-| `redirects-generate` | Ready redirect rules from URL pairs: Apache (rewrite/redirect), nginx, a custom format | writes to stdout |
+| `redirects-generate` | Ready redirect rules from URL pairs: Apache, Nginx, WordPress Redirection CSV, or a custom format; reports local chains and loops | writes to stdout |
 | `links-check` | Broken links on a page; `--internal-only` — own links only | — |
 | `robots-check` | Parse robots.txt and test specific paths for a specific user-agent | — |
 | `sitemap-crawl` | Walk a sitemap (index/urlset, `.txt`, gzip), or discover it from a site root through `robots.txt` then `/sitemap.xml`; verify response codes | — |
@@ -345,7 +351,7 @@ are supplied lab results; the toolkit does not launch Lighthouse or infer field 
 | `logs-bots` | Read per-IP PTR, forward match, verdict, visits and last visit; explicit verification updates a one-hour local cache | opt-in DNS and local cache writes |
 | `log-scan` | Reads a finished run's own artifacts (`audit.json`, `pages.jsonl`, an `images-download` directory) and reports claims that cannot all be true at once: a recorded size that disagrees with the file, a check firing more often than there are pages to fire on, a finding about a URL the run never fetched, a summary that disagrees with its own rows. Not a second audit — only contradictions, each naming both values | reads files |
 | `images-download` | Download a list of images into a directory | writes files |
-| `images-optimize` | Recompress, resize, or convert raster images and conservatively minify SVG | requires `--output-dir`; source mutation needs explicit `--in-place` and backs up by default |
+| `images-optimize` | Recompress, resize, or convert raster images and conservatively minify SVG; `--quality auto` selects the lowest quality meeting an SSIM threshold over an aligned 1024 px RGB thumbnail (0.98 by default); EXIF can be removed explicitly; `--scan` downloads and optimizes up to 50 distinct declared images with source-occurrence and before/after evidence under a 100 MiB total download cap | requires `--output-dir`; scan mode writes only to that directory; local-file source mutation needs explicit `--in-place` and backs up by default |
 
 ---
 

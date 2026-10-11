@@ -88,15 +88,11 @@ def test_help_points_at_config_and_config_help(capsys):
     assert "--config-help" in lines
 
 
-def test_help_no_longer_advertises_max_depth_or_min_delay(capsys):
-    """Depth and delay are exactly the settings #27 asks to move off --help.
-
-    They must still *work* as flags (see the back-compat test below) — only
-    their visibility in --help goes away.
-    """
+def test_help_advertises_max_depth_and_min_delay(capsys):
+    """Legacy crawl settings remain discoverable alongside config help."""
     lines = "\n".join(_help_lines(capsys))
-    assert "--max-depth" not in lines
-    assert "--min-delay" not in lines
+    assert "--max-depth" in lines
+    assert "--min-delay" in lines
 
 
 def test_config_help_lists_every_setting_from_the_config_module(capsys):
@@ -137,14 +133,14 @@ def test_config_help_does_not_require_a_url_or_read_stdin(monkeypatch, capsys):
     assert capsys.readouterr().out
 
 
-# ── back-compat: flags that predate --config-help keep working ──────────────
+# ── compatibility flags remain available ───────────────────────────────────
 
 
 def test_max_depth_and_min_delay_still_work_as_direct_flags(monkeypatch, capsys):
-    """Old spellings are hidden from --help but not removed.
+    """Old spellings remain visible and continue to map onto crawl settings.
 
     Scripts written against crawl-site before this change pass --max-depth and
-    --min-delay directly; #27 asks for a quieter --help, not a breaking change.
+    --min-delay directly; config files remain preferred for complete profiles.
     """
     monkeypatch.setattr(cli.sys, "stdin", io.StringIO(""))
     monkeypatch.setitem(handlers.HANDLERS, "crawl_site", lambda **kw: {"ok": True, "echo": kw})

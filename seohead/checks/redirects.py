@@ -21,7 +21,7 @@ import csv
 import io
 import re
 from typing import Any
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from seohead.recon.net import UA, http_client
 
@@ -45,6 +45,7 @@ _KNOWN_FORMATS = {
     "nginx",
     "csv",
     "custom",
+    "wordpress-redirection",
 }
 
 
@@ -133,6 +134,13 @@ def generate_rule(
         csv.writer(buffer, lineterminator="").writerow([old_url, new_url, 301])
         return buffer.getvalue()
 
+    if fmt == "wordpress-redirection":
+        if not new_url:
+            raise ValueError("Target URL is required for this format")
+        buffer = io.StringIO()
+        csv.writer(buffer, lineterminator="").writerow([old_url, new_url, 0, 301, "url"])
+        return buffer.getvalue()
+
     raise ValueError(f"Unknown format: {fmt}")
 
 
@@ -165,6 +173,48 @@ def generate_rules(
             rules.append(f"ERROR: {error}")
 
     return rules
+
+
+def analyze_redirect_map(redirects: list[dict], default_url: str = "/") -> dict[str, list[dict[str, Any]]]:
+    """Report local redirect chains and loops without making network requests."""
+    mapping: dict[str, str] = {}
+    for raw in redirects:
+        item = _normalize_item(raw)
+        raw_source = str(item["old_url"]).strip()
+        raw_target = str(default_url if item["redirect_to_default"] else item["new_url"]).strip()
+        source = _chain_key(raw_source)
+        target = _chain_key(urljoin(raw_source, raw_target) if urlsplit(raw_source).scheme else raw_target)
+        if source and target:
+            mapping[source] = target
+    chains: list[dict[str, Any]] = []
+    loops: list[dict[str, Any]] = []
+    for source in mapping:
+        path = [source]
+        seen = {source: 0}
+        current = source
+        while current in mapping:
+            current = mapping[current]
+            path.append(current)
+            if current in seen:
+                loop_start = seen[current]
+                loops.append({"source": source, "path": path[loop_start:]})
+                break
+            seen[current] = len(path) - 1
+        else:
+            if len(path) > 2:
+                chains.append({"source": source, "path": path})
+    return {"chains": chains, "loops": loops}
+
+
+def _chain_key(value: str) -> str:
+    """Normalize absolute URLs without conflating paths on different hosts."""
+    value = value.strip()
+    if not value:
+        return ""
+    parts = urlsplit(value)
+    if parts.scheme and parts.netloc:
+        return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), parts.path or "/", parts.query, ""))
+    return normalize_url(value)
 
 
 # ── Live redirect chain checker ──────────────────────────────────────────────
