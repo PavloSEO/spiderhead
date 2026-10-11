@@ -2889,7 +2889,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
     def seo_project_settings_propose(
         directory: str,
         changes: dict[str, Any],
-        expected_revision: int | None = None,
+        expected_revision: int,
     ) -> dict[str, Any]:
         """Submit a label or crawl-policy proposal for explicit owner review; it is not applied."""
         return _checked(

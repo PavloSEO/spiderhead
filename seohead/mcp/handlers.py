@@ -5326,7 +5326,7 @@ def project_settings(directory: str) -> dict[str, Any]:
 
 
 def project_settings_propose(
-    directory: str, changes: dict[str, Any], expected_revision: int | None = None
+    directory: str, changes: dict[str, Any], expected_revision: int
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_settings_propose as core
 
@@ -6083,19 +6083,55 @@ def project_policy(
     expected_revision: int | None = None,
 ) -> dict[str, Any]:
     from seohead.projects.runtime import project_policy as core
+    from seohead.projects.runtime import project_write_lock
+    from seohead.projects.workspace import _load
 
-    result = core(directory, policy=policy, apply=apply, expected_revision=expected_revision)
-    if apply:
+    root, _project = _load(directory)
+    with project_write_lock(root):
+        if not apply:
+            return core(directory, policy=policy, apply=False, expected_revision=expected_revision)
         from seohead.projects.action_log import record as record_action
+        from seohead.projects.action_log import resolve_pending
 
-        record_action(
-            directory,
+        import uuid
+
+        operation_id = uuid.uuid4().hex
+        pending = record_action(
+            root,
             client="cli",
             action="project.policy.apply",
-            outcome="applied",
-            detail=f"Applied crawl policy revision {result['revision']}",
-        )
-    return result
+            outcome="pending",
+            detail="Crawl policy update pending; terminal result will replace this row.",
+            operation_id=operation_id,
+        )["action"]
+        try:
+            result = core(
+                directory,
+                policy=policy,
+                apply=True,
+                expected_revision=expected_revision,
+                operation_id=operation_id,
+            )
+        except (OSError, ValueError) as exc:
+            resolve_pending(
+                root,
+                pending["sequence"],
+                outcome="stale" if "revision" in str(exc).lower() else "refused",
+                detail="Crawl policy update did not apply.",
+                operation_id=operation_id,
+            )
+            raise
+        try:
+            resolve_pending(
+                root,
+                pending["sequence"],
+                outcome="applied",
+                detail=f"Applied crawl policy revision {result['revision']}.",
+                operation_id=operation_id,
+            )
+        except (OSError, ValueError):
+            result["audit_warning"] = "Policy was saved; its action row remains pending."
+        return result
 
 
 def project_prepare(

@@ -84,12 +84,16 @@ Project settings live in revisioned `project-settings.json`; read them with
 `--expected-revision`. A project delete refuses while a run is live, then moves the entire
 directory into a sibling `Trash/` folder so scans and exports remain recoverable.
 
-MCP agents can submit a proposal for a project label or crawl policy with
-`seo_project_settings_propose`. Proposals capture the target store revision; an owner reviews
+Agents can submit a proposal for a project label or crawl policy with
+`seo_project_settings_propose` or `seohead project-settings-propose`, passing the current
+proposal-store `expected_revision` (zero for a new queue). Proposals capture the target store revision; an owner reviews
 them with `seohead project-settings-review --directory DIR --proposal-id ID --decision DECISION --expected-revision REV` (DECISION is `approve` or `deny`). A stale proposal is recorded as stale and is not applied. Use
-`seohead project-settings-proposals` to inspect the queue. The append-only `actions.jsonl` records
-the interface, action, outcome and proposal reference; `project-action-log` and
+`seohead project-settings-proposals` to inspect the queue. The bounded `actions.jsonl` records
+the interface, action, outcome and proposal reference; pending operation rows are replaced
+atomically by their terminal outcome. `project-action-log` and
 `seo_project_action_log` provide bounded pages filtered by client, outcome or text.
+If the process stops during an approved change, the proposal remains `applying`; reread the queue
+and repeat `approve` with its current revision to finish or reconcile the same operation ID.
 An MCP client may call `seo_project_agent_heartbeat` to record a timestamped activity report.
 Status shows its source but never claims that the client remains connected.
 After a terminal run, the core stores a bounded byte/count measurement for regular files directly

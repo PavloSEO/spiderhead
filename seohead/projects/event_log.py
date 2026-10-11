@@ -86,6 +86,14 @@ def append(directory: str | Path, *, source: str, actor: str, text: str) -> dict
         raise ValueError("event source or actor is unsupported")
     text = _text(text).strip()
     root, _project = _load(directory)
+    from .runtime import project_write_lock
+
+    with project_write_lock(root):
+        return _append_locked(root, source, actor, text)
+
+
+def _append_locked(root: Path, source: str, actor: str, text: str) -> dict[str, Any]:
+    """Append while the caller owns the shared project write lock."""
     path = _path(root)
     with path.open("a+", encoding="utf-8") as stream:
         fcntl.flock(stream.fileno(), fcntl.LOCK_EX)

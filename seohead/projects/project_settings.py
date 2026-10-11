@@ -4,16 +4,14 @@ from __future__ import annotations
 
 import copy
 import functools
-import os
 import re
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from seohead.core import filesystem
 from .action_log import record as record_action
-from .runtime import project_policy, read_document, write_document
+from .runtime import project_policy, project_write_lock, read_document, write_document
 from .workspace import _load
 
 SETTINGS_FILE = "project-settings.json"
@@ -34,27 +32,14 @@ def _utc() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def _serialized_proposal_write(function):
-    """Serialize proposal creation/review around the separate settings-store writes."""
+def _serialized_project_write(function):
+    """Keep compound project setting mutations inside the shared writer boundary."""
+
     @functools.wraps(function)
     def wrapped(directory: str | Path, *args: Any, **kwargs: Any) -> Any:
         root, _project = _load(directory)
-        path = root / ".settings-proposals-operation.lock"
-        descriptor = None
-        try:
-            descriptor = filesystem.open_lock(path)
-            filesystem.lock_exclusive(descriptor)
-        except OSError as exc:
-            if descriptor is not None:
-                os.close(descriptor)
-            raise ValueError("settings proposal writer is busy or locking is unavailable") from exc
-        try:
+        with project_write_lock(root):
             return function(directory, *args, **kwargs)
-        finally:
-            try:
-                filesystem.unlock(descriptor)
-            finally:
-                os.close(descriptor)
 
     return wrapped
 
@@ -63,7 +48,8 @@ def _settings(directory: str | Path) -> tuple[Path, dict[str, Any], dict[str, An
     root, project = _load(directory)
     current = read_document(root, SETTINGS_FILE)
     if current is not None and (
-        set(current) != {"format", "version", "project_uuid", "revision", "settings"}
+        set(current)
+        != {"format", "version", "project_uuid", "revision", "settings", "last_operation_id"}
         or current["format"] != SETTINGS_FORMAT
         or type(current["version"]) is not int
         or current["version"] != 1
@@ -75,6 +61,11 @@ def _settings(directory: str | Path) -> tuple[Path, dict[str, Any], dict[str, An
         or type(current["settings"].get("label")) is not str
         or not _LABEL.fullmatch(current["settings"].get("label", ""))
         or not current["settings"].get("label", "").strip()
+        or current["last_operation_id"] is not None
+        and (
+            type(current["last_operation_id"]) is not str
+            or not re.fullmatch(r"[0-9a-f]{32}", current["last_operation_id"])
+        )
     ):
         raise ValueError("project settings have an unsupported shape")
     return root, project, current
@@ -86,18 +77,22 @@ def read_settings(directory: str | Path) -> dict[str, Any]:
     return {
         "ok": True,
         "revision": current["revision"] if current else 0,
+        "operation_id": current["last_operation_id"] if current else None,
         "settings": copy.deepcopy(
             current["settings"] if current else {"label": project["site"]["label"]}
         ),
     }
 
 
+@_serialized_project_write
 def update_label(
     directory: str | Path,
     label: str,
     *,
     expected_revision: int,
     client: str = "cli",
+    operation_id: str | None = None,
+    log_action: bool = True,
 ) -> dict[str, Any]:
     """Update the project label with an optimistic revision check."""
     if type(client) is not str or client not in {"cli", "mcp", "system"}:
@@ -105,46 +100,62 @@ def update_label(
     if type(expected_revision) is not int or expected_revision < 0:
         raise ValueError("expected_revision must be a nonnegative integer")
     label = _label(label)
+    if operation_id is None:
+        operation_id = uuid.uuid4().hex
+    if type(operation_id) is not str or not re.fullmatch(r"[0-9a-f]{32}", operation_id):
+        raise ValueError("operation_id must be a UUID hex value")
+    if type(log_action) is not bool:
+        raise ValueError("log_action must be a boolean")
     root, project, current = _settings(directory)
     revision = current["revision"] if current else 0
     if expected_revision != revision:
         raise ValueError(f"project settings revision conflict: current revision is {revision}")
-    record_action(
-        root,
-        client=client,
-        action="project.settings.update",
-        outcome="pending",
-        detail="Project label update requested",
-    )
+    pending_action = None
+    if log_action:
+        pending_action = record_action(
+            root,
+            client=client,
+            action="project.settings.update",
+            outcome="pending",
+            detail="Project label update pending; terminal result is reserved.",
+            operation_id=operation_id,
+        )["action"]
     document = {
         "format": SETTINGS_FORMAT,
         "version": 1,
         "project_uuid": project["project_uuid"],
         "revision": revision + 1,
         "settings": {"label": label},
+        "last_operation_id": operation_id,
     }
     try:
         write_document(root, SETTINGS_FILE, document, expected_revision=revision)
-    except ValueError:
-        record_action(
-            root,
-            client=client,
-            action="project.settings.update",
-            outcome="stale",
-            detail="Project settings changed before the label update was applied",
-        )
+    except (OSError, ValueError):
+        if pending_action is not None:
+            from .action_log import resolve_pending
+
+            resolve_pending(
+                root,
+                pending_action["sequence"],
+                outcome="stale",
+                detail="Project label update did not apply.",
+                operation_id=operation_id,
+            )
         raise
     result = read_settings(root)
-    try:
-        record_action(
-            root,
-            client=client,
-            action="project.settings.update",
-            outcome="applied",
-            detail=f"Updated project label at revision {result['revision']}",
-        )
-    except (OSError, ValueError):
-        pass
+    if pending_action is not None:
+        from .action_log import resolve_pending
+
+        try:
+            resolve_pending(
+                root,
+                pending_action["sequence"],
+                outcome="applied",
+                detail=f"Updated project label at revision {result['revision']}.",
+                operation_id=operation_id,
+            )
+        except (OSError, ValueError):
+            result["audit_warning"] = "Label was saved; the action row remains pending."
     return result
 
 
@@ -176,6 +187,8 @@ def _proposal_document(
                 "base_revision",
                 "changes",
                 "decided_at",
+                "action_sequence",
+                "decision",
             }:
                 raise ValueError("settings proposal has an unsupported shape")
             if (
@@ -184,11 +197,19 @@ def _proposal_document(
                 or type(proposal["client"]) is not str
                 or proposal["client"] not in {"cli", "mcp", "system"}
                 or type(proposal["status"]) is not str
-                or proposal["status"] not in {"pending", "applied", "denied", "stale"}
+                or proposal["status"]
+                not in {"pending", "applying", "applied", "denied", "stale"}
                 or type(proposal["kind"]) is not str
                 or proposal["kind"] not in {"project_settings", "crawl_policy"}
                 or type(proposal["base_revision"]) is not int
                 or proposal["base_revision"] < 0
+                or type(proposal["action_sequence"]) is not int
+                or proposal["action_sequence"] < 1
+                or proposal["decision"] is not None
+                and (
+                    type(proposal["decision"]) is not str
+                    or proposal["decision"] not in {"approve", "deny"}
+                )
             ):
                 raise ValueError("settings proposal metadata is invalid")
             if not isinstance(proposal["changes"], dict):
@@ -207,8 +228,14 @@ def _proposal_document(
                     raise ValueError("settings proposal timestamps must be RFC3339 UTC") from exc
                 if parsed.tzinfo is None or parsed.utcoffset() != timezone.utc.utcoffset(parsed):
                     raise ValueError("settings proposal timestamps must be RFC3339 UTC")
-            if (proposal["status"] == "pending") != (proposal["decided_at"] is None):
+            if (proposal["status"] in {"pending", "applying"}) != (proposal["decided_at"] is None):
                 raise ValueError("settings proposal decision time does not match its status")
+            if proposal["status"] == "pending" and proposal["decision"] is not None:
+                raise ValueError("pending settings proposal cannot have a decision")
+            if proposal["status"] == "applying" and proposal["decision"] != "approve":
+                raise ValueError("applying settings proposal must be approved")
+            if proposal["status"] in {"applied", "denied", "stale"} and proposal["decision"] is None:
+                raise ValueError("decided settings proposal must retain its decision")
     return root, project, current
 
 
@@ -224,24 +251,23 @@ def _validate_proposal(value: Any) -> dict[str, Any]:
     raise ValueError("proposal supports label or crawl_policy settings only")
 
 
-@_serialized_proposal_write
+@_serialized_project_write
 def propose_settings(
     directory: str | Path,
     changes: dict[str, Any],
     *,
     client: str = "mcp",
-    expected_revision: int | None = None,
+    expected_revision: int,
 ) -> dict[str, Any]:
     """Record one agent proposal; it never applies settings or authorizes execution."""
     if type(client) is not str or client not in {"cli", "mcp", "system"}:
         raise ValueError("client must be a supported interface")
+    if type(expected_revision) is not int or expected_revision < 0:
+        raise ValueError("expected_revision must be a nonnegative integer")
     root, project, current = _proposal_document(directory)
     revision = current["revision"] if current else 0
-    if expected_revision is not None:
-        if type(expected_revision) is not int or expected_revision < 0:
-            raise ValueError("expected_revision must be a nonnegative integer")
-        if expected_revision != revision:
-            raise ValueError(f"proposal revision conflict: current revision is {revision}")
+    if expected_revision != revision:
+        raise ValueError(f"proposal revision conflict: current revision is {revision}")
     proposals = copy.deepcopy(current["proposals"] if current else [])
     if len(proposals) >= _MAX_PROPOSALS:
         raise ValueError("project settings proposal queue is full")
@@ -260,7 +286,17 @@ def propose_settings(
         "base_revision": base_revision,
         "changes": changes,
         "decided_at": None,
+        "decision": None,
     }
+    action = record_action(
+        root,
+        client=client,
+        action="project.settings.propose",
+        outcome="pending",
+        detail="Settings proposal pending; terminal review result is reserved.",
+        proposal_id=proposal["id"],
+    )["action"]
+    proposal["action_sequence"] = action["sequence"]
     proposals.append(proposal)
     document = {
         "format": PROPOSALS_FORMAT,
@@ -269,15 +305,19 @@ def propose_settings(
         "revision": revision + 1,
         "proposals": proposals,
     }
-    write_document(root, PROPOSALS_FILE, document, expected_revision=revision)
-    record_action(
-        root,
-        client=client,
-        action="project.settings.propose",
-        outcome="pending",
-        detail=f"Proposed {kind} change",
-        proposal_id=proposal["id"],
-    )
+    try:
+        write_document(root, PROPOSALS_FILE, document, expected_revision=revision)
+    except (OSError, ValueError):
+        from .action_log import resolve_pending
+
+        resolve_pending(
+            root,
+            action["sequence"],
+            outcome="refused",
+            detail="Settings proposal was not persisted.",
+            proposal_id=proposal["id"],
+        )
+        raise
     return {"ok": True, "revision": document["revision"], "proposal": proposal}
 
 
@@ -302,7 +342,7 @@ def list_proposals(directory: str | Path, *, offset: int = 0, limit: int = 50) -
     }
 
 
-@_serialized_proposal_write
+@_serialized_project_write
 def review_proposal(
     directory: str | Path,
     proposal_id: str,
@@ -320,45 +360,88 @@ def review_proposal(
         raise ValueError("expected_revision must be nonnegative")
     root, project, current = _proposal_document(directory)
     revision = current["revision"] if current else 0
-    if revision != expected_revision:
-        raise ValueError(f"proposal revision conflict: current revision is {revision}")
     proposals = copy.deepcopy(current["proposals"] if current else [])
     proposal = next((item for item in proposals if item["id"] == proposal_id), None)
-    if proposal is None or proposal["status"] != "pending":
-        raise ValueError("settings proposal does not exist or is no longer pending")
-    outcome = "denied"
-    if decision == "approve":
-        changes = proposal["changes"]
-        if proposal["kind"] == "project_settings":
-            current_settings = read_settings(root)
-            if current_settings["revision"] != proposal["base_revision"]:
-                proposal["status"] = "stale"
-                outcome = "stale"
-            else:
-                update_label(
-                    root,
-                    changes["label"],
-                    expected_revision=proposal["base_revision"],
-                    client="cli",
-                )
-                proposal["status"] = "applied"
-                outcome = "applied"
-        else:
-            current_policy = project_policy(str(root))
-            if current_policy["revision"] != proposal["base_revision"]:
-                proposal["status"] = "stale"
-                outcome = "stale"
-            else:
-                project_policy(
-                    str(root),
-                    policy=changes["crawl_policy"],
-                    apply=True,
-                    expected_revision=proposal["base_revision"],
-                )
-                proposal["status"] = "applied"
-                outcome = "applied"
+    if proposal is None:
+        raise ValueError("settings proposal does not exist")
+    if revision != expected_revision and not (
+        proposal["status"] in {"applying", "applied", "denied", "stale"}
+        and proposal["decision"] == decision
+    ):
+        raise ValueError(f"proposal revision conflict: current revision is {revision}")
+    if proposal["status"] in {"applied", "denied", "stale"}:
+        if proposal["decision"] != decision:
+            raise ValueError("settings proposal already has a different terminal decision")
+        from .action_log import resolve_pending
+
+        result = {"ok": True, "revision": revision, "proposal": proposal}
+        try:
+            resolve_pending(
+                root,
+                proposal["action_sequence"],
+                outcome=proposal["status"],
+                detail=_review_detail(proposal["status"], proposal["kind"]),
+                proposal_id=proposal_id,
+            )
+        except (OSError, ValueError):
+            result["audit_warning"] = "Proposal status is saved; its action row remains pending."
+        return result
+    changes = proposal["changes"]
+    if proposal["kind"] == "project_settings":
+        current_settings = read_settings(root)
+        current_revision = current_settings["revision"]
+        current_value = current_settings["settings"]["label"]
+        current_operation = current_settings["operation_id"]
+        desired_value = changes["label"]
     else:
-        proposal["status"] = "denied"
+        current_policy = project_policy(str(root))
+        current_revision = current_policy["revision"]
+        current_value = current_policy["policy"]
+        current_operation = current_policy["operation_id"]
+        desired_value = changes["crawl_policy"]
+
+    if current_operation == proposal_id:
+        status = "applied"
+    elif decision == "deny":
+        status = "denied"
+    elif current_value == desired_value and current_revision >= proposal["base_revision"]:
+        status = "applied"
+    elif current_revision != proposal["base_revision"]:
+        status = "stale"
+    else:
+        if proposal["status"] != "applying":
+            proposal["status"] = "applying"
+            proposal["decision"] = "approve"
+            marker = {
+                "format": PROPOSALS_FORMAT,
+                "version": 1,
+                "project_uuid": project["project_uuid"],
+                "revision": revision + 1,
+                "proposals": proposals,
+            }
+            write_document(root, PROPOSALS_FILE, marker, expected_revision=revision)
+            revision += 1
+        if proposal["kind"] == "project_settings":
+            update_label(
+                root,
+                desired_value,
+                expected_revision=proposal["base_revision"],
+                client=client,
+                operation_id=proposal_id,
+                log_action=False,
+            )
+        else:
+            project_policy(
+                str(root),
+                policy=desired_value,
+                apply=True,
+                expected_revision=proposal["base_revision"],
+                operation_id=proposal_id,
+            )
+        status = "applied"
+
+    proposal["status"] = status
+    proposal["decision"] = decision
     proposal["decided_at"] = _utc()
     document = {
         "format": PROPOSALS_FORMAT,
@@ -368,26 +451,35 @@ def review_proposal(
         "proposals": proposals,
     }
     write_document(root, PROPOSALS_FILE, document, expected_revision=revision)
-    review_text = (
-        "approved" if outcome == "applied" else "denied" if outcome == "denied" else "stale"
-    )
-    record_action(
-        root,
-        client=client,
-        action="project.settings.review",
-        outcome=outcome,
-        detail=f"Owner {review_text} {proposal['kind']} proposal",
-        proposal_id=proposal_id,
-    )
-    return {"ok": True, "revision": document["revision"], "proposal": proposal}
+    from .action_log import resolve_pending
+
+    result = {"ok": True, "revision": document["revision"], "proposal": proposal}
+    try:
+        resolve_pending(
+            root,
+            proposal["action_sequence"],
+            outcome=status,
+            detail=_review_detail(status, proposal["kind"]),
+            proposal_id=proposal_id,
+        )
+    except (OSError, ValueError):
+        result["audit_warning"] = "Proposal status is saved; its action row remains pending."
+    return result
+
+
+def _review_detail(status: str, kind: str) -> str:
+    verb = {"applied": "approved", "denied": "denied", "stale": "marked stale"}[status]
+    return f"Owner {verb} {kind} proposal."
 
 
 def delete_project(directory: str | Path, *, client: str = "cli") -> dict[str, Any]:
     """Move a project into a sibling Trash directory, preserving all its artifacts."""
     import os
 
-    from .action_log import record_root
+    from .action_log import record as record_action
+    from .action_log import resolve_pending, resolve_pending_root
     from .run_observation import live_holder
+    from .runtime import project_write_lock
 
     if type(client) is not str or client not in {"cli", "mcp", "system"}:
         raise ValueError("client must be a supported interface")
@@ -395,82 +487,66 @@ def delete_project(directory: str | Path, *, client: str = "cli") -> dict[str, A
     trash = root.parent / "Trash"
     if trash.is_symlink():
         raise ValueError("project Trash path is unsafe")
-    record_action(
-        root,
-        client=client,
-        action="project.delete",
-        outcome="pending",
-        detail="Project delete requested",
-    )
-    lock_path = root / ".run-observation.json.lock"
-    try:
-        lock_fd = os.open(lock_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    except OSError as exc:
-        record_action(
-            root,
-            client=client,
-            action="project.delete",
-            outcome="refused",
-            detail=f"Project is busy or could not be locked for deletion: {type(exc).__name__}",
-        )
-        raise
     destination: Path | None = None
-    try:
-        owner = live_holder(root)
-        if owner is not None:
-            record_action(
-                root,
-                client=client,
-                action="project.delete",
-                outcome="refused",
-                detail="Project has an active run",
-            )
-            raise ValueError(f"project has an active run: {owner}")
-        trash.mkdir(mode=0o700, exist_ok=True)
-        if not trash.is_dir():
-            record_action(
-                root,
-                client=client,
-                action="project.delete",
-                outcome="refused",
-                detail="Project Trash path is not a directory",
-            )
-            raise ValueError("project Trash path is not a directory")
-        destination = trash / (
-            f"{root.name}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-"
-            f"{uuid.uuid4().hex[:8]}"
-        )
-        os.replace(root, destination)
-    except OSError as exc:
-        record_action(
+    with project_write_lock(root):
+        pending_action = record_action(
             root,
             client=client,
             action="project.delete",
-            outcome="refused",
-            detail=f"Project could not be moved to Trash: {type(exc).__name__}",
-        )
-        raise
-    finally:
-        os.close(lock_fd)
-        if root.exists():
-            lock_path.unlink(missing_ok=True)
-        elif destination is not None:
-            (destination / lock_path.name).unlink(missing_ok=True)
+            outcome="pending",
+            detail="Project deletion requested; terminal outcome will replace this row.",
+        )["action"]
+        try:
+            owner = live_holder(root)
+            if owner is not None:
+                resolve_pending(
+                    root,
+                    pending_action["sequence"],
+                    outcome="refused",
+                    detail="Project delete refused: active run.",
+                )
+                raise ValueError(f"project has an active run: {owner}")
+            trash.mkdir(mode=0o700, exist_ok=True)
+            if not trash.is_dir():
+                resolve_pending(
+                    root,
+                    pending_action["sequence"],
+                    outcome="refused",
+                    detail="Project delete refused: Trash path is not a directory.",
+                )
+                raise ValueError("project Trash path is not a directory")
+            destination = trash / (
+                f"{root.name}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-"
+                f"{uuid.uuid4().hex[:8]}"
+            )
+            os.replace(root, destination)
+        except (OSError, ValueError) as exc:
+            if root.exists():
+                try:
+                    resolve_pending(
+                        root,
+                        pending_action["sequence"],
+                        outcome="refused",
+                        detail=f"Project delete refused: {type(exc).__name__}.",
+                    )
+                except ValueError:
+                    pass
+            raise
     assert destination is not None
-    try:
-        record_root(
-            destination,
-            client=client,
-            action="project.delete",
-            outcome="deleted",
-            detail="Project moved to sibling Trash; scans and exports retained",
-        )
-    except (OSError, ValueError):
-        pass
-    return {
+    result = {
         "ok": True,
         "deleted": True,
         "project_uuid": project["project_uuid"],
         "trash_path": str(destination),
         "exports_retained": True,
     }
+    try:
+        resolve_pending_root(
+            destination,
+            pending_action["sequence"],
+            outcome="deleted",
+            detail="Moved to sibling Trash; scans and exports retained.",
+        )
+    except (OSError, ValueError):
+        result["audit_warning"] = "Project was moved; its action row remains pending."
+    return result

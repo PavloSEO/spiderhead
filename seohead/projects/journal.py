@@ -20,10 +20,13 @@ def _bullet(event: dict[str, Any], source: str, actor: str) -> str:
 
 def record(directory: str | Path, *, source: str, actor: str, text: str) -> dict[str, Any]:
     """Append one event and mirror it to log.md. Raises ValueError for invalid input."""
-    event = event_log.append(directory, source=source, actor=actor, text=text)["event"]
     root = Path(directory)
-    with (root / "log.md").open("a", encoding="utf-8") as stream:
-        stream.write(_bullet(event, source, actor))
+    from .runtime import project_write_lock
+
+    with project_write_lock(root):
+        event = event_log.append(directory, source=source, actor=actor, text=text)["event"]
+        with (root / "log.md").open("a", encoding="utf-8") as stream:
+            stream.write(_bullet(event, source, actor))
     return {"ok": True, "event": event}
 
 

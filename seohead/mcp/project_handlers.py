@@ -50,13 +50,12 @@ def project_settings(directory: str) -> dict[str, Any]:
 
 
 def project_settings_propose(
-    directory: str, changes: dict[str, Any], expected_revision: int | None = None
+    directory: str, changes: dict[str, Any], expected_revision: int
 ) -> dict[str, Any]:
+    from seohead.projects.action_log import current_interface
     from seohead.projects.project_settings import propose_settings
 
-    return propose_settings(
-        directory, changes, client="mcp", expected_revision=expected_revision
-    )
+    return propose_settings(directory, changes, client=current_interface(), expected_revision=expected_revision)
 
 
 def project_settings_proposals(

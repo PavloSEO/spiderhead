@@ -137,7 +137,9 @@ COMMANDS = (
     "project-settings",
     "project-settings-proposals",
     "project-settings-review",
+    "project-settings-propose",
     "project-action-log",
+    "project-agent-heartbeat",
     "project-status",
     "project-progress",
     "project-sources-link",
@@ -767,6 +769,8 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         "project-settings",
         "project-settings-proposals",
         "project-settings-review",
+        "project-settings-propose",
+        "project-agent-heartbeat",
         "project-status",
         "project-progress",
         "project-facts",
@@ -2666,6 +2670,8 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "project-settings",
         "project-settings-proposals",
         "project-settings-review",
+        "project-settings-propose",
+        "project-agent-heartbeat",
         "project-action-log",
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
@@ -2678,6 +2684,8 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "project-settings-review":
         sub.add_argument("--proposal-id", required=True)
         sub.add_argument("--decision", required=True, choices=("approve", "deny"))
+        sub.add_argument("--expected-revision", type=int, required=True)
+    if cmd == "project-settings-propose":
         sub.add_argument("--expected-revision", type=int, required=True)
     if cmd == "project-action-log":
         sub.add_argument("--offset", type=int, default=0)
@@ -3373,7 +3381,9 @@ def build_parser() -> argparse.ArgumentParser:
         "settings",
         "settings-proposals",
         "settings-review",
+        "settings-propose",
         "action-log",
+        "agent-heartbeat",
         "status",
         "progress",
         "observe",

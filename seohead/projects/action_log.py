@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from seohead.core import filesystem
+from seohead.core.filesystem import atomic_write_bytes
 from .workspace import _load
 
 FILE = "actions.jsonl"
@@ -18,7 +19,16 @@ MAX_LIMIT = 200
 MAX_TEXT = 1_000
 CLIENTS = {"cli", "mcp", "system"}
 OUTCOMES = {"pending", "applied", "approved", "denied", "stale", "refused", "deleted"}
-_KEYS = {"sequence", "occurred_at", "client", "action", "outcome", "detail", "proposal_id"}
+_KEYS = {
+    "sequence",
+    "occurred_at",
+    "client",
+    "action",
+    "outcome",
+    "detail",
+    "proposal_id",
+    "operation_id",
+}
 
 
 def _text(value: Any, label: str, maximum: int = MAX_TEXT, *, empty: bool = True) -> str:
@@ -45,6 +55,8 @@ def _validate(row: Any) -> dict[str, Any]:
     _text(row["detail"], "detail")
     if row["proposal_id"] is not None:
         _text(row["proposal_id"], "proposal_id", 64, empty=False)
+    if row["operation_id"] is not None:
+        _text(row["operation_id"], "operation_id", 64, empty=False)
     try:
         stamp = datetime.fromisoformat(row["occurred_at"].replace("Z", "+00:00"))
     except (AttributeError, ValueError) as exc:
@@ -107,6 +119,7 @@ def record(
     outcome: str,
     detail: str = "",
     proposal_id: str | None = None,
+    operation_id: str | None = None,
 ) -> dict[str, Any]:
     """Append one action with a server-selected client value."""
     if (
@@ -128,6 +141,7 @@ def record(
         outcome=outcome,
         detail=detail,
         proposal_id=proposal_id,
+        operation_id=operation_id,
     )
 
 
@@ -139,6 +153,7 @@ def record_root(
     outcome: str,
     detail: str = "",
     proposal_id: str | None = None,
+    operation_id: str | None = None,
 ) -> dict[str, Any]:
     """Append to a previously validated project directory, including one just trashed."""
     if (
@@ -152,31 +167,111 @@ def record_root(
     detail = _text(detail, "detail")
     if proposal_id is not None:
         proposal_id = _text(proposal_id, "proposal_id", 64, empty=False)
+    if operation_id is not None:
+        operation_id = _text(operation_id, "operation_id", 64, empty=False)
     root = Path(root)
     path = _path(root)
-    descriptor = _lock(root)
-    try:
-        with path.open("a+", encoding="utf-8") as stream:
-            rows = _parse(stream)
-            if len(rows) >= MAX_ACTIONS:
-                raise ValueError("project action log is full")
-            row = {
-                "sequence": len(rows) + 1,
-                "occurred_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-                "client": client,
-                "action": action,
-                "outcome": outcome,
-                "detail": detail,
-                "proposal_id": proposal_id,
-            }
-            line = json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
-            stream.seek(0, os.SEEK_END)
-            if stream.tell() + len(line.encode("utf-8")) > MAX_BYTES:
-                raise ValueError("project action log is full")
-            stream.write(line)
-            stream.flush()
-    finally:
-        _unlock(descriptor)
+    from .runtime import project_write_lock
+
+    with project_write_lock(root):
+        descriptor = _lock(root)
+        try:
+            with path.open("a+", encoding="utf-8") as stream:
+                rows = _parse(stream)
+                if len(rows) >= MAX_ACTIONS:
+                    raise ValueError("project action log is full")
+                row = {
+                    "sequence": len(rows) + 1,
+                    "occurred_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                    "client": client,
+                    "action": action,
+                    "outcome": outcome,
+                    "detail": detail,
+                    "proposal_id": proposal_id,
+                    "operation_id": operation_id,
+                }
+                line = json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
+                stream.seek(0, os.SEEK_END)
+                if stream.tell() + len(line.encode("utf-8")) > MAX_BYTES:
+                    raise ValueError("project action log is full")
+                stream.write(line)
+                stream.flush()
+        finally:
+            _unlock(descriptor)
+    return {"ok": True, "action": row}
+
+
+def resolve_pending(
+    directory: str | Path,
+    sequence: int,
+    *,
+    outcome: str,
+    detail: str,
+    proposal_id: str | None = None,
+    operation_id: str | None = None,
+) -> dict[str, Any]:
+    """Replace one reserved pending row with its terminal result atomically."""
+    root, _project = _load(directory)
+    return resolve_pending_root(
+        root,
+        sequence,
+        outcome=outcome,
+        detail=detail,
+        proposal_id=proposal_id,
+        operation_id=operation_id,
+    )
+
+
+def resolve_pending_root(
+    root: str | Path,
+    sequence: int,
+    *,
+    outcome: str,
+    detail: str,
+    proposal_id: str | None = None,
+    operation_id: str | None = None,
+) -> dict[str, Any]:
+    if type(sequence) is not int or sequence < 1:
+        raise ValueError("action sequence must be a positive integer")
+    if type(outcome) is not str or outcome not in OUTCOMES - {"pending"}:
+        raise ValueError("action resolution requires a terminal outcome")
+    detail = _text(detail, "detail")
+    if proposal_id is not None:
+        proposal_id = _text(proposal_id, "proposal_id", 64, empty=False)
+    if operation_id is not None:
+        operation_id = _text(operation_id, "operation_id", 64, empty=False)
+    root = Path(root)
+    path = _path(root)
+    from .runtime import project_write_lock
+
+    with project_write_lock(root):
+        descriptor = _lock(root)
+        try:
+            if not path.exists():
+                raise ValueError("pending action log row is missing")
+            with path.open("r", encoding="utf-8") as stream:
+                rows = _parse(stream)
+            index = next((i for i, row in enumerate(rows) if row["sequence"] == sequence), None)
+            if index is None:
+                raise ValueError("pending action log row is missing")
+            if proposal_id is not None and rows[index]["proposal_id"] != proposal_id:
+                raise ValueError("pending action proposal identity does not match")
+            if operation_id is not None and rows[index]["operation_id"] != operation_id:
+                raise ValueError("pending action operation identity does not match")
+            if rows[index]["outcome"] != "pending":
+                if rows[index]["outcome"] == outcome:
+                    return {"ok": True, "action": rows[index], "already_resolved": True}
+                raise ValueError("action log row is already terminal")
+            row = {**rows[index], "outcome": outcome, "detail": detail}
+            rows[index] = row
+            content = "".join(
+                json.dumps(item, sort_keys=True, separators=(",", ":")) + "\n" for item in rows
+            ).encode("utf-8")
+            if len(content) > MAX_BYTES:
+                raise ValueError("resolved action log exceeds its byte limit")
+            atomic_write_bytes(path, content)
+        finally:
+            _unlock(descriptor)
     return {"ok": True, "action": row}
 
 
@@ -195,6 +290,7 @@ def record_interface_action(
     outcome: str,
     detail: str = "",
     proposal_id: str | None = None,
+    operation_id: str | None = None,
 ) -> dict[str, Any]:
     """Append an action using the process-owned CLI/MCP interface setting."""
     return record(
@@ -204,6 +300,7 @@ def record_interface_action(
         outcome=outcome,
         detail=detail,
         proposal_id=proposal_id,
+        operation_id=operation_id,
     )
 
 
@@ -231,15 +328,18 @@ def page(
     query = _text(query, "query", 200)
     root, _project = _load(directory)
     path = _path(root)
-    descriptor = _lock(root)
-    try:
-        if path.exists():
-            with path.open("r", encoding="utf-8") as stream:
-                rows = _parse(stream)
-    else:
-        rows = []
-    finally:
-        _unlock(descriptor)
+    from .runtime import project_write_lock
+
+    with project_write_lock(root):
+        descriptor = _lock(root)
+        try:
+            if path.exists():
+                with path.open("r", encoding="utf-8") as stream:
+                    rows = _parse(stream)
+            else:
+                rows = []
+        finally:
+            _unlock(descriptor)
     needle = query.casefold()
     matched = [
         row
