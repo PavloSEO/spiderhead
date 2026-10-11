@@ -61,3 +61,17 @@ def test_multi_component_provider_resolves_each_component():
 
     assert login["source_reference"] == "config:dataforseo/login"
     assert password["source_reference"] == "config:dataforseo/password"
+
+
+def test_moz_api_token_component_is_in_the_registry():
+    slot = providers.credential_slot("moz", "api_token")
+
+    assert slot["source_reference"] == "config:moz/api_token"
+    assert slot["env_reference"] == "env:MOZ_API_TOKEN"
+
+
+def test_cloudflare_api_token_component_is_in_the_registry():
+    slot = providers.credential_slot("cloudflare", "api_token")
+
+    assert slot["source_reference"] == "config:cloudflare/api-token"
+    assert slot["env_reference"] == "env:CLOUDFLARE_API_TOKEN"

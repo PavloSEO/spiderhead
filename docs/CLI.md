@@ -188,7 +188,7 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-competitors-remove` | Drop one recorded competitor from the shortlist; its workspace stays on disk. | writes |
 | `project-open` | Open a local project workspace without executing template references. | offline, read-only |
 | `project-status` | Show project scan history and named pending checklist/preparation states. | offline, read-only |
-| `project-sources-link` | Bind a provider resource ID to a project in `sources.json`; no provider call. | writes |
+| `project-sources-link` | Bind a provider resource ID (including a Cloudflare zone ID) to a project in `sources.json`; no provider call. | writes |
 | `project-sources-unlink` | Remove one resource binding from `sources.json`; no provider call. | writes |
 | `project-sources-list` | List resource bindings of a project. | offline, read-only |
 | `project-progress` | Show a compact, paginated project checklist view and its next actions. | offline, read-only |
@@ -246,7 +246,9 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 |---|---|---|
 | `provider-registry` | List provider operations, credential components, quota and privacy boundaries. | offline, read-only |
 | `provider-readiness` | Inspect configured credential sources and declared operation routes offline. | offline, read-only |
-| `provider-auth` | Manage GSC read-only OAuth grants: import private file, refresh, cancel a pending flow, or explicitly revoke. | network, writes |
+| `provider-auth` | Start GSC read-only consent, accept callback JSON from stdin, inspect/cancel a pending flow, refresh, disconnect, or revoke. | network, writes |
+| `provider-credential` | Inspect or revoke a registry credential; set or replace it from stdin only with `--value-stdin`. | writes |
+| `provider-discover` | List Google Search Console, Yandex Webmaster, or Topvisor resources visible to the configured account; output is an unselected preview. | provider read |
 | `provider-verify` | Explicitly verify bounded read-only account/target access; present credentials are not verification. | network |
 | `provider-collect` | Collect a declared provider operation with versioned redacted evidence. | network, writes, paid |
 | `provider-replay` | Join a saved private provider collection to a saved scan with no network; retain raw rows locally and return counts. | writes |

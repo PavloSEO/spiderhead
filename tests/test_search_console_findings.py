@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from seohead.checks import search_console_findings
 from seohead.checks.search_console_findings import (
     CHECK_IDS,
     GSC_ORPHAN,
     NO_SEARCH_DATA,
     NON_INDEXABLE_WITH_SEARCH_DATA,
     evaluate,
+    evaluate_inspections,
 )
 from seohead.data_sources import evidence_import
 
@@ -61,6 +63,21 @@ def test_gsc_orphan_flags_impressions_outside_crawl_on_crawled_origin():
     result = _eval([_page("/a")], doc)
     assert _urls(result, GSC_ORPHAN) == ["https://example.com/gone"]
     assert result[GSC_ORPHAN][0]["details"] == {"impressions": 12.0}
+
+
+def test_gsc_issue_url_identity_is_preserved_alongside_safe_display_url():
+    doc = _doc(
+        [
+            {
+                "url": "https://example.com/gone?token=private",
+                "impressions": "12",
+            }
+        ]
+    )
+    result = _eval([_page("https://example.com/seen")], doc)
+    exact_url = result[GSC_ORPHAN][0]["url"]
+    assert exact_url == "https://example.com/gone?token=private"
+    assert search_console_findings._public_url(exact_url) == "https://example.com/gone"
 
 
 def test_gsc_orphan_ignores_other_origins():
@@ -131,3 +148,58 @@ def test_missing_indexability_skips_checks_that_need_it():
     assert "crawl indexability missing on 1 pages" in result["_skipped"][NO_SEARCH_DATA]
     assert result["_skipped"][NON_INDEXABLE_WITH_SEARCH_DATA].startswith("crawl indexability")
     assert _urls(result, GSC_ORPHAN) == []
+
+
+def test_bounded_inspection_maps_six_positive_findings_without_census_claims():
+    pages = [
+        _page("https://example.com/one"),
+        _page("https://example.com/two"),
+    ]
+    result = evaluate_inspections(
+        pages,
+        [
+            {
+                "url": "https://example.com/one",
+                "state": "complete",
+                "index_status": {
+                    "verdict": "PASS",
+                    "userCanonical": "https://example.com/one",
+                    "googleCanonical": "https://example.com/canonical",
+                },
+                "amp_result": {"verdict": "FAIL"},
+                "rich_results_result": {"verdict": "FAIL"},
+            },
+            {
+                "url": "https://example.com/two",
+                "state": "complete",
+                "index_status": {"verdict": "NEUTRAL", "coverageState": "Crawled - currently not indexed"},
+            },
+        ],
+        requested=2,
+    )
+
+    findings = result["findings"]
+    assert len(findings["GSC_INDEXED_WITH_ISSUES"]) == 1
+    assert len(findings["GSC_AMP_INVALID"]) == 1
+    assert len(findings["GSC_RICH_RESULTS_INVALID"]) == 1
+    assert findings["GSC_INDEXABLE_NOT_INDEXED"][0]["url"] == "https://example.com/two"
+    assert findings["GSC_USER_CANONICAL_NOT_SELECTED"][0]["details"]["google_canonical"] == "https://example.com/canonical"
+    assert findings["GSC_URL_NOT_ON_GOOGLE"][0]["url"] == "https://example.com/two"
+    assert "not a site-wide census" in result["scope"]
+
+
+def test_empty_cached_index_status_is_not_a_complete_inspection():
+    result = evaluate_inspections(
+        [_page("https://example.com/a")],
+        [
+            {
+                "url": "https://example.com/a",
+                "state": "complete",
+                "index_status": {},
+            }
+        ],
+        requested=1,
+    )
+    assert result["inspected"] == 0
+    assert result["failed"] == 1
+    assert all(not rows for rows in result["findings"].values())

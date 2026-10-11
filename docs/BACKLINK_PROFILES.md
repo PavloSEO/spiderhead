@@ -110,6 +110,7 @@ loaded from existing local configuration/environment; never put their values in 
       "site_url": "https://example.test/", "link": "https://example.test/page", "page": 0
     }},
     {"source": "ahrefs", "request": {"limit": 100}},
+    {"source": "moz", "request": {"operation": "backlinks", "confirm_paid": true}},
     {"source": "majestic", "request": {"limit": 100, "offset": 0}}
   ]
 }
@@ -125,12 +126,15 @@ currency independently. These are usage estimates, not dollar charges or guarant
 account's plan. Ahrefs actual response headers are recorded before parsing. Unmeasured charges
 remain uncertain receipts in the shared spend journal, including malformed responses.
 
-Direct Moz collection is **legacy v2 per-URL metrics only**, using the documented
-`/v2/url_metrics` route with `MOZ_ACCESS_ID`/`MOZ_SECRET_KEY` or corresponding local credential
-files. It returns authority/spam measurements in `url_metrics`, never fabricated backlinks.
-Its account-dependent cost remains unknown; `max_units` refuses an unpriced call. Current Moz
-backlink API parity is not claimed. Current v3 documentation and a real configured account are
-required before adding a current backlink endpoint.
+Moz keeps its legacy v2 per-URL metrics as the default. To explicitly request backlinks, set
+`operation` to `backlinks`; this uses the current JSON-RPC `data.site.link.list` method with
+`MOZ_API_TOKEN` (or `api_key` in the request), an external-link filter and a page size of 25 by
+default, capped at 50. The request returns one page and its opaque `next_token`; it never follows
+that token automatically. Set `page_token` explicitly to request a later page. Response size and
+row count are bounded, JSON-RPC IDs are checked, and returned link fields (including rel, canonical
+and redirect flags) are retained without relabeling unknown values. Price is account-dependent
+and unavailable here, so receipts record `cost: null`; supplying `max_units` refuses this unpriced
+request. Both Moz modes still require `confirm_paid: true` before transport.
 
 The free Yandex operation returns samples with documented 100-row pages and a visible cap;
 `external_links_history` retains aggregate history separately in coverage. Bing `url_links`
@@ -198,4 +202,5 @@ Primary contracts: [Yandex samples](https://yandex.com/dev/webmaster/doc/en/refe
 [Ahrefs units](https://docs.ahrefs.com/en/api/docs/limits-consumption),
 [Majestic backlinks](https://developer-support.majestic.com/api/commands/get-back-link-data.shtml),
 [Moz legacy URL metrics](https://moz.com/help/links-api/making-calls/url-metrics),
+[Moz backlink listing](https://moz.com/api/docs/methods/DataSiteLinkListAction),
 [Common Crawl graph exploration](https://github.com/commoncrawl/cc-webgraph/blob/main/graph-exploration-README.md).

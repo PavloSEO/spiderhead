@@ -88,10 +88,16 @@ def run_audit(
     fetch_all_inlinks: bool | None = None,
     live_recheck: bool | None = None,
     output_dir: str | None = None,
+    project_dir: str | None = None,
+    inspect_gsc: bool = False,
     log: Callable[[str], None] = print,
     on_started: Callable[[int], None] | None = None,
     on_progress: Callable[[dict], None] | None = None,
 ) -> AuditResult:
+    if type(inspect_gsc) is not bool:
+        raise ValueError("inspect_gsc must be a boolean")
+    if inspect_gsc and project_dir is None:
+        raise ValueError("inspect_gsc requires a project for source binding and quota history")
     cfg = config if config is not None else load_config(config_path)
     # Apply targeted CLI overrides, such as an SF authentication profile.
     for section, values in (config_overrides or {}).items():
@@ -226,7 +232,60 @@ def run_audit(
                 ),
             }
         )
+    from itertools import islice
+
+    from .aggregate import PARTIAL_CRAWL_RATIO, _crawl_validity
+    from .provider_findings import (
+        MAX_CRAWL_PAGES,
+        emit_provider_issues,
+        project_provider_findings,
+    )
+
+    included_pages = []
+    omitted_pages = 0
+    crawl_partial = False
+    if project_dir is not None:
+        page_count = len(ctx.pages)
+        included_pages = [
+            {"url": page.url, "indexability": page.indexability}
+            for page in islice(ctx.pages, MAX_CRAWL_PAGES)
+        ]
+        omitted_pages = max(0, page_count - len(included_pages))
+        html_count = len(ctx.html_pages())
+        crawl_valid, _ = _crawl_validity(html_count, {}, page_count)
+        urls_in_sitemap = int((sitemap_summary or {}).get("urls_in_sitemap") or 0)
+        sitemap_partial = bool(
+            urls_in_sitemap
+            and crawl_valid
+            and page_count < urls_in_sitemap * PARTIAL_CRAWL_RATIO
+        )
+        crawl_partial = sitemap_partial or omitted_pages > 0
+    try:
+        if project_dir is None:
+            provider_evidence = {
+                "schema_version": "provider_findings.v1",
+                "state": "unavailable",
+                "reason": "no validated project selected for provider bindings and retained history",
+                "sources": {},
+            }
+        else:
+            provider_evidence = project_provider_findings(
+                included_pages,
+                project_dir=project_dir,
+                crawl_partial=crawl_partial,
+                crawl_pages_omitted=omitted_pages,
+                inspect_gsc=inspect_gsc,
+            )
+    except Exception:
+        provider_evidence = {
+            "schema_version": "provider_findings.v1",
+            "state": "unavailable",
+            "reason": "retained provider history could not be read",
+            "sources": {},
+        }
+    emit_provider_issues(ctx, provider_evidence)
     result = aggregate(ctx, run_meta, size_stats, sitemap_summary)
+    result.summary["provider_findings"] = provider_evidence
     log(
         f"[audit] {result.summary['totals']['issues_total']} issues "
         f"(critical={result.summary['by_severity']['critical']}, "

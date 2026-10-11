@@ -109,6 +109,9 @@ COMMANDS = (
     "wayback-history",
     "crtsh-subdomains",
     "cloudflare-traffic",
+    "cloudflare-history",
+    "cloudflare-logpush-import",
+    "cloudflare-instant-logs",
     "gsc-query",
     "webmaster-url-queries",
     "miratext-analyze",
@@ -194,10 +197,13 @@ COMMANDS = (
     "scenario-show",
     "provider-replay",
     "provider-auth",
+    "provider-credential",
+    "provider-discover",
     "provider-registry",
     "provider-readiness",
     "provider-verify",
     "provider-collect",
+    "provider-artifact-read",
     "provider-join",
     "evidence-normalize",
     "evidence-join",
@@ -849,10 +855,55 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         for name in ("provider", "action", "grant_file"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+        if getattr(args, "action", None) == "callback":
+            if not getattr(args, "callback_stdin", False):
+                raise ValueError("OAuth callback requires --callback-stdin")
+            raw_callback = sys.stdin.read(8193)
+            if len(raw_callback.encode("utf-8")) > 8192:
+                raise ValueError("OAuth callback input exceeds 8192 bytes")
+            try:
+                callback = json.loads(raw_callback)
+            except (TypeError, ValueError) as exc:
+                raise ValueError("OAuth callback input must be a JSON object") from exc
+            if (
+                not isinstance(callback, dict)
+                or set(callback) != {"state", "code"}
+                or not all(isinstance(callback[key], str) for key in ("state", "code"))
+            ):
+                raise ValueError("OAuth callback input must contain string state and code fields")
+            kw["state"], kw["code"] = callback["state"], callback["code"]
+        elif getattr(args, "callback_stdin", False):
+            raise ValueError("--callback-stdin is valid only with --action callback")
         if getattr(args, "confirm", False):
             kw["confirm"] = True
+    elif cmd == "provider-credential":
+        for name in ("provider", "component", "action"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        action = getattr(args, "action", "status")
+        if action == "set":
+            if not getattr(args, "value_stdin", False):
+                raise ValueError("credential set requires --value-stdin")
+            value = sys.stdin.read(65537)
+            if len(value.encode("utf-8")) > 65536:
+                raise ValueError("credential input exceeds 65536 bytes")
+            kw["value"] = value
+            kw["replace"] = bool(getattr(args, "replace", False))
+        elif getattr(args, "value_stdin", False) or getattr(args, "replace", False):
+            raise ValueError("--value-stdin and --replace are valid only with --action set")
+        if getattr(args, "confirm", False):
+            kw["confirm"] = True
+    elif cmd == "provider-discover":
+        kw["provider"] = args.provider
+        if args.domain:
+            kw["domain"] = args.domain
     elif cmd in {"provider-verify", "provider-collect"}:
         for name in ("provider", "operation", "artifact_dir"):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+    elif cmd == "provider-artifact-read":
+        for name in ("artifact_ref", "artifact_dir", "offset", "limit"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "evidence-normalize":
@@ -1282,10 +1333,35 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     if cmd == "crtsh-subdomains" and args.domain:
         kw["domain"] = args.domain
     if cmd == "cloudflare-traffic":
-        for name in ("zone", "since", "until"):
+        for name in ("zone", "since", "until", "project"):
             value = getattr(args, name, None)
             if value:
                 kw[name] = value
+        if getattr(args, "include_configuration", False):
+            kw["include_configuration"] = True
+    if cmd == "cloudflare-history":
+        for name in ("project", "zone_id", "snapshot_id"):
+            value = getattr(args, name, None)
+            if value:
+                kw[name] = value
+        for name in ("limit", "offset", "facts_offset", "facts_limit"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        if getattr(args, "include_facts", False):
+            kw["include_facts"] = True
+    if cmd == "cloudflare-logpush-import":
+        for name in ("input_path", "project", "max_events"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    if cmd == "cloudflare-instant-logs":
+        for name in ("project", "max_seconds", "max_events", "max_bytes", "sample"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        if getattr(args, "confirm_live_capture", False):
+            kw["confirm_live_capture"] = True
     if cmd == "gsc-query":
         if args.site_url:
             kw["site_url"] = args.site_url
@@ -2259,10 +2335,36 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--to-date", dest="to_date", help="latest timestamp, e.g. 20260101")
     if cmd == "cloudflare-traffic":
         _source_flag(sub, "--zone", help="Cloudflare zone name, e.g. example.com")
+        _source_flag(sub, "--project", help="project with one selected Cloudflare zone binding")
+        sub.add_argument(
+            "--include-configuration",
+            action="store_true",
+            help="read AI-related zone settings and bounded redirect/custom-WAF rulesets",
+        )
         sub.add_argument(
             "--since", help="first UTC day, YYYY-MM-DD (default: 6 days before --until)"
         )
         sub.add_argument("--until", help="last UTC day, YYYY-MM-DD (default: today)")
+    if cmd == "cloudflare-history":
+        _source_flag(sub, "--project", help="local project containing Cloudflare history")
+        sub.add_argument("--zone-id", dest="zone_id", help="optional zone ID filter")
+        sub.add_argument("--snapshot-id", dest="snapshot_id", type=int, help="optional exact snapshot ID filter")
+        sub.add_argument("--limit", type=int, default=20, help="snapshots per page, 1..100")
+        sub.add_argument("--offset", type=int, default=0, help="zero-based snapshot offset")
+        sub.add_argument("--include-facts", action="store_true", help="include bounded URL/day fact rows; default is metadata-only")
+        sub.add_argument("--facts-offset", dest="facts_offset", type=int, default=0, help="fact offset within each returned snapshot")
+        sub.add_argument("--facts-limit", dest="facts_limit", type=int, default=100, help="facts per snapshot page, 1..500")
+    if cmd == "cloudflare-logpush-import":
+        _source_flag(sub, "--file", dest="input_path", help="caller-supplied UTF-8 Logpush JSON Lines file")
+        _source_flag(sub, "--project", help="local project that owns the logstore")
+        sub.add_argument("--max-events", type=int, default=10_000, help="maximum records to import")
+    if cmd == "cloudflare-instant-logs":
+        _source_flag(sub, "--project", help="project with one selected Cloudflare zone binding")
+        sub.add_argument("--confirm-live-capture", action="store_true", help="confirm creating a transient Instant Logs session")
+        sub.add_argument("--max-seconds", type=int, default=10, help="capture duration, 1..60 seconds")
+        sub.add_argument("--max-events", type=int, default=100, help="maximum records to retain, 1..1000")
+        sub.add_argument("--max-bytes", type=int, default=1_048_576, help="maximum received frame bytes, 1..8388608")
+        sub.add_argument("--sample", type=int, default=10, help="Cloudflare sample interval, 1..100")
     if cmd == "crtsh-subdomains":
         _source_flag(sub, "--domain", help="domain to search Certificate Transparency logs for")
     if cmd == "gsc-query":
@@ -2599,7 +2701,8 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--directory", help="validated local project workspace")
         if cmd != "project-sources-list":
             sub.add_argument(
-                "--service", help="gsc, ga4, gtm, metrika, webmaster, bing or topvisor"
+                "--service",
+                help="gsc, ga4, gtm, metrika, webmaster, bing, topvisor or cloudflare",
             )
             sub.add_argument("--resource", help="provider resource ID, e.g. a GSC property")
         if cmd == "project-sources-link":
@@ -2903,17 +3006,53 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "provider-auth":
         _source_flag(sub, "--provider", help="OAuth provider (gsc)")
         sub.add_argument(
-            "--action", choices=("status", "connect", "refresh", "cancel", "disconnect", "revoke")
+            "--action",
+            choices=(
+                "status",
+                "start",
+                "callback",
+                "connect",
+                "refresh",
+                "cancel",
+                "disconnect",
+                "revoke",
+            ),
         )
         _source_flag(
             sub, "--grant-file", help="private bounded JSON grant obtained through provider consent"
         )
         sub.add_argument("--confirm", action="store_true")
+        sub.add_argument(
+            "--callback-stdin",
+            action="store_true",
+            help="read OAuth callback state and code from stdin JSON",
+        )
+    if cmd == "provider-credential":
+        _source_flag(sub, "--provider", required=True, help="provider registry identifier")
+        _source_flag(sub, "--component", required=True, help="stored credential component")
+        sub.add_argument("--action", choices=("status", "set", "revoke"), default="status")
+        sub.add_argument(
+            "--value-stdin",
+            action="store_true",
+            help="read the credential value from stdin; never pass it as an argument",
+        )
+        sub.add_argument("--replace", action="store_true", help="replace an existing value")
+        sub.add_argument("--confirm", action="store_true", help="confirm credential revocation")
+    if cmd == "provider-discover":
+        _source_flag(
+            sub, "--provider", required=True, choices=("google", "yandex", "topvisor")
+        )
+        sub.add_argument("--domain", help="optional hostname for domain-match hints")
     if cmd in {"provider-verify", "provider-collect"}:
         _source_flag(sub, "--provider", help="provider registry identifier")
     if cmd == "provider-collect":
         _source_flag(sub, "--operation", help="declared read-only provider operation")
         _source_flag(sub, "--artifact-dir", help="restricted local raw-evidence directory")
+    if cmd == "provider-artifact-read":
+        _source_flag(sub, "--artifact-ref", dest="artifact_ref", help="local-artifact digest reference")
+        _source_flag(sub, "--artifact-dir", help="the directory used by the collection call")
+        sub.add_argument("--offset", type=int, default=0, help="zero-based sample offset")
+        sub.add_argument("--limit", type=int, default=25, help="sample rows to return, 1..25")
     if cmd == "evidence-normalize":
         _source_flag(
             sub,

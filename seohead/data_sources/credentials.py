@@ -124,9 +124,14 @@ def _invalid_source(path: str, accepted: list[str], reason: str) -> dict[str, An
     }
 
 
-def source_status(path: str, env_var: str) -> dict[str, Any]:
+def source_status(
+    path: str, env_var: str, *, file_env_var: str | None = None
+) -> dict[str, Any]:
     """Describe a credential source without returning its value or an absolute path."""
     accepted = [f"env:{env_var}", f"config:{path}"]
+    custom_file = (os.environ.get(file_env_var) or "").strip() if file_env_var else ""
+    if file_env_var:
+        accepted.append(f"env-path:{file_env_var}")
     from_env = os.environ.get(env_var)
     if from_env and from_env.strip():
         return {
@@ -135,7 +140,59 @@ def source_status(path: str, env_var: str) -> dict[str, Any]:
             "accepted_source_references": accepted,
         }
 
+    if custom_file:
+        candidate = Path(custom_file).expanduser()
+        source_reference = f"env-path:{file_env_var}"
+        if candidate.is_symlink() or candidate.parent.is_symlink():
+            return {
+                "state": "invalid",
+                "source_reference": source_reference,
+                "accepted_source_references": accepted,
+                "reason": "configured credential file uses a symlink",
+            }
+        try:
+            info = candidate.stat()
+        except OSError:
+            return {
+                "state": "invalid",
+                "source_reference": source_reference,
+                "accepted_source_references": accepted,
+                "reason": "configured credential file is missing or unreadable",
+            }
+        if not candidate.is_file() or not is_private_mode(info.st_mode):
+            return {
+                "state": "invalid",
+                "source_reference": source_reference,
+                "accepted_source_references": accepted,
+                "reason": "configured credential file is not a private regular file",
+            }
+        if info.st_size > 1024 * 1024:
+            return {
+                "state": "invalid",
+                "source_reference": source_reference,
+                "accepted_source_references": accepted,
+                "reason": "configured credential file exceeds 1 MiB",
+            }
+        try:
+            configured = candidate.read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeError):
+            configured = ""
+        if not configured:
+            return {
+                "state": "invalid",
+                "source_reference": source_reference,
+                "accepted_source_references": accepted,
+                "reason": "configured credential file is unreadable or empty",
+            }
+        return {
+            "state": "configured_unverified",
+            "source_reference": source_reference,
+            "accepted_source_references": accepted,
+        }
+
     candidate = CONFIG_ROOT / path
+    if candidate.is_symlink() or candidate.parent.is_symlink():
+        return _invalid_source(path, accepted, "configured credential path uses a symlink")
     try:
         info = candidate.stat()
     except FileNotFoundError:
@@ -146,8 +203,10 @@ def source_status(path: str, env_var: str) -> dict[str, Any]:
         }
     except OSError:
         return _invalid_source(path, accepted, "configured credential file is unreadable")
-    if not candidate.is_file():
-        return _invalid_source(path, accepted, "configured credential path is not a regular file")
+    if not candidate.is_file() or not is_private_mode(info.st_mode):
+        return _invalid_source(
+            path, accepted, "configured credential path is not a private regular file"
+        )
     if info.st_size > 1024 * 1024:
         return _invalid_source(path, accepted, "configured credential file exceeds 1 MiB")
     try:
