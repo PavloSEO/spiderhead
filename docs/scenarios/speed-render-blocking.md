@@ -11,7 +11,7 @@ finally happens.
 
 ## Covers
 
-- **PageSpeed** — Render Blocking Requests · Font Display
+- **PageSpeed** — Render Blocking Requests · Font Display · LCP Request Discovery · Network Dependency Tree · Layout Shift Culprits
 
 ## The chain
 
@@ -55,6 +55,14 @@ seohead site-audit --url https://example.com
 
 ## What comes out
 
+Saved native audits expose `RENDER_BLOCKING` from the selected retained static head and
+`FONT_DISPLAY_MISSING` from completed captured stylesheets. They keep source URLs, reasons
+and measured/partial/unavailable counts; head markup does not establish blocking time.
+The `input.lighthouse_reports` audit setting accepts a URL-to-JSON-file map for bounded matching
+Lighthouse reports. It enables `LCP_DISCOVERY`, `NETWORK_DEPENDENCY_TREE` and
+`LAYOUT_SHIFT_CULPRITS` with report hashes and lab provenance. Missing sibling reports stay
+unavailable, and no browser trace is silently collected by this input path.
+
 From a real run of `asset-weight-check` against a live site's home page:
 
 ```json
@@ -82,10 +90,8 @@ headers, read directly.
 - **How much time any of it costs.** Three blocking resources is a count, not a delay. The delay
   depends on connection, cache state, HTTP version and priority, and measuring it needs a real
   navigation trace.
-- **Which resource is the largest contentful paint element, or what caused a layout shift.**
-  Those need Lighthouse's own instrumentation of the loading sequence, and this toolkit does not
-  do them; `docs/COVERAGE_SF_ISSUES.md` lists them as out of scope by name.
-- **How much of the CSS or JavaScript is actually used.** That needs coverage instrumentation
-  from a real render. The report says so under `skipped` rather than leaving a clean-looking
-  silence.
+- **LCP discovery or layout-shift causes without matching lab input.** These are unavailable
+  until a corresponding Lighthouse report is supplied for the page; field CWV is not inferred.
+- **Usage after the captured navigation window.** Requested Chromium renders collect bounded
+  JS/CSS coverage, while later interaction, workers and unmeasured frames remain outside it.
 - **Anything a script inserts into the head after load.** The document is read as served.

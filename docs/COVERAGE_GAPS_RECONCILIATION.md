@@ -3,7 +3,7 @@
 Generated from `docs/COVERAGE_GAPS.md` by `scripts/generate_coverage_gap_reconciliation.py`.
 A row is covered only when its actual Mode cell names a shipped check/tool; partial and out-of-scope are not readiness claims.
 
-**100 rows:** covered_registry_or_tool=55, missing=29, out_of_scope=8, partial=8.
+**100 rows:** covered_registry_or_tool=56, missing=28, out_of_scope=8, partial=8.
 
 | Row | Name | Reconciled state |
 |---|---|---|
@@ -11,9 +11,9 @@ A row is covered only when its actual Mode cell names a shipped check/tool; part
 | 1.2 | TTFB separate from `response_time` | partial |
 | 1.3 | FCP / render speed | partial |
 | 1.4 | Response compression (Brotli/gzip) | partial |
-| 1.5 | Cache-Control / cacheability | partial |
+| 1.5 | Cache-Control / cacheability | covered_registry_or_tool |
 | 1.6 | Render-blocking resources | covered_registry_or_tool |
-| 1.7 | Page weight (total) | missing |
+| 1.7 | Page weight (total) | partial |
 | 2.1 | Authorship (byline) | covered_registry_or_tool |
 | 2.2 | Publish/update dates | covered_registry_or_tool |
 | 2.3 | About / Contact pages | covered_registry_or_tool |

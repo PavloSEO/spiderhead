@@ -293,16 +293,21 @@ Completed resource responses also feed `ASSET_SHORT_CACHE`, `FONT_DISPLAY_MISSIN
 `UNMINIFIED_CSS_JS`, `LEGACY_JS` and `DUPLICATED_JS`. Minification and legacy markers are
 heuristics. Duplicated scripts require identical captured bytes at different URLs on the same
 page; whitespace inside string literals is preserved. A script URL answering with HTML is
-unavailable source evidence. Font-face samples are bounded and retain omitted counts.
+unavailable source evidence. HTTP 206 fragments remain partial even in older retained graphs.
+Font-face samples fit the whole 16 KiB ASCII-escaped delivery envelope and retain omitted counts.
+Shared-cache `s-max-age` does not substitute for browser `max-age`.
 
 Requested native renders collect bounded Chromium JS/CSS precise coverage before navigation.
 `UNUSED_CSS_JS` reports source unused during that recorded window in UTF-16 code units, not
 transfer bytes. Workers, out-of-process frames and later interactions are outside its scope.
 Other engines or failed CDP collection remain unavailable. Sources are limited to 60 per kind,
 2 million code units each and 8 million combined. Precise coverage can affect lab timings.
-Rendered layout feeds `IMG_INTRINSIC_OVERSIZED` and `IMG_UPSCALED`, with natural/displayed
-width, DPR and source-page evidence. The existing oversized-image floor is 10 KiB. Missing
-image sizes, unknown encoded sizes and observation/result limits remain partial or unavailable.
+Rendered layout feeds `IMG_INTRINSIC_OVERSIZED` and `IMG_UPSCALED`, with physical file/displayed
+width, DPR, source-page and response evidence. File dimensions account for EXIF orientation;
+browser density-corrected `naturalWidth` is not used as file pixels. The supported geometry is a
+plain image content rectangle: unsupported object-fit, padding, border or transforms remain
+unavailable. The existing oversized-image floor is 10 KiB. Missing image sizes, unknown encoded
+sizes and observation/result limits remain partial or unavailable.
 Layout/coverage summaries survive retained-scan reopening and offline reanalysis without refetch.
 `summary.asset_measurements` records eligible, measured, partial and unavailable counts for every
 asset check. A valid finding can coexist with explicitly partial coverage; missing sibling pages,

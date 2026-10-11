@@ -10533,7 +10533,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "581e6b1e1437fe33de4f1d687371bc73102f10828aedb589188145c3993169a3",
+        "source_hash": "22f027d96d7c16fe24fe0ca676d250e3bbb87b7c2db0b46d112022d066ddca19",
         "title": "Scenario 26 \u2014 Image geometry and weight: what the browser has to guess"
       },
       "definitions": [
@@ -10553,7 +10553,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "581e6b1e1437fe33de4f1d687371bc73102f10828aedb589188145c3993169a3",
+            "source_hash": "22f027d96d7c16fe24fe0ca676d250e3bbb87b7c2db0b46d112022d066ddca19",
             "title": "Scenario 26 \u2014 Image geometry and weight: what the browser has to guess"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -11853,7 +11853,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "5e7bff0de9c2bfee4027a7c1ce21f80e53eb584cdbfea3bd3ac8be23c24712c7",
+        "source_hash": "905c8ef1ebbc813fa6764bddbf0d22b1f28a9dbd3396b9914139748c5c2ebda2",
         "title": "Scenario 46 \u2014 Delivery and weight: caching, images, document size and DOM complexity"
       },
       "definitions": [
@@ -11873,7 +11873,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "5e7bff0de9c2bfee4027a7c1ce21f80e53eb584cdbfea3bd3ac8be23c24712c7",
+            "source_hash": "905c8ef1ebbc813fa6764bddbf0d22b1f28a9dbd3396b9914139748c5c2ebda2",
             "title": "Scenario 46 \u2014 Delivery and weight: caching, images, document size and DOM complexity"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -11897,7 +11897,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "243a89980b2da27bb03a23a45f5b8bf2f7a3e9dcbdc8ea8db2c2f55e5fe259a4",
+        "source_hash": "f0557a828eb81cdc3826da800f310aa53bb391f4d0beaf72355cfd885fe904af",
         "title": "Scenario 45 \u2014 The bundle audit: legacy transpilation, duplicates and unminified files"
       },
       "definitions": [
@@ -11917,7 +11917,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "243a89980b2da27bb03a23a45f5b8bf2f7a3e9dcbdc8ea8db2c2f55e5fe259a4",
+            "source_hash": "f0557a828eb81cdc3826da800f310aa53bb391f4d0beaf72355cfd885fe904af",
             "title": "Scenario 45 \u2014 The bundle audit: legacy transpilation, duplicates and unminified files"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -11941,7 +11941,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "cfa87f5abbc87b29f48c044c2e83b9e5a6ced496061dc50831b6e582d6484d66",
+        "source_hash": "ff1717b57db0a933471d7120f130a085e46f38612184525792104c13388f803f",
         "title": "Scenario 44 \u2014 The blocking head: stylesheets, scripts and fonts that hold up first paint"
       },
       "definitions": [
@@ -11961,7 +11961,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "cfa87f5abbc87b29f48c044c2e83b9e5a6ced496061dc50831b6e582d6484d66",
+            "source_hash": "ff1717b57db0a933471d7120f130a085e46f38612184525792104c13388f803f",
             "title": "Scenario 44 \u2014 The blocking head: stylesheets, scripts and fonts that hold up first paint"
           },
           "observed_at": "2026-09-09T00:00:00Z"

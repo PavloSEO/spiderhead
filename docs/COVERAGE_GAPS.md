@@ -52,6 +52,7 @@ inventing a broader claim.
 
 | Map rows | Status and current evidence |
 |---|---|
+| 1.5–1.7 | **Covered / partial:** `ASSET_SHORT_CACHE` reads captured resource headers and `RENDER_BLOCKING` selected retained static heads. `HEAVY_PAGE_WEIGHT` uses content-decoded navigation responses or an explicit HTML-only lower bound; no field CWV or later-request coverage is inferred. |
 | 2.1–2.5 | **Covered in registry:** `NO_AUTHOR_BYLINE`, `NO_CONTENT_DATES`, the four trust-page checks, and `FEW_CITATIONS`. They report observed markup/discovery states, never trustworthiness or citation authority. |
 | 2.6–2.7 | **Partial / missing:** `YMYL_REVIEW_CANDIDATE` is a deterministic review candidate, not a classification; disclaimer/editorial-policy detection remains missing. |
 | 3.1–3.9 | **Explicitly out of scope:** no 92-item accessibility/AMP or WCAG engine. `provider-collect` can return a capped opt-in Lighthouse sample with provider, engine, version, strategy, score, and failed/incomplete IDs; it is not WCAG or legal-compliance evidence. |
@@ -73,12 +74,12 @@ The priority list below is therefore a backlog, not a product-capability claim.
 | 1.2 | TTFB separate from `response_time` | Time to first byte as its own metric (800/1800 ms), not overall response time | medium | **PARTIAL** — `render-check` exposes lab `ttfb_ms`; no dedicated threshold finding or field-data coverage | extend `check_url_and_perf`, id `SLOW_TTFB` |
 | 1.3 | FCP / render speed | First Contentful Paint (1.8/3 s) | medium | **PARTIAL** — `render-check` exposes lab `first_contentful_paint_ms`; no dedicated threshold finding or field-data coverage | `cwv.py` / PSI |
 | 1.4 | Response compression (Brotli/gzip) | content-encoding on text responses | medium | **partially DONE** in the live `asset-weight-check` (CSS/JS only; the HTML response itself is still open) | id `NO_COMPRESSION` |
-| 1.5 | Cache-Control / cacheability | Presence and sanity of cache headers on static resources | medium | **partially DONE** in `asset-weight-check` (CSS/JS only; images/fonts still open) | id `WEAK_CACHE_POLICY` |
-| 1.6 | Render-blocking resources | CSS/JS in `<head>` blocking first paint | medium | **DONE** in the live `asset-weight-check` (no registry id) | id `RENDER_BLOCKING` |
-| 1.7 | Page weight (total) | Total page weight with resources, not HTML only (`LARGE_HTML` covers markup alone) | medium | A/live | id `HEAVY_PAGE_WEIGHT` |
+| 1.5 | Cache-Control / cacheability | Presence and sanity of cache headers on static resources | medium | **DONE** — `ASSET_SHORT_CACHE` from captured native resource headers, including images/fonts; missing inputs remain unavailable | `asset_weight.py` |
+| 1.6 | Render-blocking resources | CSS/JS in `<head>` blocking first paint | medium | **DONE** — `RENDER_BLOCKING` from selected complete retained static head markup; blocking time remains unmeasured | `asset_weight.py` + native audit |
+| 1.7 | Page weight (total) | Observed navigation weight; HTML-only lower bounds without rendering | medium | **PARTIAL** — `HEAVY_PAGE_WEIGHT` retains content-decoded response buckets, scope and missing counts; compressed transfer totals and later interactions remain unmeasured | native render + audit |
 
 **Context.** `SLOW_RESPONSE` already catches a slow server, but it is no
-substitute for real CWV. None of the 183 crawl-registry checks measures field
+substitute for real CWV. None of the 219 crawl-registry checks measures field
 CWV directly. The opt-in CrUX path added in #822 assesses current-window p75
 with URL/origin, form factor and period provenance; missing field data stays
 unavailable. A one-run `render-check` result remains lab evidence.
