@@ -30,6 +30,9 @@ _SEO_HEADERS = [
 
 
 def check_headers(url: str, method: str = "GET", timeout: float = 25.0) -> dict:
+    method = str(method).upper()
+    if method not in {"GET", "HEAD"}:
+        return {"ok": False, "url": url, "error": "headers-check method must be GET or HEAD"}
     # Without the h2 package, httpx always negotiates HTTP/1.1, so a protocol
     # finding would describe our client rather than the server. Expose this limitation.
     try:

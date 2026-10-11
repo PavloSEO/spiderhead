@@ -367,9 +367,8 @@ The same policy is reachable with `--set http.proxy=env:SEOHEAD_CRAWL_PROXY` or 
 (`--url`, `--max-urls`, `--out-dir`, `--scan-out`, `--config`, `--robots`, `--sitemap`); everything else — the
 settings above and every one the crawler build-out has added since — lives in the config file. Run
 `seohead crawl-site --config-help` for the full list: every key's path, type, default, and
-description, generated from this module rather than hand-maintained. (`--max-depth` and
-`--min-delay` still work as direct flags for scripts written before `--config` existed; they are
-just no longer shown in `--help`.) The same list is reachable without a filesystem via
+description, generated from this module rather than hand-maintained. `--max-depth` and
+`--min-delay` remain visible compatibility flags. The same list is reachable without a filesystem via
 `seohead crawl-describe-settings` (CLI) or the `seo_crawl_describe_settings` MCP tool — a
 tool-calling agent can discover the configuration surface, not only a human reading the source.
 

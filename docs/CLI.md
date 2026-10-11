@@ -88,8 +88,8 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 |---|---|---|
 | `parse` | Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6, JSON-LD, links, visible text, word count) from one URL or a list of URLs. | network |
 | `robots-check` | Fetch and analyze a site's robots.txt: user-agent groups, declared sitemaps, and whether given paths are crawlable. | network |
-| `headers-check` | Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link, Cache-Control, HSTS, ...), HTTP version, TTFB, and body size. | network |
-| `redirects-check` | Follow a live redirect chain for a URL and report each hop (status, location). | network |
+| `headers-check` | Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link, Cache-Control, HSTS, ...), HTTP version, TTFB, and body size using GET or HEAD. | network, read-only |
+| `redirects-check` | Follow a live redirect chain for a URL and report each hop (status, location) using GET or HEAD. | network, read-only |
 | `links-check` | Check a page's outbound links for broken (4xx/5xx) targets and links that point at redirects (wasted crawl hops). | network |
 | `hreflang-check` | Extract and validate a page's hreflang alternates (x-default, self-reference, duplicates, malformed codes). | network |
 | `render-check` | Compare the raw server HTML with the DOM after JavaScript runs — the gap between them is what a non-rendering crawler loses. | network |
@@ -144,8 +144,8 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `marketing-inventory` | Inventory supplied CTA/form DOM occurrences without fetching or submitting forms. | writes |
 | `keywords-cluster` | Cluster keywords into topic groups (K-Means, DBSCAN, Agglomerative). | offline, read-only |
 | `images-download` | Download images from a URL list, setting the correct extension by content-type and skipping already-downloaded files. | network, writes |
-| `images-optimize` | Compress, convert, or resize raster images and conservatively minify SVG. | writes |
-| `redirects-generate` | Generate redirect rules (Apache mod_rewrite/Redirect, Nginx, or a custom template) from a list of {old_url, new_url} pairs. | offline, read-only |
+| `images-optimize` | Compress, convert, or resize raster images and conservatively minify SVG; `--quality auto` uses an SSIM threshold; optionally optimize up to 50 distinct images declared by a retained scan under a 100 MiB total download cap. | writes; scan mode also fetches images |
+| `redirects-generate` | Generate redirect rules (Apache mod_rewrite/Redirect, Nginx, WordPress Redirection CSV, or a custom template) and report local chains/loops. | offline, read-only |
 
 ## Compare, verify and remediate
 
@@ -283,10 +283,11 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 
 | Command | What it does | Effects |
 |---|---|---|
-| `tool-catalog` | Search complete source-derived tool metadata and load argument details only on request. | offline, read-only |
+| `tool-catalog` | Search source-derived tool metadata with category, project-awareness, and offset paging; load argument details only on request. | offline, read-only |
 | `doctor` | Inspect local prerequisites and optional project-directory access. Permission flags are advisory; no write probe, browser launch or crawl is performed. | offline, read-only |
 | `update-check` | Read a bounded stable release feed only with explicit consent; store the result for a consented daily caller. | network, writes |
 | `update-download` | Download a checksum-verified wheel or source archive to a new file with progress and cancellation; does not install it. | network, writes |
+| `url-check-batch` | Run up to 50 URL/check pairs from the supported single-URL checks over a URL list or retained scan page. | network, bounded |
 | `skill-list` | List the packaged, source-derived method playbooks without executing them. | offline, read-only |
 | `skill-show` | Return a packaged skill's exact text and definition identity. | offline, read-only |
 | `scenario-list` | List the packaged workflow scenarios with their ordered steps, without running them. | offline, read-only |

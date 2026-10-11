@@ -206,6 +206,48 @@ def admission(directory: str, settings: dict, *, approved: bool = False) -> dict
 
 _HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
 _STEP = re.compile(r"^(?:#{2,6}\s+|\*\*)(\d+)\.\s+(.+?)\.?\*{0,2}\s*$")
+_FRONTMATTER_FIELD = re.compile(r"^([A-Za-z][A-Za-z0-9_-]*):(?:\s+(.*))?$")
+
+
+def _playbook_metadata(content: str) -> dict[str, str | None]:
+    """Read explicitly declared scalar front-matter fields without a YAML dependency."""
+    fields: dict[str, str | None] = {
+        "description": None,
+        "when": None,
+        "requires": None,
+        "version": None,
+    }
+    lines = content.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return fields
+    active: str | None = None
+    block_indent: int | None = None
+    for line in lines[1:]:
+        if line.strip() == "---":
+            break
+        match = _FRONTMATTER_FIELD.match(line)
+        if match:
+            key, value = match.groups()
+            active = key if key in fields else None
+            block_indent = None
+            if active:
+                value = (value or "").strip()
+                if value in {">", ">-", "|", "|-"}:
+                    fields[active] = ""
+                    block_indent = None
+                elif value:
+                    fields[active] = value.strip("'\"")
+                else:
+                    fields[active] = None
+            continue
+        if active and line.strip():
+            indent = len(line) - len(line.lstrip())
+            if block_indent is None:
+                block_indent = indent
+            if indent >= block_indent:
+                prior = fields[active] or ""
+                fields[active] = (prior + " " + line.strip()).strip()
+    return fields
 
 
 def playbook_outline(content: str) -> dict:
@@ -240,6 +282,10 @@ def playbook_list(kind: str | None = None) -> dict:
             continue
         entry = {key: value for key, value in row.items() if key != "content"}
         entry["steps"] = playbook_outline(row["content"])["steps"]
+        entry.update(_playbook_metadata(row["content"]))
+        entry["metadata_unavailable"] = [
+            field for field in ("when", "requires", "version") if entry[field] is None
+        ]
         entries.append(entry)
     return {"ok": True, "items": entries}
 
@@ -255,7 +301,17 @@ def playbook_show(name: str, kind: str = "skill") -> dict:
     ]
     if len(matches) != 1:
         raise ValueError("playbook name is missing or ambiguous; use its full catalogue ID")
-    return {"ok": True, **matches[0], **playbook_outline(matches[0]["content"])}
+    content = matches[0]["content"]
+    metadata = _playbook_metadata(content)
+    return {
+        "ok": True,
+        **matches[0],
+        **playbook_outline(content),
+        **metadata,
+        "metadata_unavailable": [
+            field for field in ("when", "requires", "version") if metadata[field] is None
+        ],
+    }
 
 
 def preparation_status(directory: str) -> dict:

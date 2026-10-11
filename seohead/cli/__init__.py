@@ -219,6 +219,7 @@ COMMANDS = (
     "inspect-url",
     "audit-workflow",
     "tool-catalog",
+    "url-check-batch",
     "scan-evidence",
     "scan-extract",
     "marketing-inventory",
@@ -569,11 +570,19 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "tool-catalog":
-        for name in ("query", "limit"):
+        for name in ("query", "limit", "offset"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
         if getattr(args, "include_arguments", False):
             kw["include_arguments"] = True
+    elif cmd == "url-check-batch":
+        if getattr(args, "urls", None):
+            kw["urls"] = _split_list(args.urls)
+        if getattr(args, "checks", None):
+            kw["checks"] = _split_list(args.checks)
+        for name in ("scan", "offset", "max_urls"):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
     elif cmd == "parse":
         if args.url:
             kw["url"] = args.url
@@ -650,6 +659,10 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     elif cmd == "images-optimize":
         if args.files:
             kw["files"] = _split_list(args.files)
+        if getattr(args, "scan", None):
+            kw["scan"] = args.scan
+        if getattr(args, "max_images", None) is not None:
+            kw["max_images"] = args.max_images
         settings = dict(kw.get("settings") or {})
         if getattr(args, "output_dir", None):
             settings["out_dir"] = args.output_dir
@@ -661,6 +674,8 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             settings["in_place"] = True
         if getattr(args, "overwrite", False):
             settings["overwrite"] = True
+        if getattr(args, "strip_exif", False):
+            settings["strip_exif"] = True
         kw["settings"] = settings
     elif cmd == "keywords-cluster":
         pass  # keywords/algorithm come from --input JSON
@@ -1973,7 +1988,14 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "tool-catalog":
         sub.add_argument("--query")
         sub.add_argument("--limit", type=int)
+        sub.add_argument("--offset", type=int, help="zero-based result offset")
         sub.add_argument("--include-arguments", action="store_true")
+    if cmd == "url-check-batch":
+        _source_flag(sub, "--urls", help="comma-separated URL list; maximum 50 URL/check pairs")
+        sub.add_argument("--checks", help="comma-separated supported single-URL check names")
+        _source_flag(sub, "--scan", help="retained scan; checks only the requested page starting at --offset")
+        sub.add_argument("--offset", type=int, help="zero-based retained scan page offset")
+        sub.add_argument("--max-urls", type=int, help="retained scan URL page size (1..50)")
     if cmd == "crawl-site":
         sub.add_argument(
             "--approve-large-crawl",
@@ -2075,13 +2097,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             metavar="PATH=VALUE",
             help="set PATH=VALUE after --config; repeatable; paths: --config-help",
         )
-        # Kept working for scripts written before --config existed, but no longer advertised in
-        # --help: depth and delay are exactly the kind of setting #13's config file exists for, and
-        # every flag shown here is one more line standing between a new setting and --config.
-        # --set is the answer to that tension rather than an exception to it: one flag reaches
-        # every setting, and a setting added tomorrow is reachable with no CLI change at all.
-        sub.add_argument("--max-depth", type=int, help=argparse.SUPPRESS)
-        sub.add_argument("--min-delay", type=float, help=argparse.SUPPRESS)
+        # Keep these compatibility controls discoverable while config remains the preferred route.
+        sub.add_argument("--max-depth", type=int, help="maximum link depth (legacy setting override)")
+        sub.add_argument("--min-delay", type=float, help="minimum delay between requests in seconds")
     if cmd == "compare-crawls":
         sub.add_argument(
             "--compression",
@@ -3147,6 +3165,8 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--output-dir", help="download target directory")
     if cmd == "images-optimize":
         _source_flag(sub, "--files", help="comma-separated image paths/dirs")
+        _source_flag(sub, "--scan", help="validated retained scan whose declared images should be optimized")
+        sub.add_argument("--max-images", type=int, help="maximum distinct scan images to download and optimize (1..50)")
         sub.add_argument("--output-dir", help="safe output directory (recommended)")
         sub.add_argument(
             "--in-place",
@@ -3156,8 +3176,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument(
             "--overwrite", action="store_true", help="replace an existing destination file"
         )
+        sub.add_argument("--strip-exif", action="store_true", help="remove EXIF metadata from output images")
         sub.add_argument("--format", choices=("keep", "jpeg", "png", "webp", "avif"))
-        sub.add_argument("--quality", type=int, help="lossy quality, clamped to 10..100")
+        sub.add_argument("--quality", help="lossy quality 10..100 or auto (SSIM-guided)")
         sub.add_argument("--max-width", type=int, help="maximum output width; never upscales")
         sub.add_argument("--max-height", type=int, help="maximum output height; never upscales")
         sub.add_argument("--max-pixels", type=int, help="input pixel safety limit")

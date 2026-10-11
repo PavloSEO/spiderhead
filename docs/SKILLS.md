@@ -141,6 +141,12 @@ Then by the layer of the task.
 | **seo-research** | Keywords, competitors, SERP analysis, and content gaps |
 | **service-landing-copy** | Structured copy for a `/services/<name>` landing page |
 
+## Packaged pipeline skill
+
+`semantic-core` is packaged alongside the general skills because it documents the repository's
+accumulating semantic-core pipeline rather than general editorial work. It is discoverable through
+`seohead skill-list` and `seohead skill-show --name general/semantic-core`.
+
 ## Tools without a skill of their own
 
 145 of the 192 commands are not named in any skill body.

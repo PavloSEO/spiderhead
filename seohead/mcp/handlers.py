@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import contextlib
 import sys
+import tempfile
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -148,7 +149,10 @@ def redirects_generate(
     from seohead.checks import redirects as redirects_core
 
     items = redirects if isinstance(redirects, list) else []
-    return {"rules": redirects_core.generate_rules(items, fmt, default_url, custom_template)}
+    return {
+        "rules": redirects_core.generate_rules(items, fmt, default_url, custom_template),
+        "analysis": redirects_core.analyze_redirect_map(items, default_url),
+    }
 
 
 def redirects_check(
@@ -156,6 +160,11 @@ def redirects_check(
 ) -> dict[str, Any]:
     if not url:
         raise ValueError("url required")
+    if options is not None and not isinstance(options, dict):
+        raise ValueError("redirects-check options must be an object")
+    method = str((options or {}).get("method") or "HEAD").upper()
+    if method not in {"GET", "HEAD"}:
+        raise ValueError("redirects-check method must be GET or HEAD")
     from seohead.checks import redirects as redirects_core
 
     return {"chain": redirects_core.check_chain(url, options or {})}
@@ -2487,13 +2496,154 @@ def images_download(
 
 
 def images_optimize(
-    files: list[str] | None = None, settings: dict[str, Any] | None = None
+    files: list[str] | None = None,
+    settings: dict[str, Any] | None = None,
+    scan: str | None = None,
+    max_images: int = 50,
 ) -> dict[str, Any]:
     """Optimize image files with explicit output semantics.
 
     Provide ``settings.out_dir`` for non-destructive output. Rewriting source files requires the
     caller to opt in with ``settings.in_place=true``; the optimizer's backup safeguards still apply.
     """
+    if scan:
+        if files:
+            raise ValueError("provide files[] or scan, not both")
+        normalized = dict(settings or {})
+        if not normalized.get("out_dir") or normalized.get("in_place"):
+            raise ValueError("scan image batches require settings.out_dir and forbid in_place")
+        if type(max_images) is not int or not 1 <= max_images <= 50:
+            raise ValueError("max_images must be 1..50")
+        from seohead.mcp.evidence_handlers import scan_evidence
+
+        images: dict[str, list[dict[str, Any]]] = {}
+        offset = 0
+        scanned = 0
+        total = None
+        while scanned < 10_000 and len(images) < max_images:
+            page = scan_evidence(scan, section="resources", offset=offset, limit=min(1000, 10_000 - scanned))
+            evidence = page.get("evidence") or {}
+            if evidence.get("state") == "unavailable":
+                return {"ok": False, "state": "unavailable", "reason": evidence.get("reason"), "results": []}
+            total = evidence.get("total")
+            occurrences = evidence.get("occurrences") or []
+            if not occurrences:
+                break
+            for occurrence in occurrences:
+                scanned += 1
+                if occurrence.get("kind") != "image" or occurrence.get("state") in {"excluded", "failed", "budget"}:
+                    continue
+                url = occurrence.get("resolved_url")
+                if not isinstance(url, str) or not url:
+                    continue
+                images.setdefault(url, []).append(
+                    {
+                        "occurrence_id": occurrence.get("occurrence_id"),
+                        "source_page_url_id": occurrence.get("page_url_id"),
+                        "source_document_id": occurrence.get("source_document_id"),
+                        "representation": occurrence.get("representation"),
+                        "ordinal": occurrence.get("ordinal"),
+                    }
+                )
+                if len(images) >= max_images:
+                    break
+            offset += len(occurrences)
+            if not evidence.get("has_more"):
+                break
+        has_more = scanned < (total or 0)
+        if not images:
+            return {
+                "ok": False,
+                "state": "empty",
+                "reason": "the retained scan has no eligible image declarations",
+                "count": 0,
+                "results": [],
+            }
+        with tempfile.TemporaryDirectory(prefix="seohead-scan-images-") as temp_dir:
+            download_budget = 100 * 1024 * 1024
+            downloaded_bytes = 0
+            downloads = []
+            for url in images:
+                remaining = download_budget - downloaded_bytes
+                if remaining <= 0:
+                    downloads.append(
+                        {"url": url, "ok": False, "error": "scan image download byte budget exhausted"}
+                    )
+                    continue
+                row = downloader.download_images(
+                    [url],
+                    temp_dir,
+                    {"max_bytes": min(25 * 1024 * 1024, remaining)},
+                )[0]
+                downloads.append(row)
+                if row.get("ok"):
+                    downloaded_bytes += int(row.get("bytes") or 0)
+            downloaded = {row["url"]: row for row in downloads}
+            paths = [row["path"] for row in downloads if row.get("ok") and row.get("path")]
+            optimized = optimizer.optimize_files(paths, normalized) if paths else {"results": []}
+            by_source = {row.get("file"): row for row in optimized.get("results", [])}
+            results = []
+            for url, instances in images.items():
+                download = downloaded.get(url, {"ok": False, "error": "image download result unavailable"})
+                result = by_source.get(download.get("path"))
+                download_report = {key: value for key, value in download.items() if key != "path"}
+                optimization_report = (
+                    {key: value for key, value in result.items() if key not in {"source", "file"}}
+                    if result
+                    else None
+                )
+                results.append(
+                    {
+                        "url": url,
+                        "instances": instances,
+                        "download": download_report,
+                        "optimization": optimization_report,
+                    }
+                )
+        optimization_ok = all(
+            row.get("download", {}).get("ok")
+            and isinstance(row.get("optimization"), dict)
+            and row["optimization"].get("ok")
+            for row in results
+        )
+        any_optimized = any(
+            isinstance(row.get("optimization"), dict) and row["optimization"].get("ok")
+            for row in results
+        )
+        totals_available = all(
+            isinstance(row.get("optimization"), dict)
+            and row["optimization"].get("before_bytes") is not None
+            and row["optimization"].get("after_bytes") is not None
+            for row in results
+        )
+        return {
+            "ok": any_optimized,
+            "partial": not optimization_ok,
+            "source": "retained_scan_resource_graph",
+            "state": "partial" if has_more or not optimization_ok else "complete",
+            "scan_resources_read": scanned,
+            "scan_resources_total": total,
+            "downloaded_bytes": downloaded_bytes,
+            "download_byte_budget": 100 * 1024 * 1024,
+            "has_more": has_more,
+            "count": len(results),
+            "total_before": sum(row["optimization"]["before_bytes"] for row in results)
+            if totals_available
+            else None,
+            "total_after": sum(row["optimization"]["after_bytes"] for row in results)
+            if totals_available
+            else None,
+            "total_saved": sum(
+                row["optimization"]["before_bytes"] - row["optimization"]["after_bytes"]
+                for row in results
+            )
+            if totals_available
+            else None,
+            "totals_reason": "all selected images were measured"
+            if totals_available
+            else "one or more selected images could not be optimized",
+            "results": results,
+        }
     if not files:
         raise ValueError("files[] required")
     return optimizer.optimize_files(files, settings or {})
@@ -2514,6 +2664,9 @@ def robots_check(
 def headers_check(url: str | None = None, method: str = "GET") -> dict[str, Any]:
     if not url:
         raise ValueError("url required")
+    method = str(method).upper()
+    if method not in {"GET", "HEAD"}:
+        raise ValueError("headers-check method must be GET or HEAD")
     return headers_core.check_headers(url, method=method)
 
 
@@ -6727,7 +6880,7 @@ def audit_workflow(
 
 
 def tool_catalog(
-    query: str = "", limit: int = 10, include_arguments: bool = False
+    query: str = "", limit: int = 10, offset: int = 0, include_arguments: bool = False
 ) -> dict[str, Any]:
     """Discover source-derived tool metadata without advertising every schema up front."""
     from dataclasses import asdict
@@ -6739,11 +6892,15 @@ def tool_catalog(
         or len(query) > 500
         or type(limit) is not int
         or not 1 <= limit <= 50
+        or type(offset) is not int
+        or offset < 0
     ):
-        raise ValueError("query must be bounded text and limit must be 1..50")
+        raise ValueError("query must be bounded text, limit must be 1..50, and offset must be non-negative")
     words = query.casefold().split()
     matches = []
-    for tool in [*load_seo_tools(), *load_sf_tools()]:
+    from seohead.mcp.tool_reference import load_semantics_tools
+
+    for tool in [*load_seo_tools(), *load_sf_tools(), *load_semantics_tools()]:
         text = (tool.name + " " + tool.summary + " " + tool.notes).casefold()
         if not all(word in text for word in words):
             continue
@@ -6755,9 +6912,105 @@ def tool_catalog(
     return {
         "ok": True,
         "total": len(matches),
-        "items": matches[:limit],
-        "has_more": len(matches) > limit,
+        "items": matches[offset : offset + limit],
+        "offset": offset,
+        "limit": limit,
+        "has_more": offset + limit < len(matches),
         "access": "Use the matching startup profile or full profile for direct low-level calls; high-level workflows invoke their bounded steps internally.",
+    }
+
+
+def url_check_batch(
+    urls: list[str] | None = None,
+    checks: list[str] | None = None,
+    options: dict[str, Any] | None = None,
+    scan: str | None = None,
+    offset: int = 0,
+    max_urls: int = 50,
+) -> dict[str, Any]:
+    """Run a bounded set of single-URL checks over an explicit list or saved scan page."""
+    if bool(urls) == bool(scan):
+        raise ValueError("provide exactly one of urls[] or scan")
+    page = None
+    if scan:
+        if type(offset) is not int or offset < 0 or type(max_urls) is not int or not 1 <= max_urls <= 50:
+            raise ValueError("scan offset must be non-negative and max_urls must be 1..50")
+        page = scan_url_query(
+            scan, columns=["url"], offset=offset, limit=max_urls, max_bytes=1_048_576
+        )
+        if not page.get("ok"):
+            return {"ok": False, "state": "unavailable", "reason": page.get("error"), "results": []}
+        column_index = page["columns"].index("url")
+        urls = [row[column_index] for row in page.get("rows", [])]
+        if not urls:
+            return {
+                "ok": False,
+                "state": "empty",
+                "reason": "the retained scan page contains no URLs",
+                "source": "retained_scan",
+                "offset": offset,
+                "has_more": bool(page.get("has_more")),
+                "results": [],
+            }
+    if not isinstance(urls, list) or not 1 <= len(urls) <= 50:
+        raise ValueError("urls must contain 1..50 URLs")
+    if any(not isinstance(url, str) or not url.strip() or len(url) > 2048 for url in urls):
+        raise ValueError("each URL must be non-empty text no longer than 2048 characters")
+    if not isinstance(checks, list) or not 1 <= len(checks) <= 5:
+        raise ValueError("checks must contain 1..5 check names")
+    supported = {
+        "parse": lambda url, opts: parse(url=url, options=opts),
+        "robots-check": lambda url, opts: robots_check(url=url, user_agent=opts.get("user_agent", "*"), paths=opts.get("paths")),
+        "headers-check": lambda url, opts: headers_check(url=url, method=opts.get("method", "GET")),
+        "redirects-check": lambda url, opts: redirects_check(url=url, options=opts),
+        "schema-check": lambda url, _opts: schema_check(url=url),
+        "links-check": lambda url, opts: links_check(url=url, internal_only=opts.get("internal_only", False), limit=min(int(opts.get("limit", 200)), 500)),
+        "hreflang-check": lambda url, _opts: hreflang_check(url=url),
+        "security-check": lambda url, opts: security_check(url=url, probe_paths=False),
+        "ai-bots-check": lambda url, _opts: ai_bots_check(url=url),
+        "llms-txt-check": lambda url, opts: llms_txt_check(url=url, brand=opts.get("brand")),
+        "citability-check": lambda url, opts: citability_check(
+            url=url, content_area=opts.get("content_area")
+        ),
+        "social-meta-check": lambda url, _opts: social_meta_check(url=url),
+        "soft404-check": lambda url, _opts: soft404_check(url=url),
+    }
+    if len(set(checks)) != len(checks) or any(name not in supported for name in checks):
+        raise ValueError("checks must be unique supported single-URL check names")
+    if options is not None and not isinstance(options, dict):
+        raise ValueError("batch options must be an object")
+    normalized = options or {}
+    if checks and {"headers-check", "redirects-check"}.intersection(checks):
+        method = str(normalized.get("method") or "GET").upper()
+        if method not in {"GET", "HEAD"}:
+            raise ValueError("batched read-only checks allow only GET or HEAD methods")
+    if len(urls) * len(checks) > 50:
+        raise ValueError("a batch may contain at most 50 URL/check combinations")
+    results = []
+    for url in urls:
+        for name in checks:
+            try:
+                result = supported[name](url, normalized)
+                items = result.get("results") if isinstance(result, dict) else None
+                failed = isinstance(result, dict) and result.get("ok") is False
+                if name == "parse" and isinstance(items, list) and items:
+                    failed = all(isinstance(item, dict) and item.get("ok") is False for item in items)
+                results.append(
+                    {"url": url, "check": name, "ok": not failed, "result": result}
+                )
+            except Exception as exc:
+                results.append({"url": url, "check": name, "ok": False, "error": str(exc)})
+    all_failed = bool(results) and all(row["ok"] is False for row in results)
+    return {
+        "ok": not all_failed,
+        "partial": any(row["ok"] is False for row in results) and not all_failed,
+        "source": "retained_scan" if scan else "explicit_url_list",
+        "offset": offset if scan else None,
+        "has_more": bool(page and page.get("has_more")),
+        "scan_state": page.get("state") if page else None,
+        "scan_reason": page.get("reason") if page else None,
+        "count": len(results),
+        "results": results,
     }
 
 
@@ -7324,6 +7577,7 @@ _RAW_HANDLERS = {
     "inspect_url": inspect_url,
     "audit_workflow": audit_workflow,
     "tool_catalog": tool_catalog,
+    "url_check_batch": url_check_batch,
     "project_policy": project_policy,
     "project_prepare": project_prepare,
     "project_competitors_add": project_competitors_add,
