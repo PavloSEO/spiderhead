@@ -68,11 +68,18 @@ def materialize(con, path, *, checks=None, severity=None, timeout_seconds=5.0):
                 continue
             if severity and issue["severity"] != severity:
                 continue
-            url = issue.get("target_url")
-            if url:
-                con.execute(
-                    "INSERT OR IGNORE INTO issue_urls SELECT url_id FROM urls WHERE url=?", (url,)
-                )
+            details = issue.get("details")
+            source_page = (
+                details.get("source_page")
+                if str(issue.get("check", "")).startswith("IMG_") and isinstance(details, dict)
+                else None
+            )
+            for url in (issue.get("target_url"), source_page):
+                if isinstance(url, str) and url:
+                    con.execute(
+                        "INSERT OR IGNORE INTO issue_urls SELECT url_id FROM urls WHERE url=?",
+                        (url,),
+                    )
             group = issue.get("group_id")
             if group:
                 con.execute("INSERT OR IGNORE INTO issue_groups VALUES(?)", (group,))

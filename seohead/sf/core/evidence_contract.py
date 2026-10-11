@@ -456,6 +456,61 @@ def _language_observations(
     return output
 
 
+def _image_resource_observations(con: Any, issue: Mapping[str, Any], scan_uuid: str):
+    """Reference actual retained graph rows, not a source page's response."""
+    if not str(issue.get("check", "")).startswith("IMG_"):
+        return []
+    details = issue.get("details") if isinstance(issue.get("details"), Mapping) else {}
+    resource = details.get("resource_url") if "resource_url" in details else issue.get("target_url")
+    if not isinstance(resource, str) or not resource:
+        return []
+    output = []
+
+    def reference(table, ident, role, representation=""):
+        return {
+            "state": "measured",
+            "role": role,
+            "id": stable_evidence_id(scan_uuid=scan_uuid, source_table=table, observation_id=ident),
+            "scan_uuid": scan_uuid,
+            "source_table": table,
+            "observation_id": ident,
+            "representation": representation,
+        }
+
+    try:
+        row = con.execute(
+            "SELECT status_code,bytes_received FROM resource_graph_fetches WHERE resolved_url=?",
+            (resource,),
+        ).fetchone()
+        if row is not None and (row[0] is not None or row[1] > 0):
+            key = "url_sha256:" + hashlib.sha256(resource.encode("utf-8")).hexdigest()
+            output.append(reference("resource_graph_fetches", key, "target_resource"))
+        source = details.get("source_page")
+        if isinstance(source, str) and source:
+            document_id = details.get("document_id")
+            where = " AND o.source_document_id=?" if type(document_id) is int else ""
+            parameters = (resource, source, document_id) if where else (resource, source)
+            row = con.execute(
+                "SELECT o.occurrence_id,o.representation FROM resource_graph_occurrences o "
+                "JOIN urls u ON u.url_id=o.page_url_id WHERE o.resolved_url=? AND u.url=? "
+                + where
+                + " ORDER BY o.occurrence_id LIMIT 1",
+                parameters,
+            ).fetchone()
+            if row is not None:
+                output.append(
+                    reference(
+                        "resource_graph_occurrences",
+                        f"occurrence_id:{row[0]}",
+                        "source_declaration",
+                        row[1],
+                    )
+                )
+    except Exception:
+        pass  # Older artifacts may have no graph or declaration binding columns.
+    return output
+
+
 def _underlying_references(
     issue: Mapping[str, Any], *, con: Any, scan_uuid: str | None
 ) -> tuple[list[dict[str, Any]], str]:
@@ -465,6 +520,7 @@ def _underlying_references(
         return [], unavailable_reason
     assert source_kind is not None and scan_uuid is not None
     observations: list[dict[str, Any]] = []
+    observations.extend(_image_resource_observations(con, issue, scan_uuid))
     target_url = issue.get("target_url")
     if isinstance(target_url, str) and target_url:
         observations.extend(
@@ -473,6 +529,10 @@ def _underlying_references(
             )
         )
     sources: set[str] = set()
+    details = issue.get("details")
+    source_page = details.get("source_page") if isinstance(details, Mapping) else None
+    if isinstance(source_page, str) and source_page:
+        sources.add(source_page)
     locations = issue.get("locations")
     if isinstance(locations, list):
         for location in locations[:100]:

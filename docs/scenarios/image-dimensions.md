@@ -4,9 +4,9 @@
 
 > The page jumps around while it loads and the client noticed. Which images are doing it?
 
-Layout shift has a mechanical cause: an `<img>` with no `width` and `height` occupies zero space
-until its bytes arrive, and everything below it moves when they do. The heavier the file, the
-longer that gap lasts — which is why dimensions and weight belong in one chain rather than two.
+Missing declared dimensions can prevent the browser from reserving space before an image
+arrives. CSS can independently reserve that space: this notice records missing declarations,
+not a measured layout shift. Image weight and rendered geometry need their own evidence.
 
 ## Covers
 
@@ -39,13 +39,28 @@ the file on disk is one of its eight rules, and it exists because a 739 KB WebP 
 as 1.27 MB. Every weight-based conclusion drawn from that run was wrong by a factor that differed
 per file.
 
+Native SQLite audits also read active retained HTML/DOM for per-element declarations.
+`IMG_MISSING_DIMENSIONS` reports absent, zero or invalid width/height attributes on images
+not explicitly hidden from layout. Visible decorative or ARIA-hidden images still need size
+declarations. `IMG_MISSING_ALT_ATTRIBUTE` records literal attribute absence even when ARIA
+supplies a name. Plain `alt=""` stays valid decoration; `IMG_MISSING_ALT` covers whitespace-only
+alt and empty informative/unnamed-interactive images without an accessible name.
+
+The analysis accepts at most 2 MiB per active document and 2,000 image elements. Missing or
+bounded evidence stays partial. Known positive page-count facts survive unavailable bodies
+as explicitly unlocalized page aggregates. Findings retain source, target, status scope,
+reason, document/representation and ordinal locations. Unfetched image status stays
+unavailable rather than borrowing HTTP 200 from its source. Source-bound image identities
+preserve all affected pages; repeated elements keep exact counts and up to 200 location samples.
+`scan-url-query --issue-check IMG_MISSING_DIMENSIONS` selects their retained source pages.
+
 **2. Activate both checks from a Screaming Frog export.**
 
 ```bash
 seohead sf run --exports-dir ./exports --out report --tasks
 ```
 
-- `IMG_MISSING_DIMENSIONS` comes from the `Images:Missing Size Attributes` filter. It is a
+- In export mode, `IMG_MISSING_DIMENSIONS` comes from the `Images:Missing Size Attributes` filter. It is a
   **notice**, not a warning — the page still works, it just moves — and its fix hint says the
   actual reason: declare intrinsic width and height to reserve layout space and reduce CLS.
 - `IMG_OVER_KB` comes from the `Images:Over X KB` filter. Note the X: the catalogue's issue is

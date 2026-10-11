@@ -59,7 +59,9 @@
     "D50",
     "D52",
     "D54",
-    "D53"
+    "D53",
+    "D56",
+    "D57"
    ],
    "urls": {
     "/": {
@@ -3310,11 +3312,15 @@
     },
     "/catalog/spalni/spalnya-009/": {
      "status": 200,
-     "defects": []
+     "defects": [
+      "D56"
+     ]
     },
     "/catalog/spalni/spalnya-010/": {
      "status": 200,
-     "defects": []
+     "defects": [
+      "D57"
+     ]
     },
     "/catalog/spalni/spalnya-011/": {
      "status": 200,
@@ -5271,7 +5277,9 @@
     "D46",
     "D52",
     "D54",
-    "D53"
+    "D53",
+    "D56",
+    "D57"
    ],
    "urls": {
     "/": {
@@ -8712,11 +8720,15 @@
     },
     "/catalog/spalni/spalnya-009/": {
      "status": 200,
-     "defects": []
+     "defects": [
+      "D56"
+     ]
     },
     "/catalog/spalni/spalnya-010/": {
      "status": 200,
-     "defects": []
+     "defects": [
+      "D57"
+     ]
     },
     "/catalog/spalni/spalnya-011/": {
      "status": 200,
@@ -16777,7 +16789,8 @@
   "D47": {
    "checks": [
     "BROKEN_INTERNAL_LINK",
-    "BROKEN_PAGE_4XX"
+    "BROKEN_PAGE_4XX",
+    "IMG_BROKEN"
    ],
    "urls": [
     "/img/catalog/stoly-hero.jpg"
@@ -16907,6 +16920,36 @@
    ],
    "note": "http:// map script — only meaningful on https, so not observable on loopback http",
    "detectable_over_http": false,
+   "states": {
+    "v1": "introduced",
+    "v2": "persists",
+    "v3": "fixed"
+   }
+  },
+  "D56": {
+   "checks": [
+    "IMG_MISSING_ALT"
+   ],
+   "urls": [
+    "/catalog/spalni/spalnya-009/"
+   ],
+   "note": "explicit informative image has empty alt text",
+   "detectable_over_http": true,
+   "states": {
+    "v1": "introduced",
+    "v2": "persists",
+    "v3": "fixed"
+   }
+  },
+  "D57": {
+   "checks": [
+    "IMG_MISSING_DIMENSIONS"
+   ],
+   "urls": [
+    "/catalog/spalni/spalnya-010/"
+   ],
+   "note": "product image does not declare width and height",
+   "detectable_over_http": true,
    "states": {
     "v1": "introduced",
     "v2": "persists",

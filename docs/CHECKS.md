@@ -106,8 +106,8 @@ python scripts/generate_checks_reference.py
 
 | Check id | Severity | Evidence | Fires on | Fix |
 |---|---|---|---|---|
-| `IMG_MISSING_ALT` | warning | SF:Images:Missing Alt Text | Image is missing alt text | Add concise, descriptive alt text when the image conveys content; use an empty alt attribute for decorative images. |
-| `IMG_MISSING_ALT_ATTRIBUTE` | warning | crawl:images | An <img> has no alt attribute at all (not even alt="") | Add an alt attribute: descriptive text when the image conveys content, or alt="" when it is purely decorative -- an image with no alt attribute at all is read out as its filename by assistive technology, which alt="" correctly avoids. |
+| `IMG_MISSING_ALT` | warning | SF+native:retained-image-markup | Image is missing alt text | Add concise, descriptive alt text when the image conveys content; use an empty alt attribute for decorative images. |
+| `IMG_MISSING_ALT_ATTRIBUTE` | warning | crawl:images | An <img> has no alt attribute at all (not even alt="") | Declare descriptive alt text for informative images, or alt="" for decoration. An ARIA name can label an image for assistive technology, but does not supply the missing alt attribute. |
 | `IMG_ALT_TOO_LONG` | notice | crawl:images | An image's alt text exceeds the configured length threshold | Shorten the alt text to a concise description; screen readers read the whole string aloud, and a search engine treats an overlong alt as a weaker signal. |
 
 ## 7.H — schema, hreflang, viewport
@@ -312,7 +312,7 @@ python scripts/generate_checks_reference.py
 | `OG_MISSING` | notice | SF:Social:Open Graph | og:title is missing, so social previews may not render correctly | Add og:title, og:image, and og:url; at minimum, provide og:title and og:image for a useful preview. |
 | `IMG_BROKEN` | warning | crawl:images | Image URL answered with an HTTP error, so the browser shows nothing | Restore the file, or update the reference in the page template or CMS to a URL that answers 200. |
 | `IMG_OVER_KB` | warning | SF:Images:Over X KB | Image exceeds the configured file-size threshold | Compress the image and consider converting it to WebP or AVIF while preserving acceptable visual quality. |
-| `IMG_MISSING_DIMENSIONS` | notice | SF:Images:Missing Size Attributes | Image is missing width and height attributes | Declare intrinsic width and height values to reserve layout space and reduce CLS. |
+| `IMG_MISSING_DIMENSIONS` | notice | SF+native:retained-image-markup | Image does not declare positive width and height attributes | Declare intrinsic width and height values to reserve layout space and reduce CLS. |
 
 ## handler layer rather than through a registered export requirement.
 

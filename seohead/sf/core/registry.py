@@ -396,7 +396,7 @@ CHECKS: dict[str, dict[str, Any]] = {
     # 7.G — images
     "IMG_MISSING_ALT": {
         "severity": "warning",
-        "source": "SF:Images:Missing Alt Text",
+        "source": "SF+native:retained-image-markup",
         "message": "Image is missing alt text",
         "fix": "Add concise, descriptive alt text when the image conveys content; use an empty alt attribute for decorative images.",
     },
@@ -404,9 +404,8 @@ CHECKS: dict[str, dict[str, Any]] = {
         "severity": "warning",
         "source": "crawl:images",
         "message": 'An <img> has no alt attribute at all (not even alt="")',
-        "fix": "Add an alt attribute: descriptive text when the image conveys content, or "
-        'alt="" when it is purely decorative -- an image with no alt attribute at all is '
-        'read out as its filename by assistive technology, which alt="" correctly avoids.',
+        "fix": 'Declare descriptive alt text for informative images, or alt="" for decoration. '
+        "An ARIA name can label an image for assistive technology, but does not supply the missing alt attribute.",
     },
     "IMG_ALT_TOO_LONG": {
         "severity": "notice",
@@ -1192,8 +1191,8 @@ CHECKS: dict[str, dict[str, Any]] = {
     },
     "IMG_MISSING_DIMENSIONS": {
         "severity": "notice",
-        "source": "SF:Images:Missing Size Attributes",
-        "message": "Image is missing width and height attributes",
+        "source": "SF+native:retained-image-markup",
+        "message": "Image does not declare positive width and height attributes",
         "fix": "Declare intrinsic width and height values to reserve layout space and reduce CLS.",
     },
     # 9.A — link position (native crawl only; SF exports carry their own Link

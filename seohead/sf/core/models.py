@@ -142,6 +142,43 @@ class Issue:
     fix_hint: str | None = None
     evidence: dict[str, Any] = field(default_factory=dict)
 
+    @property
+    def image_source(self) -> str | None:
+        value = self.details.get("source_page") if isinstance(self.details, dict) else None
+        return value if self.check.startswith("IMG_") and isinstance(value, str) and value else None
+
+    @property
+    def dedupe_key(self) -> tuple[Any, ...]:
+        # Document IDs differ between scans; source URLs and image scope do not.
+        scope = self.details.get("target_scope") if isinstance(self.details, dict) else None
+        return (
+            self.check,
+            self.target_url,
+            self.image_source,
+            scope if self.image_source and isinstance(scope, str) else None,
+        )
+
+    def merge(self, other: Issue) -> None:
+        """Merge one duplicate identity; native image groups stay source-bound."""
+        if self.image_source:
+            left, right = (
+                self.details.get("locations_omitted", 0),
+                other.details.get("locations_omitted", 0),
+            )
+            left = left if type(left) is int and left >= 0 else 0
+            right = right if type(right) is int and right >= 0 else 0
+            total_locations = len(self.locations) + left + len(other.locations) + right
+            self.locations = self.locations[:200]
+            self.locations.extend(other.locations[: max(0, 200 - len(self.locations))])
+            self.details["locations_omitted"] = total_locations - len(self.locations)
+            self.occurrences_count += other.occurrences_count
+            return
+        self.locations.extend(other.locations)
+        unique_sources = {loc.get("source_url") for loc in self.locations if loc.get("source_url")}
+        self.occurrences_count = max(
+            len(unique_sources), self.occurrences_count, other.occurrences_count
+        )
+
     def to_json(self) -> dict[str, Any]:
         out: dict[str, Any] = {
             "id": self.id,

@@ -153,7 +153,7 @@ having, because the alternative is an absence nobody has noticed.
 | Issue | Status | Found by | Note |
 |---|---|---|---|
 | Missing Alt Text | check | `IMG_MISSING_ALT` |  |
-| Missing Alt Attribute | check | `IMG_MISSING_ALT_ATTRIBUTE` | a native crawl's own per-image inventory distinguishes the attribute being absent from a decorative alt="" -- only the former fires; IMG_MISSING_ALT (an SF export column) still reports the two together, since that export's own shape has not changed |
+| Missing Alt Attribute | check | `IMG_MISSING_ALT_ATTRIBUTE` | a native crawl's own per-image inventory distinguishes the attribute being absent from a decorative alt=""; native IMG_MISSING_ALT separately reports whitespace-only or explicitly informative/unnamed-interactive empty alt. The SF export keeps its original filter semantics |
 | Background Images | tool | `parse` | CSS url() sources are extracted by the parser's url_sources option, which is how four images invisible to the HTML were found on a live site |
 | Over 100 kb | check | `IMG_OVER_KB` |  |
 | Alt Text Over 100 Characters | check | `IMG_ALT_TOO_LONG` |  |

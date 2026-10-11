@@ -232,9 +232,9 @@ CATEGORIES: dict[str, list[Entry]] = {
             "Missing Alt Attribute",
             "IMG_MISSING_ALT_ATTRIBUTE",
             note="a native crawl's own per-image inventory distinguishes the attribute being "
-            'absent from a decorative alt="" -- only the former fires; IMG_MISSING_ALT (an '
-            "SF export column) still reports the two together, since that export's own shape "
-            "has not changed",
+            'absent from a decorative alt=""; native IMG_MISSING_ALT separately reports '
+            "whitespace-only or explicitly informative/unnamed-interactive empty alt. "
+            "The SF export keeps its original filter semantics",
         ),
         _t(
             "Background Images",

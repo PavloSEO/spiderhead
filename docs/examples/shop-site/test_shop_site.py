@@ -65,6 +65,19 @@ class ShopSiteTest(unittest.TestCase):
             self.truth["versions"]["v3"]["urls"]["/catalog/stoly/stol-007/"]["status"], 301
         )
 
+    def test_additive_image_defects_do_not_change_frontier(self):
+        self.assertEqual(
+            [self.truth["versions"][v]["expected_urls_crawled"] for v in shop.VERSIONS],
+            [1248, 1314, 1330],
+        )
+        for v in shop.VERSIONS:
+            site = shop.Site(v)
+            informative = site.get("/catalog/spalni/spalnya-009/").body.decode()
+            dimensions = site.get("/catalog/spalni/spalnya-010/").body.decode()
+            self.assertEqual("alt='' role='img'" in informative, v in ("v1", "v2"))
+            self.assertEqual("width='800' height='600'" in dimensions, v == "v3")
+        self.assertIn("IMG_BROKEN", self.truth["defects"]["D47"]["checks"])
+
 
 if __name__ == "__main__":
     unittest.main()
