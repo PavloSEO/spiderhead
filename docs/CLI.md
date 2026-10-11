@@ -109,6 +109,9 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `log-analyze` | Analyse a web server access log (Apache/Nginx Common or Combined, IIS W3C; gzip-compressed files are read directly). | network |
 | `regions-check` | Audit a site's regional structure: subdomains (msk.site.ru), folders (site.ru/msk/) and satellite domains (site-msk.ru). | network |
 | `backlinks-check` | Verify backlinks from a list of donor pages: is the link still there, its anchor and rel, whether it passes weight (nofollow/ugc/sponsored), and whether the donor… | network |
+| `backlinks-profile` | Merge explicit backlink CSV/provider evidence, retain private history, or read history with --history; source calls are explicit. | network, writes, paid opt-in |
+| `backlinks-disavow` | Export only reviewed donor domains/URLs to a new local file; never submit or overwrite. | writes |
+| `dataforseo-estimate` | Quote supplied provider prices offline; --refresh-prices explicitly reads the free account price endpoint. | network opt-in |
 
 ## AI search readiness (GEO/AEO)
 

@@ -106,10 +106,17 @@ def _drop_retained_only_checks(audit: dict) -> dict:
     # The security-header checks (#1013, and the repeated-header check) read each page's stored
     # response headers, which the legacy graph never keeps: the same retained-only shape as
     # BROKEN_BOOKMARK.
-    retained_only = {"BROKEN_BOOKMARK", *security_headers.CHECK_IDS}
+    retained_only = {
+        "BROKEN_BOOKMARK",
+        "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
+        *security_headers.CHECK_IDS,
+    }
     document = copy.deepcopy(audit)
     summary = document.get("summary") if isinstance(document.get("summary"), dict) else {}
     summary.pop("fragment_links", None)
+    # Disclosure replays the retained document; token counts use shared graph evidence.
+    if isinstance(summary.get("link_rel"), dict):
+        summary["link_rel"].pop("disclosure", None)
 
     removed_ids = {
         issue["id"] for issue in document.get("issues", []) if issue.get("check") in retained_only

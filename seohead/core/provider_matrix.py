@@ -161,7 +161,7 @@ WORKFLOWS: tuple[WorkflowRow, ...] = (
         limitations=(
             "The handler calls seohead.data_sources.dataforseo (source `dataforseo`) "
             "directly — a dedicated integration, not the `dataforseo_backlinks` registry "
-            "entry, which declares only backlinks_summary; Russia and Belarus locations "
+            "entry, which declares only backlink operations; Russia and Belarus locations "
             "are refused by the coverage guard before any paid call"
         ),
         csv_fallback="not applicable",
@@ -303,19 +303,31 @@ WORKFLOWS: tuple[WorkflowRow, ...] = (
     ),
     WorkflowRow(
         workflow="link-evidence",
-        use_case="Backlink summary for a target from a paid index",
-        providers=(_reg("dataforseo_backlinks"),),
-        surface=("provider-collect",),
+        use_case="Merge explicit backlink evidence, classify full rel tokens and retain history",
+        providers=(
+            _reg("dataforseo_backlinks"),
+            _reg("yandex_webmaster"),
+            _reg("bing_webmaster"),
+            _ded("backlink_indexes"),
+        ),
+        surface=(
+            "provider-collect",
+            "backlinks-profile",
+            "backlinks-disavow",
+            "dataforseo-estimate",
+        ),
         status="partial",
         auth="Login + password",
         cost_quota="Paid per provider response; provider is off by default",
         privacy="restricted",
         limitations=(
-            "Only backlinks_summary is declared; discovering a competitor's full "
-            "profile is out of scope — backlinks-check audits a caller-supplied donor "
-            "list instead and is not a provider"
+            "DataForSEO has bounded summary, backlinks, referring domains, history and "
+            "domain-page summary routes with confirmation; free property samples and CSV/WAT "
+            "imports are merged locally. No source proves whole-web completeness; "
+            "Ahrefs/Majestic index reads are explicit; Moz is legacy V2 metrics only, "
+            "not a backlink enumerator. Project/month currency limits await an owner decision"
         ),
-        csv_fallback="a supplied donor-page list is the input to backlinks-check; no provider CSV join",
+        csv_fallback="GSC, Ahrefs, Majestic, Moz, Semrush, DataForSEO CSV and Common Crawl WAT/domain-edge extracts",
     ),
     WorkflowRow(
         workflow="rank-tracking",
@@ -419,10 +431,6 @@ UNSUPPORTED_WORK: tuple[tuple[str, str], ...] = (
     (
         "Google IndexNow submission",
         "Google has not joined IndexNow; no operation can claim it",
-    ),
-    (
-        "competitor backlink discovery beyond backlinks_summary",
-        "out of declared scope; backlinks-check covers a caller-supplied donor list only",
     ),
     (
         "Topvisor mutations and paid position-check launches",
@@ -565,7 +573,7 @@ def render() -> str:
         "they require — sandbox remains the DataForSEO default. Deferred by design, not "
         "by omission: `serp-clustering` via the paid Arsenkin contract (declared but "
         "unsupported), Metrika raw logs, dedicated CLI commands for the collect-only "
-        "providers, and any backlink discovery beyond `backlinks_summary`. This is a "
+        "providers. Bounded backlink discovery requires explicit source selection and cost confirmation. This is a "
         "selected subset of the provider landscape, not a claim that every SEO data "
         "service is covered.",
         "",

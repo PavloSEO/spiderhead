@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**183 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 192 in total.
+**186 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 195 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -424,6 +424,56 @@ Verify backlinks from a list of donor pages: is the link still there, its anchor
 | `concurrency` | `int` | `3` |
 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
+### `backlinks-profile`
+
+MCP name: `seo_backlinks_profile`
+
+Build a bounded backlink profile from explicit CSV/imported evidence or selected sources.
+
+| Argument | Type | Default |
+|---|---|---|
+| `domain` | `str` | `required` |
+| `history_only` | `bool` | `False` |
+| `imports` | `list[dict[str, Any]] | None` | `None` |
+| `evidence` | `list[dict[str, Any]] | None` | `None` |
+| `sources` | `list[dict[str, Any]] | None` | `None` |
+| `db` | `str | None` | `None` |
+| `project` | `str | None` | `None` |
+| `observed_at` | `str | None` | `None` |
+| `state` | `str | None` | `None` |
+| `follow` | `str | None` | `None` |
+| `target_prefix` | `str | None` | `None` |
+| `min_spam_score` | `float | None` | `None` |
+| `max_spam_score` | `float | None` | `None` |
+| `first_seen_from` | `str | None` | `None` |
+| `first_seen_to` | `str | None` | `None` |
+| `one_per_domain` | `bool` | `False` |
+| `target_status` | `dict[str, Any] | None` | `None` |
+| `limit` | `int` | `1000` |
+| `offset` | `int` | `0` |
+
+**Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
+
+**Behavior and failure modes**
+
+Offline by default. Optional project/db stores private SQLite history. Explicit sources
+may call free or paid providers; DataForSEO defaults sandbox, requires confirm_paid and
+account/production approval. No automatic pagination or web-wide completeness claim.
+
+### `backlinks-disavow`
+
+MCP name: `seo_backlinks_disavow`
+
+Generate a reviewed disavow selection locally; never submit or overwrite a file.
+
+| Argument | Type | Default |
+|---|---|---|
+| `domains` | `list[str] | None` | `None` |
+| `urls` | `list[str] | None` | `None` |
+| `output` | `str | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
 ### `schema-check`
 
@@ -964,6 +1014,31 @@ Yandex search results for one query or a batch. Async only: the synchronous endp
 
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
 
+### `dataforseo-estimate`
+
+MCP name: `seo_dataforseo_estimate`
+
+Calculate a quote offline using a supplied appendix/user_data price snapshot.
+
+| Argument | Type | Default |
+|---|---|---|
+| `operation` | `str` | `required` |
+| `query_count` | `int` | `1` |
+| `row_limit` | `int` | `0` |
+| `cache_hits` | `int` | `0` |
+| `prices` | `dict[str, Any] | None` | `None` |
+| `env` | `str | None` | `None` |
+| `refresh_prices` | `bool` | `False` |
+| `query` | `str | None` | `None` |
+
+**Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Cache hits are caller-declared; this tool never claims to discover cached data.
+Unknown pricing is unavailable. refresh_prices explicitly reads the free account endpoint;
+without it, no provider request or credential access occurs.
+
 ### `google-keywords`
 
 MCP name: `seo_google_keywords`
@@ -979,6 +1054,10 @@ Google demand via DataForSEO: pass `keywords` for search volume and competition 
 | `country` | `str | None` | `None` |
 | `limit` | `int` | `100` |
 | `difficulty` | `bool` | `False` |
+| `confirm_paid` | `bool` | `False` |
+| `env` | `str | None` | `None` |
+| `spend_ceiling_usd` | `float | None` | `None` |
+| `prices` | `dict[str, Any] | None` | `None` |
 
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
 
@@ -1005,6 +1084,10 @@ Google organic results for a query — who actually ranks. Same geo rules as seo
 | `language` | `str` | `'en'` |
 | `depth` | `int` | `10` |
 | `country` | `str | None` | `None` |
+| `confirm_paid` | `bool` | `False` |
+| `env` | `str | None` | `None` |
+| `spend_ceiling_usd` | `float | None` | `None` |
+| `prices` | `dict[str, Any] | None` | `None` |
 
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
 

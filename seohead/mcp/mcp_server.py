@@ -483,6 +483,67 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             handlers.backlinks_check(target=target, donors=donors, concurrency=concurrency)
         )
 
+    @mcp.tool(annotations=paid, structured_output=True)
+    def seo_backlinks_profile(
+        domain: str,
+        history_only: bool = False,
+        imports: list[dict[str, Any]] | None = None,
+        evidence: list[dict[str, Any]] | None = None,
+        sources: list[dict[str, Any]] | None = None,
+        db: str | None = None,
+        project: str | None = None,
+        observed_at: str | None = None,
+        state: str | None = None,
+        follow: str | None = None,
+        target_prefix: str | None = None,
+        min_spam_score: float | None = None,
+        max_spam_score: float | None = None,
+        first_seen_from: str | None = None,
+        first_seen_to: str | None = None,
+        one_per_domain: bool = False,
+        target_status: dict[str, Any] | None = None,
+        limit: int = 1000,
+        offset: int = 0,
+    ) -> dict[str, Any]:
+        """Build a bounded backlink profile from explicit CSV/imported evidence or selected sources.
+
+        Offline by default. Optional project/db stores private SQLite history. Explicit sources
+        may call free or paid providers; DataForSEO defaults sandbox, requires confirm_paid and
+        account/production approval. No automatic pagination or web-wide completeness claim.
+        """
+        return _checked(
+            handlers.backlinks_profile(
+                domain=domain,
+                history_only=history_only,
+                imports=imports,
+                evidence=evidence,
+                sources=sources,
+                db=db,
+                project=project,
+                observed_at=observed_at,
+                state=state,
+                follow=follow,
+                target_prefix=target_prefix,
+                min_spam_score=min_spam_score,
+                max_spam_score=max_spam_score,
+                first_seen_from=first_seen_from,
+                first_seen_to=first_seen_to,
+                one_per_domain=one_per_domain,
+                target_status=target_status,
+                limit=limit,
+                offset=offset,
+            )
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_backlinks_disavow(
+        domains: list[str] | None = None,
+        urls: list[str] | None = None,
+        output: str | None = None,
+    ) -> dict[str, Any]:
+        """Generate a reviewed disavow selection locally; never submit or overwrite a file."""
+        return _checked(handlers.backlinks_disavow(domains=domains, urls=urls, output=output))
+
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_schema_check(url: str = "", html: str = "") -> dict[str, Any]:
         """Validate a page's structured data in two layers. Layer one is the Schema.org
@@ -1147,6 +1208,36 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         one. Use it to see who actually ranks before promising a client a position."""
         return _checked(handlers.serp_fetch(query=query, queries=queries, region=region, top=top))
 
+    @mcp.tool(annotations=fetch, structured_output=True)
+    def seo_dataforseo_estimate(
+        operation: str,
+        query_count: int = 1,
+        row_limit: int = 0,
+        cache_hits: int = 0,
+        prices: dict[str, Any] | None = None,
+        env: str | None = None,
+        refresh_prices: bool = False,
+        query: str | None = None,
+    ) -> dict[str, Any]:
+        """Calculate a quote offline using a supplied appendix/user_data price snapshot.
+
+        Cache hits are caller-declared; this tool never claims to discover cached data.
+        Unknown pricing is unavailable. refresh_prices explicitly reads the free account endpoint;
+        without it, no provider request or credential access occurs.
+        """
+        return _checked(
+            handlers.dataforseo_estimate(
+                operation=operation,
+                query_count=query_count,
+                row_limit=row_limit,
+                cache_hits=cache_hits,
+                prices=prices,
+                env=env,
+                refresh_prices=refresh_prices,
+                query=query,
+            )
+        )
+
     @mcp.tool(annotations=paid, structured_output=True)
     def seo_google_keywords(
         keywords: list[str] | None = None,
@@ -1156,6 +1247,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         country: str | None = None,
         limit: int = 100,
         difficulty: bool = False,
+        confirm_paid: bool = False,
+        env: str | None = None,
+        spend_ceiling_usd: float | None = None,
+        prices: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Google demand via DataForSEO: pass `keywords` for search volume and competition on a
         list, or `seed` to expand semantics from one phrase (the Google counterpart of
@@ -1175,6 +1270,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 location_code=location_code,
                 language=language,
                 country=country,
+                confirm_paid=confirm_paid,
+                env=env,
+                spend_ceiling_usd=spend_ceiling_usd,
+                prices=prices,
                 limit=limit,
                 difficulty=difficulty,
             )
@@ -1187,6 +1286,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         language: str = "en",
         depth: int = 10,
         country: str | None = None,
+        confirm_paid: bool = False,
+        env: str | None = None,
+        spend_ceiling_usd: float | None = None,
+        prices: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Google organic results for a query — who actually ranks. Same geo rules as
         seo_google_keywords: Russia and Belarus are not covered, use seo_serp_fetch (Yandex)
@@ -1198,6 +1301,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 language=language,
                 depth=depth,
                 country=country,
+                confirm_paid=confirm_paid,
+                env=env,
+                spend_ceiling_usd=spend_ceiling_usd,
+                prices=prices,
             )
         )
 

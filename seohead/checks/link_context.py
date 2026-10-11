@@ -17,6 +17,7 @@ from seohead.checks.parser import (
     _link_target,
     collapse_whitespace,
     document_base_url,
+    sponsorship_disclosure,
 )
 
 SCHEMA_VERSION = "link_occurrence_context.v1"
@@ -187,6 +188,9 @@ def extract_occurrences(
                 "dom_path_truncated": path_truncated,
                 "heading": heading,
                 "heading_relation": relation,
+                "disclosure": sponsorship_disclosure(tag)
+                if "sponsored" in info["rel"].split()
+                else None,
             }
         )
     return {

@@ -51,6 +51,7 @@ def _unavailable(link: dict[str, Any], reason: str) -> dict[str, Any]:
         "placement": None,
         "heading": None,
         "heading_relation": None,
+        "disclosure": None,
     }
 
 
@@ -218,6 +219,7 @@ def _derive(
             if item["heading"]
             else None,
             heading_relation=item["heading_relation"],
+            disclosure=item["disclosure"],
         )
         items.append(context)
     omitted = extracted["eligible_omitted"]

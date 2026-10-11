@@ -1960,6 +1960,10 @@ def _audit_crawl_result(
     forms = getattr(result, "forms", None)
     has_link_evidence = not stored_list and (stored_scan is not None or links is not None)
     has_form_evidence = not stored_list and (stored_scan is not None or forms is not None)
+    link_rel_summary: dict[str, Any] = {
+        "measured": False,
+        "reason": "full link attributes were not retained",
+    }
     with StoredGraph(stored_scan.con) if stored_scan else nullcontext(None) as graph:
         if has_link_evidence:
             for item in (
@@ -2063,6 +2067,60 @@ def _audit_crawl_result(
                 else link_findings.internal_sponsored_ugc_links(links, site_host)
             ):
                 ctx.add("INTERNAL_LINK_SPONSORED_UGC", target_url=item["target_url"], details=item)
+            for item in graph.iter_mixed_rel() if graph else link_findings.mixed_rel_links(links):
+                ctx.add("MIXED_LINK_REL", target_url=item["target_url"], details=item)
+            link_rel_summary = graph.rel_summary() if graph else link_findings.rel_summary(links)
+            from seohead.sf.core.rules import _body_unavailable
+
+            html_total = html_unavailable = 0
+            for page in ctx.html_pages():
+                html_total += 1
+                html_unavailable += int(_body_unavailable(page.metrics.get("_record", {})))
+            link_rel_summary["coverage"] = {
+                "html_pages": html_total,
+                "html_pages_unavailable": html_unavailable,
+                "scope": "captured link occurrences; unparsed pages are excluded",
+            }
+            link_rel_summary["state"] = "partial" if html_unavailable else "complete"
+            if html_unavailable:
+                link_rel_summary["reason"] = (
+                    f"{html_unavailable} HTML page(s) were not parsed; their rel and disclosure evidence was not measured"
+                )
+            if html_total == html_unavailable and not link_rel_summary["by_rel"]["total"]:
+                reason = "no parsed HTML page or captured link occurrence provides rel evidence"
+                link_rel_summary.update(measured=False, state="unavailable", reason=reason)
+                link_rel_summary["by_rel"] = {key: None for key in link_rel_summary["by_rel"]}
+                ctx.skip("MIXED_LINK_REL", reason)
+                ctx.skip("OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE", reason)
+            if graph:
+                disclosure = graph.sponsored_disclosures(site_host)
+                link_rel_summary["disclosure"] = {
+                    key: value for key, value in disclosure.items() if key != "findings"
+                }
+                for item in disclosure["findings"]:
+                    ctx.add(
+                        "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
+                        target_url=item["target_url"],
+                        details=item,
+                    )
+                if disclosure["coverage"]["unavailable"]:
+                    ctx.skip(
+                        "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
+                        "some sponsored-link contexts are unavailable; see summary.link_rel.disclosure",
+                    )
+            else:
+                reason = "crawl has no retained complete source documents for disclosure replay"
+                link_rel_summary["disclosure"] = {"state": "unavailable", "reason": reason}
+                ctx.skip("OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE", reason)
+        else:
+            reason = (
+                "link_attributes.capture is false; full rel tokens were not retained"
+                if not settings["link_attributes"]["capture"]
+                else "link evidence or crawl site host is unavailable"
+            )
+            link_rel_summary["reason"] = reason
+            ctx.skip("MIXED_LINK_REL", reason)
+            ctx.skip("OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE", reason)
 
     # Pages With JavaScript Errors (#1015): read from the retained render console sidecars,
     # never re-rendered here. Unreadable evidence is a stated skip, not a clean page.
@@ -2230,6 +2288,7 @@ def _audit_crawl_result(
     )
     if streaming:
         header, collections = audit_result.audit_v2_parts()
+        header["summary"]["link_rel"] = link_rel_summary
         analysis_segments = settings["analysis"]["segments"]
         header["segments"] = (
             _segment_counts(
@@ -2271,6 +2330,7 @@ def _audit_crawl_result(
             "render_escalation": render_summary,
         }, (header, collections)
     audit = audit_result.to_json()
+    audit["summary"]["link_rel"] = link_rel_summary
     # Page and issue counts per named segment (#358) -- only when the operator
     # actually declared segments, so a plain crawl's audit.json is unchanged.
     analysis_segments = settings["analysis"]["segments"]
@@ -2991,6 +3051,120 @@ def render_check(
     return render_core.render_check(
         url, viewport=viewport, wait=wait, user_agent=user_agent, **kwargs
     )
+
+
+def backlinks_profile(
+    domain: str,
+    history_only: bool = False,
+    imports: list[dict[str, Any]] | None = None,
+    evidence: list[dict[str, Any]] | None = None,
+    sources: list[dict[str, Any]] | None = None,
+    db: str | None = None,
+    project: str | None = None,
+    observed_at: str | None = None,
+    state: str | None = None,
+    follow: str | None = None,
+    target_prefix: str | None = None,
+    min_spam_score: float | None = None,
+    max_spam_score: float | None = None,
+    first_seen_from: str | None = None,
+    first_seen_to: str | None = None,
+    one_per_domain: bool = False,
+    target_status: dict[str, Any] | None = None,
+    limit: int = 1000,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Merge explicit backlink evidence and optionally retain a private history snapshot.
+
+    Each sources entry selects one bounded provider operation with its own request/gates.
+    No sources means offline analysis only; absence never proves a link was lost.
+    """
+    from seohead.recon.backlink_profile import build_backlink_profile, fetch_backlink_source
+    from seohead.recon.net import normalize_domain
+
+    normalized_domain = normalize_domain(domain)
+    if not normalized_domain:
+        raise ValueError("domain must be a valid hostname or HTTP(S) URL")
+    if history_only:
+        from seohead.data_sources.backlink_history import snapshot_history
+
+        return snapshot_history(
+            db=db, project=project, domain=normalized_domain, limit=limit, offset=offset
+        )
+    if db and project:
+        raise ValueError("pass db or project, not both")
+    for item in sources or []:
+        if (
+            not isinstance(item, dict)
+            or item.get("source")
+            not in {"dataforseo", "yandex_webmaster", "bing_webmaster", "ahrefs", "majestic", "moz"}
+            or not isinstance(item.get("request", {}), dict)
+        ):
+            raise ValueError("sources entries require a supported source and an object request")
+    collected = list(evidence or [])
+    for item in sources or []:
+        if not isinstance(item, dict) or not isinstance(item.get("request", {}), dict):
+            raise ValueError("sources entries require source and an object request")
+        source = item.get("source")
+        request = dict(item.get("request") or {})
+        if source == "dataforseo":
+            from seohead.data_sources.dataforseo import backlink_call
+
+            operation = item.get("operation", "backlinks")
+            result = backlink_call(operation, normalized_domain, **request)
+            collected.append(
+                {
+                    "source": source,
+                    "result": result,
+                    "complete": False,
+                    "scope": "bounded index response",
+                    "operation": operation,
+                }
+            )
+        elif source in {"yandex_webmaster", "bing_webmaster"}:
+            collected.append(fetch_backlink_source(source, domain, request))
+        elif source in {"ahrefs", "majestic", "moz"}:
+            from seohead.data_sources.backlink_indexes import collect
+
+            collected.append(
+                {
+                    "source": source,
+                    "result": collect(source, normalized_domain, **request),
+                    "complete": False,
+                }
+            )
+        else:
+            raise ValueError("unsupported backlink source")
+    return build_backlink_profile(
+        domain,
+        imports=imports,
+        evidence=collected,
+        db=db,
+        project=project,
+        observed_at=observed_at,
+        state=state,
+        follow=follow,
+        target_prefix=target_prefix,
+        min_spam_score=min_spam_score,
+        max_spam_score=max_spam_score,
+        first_seen_from=first_seen_from,
+        first_seen_to=first_seen_to,
+        one_per_domain=one_per_domain,
+        target_status=target_status,
+        limit=limit,
+        offset=offset,
+    )
+
+
+def backlinks_disavow(
+    domains: list[str] | None = None,
+    urls: list[str] | None = None,
+    output: str | None = None,
+) -> dict[str, Any]:
+    """Export only the specialist's explicit selection; never submit to search engines."""
+    from seohead.recon.backlink_profile import export_disavow
+
+    return export_disavow(domains=domains, urls=urls, output=output)
 
 
 def backlinks_check(
@@ -3726,6 +3900,48 @@ def keywords_exact(
         return error
 
 
+def dataforseo_estimate(
+    operation: str,
+    query_count: int = 1,
+    row_limit: int = 0,
+    cache_hits: int = 0,
+    prices: dict[str, Any] | None = None,
+    env: str | None = None,
+    refresh_prices: bool = False,
+    query: str | None = None,
+) -> dict[str, Any]:
+    """Quote supplied prices offline; refresh_prices explicitly reads free account prices."""
+    from seohead.data_sources.dataforseo import estimate
+
+    if refresh_prices:
+        from seohead.data_sources.dataforseo import (
+            DataForSEOClient,
+            DataForSEOError,
+            MissingCredential,
+        )
+
+        try:
+            prices = DataForSEOClient(env=env).balance().get("prices")
+        except (MissingCredential, DataForSEOError, OSError, ValueError) as exc:
+            return {
+                "ok": False,
+                "state": "unavailable",
+                "reason": "free account price lookup failed",
+                "error": str(exc),
+            }
+
+    quote = estimate(
+        operation,
+        query_count=query_count,
+        row_limit=row_limit,
+        cache_hits=cache_hits,
+        prices=prices,
+        env=env,
+        query=query,
+    )
+    return {"ok": quote["state"] == "complete", **quote}
+
+
 def google_keywords(
     keywords: list[str] | None = None,
     seed: str | None = None,
@@ -3734,6 +3950,10 @@ def google_keywords(
     country: str | None = None,
     limit: int = 100,
     difficulty: bool = False,
+    confirm_paid: bool = False,
+    env: str | None = None,
+    spend_ceiling_usd: float | None = None,
+    prices: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Query Google demand through DataForSEO by keyword list or seed phrase.
 
@@ -3748,9 +3968,36 @@ def google_keywords(
     """
     from seohead.data_sources import dataforseo as core
 
+    if seed and difficulty and spend_ceiling_usd is not None:
+        quotes = [
+            core.estimate(operation, row_limit=limit, prices=prices, env=env)
+            for operation in ("keyword_ideas", "keyword_difficulty")
+        ]
+        if any(quote["cost_usd"] is None for quote in quotes):
+            return {
+                "ok": False,
+                "state": "unavailable",
+                "reason": "both operation prices are required to enforce the combined ceiling",
+                "estimate": quotes,
+            }
+        if sum(quote["cost_usd"] for quote in quotes) > spend_ceiling_usd:
+            return {
+                "ok": False,
+                "state": "spend_limit_exceeded",
+                "reason": "combined expansion and difficulty estimate exceeds ceiling before request",
+                "estimate": quotes,
+            }
     if seed:
         ideas = core.keyword_ideas(
-            seed, location_code=location_code, language=language, limit=limit, country=country
+            seed,
+            location_code=location_code,
+            language=language,
+            limit=limit,
+            country=country,
+            confirm_paid=confirm_paid,
+            env=env,
+            spend_ceiling_usd=spend_ceiling_usd,
+            prices=prices,
         )
         if not difficulty or not ideas.get("ok"):
             return ideas
@@ -3759,8 +4006,26 @@ def google_keywords(
         expanded = [k.get("phrase") for k in ideas.get("keywords") or [] if k.get("phrase")]
         if not expanded:
             return ideas
+        remaining_ceiling = spend_ceiling_usd
+        if spend_ceiling_usd is not None:
+            actual = ideas.get("cost_usd")
+            if actual is None:
+                return {
+                    **ideas,
+                    "ok": False,
+                    "state": "partial",
+                    "reason": "expansion cost is unknown; cannot enforce remaining ceiling for difficulty",
+                }
+            remaining_ceiling = max(0.0, spend_ceiling_usd - actual)
         scored = core.keyword_difficulty(
-            expanded, location_code=location_code, language=language, country=country
+            expanded,
+            location_code=location_code,
+            language=language,
+            country=country,
+            confirm_paid=confirm_paid,
+            env=env,
+            spend_ceiling_usd=remaining_ceiling,
+            prices=prices,
         )
         ideas["difficulty"] = scored
         if scored.get("ok") is False:
@@ -3770,10 +4035,24 @@ def google_keywords(
         raise ValueError("keywords or seed required")
     if difficulty:
         return core.keyword_difficulty(
-            keywords, location_code=location_code, language=language, country=country
+            keywords,
+            location_code=location_code,
+            language=language,
+            country=country,
+            confirm_paid=confirm_paid,
+            env=env,
+            spend_ceiling_usd=spend_ceiling_usd,
+            prices=prices,
         )
     return core.search_volume(
-        keywords, location_code=location_code, language=language, country=country
+        keywords,
+        location_code=location_code,
+        language=language,
+        country=country,
+        confirm_paid=confirm_paid,
+        env=env,
+        spend_ceiling_usd=spend_ceiling_usd,
+        prices=prices,
     )
 
 
@@ -3783,6 +4062,10 @@ def google_serp(
     language: str = "en",
     depth: int = 10,
     country: str | None = None,
+    confirm_paid: bool = False,
+    env: str | None = None,
+    spend_ceiling_usd: float | None = None,
+    prices: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return the Google organic results that actually rank for a query in the selected market."""
     if not query:
@@ -3790,7 +4073,15 @@ def google_serp(
     from seohead.data_sources import dataforseo as core
 
     return core.serp(
-        query, location_code=location_code, language=language, depth=depth, country=country
+        query,
+        location_code=location_code,
+        language=language,
+        depth=depth,
+        country=country,
+        confirm_paid=confirm_paid,
+        env=env,
+        spend_ceiling_usd=spend_ceiling_usd,
+        prices=prices,
     )
 
 
@@ -6612,6 +6903,8 @@ _RAW_HANDLERS = {
     "tech_detect": tech_detect,
     "security_check": security_check,
     "backlinks_check": backlinks_check,
+    "backlinks_profile": backlinks_profile,
+    "backlinks_disavow": backlinks_disavow,
     "schema_check": schema_check,
     "schema_build": schema_build,
     "duplicate_check": duplicate_check,
@@ -6656,6 +6949,7 @@ _RAW_HANDLERS = {
     "metrika_report": metrika_report,
     "metrika_traffic_pdf": metrika_traffic_pdf,
     "google_keywords": google_keywords,
+    "dataforseo_estimate": dataforseo_estimate,
     "google_serp": google_serp,
     "wayback_history": wayback_history,
     "crtsh_subdomains": crtsh_subdomains,

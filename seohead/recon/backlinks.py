@@ -37,6 +37,8 @@ def _inspect_donor(
 ) -> dict[str, Any]:
     from bs4 import BeautifulSoup
 
+    from seohead.checks.parser import sponsorship_disclosure
+
     record: dict[str, Any] = {"donor": donor, "found": False, "links": []}
     try:
         resp = client.get(donor)
@@ -75,12 +77,18 @@ def _inspect_donor(
         if target_url and href.rstrip("/") != target_url.rstrip("/"):
             continue
         rels = [r.lower() for r in (tag.get("rel") or [])]
+        rels = sorted(set(rels))
         blocking = [r for r in rels if r in _NO_WEIGHT_RELS]
         record["links"].append(
             {
                 "href": href,
                 "anchor": re.sub(r"\s+", " ", tag.get_text(" ", strip=True))[:200],
                 "rel": rels,
+                "nofollow": "nofollow" in rels,
+                "ugc": "ugc" in rels,
+                "sponsored": "sponsored" in rels,
+                "mixed_rel": len(set(rels) & set(_NO_WEIGHT_RELS)) > 1,
+                "disclosure": sponsorship_disclosure(tag) if "sponsored" in rels else None,
                 "follow": not blocking and not page_nofollow,
                 "blocked_by": blocking or (["page robots nofollow"] if page_nofollow else []),
             }

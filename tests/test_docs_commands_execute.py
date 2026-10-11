@@ -631,6 +631,16 @@ def test_documented_command_executes_or_at_least_still_parses(
                 },
                 expected_revision=0,
             )
+    if argv[:1] == ["backlinks-profile"] and "--history" in argv:
+        from seohead.recon.backlink_profile import build_backlink_profile
+
+        database = Path(argv[argv.index("--db") + 1])
+        assert not database.is_absolute(), "documentation history fixtures must stay local"
+        build_backlink_profile(
+            argv[argv.index("--domain") + 1],
+            evidence=[{"source": "generic", "rows": [], "complete": True}],
+            db=str(tmp_path / database),
+        )
     if argv[:2] == ["scan", "reanalyze"] or argv[:1] == ["scan-reanalyze"]:
         _seed_reanalysis_input(tmp_path)
     if argv[:1] == ["findings-view"] and "--audit" in argv:
