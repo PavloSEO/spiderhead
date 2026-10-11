@@ -59,6 +59,12 @@ profile/settings button bottom-left, honest data states ("not measured" ≠ "0")
 (`seohead mcp status`), installer that puts the app and the `seohead` CLI on the machine
 together. See [shared tokens](docs/canvas-tokens.md) and [native component contracts](design/tab-contracts.md).
 
+The Work view searches the full checklist loaded from the core; the owner can add manual tasks, edit assignment,
+acceptance, competitor URL caps and comments, record attempt states, approve reviewed manual work and start task-scoped
+competitor scans. Inbox goal acceptance and manual signoff use a confirmed local CLI action. Schedule settings are
+stored with the project; the Schedule tab can read and update each linked competitor's independent cadence and crawl
+settings from its child project.
+
 ## Licence
 
 GPL-3.0-or-later (required by PyQt5) — see `LICENSE` here. The core toolkit at the repository

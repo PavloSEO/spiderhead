@@ -228,6 +228,15 @@ def parse_state(value):
         "due_now": due.get("due") is True,
         "zone": due.get("time_zone"),
         "resume": value.get("resume_artifact") is not None,
+        "competitors": [
+            dict(item)
+            for item in value.get("competitors", [])
+            if isinstance(item, dict)
+            and isinstance(item.get("directory"), str)
+            and item.get("directory")
+        ]
+        if isinstance(value.get("competitors"), list)
+        else [],
     }
 
 

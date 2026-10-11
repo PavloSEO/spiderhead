@@ -87,6 +87,13 @@ class CommandTests(unittest.TestCase):
         answer = show_answer(
             revision=4,
             next_due_at="2026-10-12T01:00:00Z",
+            competitors=[
+                {
+                    "directory": "competitors/example",
+                    "url": "https://example.test/",
+                    "schedule_configured": False,
+                }
+            ],
             state={
                 "last_window": "2026-10-05",
                 "last_run_at": "2026-10-05T01:00:00Z",
@@ -100,6 +107,7 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(state["last_run"]["status"], "failed")
         self.assertFalse(state["due_now"])
         self.assertEqual(state["zone"], "Europe/Minsk")
+        self.assertEqual(state["competitors"][0]["directory"], "competitors/example")
 
     def test_save_validates_then_reads_back(self):
         calls = []

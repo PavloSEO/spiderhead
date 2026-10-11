@@ -1,27 +1,33 @@
-"""Screen «Работа · цель и задачи» (sheet Project, agent display).
+"""Project work screen backed by the core checklist, inbox and run projections.
 
-Everything is drawn from state the main window already holds (project result, progress, task rows, inbox rows, runs).
-Numbers the core did not measure are shown as «Нет данных»; what the core cannot give yet names its issue («ждёт #N»).
-No claim about an agent being connected or working is made here: that needs a real heartbeat (#945).
+Unknown measurements stay explicit. Task actions record attributed attempts and do not approve completion.
 """
 
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import datetime
+from uuid import uuid4
 
 from PyQt5.QtCore import QAbstractTableModel, Qt
 from PyQt5.QtWidgets import (
+    QDialog,
+    QFormLayout,
     QFrame,
     QHBoxLayout,
     QHeaderView,
     QLabel,
+    QLineEdit,
     QMenu,
+    QPlainTextEdit,
     QProgressBar,
     QPushButton,
     QScrollArea,
     QStackedWidget,
     QTabBar,
     QTableView,
+    QTableWidget,
+    QTableWidgetItem,
     QToolButton,
     QVBoxLayout,
     QWidget,
@@ -29,6 +35,7 @@ from PyQt5.QtWidgets import (
 
 from .. import i18n
 from ..i18n import tr, trf
+from ..local_owner_actions import LocalOwnerActions, manual_signoff_request
 from ..ui.controls import Note, Segmented
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import (
@@ -42,7 +49,7 @@ from ..ui.kit import (
     style_table,
     waiting_badge,
 )
-from ..ui.menus import entry, fill_menu, unavailable
+from ..ui.modal import ModalDialog
 from .base import Screen
 from .scan_common import number
 
@@ -317,8 +324,44 @@ class TaskDetail(QFrame):
         self.hide_button.setIcon(material_icon("right_panel_close"))
         self.hide_button.setToolTip(tr("Скрыть детали"))
         self.hide_button.setAccessibleName(tr("Скрыть детали"))
+        self.edit_button = QToolButton()
+        self.edit_button.setProperty("role", "icon")
+        self.edit_button.setIcon(material_icon("edit"))
+        self.edit_button.setToolTip(tr("Редактировать задачу"))
+        self.edit_button.setAccessibleName(tr("Редактировать задачу"))
+        self.edit_button.clicked.connect(self._edit_task)
+        self.edit_button.hide()
+        self.comment_button = QToolButton()
+        self.comment_button.setProperty("role", "icon")
+        self.comment_button.setIcon(material_icon("comment"))
+        self.comment_button.setToolTip(tr("Добавить комментарий"))
+        self.comment_button.setAccessibleName(tr("Добавить комментарий"))
+        self.comment_button.clicked.connect(self._add_comment)
+        self.comment_button.hide()
+        self.approve_button = QToolButton()
+        self.approve_button.setProperty("role", "icon")
+        self.approve_button.setIcon(material_icon("verified"))
+        self.approve_button.setToolTip(tr("Подтвердить выполнение вручную"))
+        self.approve_button.setAccessibleName(
+            tr("Подтвердить выполнение вручную")
+        )
+        self.approve_button.clicked.connect(self._approve_manual_task)
+        self.approve_button.hide()
+        self.scan_competitors_button = QPushButton(
+            tr("Сканировать конкурентов из задачи")
+        )
+        self.scan_competitors_button.setProperty("role", "primary")
+        self.scan_competitors_button.setIcon(material_icon("play_arrow"))
+        self.scan_competitors_button.clicked.connect(self._scan_task_competitors)
+        self.scan_competitors_button.hide()
+        self._row = None
+        self._result = None
+        self.owner_actions = LocalOwnerActions(self)
         head_layout.addWidget(self.icon)
         head_layout.addWidget(self.title, 1)
+        head_layout.addWidget(self.edit_button)
+        head_layout.addWidget(self.comment_button)
+        head_layout.addWidget(self.approve_button)
         head_layout.addWidget(self.hide_button)
         outer.addWidget(head)
         self.scroll = QScrollArea()
@@ -357,6 +400,10 @@ class TaskDetail(QFrame):
         self.title.setText(tr("Детали задачи"))
         self.body_layout.addWidget(panel)
         self.body_layout.addStretch(1)
+        self.edit_button.hide()
+        self.comment_button.hide()
+        self.approve_button.hide()
+        self.scan_competitors_button.hide()
 
     def show_item(self, row, result):
         """``row`` is the list row (always available), ``result`` the task-detail answer for that id or None."""
@@ -379,6 +426,32 @@ class TaskDetail(QFrame):
         badges.addStretch(1)
         self.body_layout.addLayout(badges)
         item = (result or {}).get("item") or {}
+        self._row = row
+        self._result = result
+        editable = (
+            isinstance(result, dict)
+            and isinstance(item.get("definition"), dict)
+            and type(result.get("revision")) is int
+            and (
+                getattr(self.host, "_mcp_tools", None) is None
+                or {
+                    "seo_project_checklist_update",
+                    "seo_project_task_comment",
+                }
+                <= self.host._mcp_tools
+            )
+        )
+        self.edit_button.setVisible(editable)
+        self.comment_button.setVisible(editable)
+        manual_approval = (
+            isinstance(result, dict)
+            and type(result.get("revision")) is int
+            and row.get("state") == "review"
+            and (row.get("kind") == "custom" or row.get("execution_kind") == "manual")
+            and bool(getattr(self.host, "core_executable", None))
+        )
+        self.approve_button.setVisible(manual_approval)
+        self.approve_button.setEnabled(manual_approval)
         self._section("Причина состояния")
         self._text(item.get("reason") or row.get("reason") or tr("Нет данных"))
         if row.get("state") == "blocked":
@@ -386,11 +459,106 @@ class TaskDetail(QFrame):
             self.body_layout.addWidget(
                 Note("error", tr("Заблокирована."), trf("Блокирует: {ids}", ids=blockers))
             )
-        self._section("Следующий шаг и исполнитель")
-        waiting = QHBoxLayout()
-        waiting.addWidget(waiting_badge(922))
-        waiting.addWidget(self._small("Исполнитель, описание, следующий шаг и комментарии"), 1)
-        self.body_layout.addLayout(waiting)
+        self._section("Задача и ответственность")
+        task = item.get("task") or row.get("task") or {}
+        self._task = task
+        fields = (
+            ("Исполнитель", task.get("executor") or task.get("assignee")),
+            ("Выполнил", task.get("actor")),
+            ("Следующий шаг", task.get("next_step")),
+            ("Описание", task.get("description")),
+            ("Критерий приёмки", task.get("acceptance_criterion")),
+        )
+        shown_fields = 0
+        for label, value in fields:
+            if isinstance(value, str) and value.strip():
+                self._text(trf("{label}: {value}", label=tr(label), value=value.strip()))
+                shown_fields += 1
+        if not shown_fields:
+            self._text(
+                tr("Детали задачи и ответственные пока не указаны."), "meta"
+            )
+        self._section("Связанные материалы")
+        references = [
+            ("Находка", task.get("finding_ref")),
+            ("Метод", task.get("method_ref")),
+        ]
+        for label, value in references:
+            if isinstance(value, dict):
+                value = " · ".join(
+                    str(value[key])
+                    for key in ("scan_id", "finding_id")
+                    if isinstance(value.get(key), str) and value[key].strip()
+                )
+            if isinstance(value, str) and value.strip():
+                self._text(trf("{label}: {value}", label=tr(label), value=value.strip()))
+        competitors = task.get("competitors")
+        if isinstance(competitors, list) and competitors:
+            self._section("Лимиты сканов конкурентов")
+            self._text(
+                tr(
+                    "Это лимиты URL. Сначала добавьте сайт в список конкурентов проекта, "
+                    "затем запускайте отдельный скан."
+                ),
+                "meta",
+            )
+            for competitor in competitors[:20]:
+                if not isinstance(competitor, dict):
+                    continue
+                url = competitor.get("url")
+                cap = competitor.get("max_urls")
+                if isinstance(url, str) and type(cap) is int:
+                    self._text(f"{url} · {number(cap)} URLs")
+            tools = getattr(self.host, "_mcp_tools", None)
+            available = tools is None or "seo_project_competitors_scan" in tools
+            self.scan_competitors_button.setVisible(True)
+            self.scan_competitors_button.setEnabled(
+                available and type((result or {}).get("revision")) is int
+            )
+            if not available:
+                self.scan_competitors_button.setToolTip(
+                    tr(
+                        "Эта версия ядра не поддерживает запуск конкурентов из задачи."
+                    )
+                )
+            self.body_layout.addWidget(self.scan_competitors_button)
+        else:
+            self.scan_competitors_button.hide()
+        comments = task.get("comments") if isinstance(task.get("comments"), list) else []
+        comment_total = task.get("comments_total")
+        if comments or comment_total:
+            self._section("Комментарии")
+        if task.get("comments_truncated") is True and type(comment_total) is int:
+            self._text(
+                trf(
+                    "Показаны последние {shown} из {total} комментариев.",
+                    shown=len(comments),
+                    total=comment_total,
+                ),
+                "meta",
+            )
+        for comment in comments[:8]:
+            text = comment.get("text") if isinstance(comment, dict) else None
+            if not isinstance(text, str) or not text.strip():
+                continue
+            actor = comment.get("actor") or tr("Без имени")
+            stamp = local_stamp(comment.get("created_at"), True) or ""
+            reference = comment.get("reference")
+            if isinstance(reference, dict):
+                reference = " · ".join(
+                    str(reference[key])
+                    for key in ("kind", "scan_id", "id")
+                    if isinstance(reference.get(key), str) and reference[key].strip()
+                )
+            self._text(
+                " · ".join(
+                    part
+                    for part in (stamp, actor, str(reference or ""), text.strip())
+                    if part
+                )
+            )
+        if type(comment_total) is int and comment_total == 0:
+            self._text(tr("Комментариев пока нет."), "meta")
         self._section("Доказательства")
         if result is None:
             self._text(tr("Загрузка…"), "meta")
@@ -429,14 +597,158 @@ class TaskDetail(QFrame):
         for record in history[:8]:
             stamp = local_stamp(record.get("recorded_at"), True) or tr("Нет данных")
             self._text(
-                f"{stamp} · {record.get('status') or ''} · {record.get('reason') or ''}", "meta"
+                " · ".join(
+                    str(value)
+                    for value in (
+                        stamp,
+                        record.get("status"),
+                        record.get("actor"),
+                        record.get("reason"),
+                    )
+                    if value
+                ),
+                "meta",
             )
-        if history:
-            line = QHBoxLayout()
-            line.addWidget(waiting_badge(922))
-            line.addWidget(self._small("Кто выполнил действие (актор)"), 1)
-            self.body_layout.addLayout(line)
         self.body_layout.addStretch(1)
+
+    def _edit_task(self):
+        item = (self._result or {}).get("item") or {}
+        definition = item.get("definition")
+        if not isinstance(definition, dict):
+            return
+        metadata = item.get("task") or self._row.get("task") or {}
+        dialog = TaskEditDialog(definition, metadata, self)
+        if dialog.exec_() != QDialog.Accepted or dialog.result_item is None:
+            return
+        self.host.start_command(
+            "task-update",
+            "seo_project_checklist_update",
+            {
+                "directory": self.host.project_directory,
+                "item": dialog.result_item,
+                "expected_revision": self._result["revision"],
+            },
+            self._write_succeeded,
+        )
+
+    def _add_comment(self):
+        dialog = TaskCommentDialog(self)
+        if dialog.exec_() != QDialog.Accepted:
+            return
+        self.host.start_command(
+            "task-comment",
+            "seo_project_task_comment",
+            {
+                "directory": self.host.project_directory,
+                "item_id": self._row.get("id"),
+                "text": dialog.value,
+                "actor": "owner/desktop",
+                "expected_revision": self._result["revision"],
+            },
+            self._write_succeeded,
+        )
+
+    def _approve_manual_task(self):
+        if not self._row or not isinstance(self._result, dict):
+            return
+        dialog = ManualTaskSignoffDialog(self)
+        if dialog.exec_() != QDialog.Accepted:
+            return
+        try:
+            arguments, input_data = manual_signoff_request(
+                self.host.project_directory,
+                self._row.get("id"),
+                self._result.get("revision"),
+                dialog.reason_text,
+            )
+        except ValueError as exc:
+            self.host.statusBar().showMessage(str(exc))
+            return
+        self.approve_button.setEnabled(False)
+        project = self.host.project_directory
+        item_id = self._row.get("id")
+        self.owner_actions.submit(
+            self.host.core_executable,
+            arguments,
+            lambda result: self._signoff_succeeded(result, project, item_id),
+            lambda message: self._signoff_failed(message, project),
+            self,
+            stdin_data=input_data,
+        )
+
+    def _scan_task_competitors(self):
+        task = getattr(self, "_task", {})
+        competitors = task.get("competitors") if isinstance(task, dict) else None
+        if not competitors or not isinstance(self._result, dict):
+            return
+        dialog = ModalDialog(
+            "Сканировать конкурентов из задачи?",
+            "Каждый сайт должен быть в списке конкурентов проекта. Ядро применит лимиты URL "
+            "и сохранит результаты.",
+            icon="travel_explore",
+            tone="warning",
+            width=560,
+            parent=self,
+        )
+        for competitor in competitors:
+            if isinstance(competitor, dict):
+                url, cap = competitor.get("url"), competitor.get("max_urls")
+                if isinstance(url, str) and type(cap) is int:
+                    dialog.body.addWidget(QLabel(f"{url} · {number(cap)} URLs"))
+        dialog.add_button("Отмена", "text", on_click=dialog.reject)
+        dialog.add_button("Запустить сканы", "primary", icon="play_arrow", on_click=dialog.accept)
+        if dialog.exec_() != QDialog.Accepted:
+            return
+        self.scan_competitors_button.setEnabled(False)
+        self.host.start_command(
+            "competitors-scan",
+            "seo_project_competitors_scan",
+            {
+                "directory": self.host.project_directory,
+                "task_id": self._row.get("id"),
+                "expected_revision": self._result["revision"],
+                "confirm": True,
+                "concurrency": 3,
+                "approve_large_crawl": False,
+            },
+            self._competitors_scanned,
+        )
+
+    def _competitors_scanned(self, result):
+        if not isinstance(result, dict) or result.get("ok") is False:
+            return
+        rows = result.get("results") if isinstance(result.get("results"), list) else []
+        done = sum(row.get("state") in {"completed", "finished"} for row in rows if isinstance(row, dict))
+        self.host.statusBar().showMessage(
+            trf("Сканы конкурентов завершены: {done} из {total}.", done=done, total=len(rows))
+        )
+        self.host.refresh_project()
+        item_id = self._row.get("id") if self._row else None
+        if isinstance(item_id, str):
+            self.host.select_project_task(item_id)
+
+    def _signoff_succeeded(self, _result, project, item_id):
+        if self.host.project_directory != project:
+            return
+        self.host.statusBar().showMessage(tr("Владелец подтвердил выполнение задачи."))
+        self.host.refresh_project()
+        if isinstance(item_id, str):
+            self.host.select_project_task(item_id)
+
+    def _signoff_failed(self, text, project):
+        if self.host.project_directory != project:
+            return
+        self.approve_button.setEnabled(True)
+        self.host.statusBar().showMessage(text)
+
+    def _write_succeeded(self, result):
+        if not isinstance(result, dict) or result.get("ok") is False:
+            return
+        item_id = self._row.get("id")
+        self.host.statusBar().showMessage(tr("Задача обновлена в проекте"))
+        self.host.refresh_project()
+        if isinstance(item_id, str):
+            self.host.select_project_task(item_id)
 
     def _small(self, text):
         label = QLabel(tr(text))
@@ -445,9 +757,213 @@ class TaskDetail(QFrame):
         return label
 
 
+class TaskEditDialog(ModalDialog):
+    """Explicit editor for the optional task metadata stored by the project core."""
+
+    def __init__(self, definition, metadata, parent=None):
+        super().__init__("Редактировать задачу", icon="edit", width=600, parent=parent)
+        metadata = metadata if isinstance(metadata, dict) else {}
+        self.resize(600, 440)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        content = QWidget()
+        content_layout = QVBoxLayout(content)
+        form = QFormLayout()
+        self.title_edit = QLineEdit(definition.get("title") or "")
+        self.assignee = QLineEdit(metadata.get("assignee") or metadata.get("executor") or "")
+        self.description = QPlainTextEdit(metadata.get("description") or "")
+        self.description.setMaximumHeight(64)
+        self.acceptance = QPlainTextEdit(metadata.get("acceptance_criterion") or "")
+        self.acceptance.setMaximumHeight(64)
+        finding = metadata.get("finding_ref") or {}
+        self.finding_scan = QLineEdit(
+            finding.get("scan_id", "") if isinstance(finding, dict) else ""
+        )
+        self.finding_id = QLineEdit(
+            finding.get("finding_id", "") if isinstance(finding, dict) else ""
+        )
+        self.method_ref = QLineEdit(metadata.get("method_ref") or "")
+        form.addRow(tr("Название задачи"), self.title_edit)
+        form.addRow(tr("Исполнитель"), self.assignee)
+        form.addRow(tr("Описание"), self.description)
+        form.addRow(tr("Критерий приёмки"), self.acceptance)
+        form.addRow(tr("ID скана для находки"), self.finding_scan)
+        form.addRow(tr("ID находки"), self.finding_id)
+        form.addRow(tr("Ссылка на метод"), self.method_ref)
+        content_layout.addLayout(form)
+        content_layout.addWidget(QLabel(tr("Лимиты конкурентов в задаче")))
+        self.competitors = QTableWidget(0, 2)
+        self.competitors.setHorizontalHeaderLabels(
+            (tr("URL конкурента"), tr("Лимит URL"))
+        )
+        self.competitors.horizontalHeader().setStretchLastSection(True)
+        self.competitors.setMaximumHeight(120)
+        content_layout.addWidget(self.competitors)
+        actions = QHBoxLayout()
+        self.add_competitor = QPushButton(tr("Добавить строку"))
+        self.remove_competitor = QPushButton(tr("Удалить строку"))
+        self.add_competitor.clicked.connect(self._add_competitor)
+        self.remove_competitor.clicked.connect(self._remove_competitor)
+        actions.addWidget(self.add_competitor)
+        actions.addWidget(self.remove_competitor)
+        actions.addStretch(1)
+        content_layout.addLayout(actions)
+        scroll.setWidget(content)
+        self.body.addWidget(scroll, 1)
+        self.error = QLabel()
+        self.error.setProperty("text_style", "error")
+        self.error.setWordWrap(True)
+        self.body.addWidget(self.error)
+        self.add_button("Отмена", "text", on_click=self.reject)
+        self.add_button(
+            "Сохранить", "primary", icon="save", on_click=self._accept
+        )
+        for competitor in metadata.get("competitors") or []:
+            if isinstance(competitor, dict):
+                self._add_competitor(competitor.get("url", ""), competitor.get("max_urls", 500))
+        self.definition = deepcopy(definition)
+        self.result_item = None
+
+    def _add_competitor(self, url="", cap=500):
+        if self.competitors.rowCount() >= 20:
+            self.error.setText(tr("Можно добавить не более 20 конкурентов."))
+            return
+        row = self.competitors.rowCount()
+        self.competitors.insertRow(row)
+        self.competitors.setItem(row, 0, QTableWidgetItem(str(url or "")))
+        self.competitors.setItem(row, 1, QTableWidgetItem(str(cap or 500)))
+
+    def _remove_competitor(self):
+        row = self.competitors.currentRow()
+        if row >= 0:
+            self.competitors.removeRow(row)
+
+    def _accept(self):
+        title = self.title_edit.text().strip()
+        if not title:
+            self.error.setText(tr("Укажите название задачи."))
+            return
+        scan_id, finding_id = self.finding_scan.text().strip(), self.finding_id.text().strip()
+        if bool(scan_id) != bool(finding_id):
+            self.error.setText(tr("Для ссылки на находку заполните оба ID или очистите оба."))
+            return
+        competitors = []
+        for row in range(self.competitors.rowCount()):
+            url_item, cap_item = self.competitors.item(row, 0), self.competitors.item(row, 1)
+            url = url_item.text().strip() if url_item else ""
+            cap_text = cap_item.text().strip() if cap_item else ""
+            if not url and cap_text in ("", "500"):
+                continue
+            try:
+                cap = int(cap_text)
+            except ValueError:
+                self.error.setText(tr("Лимит URL должен быть целым числом от 1 до 1 000 000."))
+                return
+            if not url.startswith(("http://", "https://")) or not 1 <= cap <= 1_000_000:
+                self.error.setText(tr("Укажите полный HTTP(S) URL и лимит от 1 до 1 000 000."))
+                return
+            competitors.append({"url": url, "max_urls": cap})
+        if len(competitors) > 20:
+            self.error.setText(tr("Можно добавить не более 20 конкурентов."))
+            return
+        self.result_item = deepcopy(self.definition)
+        self.result_item["title"] = title
+        for key, value in (
+            ("assignee", self.assignee.text().strip() or None),
+            ("description", self.description.toPlainText().strip() or None),
+            ("acceptance_criterion", self.acceptance.toPlainText().strip() or None),
+            ("finding_ref", {"scan_id": scan_id, "finding_id": finding_id} if scan_id else None),
+            ("method_ref", self.method_ref.text().strip() or None),
+            ("competitors", competitors),
+        ):
+            self.result_item[key] = value
+        self.accept()
+
+
+class TaskCommentDialog(ModalDialog):
+    def __init__(self, parent=None):
+        super().__init__(
+            "Добавить комментарий к задаче", icon="comment", width=560, parent=parent
+        )
+        self.resize(560, 340)
+        self.text = QPlainTextEdit()
+        self.text.setPlaceholderText(tr("Комментарий останется в истории задачи."))
+        self.text.setMinimumHeight(120)
+        self.body.addWidget(self.text)
+        self.add_button("Отмена", "text", on_click=self.reject)
+        self.save_button = self.add_button(
+            "Сохранить", "primary", icon="save", on_click=self._accept
+        )
+        self.save_button.setEnabled(False)
+        self.text.textChanged.connect(
+            lambda: self.save_button.setEnabled(bool(self.text.toPlainText().strip()))
+        )
+
+    def _accept(self):
+        self.value = self.text.toPlainText().strip()
+        if self.value:
+            self.accept()
+
+
+class TaskAttemptDialog(ModalDialog):
+    def __init__(self, parent=None):
+        super().__init__(
+            "Записать попытку задачи", icon="history", width=560, parent=parent
+        )
+        self.resize(560, 330)
+        self.text = QPlainTextEdit()
+        self.text.setPlaceholderText(tr("Кратко опишите попытку"))
+        self.text.setMinimumHeight(120)
+        self.body.addWidget(self.text)
+        self.save_button = self.add_button(
+            "Записать попытку", "primary", icon="save", on_click=self._accept
+        )
+        self.add_button("Отмена", "text", on_click=self.reject)
+        self.save_button.setEnabled(False)
+        self.text.textChanged.connect(
+            lambda: self.save_button.setEnabled(bool(self.text.toPlainText().strip()))
+        )
+
+    def _accept(self):
+        self.reason = self.text.toPlainText().strip()
+        if self.reason:
+            self.accept()
+
+
+class ManualTaskSignoffDialog(ModalDialog):
+    def __init__(self, parent=None):
+        super().__init__(
+            "Подтвердить выполнение вручную?",
+            "Это явное подтверждение владельца после проверки результата.",
+            icon="verified",
+            tone="warning",
+            width=560,
+            parent=parent,
+        )
+        self.resize(560, 360)
+        self.reason = QPlainTextEdit()
+        self.reason.setPlaceholderText(tr("Опишите, что проверено владельцем."))
+        self.reason.setMinimumHeight(110)
+        self.body.addWidget(self.reason)
+        self.add_button("Отмена", "text", on_click=self.reject)
+        self.confirm = self.add_button(
+            "Подтвердить выполнение", "primary", icon="verified", on_click=self._accept
+        )
+        self.confirm.setEnabled(False)
+        self.reason.textChanged.connect(
+            lambda: self.confirm.setEnabled(bool(self.reason.toPlainText().strip()))
+        )
+
+    def _accept(self):
+        self.reason_text = self.reason.toPlainText().strip()
+        if self.reason_text:
+            self.accept()
+
+
 class WorkScreen(Screen):
     slot = "work"
-    watches = ("project", "tasks", "observer", "progress", "scans", "inbox")
+    watches = ("project", "tasks", "observer", "progress", "scans", "inbox", "mcp")
 
     def __init__(self, host):
         super().__init__(host)
@@ -599,6 +1115,14 @@ class WorkScreen(Screen):
         )
         self.view_switch.changed.connect(self._set_view)
         bar.addWidget(self.view_switch)
+        self.add_task_button = QToolButton()
+        self.add_task_button.setProperty("role", "icon")
+        self.add_task_button.setIcon(material_icon("add"))
+        self.add_task_button.setEnabled(False)
+        self.add_task_button.setToolTip(tr("Добавить пользовательскую задачу"))
+        self.add_task_button.setAccessibleName(tr("Добавить пользовательскую задачу"))
+        self.add_task_button.clicked.connect(self._new_custom_task)
+        bar.addWidget(self.add_task_button)
         self.filter_switch = Segmented(
             [("open", tr("Открытые")), ("all", tr("Все"))], "open", tr("Фильтр задач")
         )
@@ -636,6 +1160,15 @@ class WorkScreen(Screen):
         self.task_board = TaskBoard()
         self.task_board.card_picked.connect(self._board_pick)
         self.task_views.addWidget(self.task_board)
+        self.search = QLineEdit()
+        self.search.setPlaceholderText(tr("Найти задачу по названию, ID или причине"))
+        self.search.setAccessibleName(tr("Поиск задач"))
+        self.search.setClearButtonEnabled(True)
+        self.search.addAction(
+            material_icon("search", "role:text_muted"), QLineEdit.LeadingPosition
+        )
+        self.search.textChanged.connect(lambda _text: self._fill_tasks())
+        tasks_layout.addWidget(self.search)
         tasks_layout.addWidget(self.task_views, 1)
         self.limits = QLabel()
         self.limits.setProperty("text_style", "meta")
@@ -675,20 +1208,83 @@ class WorkScreen(Screen):
         if not index.isValid():
             return
         self.task_table.selectRow(index.row())
+        row = self.tasks.rows[index.row()]
         menu = QMenu(self.task_table)
-        menu.addSection(tr("Состояние"))
-        fill_menu(
-            menu,
-            [
-                unavailable("rate_review", "На проверке"),
-                unavailable("check_circle", "Выполнено"),
-                entry("verified", "Подтверждено", None, "", False, "Только перепроверкой"),
-                None,
-                unavailable("person_add", "Назначить исполнителя"),
-                unavailable("replay", "Перепроверить URL задачи"),
-            ],
+        menu.addSection(tr("Записать попытку"))
+        for status, label, icon in (
+            ("running", "Отметить как выполняемую", "progress_activity"),
+            ("failed", "Записать неудачную попытку", "error"),
+            ("unavailable", "Записать недоступность", "block"),
+        ):
+            action = menu.addAction(material_icon(icon), tr(label))
+            tools = getattr(self.host, "_mcp_tools", None)
+            action.setEnabled(tools is None or "seo_project_checklist_record" in tools)
+            action.triggered.connect(
+                lambda _checked=False, s=status, r=row: self._record_task(r, s)
+            )
+        menu.addSeparator()
+        blocked = menu.addAction(
+            material_icon("verified"), tr("Подтвердить выполнение")
         )
+        can_sign_off = (
+            not self.detail.approve_button.isHidden()
+            and (self.detail._row or {}).get("id") == row.get("id")
+        )
+        blocked.setEnabled(can_sign_off)
+        if can_sign_off:
+            blocked.triggered.connect(self.detail._approve_manual_task)
+        else:
+            blocked.setToolTip(tr("Только ручные задачи со статусом «На проверке»"))
         menu.exec_(self.task_table.viewport().mapToGlobal(point))
+
+    def _record_task(self, row, status):
+        if status not in {"running", "failed", "unavailable"}:
+            return
+        detail = self.host.task_detail_result
+        item = (detail or {}).get("item") or {}
+        if item.get("id") != row.get("id") or type((detail or {}).get("revision")) is not int:
+            self.host.statusBar().showMessage(
+                tr("Сначала загрузите актуальные детали задачи.")
+            )
+            return
+        dialog = TaskAttemptDialog(self)
+        if dialog.exec_() != QDialog.Accepted:
+            return
+        self.host.start_command(
+            "task-record",
+            "seo_project_checklist_record",
+            {
+                "directory": self.host.project_directory,
+                "item_id": row.get("id"),
+                "record": {
+                    "status": status,
+                    "reason": dialog.reason,
+                    "actor": "owner/desktop",
+                },
+                "expected_revision": detail["revision"],
+            },
+            self._task_recorded,
+        )
+
+    def _task_recorded(self, result):
+        if not isinstance(result, dict) or result.get("ok") is False:
+            return
+        item_id = self.selected_id
+        self.host.statusBar().showMessage(tr("Попытка записана в историю задачи."))
+        self.host.refresh_project()
+        if isinstance(item_id, str):
+            self.host.select_project_task(item_id)
+
+    def _sync_task_actions(self):
+        tools = getattr(self.host, "_mcp_tools", None)
+        available = tools is None or "seo_project_checklist_update" in tools
+        self.add_task_button.setEnabled(
+            bool(self.host.project_directory)
+            and getattr(self.host, "task_total", None) is not None
+            and type(getattr(self.host, "task_revision", None)) is int
+            and bool(self.host.core_executable)
+            and available
+        )
 
     def _set_view(self, value):
         """«Список» (table with the open/all filter) or «Доска» (four columns of every loaded task)."""
@@ -696,8 +1292,45 @@ class WorkScreen(Screen):
         self.task_views.setCurrentIndex(1 if board else 0)
         self.filter_switch.setVisible(self.pages.currentIndex() == 0 and not board)
         self.view_switch.setVisible(self.pages.currentIndex() == 0)
+        self.search.setVisible(self.pages.currentIndex() == 0)
+        self.add_task_button.setVisible(self.pages.currentIndex() == 0)
         if board:
-            self.task_board.set_rows(self.all_rows)
+            self.task_board.set_rows(self._filtered_rows())
+
+    def _new_custom_task(self):
+        if not self.add_task_button.isEnabled():
+            self.host.statusBar().showMessage(
+                tr("Откройте проект с поддержкой обновления задач.")
+            )
+            return
+        definition = {
+            "id": f"custom:task-{uuid4().hex[:12]}",
+            "title": "",
+            "kind": "custom",
+            "execution_kind": "manual",
+            "enabled": True,
+        }
+        dialog = TaskEditDialog(definition, {}, self)
+        if dialog.exec_() != QDialog.Accepted or dialog.result_item is None:
+            return
+        item_id = dialog.result_item["id"]
+        self.host.start_command(
+            "task-update",
+            "seo_project_checklist_update",
+            {
+                "directory": self.host.project_directory,
+                "item": dialog.result_item,
+                "expected_revision": self.host.task_revision,
+            },
+            lambda result: self._custom_task_created(result, item_id),
+        )
+
+    def _custom_task_created(self, result, item_id):
+        if not isinstance(result, dict) or result.get("ok") is False:
+            return
+        self.host.statusBar().showMessage(tr("Задача добавлена в проект."))
+        self.host.refresh_project()
+        self.host.select_project_task(item_id)
 
     def _board_pick(self, item_id):
         """A card opens its task in the list: the open/all filter widens if the task is closed."""
@@ -723,7 +1356,7 @@ class WorkScreen(Screen):
         self._fill_detail()
 
     def _fill_tasks(self):
-        rows = [r for r in self.all_rows if self.filter == "all" or is_open(r)]
+        rows = [r for r in self._filtered_rows() if self.filter == "all" or is_open(r)]
         self.tasks.set_rows(rows)
         index = next((i for i, r in enumerate(rows) if r.get("id") == self.selected_id), None)
         if index is None and rows:
@@ -735,6 +1368,21 @@ class WorkScreen(Screen):
         else:
             self.selected_id = None
         self._fill_detail()
+        if self.view_switch.value() == "board":
+            self.task_board.set_rows(self._filtered_rows())
+
+    def _filtered_rows(self):
+        query = self.search.text().strip().casefold()
+        if not query:
+            return list(self.all_rows)
+        return [
+            row
+            for row in self.all_rows
+            if query
+            in " ".join(
+                str(row.get(key) or "") for key in ("title", "id", "reason", "priority", "kind")
+            ).casefold()
+        ]
 
     def _fill_detail(self):
         host = self.host
@@ -788,6 +1436,7 @@ class WorkScreen(Screen):
 
     def refresh(self):
         host = self.host
+        self.add_task_button.setEnabled(False)
         status, _text = project_state(host)
         if status == "none":
             show_empty(
@@ -823,11 +1472,11 @@ class WorkScreen(Screen):
         self.tabs.setTabText(0, trf("Задачи · {n}", n=number(total) if total is not None else "—"))
         self.tabs.setTabText(1, trf("Запуски · {n}", n=len(self.runs.rows)))
         self.tabs.setTabText(2, tr("Активность"))
-        shown = len(self.all_rows)
         self.limits.setText(
             trf(
-                "Показано {shown} из {total}. Исполнитель, описание, комментарии и «следующий шаг» недоступны в этой версии ядра.",
-                shown=shown,
+                "Показано {shown} задач из {total} после фильтрации. "
+                "Используйте поиск, чтобы найти задачу.",
+                shown=len(self._filtered_rows()),
                 total=number(total) if total is not None else "—",
             )
         )
