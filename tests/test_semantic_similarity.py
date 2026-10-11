@@ -72,6 +72,21 @@ def test_missing_adapter_is_unavailable_and_never_invents_a_lexical_score(tmp_pa
     assert result["groups"] == []
 
 
+@pytest.mark.parametrize("authorization", [False, "false", "true", 1, None])
+def test_provider_authorization_requires_literal_true(tmp_path, authorization):
+    adapter = ProviderEmbeddingAdapter(
+        "fixture",
+        "fixture",
+        "1",
+        lambda texts: pytest.fail("unauthorized embed call"),
+        allow_external=authorization,
+    )
+    with pytest.raises(PermissionError, match="not explicitly authorized"):
+        analyze_semantic_documents(_documents(), adapter, EmbeddingCache(tmp_path / "cache.sqlite"))
+    with pytest.raises(PermissionError, match="not explicitly authorized"):
+        adapter.embed(["private retained text"])
+
+
 def test_provider_is_opt_in_before_any_embed_call(tmp_path):
     adapter = ProviderEmbeddingAdapter(
         "fixture", "fixture", "1", lambda texts: (_ for _ in ()).throw(AssertionError("called"))

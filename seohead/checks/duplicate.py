@@ -72,8 +72,8 @@ _FNV_OFFSET = 0xCBF29CE484222325
 _FNV_PRIME = 0x100000001B3
 _MASK64 = (1 << 64) - 1
 
-# LSH uses 16 bands of 4 bits each. A match in one 4-bit band creates a
-# candidate pair, balancing recall against the number of false candidates.
+# The helper's original split remains a default for direct callers;
+# find_duplicates selects narrower, threshold-adaptive bands below.
 _BANDS = 16
 _BAND_BITS = 4
 _DEFAULT_THRESHOLD = 0.92  # 1 - 5/64 ~= 0.922; lower similarity is not a match

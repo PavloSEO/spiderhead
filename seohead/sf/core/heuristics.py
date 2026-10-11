@@ -290,8 +290,8 @@ def _match_html_file(index: dict[str, str], url: str) -> str | None:
 
 
 # --------------------------------------------------------------------------
-# Near-duplicate content — only when SF stored the HTML and did not already
-# compute this itself (issue #15, item 3)
+# Near-duplicate content — retained native document or SF stored HTML when
+# the export did not already compute this itself (issue #15, item 3)
 # --------------------------------------------------------------------------
 def check_content_duplication(ctx: AuditContext) -> None:
     """NEAR_DUPLICATE / DUPLICATE_BY_HASH computed from stored page text.
@@ -300,8 +300,8 @@ def check_content_duplication(ctx: AuditContext) -> None:
     byte, shingle and comparison budgets. Screaming Frog's own
     Near Duplicates/Hash columns already answer this when the crawl exported
     them (``check_content``/``check_duplicates`` in rules.py); this only fills
-    whichever half is missing, reusing the same ``input.html_store_dir`` HTML
-    store ``check_dom`` reads, scoped to the configured content area so a
+    whichever half is missing, reusing the selected retained native document
+    or ``input.html_store_dir`` that ``check_dom`` reads, scoped to the content area so a
     shared nav/footer does not make every page look alike, and delegating the
     actual clustering to :func:`seohead.checks.duplicate.find_duplicates`
     (SimHash + LSH), which excludes exact-duplicate pairs from the near-dup

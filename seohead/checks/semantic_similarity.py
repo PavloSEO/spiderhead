@@ -95,7 +95,7 @@ class ProviderEmbeddingAdapter:
         }
 
     def embed(self, texts: Sequence[str]) -> Sequence[Sequence[float]]:
-        if not self.allow_external:
+        if self.allow_external is not True:
             raise PermissionError("external semantic provider is not explicitly authorized")
         return self.embedder(texts)
 
@@ -134,7 +134,7 @@ def adapter_identity(adapter: EmbeddingAdapter) -> dict[str, Any]:
         raise ValueError(
             f"{declared['kind']} adapter must declare data_transfer={expected_transfer!r}"
         )
-    if declared["kind"] == "provider" and not declared.get("external_authorized", False):
+    if declared["kind"] == "provider" and declared.get("external_authorized") is not True:
         raise PermissionError("external semantic provider is not explicitly authorized")
     # Keep cache/report identity reproducible without leaking local model paths,
     # credential references or arbitrary adapter implementation fields.
