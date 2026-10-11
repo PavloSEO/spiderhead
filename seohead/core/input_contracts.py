@@ -972,7 +972,11 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         _form("project_directory", "directory"),
         _form("selector", "action", note="status, start, prepare, or report."),
         _form("live_url", "target", note="Required only for action=start."),
-        _form("audit_document", "audit", note="Required only for action=report."),
+        _form(
+            "audit_document",
+            "audit",
+            note="Optional for action=report; omitted, the project's latest complete audited scan is used.",
+        ),
     ),
     _command("workflow-status", "workflow_status", _form("project_directory", "directory")),
     _command(

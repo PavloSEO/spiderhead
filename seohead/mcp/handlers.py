@@ -5329,6 +5329,7 @@ def project_prepare(
     competitors: list | None = None,
     approve_large_crawl: bool = False,
     producer_build: str | None = None,
+    max_urls: int | None = None,
 ) -> dict[str, Any]:
     from seohead.projects.runtime import prepare_project
 
@@ -5339,6 +5340,7 @@ def project_prepare(
         competitors=competitors,
         approve_large_crawl=approve_large_crawl,
         producer_build=producer_build,
+        max_urls=max_urls,
     )
 
 
@@ -6007,6 +6009,7 @@ def audit_workflow(
     fmt: str = "md",
     out: str | None = None,
     approve_large_crawl: bool = False,
+    max_urls: int | None = None,
 ) -> dict[str, Any]:
     """Expose a closed project workflow rather than an unrestricted action dispatcher."""
     if action == "status":
@@ -6027,9 +6030,13 @@ def audit_workflow(
             template=template,
             competitors=competitors,
             approve_large_crawl=approve_large_crawl,
+            max_urls=max_urls,
         )
     if action == "report":
-        return report_build(audit=audit, fmt=fmt, out=out, project=directory)
+        from seohead.projects.runtime import latest_project_scan
+
+        source = audit if audit is not None else str(latest_project_scan(directory))
+        return report_build(audit=source, fmt=fmt, out=out, project=directory)
     raise ValueError("action must be status, start, prepare, or report")
 
 

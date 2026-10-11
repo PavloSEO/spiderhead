@@ -2455,11 +2455,14 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         approve_large_crawl: bool = False,
         producer_build: str | None = None,
         consumer: str | None = None,
+        max_urls: int | None = None,
     ) -> dict[str, Any]:
         """Prepare an existing project with a bounded native crawl and saved sitemap coverage.
 
-        Competitors must be supplied candidates with provenance; absent sources stay pending.
-        All site checklists remain separate. Paid provider calls are never hidden in preparation.
+        Reuses the latest suitable saved scan when one answers the request. ``max_urls`` sets the
+        owner's URL cap for a new crawl. Competitors must be supplied candidates with provenance;
+        absent sources stay pending. All site checklists remain separate. Paid provider calls are
+        never hidden in preparation.
         """
         return _checked(
             with_project_notice(
@@ -2469,6 +2472,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                     competitors=competitors,
                     approve_large_crawl=approve_large_crawl,
                     producer_build=producer_build,
+                    max_urls=max_urls,
                 ),
                 directory,
                 consumer,
@@ -2906,8 +2910,12 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         fmt: str = "md",
         out: str | None = None,
         approve_large_crawl: bool = False,
+        max_urls: int | None = None,
     ) -> dict[str, Any]:
-        """Use a closed project workflow: status, bounded start/prepare, or an evidence-backed report."""
+        """Use a closed project workflow: status, bounded start/prepare, or an evidence-backed report.
+
+        A report without ``audit`` is built from the project's latest complete audited scan.
+        """
         return _checked(
             handlers.audit_workflow(
                 directory=directory,
@@ -2919,6 +2927,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 fmt=fmt,
                 out=out,
                 approve_large_crawl=approve_large_crawl,
+                max_urls=max_urls,
             )
         )
 
