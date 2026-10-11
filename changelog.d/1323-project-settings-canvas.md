@@ -1,5 +1,3 @@
-### Desktop
-
 - Rebuild Project settings Schedule and Crawl with shared native canvas components, offline Roboto fonts and Material Symbols, and a single-column layout at 800 px.
 - Use English throughout the application interface, retain existing schedule command and document contracts, and display only core-backed scheduling data.
 - Preserve workspace identities and aliases while Project settings is open; prevent duplicate saves while the core is responding.
