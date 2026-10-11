@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from seohead.cli import main as cli_main
 from seohead.crawl.settings import fingerprint, load
@@ -47,7 +47,7 @@ def _streamed_scan(path, *, cap=500, stopped=False):
         header, collections = result.audit_v2_parts()
         scan.save_audit_v2(header, collections)
         assert scan.finish_capture("finished")
-    finished_at = (datetime.now(UTC) - timedelta(days=1)).isoformat()
+    finished_at = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
     with sqlite3.connect(path) as con:
         con.execute("UPDATE scan SET finished_at=?", (finished_at,))
 
