@@ -202,19 +202,26 @@ CATEGORIES: dict[str, list[Entry]] = {
             "never a substring of the whole document, so a page merely mentioning it once "
             "outside the content area is not flagged",
         ),
-        _p(
+        _c(
             "Near Duplicates",
-            'an SF export\'s native "No. Near Duplicates" column is read directly and answers '
-            "this fully; the SimHash-based fallback that answers it without one needs HTML "
-            "stored to disk (input.html_store_dir), which a native `crawl-site` run never "
-            "writes, so that run always skips this one by name instead",
             "NEAR_DUPLICATE",
+            note="SF native columns or bounded SimHash/LSH over content-area text from "
+            "the native scan's selected retained document or input.html_store_dir; "
+            "missing bodies and exhausted analysis budgets are explicit omissions",
         ),
         _g(
             "Semantically Similar",
-            "needs an embedding adapter; the semantic-similarity command and MCP tool take caller-supplied vectors or a local adapter, but no adapter ships and the SF run does not call it yet, so the row stays open. simhash finds near-duplicates by shingles, not by meaning",
+            "SF-run now invokes adapter-measured semantic candidates only when an explicit "
+            "local adapter or declared caller-supplied vectors are selected. No adapter ships; "
+            "the default is explicitly unavailable and the row stays a gap until an adapter "
+            "is chosen and validated. SimHash compares shingles, not meaning",
         ),
-        _g("Low Relevance Content", "needs a query or a topic model to be relevant to"),
+        _g(
+            "Low Relevance Content",
+            "an explicit embedding adapter can compare title and H1 against normalized retained "
+            "body text as review candidates. This does not establish query relevance; no model "
+            "is selected by default, so the row stays a gap pending an adapter decision",
+        ),
         _c("Low Content Pages", "THIN_CONTENT", "LOW_TEXT_RATIO"),
         _c("Readability Difficult", "READABILITY_DIFFICULT", "LONG_SENTENCES"),
         _c("Readability Very Difficult", "READABILITY_DIFFICULT"),
@@ -421,13 +428,12 @@ CATEGORIES: dict[str, list[Entry]] = {
         _o("Reduce Unused JavaScript", "needs coverage instrumentation from a real render"),
         _o("Reduce JavaScript Execution Time", "needs a CPU profile"),
         _o("Minimize Main-Thread Work", "needs a CPU profile"),
-        _p(
+        _c(
             "Optimize DOM Size",
-            "needs HTML stored to disk (input.html_store_dir) to measure; a Screaming Frog "
-            "export configured to store HTML supplies it, but a native `crawl-site` run never "
-            "writes one, so that run always skips both by name instead",
             "DOM_TOO_MANY_NODES",
             "DOM_TOO_DEEP",
+            note="reads the selected retained native document or SF stored HTML; "
+            "unretained, over-budget and invalid bodies are reported with their true reason",
         ),
         _t("Font Display", "asset-weight-check"),
     ],

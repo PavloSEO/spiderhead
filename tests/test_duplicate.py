@@ -2,6 +2,8 @@
 
 import random
 
+import pytest
+
 from seohead.checks import duplicate as D
 
 TEXT_A = (
@@ -19,6 +21,45 @@ TEXT_B = (
     "The recipe is simple and quick enough even for a beginner cook."
 )
 TEXT_C = "Company contact information: telephone number and email address."
+
+
+@pytest.mark.parametrize(
+    "threshold,distance", [(0.92, 5), (0.8, 12), (0.5, 32), (1.0, 0), (0.0, 64)]
+)
+def test_threshold_adaptive_bands_retain_every_qualifying_pair(monkeypatch, threshold, distance):
+    rng = random.Random(1307)
+    for _ in range(30):
+        left = rng.getrandbits(64)
+        right = left
+        for bit in rng.sample(range(64), distance):
+            right ^= 1 << bit
+        values = iter((left, right))
+        monkeypatch.setattr(D, "_weighted_simhash", lambda *args, values=values: next(values))
+        result = D.find_duplicates(
+            [
+                {"id": "a", "text": "alpha distinct text"},
+                {"id": "b", "text": "beta distinct text"},
+            ],
+            threshold=threshold,
+        )
+        assert result["clusters"][0]["members"] == ["a", "b"]
+
+
+def test_adaptive_bands_keep_thousand_fingerprints_within_finite_work_budget(monkeypatch):
+    rng = random.Random(1307)
+    values = iter(rng.getrandbits(64) for _ in range(1000))
+    monkeypatch.setattr(D, "_weighted_simhash", lambda *args: next(values))
+    result = D.find_duplicates(
+        [{"id": str(i), "text": f"synthetic unique document {i}"} for i in range(1000)],
+        max_candidate_comparisons=250000,
+    )
+    assert result["count"] == 1000 and not result["clusters"]
+
+
+@pytest.mark.parametrize("threshold", [-0.1, 1.1, float("nan"), float("inf")])
+def test_invalid_duplicate_threshold_is_rejected(threshold):
+    with pytest.raises(ValueError, match="threshold"):
+        D.find_duplicates([], threshold=threshold)
 
 
 def test_simhash_identical_texts_match():

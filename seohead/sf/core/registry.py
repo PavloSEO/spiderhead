@@ -332,6 +332,24 @@ CHECKS: dict[str, dict[str, Any]] = {
         "message": "Near-duplicate content",
         "fix": "Differentiate the pages with substantive content or consolidate them into one canonical page.",
     },
+    "SEMANTIC_SIMILARITY_CANDIDATE": {
+        "severity": "notice",
+        "source": "heuristic:explicit_embedding_adapter",
+        "message": "Pages have adapter-measured topical similarity; review candidate",
+        "fix": "Review intent and useful internal linking. Semantic similarity alone does not prove duplicate content or cannibalization.",
+    },
+    "TITLE_LOW_SEMANTIC_RELEVANCE": {
+        "severity": "notice",
+        "source": "heuristic:explicit_embedding_adapter",
+        "message": "Title has low adapter-measured similarity to the page content; review candidate",
+        "fix": "Review whether the title describes the page's actual content and intent; the model score alone is not proof of irrelevance.",
+    },
+    "H1_LOW_SEMANTIC_RELEVANCE": {
+        "severity": "notice",
+        "source": "heuristic:explicit_embedding_adapter",
+        "message": "H1 has low adapter-measured similarity to the page content; review candidate",
+        "fix": "Review whether the heading describes the page's actual content and intent; the model score alone is not proof of irrelevance.",
+    },
     "LOREM_IPSUM_PLACEHOLDER": {
         "severity": "warning",
         "source": "crawl:lorem_ipsum_count",

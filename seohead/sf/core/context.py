@@ -737,6 +737,11 @@ class AuditContext:
         # need crawl-only evidence, such as resource_graph_fetches, read it and
         # skip honestly when it is absent (export audits leave it None).
         self.scan_con: Any = None
+        # Embedding models are selected explicitly by a core caller; export
+        # configuration can instead supply a declared adapter and vectors.
+        self.semantic_adapter: Any = None
+        self.semantic_cache: Any = None
+        self.semantic_evidence: dict[str, Any] = {}
         self._html_pages: list[Page] | None = None
         self._indexable_html_pages: list[Page] | None = None
         self._build_pages(disk_backed_pages=disk_backed_pages)

@@ -1469,6 +1469,7 @@ def _audit_crawl_result(
 
     audit_config = load_config(None)
     audit_config["finding_exclusions"] = settings.get("analysis", {}).get("finding_exclusions", [])
+    audit_config["content_area"] = settings.get("evidence", {}).get("content_area", {})
     validate_config(audit_config)
     from seohead.sf.core.aggregate import aggregate
     from seohead.sf.core.context import AuditContext
@@ -1703,14 +1704,10 @@ def _audit_crawl_result(
     else:
         run_inlinks(ctx)
         run_eeat(ctx)
-    # Same gap, two more modules (issue #165): DOM size, HTML weight, templated
-    # titles and the near-duplicate/exact-duplicate heuristic fallback all live in
-    # heuristics.py and were never reached from a crawl either. DOM depth/nodes and
-    # the near-duplicate fallback need HTML stored to disk (``input.html_store_dir``),
-    # which a native crawl never writes -- they land on their own existing "no
-    # stored HTML" skip branch rather than gaining new evidence here. HTML weight
-    # and templated-title detection need only Size (bytes), Word Count and Title,
-    # which build_evidence already puts on every page, so those genuinely fire.
+    # Native DOM and content comparisons read each page's selected retained
+    # document through ctx.scan_con. The legacy non-stored route has no bodies
+    # and reports its real unavailable reason. Weight/title checks use the
+    # scalar evidence already supplied by build_evidence.
     run_heuristics(ctx)
 
     # ``run_sitemap`` covers the sitemap-protocol and robots.txt checks that need a

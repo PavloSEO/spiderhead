@@ -235,6 +235,21 @@ def read_document(con: sqlite3.Connection, document_id: int, *, max_decoded_byte
     return text
 
 
+def read_page_document(con: sqlite3.Connection, url: str, *, max_decoded_bytes: int) -> str:
+    """Read the page's selected document by exact URL, preserving response lineage.
+
+    URL normalization is deliberately forbidden here: slash and query variants
+    can select different captured bodies. ``read_document`` verifies the
+    document-to-response-to-body hash join and its declared retention state.
+    """
+    row = con.execute(
+        "SELECT p.document_id FROM pages p JOIN urls u USING(url_id) WHERE u.url=?", (url,)
+    ).fetchone()
+    if row is None or row[0] is None:
+        raise ScanError("document unavailable: not_in_corpus")
+    return read_document(con, row[0], max_decoded_bytes=max_decoded_bytes)
+
+
 MAX_WINDOW_CHARS = 64 * 1024
 
 

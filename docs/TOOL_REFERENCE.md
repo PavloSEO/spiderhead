@@ -3328,6 +3328,10 @@ installed, licensed SF CLI. ``input`` is respectively an exports
 directory, .seospider path, start URL, or URL-list file. Returns a compact
 summary and absolute file paths instead of embedding the large reports.
 
+``config`` may explicitly select ``semantic_similarity.adapter`` and
+caller-supplied body/title/H1 vectors. No embedding model or provider
+is selected by default; absent bodies or adapters remain unavailable.
+
 A live crawl can run for a long time; this call runs off the server's
 event loop, so other sf_* calls stay answerable while it is in
 progress, and cancelling the request (an MCP CancelledNotification)

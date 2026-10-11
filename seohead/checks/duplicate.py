@@ -62,6 +62,7 @@ costs no requests.
 from __future__ import annotations
 
 import hashlib
+import math
 import re
 from collections import defaultdict
 from typing import Any
@@ -273,6 +274,8 @@ def find_duplicates(
     default because the mapping can dominate output for hundreds of pages and is
     mainly useful for debugging fingerprint behavior.
     """
+    if not math.isfinite(threshold) or not 0 <= threshold <= 1:
+        raise ValueError("duplicate threshold must be finite and in [0, 1]")
     excluded_non_indexable = 0
     if only_indexable:
         kept = [it for it in items if it.get("indexable", True)]
@@ -347,10 +350,16 @@ def find_duplicates(
         doc_id: h for h, members in hash_groups.items() for doc_id in members
     }
 
-    # LSH buckets candidates by each fingerprint band.
+    # At most d differing bits fit the threshold. Splitting disjoint bits
+    # across d+1 bands guarantees at least one equal band (pigeonhole), while
+    # avoiding the broad 4-bit buckets at the usual 0.92 threshold. Any unused
+    # high bits only add candidates; full 64-bit Hamming still verifies them.
+    bands = min(64, math.floor(64 * (1 - threshold)) + 1)
+    band_bits = 64 // bands
     buckets: dict[tuple[int, int], list[str]] = defaultdict(list)
     for doc_id, fp in fingerprints.items():
-        for band_idx, key in enumerate(_band_keys(fp)):
+        keys = _band_keys(fp, bands, band_bits) if threshold > 0 else [0]
+        for band_idx, key in enumerate(keys):
             buckets[(band_idx, key)].append(doc_id)
 
     # Union-find converts matching candidate pairs into transitive clusters.
