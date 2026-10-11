@@ -615,6 +615,55 @@ def _segment_counts(
     return counts
 
 
+def _project_start_url(document: dict[str, Any]) -> str:
+    """The URL a project crawl starts from: a competitor workspace keeps the URL as entered."""
+    from seohead.projects.workspace import _target
+
+    target = document["site"]["target"]
+    for fact in document.get("facts", []):
+        value = fact.get("value")
+        if (
+            fact.get("name") == "entered_url"
+            and isinstance(value, str)
+            and _target(value) == target
+        ):
+            return value
+    return target
+
+
+def _evidence_root(project_root: Path, start_url: str | None) -> Path | None:
+    """The checklist a crawl may update: only the project whose own site it started from.
+
+    A competitor's crawl is recorded in the competitor's workspace (run with that directory
+    as the project); a crawl of a competitor URL run inside the owner's project updates none
+    of the owner's items.
+    """
+    from seohead.projects.workspace import _load, _target
+
+    if start_url is None:
+        return project_root
+    _, primary = _load(project_root)
+    return project_root if _target(start_url) == primary["site"]["target"] else None
+
+
+def _record_scoped_evidence(project_root: Path, start_url: str | None, scan: str | Path):
+    """Record a crawl only into the checklist of the site it started from; never fails the crawl."""
+    try:
+        root = _evidence_root(project_root, start_url)
+    except (OSError, ValueError) as exc:
+        return {"error": str(exc)}
+    if root is None:
+        return {"skipped": "start URL is neither this project's site nor a recorded competitor"}
+    return _record_crawl_evidence(root, scan)
+
+
+def _record_scoped_failure(project_root: Path, start_url: str | None, reason: str) -> None:
+    with contextlib.suppress(OSError, ValueError):
+        root = _evidence_root(project_root, start_url)
+        if root is not None:
+            _record_crawl_failure(root, reason)
+
+
 def _record_crawl_evidence(project_root: Path, scan: str | Path) -> dict[str, Any]:
     """Attach a finished project crawl to its automatic checklist items; never fails the crawl."""
     from seohead.projects.crawl_evidence import record_scan
@@ -704,7 +753,7 @@ def crawl_site(
             and urls_file is None
             and not sitemap_only
         ):
-            url = opened["project"]["site"]["target"]
+            url = _project_start_url(opened["project"])
     if sitemap_only and url is None:
         url = sitemap
     if resume is not None:
@@ -1138,7 +1187,7 @@ def crawl_site(
                         reason=type(exc).__name__,
                         counters=reporter.counters(),
                     )
-                _record_crawl_failure(project_root, type(exc).__name__)
+                _record_scoped_failure(project_root, url, type(exc).__name__)
             raise
         if observed is not None and reporter is not None:
             from seohead.projects.run_observation import finish
@@ -1163,7 +1212,7 @@ def crawl_site(
                 **result,
                 **crawl_config.rate_fields(settings),
                 "observer_run_id": observed["id"],
-                "checklist_evidence": _record_crawl_evidence(project_root, scan_out),
+                "checklist_evidence": _record_scoped_evidence(project_root, url, scan_out),
             }
         return {**result, **crawl_config.rate_fields(settings)}
     dispatch_gate = None
@@ -5351,10 +5400,15 @@ def project_prepare(
     )
 
 
-def project_competitors_add(directory: str, competitors: list) -> dict[str, Any]:
+def project_competitors_add(
+    directory: str, competitors: list, consumer: str | None = None
+) -> dict[str, Any]:
     from seohead.projects.runtime import add_competitors
 
-    return add_competitors(directory, competitors)
+    result = add_competitors(directory, competitors)
+    if consumer is not None:
+        result["inbox_unread"] = project_inbox_unread(directory, consumer)
+    return result
 
 
 def project_competitors_list(directory: str) -> dict[str, Any]:
