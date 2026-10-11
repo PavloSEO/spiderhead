@@ -1,3 +1,5 @@
+import pytest
+
 """Project-bound reports over streamed audit.v2 scans, budget-capped scope, and CLI --input."""
 
 from __future__ import annotations
@@ -111,6 +113,7 @@ def test_cli_input_accepts_format_key_for_report_build(tmp_path, capsys):
 
 
 def test_bound_pdf_overview_renders_checklist_coverage(tmp_path):
+    pytest.importorskip("pypdf")
     project = _project(tmp_path)
     scan = project / "scans" / "full.sqlite"
     _streamed_scan(scan)
