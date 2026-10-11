@@ -19,6 +19,7 @@ from seohead_desktop.bundle import verified_bundled_core_identity
 from seohead_desktop.mcp_gateway import TOOL_ALLOWLIST, payload
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.scan_runner import crawl_arguments, resume_arguments
+from tests._qt import ui
 from tests._screens_core import load_url_rows
 
 
@@ -58,7 +59,9 @@ class ShellTests(unittest.TestCase):
             (project / "project.json").write_text("{}", encoding="utf-8")
             self.window.project_directory = str(project)
             self.window.project_result = {"project": {"site": {"target": "https://example.test/"}}}
-            self.window.data_changed.emit("project")  # a real project load refreshes the «Новый скан» enablement
+            self.window.data_changed.emit(
+                "project"
+            )  # a real project load refreshes the «Новый скан» enablement
 
             def close_preview():
                 dialog = self.app.activeModalWidget()
@@ -69,7 +72,7 @@ class ShellTests(unittest.TestCase):
             QTimer.singleShot(100, close_preview)
             QTest.mouseClick(self.window.new_scan, Qt.LeftButton)
         self.assertEqual(len(seen), 1)
-        self.assertEqual("Новый скан", seen[0])
+        self.assertEqual(ui("Новый скан"), seen[0])
 
     def test_real_metadata_clears_rows(self):
         self.window.read_generation = 1
@@ -103,7 +106,9 @@ class ShellTests(unittest.TestCase):
         self.window.inbox_revision = 1
         self.window.note_input.setText("Do not lose this note")
         self.window.note_submit.setEnabled(False)
-        self.window.command_failed("inbox-submit", "inbox revision conflict", self.window.read_generation)
+        self.window.command_failed(
+            "inbox-submit", "inbox revision conflict", self.window.read_generation
+        )
         self.assertEqual(self.window.note_input.text(), "Do not lose this note")
         self.assertTrue(self.window.note_submit.isEnabled())
 
@@ -230,7 +235,13 @@ class ShellTests(unittest.TestCase):
             scan.write_bytes(b"retained")
             self.assertEqual(
                 resume_arguments(str(scan), str(project)),
-                ["crawl-site", "--project", str(project.resolve()), "--resume", str(scan.resolve())],
+                [
+                    "crawl-site",
+                    "--project",
+                    str(project.resolve()),
+                    "--resume",
+                    str(scan.resolve()),
+                ],
             )
             runtime.write_bytes(b"tampered")
             bundle._IDENTITY_CACHE.clear()
@@ -273,9 +284,11 @@ class ShellTests(unittest.TestCase):
             self.window.core_executable = str(candidate)
             self.window.read_project(str(project))
             wait_for(
-                lambda: self.window.project_directory is not None
-                and self.window.refresh_button.isEnabled()
-                and not self.window.requests,
+                lambda: (
+                    self.window.project_directory is not None
+                    and self.window.refresh_button.isEnabled()
+                    and not self.window.requests
+                ),
                 "desktop did not load local core projections",
             )
             self.assertEqual(Path(self.window.project_directory).resolve(), project.resolve())

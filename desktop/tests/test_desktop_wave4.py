@@ -3,10 +3,9 @@
 import copy
 import unittest
 import unittest.mock
-from pathlib import Path
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLabel, QTabBar
+from PyQt5.QtWidgets import QLabel
 
 from seohead_desktop import i18n
 from seohead_desktop.app import MainWindow, load_theme
@@ -14,7 +13,7 @@ from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.issues import IssuesScreen
 from seohead_desktop.screens.work import TaskDetail
 from seohead_desktop.ui.settings import general
-from tests._qt import sweep_widgets
+from tests._qt import sweep_widgets, ui
 from tests._screens_core import fixture, open_qa
 from tests._screens_host import FakeHost
 
@@ -39,14 +38,14 @@ class MenuAndFirstRunTests(unittest.TestCase):
 
     def test_each_top_level_menu_appears_once(self):
         titles = [action.text().replace("&", "") for action in self.window.menuBar().actions()]
-        for title in ("Агент", "Справка"):
+        for title in (ui("Агент"), ui("Справка")):
             self.assertEqual(titles.count(title), 1, titles)
 
     def test_new_scan_is_disabled_without_project_and_enabled_with_one(self):
         self.window.project_directory = None
         self.window.sync_navigation_state()
         self.assertFalse(self.window.new_scan.isEnabled())
-        self.assertIn("проект", self.window.new_scan.toolTip())
+        self.assertIn("project", self.window.new_scan.toolTip())
         self.window.project_directory = "/project/qa"
         self.window.sync_navigation_state()
         self.assertTrue(self.window.new_scan.isEnabled())
@@ -132,7 +131,21 @@ class IssuesCountsTests(unittest.TestCase):
         screen = self._screen()
         check = next(iter(screen.row_buttons))
         self.assertNotIn("по всему скану", screen.list_note.text())
-        self.assertTrue(screen.row_buttons[check].text().endswith(str(len([i for i in self.scan["evidence"]["findings"]["items"] if i.get("check") == check]))))
+        self.assertTrue(
+            screen.row_buttons[check]
+            .text()
+            .endswith(
+                str(
+                    len(
+                        [
+                            i
+                            for i in self.scan["evidence"]["findings"]["items"]
+                            if i.get("check") == check
+                        ]
+                    )
+                )
+            )
+        )
 
 
 class TaskAttemptsTests(unittest.TestCase):
@@ -148,7 +161,7 @@ class TaskAttemptsTests(unittest.TestCase):
         row = {"id": "t1", "title": "Robots", "state": "not_run", "kind": "check"}
         detail.show_item(row, {"item": {"attempts": 0}})
         texts = [w.text() for w in detail.findChildren(QLabel)]
-        self.assertIn("Не запускалась", texts)
+        self.assertIn(ui("Не запускалась"), texts)
         self.assertNotIn("Попыток проверки: 0", texts)
 
 

@@ -6,6 +6,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from tests._qt import ui
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import QCoreApplication, QEvent, QSettings, Qt
@@ -38,12 +40,18 @@ def switch_language(window, language):
         i18n.retranslate(window)
 
 
-needs_core = unittest.skipUnless(Path(CORE).is_file(), "core CLI is not installed next to the interpreter")
+needs_core = unittest.skipUnless(
+    Path(CORE).is_file(), "core CLI is not installed next to the interpreter"
+)
 
 
 def make_project(directory, label, target=TARGET):
-    done = subprocess.run([CORE, "project-new", "--directory", str(directory), "--target", target, "--label", label],
-                          capture_output=True, text=True, timeout=60)
+    done = subprocess.run(
+        [CORE, "project-new", "--directory", str(directory), "--target", target, "--label", label],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
     assert done.returncode == 0, done.stderr
     return str(directory)
 
@@ -102,10 +110,16 @@ class StartScreenTests(unittest.TestCase):
         start = self.show_start()
         self.assertIs(self.window.pages.currentWidget(), start)
         self.assertIsInstance(start, StartScreen)
-        self.assertEqual([row["label"] for row in start.model.rows], ["Альфа", "Бета", "Потерянный", "Без файла"])
-        self.assertEqual({p: r["status"] for p, r in self.rows().items()},
-                         {self.alpha: "ok", self.beta: "ok", self.gone: "missing", self.bare: "not_project"})
-        self.assertEqual(self.rows()[self.alpha]["host"], "alpha.example.test")  # read from project.json by the worker
+        self.assertEqual(
+            [row["label"] for row in start.model.rows], ["Альфа", "Бета", "Потерянный", "Без файла"]
+        )
+        self.assertEqual(
+            {p: r["status"] for p, r in self.rows().items()},
+            {self.alpha: "ok", self.beta: "ok", self.gone: "missing", self.bare: "not_project"},
+        )
+        self.assertEqual(
+            self.rows()[self.alpha]["host"], "alpha.example.test"
+        )  # read from project.json by the worker
         self.assertEqual(self.rows()[self.gone]["host"], "")
         texts = " ".join(label.text() for label in start.findChildren(QLabel))
         self.assertNotIn("Демо", texts)
@@ -114,7 +128,11 @@ class StartScreenTests(unittest.TestCase):
 
     def test_missing_and_foreign_folders_are_marked_honestly_with_a_banner_each(self):
         start = self.show_start()
-        banners = [note for note in start.findChildren(QLabel) if "не найден по прежнему пути" in note.text() or "нет project.json" in note.text()]
+        banners = [
+            note
+            for note in start.findChildren(QLabel)
+            if "not at its old path" in note.text() or "no project.json" in note.text()
+        ]
         self.assertEqual(len(banners), 2)
         self.assertIn("«Потерянный»", banners[0].text())
         self.assertIn("«Без файла»", banners[1].text())
@@ -124,7 +142,9 @@ class StartScreenTests(unittest.TestCase):
         original = probe_project
 
         def spy(path):
-            seen.append(__import__("threading").current_thread() is __import__("threading").main_thread())
+            seen.append(
+                __import__("threading").current_thread() is __import__("threading").main_thread()
+            )
             return original(path)
 
         with patch("seohead_desktop.screens.start.probe_project", spy):
@@ -156,7 +176,7 @@ class StartScreenTests(unittest.TestCase):
             start._activated(start.proxy.index(2, 0))
             start._activated(start.proxy.index(3, 0))
             read.assert_not_called()
-        self.assertIn("недоступна", self.window.statusBar().currentMessage())
+        self.assertIn("unavailable", self.window.statusBar().currentMessage())
 
     def test_list_click_and_enter_open_the_project_once_each(self):
         start = self.show_start()
@@ -177,19 +197,25 @@ class StartScreenTests(unittest.TestCase):
         start.forget_path(self.beta)
         self.assertNotIn(self.beta, [item["path"] for item in self.window.recent_projects])
         self.assertTrue(wait_for(self.app, lambda: start.checked))
-        self.assertEqual([row["label"] for row in start.model.rows], ["Альфа", "Потерянный", "Без файла"])
+        self.assertEqual(
+            [row["label"] for row in start.model.rows], ["Альфа", "Потерянный", "Без файла"]
+        )
         self.assertTrue((Path(self.beta) / "project.json").is_file())
 
     def test_delete_key_removes_the_selected_row_only(self):
         start = self.show_start()
         start.list.setCurrentIndex(start.proxy.index(2, 0))
         QTest.keyClick(start.list, Qt.Key_Delete)
-        self.assertEqual([i["label"] for i in self.window.recent_projects], ["Альфа", "Бета", "Без файла"])
+        self.assertEqual(
+            [i["label"] for i in self.window.recent_projects], ["Альфа", "Бета", "Без файла"]
+        )
 
     def test_removal_is_persisted_in_the_application_settings(self):
         with tempfile.TemporaryDirectory() as directory:
             ini = str(Path(directory) / "app.ini")
-            with patch("seohead_desktop.app.QSettings", lambda *_a: QSettings(ini, QSettings.IniFormat)):
+            with patch(
+                "seohead_desktop.app.QSettings", lambda *_a: QSettings(ini, QSettings.IniFormat)
+            ):
                 window = MainWindow(persistent=True, core_executable=CORE)
                 try:
                     window.remember_project("Альфа", self.alpha)
@@ -210,32 +236,51 @@ class StartScreenTests(unittest.TestCase):
     def test_banner_buttons_remove_or_relocate(self):
         start = self.show_start()
         buttons = {b.text(): b for b in start.findChildren(QPushButton)}
-        self.assertIn("Указать новый путь", buttons)
-        self.assertIn("Убрать из списка", buttons)
-        with patch("seohead_desktop.screens.start.QFileDialog.getExistingDirectory", return_value=self.beta), \
-                patch.object(MainWindow, "read_project") as read:
+        self.assertIn(ui("Указать новый путь"), buttons)
+        self.assertIn(ui("Убрать из списка"), buttons)
+        with (
+            patch(
+                "seohead_desktop.screens.start.QFileDialog.getExistingDirectory",
+                return_value=self.beta,
+            ),
+            patch.object(MainWindow, "read_project") as read,
+        ):
             start.relocate(self.gone)
             read.assert_called_once_with(self.beta)
-        self.assertIn(self.gone, [i["path"] for i in self.window.recent_projects])  # nothing is dropped before the project opened
+        self.assertIn(
+            self.gone, [i["path"] for i in self.window.recent_projects]
+        )  # nothing is dropped before the project opened
         self.window.project_directory = self.beta
         self.window.data_changed.emit("project")
         self.assertNotIn(self.gone, [i["path"] for i in self.window.recent_projects])
 
     def test_relocating_to_a_folder_without_project_json_is_refused(self):
         start = self.show_start()
-        with patch("seohead_desktop.screens.start.QFileDialog.getExistingDirectory", return_value=self.bare), \
-                patch.object(MainWindow, "read_project") as read:
+        with (
+            patch(
+                "seohead_desktop.screens.start.QFileDialog.getExistingDirectory",
+                return_value=self.bare,
+            ),
+            patch.object(MainWindow, "read_project") as read,
+        ):
             start.relocate(self.gone)
             read.assert_not_called()
 
     def test_open_folder_button_asks_the_window_to_choose_a_project(self):
         start = self.show_start()
-        with patch("seohead_desktop.project_io.QFileDialog.getExistingDirectory", return_value=self.alpha) as chooser, \
-                patch.object(MainWindow, "read_project") as read:
+        with (
+            patch(
+                "seohead_desktop.project_io.QFileDialog.getExistingDirectory",
+                return_value=self.alpha,
+            ) as chooser,
+            patch.object(MainWindow, "read_project") as read,
+        ):
             QTest.mouseClick(start.open_button, Qt.LeftButton)
             chooser.assert_called_once()
             read.assert_called_once_with(self.alpha)
-        with patch("seohead_desktop.project_io.QFileDialog.getExistingDirectory", return_value="") as chooser:
+        with patch(
+            "seohead_desktop.project_io.QFileDialog.getExistingDirectory", return_value=""
+        ) as chooser:
             QTest.mouseClick(start.open_button, Qt.LeftButton)
             chooser.assert_called_once()
 
@@ -250,13 +295,28 @@ class StartScreenTests(unittest.TestCase):
     def test_project_switchers_are_hidden_on_start_and_return_with_the_workspace(self):
         window = self.window
         self.show_start()
-        for name in ("project_button", "project_chevron", "scan_button", "scan_state_badge", "new_scan", "refresh_button"):
+        for name in (
+            "project_button",
+            "project_chevron",
+            "scan_button",
+            "scan_state_badge",
+            "new_scan",
+            "refresh_button",
+        ):
             self.assertFalse(getattr(window, name).isVisibleTo(window), name)
         window.navigate(1)
         self.app.processEvents()
-        for name in ("project_button", "project_chevron", "scan_button", "new_scan", "refresh_button"):
+        for name in (
+            "project_button",
+            "project_chevron",
+            "scan_button",
+            "new_scan",
+            "refresh_button",
+        ):
             self.assertTrue(getattr(window, name).isVisibleTo(window), name)
-        self.assertFalse(window.agent_pill.isVisibleTo(window))  # never claimed without a real heartbeat
+        self.assertFalse(
+            window.agent_pill.isVisibleTo(window)
+        )  # never claimed without a real heartbeat
 
     def test_an_opened_project_leaves_start_for_the_normal_navigation(self):
         self.show_start()
@@ -281,17 +341,23 @@ class StartScreenTests(unittest.TestCase):
 
     def test_simple_display_drops_the_agent_sentence(self):
         start = self.show_start()
-        self.assertIn("агент", start.meta.text())
+        self.assertIn("agent", start.meta.text())
         self.window.set_display("simple", remember=False)
         start.refresh()
-        self.assertNotIn("агент", start.meta.text())
+        self.assertNotIn("agent", start.meta.text())
 
     def test_english_has_no_russian_left_on_the_screen(self):
         start = self.show_start()
         switch_language(self.window, "en")
         self.app.processEvents()
-        leftovers = [label.text() for label in start.findChildren(QLabel)
-                     if any("Ѐ" <= ch <= "ӿ" for ch in label.text()) and not any(name in label.text() for name in ("Альфа", "Бета", "Потерянный", "Без файла"))]
+        leftovers = [
+            label.text()
+            for label in start.findChildren(QLabel)
+            if any("Ѐ" <= ch <= "ӿ" for ch in label.text())
+            and not any(
+                name in label.text() for name in ("Альфа", "Бета", "Потерянный", "Без файла")
+            )
+        ]
         self.assertEqual(leftovers, [])
         self.assertEqual(start.open_button.text(), "Open project folder")
         self.assertEqual(start.new_button.text(), "New project")
@@ -305,8 +371,20 @@ class StartScreenTests(unittest.TestCase):
         self.assertEqual(ProjectDelegate.badge_key({"status": "checking"}), "checking")
         self.assertEqual(initials("shop"), "SH")
         self.assertEqual(when_text(""), "")
-        self.assertEqual(when_text("2026-10-08T11:20+03:00", now=__import__("datetime").datetime.fromisoformat("2026-10-09T09:00+03:00")), "вчера")
-        self.assertEqual(when_text("2026-09-12T10:00+03:00", now=__import__("datetime").datetime.fromisoformat("2026-10-09T09:00+03:00")), "12.09.2026")
+        self.assertEqual(
+            when_text(
+                "2026-10-08T11:20+03:00",
+                now=__import__("datetime").datetime.fromisoformat("2026-10-09T09:00+03:00"),
+            ),
+            ui("вчера"),
+        )
+        self.assertEqual(
+            when_text(
+                "2026-09-12T10:00+03:00",
+                now=__import__("datetime").datetime.fromisoformat("2026-10-09T09:00+03:00"),
+            ),
+            "12.09.2026",
+        )
         self.assertTrue(tilde(str(Path.home() / "x")).startswith("~/"))
 
 
@@ -375,7 +453,11 @@ class NewProjectTests(unittest.TestCase):
         outcome = {}
 
         def drive():
-            dialog = next(w for w in QApplication.topLevelWidgets() if w.__class__.__name__ == "NewProjectDialog")
+            dialog = next(
+                w
+                for w in QApplication.topLevelWidgets()
+                if w.__class__.__name__ == "NewProjectDialog"
+            )
             dialog.label.setText("Локальный стенд")
             dialog.target.setText(TARGET)
             dialog.directory.setText(str(directory))
@@ -392,7 +474,9 @@ class NewProjectTests(unittest.TestCase):
         self.assertTrue(outcome["busy"])
         self.assertTrue((directory / "project.json").is_file())
         self.assertEqual(self.window.recent_projects[0]["path"], info["path"])
-        self.assertEqual(unicodedata.normalize("NFC", self.window.recent_projects[0]["label"]), "Локальный стенд")
+        self.assertEqual(
+            unicodedata.normalize("NFC", self.window.recent_projects[0]["label"]), "Локальный стенд"
+        )
 
     def test_core_refusal_keeps_the_dialog_open_with_the_reason(self):
         dialog = self.dialog()
@@ -401,7 +485,7 @@ class NewProjectTests(unittest.TestCase):
         dialog.create.click()
         self.assertTrue(wait_for(self.app, lambda: not dialog.failure.isHidden()))
         self.assertTrue(dialog.create.isEnabled())
-        self.assertEqual(dialog.create.text(), "Создать")
+        self.assertEqual(dialog.create.text(), ui("Создать"))
         self.assertFalse((self.base / "x").exists())
 
     def test_without_a_core_the_dialog_says_so_and_cannot_create(self):
@@ -413,7 +497,11 @@ class NewProjectTests(unittest.TestCase):
     def test_dialog_is_translated(self):
         switch_language(self.window, "en")
         dialog = self.dialog()
-        texts = [w.text() for w in dialog.findChildren(QLabel) + dialog.findChildren(QPushButton) if w.text()]
+        texts = [
+            w.text()
+            for w in dialog.findChildren(QLabel) + dialog.findChildren(QPushButton)
+            if w.text()
+        ]
         self.assertFalse([t for t in texts if any("Ѐ" <= ch <= "ӿ" for ch in t)], texts)
 
 

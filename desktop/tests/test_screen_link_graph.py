@@ -1,6 +1,7 @@
 import os
-import re
 import unittest
+
+from tests._qt import ui
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -47,7 +48,7 @@ class LinkGraphScreenTests(unittest.TestCase):
     def test_without_a_project_the_canvas_asks_to_open_one(self):
         self.screen.refresh()
         self.assertEqual(self.screen.state, "noproject")
-        self.assertIn("Откройте проект", " ".join(texts(self.screen)))
+        self.assertIn(ui("Откройте проект"), " ".join(texts(self.screen)))
 
     def test_with_a_project_the_canvas_is_an_honest_waiting_state(self):
         open_qa(self.window)
@@ -67,11 +68,13 @@ class LinkGraphScreenTests(unittest.TestCase):
         self.assertNotRegex(visible, r"\b\d{2,}\b(?! ·)")
 
     def test_controls_stay_disabled_with_a_reason(self):
-        buttons = [button for button in self.screen.findChildren(QToolButton) if button.property("pill")]
+        buttons = [
+            button for button in self.screen.findChildren(QToolButton) if button.property("pill")
+        ]
         self.assertEqual(len(buttons), 7)
         for button in buttons:
             self.assertFalse(button.isEnabled())
-            self.assertIn("Недоступно в этой версии ядра", button.toolTip())
+            self.assertIn(ui("Недоступно в этой версии ядра"), button.toolTip())
         self.assertFalse(self.screen.search.isEnabled())
 
 

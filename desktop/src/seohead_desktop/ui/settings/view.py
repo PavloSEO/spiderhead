@@ -30,7 +30,7 @@ THEME_NOTES = {"light": "по умолчанию", "dark": "вечером и в
 
 SCHEMA = (
     Setting("view.theme", "light", str, choices=THEME_CHOICES),
-    Setting("view.language", "ru", str, choices=("ru", "en")),
+    Setting("view.language", "en", str, choices=("en",)),
     Setting("view.density", "standard", str, choices=("compact", "standard", "comfortable")),
     Setting("view.details_position", "bottom", str, choices=("bottom", "right")),
     Setting("view.zoom", 100, int, 80, 150, error="Масштаб — от 80 до 150 %"),
@@ -72,7 +72,9 @@ class _ThemeCard(QToolButton):
         painter.setRenderHint(QPainter.Antialiasing)
         checked = self.isChecked()
         frame = QRectF(self.rect()).adjusted(1, 1, -1, -1)
-        painter.setPen(QPen(QColor(roles["primary" if checked else "divider"]), 2 if checked else 1))
+        painter.setPen(
+            QPen(QColor(roles["primary" if checked else "divider"]), 2 if checked else 1)
+        )
         painter.setBrush(QColor(roles["base"]))
         painter.drawRoundedRect(frame, 10, 10)
         if self.hasFocus():
@@ -96,17 +98,23 @@ class _ThemeCard(QToolButton):
             top = y0 + 19 + index * 12
             if index == 1:
                 painter.fillRect(QRectF(x0 + 2, top - 2, 30, 12), QColor(roles["selected"]))
-            painter.fillRect(QRectF(x0 + 6, top, 22, 4), QColor(roles["on_selected" if index == 1 else "text_2"]))
+            painter.fillRect(
+                QRectF(x0 + 6, top, 22, 4), QColor(roles["on_selected" if index == 1 else "text_2"])
+            )
         painter.fillRect(QRectF(x0 + 35, y0 + 15, width - 35, height - 24), QColor(roles["base"]))
         painter.fillRect(QRectF(x0 + 35, y0 + 15, width - 35, 9), QColor(roles["raised"]))
         for index, kind in enumerate(("ok", "warn", "err")):
             top = y0 + 26 + index * 12
             if index == 1:
-                painter.fillRect(QRectF(x0 + 35, top - 2, width - 35, 12), QColor(roles["selected"]))
+                painter.fillRect(
+                    QRectF(x0 + 35, top - 2, width - 35, 12), QColor(roles["selected"])
+                )
             painter.fillRect(QRectF(x0 + 40, top + 1, 40, 4), QColor(roles["text_muted"]))
             painter.fillRect(QRectF(x0 + width - 28, top, 22, 7), QColor(badges[kind][0]))
             painter.fillRect(QRectF(x0 + width - 24, top + 2, 14, 3), QColor(badges[kind][1]))
-            painter.fillRect(QRectF(x0 + 35, top + 10, width - 35, 1), QColor(roles["divider_inner"]))
+            painter.fillRect(
+                QRectF(x0 + 35, top + 10, width - 35, 1), QColor(roles["divider_inner"])
+            )
         painter.fillRect(QRectF(x0, y0 + height - 9, width, 9), QColor(roles["raised"]))
         painter.fillRect(QRectF(x0, y0 + height - 9, width, 1), QColor(roles["divider"]))
         painter.restore()
@@ -117,15 +125,21 @@ class _ThemeCard(QToolButton):
         painter.setFont(name_font)
         painter.setPen(QColor(roles["text"]))
         metrics = painter.fontMetrics()
-        painter.drawText(QRectF(8, 100, text_width, 18), Qt.AlignLeft | Qt.AlignVCenter,
-                         metrics.elidedText(self._title(), Qt.ElideRight, text_width))
+        painter.drawText(
+            QRectF(8, 100, text_width, 18),
+            Qt.AlignLeft | Qt.AlignVCenter,
+            metrics.elidedText(self._title(), Qt.ElideRight, text_width),
+        )
         note_font = self.font()
         note_font.setBold(False)
         painter.setFont(note_font)
         painter.setPen(QColor(roles["text_2"]))
         note = tr(THEME_NOTES[self.theme_name]) if self.theme_name in THEME_NOTES else ""
-        painter.drawText(QRectF(8, 118, text_width, 16), Qt.AlignLeft | Qt.AlignVCenter,
-                         painter.fontMetrics().elidedText(note, Qt.ElideRight, text_width))
+        painter.drawText(
+            QRectF(8, 118, text_width, 16),
+            Qt.AlignLeft | Qt.AlignVCenter,
+            painter.fontMetrics().elidedText(note, Qt.ElideRight, text_width),
+        )
         painter.end()
 
 
@@ -221,8 +235,14 @@ def _preview(store):
         row.setFixedHeight(height + 8)
         badge = "200" if not store.get("view.status_badges") else "<b>200</b>"
         family = theming.substitution()["mono_family"] if store.get("view.mono_urls") else "Roboto"
-        row.setText(trf("&nbsp;{badge} &nbsp; <span style=\"font-family:'{family}'\">https://shop.example.test/catalog/chair-oak/</span>"
-                        " &nbsp; индексируется · 1,2 с", badge=badge, family=family))
+        row.setText(
+            trf(
+                "&nbsp;{badge} &nbsp; <span style=\"font-family:'{family}'\">https://shop.example.test/catalog/chair-oak/</span>"
+                " &nbsp; индексируется · 1,2 с",
+                badge=badge,
+                family=family,
+            )
+        )
 
     store.changed.connect(refresh)
     refresh()
@@ -244,7 +264,7 @@ def build_page(store, context):
             "view.language",
             "Язык интерфейса",
             "Меню, подписи и подсказки. Перезапуск не нужен",
-            [("ru", "Русский"), ("en", "English")],
+            [("en", "English")],
         ),
         segmented_row(
             store,

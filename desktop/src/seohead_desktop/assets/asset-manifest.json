@@ -45,11 +45,6 @@
     "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
   },
   {
-    "path": "fonts/Roboto.ttf",
-    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/roboto/Roboto%5Bwdth,wght%5D.ttf",
-    "sha256": "d7598e12c5dbef095ff8272cfc55da0250bd07fbdecbac8a530b9b277872a134"
-  },
-  {
     "path": "fonts/OFL.txt",
     "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/roboto/OFL.txt",
     "sha256": "061402327a96aadb0bfb694a960ed289ecd38d383e396243831ab81feb109c41"
@@ -1011,5 +1006,63 @@
     "derived_from": "brand/seohead-spider.svg",
     "generator": "scripts/render_app_icon.py (Qt SVG; iconutil for ICNS)",
     "sha256": "67f1f6c8e346066f687f41a9f9487b58e36cb49ecd3916e6776ca55edc114d7f"
+  },
+  {
+    "path": "fonts/MaterialSymbolsFilled.ttf",
+    "url": "https://github.com/google/material-design-icons",
+    "transform": "Static axis instance and glyph subset for offline Qt rendering",
+    "sha256": "34c78aaab9feeae39758db9ca7c9f5611f41faa0c8836e6ad1893520427d7f50"
+  },
+  {
+    "path": "fonts/MaterialSymbolsOutlined.ttf",
+    "url": "https://github.com/google/material-design-icons",
+    "transform": "Static axis instance and glyph subset for offline Qt rendering",
+    "sha256": "5922288cc1e47ff594d617be42a17277da121b877ea65993dffde39722bbb34d"
+  },
+  {
+    "path": "fonts/Roboto-Bold.ttf",
+    "url": "https://github.com/google/fonts",
+    "transform": "Static axis instance and glyph subset for offline Qt rendering",
+    "sha256": "b8e1d09ef1f8aeba592193ac83ee918203b7d4e3a57cc78e181970dcea0ffe10"
+  },
+  {
+    "path": "fonts/Roboto-Medium.ttf",
+    "url": "https://github.com/google/fonts",
+    "transform": "Static axis instance and glyph subset for offline Qt rendering",
+    "sha256": "09d9068f1d024ec501907199cadb9eecf3cc77c2350e9afbfe7c2e7ef6dc43af"
+  },
+  {
+    "path": "fonts/Roboto-Regular.ttf",
+    "url": "https://github.com/google/fonts",
+    "transform": "Static axis instance and glyph subset for offline Qt rendering",
+    "sha256": "46ba9257fc41c8f1a7b716e62b3449451b6c5b0ac5a5bd0b6b56d6dbc238b236"
+  },
+  {
+    "path": "fonts/RobotoMono-Bold.ttf",
+    "url": "https://github.com/google/fonts",
+    "transform": "Static axis instance and glyph subset for offline Qt rendering",
+    "sha256": "682f37bb98a0c12c91b7f4c70f77ba656fbfc62ac9c0a92a42fb309a6046ba78"
+  },
+  {
+    "path": "fonts/RobotoMono-Medium.ttf",
+    "url": "https://github.com/google/fonts",
+    "transform": "Static axis instance and glyph subset for offline Qt rendering",
+    "sha256": "6eac46170f3a3a3f59651ad39d6e5ba5c2671b7f925f3d8bc27962bd08fdd2c4"
+  },
+  {
+    "path": "fonts/RobotoMono-Regular.ttf",
+    "url": "https://github.com/google/fonts",
+    "transform": "Static axis instance and glyph subset for offline Qt rendering",
+    "sha256": "d9fa66f30776ac64927ffe50f38fa6a593b1fc9e839e5d8a2079852a5ffac381"
+  },
+  {
+    "path": "fonts/LICENSE-MaterialSymbols.txt",
+    "url": "https://github.com/google/material-design-icons",
+    "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
+  },
+  {
+    "path": "material-symbols.json",
+    "url": "https://github.com/google/material-design-icons",
+    "sha256": "7c9f5275ff596ab0521442decad727f0684555a08008bf651dcd53a899ca91c6"
   }
 ]

@@ -1,10 +1,13 @@
 import os
 import unittest
 
+from tests._qt import ui
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtWidgets import QLabel, QPushButton
 
+from seohead_desktop import i18n
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.settings_store import AppSettings
 from seohead_desktop.source_service import load_sources, redacted_providers
@@ -25,16 +28,22 @@ class SourcesSectionTests(unittest.TestCase):
     def setUpClass(cls):
         cls.app = qt_app()
 
+    def setUp(self):
+        i18n.set_language("ru")
+
     def page(self, hook, project=PROJECT):
         actions = {"sources": hook} if hook else {}
-        return sources.build_page(AppSettings(schema=full_schema()), SettingsContext(project_directory=project, actions=actions))
+        return sources.build_page(
+            AppSettings(schema=full_schema()),
+            SettingsContext(project_directory=project, actions=actions),
+        )
 
     def test_section_is_twelfth_and_follows_mcp(self):
         self.assertEqual(len(SECTION_IDS), 12)
         self.assertEqual(SECTION_IDS[SECTION_IDS.index("mcp") + 1], "sources")
 
     def test_without_a_core_hook_nothing_is_invented(self):
-        self.assertIn("Нет данных", texts(self.page(None)))
+        self.assertIn(ui("Нет данных"), texts(self.page(None)))
 
     def test_loading_then_every_provider_of_the_core_with_its_state(self):
         pending = []
@@ -46,14 +55,19 @@ class SourcesSectionTests(unittest.TestCase):
         rows = page.findChildren(SourceRow)
         self.assertEqual(len(rows), 14)
         joined = " | ".join(texts(page))
-        for expected in ("Google Search Console", "ключ задан · не проверен", "нужен ключ", "без ключа"):
+        for expected in (
+            "Google Search Console",
+            ui("ключ задан · не проверен"),
+            ui("нужен ключ"),
+            ui("без ключа"),
+        ):
             self.assertIn(expected, joined)
 
     def test_configured_is_never_reported_as_connected(self):
         page = self.page(sources_hook())
         states = {row.pid: row.state.text() for row in page.findChildren(SourceRow)}
-        self.assertEqual(states["gsc"], "ключ задан · не проверен")
-        self.assertNotIn("подключено", states.values())
+        self.assertEqual(states["gsc"], ui("ключ задан · не проверен"))
+        self.assertNotIn(ui("подключено"), states.values())
 
     def test_check_all_runs_only_the_local_doctor(self):
         hook = sources_hook()
@@ -65,12 +79,23 @@ class SourcesSectionTests(unittest.TestCase):
         self.assertTrue(any("проверено" in t for t in texts(page)))
 
     def test_core_failure_is_shown_in_place(self):
-        page = self.page(sources_hook({"provider-readiness": ValueError("x"), "provider-registry": ValueError("x")}))
+        page = self.page(
+            sources_hook(
+                {"provider-readiness": ValueError("x"), "provider-registry": ValueError("x")}
+            )
+        )
         self.assertTrue(any("не вернуло список источников" in t for t in texts(page)))
 
     def test_secret_values_never_cross_the_adapter(self):
-        leaking = {"gsc": {"readiness_state": "configured_unverified", "api_key": "SECRET-123",
-                           "credential_sources": {"service_account": {"source_reference": "/Users/x/SECRET.json"}}}}
+        leaking = {
+            "gsc": {
+                "readiness_state": "configured_unverified",
+                "api_key": "SECRET-123",
+                "credential_sources": {
+                    "service_account": {"source_reference": "/Users/x/SECRET.json"}
+                },
+            }
+        }
         self.assertNotIn("SECRET", repr(redacted_providers(leaking)))
 
     def test_details_open_for_every_provider(self):
@@ -87,18 +112,20 @@ class SourcesSectionTests(unittest.TestCase):
         self.assertEqual(BORDER, "#DDE1E7")
 
     def test_dialog_lists_the_section_with_its_title(self):
-        dialog = SettingsDialog(AppSettings(schema=full_schema()), SettingsContext(), section="sources")
-        self.assertEqual(dialog.section_title.text(), "Источники данных")
+        dialog = SettingsDialog(
+            AppSettings(schema=full_schema()), SettingsContext(), section="sources"
+        )
+        self.assertEqual(dialog.section_title.text(), ui("Источники данных"))
 
     def test_spend_view_shows_core_units_and_waiting_limits_never_roubles(self):
         page = self.page(sources_hook())
         page._snapshot(load_sources("core", "snapshot", call=core_call()))
         page._open(("spend",))
         joined = " | ".join(texts(page))
-        self.assertIn("ЛИМИТЫ И ПОДТВЕРЖДЕНИЯ", joined)
-        self.assertIn("Недоступно в этой версии ядра", joined)
+        self.assertIn(ui("ЛИМИТЫ И ПОДТВЕРЖДЕНИЯ"), joined)
+        self.assertIn(ui("Недоступно в этой версии ядра"), joined)
         self.assertNotIn("₽", joined)
-        export = [b for b in page.findChildren(QPushButton) if b.text() == "Экспорт CSV"]
+        export = [b for b in page.findChildren(QPushButton) if b.text() == ui("Экспорт CSV")]
         self.assertEqual(len(export), 1)
         self.assertFalse(export[0].isEnabled())
 
@@ -109,6 +136,7 @@ class SourcesSectionTests(unittest.TestCase):
         window.core_executable = None
         seen = []
         window.request_sources("snapshot", seen.append, seen.append, window)
+        # Source-service callbacks carry the original error, before UI rendering.
         self.assertEqual(seen, ["CLI ядра seohead не найден"])
         window.close()
 

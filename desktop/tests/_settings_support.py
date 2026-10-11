@@ -6,7 +6,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtWidgets import QLabel, QPushButton
 
-from seohead_desktop import theming
+from seohead_desktop import i18n, theming
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.settings_store import AppSettings
 from seohead_desktop.ui.controls import SettingRow
@@ -16,6 +16,7 @@ from seohead_desktop.ui.settings.dialog import SettingsDialog
 
 
 def app():
+    i18n.set_language("ru")
     qapp = qt_app()
     theming.set_active_theme("light")
     return qapp

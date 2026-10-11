@@ -9,6 +9,9 @@ from PyQt5.QtWidgets import QApplication
 
 
 def sweep_widgets():
+    from seohead_desktop import i18n
+
+    i18n.set_language("ru")  # Isolate legacy translation fixtures from English application windows.
     app = QApplication.instance()
     if app is None:
         return
@@ -18,3 +21,10 @@ def sweep_widgets():
         widget.deleteLater()
     QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
     app.processEvents()
+
+
+def ui(text):
+    """Expected UI copy in the fixture's language; application windows always choose English."""
+    from seohead_desktop import i18n
+
+    return i18n.tr(text)

@@ -2567,5 +2567,7 @@
  "SpiderHeadBot попадает в логи сайта, и его можно фильтровать.": "SpiderHeadBot appears in the site's logs and can be filtered.",
  "Запусков по расписанию: {n}": "Scheduled runs: {n}",
  "Расписание: запусков сейчас нет": "Schedule: no runs due now",
- "Расписание: нет проектов или ядра": "Schedule: no projects or core"
+ "Расписание: нет проектов или ядра": "Schedule: no projects or core",
+ "Правка": "Edit",
+ "Окно": "Window"
 }

@@ -1,6 +1,8 @@
 import os
 import unittest
 
+from tests._qt import ui
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import QCoreApplication, QEvent
@@ -66,7 +68,7 @@ class SemanticsScreenTests(unittest.TestCase):
         self.screen.refresh()
         self.assertIs(self.screen.state_stack.currentWidget(), self.screen.no_project)
         self.assertFalse(self.screen.run_button.isEnabled())
-        self.assertIn("Проект не открыт", self.screen.meta.text())
+        self.assertIn(ui("Проект не открыт"), self.screen.meta.text())
 
     def test_with_a_project_the_waiting_state_names_the_core_gap(self):
         self.window.project_directory = "/project/qa"

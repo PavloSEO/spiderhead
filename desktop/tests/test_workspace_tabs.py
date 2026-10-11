@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import (
 
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.ui.workspace_tabs import WorkspaceContext, WorkspaceTabs
-from tests._qt import sweep_widgets
+from tests._qt import sweep_widgets, ui
 
 
 class WorkspaceTabsTests(unittest.TestCase):
@@ -47,6 +47,18 @@ class WorkspaceTabsTests(unittest.TestCase):
 
     def add(self, id, **kwargs):
         return self.tabs.add(WorkspaceContext(id=id, project_label=id), **kwargs)
+
+    def test_screen_caption_preserves_alias_and_workspace_identity(self):
+        self.add("a")
+        self.tabs.set_alias("a", "Client workspace")
+        before = self.tabs.contexts()
+        self.tabs.set_screen_presentation("Project settings", "settings")
+        self.assertEqual(self.tabs.tabbar.tabText(0), "Project settings")
+        self.assertEqual(self.tabs.contexts(), before)
+        self.assertEqual(self.tabs.current_id, "a")
+        self.tabs.set_screen_presentation()
+        self.assertEqual(self.tabs.tabbar.tabText(0), "Client workspace")
+        self.assertEqual(self.tabs.contexts(), before)
 
     def test_context_deep_freezes_state_and_returns_independent_capture(self):
         raw = {
@@ -104,9 +116,7 @@ class WorkspaceTabsTests(unittest.TestCase):
             self.add(id)
         selected = QSignalSpy(self.tabs.selected)
         self.tabs.tabbar.moveTab(2, 0)
-        self.assertEqual(
-            [context.id for context in self.tabs.contexts()], ["c", "a", "b"]
-        )
+        self.assertEqual([context.id for context in self.tabs.contexts()], ["c", "a", "b"])
         self.assertEqual(self.tabs.current_id, "c")
         self.assertEqual(len(selected), 0)
 
@@ -115,13 +125,9 @@ class WorkspaceTabsTests(unittest.TestCase):
             self.add(id)
         self.tabs.select("a")
         self.add("new")
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["a", "new", "b", "c"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["a", "new", "b", "c"])
         self.add("copy", after_id="b", select=False)
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["a", "new", "b", "copy", "c"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["a", "new", "b", "copy", "c"])
         self.assertEqual(self.tabs.current_id, "new")
         before = self.tabs.contexts()
         with self.assertRaises(KeyError):
@@ -160,9 +166,7 @@ class WorkspaceTabsTests(unittest.TestCase):
         self.assertFalse(original.pinned)
         self.assertEqual(list(selected), [])
         self.tabs.set_alias("a", "   ")
-        self.assertEqual(
-            self.tabs.tabbar.tabText(0), "Updated project · completed scan"
-        )
+        self.assertEqual(self.tabs.tabbar.tabText(0), "Updated project · completed scan")
 
     def test_pinned_group_preserves_active_id_and_rejects_cross_group_drag(self):
         for id in ("a", "b", "c", "d"):
@@ -170,26 +174,16 @@ class WorkspaceTabsTests(unittest.TestCase):
         selected = QSignalSpy(self.tabs.selected)
         self.tabs.set_pinned("b", True)
         self.tabs.set_pinned("d", True)
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["b", "d", "a", "c"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["b", "d", "a", "c"])
         self.assertEqual(self.tabs.current_id, "d")
         self.tabs.tabbar.moveTab(1, 3)
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["b", "d", "a", "c"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["b", "d", "a", "c"])
         self.tabs.tabbar.moveTab(3, 0)
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["b", "d", "c", "a"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["b", "d", "c", "a"])
         self.tabs.tabbar.moveTab(1, 0)
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["d", "b", "c", "a"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["d", "b", "c", "a"])
         self.tabs.set_pinned("d", False)
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["b", "d", "c", "a"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["b", "d", "c", "a"])
         self.assertEqual(self.tabs.current_id, "d")
         self.assertEqual(list(selected), [])
 
@@ -205,9 +199,7 @@ class WorkspaceTabsTests(unittest.TestCase):
             start, end = bar.tabRect(source).center(), bar.tabRect(destination).center()
             QTest.mousePress(bar, Qt.LeftButton, pos=start)
             for step in range(1, 21):
-                point = QPoint(
-                    start.x() + (end.x() - start.x()) * step // 20, start.y()
-                )
+                point = QPoint(start.x() + (end.x() - start.x()) * step // 20, start.y())
                 QApplication.sendEvent(
                     bar,
                     QMouseEvent(
@@ -224,25 +216,17 @@ class WorkspaceTabsTests(unittest.TestCase):
             QTest.qWait(150)
 
         drag(0, 3)
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["b", "a", "c", "d"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["b", "a", "c", "d"])
         self.assertEqual(self.tabs.current_id, "b")
         drag(3, 0)
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["b", "d", "a", "c"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["b", "d", "a", "c"])
         self.assertEqual(self.tabs.current_id, "d")
         self.tabs.set_pinned("a", True)
         drag(0, 3)
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["a", "b", "d", "c"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["a", "b", "d", "c"])
         self.assertEqual(self.tabs.current_id, "b")
         drag(2, 3)
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["a", "b", "c", "d"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["a", "b", "c", "d"])
 
     def test_new_tab_after_pinned_starts_unpinned_group_and_restored_pin_joins_prefix(
         self,
@@ -253,9 +237,7 @@ class WorkspaceTabsTests(unittest.TestCase):
         self.tabs.select("a")
         self.add("new")
         self.tabs.add(WorkspaceContext(id="saved", pinned=True, display_alias="Saved"))
-        self.assertEqual(
-            [item.id for item in self.tabs.contexts()], ["a", "saved", "new", "b"]
-        )
+        self.assertEqual([item.id for item in self.tabs.contexts()], ["a", "saved", "new", "b"])
         self.assertEqual(self.tabs.tabbar.tabText(1), "Saved")
 
     def test_pinned_tabs_require_explicit_close_and_never_control_shared_services(self):
@@ -278,7 +260,7 @@ class WorkspaceTabsTests(unittest.TestCase):
         next(
             action
             for action in self.tabs.menu.actions()
-            if action.text() == "Закрыть закреплённую вкладку"
+            if action.text() == ui("Закрыть закреплённую вкладку")
         ).trigger()
         self.assertEqual(list(closed), [["b"]])
         self.assertEqual(len(self.tabs.contexts()), 2)
@@ -301,17 +283,17 @@ class WorkspaceTabsTests(unittest.TestCase):
             dialog = factory.return_value
             dialog.exec_.side_effect = [1, 0, 1]
             dialog.textValue.side_effect = ["Review A", "Cancelled", ""]
-            actions["Переименовать вкладку…"].trigger()
+            actions[ui("Переименовать вкладку…")].trigger()
             self.tabs.context_menu.close()
             self.assertEqual(self.tabs.contexts()[0].display_alias, "Review A")
-            actions["Закрепить вкладку"].trigger()
+            actions[ui("Закрепить вкладку")].trigger()
             self.assertTrue(self.tabs.contexts()[0].pinned)
             self.assertEqual(self.tabs.current_id, "b")
             self.tabs.request_rename("a")
             self.assertEqual(self.tabs.contexts()[0].display_alias, "Review A")
             self.tabs.request_rename("a")
-            dialog.setCancelButtonText.assert_called_with("Отмена")
-            dialog.setOkButtonText.assert_called_with("Сохранить")
+            dialog.setCancelButtonText.assert_called_with(ui("Отмена"))
+            dialog.setOkButtonText.assert_called_with(ui("Сохранить"))
             self.assertEqual(dialog.deleteLater.call_count, 3)
         self.assertIsNone(self.tabs.contexts()[0].display_alias)
 
@@ -396,9 +378,7 @@ class WorkspaceTabsTests(unittest.TestCase):
         self.assertEqual(list(duplicate), [["1"]])
 
     def test_updates_replace_snapshot_without_changing_id_or_selection(self):
-        original = WorkspaceContext(
-            id="a", project_label="Original", state={"offset": 0}
-        )
+        original = WorkspaceContext(id="a", project_label="Original", state={"offset": 0})
         self.tabs.add(original)
         selected = QSignalSpy(self.tabs.selected)
         updated = self.tabs.update_context(
@@ -410,8 +390,7 @@ class WorkspaceTabsTests(unittest.TestCase):
         self.tabs.update_title("a", "Project · scan-2", QIcon())
         self.assertEqual(self.tabs.tabbar.tabText(0), "Project · scan-2")
         close_buttons = [
-            self.tabs.tabbar.tabButton(0, side)
-            for side in (QTabBar.LeftSide, QTabBar.RightSide)
+            self.tabs.tabbar.tabButton(0, side) for side in (QTabBar.LeftSide, QTabBar.RightSide)
         ]
         self.assertTrue(
             any(
@@ -433,21 +412,17 @@ class WorkspaceTabsTests(unittest.TestCase):
         next(
             action
             for action in self.tabs.menu.actions()
-            if action.text() == "Дублировать вкладку"
+            if action.text() == ui("Дублировать вкладку")
         ).trigger()
         self.assertEqual(list(duplicate), [["b"]])
         self.assertEqual(len(self.tabs.contexts()), 2)
-        next(
-            action for action in self.tabs.menu.actions() if action.data() == "a"
-        ).trigger()
+        next(action for action in self.tabs.menu.actions() if action.data() == "a").trigger()
         self.assertEqual(self.tabs.current_id, "a")
         self.assertFalse(self.tabs.menu.isEmpty())
         self.assertTrue(self.tabs.tabbar.usesScrollButtons())
         self.assertTrue(self.tabs.tabbar.isMovable())
         self.assertTrue(self.tabs.tabbar.tabsClosable())
-        old_action = next(
-            action for action in self.tabs.menu.actions() if action.data() == "b"
-        )
+        old_action = next(action for action in self.tabs.menu.actions() if action.data() == "b")
         self.tabs.remove("b")
         old_action.trigger()
         self.assertEqual(self.tabs.current_id, "a")
@@ -500,9 +475,7 @@ class WorkspaceTabsTests(unittest.TestCase):
             self.assertEqual(len(buttons), 2)
             left, right = buttons
             # Native QTabBar shares a one-pixel border between the scroll buttons.
-            self.assertLessEqual(
-                left.geometry().intersected(right.geometry()).width(), 1
-            )
+            self.assertLessEqual(left.geometry().intersected(right.geometry()).width(), 1)
             self.assertIs(bar.childAt(left.geometry().center()), left)
             self.assertIs(bar.childAt(right.geometry().center()), right)
             self.assertFalse(left.isEnabled())
@@ -546,8 +519,7 @@ class WorkspaceTabsTests(unittest.TestCase):
         previous = next(
             shortcut.key()
             for shortcut in self.tabs._shortcuts
-            if "Backtab" in shortcut.key().toString()
-            or "Shift+Tab" in shortcut.key().toString()
+            if "Backtab" in shortcut.key().toString() or "Shift+Tab" in shortcut.key().toString()
         )
         combined = previous[0]
         modifiers = Qt.KeyboardModifiers(combined & int(Qt.KeyboardModifierMask))
@@ -556,11 +528,7 @@ class WorkspaceTabsTests(unittest.TestCase):
         self.assertEqual(self.tabs.current_id, "b")
         self.assertEqual(
             QKeySequence("Ctrl+T"),
-            next(
-                s.key()
-                for s in self.tabs._shortcuts
-                if s.key() == QKeySequence("Ctrl+T")
-            ),
+            next(s.key() for s in self.tabs._shortcuts if s.key() == QKeySequence("Ctrl+T")),
         )
         self.tabs.set_pinned("b", True)
         QTest.keyClick(self.body, Qt.Key_W, Qt.ControlModifier)

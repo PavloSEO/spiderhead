@@ -46,8 +46,14 @@ class WorkspaceTests(unittest.TestCase):
                 self.assertTrue(system_reduced_motion(path))
 
     def test_second_window_shares_models_selection_documents_and_no_workers(self):
-        before = (self.window.mcp_gateway, self.window.scan_manager, self.window.pool.activeThreadCount())
-        self.window.present_observed_runs([{"id": "one", "state": "running"}, {"id": "two", "state": "partial"}], None)
+        before = (
+            self.window.mcp_gateway,
+            self.window.scan_manager,
+            self.window.pool.activeThreadCount(),
+        )
+        self.window.present_observed_runs(
+            [{"id": "one", "state": "running"}, {"id": "two", "state": "partial"}], None
+        )
         monitor = self.window.open_monitor_window()
         self.app.processEvents()
         self.assertTrue(monitor.isFloating())
@@ -62,17 +68,30 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("two", monitor.detail.toPlainText())
         self.window.progress_text.setPlainText("Updated accepted scope")
         self.assertEqual(monitor.progress.toPlainText(), "Updated accepted scope")
-        self.assertEqual(before, (self.window.mcp_gateway, self.window.scan_manager, self.window.pool.activeThreadCount()))
+        self.assertEqual(
+            before,
+            (
+                self.window.mcp_gateway,
+                self.window.scan_manager,
+                self.window.pool.activeThreadCount(),
+            ),
+        )
 
     def test_project_switch_clears_both_windows_before_new_observation(self):
         self.window.present_observed_runs([{"id": "OLD-PROJECT", "state": "running"}], None)
         monitor = self.window.open_monitor_window()
         self.window.refresh_project = lambda: None
         self.window.load_crawl_descriptor = lambda: None
-        self.window.project_loaded({"path": "/new", "project": {"project_uuid": "new", "site": {"host": "new.test"}}}, self.window.read_generation)
+        self.window.project_loaded(
+            {"path": "/new", "project": {"project_uuid": "new", "site": {"host": "new.test"}}},
+            self.window.read_generation,
+        )
         self.assertEqual(monitor.table.model().rowCount(), 0)
         self.assertNotIn("OLD-PROJECT", monitor.detail.toPlainText())
-        self.assertIn("Загрузка", monitor.progress.toPlainText())
+        self.assertEqual(
+            monitor.progress.toPlainText(),
+            "Загрузка согласованного плана выбранного проекта…",
+        )
         self.assertIn("new.test", monitor.windowTitle())
 
     def test_closing_monitor_preserves_primary_context_and_reuses_window(self):
@@ -95,7 +114,11 @@ class WorkspaceTests(unittest.TestCase):
             self.assertFalse(monitor.isVisible())
 
     def test_named_layouts_restore_panels_without_changing_source(self):
-        identity = (self.window.project_directory, self.window.selected_scan_path, self.window.read_generation)
+        identity = (
+            self.window.project_directory,
+            self.window.selected_scan_path,
+            self.window.read_generation,
+        )
         self.window.apply_layout("table")
         self.assertTrue(self.window.inspector.isHidden())
         self.assertTrue(self.window.overview.isHidden())
@@ -107,11 +130,20 @@ class WorkspaceTests(unittest.TestCase):
         self.assertTrue(self.window.monitor.isVisible())
         self.window.apply_layout("url")
         self.assertTrue(self.window.monitor.isHidden())
-        self.assertEqual(identity, (self.window.project_directory, self.window.selected_scan_path, self.window.read_generation))
+        self.assertEqual(
+            identity,
+            (
+                self.window.project_directory,
+                self.window.selected_scan_path,
+                self.window.read_generation,
+            ),
+        )
 
     def test_workspace_settings_restore_view_density_and_panels(self):
         with tempfile.TemporaryDirectory(dir=self.scratch) as directory:
-            self.window.settings = QSettings(str(Path(directory) / "workspace.ini"), QSettings.IniFormat)
+            self.window.settings = QSettings(
+                str(Path(directory) / "workspace.ini"), QSettings.IniFormat
+            )
             self.window.apply_layout("compare")
             self.window.set_density("compact")
             self.window.save_workspace_layout()
@@ -126,7 +158,23 @@ class WorkspaceTests(unittest.TestCase):
 
     def test_action_finder_filters_and_never_executes_typed_text(self):
         calls = []
-        dialog = ActionFinder([{"title": "Open plan", "keywords": "scan", "callback": lambda: calls.append("plan")}, {"title": "Unavailable body", "keywords": "html", "enabled": False, "callback": None, "reason": "Unsupported"}], self.window)
+        dialog = ActionFinder(
+            [
+                {
+                    "title": "Open plan",
+                    "keywords": "scan",
+                    "callback": lambda: calls.append("plan"),
+                },
+                {
+                    "title": "Unavailable body",
+                    "keywords": "html",
+                    "enabled": False,
+                    "callback": None,
+                    "reason": "Unsupported",
+                },
+            ],
+            self.window,
+        )
         self.addCleanup(dialog.close)
         dialog.search.setText("$(launch)")
         self.assertEqual(dialog.results.count(), 0)
@@ -148,7 +196,11 @@ class WorkspaceTests(unittest.TestCase):
         calls = []
         self.window.scan_preview = lambda: calls.append("preview")
         self.window.launch_scan = lambda *_args: self.fail("finder cannot launch a scan")
-        action = next(item for item in self.window.action_registry() if "Новый скан" in item["title"])
+        action = next(
+            item
+            for item in self.window.action_registry()
+            if item["title"] == "Новый скан · открыть план"
+        )
         action["callback"]()
         self.assertEqual(calls, ["preview"])
         self.assertIsNone(self.window.scan_manager)

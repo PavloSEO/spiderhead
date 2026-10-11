@@ -2,6 +2,8 @@ import os
 import unittest
 from unittest.mock import patch
 
+from tests._qt import ui
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import QCoreApplication, QEvent, Qt
@@ -41,21 +43,31 @@ class InboxScreenTests(unittest.TestCase):
             load_theme(self.app, "light")
 
     def panel(self):
-        return self.screen.empty_holder.itemAt(0).widget() if self.screen.empty_holder.count() else None
+        return (
+            self.screen.empty_holder.itemAt(0).widget()
+            if self.screen.empty_holder.count()
+            else None
+        )
 
     def write(self, text, kind="note", references=None):
-        self.composer.set_draft(text, kind, self.composer.references if references is None else references)
+        self.composer.set_draft(
+            text, kind, self.composer.references if references is None else references
+        )
         self.window.update_note_controls()
 
     def fake_core(self):
         """start_command that behaves like a request the core has accepted but not answered yet."""
+
         def start(request_id, *_args):
             self.window.requests[request_id] = self.window.read_generation
+
         return patch.object(self.window, "start_command", side_effect=start)
 
     def wide(self):
         self.window.navigation.select_section("inbox")
-        self.window.setAttribute(Qt.WA_DontShowOnScreen, True)  # the offscreen screen clamps real windows to 800 px
+        self.window.setAttribute(
+            Qt.WA_DontShowOnScreen, True
+        )  # the offscreen screen clamps real windows to 800 px
         self.window.resize(1440, 900)
         self.window.show()
         self.app.processEvents()
@@ -95,25 +107,33 @@ class InboxScreenTests(unittest.TestCase):
     def test_entries_filters_and_counts_come_from_the_core_rows(self):
         open_qa(self.window)
         self.wide()
-        self.assertEqual([r["id"] for r in self.screen.model.rows], [ACCEPTED_GOAL, REJECTED_NOTE])  # newest first
-        self.assertEqual(self.screen.model.index(0, 0).data(BADGE_ROLE), ("goal", "Цель"))
-        self.assertEqual(self.screen.model.index(1, 0).data(BADGE_ROLE), ("info", "Заметка"))
-        self.assertEqual([self.screen.tabs.tabText(i) for i in range(4)], ["Все · 2", "Не прочитаны · 2", "Цели · 1", "Обработаны · 2"])
+        self.assertEqual(
+            [r["id"] for r in self.screen.model.rows], [ACCEPTED_GOAL, REJECTED_NOTE]
+        )  # newest first
+        self.assertEqual(self.screen.model.index(0, 0).data(BADGE_ROLE), ("goal", ui("Цель")))
+        self.assertEqual(self.screen.model.index(1, 0).data(BADGE_ROLE), ("info", ui("Заметка")))
+        self.assertEqual(
+            [self.screen.tabs.tabText(i) for i in range(4)],
+            ["All · 2", "Unread · 2", "Goals · 1", "Processed · 2"],
+        )
         self.screen.tabs.setCurrentIndex(2)
         self.assertEqual([r["id"] for r in self.screen.model.rows], [ACCEPTED_GOAL])
         self.screen.tabs.setCurrentIndex(3)
-        self.assertEqual(len(self.screen.model.rows), 2)  # a rejected note and an accepted goal are both processed
-        self.assertEqual(self.screen.status.text(), "Не прочитано: 2")
+        self.assertEqual(
+            len(self.screen.model.rows), 2
+        )  # a rejected note and an accepted goal are both processed
+        self.assertEqual(self.screen.status.text(), "Unread: 2")
 
     def test_processed_and_stage_rules(self):
+        i18n.set_language("ru")  # Stage tuples contain source labels before UI translation.
         goal, note = fixture("inbox_list.json")["entries"][::-1]
         self.assertTrue(is_processed(goal) and is_processed(note))
         self.assertEqual([s[0] for s in stages(note)], [True, False, True, True])
-        self.assertEqual(stages(note)[3][2], "Отклонено")
+        self.assertEqual(stages(note)[3][2], ui("Отклонено"))
         fresh = dict(note, triage=[])
         self.assertFalse(is_processed(fresh))
         self.assertEqual([s[0] for s in stages(fresh)], [True, False, False, False])
-        self.assertEqual(stages(fresh)[3][2], "Не подтверждено")
+        self.assertEqual(stages(fresh)[3][2], ui("Не подтверждено"))
 
     def test_detail_shows_triage_with_actor_and_waits_for_the_agent_reply(self):
         open_qa(self.window)
@@ -122,19 +142,21 @@ class InboxScreenTests(unittest.TestCase):
         self.assertIn("Проверь robots.txt после релиза", detail)
         self.assertIn("agent/local", detail)
         self.assertIn("Не относится к целям проекта", detail)
-        self.assertIn("Отклонено", detail)
-        self.assertIn("в этой версии ядра", detail)  # the agent's text reply is not in the core yet
-        self.assertIn("Сохранено", detail)
+        self.assertIn(ui("Отклонено"), detail)
+        self.assertIn(
+            "in this core version", detail
+        )  # the agent's text reply is not in the core yet
+        self.assertIn(ui("Сохранено"), detail)
 
     def test_the_read_stage_is_never_claimed_without_a_receipt(self):
         open_qa(self.window)
         self.screen.table.selectRow(0)
         self.assertFalse(stages(self.screen.model.rows[0])[1][0])
-        self.assertTrue(any("в этой версии ядра" in text for text in texts(self.screen.detail)))
+        self.assertTrue(any("in this core version" in text for text in texts(self.screen.detail)))
 
     def test_question_is_disabled_with_the_core_issue(self):
         self.assertFalse(self.composer.question.isEnabled())
-        self.assertIn("в этой версии ядра", self.composer.question.toolTip())
+        self.assertIn("in this core version", self.composer.question.toolTip())
         self.assertFalse(self.composer.question.isCheckable())
 
     def test_typing_never_writes_only_the_button_does(self):
@@ -177,7 +199,7 @@ class InboxScreenTests(unittest.TestCase):
         self.assertEqual(arguments["expected_revision"], 4)
         self.assertEqual(arguments["author_role"], "specialist")
         self.assertFalse(self.composer.send.isEnabled())  # saving: no double write
-        self.assertEqual(self.composer.send.text(), "Сохранение…")
+        self.assertEqual(self.composer.send.text(), ui("Сохранение…"))
 
     def test_refused_write_keeps_the_draft_and_says_why(self):
         open_qa(self.window)
@@ -191,7 +213,7 @@ class InboxScreenTests(unittest.TestCase):
         self.assertTrue(self.composer.send.isEnabled())
         self.assertFalse(self.composer.error.isHidden())
         self.assertIn("revision conflict", self.composer.error_text.text())
-        self.assertIn("Текст остаётся в форме", self.composer.error_text.text())
+        self.assertIn("The text stays in the form", self.composer.error_text.text())
 
     def test_confirmed_write_clears_only_an_unchanged_draft(self):
         open_qa(self.window)
@@ -235,9 +257,9 @@ class InboxScreenTests(unittest.TestCase):
     def test_unread_counter_and_navigation_badge(self):
         open_qa(self.window)
         self.assertEqual(self.window.inbox_unread, 2)
-        self.assertEqual(self.screen.status.text(), "Не прочитано: 2")
+        self.assertEqual(self.screen.status.text(), "Unread: 2")
         self.window.load_unread({})
-        self.assertEqual(self.screen.status.text(), "Непрочитанные не измерены")
+        self.assertEqual(self.screen.status.text(), ui("Непрочитанные не измерены"))
 
     def test_context_menu_without_scan_or_task(self):
         self.composer._fill_menu()
@@ -262,7 +284,7 @@ class InboxScreenTests(unittest.TestCase):
         self.app.processEvents()
         self.assertEqual(self.screen.scroll.horizontalScrollBar().maximum(), 0)
         self.assertEqual(self.screen.table.horizontalScrollBar().maximum(), 0)
-        self.assertTrue(self.screen.tabs.tabText(1).startswith("Новые"))
+        self.assertTrue(self.screen.tabs.tabText(1).startswith(ui("Новые")))
 
 
 if __name__ == "__main__":

@@ -198,8 +198,6 @@ class ChoiceCard(QToolButton):
         return 40 if self.compact else max(self.layout().heightForWidth(width), 86)
 
 
-
-
 class HelpIcon(MaterialIconLabel):
     """The «?» of the dense layout: the explanation lives in the tooltip, not in a line of text (design `.q`)."""
 
@@ -224,7 +222,10 @@ class Stepper(QFrame):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.minus, self.plus = QToolButton(), QToolButton()
-        for button, glyph, name, step in ((self.minus, "remove", "Меньше", on_minus), (self.plus, "add", "Больше", on_plus)):
+        for button, glyph, name, step in (
+            (self.minus, "remove", "Меньше", on_minus),
+            (self.plus, "add", "Больше", on_plus),
+        ):
             button.setProperty("stepper_button", True)
             button.setIcon(material_icon(glyph))
             button.setAccessibleName(tr(name))
@@ -254,7 +255,17 @@ class FormRow(QWidget):
 
     LABEL = 132
 
-    def __init__(self, title, control, help_text="", label_widget=None, hint="", field=None, label_width=None, parent=None):
+    def __init__(
+        self,
+        title,
+        control,
+        help_text="",
+        label_widget=None,
+        hint="",
+        field=None,
+        label_width=None,
+        parent=None,
+    ):
         super().__init__(parent)
         self.control = control
         self.edit = field or control
@@ -373,7 +384,9 @@ def number_edit(draft, key, accessible, width=96, name=None):
 
     def sync(problems=None):
         text = draft.texts.get(key, "")
-        if (edit.text() != text and not edit.hasFocus()) or (edit.text() != text and edit.hasFocus() and key not in draft.errors):
+        if (edit.text() != text and not edit.hasFocus()) or (
+            edit.text() != text and edit.hasFocus() and key not in draft.errors
+        ):
             edit.setText(text)
 
     return edit, sync
@@ -446,7 +459,7 @@ def dense_text():
 def dense(item):
     """Settings rows of the scan window are 48 px, not 60 (design `.sc .set-row{padding:10px 0}`)."""
     item.layout().setContentsMargins(0, 10, 0, 10)
-    item.title.setWordWrap(False)
+    item.title.setWordWrap(True)
     return item
 
 
@@ -462,7 +475,15 @@ def waiting_row(page, title, description, issue, reason, preview=None, into=None
     """A field of the sheet that has no core setting: visible, disabled, with the reason and the neutral unavailable badge."""
     if preview is not None:
         preview.setEnabled(False)
-    item = dense(SettingRow(tr(title), trf("{text} · {reason}", text=tr(description), reason=tr(reason)) if description else tr(reason), preview))
+    item = dense(
+        SettingRow(
+            tr(title),
+            trf("{text} · {reason}", text=tr(description), reason=tr(reason))
+            if description
+            else tr(reason),
+            preview,
+        )
+    )
     item.later_badge.setText(tr("Недоступно в этой версии ядра"))
     item.later_badge.setProperty("waiting_issue", issue)
     item.later_badge.setMinimumWidth(1)
@@ -472,7 +493,9 @@ def waiting_row(page, title, description, issue, reason, preview=None, into=None
     if into is None:
         page.add(item)
     else:
-        if preview is not None:  # a narrow column: the disabled control goes under the text, not beside it
+        if (
+            preview is not None
+        ):  # a narrow column: the disabled control goes under the text, not beside it
             item.layout().addWidget(preview, 1, 0)
         into.addWidget(item)
     return item
@@ -480,7 +503,14 @@ def waiting_row(page, title, description, issue, reason, preview=None, into=None
 
 def segmented_row(page, draft, path, title, description, options, disabled=None, key_tip=None):
     if not draft.has(path):
-        return waiting_row(page, title, description, ISSUE_SETTINGS, NOT_DECLARED, Segmented(options, None, tr(title)))
+        return waiting_row(
+            page,
+            title,
+            description,
+            ISSUE_SETTINGS,
+            NOT_DECLARED,
+            Segmented(options, None, tr(title)),
+        )
     seg = Segmented(options, draft.value(path), tr(title))
     seg.setObjectName("seg_" + path)
     for value, issue in (disabled or {}).items():
@@ -498,7 +528,9 @@ def segmented_row(page, draft, path, title, description, options, disabled=None,
 
 def switch_row(page, draft, path, title, description):
     if not draft.has(path):
-        return waiting_row(page, title, description, ISSUE_SETTINGS, NOT_DECLARED, Switch(tr(title)))
+        return waiting_row(
+            page, title, description, ISSUE_SETTINGS, NOT_DECLARED, Switch(tr(title))
+        )
     switch = Switch(tr(title), bool(draft.value(path)))
     switch.setObjectName("sw_" + path)
     switch.toggled.connect(lambda state: draft.set_value(path, bool(state)))
@@ -521,7 +553,9 @@ def number_row(page, draft, key, title, description, unit="", width=90, key_tip=
     edit, sync_edit = number_edit(draft, key, tr(title), width)
     suffix = QLabel(tr(unit))
     suffix.setProperty("text_style", "meta")
-    item = row(page, title, description, holder(edit, suffix) if unit else edit, key_tip or NUMS[key].path)
+    item = row(
+        page, title, description, holder(edit, suffix) if unit else edit, key_tip or NUMS[key].path
+    )
     item.control = edit if not unit else item.control
 
     def sync(problems):
@@ -598,7 +632,9 @@ def checkbox(text):
 # ---------------------------------------------------------------------------------------------------------------------
 def speed_page(draft, host):
     page = Page(tr("Скорость и лимиты"), tr("Нагрузка на сайт и границы скана"))
-    edit, sync_edit = number_edit(draft, "rps", tr("Запросов в секунду на хост"), 80, "scanRequestRate")
+    edit, sync_edit = number_edit(
+        draft, "rps", tr("Запросов в секунду на хост"), 80, "scanRequestRate"
+    )
     rates = (1, 2, 3, 5, 10)
     presets = Segmented([(n, str(n)) for n in rates], None, tr("Быстрые значения"))
     presets.changed.connect(lambda n: draft.set_text("rps", str(n)))
@@ -606,8 +642,20 @@ def speed_page(draft, host):
     rate_slider = RateSlider(rates, tr("Запросов в секунду на хост"))
     rate_slider.setObjectName("scanRateSlider")
     rate_slider.changed.connect(lambda i: draft.set_text("rps", str(rates[i])))
-    rps_row = row(page, "Запросов в секунду на хост", "Боевым сайтам — не больше 2. Выше — только для своего стенда", holder(edit, rate_slider, presets), "speed.min_delay_seconds = 1 / запросов в секунду")
-    warn = Note("warn", tr("Выше безопасного для боевого сайта."), tr("Разрешено, потому что адрес локальный: возможны 429/503 и блокировка IP на чужом сайте."))
+    rps_row = row(
+        page,
+        "Запросов в секунду на хост",
+        "Боевым сайтам — не больше 2. Выше — только для своего стенда",
+        holder(edit, rate_slider, presets),
+        "speed.min_delay_seconds = 1 / запросов в секунду",
+    )
+    warn = Note(
+        "warn",
+        tr("Выше безопасного для боевого сайта."),
+        tr(
+            "Разрешено, потому что адрес локальный: возможны 429/503 и блокировка IP на чужом сайте."
+        ),
+    )
     page.add(warn)
 
     def sync_rps(problems):
@@ -617,17 +665,27 @@ def speed_page(draft, host):
         edit.setProperty("invalid", "rps" in problems)
         polish(edit)
         rate = draft.rps()
-        warn.setVisible(draft.local and rate is not None and rate > RPS_SAFE and "rps" not in problems)
+        warn.setVisible(
+            draft.local and rate is not None and rate > RPS_SAFE and "rps" not in problems
+        )
         match = next((n for n in rates if rate is not None and abs(rate - n) < 1e-6), None)
         presets.setValue(match) if match is not None else clear_segmented(presets)
         if rate is not None:  # nearest preset when the value is not one of them
             rate_slider.set_index(min(range(len(rates)), key=lambda i: abs(rates[i] - rate)))
 
     page.bind(sync_rps)
-    thread_edit, sync_threads = number_edit(draft, "threads", tr("Параллельных соединений"), 80, "scanConcurrency")
+    thread_edit, sync_threads = number_edit(
+        draft, "threads", tr("Параллельных соединений"), 80, "scanConcurrency"
+    )
     threads = Segmented([(n, str(n)) for n in (1, 2, 4, 8, 16)], None, tr("Быстрые значения"))
     threads.changed.connect(lambda n: draft.set_text("threads", str(n)))
-    threads_row = row(page, "Параллельных соединений", "Общий пул на скан. Умолчание ядра — 1", holder(thread_edit, threads), "speed.concurrency")
+    threads_row = row(
+        page,
+        "Параллельных соединений",
+        "Общий пул на скан. Умолчание ядра — 1",
+        holder(thread_edit, threads),
+        "speed.concurrency",
+    )
 
     def sync_pool(problems):
         sync_threads()
@@ -637,10 +695,40 @@ def speed_page(draft, host):
         threads.setValue(value) if value in (1, 2, 4, 8, 16) else clear_segmented(threads)
 
     page.bind(sync_pool)
-    switch_row(page, draft, "speed.adaptive", "Адаптивная скорость", "Снижает темп при 429/503 и росте времени ответа, возвращает при норме")
-    number_row(page, draft, "min_delay", "Минимальная пауза между запросами", "Связана с «запросов в секунду»: пауза = 1 / запросов в секунду", "с", 90)
-    number_row(page, draft, "max_delay", "Максимальная пауза при замедлении", "Предел, до которого адаптивный режим замедляет обход", "с", 90)
-    number_row(page, draft, "timeouts", "Остановка после тайм-аутов подряд", "Скан остановится после стольких тайм-аутов подряд", "", 90)
+    switch_row(
+        page,
+        draft,
+        "speed.adaptive",
+        "Адаптивная скорость",
+        "Снижает темп при 429/503 и росте времени ответа, возвращает при норме",
+    )
+    number_row(
+        page,
+        draft,
+        "min_delay",
+        "Минимальная пауза между запросами",
+        "Связана с «запросов в секунду»: пауза = 1 / запросов в секунду",
+        "с",
+        90,
+    )
+    number_row(
+        page,
+        draft,
+        "max_delay",
+        "Максимальная пауза при замедлении",
+        "Предел, до которого адаптивный режим замедляет обход",
+        "с",
+        90,
+    )
+    number_row(
+        page,
+        draft,
+        "timeouts",
+        "Остановка после тайм-аутов подряд",
+        "Скан остановится после стольких тайм-аутов подряд",
+        "",
+        90,
+    )
     page.caption(tr("Границы скана"))
     grid = QGridLayout()
     grid.setHorizontalSpacing(12)
@@ -650,19 +738,27 @@ def speed_page(draft, host):
     limit_switch.setObjectName("scanLimitEnabledSettings")
     limit_edit, sync_limit = number_edit(draft, "limit", tr("Лимит URL"), 0, "scanUrlLimitSettings")
     limit_switch.toggled.connect(draft.set_limit_enabled)
-    limit_box = FieldBox(tr("Лимит URL"), limit_edit, tr("Верхняя граница числа URL"), trailing=limit_switch)
+    limit_box = FieldBox(
+        tr("Лимит URL"), limit_edit, tr("Верхняя граница числа URL"), trailing=limit_switch
+    )
     boxes["limit"] = limit_box
-    specs = (("depth", "Глубина", "от стартовой страницы; −1 — без ограничения"), ("requests", "Лимит запросов", "с ресурсами и редиректами; 0 — без лимита"),
-             ("minutes", "Время скана, мин", "0 — без лимита"))
+    specs = (
+        ("depth", "Глубина", "от стартовой страницы; −1 — без ограничения"),
+        ("requests", "Лимит запросов", "с ресурсами и редиректами; 0 — без лимита"),
+        ("minutes", "Время скана, мин", "0 — без лимита"),
+    )
     for key, title, hint in specs:
         edit_, sync_ = number_edit(draft, key, tr(title), 0, f"scan_{key}_settings")
         boxes[key] = FieldBox(tr(title), edit_, tr(hint))
         boxes[key].sync = sync_
         page.bind(lambda _p, s=sync_: s())
+
     def arrange(wide):
         columns = 4 if wide else 2
         for index, key in enumerate(("limit", "depth", "requests", "minutes")):
-            grid.addWidget(boxes[key], index // columns, index % columns, Qt.AlignTop)  # captions and fields share one top line
+            grid.addWidget(
+                boxes[key], index // columns, index % columns, Qt.AlignTop
+            )  # captions and fields share one top line
         for column in range(4):
             grid.setColumnStretch(column, 1 if column < columns else 0)
 
@@ -696,8 +792,9 @@ class RuleModel(QAbstractTableModel):
         self.draft = draft
 
     def rules(self):
-        return ([("include", p) for p in self.draft.value("scope.include_patterns", [])]
-                + [("exclude", p) for p in self.draft.value("scope.exclude_patterns", [])])
+        return [("include", p) for p in self.draft.value("scope.include_patterns", [])] + [
+            ("exclude", p) for p in self.draft.value("scope.exclude_patterns", [])
+        ]
 
     def rowCount(self, parent=None):
         return 0 if parent is not None and parent.isValid() else len(self.rules())
@@ -712,7 +809,9 @@ class RuleModel(QAbstractTableModel):
     def data(self, index, role=Qt.DisplayRole):
         kind, pattern = self.rules()[index.row()]
         if role == Qt.DisplayRole:
-            return (tr("включить") if kind == "include" else tr("исключить"), pattern)[index.column()]
+            return (tr("включить") if kind == "include" else tr("исключить"), pattern)[
+                index.column()
+            ]
         if role == Qt.ToolTipRole:
             return pattern
 
@@ -728,9 +827,23 @@ def scope_page(draft, host):
     target.setAccessibleName(tr("Стартовый URL"))
     target.setFixedWidth(320)
     row(page, "Стартовый URL", "Адрес берётся из проекта", target)
-    segmented_row(page, draft, "scope.internal", "Какие хосты считать внутренними", "Только основной хост или весь домен со всеми поддоменами",
-                  [("host", tr("Только хост")), ("registrable_domain", tr("Домен и поддомены"))], key_tip="scope.internal")
-    waiting_row(page, "Основной хост и www", "Режим «хост + www»", ISSUE_SETTINGS, "в ядре только «хост» или «весь домен»", Segmented([("a", tr("Нет")), ("b", "www"), ("c", tr("Все"))], "a", tr("Поддомены")))
+    segmented_row(
+        page,
+        draft,
+        "scope.internal",
+        "Какие хосты считать внутренними",
+        "Только основной хост или весь домен со всеми поддоменами",
+        [("host", tr("Только хост")), ("registrable_domain", tr("Домен и поддомены"))],
+        key_tip="scope.internal",
+    )
+    waiting_row(
+        page,
+        "Основной хост и www",
+        "Режим «хост + www»",
+        ISSUE_SETTINGS,
+        "в ядре только «хост» или «весь домен»",
+        Segmented([("a", tr("Нет")), ("b", "www"), ("c", tr("Все"))], "a", tr("Поддомены")),
+    )
     columns = QGridLayout()
     columns.setHorizontalSpacing(20)
     columns.setVerticalSpacing(0)
@@ -809,7 +922,15 @@ def scope_page(draft, host):
     right_caption.setProperty("text_style", "overline")
     right_caption.setContentsMargins(0, 14, 0, 0)
     right.addWidget(right_caption)
-    waiting_row(page, "Какие из URL войдут", "", ISSUE_OTHER, "ядро не отвечает без запуска скана", dense_text(), into=right)
+    waiting_row(
+        page,
+        "Какие из URL войдут",
+        "",
+        ISSUE_OTHER,
+        "ядро не отвечает без запуска скана",
+        dense_text(),
+        into=right,
+    )
     right.addStretch(1)
     left_box, right_box = QWidget(), QWidget()
     left_box.setLayout(left)
@@ -827,8 +948,22 @@ def scope_page(draft, host):
 
     page.layouts.append(arrange_columns)
     arrange_columns(True)
-    waiting_row(page, "GET-параметры", "Оставлять / удалять отмеченные / игнорировать все", ISSUE_SETTINGS, "в ядре нет нормализации параметров",
-                Segmented([("k", tr("Оставлять")), ("s", tr("Удалять отмеченные")), ("i", tr("Игнорировать все"))], "k", tr("GET-параметры")))
+    waiting_row(
+        page,
+        "GET-параметры",
+        "Оставлять / удалять отмеченные / игнорировать все",
+        ISSUE_SETTINGS,
+        "в ядре нет нормализации параметров",
+        Segmented(
+            [
+                ("k", tr("Оставлять")),
+                ("s", tr("Удалять отмеченные")),
+                ("i", tr("Игнорировать все")),
+            ],
+            "k",
+            tr("GET-параметры"),
+        ),
+    )
     page.caption(tr("Типы файлов"))
     boxes = {}
     flow = QGridLayout()
@@ -869,9 +1004,21 @@ USER_AGENTS = {"seohead": "", "google": GOOGLEBOT_UA, "yandex": YANDEX_UA, "mobi
 
 def request_page(draft, host):
     page = Page(tr("Запрос"), tr("Как ядро представляется сайту"))
-    labels = [("seohead", "SEOHEAD"), ("google", "Googlebot"), ("yandex", "YandexBot"), ("mobile", tr("Мобильный"))]
+    labels = [
+        ("seohead", "SEOHEAD"),
+        ("google", "Googlebot"),
+        ("yandex", "YandexBot"),
+        ("mobile", tr("Мобильный")),
+    ]
     if not draft.has("http.user_agent"):
-        waiting_row(page, "User-Agent", "", ISSUE_SETTINGS, NOT_DECLARED, Segmented(labels, "seohead", "User-Agent"))
+        waiting_row(
+            page,
+            "User-Agent",
+            "",
+            ISSUE_SETTINGS,
+            NOT_DECLARED,
+            Segmented(labels, "seohead", "User-Agent"),
+        )
     else:
         seg = Segmented(labels, "seohead", tr("User-Agent"))
         seg.setObjectName("seg_user_agent")
@@ -884,7 +1031,9 @@ def request_page(draft, host):
             if name == "google" and draft.has("robots.user_agent_token"):
                 draft.set_value("robots.user_agent_token", "Googlebot")
             elif draft.has("robots.user_agent_token"):
-                draft.set_value("robots.user_agent_token", draft.core.get("robots.user_agent_token", ""))
+                draft.set_value(
+                    "robots.user_agent_token", draft.core.get("robots.user_agent_token", "")
+                )
 
         seg.changed.connect(pick)
 
@@ -897,10 +1046,23 @@ def request_page(draft, host):
             polish(line)
 
         page.bind(sync)
-        row(page, "User-Agent", "Как ядро представляется сайту. Свой текст ждёт доработки.", seg, "http.user_agent")
+        row(
+            page,
+            "User-Agent",
+            "Как ядро представляется сайту. Свой текст ждёт доработки.",
+            seg,
+            "http.user_agent",
+        )
         page.add(line)
     reason = "заголовки, cookies, авторизация и прокси задаются отдельным доверенным способом"
-    waiting_row(page, "Свой User-Agent", "", ISSUE_SETTINGS, "ядро принимает строку, но в приложении она не подключена", QLineEdit())
+    waiting_row(
+        page,
+        "Свой User-Agent",
+        "",
+        ISSUE_SETTINGS,
+        "ядро принимает строку, но в приложении она не подключена",
+        QLineEdit(),
+    )
     page.caption(tr("Заголовки, доступ, прокси"))
     columns = QGridLayout()
     columns.setHorizontalSpacing(18)  # design .sc grid gap
@@ -909,11 +1071,36 @@ def request_page(draft, host):
     for side in (left, right):
         side.setContentsMargins(0, 0, 0, 0)
         side.setSpacing(0)
-    waiting_row(page, "Заголовки запроса", "Имя и значение", ISSUE_SETTINGS, reason, QLineEdit(), into=left)
-    waiting_row(page, "Cookies", "name=value; …", ISSUE_SETTINGS, "ядро принимает их только через переменные окружения для хоста", QLineEdit(), into=left)
-    waiting_row(page, "HTTP-авторизация", "Basic / Digest", ISSUE_SETTINGS, "в ядре нет логина и пароля, только готовый заголовок из окружения", Switch(tr("HTTP-авторизация")), into=right)
-    waiting_row(page, "Прокси", "Нет / системный / свой", ISSUE_SETTINGS, "адрес прокси задаётся отдельным доверенным способом",
-                Segmented([("n", tr("Нет")), ("s", tr("Системный")), ("o", tr("Свой"))], "n", tr("Прокси")), into=right)
+    waiting_row(
+        page, "Заголовки запроса", "Имя и значение", ISSUE_SETTINGS, reason, QLineEdit(), into=left
+    )
+    waiting_row(
+        page,
+        "Cookies",
+        "name=value; …",
+        ISSUE_SETTINGS,
+        "ядро принимает их только через переменные окружения для хоста",
+        QLineEdit(),
+        into=left,
+    )
+    waiting_row(
+        page,
+        "HTTP-авторизация",
+        "Basic / Digest",
+        ISSUE_SETTINGS,
+        "в ядре нет логина и пароля, только готовый заголовок из окружения",
+        Switch(tr("HTTP-авторизация")),
+        into=right,
+    )
+    waiting_row(
+        page,
+        "Прокси",
+        "Нет / системный / свой",
+        ISSUE_SETTINGS,
+        "адрес прокси задаётся отдельным доверенным способом",
+        Segmented([("n", tr("Нет")), ("s", tr("Системный")), ("o", tr("Свой"))], "n", tr("Прокси")),
+        into=right,
+    )
     left.addStretch(1)
     right.addStretch(1)
     left_box, right_box = QWidget(), QWidget()
@@ -937,28 +1124,97 @@ def request_page(draft, host):
 # ---------------------------------------------------------------------------------------------------------------------
 def robots_page(draft, host):
     page = Page(tr("robots.txt и директивы"), tr("Что делать с запретами и подсказками сайта"))
-    segmented_row(page, draft, "robots.policy", "robots.txt", "«Отчёт» — сканировать всё, но пометить закрытые URL",
-                  [("respect", tr("Соблюдать")), ("report_only", tr("Отчёт")), ("ignore", tr("Игнорировать"))])
-    warn = Note("warn", tr("Игнорировать robots.txt на чужом боевом сайте нельзя."), tr("Только для своего стенда."))
+    segmented_row(
+        page,
+        draft,
+        "robots.policy",
+        "robots.txt",
+        "«Отчёт» — сканировать всё, но пометить закрытые URL",
+        [
+            ("respect", tr("Соблюдать")),
+            ("report_only", tr("Отчёт")),
+            ("ignore", tr("Игнорировать")),
+        ],
+    )
+    warn = Note(
+        "warn",
+        tr("Игнорировать robots.txt на чужом боевом сайте нельзя."),
+        tr("Только для своего стенда."),
+    )
     page.add(warn)
     page.bind(lambda p: warn.setVisible(draft.value("robots.policy") != "respect"))
     if draft.has("discovery.follow_nofollow"):
-        follow = Segmented([(True, tr("Ходить")), (False, tr("Не ходить"))], bool(draft.value("discovery.follow_nofollow")), tr("Ссылки с nofollow"))
+        follow = Segmented(
+            [(True, tr("Ходить")), (False, tr("Не ходить"))],
+            bool(draft.value("discovery.follow_nofollow")),
+            tr("Ссылки с nofollow"),
+        )
         follow.changed.connect(lambda value: draft.set_value("discovery.follow_nofollow", value))
         page.bind(lambda _p: follow.setValue(bool(draft.value("discovery.follow_nofollow"))))
-        row(page, "Ссылки с nofollow", "Ходить по ним и помечать, или не ходить", follow, "discovery.follow_nofollow")
+        row(
+            page,
+            "Ссылки с nofollow",
+            "Ходить по ним и помечать, или не ходить",
+            follow,
+            "discovery.follow_nofollow",
+        )
     else:
-        waiting_row(page, "Ссылки с nofollow", "", ISSUE_SETTINGS, NOT_DECLARED, Segmented([("a", tr("Ходить")), ("b", tr("Не ходить"))], "a", tr("Ссылки с nofollow")))
-    waiting_row(page, "Страницы с noindex", "Брать ссылки со страниц с noindex", ISSUE_OTHER, "в ядре нет такой настройки", Switch(tr("Брать ссылки с noindex")))
-    waiting_row(page, "Переходить по canonical", "Добавлять канонические URL в очередь", ISSUE_SETTINGS, "в ядре нет такой настройки для обхода сайта", Switch(tr("Canonical")))
-    waiting_row(page, "Переходить по hreflang", "Альтернативы на других языках и доменах", ISSUE_SETTINGS, "в ядре нет такой настройки", Switch(tr("hreflang")))
+        waiting_row(
+            page,
+            "Ссылки с nofollow",
+            "",
+            ISSUE_SETTINGS,
+            NOT_DECLARED,
+            Segmented([("a", tr("Ходить")), ("b", tr("Не ходить"))], "a", tr("Ссылки с nofollow")),
+        )
+    waiting_row(
+        page,
+        "Страницы с noindex",
+        "Брать ссылки со страниц с noindex",
+        ISSUE_OTHER,
+        "в ядре нет такой настройки",
+        Switch(tr("Брать ссылки с noindex")),
+    )
+    waiting_row(
+        page,
+        "Переходить по canonical",
+        "Добавлять канонические URL в очередь",
+        ISSUE_SETTINGS,
+        "в ядре нет такой настройки для обхода сайта",
+        Switch(tr("Canonical")),
+    )
+    waiting_row(
+        page,
+        "Переходить по hreflang",
+        "Альтернативы на других языках и доменах",
+        ISSUE_SETTINGS,
+        "в ядре нет такой настройки",
+        Switch(tr("hreflang")),
+    )
     # Fixed behaviour of the core, not a setting: X-Robots-Tag and meta robots are merged, so the stricter directive wins.
     always_on = Switch(tr("X-Robots-Tag и meta robots"), checked=True)
     always_on.setEnabled(False)
-    row(page, "X-Robots-Tag и meta robots", "Читать оба источника; при конфликте строже побеждает", always_on)
+    row(
+        page,
+        "X-Robots-Tag и meta robots",
+        "Читать оба источника; при конфликте строже побеждает",
+        always_on,
+    )
     page.caption(tr("Sitemap"))
-    switch_row(page, draft, "sitemaps.auto_discover", "Искать sitemap автоматически", "robots.txt и /sitemap.xml. Умолчание ядра — выключено")
-    waiting_row(page, "Список sitemap", "Автоматические и добавленные вручную с числом URL", ISSUE_OTHER, "ядро принимает один sitemap, число URL известно после чтения")
+    switch_row(
+        page,
+        draft,
+        "sitemaps.auto_discover",
+        "Искать sitemap автоматически",
+        "robots.txt и /sitemap.xml. Умолчание ядра — выключено",
+    )
+    waiting_row(
+        page,
+        "Список sitemap",
+        "Автоматические и добавленные вручную с числом URL",
+        ISSUE_OTHER,
+        "ядро принимает один sitemap, число URL известно после чтения",
+    )
     page.add(sitemap_list_table())
     return page
 
@@ -971,33 +1227,106 @@ def sitemap_list_table():
     style_table(table, "compact")
     table.setSpan(0, 0, 1, 3)
     table.setItem(0, 0, QTableWidgetItem(tr("Нет данных")))
-    table.setFixedHeight(table.horizontalHeader().height() + 2 * table.verticalHeader().defaultSectionSize() + 6)
+    table.setFixedHeight(
+        table.horizontalHeader().height() + 2 * table.verticalHeader().defaultSectionSize() + 6
+    )
     table.setEnabled(False)
     return table
 
 
 # ---------------------------------------------------------------------------------------------------------------------
 def render_page(draft, host):
-    page = Page(tr("JS-рендеринг"), tr("Исполнять JavaScript перед разбором страницы · браузер на этом компьютере"))
-    segmented_row(page, draft, "rendering.mode", "Режим", "«Авто» ждёт ядра: критерия «мало текста» в нём нет",
-                  [("raw", tr("Выкл")), ("auto", tr("Авто")), ("js", tr("Всегда"))], disabled={"auto": ISSUE_RENDER})
-    note = Note("warn", tr("Рендер медленнее обычной загрузки и нагружает сайт."), tr("Точную оценку времени ядро не даёт (недоступно в этой версии ядра)."))
+    page = Page(
+        tr("JS-рендеринг"),
+        tr("Исполнять JavaScript перед разбором страницы · браузер на этом компьютере"),
+    )
+    segmented_row(
+        page,
+        draft,
+        "rendering.mode",
+        "Режим",
+        "«Авто» ждёт ядра: критерия «мало текста» в нём нет",
+        [("raw", tr("Выкл")), ("auto", tr("Авто")), ("js", tr("Всегда"))],
+        disabled={"auto": ISSUE_RENDER},
+    )
+    note = Note(
+        "warn",
+        tr("Рендер медленнее обычной загрузки и нагружает сайт."),
+        tr("Точную оценку времени ядро не даёт (недоступно в этой версии ядра)."),
+    )
     page.add(note)
     page.bind(lambda _p: note.setVisible(draft.value("rendering.mode") == "js"))
-    segmented_row(page, draft, "rendering.browser.engine", "Движок", "Наличие браузера проверяется при запуске; проверка заранее недоступна в этой версии ядра",
-                  [("chromium", "Chromium"), ("firefox", "Firefox"), ("webkit", "WebKit")])
-    segmented_row(page, draft, "rendering.browser.viewport", "Окно просмотра", "Desktop или Mobile", [("desktop", "Desktop"), ("mobile", "Mobile")])
-    segmented_row(page, draft, "rendering.browser.wait_until", "Ждать готовности", "Сигнал, после которого DOM считается готовым",
-                  [("load", "load"), ("domcontentloaded", "DOMContentLoaded"), ("networkidle", "networkidle")])
-    number_row(page, draft, "script_timeout", "Время работы JavaScript после загрузки", "Предел ожидания", "с", 80)
-    waiting_row(page, "Дополнительная пауза", "После сигнала готовности, мс", ISSUE_RENDER, "в ядре нет отдельной паузы", QLineEdit())
-    segmented_row(page, draft, "rendering.browser.page_concurrency", "Одновременных вкладок", "Отдельно от потоков HTTP",
-                  [(n, str(n)) for n in (1, 2, 4, 8, 16)])
+    segmented_row(
+        page,
+        draft,
+        "rendering.browser.engine",
+        "Движок",
+        "Наличие браузера проверяется при запуске; проверка заранее недоступна в этой версии ядра",
+        [("chromium", "Chromium"), ("firefox", "Firefox"), ("webkit", "WebKit")],
+    )
+    segmented_row(
+        page,
+        draft,
+        "rendering.browser.viewport",
+        "Окно просмотра",
+        "Desktop или Mobile",
+        [("desktop", "Desktop"), ("mobile", "Mobile")],
+    )
+    segmented_row(
+        page,
+        draft,
+        "rendering.browser.wait_until",
+        "Ждать готовности",
+        "Сигнал, после которого DOM считается готовым",
+        [
+            ("load", "load"),
+            ("domcontentloaded", "DOMContentLoaded"),
+            ("networkidle", "networkidle"),
+        ],
+    )
+    number_row(
+        page,
+        draft,
+        "script_timeout",
+        "Время работы JavaScript после загрузки",
+        "Предел ожидания",
+        "с",
+        80,
+    )
+    waiting_row(
+        page,
+        "Дополнительная пауза",
+        "После сигнала готовности, мс",
+        ISSUE_RENDER,
+        "в ядре нет отдельной паузы",
+        QLineEdit(),
+    )
+    segmented_row(
+        page,
+        draft,
+        "rendering.browser.page_concurrency",
+        "Одновременных вкладок",
+        "Отдельно от потоков HTTP",
+        [(n, str(n)) for n in (1, 2, 4, 8, 16)],
+    )
     blocked = [checkbox(tr(name)) for name in ("Изображения", "Шрифты", "Медиа", "Аналитика")]
     for box in blocked:
         box.setEnabled(False)
-    waiting_row(page, "Блокировать ресурсы", "Изображения, шрифты, медиа, аналитика", ISSUE_RENDER, "в ядре нет блокировки ресурсов при рендере", holder(*blocked, spacing=16))
-    switch_row(page, draft, "rendering.artifacts.screenshots", "Скриншот страницы целиком", "Только при включённом JS; первый экран ядро не умеет")
+    waiting_row(
+        page,
+        "Блокировать ресурсы",
+        "Изображения, шрифты, медиа, аналитика",
+        ISSUE_RENDER,
+        "в ядре нет блокировки ресурсов при рендере",
+        holder(*blocked, spacing=16),
+    )
+    switch_row(
+        page,
+        draft,
+        "rendering.artifacts.screenshots",
+        "Скриншот страницы целиком",
+        "Только при включённом JS; первый экран ядро не умеет",
+    )
     note_raw = QLabel(tr("Настройки рендера уходят в команду только при режиме «Всегда»."))
     note_raw.setProperty("text_style", "meta")
     page.add(note_raw)
@@ -1022,9 +1351,18 @@ class ExtractModel(QAbstractTableModel):
 
 
 def extract_page(draft, host):
-    page = Page(tr("Извлечение"), tr("Свои поля из HTML: столбцы появятся в таблице скана и экспорте"))
-    page.add(Note("info", tr("Экстракторы пока не подключены"),
-                  tr("Ядро принимает только data-only правила evidence.extraction_rules; XPath, Regex и проверка на образце в crawl-site недоступны. Редактор не подключён, в команду ничего не уходит.")))
+    page = Page(
+        tr("Извлечение"), tr("Свои поля из HTML: столбцы появятся в таблице скана и экспорте")
+    )
+    page.add(
+        Note(
+            "info",
+            tr("Экстракторы пока не подключены"),
+            tr(
+                "Ядро принимает только data-only правила evidence.extraction_rules; XPath, Regex и проверка на образце в crawl-site недоступны. Редактор не подключён, в команду ничего не уходит."
+            ),
+        )
+    )
     table = QTableView()
     table.setObjectName("scanExtractTable")
     table.setAccessibleName(tr("Экстракторы"))
@@ -1034,21 +1372,72 @@ def extract_page(draft, host):
     table.setMinimumHeight(120)
     table.setMaximumHeight(150)
     page.add(table)
-    waiting_row(page, "Список экстракторов", "Имя столбца, тип CSS/XPath/Regex, выражение", ISSUE_EXTRACT, "правила не редактируются в приложении", QPushButton(tr("Экстрактор")))
-    waiting_row(page, "Проверка на образце", "Один запрос к образцу с текущими настройками", ISSUE_EXTRACT, "ядро не проверяет правила без запуска скана", QLineEdit())
+    waiting_row(
+        page,
+        "Список экстракторов",
+        "Имя столбца, тип CSS/XPath/Regex, выражение",
+        ISSUE_EXTRACT,
+        "правила не редактируются в приложении",
+        QPushButton(tr("Экстрактор")),
+    )
+    waiting_row(
+        page,
+        "Проверка на образце",
+        "Один запрос к образцу с текущими настройками",
+        ISSUE_EXTRACT,
+        "ядро не проверяет правила без запуска скана",
+        QLineEdit(),
+    )
     return page
 
 
 # ---------------------------------------------------------------------------------------------------------------------
 def storage_page(draft, host):
     page = Page(tr("Хранение"), tr("Что ядро сохраняет на диск"))
-    segmented_row(page, draft, "storage.body_mode", "Тело ответа", "HTML нужен для поиска по коду и сравнения текстов",
-                  [("off", tr("Не хранить")), ("captured_entity_bytes", tr("Сохранять тела"))])
-    waiting_row(page, "Все текстовые ресурсы", "Тела CSS, JS и других текстовых ответов", ISSUE_SETTINGS, "в ядре нет такого режима хранения", QLineEdit())
-    number_row(page, draft, "body_mb", "Максимум на один ответ", "Больше — обрезается с пометкой", "МБ", 80)
-    number_row(page, draft, "free_gb", "Остановить, если свободно меньше", "Скан встанет на паузу, данные сохранятся; продолжение — «Продолжить скан»", "ГБ", 80)
-    waiting_row(page, "Хранить сканы проекта", "Сколько последних сканов оставлять", ISSUE_OTHER, "в ядре нет постоянной политики хранения, только разовая очистка", Segmented([("5", "5"), ("20", "20"), ("all", tr("Все"))], "20", tr("Хранить сканы")))
-    waiting_row(page, "Сжимать тела (zstd)", "", ISSUE_OTHER, "ядро хранит тела без zstd", Switch(tr("Сжатие")))
+    segmented_row(
+        page,
+        draft,
+        "storage.body_mode",
+        "Тело ответа",
+        "HTML нужен для поиска по коду и сравнения текстов",
+        [("off", tr("Не хранить")), ("captured_entity_bytes", tr("Сохранять тела"))],
+    )
+    waiting_row(
+        page,
+        "Все текстовые ресурсы",
+        "Тела CSS, JS и других текстовых ответов",
+        ISSUE_SETTINGS,
+        "в ядре нет такого режима хранения",
+        QLineEdit(),
+    )
+    number_row(
+        page, draft, "body_mb", "Максимум на один ответ", "Больше — обрезается с пометкой", "МБ", 80
+    )
+    number_row(
+        page,
+        draft,
+        "free_gb",
+        "Остановить, если свободно меньше",
+        "Скан встанет на паузу, данные сохранятся; продолжение — «Продолжить скан»",
+        "ГБ",
+        80,
+    )
+    waiting_row(
+        page,
+        "Хранить сканы проекта",
+        "Сколько последних сканов оставлять",
+        ISSUE_OTHER,
+        "в ядре нет постоянной политики хранения, только разовая очистка",
+        Segmented([("5", "5"), ("20", "20"), ("all", tr("Все"))], "20", tr("Хранить сканы")),
+    )
+    waiting_row(
+        page,
+        "Сжимать тела (zstd)",
+        "",
+        ISSUE_OTHER,
+        "ядро хранит тела без zstd",
+        Switch(tr("Сжатие")),
+    )
     page.caption(tr("Место на диске"))
     card = QFrame()
     card.setProperty("card", "panel")
@@ -1085,7 +1474,11 @@ def storage_page(draft, host):
     estimate.setProperty("text_style", "meta")
     folder = ElidedLabel()
     folder.setProperty("text_style", "meta")
-    pause = Note("warn", tr("Свободного места меньше порога паузы."), tr("Скан остановится сразу после старта."))
+    pause = Note(
+        "warn",
+        tr("Свободного места меньше порога паузы."),
+        tr("Скан остановится сразу после старта."),
+    )
     box.addWidget(free_line)
     box.addWidget(bar)
     box.addLayout(legend)
@@ -1104,12 +1497,22 @@ def storage_page(draft, host):
             tail.hide()
             pause.hide()
         else:
-            free_line.setText(trf("Свободно на диске проекта: {free} ГБ из {total} ГБ", free=grouped(usage.free // 1024**3), total=grouped(usage.total // 1024**3)))
+            free_line.setText(
+                trf(
+                    "Свободно на диске проекта: {free} ГБ из {total} ГБ",
+                    free=grouped(usage.free // 1024**3),
+                    total=grouped(usage.total // 1024**3),
+                )
+            )
             width = bar.width()
             used_px = max(2, int(width * (usage.used / usage.total))) if usage.total else 0
             fill.setFixedWidth(used_px)
             threshold = draft.effective("storage.min_free_bytes") or 0
-            tail_px = min(width - used_px, max(2, int(width * threshold / usage.total))) if threshold and usage.total else 0
+            tail_px = (
+                min(width - used_px, max(2, int(width * threshold / usage.total)))
+                if threshold and usage.total
+                else 0
+            )
             tail.setVisible(tail_px > 0)
             tail.setGeometry(width - tail_px, 0, tail_px, 10)
             pause_dot.setVisible(bool(threshold))
@@ -1213,7 +1616,11 @@ def profiles_page(draft, host):
     strip2 = QWidget()
     strip2.setLayout(actions)
     page.add(strip2)
-    note = QLabel(tr("Ядро хранит один набор настроек на проект (policy.crawl_overrides). Создавать, переименовывать и удалять именованные профили оно не умеет."))
+    note = QLabel(
+        tr(
+            "Ядро хранит один набор настроек на проект (policy.crawl_overrides). Создавать, переименовывать и удалять именованные профили оно не умеет."
+        )
+    )
     note.setProperty("text_style", "meta")
     note.setWordWrap(True)
     page.add(note)
@@ -1224,17 +1631,27 @@ def profiles_page(draft, host):
 
     def show(key):
         selected["key"] = key
-        rows = [(path, short(draft.core.get(path, "")), short(value)) for path, value in sorted(layer(key).items()) if draft.core.get(path) != value]
+        rows = [
+            (path, short(draft.core.get(path, "")), short(value))
+            for path, value in sorted(layer(key).items())
+            if draft.core.get(path) != value
+        ]
         model.set_rows(rows)
         if key == "core":
             state.setText(tr("Встроенные значения ядра. Различий нет."))
         elif key == "project" and draft.policy_state != "ready":
-            state.setText(tr("Профиль проекта загружается…") if draft.policy_state == "loading" else tr("Профиль проекта не прочитан."))
+            state.setText(
+                tr("Профиль проекта загружается…")
+                if draft.policy_state == "loading"
+                else tr("Профиль проекта не прочитан.")
+            )
         elif not rows:
             state.setText(tr("Профиль не задан: отличий от умолчаний ядра нет."))
         else:
             state.setText(trf("Отличий от умолчаний ядра: {n}", n=len(rows)))
-        apply_button.setEnabled(key == "core" or key == "app" or (key == "project" and draft.policy_state == "ready"))
+        apply_button.setEnabled(
+            key == "core" or key == "app" or (key == "project" and draft.policy_state == "ready")
+        )
 
     for key, card in cards.items():
         card.clicked.connect(lambda _c, k=key: show(k))

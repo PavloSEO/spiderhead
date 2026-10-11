@@ -3,6 +3,8 @@ import re
 import unittest
 from unittest.mock import patch
 
+from tests._qt import ui
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtWidgets import QMenu, QPushButton, QToolButton
@@ -56,8 +58,10 @@ class SourceRowsTests(unittest.TestCase):
         rows = {row.key: row for row in build_rows(fixture("provider_readiness.json")["providers"])}
         self.assertEqual([row.key for row in rows.values()], [key for key, *_ in SERVICES])
         self.assertEqual(rows["gsc"].state, "configured_unverified")
-        self.assertEqual((rows["gsc"].kind, rows["gsc"].text), ("info", "ключ задан · не проверен"))
-        self.assertEqual((rows["bing"].kind, rows["bing"].text), ("warn", "нужен ключ"))
+        self.assertEqual(
+            (rows["gsc"].kind, rows["gsc"].text), ("info", ui("ключ задан · не проверен"))
+        )
+        self.assertEqual((rows["bing"].kind, rows["bing"].text), ("warn", ui("нужен ключ")))
         self.assertEqual(rows["bing"].access, "API-ключ не задан")
         self.assertEqual(rows["gsc"].access, "OAuth / сервисный аккаунт")
         # the core has no GTM / Topvisor provider: the state is unknown, never invented
@@ -70,9 +74,17 @@ class SourceRowsTests(unittest.TestCase):
         self.assertEqual(access_count(rows.values()), 4)
 
     def test_invalid_verified_and_missing_answers_are_mapped_without_overclaiming(self):
-        rows = {row.key: row for row in build_rows(readiness(gsc="invalid", ga4="verified", metrika="missing")["providers"])}
-        self.assertEqual((rows["gsc"].kind, rows["gsc"].text, rows["gsc"].icon), ("err", "ключ не читается", "error"))
-        self.assertEqual((rows["ga4"].kind, rows["ga4"].text), ("ok", "подключено"))
+        rows = {
+            row.key: row
+            for row in build_rows(
+                readiness(gsc="invalid", ga4="verified", metrika="missing")["providers"]
+            )
+        }
+        self.assertEqual(
+            (rows["gsc"].kind, rows["gsc"].text, rows["gsc"].icon),
+            ("err", ui("ключ не читается"), "error"),
+        )
+        self.assertEqual((rows["ga4"].kind, rows["ga4"].text), ("ok", ui("подключено")))
         self.assertEqual(rows["metrika"].kind, "warn")
         self.assertEqual([row.state for row in build_rows(None)], [None] * 8)
         self.assertEqual([row.state for row in build_rows({"gsc": "junk"})], [None] * 8)
@@ -117,7 +129,7 @@ class PageTests(unittest.TestCase):
         self.assertIsInstance(self.page.stack.currentWidget(), StatePanel)
         self.host.fail("CLI ядра seohead не найден")
         self.assertEqual(self.page.state, "error")
-        self.assertIn("CLI ядра seohead не найден", self.page.stack.currentWidget().text.text())
+        self.assertIn(ui("CLI ядра seohead не найден"), self.page.stack.currentWidget().text.text())
         self.page.stack.currentWidget().action.click()  # «Повторить» asks the core again
         self.assertEqual((self.page.state, len(self.host.requests)), ("loading", 2))
         self.ready({"ok": True, "providers": {}})
@@ -141,30 +153,34 @@ class PageTests(unittest.TestCase):
     def test_rows_show_the_core_state_and_the_rest_as_unavailable_never_as_connected(self):
         self.ready()
         self.assertEqual(len(self.page.row_widgets), 8)
-        self.assertEqual(self.badge_texts()["bing"], "нужен ключ")
-        self.assertEqual(self.badge_texts()["gsc"], "ключ задан · не проверен")
+        self.assertEqual(self.badge_texts()["bing"], ui("нужен ключ"))
+        self.assertEqual(self.badge_texts()["gsc"], ui("ключ задан · не проверен"))
         for widget in self.page.row_widgets:
-            self.assertEqual(widget.resource.text(), "Нет данных")
+            self.assertEqual(widget.resource.text(), ui("Нет данных"))
             self.assertEqual(widget.sync.text(), "—")
             self.assertFalse(widget.sync_now.isEnabled())
             self.assertFalse(widget.unlink.isEnabled())
-            self.assertIn("Недоступно в этой версии ядра", widget.unlink.toolTip())
-            self.assertIn("Появится", widget.resource.toolTip())
-            self.assertNotIn("подключено", widget.status.text())
+            self.assertIn(ui("Недоступно в этой версии ядра"), widget.unlink.toolTip())
+            self.assertIn(ui("Появится"), widget.resource.toolTip())
+            self.assertNotIn(ui("подключено"), widget.status.text())
         unknown = {w.row.key: w for w in self.page.row_widgets if w.row.state is None}
         self.assertEqual(set(unknown), {"gtm", "topvisor"})
         for widget in unknown.values():
             self.assertEqual(widget.status.property("waiting_issue"), 990)
             self.assertFalse(widget.configure.isEnabled())
-        self.assertTrue(next(w for w in self.page.row_widgets if w.row.key == "gsc").configure.isEnabled())
+        self.assertTrue(
+            next(w for w in self.page.row_widgets if w.row.key == "gsc").configure.isEnabled()
+        )
         self.assertIn("доступ задан у 4 из 8", self.page.header.meta.text())
 
     def test_save_is_the_one_primary_button_and_is_unavailable(self):
         self.ready()
-        primaries = [b for b in self.page.findChildren(QPushButton) if b.property("role") == "primary"]
+        primaries = [
+            b for b in self.page.findChildren(QPushButton) if b.property("role") == "primary"
+        ]
         self.assertEqual(primaries, [self.page.save_button])
         self.assertFalse(self.page.save_button.isEnabled())
-        self.assertIn("Недоступно в этой версии ядра", self.page.save_button.toolTip())
+        self.assertIn(ui("Недоступно в этой версии ядра"), self.page.save_button.toolTip())
         self.assertEqual(self.page.note.property("note"), "info")
 
     def test_nothing_is_written_and_only_the_readiness_is_requested(self):
@@ -217,7 +233,7 @@ class DialogTests(unittest.TestCase):
     def test_dialog_hosts_the_page_and_the_project_menu_opens_it(self):
         host = Host()
         dialog = ProjectSettingsDialog(host)
-        self.assertEqual(dialog.windowTitle(), "Настройки проекта")
+        self.assertEqual(dialog.windowTitle(), ui("Настройки проекта"))
         self.assertIsInstance(dialog.page, ProjectSourcesPage)
         dialog.close()
 
@@ -226,7 +242,13 @@ class DialogTests(unittest.TestCase):
 
         class Menu(QMenu):
             def exec_(self, *_args):
-                seen.append([(action.text(), action.isEnabled()) for action in self.actions() if action.text()])
+                seen.append(
+                    [
+                        (action.text(), action.isEnabled())
+                        for action in self.actions()
+                        if action.text()
+                    ]
+                )
 
         window = MainWindow(persistent=False)
         try:
@@ -237,8 +259,8 @@ class DialogTests(unittest.TestCase):
         finally:
             window.close()
             window.deleteLater()
-        self.assertIn(("Настройки проекта…", False), seen[0])
-        self.assertIn(("Настройки проекта…", True), seen[1])
+        self.assertIn((ui("Настройки проекта…"), False), seen[0])
+        self.assertIn((ui("Настройки проекта…"), True), seen[1])
 
 
 if __name__ == "__main__":

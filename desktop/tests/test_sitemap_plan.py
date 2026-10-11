@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
 from seohead_desktop.app import MainWindow
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.scan_runner import crawl_arguments
+from tests._qt import ui
 from tests.test_scan_runner import (
     close_window,
     core_cli,
@@ -79,7 +80,13 @@ class SitemapPlanTests(unittest.TestCase):
             command = crawl_arguments(str(root), 10, "raw", sitemap_url=source)
             self.assertIn("--sitemap-only", command)
             self.assertEqual(command[command.index("--sitemap") + 1], source)
-            for invalid in ("", "sitemap.xml", "file:///tmp/sitemap.xml", "https://user:password@example.test/map.xml", "https://example.test/map.xml#fragment"):
+            for invalid in (
+                "",
+                "sitemap.xml",
+                "file:///tmp/sitemap.xml",
+                "https://user:password@example.test/map.xml",
+                "https://example.test/map.xml#fragment",
+            ):
                 with self.subTest(invalid=invalid), self.assertRaises(ValueError):
                     crawl_arguments(str(root), 10, "raw", sitemap_url=invalid)
 
@@ -93,9 +100,19 @@ class SitemapPlanTests(unittest.TestCase):
             window.show()
             try:
                 window.read_project(str(project))
-                wait_for(self, lambda: window.crawl_descriptor and not window.requests, "project settings did not load")
-                self.assertTrue((window.crawl_descriptor.get("capabilities") or {}).get("sitemap_only_retained"), "core has not advertised retained sitemap-only capture")
+                wait_for(
+                    self,
+                    lambda: window.crawl_descriptor and not window.requests,
+                    "project settings did not load",
+                )
+                self.assertTrue(
+                    (window.crawl_descriptor.get("capabilities") or {}).get(
+                        "sitemap_only_retained"
+                    ),
+                    "core has not advertised retained sitemap-only capture",
+                )
                 errors = []
+
                 def accept_plan():
                     try:
                         dialog = self.app.activeModalWidget()
@@ -108,9 +125,11 @@ class SitemapPlanTests(unittest.TestCase):
                         limit.setText("10")
                         limit.textEdited.emit("10")
                         labels = "\n".join(label.text() for label in dialog.findChildren(QLabel))
-                        self.assertIn("По sitemap", labels)
-                        self.assertIn("Только URL из sitemap.xml, без обхода ссылок", labels)
-                        self.assertEqual(dialog.plan_values["address"][1].text(), target + "/sitemap.xml")
+                        self.assertIn(ui("По sitemap"), labels)
+                        self.assertIn(ui("Только URL из sitemap.xml, без обхода ссылок"), labels)
+                        self.assertEqual(
+                            dialog.plan_values["address"][1].text(), target + "/sitemap.xml"
+                        )
                         dialog.findChild(QCheckBox, "scanLargeApproval").click()
                         start = dialog.findChild(QPushButton, "scanStartButton")
                         self.assertTrue(start.isEnabled())
@@ -119,27 +138,57 @@ class SitemapPlanTests(unittest.TestCase):
                         errors.append(exc)
                         if self.app.activeModalWidget():
                             self.app.activeModalWidget().reject()
+
                 QTimer.singleShot(100, accept_plan)
                 QTest.mouseClick(window.new_scan, Qt.LeftButton)
                 if errors:
                     raise errors[0]
-                wait_for(self, lambda: window.scan_manager and window.scan_manager.snapshot()[0]["state"] in {"finished", "partial", "failed", "rejected", "status_unavailable"}, lambda: str(window.scan_manager.snapshot() if window.scan_manager else "No launch"), timeout=60)
+                wait_for(
+                    self,
+                    lambda: (
+                        window.scan_manager
+                        and window.scan_manager.snapshot()[0]["state"]
+                        in {"finished", "partial", "failed", "rejected", "status_unavailable"}
+                    ),
+                    lambda: str(
+                        window.scan_manager.snapshot() if window.scan_manager else "No launch"
+                    ),
+                    timeout=60,
+                )
                 row = window.scan_manager.snapshot()[0]
                 if row["state"] != "finished":
-                    preserve(root, "sitemap-failed", {"run": window.scan_manager.detail(row["id"]), "requests": server.hits}, window)
+                    preserve(
+                        root,
+                        "sitemap-failed",
+                        {"run": window.scan_manager.detail(row["id"]), "requests": server.hits},
+                        window,
+                    )
                 self.assertEqual(row["state"], "finished", window.scan_manager.detail(row["id"]))
                 self.assertEqual(row["input_mode"], "sitemap")
                 self.assertEqual(row["sitemap_url"], target + "/sitemap.xml")
                 self.assertEqual(row["observer_run_id"], row["core_run_id"])
                 stored = snapshot(row["artifact"])
                 self.assertEqual(stored["scan"]["lifecycle"], "finished")
-                with closing(sqlite3.connect(Path(row["artifact"]).as_uri() + "?mode=ro", uri=True)) as con:
-                    pages = dict(con.execute("SELECT url,status_code FROM pages JOIN urls USING(url_id)"))
+                with closing(
+                    sqlite3.connect(Path(row["artifact"]).as_uri() + "?mode=ro", uri=True)
+                ) as con:
+                    pages = dict(
+                        con.execute("SELECT url,status_code FROM pages JOIN urls USING(url_id)")
+                    )
                 self.assertEqual(pages, {target + "/listed": 200, target + "/listed-redirect": 302})
-                self.assertNotIn("/", server.hits, "project root was silently added to the sitemap population")
+                self.assertNotIn(
+                    "/", server.hits, "project root was silently added to the sitemap population"
+                )
                 for path in ("/linked-outside", "/canonical-outside", "/redirect-outside"):
-                    self.assertNotIn(path, server.hits, "an out-of-population destination was fetched")
-                preserve(root, "sitemap-only", {"run": row, "pages": pages, "requests": server.hits, "scan": stored}, window)
+                    self.assertNotIn(
+                        path, server.hits, "an out-of-population destination was fetched"
+                    )
+                preserve(
+                    root,
+                    "sitemap-only",
+                    {"run": row, "pages": pages, "requests": server.hits, "scan": stored},
+                    window,
+                )
             finally:
                 close_window(self, window)
 
