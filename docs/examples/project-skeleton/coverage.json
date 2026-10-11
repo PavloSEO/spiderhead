@@ -9169,7 +9169,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "523534f4985f816c95c49291853626a96d13b697ce9d0d1a765dd419531d8d3d",
+        "source_hash": "d5126fe2d096ed6e958a9c7039c037e068dd143a539d08aa5488dab94fbcc33a",
         "title": "Scenario 9 \u2014 Canonical basics: the defects that are a typo, not a strategy"
       },
       "definitions": [
@@ -9189,7 +9189,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "523534f4985f816c95c49291853626a96d13b697ce9d0d1a765dd419531d8d3d",
+            "source_hash": "d5126fe2d096ed6e958a9c7039c037e068dd143a539d08aa5488dab94fbcc33a",
             "title": "Scenario 9 \u2014 Canonical basics: the defects that are a typo, not a strategy"
           },
           "observed_at": "2026-09-09T00:00:00Z"
