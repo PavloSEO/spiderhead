@@ -3380,11 +3380,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     reanalyze = scan_subs.add_parser("reanalyze", help="reanalyze retained inputs without network")
     _add_flags(reanalyze, "scan-reanalyze")
-    crawl_profile = subs.add_parser("crawl-profile", help="list or delete saved crawl profiles")
+    crawl_profile = subs.add_parser("crawl-profile", help="inspect or delete saved crawl profiles")
     crawl_profile_subs = crawl_profile.add_subparsers(
         dest="crawl_profile_command", metavar="<action>", required=True
     )
     crawl_profile_subs.add_parser("list", help="list saved crawl profile names")
+    crawl_profile_subs.add_parser("show", help="print one saved crawl profile as JSON").add_argument(
+        "name", metavar="NAME"
+    )
     crawl_profile_subs.add_parser("delete", help="delete a saved crawl profile").add_argument(
         "name", metavar="NAME"
     )
@@ -3583,6 +3586,8 @@ def main(argv: list[str] | None = None) -> int:
         try:
             if args.crawl_profile_command == "list":
                 print(json.dumps({"profiles": profiles.saved_names()}, ensure_ascii=False))
+            elif args.crawl_profile_command == "show":
+                print(json.dumps(profiles.show(args.name), ensure_ascii=False, indent=2))
             else:
                 profiles.delete(args.name)
                 print(json.dumps({"profile": args.name, "deleted": True}, ensure_ascii=False))
