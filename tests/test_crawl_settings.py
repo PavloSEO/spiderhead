@@ -541,6 +541,97 @@ def test_credential_values_are_redacted_from_the_manifest(monkeypatch):
     assert "s3cr3t" not in json.dumps(manifest)
 
 
+def test_basic_and_digest_auth_require_acknowledged_host_bound_environment_refs(monkeypatch):
+    monkeypatch.setenv("SEOHEAD_TEST_USER", "crawler")
+    monkeypatch.setenv("SEOHEAD_TEST_PASSWORD", "s3cr3t")
+    auth = [
+        {
+            "host": "example.com",
+            "scheme": "digest",
+            "username_env": "env:SEOHEAD_TEST_USER",
+            "password_env": "env:SEOHEAD_TEST_PASSWORD",
+        }
+    ]
+    with pytest.raises(cfg.ConfigError, match="auth_acknowledged"):
+        cfg.load(overrides={"http.auth": auth})
+    resolved = cfg.load(
+        overrides={"http.auth": auth, "http.auth_acknowledged": True}
+    )
+    assert resolved["http"]["auth"][0]["scheme"] == "digest"
+    manifest = cfg.manifest(resolved)
+    assert manifest["http.auth"] == [{"host": "example.com", "scheme": "digest"}]
+    serialized = json.dumps(manifest)
+    assert "SEOHEAD_TEST_PASSWORD" not in serialized
+    assert "s3cr3t" not in serialized
+
+
+def test_http_auth_rejects_inline_credentials_and_ambiguous_host_setup(monkeypatch):
+    monkeypatch.setenv("SEOHEAD_TEST_USER", "crawler")
+    monkeypatch.setenv("SEOHEAD_TEST_PASSWORD", "s3cr3t")
+    inline = [
+        {
+            "host": "example.com",
+            "scheme": "basic",
+            "username_env": "crawler",
+            "password_env": "env:SEOHEAD_TEST_PASSWORD",
+        }
+    ]
+    with pytest.raises(cfg.ConfigError, match="username_env"):
+        cfg.load(overrides={"http.auth": inline, "http.auth_acknowledged": True})
+    conflict = _cred_overrides(
+        host="example.com", headers={"Authorization": "env:SEOHEAD_TEST_PASSWORD"}
+    )
+    conflict.update(
+        {
+            "http.auth": [
+                {
+                    "host": "example.com",
+                    "scheme": "basic",
+                    "username_env": "env:SEOHEAD_TEST_USER",
+                    "password_env": "env:SEOHEAD_TEST_PASSWORD",
+                }
+            ],
+            "http.auth_acknowledged": True,
+        }
+    )
+    with pytest.raises(cfg.ConfigError, match="cannot both configure"):
+        cfg.load(overrides=conflict)
+
+
+def test_configuring_http_auth_adds_default_destructive_path_exclusions(monkeypatch):
+    monkeypatch.setenv("SEOHEAD_TEST_USER", "crawler")
+    monkeypatch.setenv("SEOHEAD_TEST_PASSWORD", "s3cr3t")
+    auth = [
+        {
+            "host": "example.com",
+            "scheme": "basic",
+            "username_env": "env:SEOHEAD_TEST_USER",
+            "password_env": "env:SEOHEAD_TEST_PASSWORD",
+        }
+    ]
+    resolved = cfg.load(
+        overrides={"http.auth": auth, "http.auth_acknowledged": True}
+    )
+    for pattern in cfg.DESTRUCTIVE_PATH_PATTERNS:
+        assert pattern in resolved["scope"]["exclude_patterns"]
+
+
+def test_zstd_negotiation_is_explicit_and_requires_a_bounded_decoder(monkeypatch):
+    if not cfg.zstd_decoder_available():
+        with pytest.raises(cfg.ConfigError, match="compression.zstd or the optional zstandard package"):
+            cfg.load(overrides={"http.zstd": True})
+        return
+    resolved = cfg.load(overrides={"http.zstd": True})
+    assert "zstd" in cfg.request_headers(resolved)["Accept-Encoding"]
+    with pytest.raises(cfg.ConfigError, match="cache.mode=off"):
+        cfg.load(
+            overrides={
+                "http.zstd": True,
+                "cache.mode": "live",
+            }
+        )
+
+
 def test_manifest_redacts_credentials_from_a_legacy_generic_header_mapping():
     legacy = cfg.load()
     legacy["http"]["headers"] = {
@@ -622,4 +713,8 @@ def test_the_rate_fields_report_the_number_or_unbounded_with_its_warning():
     unbounded = cfg.rate_fields(cfg.load(overrides={"speed.min_delay_seconds": 0}))
     assert unbounded["effective_max_requests_per_second"] == "unbounded"
     default = cfg.rate_fields(cfg.load())
-    assert default == {"effective_max_requests_per_second": 2.0, "warnings": []}
+    assert default["effective_max_requests_per_second"] == 2.0
+    assert default["warnings"] == []
+    assert default["load_estimate"]["format"] == "crawl-load-estimate.v1"
+    assert default["load_estimate"]["duration_floor_seconds"] == 100.0
+    assert default["load_estimate"]["disk_estimate_bytes"] is None

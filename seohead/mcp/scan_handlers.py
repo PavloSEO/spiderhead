@@ -358,14 +358,14 @@ def resume_inputs(scan_path: str) -> dict[str, Any]:
             settings["resources"]["graph"] = copy.deepcopy(DEFAULTS["resources"]["graph"])
     if "format_version" not in settings.get("storage", {}):
         settings.setdefault("storage", {})["format_version"] = "scan.v1"
-    if settings.get("http", {}).get("credential_headers"):
+    if settings.get("http", {}).get("credential_headers") or settings.get("http", {}).get("auth"):
         # The artifact stores credential references redacted, by design, so the
         # settings read back from it are not the settings the interrupted run
         # used. Continuing under them would crawl the same site unauthenticated
         # and report the result as a continuation of an authenticated crawl.
         raise ValueError(
-            f"{scan_path} was crawled with credential headers, which it stores only in redacted "
-            "form; a resume cannot restore them. Continue it with the original --config and "
+            f"{scan_path} was crawled with HTTP authentication, which it stores only in redacted "
+            "form; a resume cannot restore it. Continue it with the original --config and "
             "--scan-out instead of --resume"
         )
     from contextlib import closing
@@ -446,6 +446,8 @@ def resume_scan(
 
 def _list_collection_options(settings):
     """One projection of list settings for the eager and disk-backed adapters."""
+    from seohead.crawl.settings import request_headers
+
     return {
         "max_urls": settings["limits"]["max_urls"],
         "max_requests": settings["limits"]["max_requests"],
@@ -453,13 +455,14 @@ def _list_collection_options(settings):
         "min_delay": settings["speed"]["min_delay_seconds"],
         "timeout": settings["http"]["timeout_seconds"],
         "credential_headers": settings["http"]["credential_headers"],
+        "http_auth": settings["http"]["auth"],
         "max_response_bytes": settings["limits"]["max_response_bytes"],
         "max_url_length": settings["limits"]["max_url_length"],
         "retry_on_timeout": settings["http"]["retry_on_timeout"],
         "user_agent": settings["http"]["user_agent"],
         "stop_after_consecutive_timeouts": settings["speed"]["stop_after_consecutive_timeouts"],
         "max_delay_seconds": settings["speed"]["max_delay_seconds"],
-        "extra_request_headers": settings["http"]["headers"] or None,
+        "extra_request_headers": request_headers(settings),
         "adaptive": settings["speed"]["adaptive"],
         "robots_policy": settings["robots"]["policy"],
         "robots_token": settings["robots"]["user_agent_token"],

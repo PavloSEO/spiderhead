@@ -132,6 +132,12 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         ),
     ),
     _command("crawl-describe-settings", "crawl_describe_settings", _form("no_input")),
+    _command(
+        "crawl-control",
+        "crawl_control",
+        _form("project_directory", "project"),
+        _form("selector", "run_id", "action"),
+    ),
     _command("scan-reanalyze", "scan_reanalyze", _form("scan_artifact", "input_path")),
     _command(
         "scan-graph",

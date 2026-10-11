@@ -173,6 +173,9 @@ DEFAULTS: dict[str, Any] = {
         # that makes crawling one region of a large site cheap without an ad-hoc
         # scope.include_patterns regex. Empty means every segment is in scope.
         "segments_only": [],
+        # Common analytics click IDs do not identify distinct documents. Strip
+        # them from native GET targets while retaining all other query fields.
+        "normalize_tracking_parameters": True,
     },
     # Post-crawl grouping is distinct from scope.segments: scope controls
     # discovery, while analysis rules classify already collected evidence.
@@ -273,6 +276,11 @@ DEFAULTS: dict[str, Any] = {
         # ones that log out, publish, or delete. Requiring this flag once
         # credential_headers is non-empty makes that risk an explicit choice.
         "credentials_acknowledged": False,
+        # Per-host Basic/Digest authentication. Values are environment-variable
+        # references, never inline credentials; acknowledged use widens access.
+        "auth": [],
+        "auth_acknowledged": False,
+        "zstd": False,
     },
     "robots": {
         # respect: obey. report_only: fetch, report what would be blocked, crawl
@@ -500,6 +508,7 @@ RESULTS_AFFECTING: frozenset[str] = frozenset(
         # breakdown even when nothing is excluded.
         "scope.segments",
         "scope.segments_only",
+        "scope.normalize_tracking_parameters",
         "analysis.segments",
         "analysis.finding_exclusions",
         "analysis.canonical_policy.pagination",
@@ -547,6 +556,9 @@ RESULTS_AFFECTING: frozenset[str] = frozenset(
         # Which host gets sent extra access changes what the crawl can reach.
         "http.credential_headers",
         "http.credentials_acknowledged",
+        "http.auth",
+        "http.auth_acknowledged",
+        "http.zstd",
         "robots.policy",
         "robots.user_agent_token",
         "robots.unavailable_means_stop",
@@ -707,6 +719,9 @@ DESCRIPTIONS: dict[str, str] = {
         "every segment is in scope. Subsumes a subfolder-only or single-subdomain "
         "crawl without an ad-hoc scope.include_patterns regex."
     ),
+    "scope.normalize_tracking_parameters": (
+        "Remove utm_* and fbclid GET parameters from native crawl targets; other query parameters stay intact."
+    ),
     "analysis.segments": (
         "Post-crawl segment rules: [{'name': ..., 'rules': [{'op': 'eq|prefix|contains|regex|in|segment', "
         "'field': ..., 'value': ...}]}]. Rules may use page fields or another segment."
@@ -807,6 +822,12 @@ DESCRIPTIONS: dict[str, str] = {
         "[{'host': ..., 'headers': {name: 'env:VAR_NAME'}}]."
     ),
     "http.credentials_acknowledged": "Must be true for http.credential_headers to take effect.",
+    "http.auth": (
+        "Host-bound HTTP Basic/Digest entries: [{'host': 'example.test', 'scheme': 'basic|digest', "
+        "'username_env': 'env:USER_VAR', 'password_env': 'env:PASS_VAR'}]."
+    ),
+    "http.auth_acknowledged": "Must be true when http.auth is non-empty; authenticated crawls follow site links.",
+    "http.zstd": "Request zstd-compressed HTTP response bodies when Python's stdlib or the optional zstandard decoder is available.",
     "robots.policy": (
         "'respect' (obey), 'report_only' (fetch, report what would be blocked, crawl "
         "anyway), or 'ignore' (do not fetch robots.txt)."
@@ -1117,9 +1138,22 @@ def validate(config: dict[str, Any]) -> None:
     scope = config["scope"]["internal"]
     if scope not in INTERNAL_SCOPES:
         raise ConfigError(f"scope.internal must be one of {INTERNAL_SCOPES}, got {scope!r}")
+    if type(config["scope"]["normalize_tracking_parameters"]) is not bool:
+        raise ConfigError("scope.normalize_tracking_parameters must be boolean")
     cache_mode = config["cache"]["mode"]
     if cache_mode not in CACHE_MODES:
         raise ConfigError(f"cache.mode must be one of {CACHE_MODES}, got {cache_mode!r}")
+    if config["http"]["auth"] and cache_mode != "off":
+        raise ConfigError("http.auth requires cache.mode=off to avoid reusing authenticated responses")
+    if type(config["http"]["zstd"]) is not bool:
+        raise ConfigError("http.zstd must be boolean")
+    if config["http"]["zstd"]:
+        if not zstd_decoder_available():
+            raise ConfigError(
+                "http.zstd requires Python 3.14+ compression.zstd or the optional zstandard package"
+            )
+        if cache_mode != "off":
+            raise ConfigError("http.zstd requires cache.mode=off so encoded responses are not mixed")
     # "replay" promises it never touches the network for a URL already on disk;
     # "invalidate" promises the opposite -- a live measurement on every lookup.
     # Both are explicit, deliberate settings, so silently letting one win (issue
@@ -1278,6 +1312,7 @@ def validate(config: dict[str, Any]) -> None:
         raise ConfigError(str(exc)) from exc
     _validate_http_headers(config["http"])
     _validate_credential_headers(config["http"])
+    _validate_http_auth(config["http"])
     route = resolve_proxy(config)
     identity = config["http"]["proxy_identity"]
     authenticated = config["http"]["proxy_authenticated"]
@@ -1533,6 +1568,52 @@ def _validate_credential_headers(http: dict[str, Any]) -> None:
                 )
 
 
+def _validate_http_auth(http: dict[str, Any]) -> None:
+    entries = http["auth"]
+    if type(http["auth_acknowledged"]) is not bool:
+        raise ConfigError("http.auth_acknowledged must be boolean")
+    if not isinstance(entries, list):
+        raise ConfigError("http.auth must be a list")
+    if entries and not http["auth_acknowledged"]:
+        raise ConfigError(
+            "http.auth is set but http.auth_acknowledged is not true; authenticated crawls follow links"
+        )
+    seen_hosts: set[str] = set()
+    header_hosts = {str(entry.get("host", "")).lower() for entry in http["credential_headers"]}
+    for entry in entries:
+        if not isinstance(entry, dict) or set(entry) != {
+            "host",
+            "scheme",
+            "username_env",
+            "password_env",
+        }:
+            raise ConfigError(
+                "each http.auth entry requires exactly host, scheme, username_env and password_env"
+            )
+        host = entry["host"]
+        if not isinstance(host, str) or not host or host != host.lower() or "/" in host:
+            raise ConfigError("each http.auth host must be a lowercase hostname")
+        if host in seen_hosts:
+            raise ConfigError(f"http.auth has duplicate host {host!r}")
+        seen_hosts.add(host)
+        if host in header_hosts:
+            raise ConfigError(
+                f"http.auth and http.credential_headers cannot both configure {host!r}"
+            )
+        if not isinstance(entry["scheme"], str) or entry["scheme"] not in {"basic", "digest"}:
+            raise ConfigError(f"http.auth scheme for {host!r} must be basic or digest")
+        for field in ("username_env", "password_env"):
+            ref = entry[field]
+            match = _ENV_REF_RE.fullmatch(ref) if isinstance(ref, str) else None
+            if match is None:
+                raise ConfigError(f"http.auth {field} for {host!r} must reference env:VAR")
+            if match.group(1) not in os.environ:
+                raise ConfigError(
+                    f"http.auth for {host!r} references environment variable "
+                    f"{match.group(1)!r}, which is not set"
+                )
+
+
 def _validate_http_headers(http: dict[str, Any]) -> None:
     headers = http["headers"]
     if not isinstance(headers, dict) or any(
@@ -1613,7 +1694,7 @@ def load(
             )
         _set_path(config, setting, value)
 
-    if config["http"]["credential_headers"]:
+    if config["http"]["credential_headers"] or config["http"]["auth"]:
         existing = config["scope"]["exclude_patterns"]
         config["scope"]["exclude_patterns"] = existing + [
             p for p in DESTRUCTIVE_PATH_PATTERNS if p not in existing
@@ -1648,6 +1729,14 @@ def _redact_credential_headers(entries: list[dict[str, Any]]) -> list[dict[str, 
     ]
 
 
+def _redact_http_auth(entries: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """Keep authentication method/host provenance, never env-var references."""
+    return [
+        {"host": entry.get("host", ""), "scheme": entry.get("scheme", "")}
+        for entry in entries
+    ]
+
+
 def manifest(config: dict[str, Any]) -> dict[str, Any]:
     """The resolved values of every setting that can change what was found.
 
@@ -1666,6 +1755,8 @@ def manifest(config: dict[str, Any]) -> dict[str, Any]:
             value = redact_sensitive_headers(value)
         elif path == "http.credential_headers":
             value = _redact_credential_headers(value)
+        elif path == "http.auth":
+            value = _redact_http_auth(value)
         elif path == "http.proxy":
             identity = config["http"].get("proxy_identity", "")
             authenticated = config["http"].get("proxy_authenticated", False)
@@ -1699,6 +1790,25 @@ def resolve_credential_headers(entries: list[dict[str, Any]], host: str) -> dict
             if match:
                 resolved[name] = os.environ.get(match.group(1), "")
     return resolved
+
+
+def request_headers(config: dict[str, Any]) -> dict[str, str] | None:
+    """Explicit non-secret request headers, including opt-in zstd negotiation."""
+    http = config["http"]
+    headers = dict(http["headers"])
+    if http["zstd"]:
+        accept_key = next(
+            (name for name in headers if name.lower() == "accept-encoding"),
+            "Accept-Encoding",
+        )
+        accepted = [
+            part.strip().lower()
+            for part in headers.get(accept_key, "gzip, deflate").split(",")
+        ]
+        if "zstd" not in accepted:
+            accepted.append("zstd")
+        headers[accept_key] = ", ".join(accepted)
+    return headers or None
 
 
 def describe_settings() -> list[dict[str, Any]]:
@@ -1754,6 +1864,19 @@ def effective_request_rate(config: dict[str, Any]) -> float:
 RATE_WARN_RPS = 2.0
 
 
+def zstd_decoder_available() -> bool:
+    """Whether a bounded zstd decoder is available for explicitly negotiated responses."""
+    try:
+        from compression import zstd  # noqa: F401
+    except ImportError:
+        try:
+            import zstandard
+        except ImportError:
+            return False
+        return hasattr(zstandard, "ZstdDecompressor")
+    return hasattr(zstd, "open")
+
+
 def rate_warnings(config: dict[str, Any]) -> list[str]:
     """Warnings about the worst-case rate; empty while the rate is at or under the threshold."""
     rate = effective_request_rate(config)
@@ -1766,10 +1889,35 @@ def rate_warnings(config: dict[str, Any]) -> list[str]:
     ]
 
 
+def load_estimate(config: dict[str, Any]) -> dict[str, Any]:
+    """Return configured rate, a rate-cap duration floor, and an honest disk null."""
+    rate = effective_request_rate(config)
+    url_budget = config["limits"]["max_urls"]
+    duration = url_budget / rate if url_budget and 0 < rate < float("inf") else None
+    duration_reason = (
+        None
+        if duration is not None
+        else "a finite URL population and finite request rate are required"
+    )
+    return {
+        "format": "crawl-load-estimate.v1",
+        "request_rate_rps": None if rate == float("inf") else rate,
+        "request_rate_state": "unbounded" if rate == float("inf") else "configured_limit",
+        "duration_floor_seconds": duration,
+        "duration_reason": duration_reason,
+        "disk_estimate_bytes": None,
+        "disk_reason": (
+            "retained page, link and body sizes vary; configured storage caps are limits, not a measured estimate"
+        ),
+        "body_storage_budget_bytes": config.get("storage", {}).get("max_body_store_bytes"),
+    }
+
+
 def rate_fields(config: dict[str, Any]) -> dict[str, Any]:
-    """The rate as a crawl result reports it: the number (or "unbounded") and its warnings."""
+    """Configured rate, warnings and nullable pre-run capacity estimates."""
     rate = effective_request_rate(config)
     return {
         "effective_max_requests_per_second": "unbounded" if rate == float("inf") else rate,
         "warnings": rate_warnings(config),
+        "load_estimate": load_estimate(config),
     }

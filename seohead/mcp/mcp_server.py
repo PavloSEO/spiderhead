@@ -392,6 +392,13 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             result = with_project_notice(result, project, None)
         return _checked(result)
 
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_crawl_control(
+        project: str, run_id: str, action: Literal["pause", "stop"]
+    ) -> dict[str, Any]:
+        """Request a native project crawl to checkpoint and pause or stop by its run ID."""
+        return _checked(handlers.crawl_control(project=project, run_id=run_id, action=action))
+
     @mcp.tool(annotations=pure, structured_output=True)
     def seo_crawl_describe_settings() -> dict[str, Any]:
         """List every crawl-site config setting: dotted path, type, default value,
