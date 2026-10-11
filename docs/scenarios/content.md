@@ -6,9 +6,17 @@
 
 ## Covers
 
+- **Accessibility** — WCAG 2.0 A - Form <input> Elements Require Labels · WCAG 2.0 A - HTML Element Requires Lang Attribute · WCAG 2.0 A - Images Require Alternate Text · WCAG 2.0 A - Select Element Requires Accessible Name
+
 - **Content** — Low Content Pages · Near Duplicates · Lorem Ipsum Placeholder
 
 ## The chain
+
+Use a retained native scan (`crawl-site --scan-out ./content.sqlite`) to inspect the
+static accessibility findings alongside content evidence: language declarations,
+control labels, image alternatives, heading jumps and the main landmark. Findings
+include bounded examples and full occurrence counts from the active document.
+This subset cannot answer computed contrast or full rendered axe-core/WCAG compliance.
 
 **1. Extract the content region as Markdown.**
 

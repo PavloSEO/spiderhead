@@ -115,3 +115,63 @@ def test_scan_reads_one_retained_document_and_reports_missing_urls(tmp_path):
         assert con.execute("SELECT COUNT(*) FROM documents").fetchone()[0] == 1
     finally:
         con.close()
+
+
+def test_parsed_json_retains_tree_without_validator_annotations():
+    import json
+
+    (block,) = structured_blocks(_page(PRODUCT))["blocks"]
+    assert block["parsed_json"] == json.loads(PRODUCT)
+    assert block["column"] == 0
+    assert not any(key.startswith("_") for key in block["parsed_json"])
+    broken = structured_blocks(_page("{bad}"))["blocks"][0]
+    assert broken["parsed_json"] is None
+
+
+def test_property_tree_limit_applies_to_wide_objects_and_lists():
+    import json
+
+    from seohead.checks.structured_blocks import MAX_PROPERTIES
+
+    raw = json.dumps({"@type": "Thing", "extra": list(range(MAX_PROPERTIES + 50))})
+    (block,) = structured_blocks(_page(raw))["blocks"]
+    assert len(block["properties"]) == MAX_PROPERTIES
+    assert block["property_limit_reached"] is True
+
+
+def test_parsed_json_is_unavailable_when_source_exceeds_response_bound():
+    raw = '{"@type":"Thing","name":"' + "x" * (SOURCE_CHARS + 10) + '"}'
+    (block,) = structured_blocks(_page(raw))["blocks"]
+    assert block["parsed_json"] is None
+    assert block["source_truncated"] is True
+
+
+def test_foreign_context_does_not_get_schema_org_clean_validation():
+    (block,) = structured_blocks(
+        _page('{"@context":"https://example.test/vocab","@type":"Thing"}')
+    )["blocks"]
+    assert block["state"] == "warnings"
+    assert block["warnings"]
+
+
+def test_non_entity_json_is_not_a_valid_structured_block():
+    for raw in ["1", "null", "{}", "[]"]:
+        (block,) = structured_blocks(_page(raw))["blocks"]
+        assert block["state"] == "errors"
+        assert block["errors"] == 1
+        assert "no entity definitions" in block["messages"][0]["text"]
+
+
+def test_padded_case_jsonld_type_uses_same_parser_and_served_selector():
+    from seohead.checks.parser import parse_html
+
+    html = '<script type=" APPLICATION/LD+JSON ">' + PRODUCT + "</script>"
+    assert parse_html(html, "https://example.test/")["jsonld"]
+    assert structured_blocks(html)["block_count"] == 1
+
+
+def test_shared_relative_cross_format_identity_does_not_create_dangling_error():
+    html = '<script type="application/ld+json">{"@type":"Article","headline":"A","author":{"@id":"#ada"}}</script><div itemscope itemtype="https://schema.org/Person" itemid="#ada"><span itemprop="name">Ada</span></div>'
+    (block,) = structured_blocks(html, base_url="https://example.test/page")["blocks"]
+    assert block["errors"] == 0
+    assert block["parsed_json"]["author"]["@id"] == "#ada"

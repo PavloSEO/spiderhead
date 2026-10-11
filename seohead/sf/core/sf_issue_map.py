@@ -518,14 +518,14 @@ CATEGORIES: dict[str, list[Entry]] = {
 # imply each was considered on its own merits; it was not, and pretending otherwise would make
 # the map look more thorough than it is.
 _ACCESSIBILITY_NOTE = (
-    "A full WCAG/axe-core engine. Real, valuable, and a different product: it needs a rendered "
-    "DOM, computed styles and a rule set larger than this entire registry. Out of scope until "
-    "that is a deliberate decision with its own design, not a checkbox."
+    "First static HTML accessibility checks are available. The remaining WCAG/axe-core "
+    "rules need a rendered DOM or computed styles and are not measured by this subset."
 )
 _AMP_NOTE = (
     "AMP is effectively retired: Google dropped the Top Stories carousel requirement in 2021 "
     "and the format is in maintenance. The AMP validator's document model is a separate "
-    "project, so these ten rules stay declined; only the pairing rules are checked."
+    "project. Structural source checks are available; the complete validator rule set "
+    "remains unavailable pending an owner licence decision."
 )
 
 
@@ -653,11 +653,45 @@ AMP_RULES = [
     "Other Validation Errors",
 ]
 
-CATEGORIES["Accessibility"] = _bulk(ACCESSIBILITY_RULES, _ACCESSIBILITY_NOTE)
+_STATIC_ACCESSIBILITY = {
+    "WCAG 2.0 A - HTML Element Requires Lang Attribute": "A11Y_HTML_LANG_MISSING",
+    "WCAG 2.0 A - Form <input> Elements Require Labels": "A11Y_FORM_LABEL_MISSING",
+    "WCAG 2.0 A - Select Element Requires Accessible Name": "A11Y_FORM_LABEL_MISSING",
+    "WCAG 2.0 A - Images Require Alternate Text": "A11Y_IMAGE_ALT_MISSING",
+}
+CATEGORIES["Accessibility"] = [
+    _p(
+        name,
+        "conservative static HTML subset; computed styles and full axe-core rules are unmeasured",
+        _STATIC_ACCESSIBILITY[name],
+    )
+    if name in _STATIC_ACCESSIBILITY
+    else _o(name, _ACCESSIBILITY_NOTE)
+    for name in ACCESSIBILITY_RULES
+]
+_STATIC_AMP = {
+    "Missing <html amp> Tag": "AMP_MISSING_HTML_ATTRIBUTE",
+    "Missing/Invalid Doctype HTML Tag": "AMP_INVALID_DOCTYPE",
+    "Missing Head Tag": "AMP_MISSING_HEAD",
+    "Missing Body Tag": "AMP_MISSING_BODY",
+    "Missing/Invalid Meta Charset Tag": "AMP_INVALID_CHARSET",
+    "Missing/Invalid Meta Viewport Tag": "AMP_INVALID_VIEWPORT",
+    "Missing/Invalid AMP Script": "AMP_INVALID_RUNTIME",
+    "Missing/Invalid AMP Boilerplate": "AMP_INVALID_BOILERPLATE",
+}
 CATEGORIES["AMP"] = [
     _c(name, code, note="pairing read from the AMP target the crawl captured (#1020)")
     for name, code in AMP_PAIRING_RULES.items()
-] + _bulk(AMP_RULES, _AMP_NOTE)
+] + [
+    _p(
+        name,
+        "source structural check; boilerplate CSS and full validator rules are unmeasured",
+        _STATIC_AMP[name],
+    )
+    if name in _STATIC_AMP
+    else _o(name, _AMP_NOTE)
+    for name in AMP_RULES
+]
 
 
 def entries() -> list[tuple[str, Entry]]:

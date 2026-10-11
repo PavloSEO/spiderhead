@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**202 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**218 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -353,3 +353,24 @@ python scripts/generate_checks_reference.py
 | `MISSING_TERMS_PAGE` | notice | SF-derived | No indexable terms-of-use page was found in the crawl's scope | If a terms page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all. |
 | `FEW_CITATIONS` | notice | SF-derived | Content-shaped page has no observable outbound reference in its body content | Review whether the page should cite its sources. An outbound link inside the body copy is the only carrier a crawl can observe as a citation; the finding never asserts that any link is authoritative. |
 | `YMYL_REVIEW_CANDIDATE` | notice | SF-derived | URL path or title matches a YMYL-adjacent keyword — a review candidate only, not a classification | Have a specialist confirm whether the page genuinely covers Your-Money-Your-Life topics; if it does, the attribution and trust-page evidence above deserves a closer look. |
+
+## Document markup: structural AMP, static accessibility, and Schema.org validation
+
+| Check id | Severity | Evidence | Fires on | Fix |
+|---|---|---|---|---|
+| `AMP_MISSING_HTML_ATTRIBUTE` | warning | crawl:markup_evidence | AMP target does not declare the html amp or lightning attribute | Add the AMP attribute to the root html element, or correct the rel=amphtml target. |
+| `AMP_INVALID_DOCTYPE` | warning | crawl:markup_evidence | AMP document has a missing or invalid HTML5 doctype | Start the AMP source document with <!doctype html>. |
+| `AMP_MISSING_HEAD` | warning | crawl:markup_evidence | AMP source document has no explicit head element | Include an explicit head element in the AMP source. |
+| `AMP_MISSING_BODY` | warning | crawl:markup_evidence | AMP source document has no explicit body element | Include an explicit body element in the AMP source. |
+| `AMP_INVALID_CHARSET` | warning | crawl:markup_evidence | AMP head does not start with the required UTF-8 charset declaration | Place <meta charset="utf-8"> first in the AMP head. |
+| `AMP_INVALID_VIEWPORT` | warning | crawl:markup_evidence | AMP document lacks the required device-width viewport | Declare a viewport containing width=device-width in the head. |
+| `AMP_INVALID_RUNTIME` | warning | crawl:markup_evidence | AMP document lacks an async AMP runtime script in the head | Add <script async src="https://cdn.ampproject.org/v0.js"></script> to the AMP head. |
+| `AMP_INVALID_BOILERPLATE` | warning | crawl:markup_evidence | AMP document lacks the structural AMP boilerplate declarations | Include the required amp-boilerplate style and noscript fallback; validate their content with the official AMP validator. |
+| `A11Y_HTML_LANG_MISSING` | warning | crawl:markup_evidence | Root html element has no nonempty lang declaration | Declare the document language on html and review whether it matches the content. |
+| `A11Y_FORM_LABEL_MISSING` | warning | crawl:markup_evidence | Form control has no static accessible label | Associate a label with the control, or provide a valid aria-label or aria-labelledby reference. |
+| `A11Y_IMAGE_ALT_MISSING` | warning | crawl:markup_evidence | Image has no alt attribute or static accessible name | Provide meaningful alternative text; explicitly mark decorative images with empty alt text. |
+| `A11Y_HEADING_ORDER` | notice | crawl:markup_evidence | Heading sequence skips a level in the static document | Review the heading outline and use nested heading levels consistently. |
+| `A11Y_MAIN_LANDMARK_MISSING` | notice | crawl:markup_evidence | Document content has no main landmark | Mark the primary page content with main or role=main and verify navigation with assistive technology. |
+| `STRUCTURED_DATA_SCHEMA_ERROR` | warning | crawl:structured_evidence | Structured data contains errors under the bundled Schema.org vocabulary | Inspect the URL schema evidence and repair unknown types, properties, invalid values or unresolved references. |
+| `STRUCTURED_DATA_SCHEMA_WARNING` | notice | crawl:structured_evidence | Structured data contains warnings under the bundled Schema.org vocabulary | Review the URL schema evidence and correct ambiguous values or graph relationships. |
+| `STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING` | warning | crawl:structured_evidence | Structured data lacks required properties in the bundled local rich-result rules | Fill the required properties for the declared type and validate the result; local eligibility does not guarantee Google display. |

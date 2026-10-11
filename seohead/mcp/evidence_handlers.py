@@ -232,7 +232,7 @@ def scan_structured_blocks(
     try:
         row = con.execute(
             "SELECT d.document_id FROM documents d JOIN urls u USING(url_id) "
-            "WHERE u.url=? AND d.representation=? ORDER BY d.document_id LIMIT 1",
+            "WHERE u.url=? AND d.representation=? ORDER BY d.document_id DESC LIMIT 1",
             (url, representation),
         ).fetchone()
         if row is None:
@@ -252,7 +252,7 @@ def scan_structured_blocks(
                 "representation": representation,
                 "document_id": row["document_id"],
             }
-        result = structured_blocks(html)
+        result = structured_blocks(html, base_url=url)
         result.update(
             ok=True,
             representation=representation,

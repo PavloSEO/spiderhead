@@ -1,6 +1,226 @@
 {
   "format": "seohead.coverage.v1",
   "items": {
+    "check:A11Y_FORM_LABEL_MISSING": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:A11Y_FORM_LABEL_MISSING",
+        "kind": "check",
+        "operation": "check:A11Y_FORM_LABEL_MISSING",
+        "order": 0,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "95a94d75a91638ca9127aabd4ad0bd362cd2b937157c0864eeac0a81adc3bb8c",
+        "title": "Form control has no static accessible label"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:A11Y_FORM_LABEL_MISSING",
+            "kind": "check",
+            "operation": "check:A11Y_FORM_LABEL_MISSING",
+            "order": 0,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "95a94d75a91638ca9127aabd4ad0bd362cd2b937157c0864eeac0a81adc3bb8c",
+            "title": "Form control has no static accessible label"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:A11Y_HEADING_ORDER": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:A11Y_HEADING_ORDER",
+        "kind": "check",
+        "operation": "check:A11Y_HEADING_ORDER",
+        "order": 1,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "192d67a8200bc3af6bc83812ecb8c3519177926d201faaa8c7f22e3d11e78645",
+        "title": "Heading sequence skips a level in the static document"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:A11Y_HEADING_ORDER",
+            "kind": "check",
+            "operation": "check:A11Y_HEADING_ORDER",
+            "order": 1,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "192d67a8200bc3af6bc83812ecb8c3519177926d201faaa8c7f22e3d11e78645",
+            "title": "Heading sequence skips a level in the static document"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:A11Y_HTML_LANG_MISSING": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:A11Y_HTML_LANG_MISSING",
+        "kind": "check",
+        "operation": "check:A11Y_HTML_LANG_MISSING",
+        "order": 2,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "fad0718b77f9375ef258f3a5a3a291ed355ac359a5f48dc0f553d3936d7b9b2a",
+        "title": "Root html element has no nonempty lang declaration"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:A11Y_HTML_LANG_MISSING",
+            "kind": "check",
+            "operation": "check:A11Y_HTML_LANG_MISSING",
+            "order": 2,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "fad0718b77f9375ef258f3a5a3a291ed355ac359a5f48dc0f553d3936d7b9b2a",
+            "title": "Root html element has no nonempty lang declaration"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:A11Y_IMAGE_ALT_MISSING": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:A11Y_IMAGE_ALT_MISSING",
+        "kind": "check",
+        "operation": "check:A11Y_IMAGE_ALT_MISSING",
+        "order": 3,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "2c8aa0f7aeb54fb84331e63f6b107e233fa0646f7db022018c0890ab16658a06",
+        "title": "Image has no alt attribute or static accessible name"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:A11Y_IMAGE_ALT_MISSING",
+            "kind": "check",
+            "operation": "check:A11Y_IMAGE_ALT_MISSING",
+            "order": 3,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "2c8aa0f7aeb54fb84331e63f6b107e233fa0646f7db022018c0890ab16658a06",
+            "title": "Image has no alt attribute or static accessible name"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:A11Y_MAIN_LANDMARK_MISSING": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:A11Y_MAIN_LANDMARK_MISSING",
+        "kind": "check",
+        "operation": "check:A11Y_MAIN_LANDMARK_MISSING",
+        "order": 4,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "c86fd4ef2006e9df0e39aa8effdb7b3d126e90b59b0771225c95c8c6bfb172c9",
+        "title": "Document content has no main landmark"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:A11Y_MAIN_LANDMARK_MISSING",
+            "kind": "check",
+            "operation": "check:A11Y_MAIN_LANDMARK_MISSING",
+            "order": 4,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "c86fd4ef2006e9df0e39aa8effdb7b3d126e90b59b0771225c95c8c6bfb172c9",
+            "title": "Document content has no main landmark"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
     "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT": {
       "definition": {
         "dependencies": [],
@@ -9,7 +229,7 @@
         "id": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
         "kind": "check",
         "operation": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
-        "order": 0,
+        "order": 5,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -29,7 +249,7 @@
             "id": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
             "kind": "check",
             "operation": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
-            "order": 0,
+            "order": 5,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -53,7 +273,7 @@
         "id": "check:AJAX_CRAWLING_SCHEME_URL",
         "kind": "check",
         "operation": "check:AJAX_CRAWLING_SCHEME_URL",
-        "order": 1,
+        "order": 6,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -73,7 +293,7 @@
             "id": "check:AJAX_CRAWLING_SCHEME_URL",
             "kind": "check",
             "operation": "check:AJAX_CRAWLING_SCHEME_URL",
-            "order": 1,
+            "order": 6,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -97,7 +317,7 @@
         "id": "check:AMPHTML_PRESENT",
         "kind": "check",
         "operation": "check:AMPHTML_PRESENT",
-        "order": 2,
+        "order": 7,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -117,7 +337,7 @@
             "id": "check:AMPHTML_PRESENT",
             "kind": "check",
             "operation": "check:AMPHTML_PRESENT",
-            "order": 2,
+            "order": 7,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -141,7 +361,7 @@
         "id": "check:AMP_INDEXABLE",
         "kind": "check",
         "operation": "check:AMP_INDEXABLE",
-        "order": 3,
+        "order": 8,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -161,7 +381,7 @@
             "id": "check:AMP_INDEXABLE",
             "kind": "check",
             "operation": "check:AMP_INDEXABLE",
-            "order": 3,
+            "order": 8,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -177,6 +397,270 @@
       ],
       "records": []
     },
+    "check:AMP_INVALID_BOILERPLATE": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:AMP_INVALID_BOILERPLATE",
+        "kind": "check",
+        "operation": "check:AMP_INVALID_BOILERPLATE",
+        "order": 9,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "4f3e91b4175bfa9e9a0caf928626dd648ec62198287652cb0404afe1b7dc8ab3",
+        "title": "AMP document lacks the structural AMP boilerplate declarations"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:AMP_INVALID_BOILERPLATE",
+            "kind": "check",
+            "operation": "check:AMP_INVALID_BOILERPLATE",
+            "order": 9,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "4f3e91b4175bfa9e9a0caf928626dd648ec62198287652cb0404afe1b7dc8ab3",
+            "title": "AMP document lacks the structural AMP boilerplate declarations"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:AMP_INVALID_CHARSET": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:AMP_INVALID_CHARSET",
+        "kind": "check",
+        "operation": "check:AMP_INVALID_CHARSET",
+        "order": 10,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "59ceb6a44c9bad40ac43ebc6f31e5306116cb160b55e8c461473360ac3cbaac8",
+        "title": "AMP head does not start with the required UTF-8 charset declaration"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:AMP_INVALID_CHARSET",
+            "kind": "check",
+            "operation": "check:AMP_INVALID_CHARSET",
+            "order": 10,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "59ceb6a44c9bad40ac43ebc6f31e5306116cb160b55e8c461473360ac3cbaac8",
+            "title": "AMP head does not start with the required UTF-8 charset declaration"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:AMP_INVALID_DOCTYPE": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:AMP_INVALID_DOCTYPE",
+        "kind": "check",
+        "operation": "check:AMP_INVALID_DOCTYPE",
+        "order": 11,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "c9319e672b3f8eba7ce16701c3abeecbc2f619e4a65e21852785446d59619f63",
+        "title": "AMP document has a missing or invalid HTML5 doctype"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:AMP_INVALID_DOCTYPE",
+            "kind": "check",
+            "operation": "check:AMP_INVALID_DOCTYPE",
+            "order": 11,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "c9319e672b3f8eba7ce16701c3abeecbc2f619e4a65e21852785446d59619f63",
+            "title": "AMP document has a missing or invalid HTML5 doctype"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:AMP_INVALID_RUNTIME": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:AMP_INVALID_RUNTIME",
+        "kind": "check",
+        "operation": "check:AMP_INVALID_RUNTIME",
+        "order": 12,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "06ac1fca5572bb1fe2a1469dc96ad02e85567bb48d1067d53d7e5cea0a4fbd6e",
+        "title": "AMP document lacks an async AMP runtime script in the head"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:AMP_INVALID_RUNTIME",
+            "kind": "check",
+            "operation": "check:AMP_INVALID_RUNTIME",
+            "order": 12,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "06ac1fca5572bb1fe2a1469dc96ad02e85567bb48d1067d53d7e5cea0a4fbd6e",
+            "title": "AMP document lacks an async AMP runtime script in the head"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:AMP_INVALID_VIEWPORT": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:AMP_INVALID_VIEWPORT",
+        "kind": "check",
+        "operation": "check:AMP_INVALID_VIEWPORT",
+        "order": 13,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "c5ee9109fdbd30e526c636d0dd5b3b0ea40967c7fbe9a7f873dd3addcf01ff26",
+        "title": "AMP document lacks the required device-width viewport"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:AMP_INVALID_VIEWPORT",
+            "kind": "check",
+            "operation": "check:AMP_INVALID_VIEWPORT",
+            "order": 13,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "c5ee9109fdbd30e526c636d0dd5b3b0ea40967c7fbe9a7f873dd3addcf01ff26",
+            "title": "AMP document lacks the required device-width viewport"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:AMP_MISSING_BODY": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:AMP_MISSING_BODY",
+        "kind": "check",
+        "operation": "check:AMP_MISSING_BODY",
+        "order": 14,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "2ad996d03ab71c639c750918fcfc2802da7ae2b459c514e8b27effddfba9a3a1",
+        "title": "AMP source document has no explicit body element"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:AMP_MISSING_BODY",
+            "kind": "check",
+            "operation": "check:AMP_MISSING_BODY",
+            "order": 14,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "2ad996d03ab71c639c750918fcfc2802da7ae2b459c514e8b27effddfba9a3a1",
+            "title": "AMP source document has no explicit body element"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
     "check:AMP_MISSING_CANONICAL": {
       "definition": {
         "dependencies": [],
@@ -185,7 +669,7 @@
         "id": "check:AMP_MISSING_CANONICAL",
         "kind": "check",
         "operation": "check:AMP_MISSING_CANONICAL",
-        "order": 4,
+        "order": 15,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -205,7 +689,7 @@
             "id": "check:AMP_MISSING_CANONICAL",
             "kind": "check",
             "operation": "check:AMP_MISSING_CANONICAL",
-            "order": 4,
+            "order": 15,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -221,6 +705,94 @@
       ],
       "records": []
     },
+    "check:AMP_MISSING_HEAD": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:AMP_MISSING_HEAD",
+        "kind": "check",
+        "operation": "check:AMP_MISSING_HEAD",
+        "order": 16,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "a64c3b53b52e9df22dc2264f02f5575b37c8be327f293d8c1ae3439d97bada04",
+        "title": "AMP source document has no explicit head element"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:AMP_MISSING_HEAD",
+            "kind": "check",
+            "operation": "check:AMP_MISSING_HEAD",
+            "order": 16,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "a64c3b53b52e9df22dc2264f02f5575b37c8be327f293d8c1ae3439d97bada04",
+            "title": "AMP source document has no explicit head element"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:AMP_MISSING_HTML_ATTRIBUTE": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:AMP_MISSING_HTML_ATTRIBUTE",
+        "kind": "check",
+        "operation": "check:AMP_MISSING_HTML_ATTRIBUTE",
+        "order": 17,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "a5bc3335a394d53a6e83c02af98894484dc3a918fbcbb3a698632dbc4417c0b5",
+        "title": "AMP target does not declare the html amp or lightning attribute"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:AMP_MISSING_HTML_ATTRIBUTE",
+            "kind": "check",
+            "operation": "check:AMP_MISSING_HTML_ATTRIBUTE",
+            "order": 17,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "a5bc3335a394d53a6e83c02af98894484dc3a918fbcbb3a698632dbc4417c0b5",
+            "title": "AMP target does not declare the html amp or lightning attribute"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
     "check:AMP_MISSING_RETURN_LINK": {
       "definition": {
         "dependencies": [],
@@ -229,7 +801,7 @@
         "id": "check:AMP_MISSING_RETURN_LINK",
         "kind": "check",
         "operation": "check:AMP_MISSING_RETURN_LINK",
-        "order": 5,
+        "order": 18,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -249,7 +821,7 @@
             "id": "check:AMP_MISSING_RETURN_LINK",
             "kind": "check",
             "operation": "check:AMP_MISSING_RETURN_LINK",
-            "order": 5,
+            "order": 18,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -273,7 +845,7 @@
         "id": "check:AMP_NON_200",
         "kind": "check",
         "operation": "check:AMP_NON_200",
-        "order": 6,
+        "order": 19,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -293,7 +865,7 @@
             "id": "check:AMP_NON_200",
             "kind": "check",
             "operation": "check:AMP_NON_200",
-            "order": 6,
+            "order": 19,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -317,7 +889,7 @@
         "id": "check:AMP_NON_INDEXABLE_CANONICAL",
         "kind": "check",
         "operation": "check:AMP_NON_INDEXABLE_CANONICAL",
-        "order": 7,
+        "order": 20,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -337,7 +909,7 @@
             "id": "check:AMP_NON_INDEXABLE_CANONICAL",
             "kind": "check",
             "operation": "check:AMP_NON_INDEXABLE_CANONICAL",
-            "order": 7,
+            "order": 20,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -361,7 +933,7 @@
         "id": "check:BAD_REDIRECT_TYPE",
         "kind": "check",
         "operation": "check:BAD_REDIRECT_TYPE",
-        "order": 8,
+        "order": 21,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -381,7 +953,7 @@
             "id": "check:BAD_REDIRECT_TYPE",
             "kind": "check",
             "operation": "check:BAD_REDIRECT_TYPE",
-            "order": 8,
+            "order": 21,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -405,7 +977,7 @@
         "id": "check:BLOCKED_BY_ROBOTS",
         "kind": "check",
         "operation": "check:BLOCKED_BY_ROBOTS",
-        "order": 9,
+        "order": 22,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -425,7 +997,7 @@
             "id": "check:BLOCKED_BY_ROBOTS",
             "kind": "check",
             "operation": "check:BLOCKED_BY_ROBOTS",
-            "order": 9,
+            "order": 22,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -449,7 +1021,7 @@
         "id": "check:BODY_MISSING",
         "kind": "check",
         "operation": "check:BODY_MISSING",
-        "order": 10,
+        "order": 23,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -469,7 +1041,7 @@
             "id": "check:BODY_MISSING",
             "kind": "check",
             "operation": "check:BODY_MISSING",
-            "order": 10,
+            "order": 23,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -493,7 +1065,7 @@
         "id": "check:BODY_MULTIPLE",
         "kind": "check",
         "operation": "check:BODY_MULTIPLE",
-        "order": 11,
+        "order": 24,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -513,7 +1085,7 @@
             "id": "check:BODY_MULTIPLE",
             "kind": "check",
             "operation": "check:BODY_MULTIPLE",
-            "order": 11,
+            "order": 24,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -537,7 +1109,7 @@
         "id": "check:BROKEN_BOOKMARK",
         "kind": "check",
         "operation": "check:BROKEN_BOOKMARK",
-        "order": 12,
+        "order": 25,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -557,7 +1129,7 @@
             "id": "check:BROKEN_BOOKMARK",
             "kind": "check",
             "operation": "check:BROKEN_BOOKMARK",
-            "order": 12,
+            "order": 25,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -581,7 +1153,7 @@
         "id": "check:BROKEN_EXTERNAL_LINK",
         "kind": "check",
         "operation": "check:BROKEN_EXTERNAL_LINK",
-        "order": 13,
+        "order": 26,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -601,7 +1173,7 @@
             "id": "check:BROKEN_EXTERNAL_LINK",
             "kind": "check",
             "operation": "check:BROKEN_EXTERNAL_LINK",
-            "order": 13,
+            "order": 26,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -625,7 +1197,7 @@
         "id": "check:BROKEN_INTERNAL_LINK",
         "kind": "check",
         "operation": "check:BROKEN_INTERNAL_LINK",
-        "order": 14,
+        "order": 27,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -645,7 +1217,7 @@
             "id": "check:BROKEN_INTERNAL_LINK",
             "kind": "check",
             "operation": "check:BROKEN_INTERNAL_LINK",
-            "order": 14,
+            "order": 27,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -669,7 +1241,7 @@
         "id": "check:BROKEN_PAGE_4XX",
         "kind": "check",
         "operation": "check:BROKEN_PAGE_4XX",
-        "order": 15,
+        "order": 28,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -689,7 +1261,7 @@
             "id": "check:BROKEN_PAGE_4XX",
             "kind": "check",
             "operation": "check:BROKEN_PAGE_4XX",
-            "order": 15,
+            "order": 28,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -713,7 +1285,7 @@
         "id": "check:CANONICALISED",
         "kind": "check",
         "operation": "check:CANONICALISED",
-        "order": 16,
+        "order": 29,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -733,7 +1305,7 @@
             "id": "check:CANONICALISED",
             "kind": "check",
             "operation": "check:CANONICALISED",
-            "order": 16,
+            "order": 29,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -757,7 +1329,7 @@
         "id": "check:CANONICAL_CHAIN",
         "kind": "check",
         "operation": "check:CANONICAL_CHAIN",
-        "order": 17,
+        "order": 30,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -777,7 +1349,7 @@
             "id": "check:CANONICAL_CHAIN",
             "kind": "check",
             "operation": "check:CANONICAL_CHAIN",
-            "order": 17,
+            "order": 30,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -801,7 +1373,7 @@
         "id": "check:CANONICAL_FRAGMENT",
         "kind": "check",
         "operation": "check:CANONICAL_FRAGMENT",
-        "order": 18,
+        "order": 31,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -821,7 +1393,7 @@
             "id": "check:CANONICAL_FRAGMENT",
             "kind": "check",
             "operation": "check:CANONICAL_FRAGMENT",
-            "order": 18,
+            "order": 31,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -845,7 +1417,7 @@
         "id": "check:CANONICAL_HOMEPAGE_GROUP",
         "kind": "check",
         "operation": "check:CANONICAL_HOMEPAGE_GROUP",
-        "order": 19,
+        "order": 32,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -865,7 +1437,7 @@
             "id": "check:CANONICAL_HOMEPAGE_GROUP",
             "kind": "check",
             "operation": "check:CANONICAL_HOMEPAGE_GROUP",
-            "order": 19,
+            "order": 32,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -889,7 +1461,7 @@
         "id": "check:CANONICAL_MISSING",
         "kind": "check",
         "operation": "check:CANONICAL_MISSING",
-        "order": 20,
+        "order": 33,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -909,7 +1481,7 @@
             "id": "check:CANONICAL_MISSING",
             "kind": "check",
             "operation": "check:CANONICAL_MISSING",
-            "order": 20,
+            "order": 33,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -933,7 +1505,7 @@
         "id": "check:CANONICAL_MULTIPLE",
         "kind": "check",
         "operation": "check:CANONICAL_MULTIPLE",
-        "order": 21,
+        "order": 34,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -953,7 +1525,7 @@
             "id": "check:CANONICAL_MULTIPLE",
             "kind": "check",
             "operation": "check:CANONICAL_MULTIPLE",
-            "order": 21,
+            "order": 34,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -977,7 +1549,7 @@
         "id": "check:CANONICAL_NON_INDEXABLE",
         "kind": "check",
         "operation": "check:CANONICAL_NON_INDEXABLE",
-        "order": 22,
+        "order": 35,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -997,7 +1569,7 @@
             "id": "check:CANONICAL_NON_INDEXABLE",
             "kind": "check",
             "operation": "check:CANONICAL_NON_INDEXABLE",
-            "order": 22,
+            "order": 35,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1021,7 +1593,7 @@
         "id": "check:CANONICAL_OUTSIDE_HEAD",
         "kind": "check",
         "operation": "check:CANONICAL_OUTSIDE_HEAD",
-        "order": 23,
+        "order": 36,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1041,7 +1613,7 @@
             "id": "check:CANONICAL_OUTSIDE_HEAD",
             "kind": "check",
             "operation": "check:CANONICAL_OUTSIDE_HEAD",
-            "order": 23,
+            "order": 36,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1065,7 +1637,7 @@
         "id": "check:CANONICAL_RELATIVE",
         "kind": "check",
         "operation": "check:CANONICAL_RELATIVE",
-        "order": 24,
+        "order": 37,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1085,7 +1657,7 @@
             "id": "check:CANONICAL_RELATIVE",
             "kind": "check",
             "operation": "check:CANONICAL_RELATIVE",
-            "order": 24,
+            "order": 37,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1109,7 +1681,7 @@
         "id": "check:CANONICAL_TARGET_ERROR",
         "kind": "check",
         "operation": "check:CANONICAL_TARGET_ERROR",
-        "order": 25,
+        "order": 38,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1129,7 +1701,7 @@
             "id": "check:CANONICAL_TARGET_ERROR",
             "kind": "check",
             "operation": "check:CANONICAL_TARGET_ERROR",
-            "order": 25,
+            "order": 38,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1153,7 +1725,7 @@
         "id": "check:CANONICAL_TO_REDIRECT",
         "kind": "check",
         "operation": "check:CANONICAL_TO_REDIRECT",
-        "order": 26,
+        "order": 39,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1173,7 +1745,7 @@
             "id": "check:CANONICAL_TO_REDIRECT",
             "kind": "check",
             "operation": "check:CANONICAL_TO_REDIRECT",
-            "order": 26,
+            "order": 39,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1197,7 +1769,7 @@
         "id": "check:CONTENT_IN_IFRAME",
         "kind": "check",
         "operation": "check:CONTENT_IN_IFRAME",
-        "order": 27,
+        "order": 40,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1217,7 +1789,7 @@
             "id": "check:CONTENT_IN_IFRAME",
             "kind": "check",
             "operation": "check:CONTENT_IN_IFRAME",
-            "order": 27,
+            "order": 40,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1241,7 +1813,7 @@
         "id": "check:DECLARED_MIME_MISMATCH",
         "kind": "check",
         "operation": "check:DECLARED_MIME_MISMATCH",
-        "order": 28,
+        "order": 41,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1261,7 +1833,7 @@
             "id": "check:DECLARED_MIME_MISMATCH",
             "kind": "check",
             "operation": "check:DECLARED_MIME_MISMATCH",
-            "order": 28,
+            "order": 41,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1285,7 +1857,7 @@
         "id": "check:DEEP_CLICK_DEPTH",
         "kind": "check",
         "operation": "check:DEEP_CLICK_DEPTH",
-        "order": 29,
+        "order": 42,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1305,7 +1877,7 @@
             "id": "check:DEEP_CLICK_DEPTH",
             "kind": "check",
             "operation": "check:DEEP_CLICK_DEPTH",
-            "order": 29,
+            "order": 42,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1329,7 +1901,7 @@
         "id": "check:DEEP_CRAWL_DEPTH",
         "kind": "check",
         "operation": "check:DEEP_CRAWL_DEPTH",
-        "order": 30,
+        "order": 43,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1349,7 +1921,7 @@
             "id": "check:DEEP_CRAWL_DEPTH",
             "kind": "check",
             "operation": "check:DEEP_CRAWL_DEPTH",
-            "order": 30,
+            "order": 43,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1373,7 +1945,7 @@
         "id": "check:DEEP_DISCOVERY_PATH",
         "kind": "check",
         "operation": "check:DEEP_DISCOVERY_PATH",
-        "order": 31,
+        "order": 44,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1393,7 +1965,7 @@
             "id": "check:DEEP_DISCOVERY_PATH",
             "kind": "check",
             "operation": "check:DEEP_DISCOVERY_PATH",
-            "order": 31,
+            "order": 44,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1417,7 +1989,7 @@
         "id": "check:DESC_DUPLICATE",
         "kind": "check",
         "operation": "check:DESC_DUPLICATE",
-        "order": 32,
+        "order": 45,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1437,7 +2009,7 @@
             "id": "check:DESC_DUPLICATE",
             "kind": "check",
             "operation": "check:DESC_DUPLICATE",
-            "order": 32,
+            "order": 45,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1461,7 +2033,7 @@
         "id": "check:DESC_MISSING",
         "kind": "check",
         "operation": "check:DESC_MISSING",
-        "order": 33,
+        "order": 46,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1481,7 +2053,7 @@
             "id": "check:DESC_MISSING",
             "kind": "check",
             "operation": "check:DESC_MISSING",
-            "order": 33,
+            "order": 46,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1505,7 +2077,7 @@
         "id": "check:DESC_MULTIPLE",
         "kind": "check",
         "operation": "check:DESC_MULTIPLE",
-        "order": 34,
+        "order": 47,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1525,7 +2097,7 @@
             "id": "check:DESC_MULTIPLE",
             "kind": "check",
             "operation": "check:DESC_MULTIPLE",
-            "order": 34,
+            "order": 47,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1549,7 +2121,7 @@
         "id": "check:DESC_OUTSIDE_HEAD",
         "kind": "check",
         "operation": "check:DESC_OUTSIDE_HEAD",
-        "order": 35,
+        "order": 48,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1569,7 +2141,7 @@
             "id": "check:DESC_OUTSIDE_HEAD",
             "kind": "check",
             "operation": "check:DESC_OUTSIDE_HEAD",
-            "order": 35,
+            "order": 48,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1593,7 +2165,7 @@
         "id": "check:DESC_TOO_LONG",
         "kind": "check",
         "operation": "check:DESC_TOO_LONG",
-        "order": 36,
+        "order": 49,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1613,7 +2185,7 @@
             "id": "check:DESC_TOO_LONG",
             "kind": "check",
             "operation": "check:DESC_TOO_LONG",
-            "order": 36,
+            "order": 49,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1637,7 +2209,7 @@
         "id": "check:DESC_TOO_SHORT",
         "kind": "check",
         "operation": "check:DESC_TOO_SHORT",
-        "order": 37,
+        "order": 50,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1657,7 +2229,7 @@
             "id": "check:DESC_TOO_SHORT",
             "kind": "check",
             "operation": "check:DESC_TOO_SHORT",
-            "order": 37,
+            "order": 50,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1681,7 +2253,7 @@
         "id": "check:DIRECTIVES_OUTSIDE_HEAD",
         "kind": "check",
         "operation": "check:DIRECTIVES_OUTSIDE_HEAD",
-        "order": 38,
+        "order": 51,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1701,7 +2273,7 @@
             "id": "check:DIRECTIVES_OUTSIDE_HEAD",
             "kind": "check",
             "operation": "check:DIRECTIVES_OUTSIDE_HEAD",
-            "order": 38,
+            "order": 51,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1725,7 +2297,7 @@
         "id": "check:DOM_TOO_DEEP",
         "kind": "check",
         "operation": "check:DOM_TOO_DEEP",
-        "order": 39,
+        "order": 52,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1745,7 +2317,7 @@
             "id": "check:DOM_TOO_DEEP",
             "kind": "check",
             "operation": "check:DOM_TOO_DEEP",
-            "order": 39,
+            "order": 52,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1769,7 +2341,7 @@
         "id": "check:DOM_TOO_MANY_NODES",
         "kind": "check",
         "operation": "check:DOM_TOO_MANY_NODES",
-        "order": 40,
+        "order": 53,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1789,7 +2361,7 @@
             "id": "check:DOM_TOO_MANY_NODES",
             "kind": "check",
             "operation": "check:DOM_TOO_MANY_NODES",
-            "order": 40,
+            "order": 53,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1813,7 +2385,7 @@
         "id": "check:DUPLICATE_BY_HASH",
         "kind": "check",
         "operation": "check:DUPLICATE_BY_HASH",
-        "order": 41,
+        "order": 54,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1833,7 +2405,7 @@
             "id": "check:DUPLICATE_BY_HASH",
             "kind": "check",
             "operation": "check:DUPLICATE_BY_HASH",
-            "order": 41,
+            "order": 54,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1857,7 +2429,7 @@
         "id": "check:DUPLICATE_ID",
         "kind": "check",
         "operation": "check:DUPLICATE_ID",
-        "order": 42,
+        "order": 55,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1877,7 +2449,7 @@
             "id": "check:DUPLICATE_ID",
             "kind": "check",
             "operation": "check:DUPLICATE_ID",
-            "order": 42,
+            "order": 55,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1901,7 +2473,7 @@
         "id": "check:DUPLICATE_INTERNAL_LINK",
         "kind": "check",
         "operation": "check:DUPLICATE_INTERNAL_LINK",
-        "order": 43,
+        "order": 56,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1921,7 +2493,7 @@
             "id": "check:DUPLICATE_INTERNAL_LINK",
             "kind": "check",
             "operation": "check:DUPLICATE_INTERNAL_LINK",
-            "order": 43,
+            "order": 56,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1945,7 +2517,7 @@
         "id": "check:DUPLICATE_SECURITY_HEADER",
         "kind": "check",
         "operation": "check:DUPLICATE_SECURITY_HEADER",
-        "order": 44,
+        "order": 57,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -1965,7 +2537,7 @@
             "id": "check:DUPLICATE_SECURITY_HEADER",
             "kind": "check",
             "operation": "check:DUPLICATE_SECURITY_HEADER",
-            "order": 44,
+            "order": 57,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -1989,7 +2561,7 @@
         "id": "check:EXTERNAL_LINK_TO_REDIRECT",
         "kind": "check",
         "operation": "check:EXTERNAL_LINK_TO_REDIRECT",
-        "order": 45,
+        "order": 58,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2009,7 +2581,7 @@
             "id": "check:EXTERNAL_LINK_TO_REDIRECT",
             "kind": "check",
             "operation": "check:EXTERNAL_LINK_TO_REDIRECT",
-            "order": 45,
+            "order": 58,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2033,7 +2605,7 @@
         "id": "check:FEW_CITATIONS",
         "kind": "check",
         "operation": "check:FEW_CITATIONS",
-        "order": 46,
+        "order": 59,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2053,7 +2625,7 @@
             "id": "check:FEW_CITATIONS",
             "kind": "check",
             "operation": "check:FEW_CITATIONS",
-            "order": 46,
+            "order": 59,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2077,7 +2649,7 @@
         "id": "check:FILTER_CANONICAL_POLICY",
         "kind": "check",
         "operation": "check:FILTER_CANONICAL_POLICY",
-        "order": 47,
+        "order": 60,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2097,7 +2669,7 @@
             "id": "check:FILTER_CANONICAL_POLICY",
             "kind": "check",
             "operation": "check:FILTER_CANONICAL_POLICY",
-            "order": 47,
+            "order": 60,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2121,7 +2693,7 @@
         "id": "check:FOLLOW_AND_NOFOLLOW_INLINKS",
         "kind": "check",
         "operation": "check:FOLLOW_AND_NOFOLLOW_INLINKS",
-        "order": 48,
+        "order": 61,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2141,7 +2713,7 @@
             "id": "check:FOLLOW_AND_NOFOLLOW_INLINKS",
             "kind": "check",
             "operation": "check:FOLLOW_AND_NOFOLLOW_INLINKS",
-            "order": 48,
+            "order": 61,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2165,7 +2737,7 @@
         "id": "check:FORM_ON_HTTP_URL",
         "kind": "check",
         "operation": "check:FORM_ON_HTTP_URL",
-        "order": 49,
+        "order": 62,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2185,7 +2757,7 @@
             "id": "check:FORM_ON_HTTP_URL",
             "kind": "check",
             "operation": "check:FORM_ON_HTTP_URL",
-            "order": 49,
+            "order": 62,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2209,7 +2781,7 @@
         "id": "check:FORM_URL_INSECURE",
         "kind": "check",
         "operation": "check:FORM_URL_INSECURE",
-        "order": 50,
+        "order": 63,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2229,7 +2801,7 @@
             "id": "check:FORM_URL_INSECURE",
             "kind": "check",
             "operation": "check:FORM_URL_INSECURE",
-            "order": 50,
+            "order": 63,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2253,7 +2825,7 @@
         "id": "check:GENERIC_ANCHOR_TEXT",
         "kind": "check",
         "operation": "check:GENERIC_ANCHOR_TEXT",
-        "order": 51,
+        "order": 64,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2273,7 +2845,7 @@
             "id": "check:GENERIC_ANCHOR_TEXT",
             "kind": "check",
             "operation": "check:GENERIC_ANCHOR_TEXT",
-            "order": 51,
+            "order": 64,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2297,7 +2869,7 @@
         "id": "check:GRAMMAR_ERRORS",
         "kind": "check",
         "operation": "check:GRAMMAR_ERRORS",
-        "order": 52,
+        "order": 65,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2317,7 +2889,7 @@
             "id": "check:GRAMMAR_ERRORS",
             "kind": "check",
             "operation": "check:GRAMMAR_ERRORS",
-            "order": 52,
+            "order": 65,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2341,7 +2913,7 @@
         "id": "check:H1_ALT_TEXT_ONLY",
         "kind": "check",
         "operation": "check:H1_ALT_TEXT_ONLY",
-        "order": 53,
+        "order": 66,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2361,7 +2933,7 @@
             "id": "check:H1_ALT_TEXT_ONLY",
             "kind": "check",
             "operation": "check:H1_ALT_TEXT_ONLY",
-            "order": 53,
+            "order": 66,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2385,7 +2957,7 @@
         "id": "check:H1_DUPLICATE",
         "kind": "check",
         "operation": "check:H1_DUPLICATE",
-        "order": 54,
+        "order": 67,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2405,7 +2977,7 @@
             "id": "check:H1_DUPLICATE",
             "kind": "check",
             "operation": "check:H1_DUPLICATE",
-            "order": 54,
+            "order": 67,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2429,7 +3001,7 @@
         "id": "check:H1_MISSING",
         "kind": "check",
         "operation": "check:H1_MISSING",
-        "order": 55,
+        "order": 68,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2449,7 +3021,7 @@
             "id": "check:H1_MISSING",
             "kind": "check",
             "operation": "check:H1_MISSING",
-            "order": 55,
+            "order": 68,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2473,7 +3045,7 @@
         "id": "check:H1_MULTIPLE",
         "kind": "check",
         "operation": "check:H1_MULTIPLE",
-        "order": 56,
+        "order": 69,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2493,7 +3065,7 @@
             "id": "check:H1_MULTIPLE",
             "kind": "check",
             "operation": "check:H1_MULTIPLE",
-            "order": 56,
+            "order": 69,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2517,7 +3089,7 @@
         "id": "check:H1_TOO_LONG",
         "kind": "check",
         "operation": "check:H1_TOO_LONG",
-        "order": 57,
+        "order": 70,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2537,7 +3109,7 @@
             "id": "check:H1_TOO_LONG",
             "kind": "check",
             "operation": "check:H1_TOO_LONG",
-            "order": 57,
+            "order": 70,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2561,7 +3133,7 @@
         "id": "check:H2_DUPLICATE",
         "kind": "check",
         "operation": "check:H2_DUPLICATE",
-        "order": 58,
+        "order": 71,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2581,7 +3153,7 @@
             "id": "check:H2_DUPLICATE",
             "kind": "check",
             "operation": "check:H2_DUPLICATE",
-            "order": 58,
+            "order": 71,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2605,7 +3177,7 @@
         "id": "check:H2_MISSING",
         "kind": "check",
         "operation": "check:H2_MISSING",
-        "order": 59,
+        "order": 72,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2625,7 +3197,7 @@
             "id": "check:H2_MISSING",
             "kind": "check",
             "operation": "check:H2_MISSING",
-            "order": 59,
+            "order": 72,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2649,7 +3221,7 @@
         "id": "check:H2_TOO_LONG",
         "kind": "check",
         "operation": "check:H2_TOO_LONG",
-        "order": 60,
+        "order": 73,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2669,7 +3241,7 @@
             "id": "check:H2_TOO_LONG",
             "kind": "check",
             "operation": "check:H2_TOO_LONG",
-            "order": 60,
+            "order": 73,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2693,7 +3265,7 @@
         "id": "check:HEADING_BEFORE_H1",
         "kind": "check",
         "operation": "check:HEADING_BEFORE_H1",
-        "order": 61,
+        "order": 74,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2713,7 +3285,7 @@
             "id": "check:HEADING_BEFORE_H1",
             "kind": "check",
             "operation": "check:HEADING_BEFORE_H1",
-            "order": 61,
+            "order": 74,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2737,7 +3309,7 @@
         "id": "check:HEADING_IN_PAGE_CHROME",
         "kind": "check",
         "operation": "check:HEADING_IN_PAGE_CHROME",
-        "order": 62,
+        "order": 75,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2757,7 +3329,7 @@
             "id": "check:HEADING_IN_PAGE_CHROME",
             "kind": "check",
             "operation": "check:HEADING_IN_PAGE_CHROME",
-            "order": 62,
+            "order": 75,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2781,7 +3353,7 @@
         "id": "check:HEADING_SKIP",
         "kind": "check",
         "operation": "check:HEADING_SKIP",
-        "order": 63,
+        "order": 76,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2801,7 +3373,7 @@
             "id": "check:HEADING_SKIP",
             "kind": "check",
             "operation": "check:HEADING_SKIP",
-            "order": 63,
+            "order": 76,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2825,7 +3397,7 @@
         "id": "check:HEAD_MISSING",
         "kind": "check",
         "operation": "check:HEAD_MISSING",
-        "order": 64,
+        "order": 77,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2845,7 +3417,7 @@
             "id": "check:HEAD_MISSING",
             "kind": "check",
             "operation": "check:HEAD_MISSING",
-            "order": 64,
+            "order": 77,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2869,7 +3441,7 @@
         "id": "check:HEAD_MULTIPLE",
         "kind": "check",
         "operation": "check:HEAD_MULTIPLE",
-        "order": 65,
+        "order": 78,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2889,7 +3461,7 @@
             "id": "check:HEAD_MULTIPLE",
             "kind": "check",
             "operation": "check:HEAD_MULTIPLE",
-            "order": 65,
+            "order": 78,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2913,7 +3485,7 @@
         "id": "check:HEAD_NOT_FIRST",
         "kind": "check",
         "operation": "check:HEAD_NOT_FIRST",
-        "order": 66,
+        "order": 79,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2933,7 +3505,7 @@
             "id": "check:HEAD_NOT_FIRST",
             "kind": "check",
             "operation": "check:HEAD_NOT_FIRST",
-            "order": 66,
+            "order": 79,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -2957,7 +3529,7 @@
         "id": "check:HIGH_EXTERNAL_OUTLINKS",
         "kind": "check",
         "operation": "check:HIGH_EXTERNAL_OUTLINKS",
-        "order": 67,
+        "order": 80,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -2977,7 +3549,7 @@
             "id": "check:HIGH_EXTERNAL_OUTLINKS",
             "kind": "check",
             "operation": "check:HIGH_EXTERNAL_OUTLINKS",
-            "order": 67,
+            "order": 80,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3001,7 +3573,7 @@
         "id": "check:HIGH_OUTLINKS",
         "kind": "check",
         "operation": "check:HIGH_OUTLINKS",
-        "order": 68,
+        "order": 81,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3021,7 +3593,7 @@
             "id": "check:HIGH_OUTLINKS",
             "kind": "check",
             "operation": "check:HIGH_OUTLINKS",
-            "order": 68,
+            "order": 81,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3045,7 +3617,7 @@
         "id": "check:HREFLANG_BROKEN_TARGET",
         "kind": "check",
         "operation": "check:HREFLANG_BROKEN_TARGET",
-        "order": 69,
+        "order": 82,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3065,7 +3637,7 @@
             "id": "check:HREFLANG_BROKEN_TARGET",
             "kind": "check",
             "operation": "check:HREFLANG_BROKEN_TARGET",
-            "order": 69,
+            "order": 82,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3089,7 +3661,7 @@
         "id": "check:HREFLANG_ERROR",
         "kind": "check",
         "operation": "check:HREFLANG_ERROR",
-        "order": 70,
+        "order": 83,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3109,7 +3681,7 @@
             "id": "check:HREFLANG_ERROR",
             "kind": "check",
             "operation": "check:HREFLANG_ERROR",
-            "order": 70,
+            "order": 83,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3133,7 +3705,7 @@
         "id": "check:HREFLANG_INCONSISTENT_CONFIRMATION",
         "kind": "check",
         "operation": "check:HREFLANG_INCONSISTENT_CONFIRMATION",
-        "order": 71,
+        "order": 84,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3153,7 +3725,7 @@
             "id": "check:HREFLANG_INCONSISTENT_CONFIRMATION",
             "kind": "check",
             "operation": "check:HREFLANG_INCONSISTENT_CONFIRMATION",
-            "order": 71,
+            "order": 84,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3177,7 +3749,7 @@
         "id": "check:HREFLANG_INVALID_CODE",
         "kind": "check",
         "operation": "check:HREFLANG_INVALID_CODE",
-        "order": 72,
+        "order": 85,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3197,7 +3769,7 @@
             "id": "check:HREFLANG_INVALID_CODE",
             "kind": "check",
             "operation": "check:HREFLANG_INVALID_CODE",
-            "order": 72,
+            "order": 85,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3221,7 +3793,7 @@
         "id": "check:HREFLANG_MISSING_RETURN_LINK",
         "kind": "check",
         "operation": "check:HREFLANG_MISSING_RETURN_LINK",
-        "order": 73,
+        "order": 86,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3241,7 +3813,7 @@
             "id": "check:HREFLANG_MISSING_RETURN_LINK",
             "kind": "check",
             "operation": "check:HREFLANG_MISSING_RETURN_LINK",
-            "order": 73,
+            "order": 86,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3265,7 +3837,7 @@
         "id": "check:HREFLANG_MISSING_SELF_REFERENCE",
         "kind": "check",
         "operation": "check:HREFLANG_MISSING_SELF_REFERENCE",
-        "order": 74,
+        "order": 87,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3285,7 +3857,7 @@
             "id": "check:HREFLANG_MISSING_SELF_REFERENCE",
             "kind": "check",
             "operation": "check:HREFLANG_MISSING_SELF_REFERENCE",
-            "order": 74,
+            "order": 87,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3309,7 +3881,7 @@
         "id": "check:HREFLANG_MISSING_XDEFAULT",
         "kind": "check",
         "operation": "check:HREFLANG_MISSING_XDEFAULT",
-        "order": 75,
+        "order": 88,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3329,7 +3901,7 @@
             "id": "check:HREFLANG_MISSING_XDEFAULT",
             "kind": "check",
             "operation": "check:HREFLANG_MISSING_XDEFAULT",
-            "order": 75,
+            "order": 88,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3353,7 +3925,7 @@
         "id": "check:HREFLANG_MULTIPLE_ENTRIES",
         "kind": "check",
         "operation": "check:HREFLANG_MULTIPLE_ENTRIES",
-        "order": 76,
+        "order": 89,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3373,7 +3945,7 @@
             "id": "check:HREFLANG_MULTIPLE_ENTRIES",
             "kind": "check",
             "operation": "check:HREFLANG_MULTIPLE_ENTRIES",
-            "order": 76,
+            "order": 89,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3397,7 +3969,7 @@
         "id": "check:HREFLANG_NOINDEX_TARGET",
         "kind": "check",
         "operation": "check:HREFLANG_NOINDEX_TARGET",
-        "order": 77,
+        "order": 90,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3417,7 +3989,7 @@
             "id": "check:HREFLANG_NOINDEX_TARGET",
             "kind": "check",
             "operation": "check:HREFLANG_NOINDEX_TARGET",
-            "order": 77,
+            "order": 90,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3441,7 +4013,7 @@
         "id": "check:HREFLANG_NOT_CANONICAL",
         "kind": "check",
         "operation": "check:HREFLANG_NOT_CANONICAL",
-        "order": 78,
+        "order": 91,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3461,7 +4033,7 @@
             "id": "check:HREFLANG_NOT_CANONICAL",
             "kind": "check",
             "operation": "check:HREFLANG_NOT_CANONICAL",
-            "order": 78,
+            "order": 91,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3485,7 +4057,7 @@
         "id": "check:HREFLANG_OUTSIDE_HEAD",
         "kind": "check",
         "operation": "check:HREFLANG_OUTSIDE_HEAD",
-        "order": 79,
+        "order": 92,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3505,7 +4077,7 @@
             "id": "check:HREFLANG_OUTSIDE_HEAD",
             "kind": "check",
             "operation": "check:HREFLANG_OUTSIDE_HEAD",
-            "order": 79,
+            "order": 92,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3529,7 +4101,7 @@
         "id": "check:HREFLANG_UNLINKED_TARGET",
         "kind": "check",
         "operation": "check:HREFLANG_UNLINKED_TARGET",
-        "order": 80,
+        "order": 93,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3549,7 +4121,7 @@
             "id": "check:HREFLANG_UNLINKED_TARGET",
             "kind": "check",
             "operation": "check:HREFLANG_UNLINKED_TARGET",
-            "order": 80,
+            "order": 93,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3573,7 +4145,7 @@
         "id": "check:HTML_BLOAT",
         "kind": "check",
         "operation": "check:HTML_BLOAT",
-        "order": 81,
+        "order": 94,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3593,7 +4165,7 @@
             "id": "check:HTML_BLOAT",
             "kind": "check",
             "operation": "check:HTML_BLOAT",
-            "order": 81,
+            "order": 94,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3617,7 +4189,7 @@
         "id": "check:HTML_OVER_2MB",
         "kind": "check",
         "operation": "check:HTML_OVER_2MB",
-        "order": 82,
+        "order": 95,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3637,7 +4209,7 @@
             "id": "check:HTML_OVER_2MB",
             "kind": "check",
             "operation": "check:HTML_OVER_2MB",
-            "order": 82,
+            "order": 95,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3661,7 +4233,7 @@
         "id": "check:HTTP1_ONLY",
         "kind": "check",
         "operation": "check:HTTP1_ONLY",
-        "order": 83,
+        "order": 96,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3681,7 +4253,7 @@
             "id": "check:HTTP1_ONLY",
             "kind": "check",
             "operation": "check:HTTP1_ONLY",
-            "order": 83,
+            "order": 96,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3705,7 +4277,7 @@
         "id": "check:HTTP_LINK_ON_HTTPS",
         "kind": "check",
         "operation": "check:HTTP_LINK_ON_HTTPS",
-        "order": 84,
+        "order": 97,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3725,7 +4297,7 @@
             "id": "check:HTTP_LINK_ON_HTTPS",
             "kind": "check",
             "operation": "check:HTTP_LINK_ON_HTTPS",
-            "order": 84,
+            "order": 97,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3749,7 +4321,7 @@
         "id": "check:HTTP_REFRESH_REDIRECT",
         "kind": "check",
         "operation": "check:HTTP_REFRESH_REDIRECT",
-        "order": 85,
+        "order": 98,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3769,7 +4341,7 @@
             "id": "check:HTTP_REFRESH_REDIRECT",
             "kind": "check",
             "operation": "check:HTTP_REFRESH_REDIRECT",
-            "order": 85,
+            "order": 98,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3793,7 +4365,7 @@
         "id": "check:HTTP_URL",
         "kind": "check",
         "operation": "check:HTTP_URL",
-        "order": 86,
+        "order": 99,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3813,7 +4385,7 @@
             "id": "check:HTTP_URL",
             "kind": "check",
             "operation": "check:HTTP_URL",
-            "order": 86,
+            "order": 99,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3837,7 +4409,7 @@
         "id": "check:IMAGE_LINK_WITHOUT_TEXT",
         "kind": "check",
         "operation": "check:IMAGE_LINK_WITHOUT_TEXT",
-        "order": 87,
+        "order": 100,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3857,7 +4429,7 @@
             "id": "check:IMAGE_LINK_WITHOUT_TEXT",
             "kind": "check",
             "operation": "check:IMAGE_LINK_WITHOUT_TEXT",
-            "order": 87,
+            "order": 100,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3881,7 +4453,7 @@
         "id": "check:IMG_ALT_TOO_LONG",
         "kind": "check",
         "operation": "check:IMG_ALT_TOO_LONG",
-        "order": 88,
+        "order": 101,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3901,7 +4473,7 @@
             "id": "check:IMG_ALT_TOO_LONG",
             "kind": "check",
             "operation": "check:IMG_ALT_TOO_LONG",
-            "order": 88,
+            "order": 101,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3925,7 +4497,7 @@
         "id": "check:IMG_BROKEN",
         "kind": "check",
         "operation": "check:IMG_BROKEN",
-        "order": 89,
+        "order": 102,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3945,7 +4517,7 @@
             "id": "check:IMG_BROKEN",
             "kind": "check",
             "operation": "check:IMG_BROKEN",
-            "order": 89,
+            "order": 102,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -3969,7 +4541,7 @@
         "id": "check:IMG_MISSING_ALT",
         "kind": "check",
         "operation": "check:IMG_MISSING_ALT",
-        "order": 90,
+        "order": 103,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -3989,7 +4561,7 @@
             "id": "check:IMG_MISSING_ALT",
             "kind": "check",
             "operation": "check:IMG_MISSING_ALT",
-            "order": 90,
+            "order": 103,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4013,7 +4585,7 @@
         "id": "check:IMG_MISSING_ALT_ATTRIBUTE",
         "kind": "check",
         "operation": "check:IMG_MISSING_ALT_ATTRIBUTE",
-        "order": 91,
+        "order": 104,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4033,7 +4605,7 @@
             "id": "check:IMG_MISSING_ALT_ATTRIBUTE",
             "kind": "check",
             "operation": "check:IMG_MISSING_ALT_ATTRIBUTE",
-            "order": 91,
+            "order": 104,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4057,7 +4629,7 @@
         "id": "check:IMG_MISSING_DIMENSIONS",
         "kind": "check",
         "operation": "check:IMG_MISSING_DIMENSIONS",
-        "order": 92,
+        "order": 105,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4077,7 +4649,7 @@
             "id": "check:IMG_MISSING_DIMENSIONS",
             "kind": "check",
             "operation": "check:IMG_MISSING_DIMENSIONS",
-            "order": 92,
+            "order": 105,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4101,7 +4673,7 @@
         "id": "check:IMG_OVER_KB",
         "kind": "check",
         "operation": "check:IMG_OVER_KB",
-        "order": 93,
+        "order": 106,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4121,7 +4693,7 @@
             "id": "check:IMG_OVER_KB",
             "kind": "check",
             "operation": "check:IMG_OVER_KB",
-            "order": 93,
+            "order": 106,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4145,7 +4717,7 @@
         "id": "check:IMPORTANT_URL_BLOCKED_BY_ROBOTS",
         "kind": "check",
         "operation": "check:IMPORTANT_URL_BLOCKED_BY_ROBOTS",
-        "order": 94,
+        "order": 107,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4165,7 +4737,7 @@
             "id": "check:IMPORTANT_URL_BLOCKED_BY_ROBOTS",
             "kind": "check",
             "operation": "check:IMPORTANT_URL_BLOCKED_BY_ROBOTS",
-            "order": 94,
+            "order": 107,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4189,7 +4761,7 @@
         "id": "check:INLINK_BOILERPLATE_ONLY",
         "kind": "check",
         "operation": "check:INLINK_BOILERPLATE_ONLY",
-        "order": 95,
+        "order": 108,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4209,7 +4781,7 @@
             "id": "check:INLINK_BOILERPLATE_ONLY",
             "kind": "check",
             "operation": "check:INLINK_BOILERPLATE_ONLY",
-            "order": 95,
+            "order": 108,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4233,7 +4805,7 @@
         "id": "check:INSECURE_SUBRESOURCE",
         "kind": "check",
         "operation": "check:INSECURE_SUBRESOURCE",
-        "order": 96,
+        "order": 109,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4253,7 +4825,7 @@
             "id": "check:INSECURE_SUBRESOURCE",
             "kind": "check",
             "operation": "check:INSECURE_SUBRESOURCE",
-            "order": 96,
+            "order": 109,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4277,7 +4849,7 @@
         "id": "check:INTERNAL_LINK_SPONSORED_UGC",
         "kind": "check",
         "operation": "check:INTERNAL_LINK_SPONSORED_UGC",
-        "order": 97,
+        "order": 110,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4297,7 +4869,7 @@
             "id": "check:INTERNAL_LINK_SPONSORED_UGC",
             "kind": "check",
             "operation": "check:INTERNAL_LINK_SPONSORED_UGC",
-            "order": 97,
+            "order": 110,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4321,7 +4893,7 @@
         "id": "check:INTERNAL_LINK_TO_REDIRECT",
         "kind": "check",
         "operation": "check:INTERNAL_LINK_TO_REDIRECT",
-        "order": 98,
+        "order": 111,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4341,7 +4913,7 @@
             "id": "check:INTERNAL_LINK_TO_REDIRECT",
             "kind": "check",
             "operation": "check:INTERNAL_LINK_TO_REDIRECT",
-            "order": 98,
+            "order": 111,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4365,7 +4937,7 @@
         "id": "check:INTERNAL_NOFOLLOW_OUTLINKS",
         "kind": "check",
         "operation": "check:INTERNAL_NOFOLLOW_OUTLINKS",
-        "order": 99,
+        "order": 112,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4385,7 +4957,7 @@
             "id": "check:INTERNAL_NOFOLLOW_OUTLINKS",
             "kind": "check",
             "operation": "check:INTERNAL_NOFOLLOW_OUTLINKS",
-            "order": 99,
+            "order": 112,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4409,7 +4981,7 @@
         "id": "check:INVALID_HEAD_ELEMENT",
         "kind": "check",
         "operation": "check:INVALID_HEAD_ELEMENT",
-        "order": 100,
+        "order": 113,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4429,7 +5001,7 @@
             "id": "check:INVALID_HEAD_ELEMENT",
             "kind": "check",
             "operation": "check:INVALID_HEAD_ELEMENT",
-            "order": 100,
+            "order": 113,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4453,7 +5025,7 @@
         "id": "check:JS_CONSOLE_ERRORS",
         "kind": "check",
         "operation": "check:JS_CONSOLE_ERRORS",
-        "order": 101,
+        "order": 114,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4473,7 +5045,7 @@
             "id": "check:JS_CONSOLE_ERRORS",
             "kind": "check",
             "operation": "check:JS_CONSOLE_ERRORS",
-            "order": 101,
+            "order": 114,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4497,7 +5069,7 @@
         "id": "check:LARGE_HTML",
         "kind": "check",
         "operation": "check:LARGE_HTML",
-        "order": 102,
+        "order": 115,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4517,7 +5089,7 @@
             "id": "check:LARGE_HTML",
             "kind": "check",
             "operation": "check:LARGE_HTML",
-            "order": 102,
+            "order": 115,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4541,7 +5113,7 @@
         "id": "check:LINK_INSIDE_HEADING",
         "kind": "check",
         "operation": "check:LINK_INSIDE_HEADING",
-        "order": 103,
+        "order": 116,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4561,7 +5133,7 @@
             "id": "check:LINK_INSIDE_HEADING",
             "kind": "check",
             "operation": "check:LINK_INSIDE_HEADING",
-            "order": 103,
+            "order": 116,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4585,7 +5157,7 @@
         "id": "check:LINK_TO_5XX",
         "kind": "check",
         "operation": "check:LINK_TO_5XX",
-        "order": 104,
+        "order": 117,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4605,7 +5177,7 @@
             "id": "check:LINK_TO_5XX",
             "kind": "check",
             "operation": "check:LINK_TO_5XX",
-            "order": 104,
+            "order": 117,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4629,7 +5201,7 @@
         "id": "check:LONG_SENTENCES",
         "kind": "check",
         "operation": "check:LONG_SENTENCES",
-        "order": 105,
+        "order": 118,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4649,7 +5221,7 @@
             "id": "check:LONG_SENTENCES",
             "kind": "check",
             "operation": "check:LONG_SENTENCES",
-            "order": 105,
+            "order": 118,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4673,7 +5245,7 @@
         "id": "check:LOREM_IPSUM_PLACEHOLDER",
         "kind": "check",
         "operation": "check:LOREM_IPSUM_PLACEHOLDER",
-        "order": 106,
+        "order": 119,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4693,7 +5265,7 @@
             "id": "check:LOREM_IPSUM_PLACEHOLDER",
             "kind": "check",
             "operation": "check:LOREM_IPSUM_PLACEHOLDER",
-            "order": 106,
+            "order": 119,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4717,7 +5289,7 @@
         "id": "check:LOW_LINK_SCORE",
         "kind": "check",
         "operation": "check:LOW_LINK_SCORE",
-        "order": 107,
+        "order": 120,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4737,7 +5309,7 @@
             "id": "check:LOW_LINK_SCORE",
             "kind": "check",
             "operation": "check:LOW_LINK_SCORE",
-            "order": 107,
+            "order": 120,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4761,7 +5333,7 @@
         "id": "check:LOW_TEXT_RATIO",
         "kind": "check",
         "operation": "check:LOW_TEXT_RATIO",
-        "order": 108,
+        "order": 121,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4781,7 +5353,7 @@
             "id": "check:LOW_TEXT_RATIO",
             "kind": "check",
             "operation": "check:LOW_TEXT_RATIO",
-            "order": 108,
+            "order": 121,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4805,7 +5377,7 @@
         "id": "check:META_KEYWORDS_PRESENT",
         "kind": "check",
         "operation": "check:META_KEYWORDS_PRESENT",
-        "order": 109,
+        "order": 122,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4825,7 +5397,7 @@
             "id": "check:META_KEYWORDS_PRESENT",
             "kind": "check",
             "operation": "check:META_KEYWORDS_PRESENT",
-            "order": 109,
+            "order": 122,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4849,7 +5421,7 @@
         "id": "check:META_REFRESH_REDIRECT",
         "kind": "check",
         "operation": "check:META_REFRESH_REDIRECT",
-        "order": 110,
+        "order": 123,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4869,7 +5441,7 @@
             "id": "check:META_REFRESH_REDIRECT",
             "kind": "check",
             "operation": "check:META_REFRESH_REDIRECT",
-            "order": 110,
+            "order": 123,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4893,7 +5465,7 @@
         "id": "check:MISSING_ABOUT_PAGE",
         "kind": "check",
         "operation": "check:MISSING_ABOUT_PAGE",
-        "order": 111,
+        "order": 124,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4913,7 +5485,7 @@
             "id": "check:MISSING_ABOUT_PAGE",
             "kind": "check",
             "operation": "check:MISSING_ABOUT_PAGE",
-            "order": 111,
+            "order": 124,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4937,7 +5509,7 @@
         "id": "check:MISSING_CHARSET",
         "kind": "check",
         "operation": "check:MISSING_CHARSET",
-        "order": 112,
+        "order": 125,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -4957,7 +5529,7 @@
             "id": "check:MISSING_CHARSET",
             "kind": "check",
             "operation": "check:MISSING_CHARSET",
-            "order": 112,
+            "order": 125,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -4981,7 +5553,7 @@
         "id": "check:MISSING_CONTACT_PAGE",
         "kind": "check",
         "operation": "check:MISSING_CONTACT_PAGE",
-        "order": 113,
+        "order": 126,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5001,7 +5573,7 @@
             "id": "check:MISSING_CONTACT_PAGE",
             "kind": "check",
             "operation": "check:MISSING_CONTACT_PAGE",
-            "order": 113,
+            "order": 126,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5025,7 +5597,7 @@
         "id": "check:MISSING_CSP",
         "kind": "check",
         "operation": "check:MISSING_CSP",
-        "order": 114,
+        "order": 127,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5045,7 +5617,7 @@
             "id": "check:MISSING_CSP",
             "kind": "check",
             "operation": "check:MISSING_CSP",
-            "order": 114,
+            "order": 127,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5069,7 +5641,7 @@
         "id": "check:MISSING_DOCTYPE",
         "kind": "check",
         "operation": "check:MISSING_DOCTYPE",
-        "order": 115,
+        "order": 128,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5089,7 +5661,7 @@
             "id": "check:MISSING_DOCTYPE",
             "kind": "check",
             "operation": "check:MISSING_DOCTYPE",
-            "order": 115,
+            "order": 128,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5113,7 +5685,7 @@
         "id": "check:MISSING_HSTS",
         "kind": "check",
         "operation": "check:MISSING_HSTS",
-        "order": 116,
+        "order": 129,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5133,7 +5705,7 @@
             "id": "check:MISSING_HSTS",
             "kind": "check",
             "operation": "check:MISSING_HSTS",
-            "order": 116,
+            "order": 129,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5157,7 +5729,7 @@
         "id": "check:MISSING_PRIVACY_POLICY",
         "kind": "check",
         "operation": "check:MISSING_PRIVACY_POLICY",
-        "order": 117,
+        "order": 130,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5177,7 +5749,7 @@
             "id": "check:MISSING_PRIVACY_POLICY",
             "kind": "check",
             "operation": "check:MISSING_PRIVACY_POLICY",
-            "order": 117,
+            "order": 130,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5201,7 +5773,7 @@
         "id": "check:MISSING_REFERRER_POLICY",
         "kind": "check",
         "operation": "check:MISSING_REFERRER_POLICY",
-        "order": 118,
+        "order": 131,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5221,7 +5793,7 @@
             "id": "check:MISSING_REFERRER_POLICY",
             "kind": "check",
             "operation": "check:MISSING_REFERRER_POLICY",
-            "order": 118,
+            "order": 131,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5245,7 +5817,7 @@
         "id": "check:MISSING_TERMS_PAGE",
         "kind": "check",
         "operation": "check:MISSING_TERMS_PAGE",
-        "order": 119,
+        "order": 132,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5265,7 +5837,7 @@
             "id": "check:MISSING_TERMS_PAGE",
             "kind": "check",
             "operation": "check:MISSING_TERMS_PAGE",
-            "order": 119,
+            "order": 132,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5289,7 +5861,7 @@
         "id": "check:MISSING_X_CONTENT_TYPE_OPTIONS",
         "kind": "check",
         "operation": "check:MISSING_X_CONTENT_TYPE_OPTIONS",
-        "order": 120,
+        "order": 133,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5309,7 +5881,7 @@
             "id": "check:MISSING_X_CONTENT_TYPE_OPTIONS",
             "kind": "check",
             "operation": "check:MISSING_X_CONTENT_TYPE_OPTIONS",
-            "order": 120,
+            "order": 133,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5333,7 +5905,7 @@
         "id": "check:MISSING_X_FRAME_OPTIONS",
         "kind": "check",
         "operation": "check:MISSING_X_FRAME_OPTIONS",
-        "order": 121,
+        "order": 134,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5353,7 +5925,7 @@
             "id": "check:MISSING_X_FRAME_OPTIONS",
             "kind": "check",
             "operation": "check:MISSING_X_FRAME_OPTIONS",
-            "order": 121,
+            "order": 134,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5377,7 +5949,7 @@
         "id": "check:MIXED_CONTENT",
         "kind": "check",
         "operation": "check:MIXED_CONTENT",
-        "order": 122,
+        "order": 135,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5397,7 +5969,7 @@
             "id": "check:MIXED_CONTENT",
             "kind": "check",
             "operation": "check:MIXED_CONTENT",
-            "order": 122,
+            "order": 135,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5421,7 +5993,7 @@
         "id": "check:MOBILE_ALTERNATE_LINK",
         "kind": "check",
         "operation": "check:MOBILE_ALTERNATE_LINK",
-        "order": 123,
+        "order": 136,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5441,7 +6013,7 @@
             "id": "check:MOBILE_ALTERNATE_LINK",
             "kind": "check",
             "operation": "check:MOBILE_ALTERNATE_LINK",
-            "order": 123,
+            "order": 136,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5465,7 +6037,7 @@
         "id": "check:NEAR_DUPLICATE",
         "kind": "check",
         "operation": "check:NEAR_DUPLICATE",
-        "order": 124,
+        "order": 137,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5485,7 +6057,7 @@
             "id": "check:NEAR_DUPLICATE",
             "kind": "check",
             "operation": "check:NEAR_DUPLICATE",
-            "order": 124,
+            "order": 137,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5509,7 +6081,7 @@
         "id": "check:NOARCHIVE",
         "kind": "check",
         "operation": "check:NOARCHIVE",
-        "order": 125,
+        "order": 138,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5529,7 +6101,7 @@
             "id": "check:NOARCHIVE",
             "kind": "check",
             "operation": "check:NOARCHIVE",
-            "order": 125,
+            "order": 138,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5553,7 +6125,7 @@
         "id": "check:NOFOLLOW_PAGE",
         "kind": "check",
         "operation": "check:NOFOLLOW_PAGE",
-        "order": 126,
+        "order": 139,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5573,7 +6145,7 @@
             "id": "check:NOFOLLOW_PAGE",
             "kind": "check",
             "operation": "check:NOFOLLOW_PAGE",
-            "order": 126,
+            "order": 139,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5597,7 +6169,7 @@
         "id": "check:NOIMAGEINDEX",
         "kind": "check",
         "operation": "check:NOIMAGEINDEX",
-        "order": 127,
+        "order": 140,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5617,7 +6189,7 @@
             "id": "check:NOIMAGEINDEX",
             "kind": "check",
             "operation": "check:NOIMAGEINDEX",
-            "order": 127,
+            "order": 140,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5641,7 +6213,7 @@
         "id": "check:NOINDEX",
         "kind": "check",
         "operation": "check:NOINDEX",
-        "order": 128,
+        "order": 141,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5661,7 +6233,7 @@
             "id": "check:NOINDEX",
             "kind": "check",
             "operation": "check:NOINDEX",
-            "order": 128,
+            "order": 141,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5685,7 +6257,7 @@
         "id": "check:NON_INDEXABLE_LINKED",
         "kind": "check",
         "operation": "check:NON_INDEXABLE_LINKED",
-        "order": 129,
+        "order": 142,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5705,7 +6277,7 @@
             "id": "check:NON_INDEXABLE_LINKED",
             "kind": "check",
             "operation": "check:NON_INDEXABLE_LINKED",
-            "order": 129,
+            "order": 142,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5729,7 +6301,7 @@
         "id": "check:NOODP",
         "kind": "check",
         "operation": "check:NOODP",
-        "order": 130,
+        "order": 143,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5749,7 +6321,7 @@
             "id": "check:NOODP",
             "kind": "check",
             "operation": "check:NOODP",
-            "order": 130,
+            "order": 143,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5773,7 +6345,7 @@
         "id": "check:NOSNIPPET",
         "kind": "check",
         "operation": "check:NOSNIPPET",
-        "order": 131,
+        "order": 144,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5793,7 +6365,7 @@
             "id": "check:NOSNIPPET",
             "kind": "check",
             "operation": "check:NOSNIPPET",
-            "order": 131,
+            "order": 144,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5817,7 +6389,7 @@
         "id": "check:NOTRANSLATE",
         "kind": "check",
         "operation": "check:NOTRANSLATE",
-        "order": 132,
+        "order": 145,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5837,7 +6409,7 @@
             "id": "check:NOTRANSLATE",
             "kind": "check",
             "operation": "check:NOTRANSLATE",
-            "order": 132,
+            "order": 145,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5861,7 +6433,7 @@
         "id": "check:NOYDIR",
         "kind": "check",
         "operation": "check:NOYDIR",
-        "order": 133,
+        "order": 146,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5881,7 +6453,7 @@
             "id": "check:NOYDIR",
             "kind": "check",
             "operation": "check:NOYDIR",
-            "order": 133,
+            "order": 146,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5905,7 +6477,7 @@
         "id": "check:NO_AUTHOR_BYLINE",
         "kind": "check",
         "operation": "check:NO_AUTHOR_BYLINE",
-        "order": 134,
+        "order": 147,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5925,7 +6497,7 @@
             "id": "check:NO_AUTHOR_BYLINE",
             "kind": "check",
             "operation": "check:NO_AUTHOR_BYLINE",
-            "order": 134,
+            "order": 147,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5949,7 +6521,7 @@
         "id": "check:NO_COMPRESSION",
         "kind": "check",
         "operation": "check:NO_COMPRESSION",
-        "order": 135,
+        "order": 148,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -5969,7 +6541,7 @@
             "id": "check:NO_COMPRESSION",
             "kind": "check",
             "operation": "check:NO_COMPRESSION",
-            "order": 135,
+            "order": 148,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -5993,7 +6565,7 @@
         "id": "check:NO_CONTENT_DATES",
         "kind": "check",
         "operation": "check:NO_CONTENT_DATES",
-        "order": 136,
+        "order": 149,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6013,7 +6585,7 @@
             "id": "check:NO_CONTENT_DATES",
             "kind": "check",
             "operation": "check:NO_CONTENT_DATES",
-            "order": 136,
+            "order": 149,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6037,7 +6609,7 @@
         "id": "check:NO_INTERNAL_OUTLINKS",
         "kind": "check",
         "operation": "check:NO_INTERNAL_OUTLINKS",
-        "order": 137,
+        "order": 150,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6057,7 +6629,7 @@
             "id": "check:NO_INTERNAL_OUTLINKS",
             "kind": "check",
             "operation": "check:NO_INTERNAL_OUTLINKS",
-            "order": 137,
+            "order": 150,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6081,7 +6653,7 @@
         "id": "check:NO_RESPONSE",
         "kind": "check",
         "operation": "check:NO_RESPONSE",
-        "order": 138,
+        "order": 151,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6101,7 +6673,7 @@
             "id": "check:NO_RESPONSE",
             "kind": "check",
             "operation": "check:NO_RESPONSE",
-            "order": 138,
+            "order": 151,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6125,7 +6697,7 @@
         "id": "check:OG_MISSING",
         "kind": "check",
         "operation": "check:OG_MISSING",
-        "order": 139,
+        "order": 152,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6145,7 +6717,7 @@
             "id": "check:OG_MISSING",
             "kind": "check",
             "operation": "check:OG_MISSING",
-            "order": 139,
+            "order": 152,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6169,7 +6741,7 @@
         "id": "check:ONLY_NOFOLLOW_INLINKS",
         "kind": "check",
         "operation": "check:ONLY_NOFOLLOW_INLINKS",
-        "order": 140,
+        "order": 153,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6189,7 +6761,7 @@
             "id": "check:ONLY_NOFOLLOW_INLINKS",
             "kind": "check",
             "operation": "check:ONLY_NOFOLLOW_INLINKS",
-            "order": 140,
+            "order": 153,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6213,7 +6785,7 @@
         "id": "check:ONLY_NONINDEXABLE_SOURCE_INLINKS",
         "kind": "check",
         "operation": "check:ONLY_NONINDEXABLE_SOURCE_INLINKS",
-        "order": 141,
+        "order": 154,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6233,7 +6805,7 @@
             "id": "check:ONLY_NONINDEXABLE_SOURCE_INLINKS",
             "kind": "check",
             "operation": "check:ONLY_NONINDEXABLE_SOURCE_INLINKS",
-            "order": 141,
+            "order": 154,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6257,7 +6829,7 @@
         "id": "check:ORPHAN_PAGE",
         "kind": "check",
         "operation": "check:ORPHAN_PAGE",
-        "order": 142,
+        "order": 155,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6277,7 +6849,7 @@
             "id": "check:ORPHAN_PAGE",
             "kind": "check",
             "operation": "check:ORPHAN_PAGE",
-            "order": 142,
+            "order": 155,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6301,7 +6873,7 @@
         "id": "check:OUTLINK_TO_LOCALHOST",
         "kind": "check",
         "operation": "check:OUTLINK_TO_LOCALHOST",
-        "order": 143,
+        "order": 156,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6321,7 +6893,7 @@
             "id": "check:OUTLINK_TO_LOCALHOST",
             "kind": "check",
             "operation": "check:OUTLINK_TO_LOCALHOST",
-            "order": 143,
+            "order": 156,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6345,7 +6917,7 @@
         "id": "check:PAGINATION_CANONICAL_POLICY",
         "kind": "check",
         "operation": "check:PAGINATION_CANONICAL_POLICY",
-        "order": 144,
+        "order": 157,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6365,7 +6937,7 @@
             "id": "check:PAGINATION_CANONICAL_POLICY",
             "kind": "check",
             "operation": "check:PAGINATION_CANONICAL_POLICY",
-            "order": 144,
+            "order": 157,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6389,7 +6961,7 @@
         "id": "check:PAGINATION_LOOP",
         "kind": "check",
         "operation": "check:PAGINATION_LOOP",
-        "order": 145,
+        "order": 158,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6409,7 +6981,7 @@
             "id": "check:PAGINATION_LOOP",
             "kind": "check",
             "operation": "check:PAGINATION_LOOP",
-            "order": 145,
+            "order": 158,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6433,7 +7005,7 @@
         "id": "check:PAGINATION_MULTIPLE",
         "kind": "check",
         "operation": "check:PAGINATION_MULTIPLE",
-        "order": 146,
+        "order": 159,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6453,7 +7025,7 @@
             "id": "check:PAGINATION_MULTIPLE",
             "kind": "check",
             "operation": "check:PAGINATION_MULTIPLE",
-            "order": 146,
+            "order": 159,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6477,7 +7049,7 @@
         "id": "check:PAGINATION_NONINDEXABLE",
         "kind": "check",
         "operation": "check:PAGINATION_NONINDEXABLE",
-        "order": 147,
+        "order": 160,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6497,7 +7069,7 @@
             "id": "check:PAGINATION_NONINDEXABLE",
             "kind": "check",
             "operation": "check:PAGINATION_NONINDEXABLE",
-            "order": 147,
+            "order": 160,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6521,7 +7093,7 @@
         "id": "check:PAGINATION_SEQUENCE_ERROR",
         "kind": "check",
         "operation": "check:PAGINATION_SEQUENCE_ERROR",
-        "order": 148,
+        "order": 161,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6541,7 +7113,7 @@
             "id": "check:PAGINATION_SEQUENCE_ERROR",
             "kind": "check",
             "operation": "check:PAGINATION_SEQUENCE_ERROR",
-            "order": 148,
+            "order": 161,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6565,7 +7137,7 @@
         "id": "check:PAGINATION_URL_NOT_IN_ANCHOR",
         "kind": "check",
         "operation": "check:PAGINATION_URL_NOT_IN_ANCHOR",
-        "order": 149,
+        "order": 162,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6585,7 +7157,7 @@
             "id": "check:PAGINATION_URL_NOT_IN_ANCHOR",
             "kind": "check",
             "operation": "check:PAGINATION_URL_NOT_IN_ANCHOR",
-            "order": 149,
+            "order": 162,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6609,7 +7181,7 @@
         "id": "check:PLACEHOLDER_MARKER",
         "kind": "check",
         "operation": "check:PLACEHOLDER_MARKER",
-        "order": 150,
+        "order": 163,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6629,7 +7201,7 @@
             "id": "check:PLACEHOLDER_MARKER",
             "kind": "check",
             "operation": "check:PLACEHOLDER_MARKER",
-            "order": 150,
+            "order": 163,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6653,7 +7225,7 @@
         "id": "check:PROTOCOL_RELATIVE_LINK",
         "kind": "check",
         "operation": "check:PROTOCOL_RELATIVE_LINK",
-        "order": 151,
+        "order": 164,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6673,7 +7245,7 @@
             "id": "check:PROTOCOL_RELATIVE_LINK",
             "kind": "check",
             "operation": "check:PROTOCOL_RELATIVE_LINK",
-            "order": 151,
+            "order": 164,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6697,7 +7269,7 @@
         "id": "check:READABILITY_DIFFICULT",
         "kind": "check",
         "operation": "check:READABILITY_DIFFICULT",
-        "order": 152,
+        "order": 165,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6717,7 +7289,7 @@
             "id": "check:READABILITY_DIFFICULT",
             "kind": "check",
             "operation": "check:READABILITY_DIFFICULT",
-            "order": 152,
+            "order": 165,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6741,7 +7313,7 @@
         "id": "check:REDIRECT_CHAIN",
         "kind": "check",
         "operation": "check:REDIRECT_CHAIN",
-        "order": 153,
+        "order": 166,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6761,7 +7333,7 @@
             "id": "check:REDIRECT_CHAIN",
             "kind": "check",
             "operation": "check:REDIRECT_CHAIN",
-            "order": 153,
+            "order": 166,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6785,7 +7357,7 @@
         "id": "check:REDIRECT_LOOP",
         "kind": "check",
         "operation": "check:REDIRECT_LOOP",
-        "order": 154,
+        "order": 167,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6805,7 +7377,7 @@
             "id": "check:REDIRECT_LOOP",
             "kind": "check",
             "operation": "check:REDIRECT_LOOP",
-            "order": 154,
+            "order": 167,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6829,7 +7401,7 @@
         "id": "check:ROBOTS_BLOCKS_RESOURCES",
         "kind": "check",
         "operation": "check:ROBOTS_BLOCKS_RESOURCES",
-        "order": 155,
+        "order": 168,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6849,7 +7421,7 @@
             "id": "check:ROBOTS_BLOCKS_RESOURCES",
             "kind": "check",
             "operation": "check:ROBOTS_BLOCKS_RESOURCES",
-            "order": 155,
+            "order": 168,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6873,7 +7445,7 @@
         "id": "check:SCHEMA_VALIDATION_ERROR",
         "kind": "check",
         "operation": "check:SCHEMA_VALIDATION_ERROR",
-        "order": 156,
+        "order": 169,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6893,7 +7465,7 @@
             "id": "check:SCHEMA_VALIDATION_ERROR",
             "kind": "check",
             "operation": "check:SCHEMA_VALIDATION_ERROR",
-            "order": 156,
+            "order": 169,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6917,7 +7489,7 @@
         "id": "check:SERVER_ERROR_5XX",
         "kind": "check",
         "operation": "check:SERVER_ERROR_5XX",
-        "order": 157,
+        "order": 170,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6937,7 +7509,7 @@
             "id": "check:SERVER_ERROR_5XX",
             "kind": "check",
             "operation": "check:SERVER_ERROR_5XX",
-            "order": 157,
+            "order": 170,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -6961,7 +7533,7 @@
         "id": "check:SITEMAP_DESYNC",
         "kind": "check",
         "operation": "check:SITEMAP_DESYNC",
-        "order": 158,
+        "order": 171,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -6981,7 +7553,7 @@
             "id": "check:SITEMAP_DESYNC",
             "kind": "check",
             "operation": "check:SITEMAP_DESYNC",
-            "order": 158,
+            "order": 171,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7005,7 +7577,7 @@
         "id": "check:SITEMAP_FETCH_INCOMPLETE",
         "kind": "check",
         "operation": "check:SITEMAP_FETCH_INCOMPLETE",
-        "order": 159,
+        "order": 172,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7025,7 +7597,7 @@
             "id": "check:SITEMAP_FETCH_INCOMPLETE",
             "kind": "check",
             "operation": "check:SITEMAP_FETCH_INCOMPLETE",
-            "order": 159,
+            "order": 172,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7049,7 +7621,7 @@
         "id": "check:SITEMAP_NOT_IN_ROBOTS",
         "kind": "check",
         "operation": "check:SITEMAP_NOT_IN_ROBOTS",
-        "order": 160,
+        "order": 173,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7069,7 +7641,7 @@
             "id": "check:SITEMAP_NOT_IN_ROBOTS",
             "kind": "check",
             "operation": "check:SITEMAP_NOT_IN_ROBOTS",
-            "order": 160,
+            "order": 173,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7093,7 +7665,7 @@
         "id": "check:SITEMAP_ORPHAN",
         "kind": "check",
         "operation": "check:SITEMAP_ORPHAN",
-        "order": 161,
+        "order": 174,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7113,7 +7685,7 @@
             "id": "check:SITEMAP_ORPHAN",
             "kind": "check",
             "operation": "check:SITEMAP_ORPHAN",
-            "order": 161,
+            "order": 174,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7137,7 +7709,7 @@
         "id": "check:SITEMAP_STALE_LASTMOD",
         "kind": "check",
         "operation": "check:SITEMAP_STALE_LASTMOD",
-        "order": 162,
+        "order": 175,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7157,7 +7729,7 @@
             "id": "check:SITEMAP_STALE_LASTMOD",
             "kind": "check",
             "operation": "check:SITEMAP_STALE_LASTMOD",
-            "order": 162,
+            "order": 175,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7181,7 +7753,7 @@
         "id": "check:SITEMAP_TOO_LARGE",
         "kind": "check",
         "operation": "check:SITEMAP_TOO_LARGE",
-        "order": 163,
+        "order": 176,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7201,7 +7773,7 @@
             "id": "check:SITEMAP_TOO_LARGE",
             "kind": "check",
             "operation": "check:SITEMAP_TOO_LARGE",
-            "order": 163,
+            "order": 176,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7225,7 +7797,7 @@
         "id": "check:SITEMAP_TOO_MANY_URLS",
         "kind": "check",
         "operation": "check:SITEMAP_TOO_MANY_URLS",
-        "order": 164,
+        "order": 177,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7245,7 +7817,7 @@
             "id": "check:SITEMAP_TOO_MANY_URLS",
             "kind": "check",
             "operation": "check:SITEMAP_TOO_MANY_URLS",
-            "order": 164,
+            "order": 177,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7269,7 +7841,7 @@
         "id": "check:SITEMAP_URL_3XX",
         "kind": "check",
         "operation": "check:SITEMAP_URL_3XX",
-        "order": 165,
+        "order": 178,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7289,7 +7861,7 @@
             "id": "check:SITEMAP_URL_3XX",
             "kind": "check",
             "operation": "check:SITEMAP_URL_3XX",
-            "order": 165,
+            "order": 178,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7313,7 +7885,7 @@
         "id": "check:SITEMAP_URL_4XX_5XX",
         "kind": "check",
         "operation": "check:SITEMAP_URL_4XX_5XX",
-        "order": 166,
+        "order": 179,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7333,7 +7905,7 @@
             "id": "check:SITEMAP_URL_4XX_5XX",
             "kind": "check",
             "operation": "check:SITEMAP_URL_4XX_5XX",
-            "order": 166,
+            "order": 179,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7357,7 +7929,7 @@
         "id": "check:SITEMAP_URL_DUPLICATED",
         "kind": "check",
         "operation": "check:SITEMAP_URL_DUPLICATED",
-        "order": 167,
+        "order": 180,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7377,7 +7949,7 @@
             "id": "check:SITEMAP_URL_DUPLICATED",
             "kind": "check",
             "operation": "check:SITEMAP_URL_DUPLICATED",
-            "order": 167,
+            "order": 180,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7401,7 +7973,7 @@
         "id": "check:SITEMAP_URL_NON_INDEXABLE",
         "kind": "check",
         "operation": "check:SITEMAP_URL_NON_INDEXABLE",
-        "order": 168,
+        "order": 181,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7421,7 +7993,7 @@
             "id": "check:SITEMAP_URL_NON_INDEXABLE",
             "kind": "check",
             "operation": "check:SITEMAP_URL_NON_INDEXABLE",
-            "order": 168,
+            "order": 181,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7445,7 +8017,7 @@
         "id": "check:SLOW_RESPONSE",
         "kind": "check",
         "operation": "check:SLOW_RESPONSE",
-        "order": 169,
+        "order": 182,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7465,7 +8037,7 @@
             "id": "check:SLOW_RESPONSE",
             "kind": "check",
             "operation": "check:SLOW_RESPONSE",
-            "order": 169,
+            "order": 182,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7489,7 +8061,7 @@
         "id": "check:SPELLING_ERRORS",
         "kind": "check",
         "operation": "check:SPELLING_ERRORS",
-        "order": 170,
+        "order": 183,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7509,7 +8081,7 @@
             "id": "check:SPELLING_ERRORS",
             "kind": "check",
             "operation": "check:SPELLING_ERRORS",
-            "order": 170,
+            "order": 183,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7533,7 +8105,7 @@
         "id": "check:STRUCTURED_DATA_MISSING",
         "kind": "check",
         "operation": "check:STRUCTURED_DATA_MISSING",
-        "order": 171,
+        "order": 184,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7553,7 +8125,7 @@
             "id": "check:STRUCTURED_DATA_MISSING",
             "kind": "check",
             "operation": "check:STRUCTURED_DATA_MISSING",
-            "order": 171,
+            "order": 184,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7577,7 +8149,7 @@
         "id": "check:STRUCTURED_DATA_PARSE_ERROR",
         "kind": "check",
         "operation": "check:STRUCTURED_DATA_PARSE_ERROR",
-        "order": 172,
+        "order": 185,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7597,7 +8169,7 @@
             "id": "check:STRUCTURED_DATA_PARSE_ERROR",
             "kind": "check",
             "operation": "check:STRUCTURED_DATA_PARSE_ERROR",
-            "order": 172,
+            "order": 185,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7613,6 +8185,138 @@
       ],
       "records": []
     },
+    "check:STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING",
+        "kind": "check",
+        "operation": "check:STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING",
+        "order": 186,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "bf5ac4bdff62c6112d5885dbba5d61077a534bd34fe7530f52a4919fbed0f0d8",
+        "title": "Structured data lacks required properties in the bundled local rich-result rules"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING",
+            "kind": "check",
+            "operation": "check:STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING",
+            "order": 186,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "bf5ac4bdff62c6112d5885dbba5d61077a534bd34fe7530f52a4919fbed0f0d8",
+            "title": "Structured data lacks required properties in the bundled local rich-result rules"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:STRUCTURED_DATA_SCHEMA_ERROR": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:STRUCTURED_DATA_SCHEMA_ERROR",
+        "kind": "check",
+        "operation": "check:STRUCTURED_DATA_SCHEMA_ERROR",
+        "order": 187,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "2f836ded65d78b35a54f0f8f70cdc67ed6beaa0167ebcdd59cb85abb77c5b693",
+        "title": "Structured data contains errors under the bundled Schema.org vocabulary"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:STRUCTURED_DATA_SCHEMA_ERROR",
+            "kind": "check",
+            "operation": "check:STRUCTURED_DATA_SCHEMA_ERROR",
+            "order": 187,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "2f836ded65d78b35a54f0f8f70cdc67ed6beaa0167ebcdd59cb85abb77c5b693",
+            "title": "Structured data contains errors under the bundled Schema.org vocabulary"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
+    "check:STRUCTURED_DATA_SCHEMA_WARNING": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "automatic",
+        "id": "check:STRUCTURED_DATA_SCHEMA_WARNING",
+        "kind": "check",
+        "operation": "check:STRUCTURED_DATA_SCHEMA_WARNING",
+        "order": 188,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "19ee2af27872d8c865ae12c4ce8f1b9b74a329eb3145c7f09c81cffacbf3b98c",
+        "title": "Structured data contains warnings under the bundled Schema.org vocabulary"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "automatic",
+            "id": "check:STRUCTURED_DATA_SCHEMA_WARNING",
+            "kind": "check",
+            "operation": "check:STRUCTURED_DATA_SCHEMA_WARNING",
+            "order": 188,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "19ee2af27872d8c865ae12c4ce8f1b9b74a329eb3145c7f09c81cffacbf3b98c",
+            "title": "Structured data contains warnings under the bundled Schema.org vocabulary"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
     "check:THIN_CONTENT": {
       "definition": {
         "dependencies": [],
@@ -7621,7 +8325,7 @@
         "id": "check:THIN_CONTENT",
         "kind": "check",
         "operation": "check:THIN_CONTENT",
-        "order": 173,
+        "order": 189,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7641,7 +8345,7 @@
             "id": "check:THIN_CONTENT",
             "kind": "check",
             "operation": "check:THIN_CONTENT",
-            "order": 173,
+            "order": 189,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7665,7 +8369,7 @@
         "id": "check:TITLE_DUPLICATE",
         "kind": "check",
         "operation": "check:TITLE_DUPLICATE",
-        "order": 174,
+        "order": 190,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7685,7 +8389,7 @@
             "id": "check:TITLE_DUPLICATE",
             "kind": "check",
             "operation": "check:TITLE_DUPLICATE",
-            "order": 174,
+            "order": 190,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7709,7 +8413,7 @@
         "id": "check:TITLE_EQUALS_H1",
         "kind": "check",
         "operation": "check:TITLE_EQUALS_H1",
-        "order": 175,
+        "order": 191,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7729,7 +8433,7 @@
             "id": "check:TITLE_EQUALS_H1",
             "kind": "check",
             "operation": "check:TITLE_EQUALS_H1",
-            "order": 175,
+            "order": 191,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7753,7 +8457,7 @@
         "id": "check:TITLE_MISSING",
         "kind": "check",
         "operation": "check:TITLE_MISSING",
-        "order": 176,
+        "order": 192,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7773,7 +8477,7 @@
             "id": "check:TITLE_MISSING",
             "kind": "check",
             "operation": "check:TITLE_MISSING",
-            "order": 176,
+            "order": 192,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7797,7 +8501,7 @@
         "id": "check:TITLE_MULTIPLE",
         "kind": "check",
         "operation": "check:TITLE_MULTIPLE",
-        "order": 177,
+        "order": 193,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7817,7 +8521,7 @@
             "id": "check:TITLE_MULTIPLE",
             "kind": "check",
             "operation": "check:TITLE_MULTIPLE",
-            "order": 177,
+            "order": 193,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7841,7 +8545,7 @@
         "id": "check:TITLE_OUTSIDE_HEAD",
         "kind": "check",
         "operation": "check:TITLE_OUTSIDE_HEAD",
-        "order": 178,
+        "order": 194,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7861,7 +8565,7 @@
             "id": "check:TITLE_OUTSIDE_HEAD",
             "kind": "check",
             "operation": "check:TITLE_OUTSIDE_HEAD",
-            "order": 178,
+            "order": 194,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7885,7 +8589,7 @@
         "id": "check:TITLE_TEMPLATED",
         "kind": "check",
         "operation": "check:TITLE_TEMPLATED",
-        "order": 179,
+        "order": 195,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7905,7 +8609,7 @@
             "id": "check:TITLE_TEMPLATED",
             "kind": "check",
             "operation": "check:TITLE_TEMPLATED",
-            "order": 179,
+            "order": 195,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7929,7 +8633,7 @@
         "id": "check:TITLE_TOO_LONG",
         "kind": "check",
         "operation": "check:TITLE_TOO_LONG",
-        "order": 180,
+        "order": 196,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7949,7 +8653,7 @@
             "id": "check:TITLE_TOO_LONG",
             "kind": "check",
             "operation": "check:TITLE_TOO_LONG",
-            "order": 180,
+            "order": 196,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -7973,7 +8677,7 @@
         "id": "check:TITLE_TOO_SHORT",
         "kind": "check",
         "operation": "check:TITLE_TOO_SHORT",
-        "order": 181,
+        "order": 197,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -7993,7 +8697,7 @@
             "id": "check:TITLE_TOO_SHORT",
             "kind": "check",
             "operation": "check:TITLE_TOO_SHORT",
-            "order": 181,
+            "order": 197,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8017,7 +8721,7 @@
         "id": "check:UNAVAILABLE_AFTER",
         "kind": "check",
         "operation": "check:UNAVAILABLE_AFTER",
-        "order": 182,
+        "order": 198,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8037,7 +8741,7 @@
             "id": "check:UNAVAILABLE_AFTER",
             "kind": "check",
             "operation": "check:UNAVAILABLE_AFTER",
-            "order": 182,
+            "order": 198,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8061,7 +8765,7 @@
         "id": "check:UNLINKED_CANONICAL",
         "kind": "check",
         "operation": "check:UNLINKED_CANONICAL",
-        "order": 183,
+        "order": 199,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8081,7 +8785,7 @@
             "id": "check:UNLINKED_CANONICAL",
             "kind": "check",
             "operation": "check:UNLINKED_CANONICAL",
-            "order": 183,
+            "order": 199,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8105,7 +8809,7 @@
         "id": "check:UNLINKED_PAGINATION_SERIES",
         "kind": "check",
         "operation": "check:UNLINKED_PAGINATION_SERIES",
-        "order": 184,
+        "order": 200,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8125,7 +8829,7 @@
             "id": "check:UNLINKED_PAGINATION_SERIES",
             "kind": "check",
             "operation": "check:UNLINKED_PAGINATION_SERIES",
-            "order": 184,
+            "order": 200,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8149,7 +8853,7 @@
         "id": "check:UNSAFE_CROSS_ORIGIN_LINK",
         "kind": "check",
         "operation": "check:UNSAFE_CROSS_ORIGIN_LINK",
-        "order": 185,
+        "order": 201,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8169,7 +8873,7 @@
             "id": "check:UNSAFE_CROSS_ORIGIN_LINK",
             "kind": "check",
             "operation": "check:UNSAFE_CROSS_ORIGIN_LINK",
-            "order": 185,
+            "order": 201,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8193,7 +8897,7 @@
         "id": "check:UNSUPPORTED_PLUGIN",
         "kind": "check",
         "operation": "check:UNSUPPORTED_PLUGIN",
-        "order": 186,
+        "order": 202,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8213,7 +8917,7 @@
             "id": "check:UNSUPPORTED_PLUGIN",
             "kind": "check",
             "operation": "check:UNSUPPORTED_PLUGIN",
-            "order": 186,
+            "order": 202,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8237,7 +8941,7 @@
         "id": "check:URL_CONTAINS_SPACE",
         "kind": "check",
         "operation": "check:URL_CONTAINS_SPACE",
-        "order": 187,
+        "order": 203,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8257,7 +8961,7 @@
             "id": "check:URL_CONTAINS_SPACE",
             "kind": "check",
             "operation": "check:URL_CONTAINS_SPACE",
-            "order": 187,
+            "order": 203,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8281,7 +8985,7 @@
         "id": "check:URL_HAS_PARAMETERS",
         "kind": "check",
         "operation": "check:URL_HAS_PARAMETERS",
-        "order": 188,
+        "order": 204,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8301,7 +9005,7 @@
             "id": "check:URL_HAS_PARAMETERS",
             "kind": "check",
             "operation": "check:URL_HAS_PARAMETERS",
-            "order": 188,
+            "order": 204,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8325,7 +9029,7 @@
         "id": "check:URL_HAS_PARAMS",
         "kind": "check",
         "operation": "check:URL_HAS_PARAMS",
-        "order": 189,
+        "order": 205,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8345,7 +9049,7 @@
             "id": "check:URL_HAS_PARAMS",
             "kind": "check",
             "operation": "check:URL_HAS_PARAMS",
-            "order": 189,
+            "order": 205,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8369,7 +9073,7 @@
         "id": "check:URL_MULTIPLE_SLASHES",
         "kind": "check",
         "operation": "check:URL_MULTIPLE_SLASHES",
-        "order": 190,
+        "order": 206,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8389,7 +9093,7 @@
             "id": "check:URL_MULTIPLE_SLASHES",
             "kind": "check",
             "operation": "check:URL_MULTIPLE_SLASHES",
-            "order": 190,
+            "order": 206,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8413,7 +9117,7 @@
         "id": "check:URL_NON_ASCII",
         "kind": "check",
         "operation": "check:URL_NON_ASCII",
-        "order": 191,
+        "order": 207,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8433,7 +9137,7 @@
             "id": "check:URL_NON_ASCII",
             "kind": "check",
             "operation": "check:URL_NON_ASCII",
-            "order": 191,
+            "order": 207,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8457,7 +9161,7 @@
         "id": "check:URL_NOT_IN_SITEMAP",
         "kind": "check",
         "operation": "check:URL_NOT_IN_SITEMAP",
-        "order": 192,
+        "order": 208,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8477,7 +9181,7 @@
             "id": "check:URL_NOT_IN_SITEMAP",
             "kind": "check",
             "operation": "check:URL_NOT_IN_SITEMAP",
-            "order": 192,
+            "order": 208,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8501,7 +9205,7 @@
         "id": "check:URL_REPETITIVE_PATH",
         "kind": "check",
         "operation": "check:URL_REPETITIVE_PATH",
-        "order": 193,
+        "order": 209,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8521,7 +9225,7 @@
             "id": "check:URL_REPETITIVE_PATH",
             "kind": "check",
             "operation": "check:URL_REPETITIVE_PATH",
-            "order": 193,
+            "order": 209,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8545,7 +9249,7 @@
         "id": "check:URL_SESSION_ID",
         "kind": "check",
         "operation": "check:URL_SESSION_ID",
-        "order": 194,
+        "order": 210,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8565,7 +9269,7 @@
             "id": "check:URL_SESSION_ID",
             "kind": "check",
             "operation": "check:URL_SESSION_ID",
-            "order": 194,
+            "order": 210,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8589,7 +9293,7 @@
         "id": "check:URL_TOO_LONG",
         "kind": "check",
         "operation": "check:URL_TOO_LONG",
-        "order": 195,
+        "order": 211,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8609,7 +9313,7 @@
             "id": "check:URL_TOO_LONG",
             "kind": "check",
             "operation": "check:URL_TOO_LONG",
-            "order": 195,
+            "order": 211,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8633,7 +9337,7 @@
         "id": "check:URL_TRACKING_PARAMS",
         "kind": "check",
         "operation": "check:URL_TRACKING_PARAMS",
-        "order": 196,
+        "order": 212,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8653,7 +9357,7 @@
             "id": "check:URL_TRACKING_PARAMS",
             "kind": "check",
             "operation": "check:URL_TRACKING_PARAMS",
-            "order": 196,
+            "order": 212,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8677,7 +9381,7 @@
         "id": "check:URL_TRAILING_SLASH_INCONSISTENT",
         "kind": "check",
         "operation": "check:URL_TRAILING_SLASH_INCONSISTENT",
-        "order": 197,
+        "order": 213,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8697,7 +9401,7 @@
             "id": "check:URL_TRAILING_SLASH_INCONSISTENT",
             "kind": "check",
             "operation": "check:URL_TRAILING_SLASH_INCONSISTENT",
-            "order": 197,
+            "order": 213,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8721,7 +9425,7 @@
         "id": "check:URL_UNDERSCORES",
         "kind": "check",
         "operation": "check:URL_UNDERSCORES",
-        "order": 198,
+        "order": 214,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8741,7 +9445,7 @@
             "id": "check:URL_UNDERSCORES",
             "kind": "check",
             "operation": "check:URL_UNDERSCORES",
-            "order": 198,
+            "order": 214,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8765,7 +9469,7 @@
         "id": "check:URL_UPPERCASE",
         "kind": "check",
         "operation": "check:URL_UPPERCASE",
-        "order": 199,
+        "order": 215,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8785,7 +9489,7 @@
             "id": "check:URL_UPPERCASE",
             "kind": "check",
             "operation": "check:URL_UPPERCASE",
-            "order": 199,
+            "order": 215,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8809,7 +9513,7 @@
         "id": "check:VIEWPORT_MISSING",
         "kind": "check",
         "operation": "check:VIEWPORT_MISSING",
-        "order": 200,
+        "order": 216,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8829,7 +9533,7 @@
             "id": "check:VIEWPORT_MISSING",
             "kind": "check",
             "operation": "check:VIEWPORT_MISSING",
-            "order": 200,
+            "order": 216,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8853,7 +9557,7 @@
         "id": "check:YMYL_REVIEW_CANDIDATE",
         "kind": "check",
         "operation": "check:YMYL_REVIEW_CANDIDATE",
-        "order": 201,
+        "order": 217,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8873,7 +9577,7 @@
             "id": "check:YMYL_REVIEW_CANDIDATE",
             "kind": "check",
             "operation": "check:YMYL_REVIEW_CANDIDATE",
-            "order": 201,
+            "order": 217,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8897,7 +9601,7 @@
         "id": "scenario:ai-visibility",
         "kind": "scenario",
         "operation": null,
-        "order": 202,
+        "order": 218,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8917,7 +9621,7 @@
             "id": "scenario:ai-visibility",
             "kind": "scenario",
             "operation": null,
-            "order": 202,
+            "order": 218,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8941,7 +9645,7 @@
         "id": "scenario:amp-pairing",
         "kind": "scenario",
         "operation": null,
-        "order": 203,
+        "order": 219,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -8949,7 +9653,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "133b9028b333196b83c089102857de722417ebe831a7b238bfc0e4487de44a78",
+        "source_hash": "96a4cd9d66d2f5421516f4a8bb2d59d0400c56294652d2bb85047af00840dc12",
         "title": "Scenario 61 \u2014 AMP pairing: the desktop page and its AMP twin agree, or they do not"
       },
       "definitions": [
@@ -8961,7 +9665,7 @@
             "id": "scenario:amp-pairing",
             "kind": "scenario",
             "operation": null,
-            "order": 203,
+            "order": 219,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -8969,7 +9673,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "133b9028b333196b83c089102857de722417ebe831a7b238bfc0e4487de44a78",
+            "source_hash": "96a4cd9d66d2f5421516f4a8bb2d59d0400c56294652d2bb85047af00840dc12",
             "title": "Scenario 61 \u2014 AMP pairing: the desktop page and its AMP twin agree, or they do not"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -8985,7 +9689,7 @@
         "id": "scenario:anchor-text",
         "kind": "scenario",
         "operation": null,
-        "order": 204,
+        "order": 220,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9005,7 +9709,7 @@
             "id": "scenario:anchor-text",
             "kind": "scenario",
             "operation": null,
-            "order": 204,
+            "order": 220,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9029,7 +9733,7 @@
         "id": "scenario:broken-pages",
         "kind": "scenario",
         "operation": null,
-        "order": 205,
+        "order": 221,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9049,7 +9753,7 @@
             "id": "scenario:broken-pages",
             "kind": "scenario",
             "operation": null,
-            "order": 205,
+            "order": 221,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9073,7 +9777,7 @@
         "id": "scenario:canonical-basics",
         "kind": "scenario",
         "operation": null,
-        "order": 206,
+        "order": 222,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9093,7 +9797,7 @@
             "id": "scenario:canonical-basics",
             "kind": "scenario",
             "operation": null,
-            "order": 206,
+            "order": 222,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9117,7 +9821,7 @@
         "id": "scenario:canonical-conflicts",
         "kind": "scenario",
         "operation": null,
-        "order": 207,
+        "order": 223,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9137,7 +9841,7 @@
             "id": "scenario:canonical-conflicts",
             "kind": "scenario",
             "operation": null,
-            "order": 207,
+            "order": 223,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9161,7 +9865,7 @@
         "id": "scenario:canonical-destinations",
         "kind": "scenario",
         "operation": null,
-        "order": 208,
+        "order": 224,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9181,7 +9885,7 @@
             "id": "scenario:canonical-destinations",
             "kind": "scenario",
             "operation": null,
-            "order": 208,
+            "order": 224,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9205,7 +9909,7 @@
         "id": "scenario:canonicalised-pages",
         "kind": "scenario",
         "operation": null,
-        "order": 209,
+        "order": 225,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9225,7 +9929,7 @@
             "id": "scenario:canonicalised-pages",
             "kind": "scenario",
             "operation": null,
-            "order": 209,
+            "order": 225,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9249,7 +9953,7 @@
         "id": "scenario:comparison",
         "kind": "scenario",
         "operation": null,
-        "order": 210,
+        "order": 226,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9269,7 +9973,7 @@
             "id": "scenario:comparison",
             "kind": "scenario",
             "operation": null,
-            "order": 210,
+            "order": 226,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9293,7 +9997,7 @@
         "id": "scenario:content",
         "kind": "scenario",
         "operation": null,
-        "order": 211,
+        "order": 227,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9301,7 +10005,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "2120bfbd48bc6f0cd9facf6985d8e80ae9ff19fc775fa1b1a47ae65d34fe8517",
+        "source_hash": "e73012f602ae856102a9c9adeb796c3a8156b08b51e9a949ab0c881743fede42",
         "title": "Scenario 3 \u2014 Content extraction: how much of this page is actually the page"
       },
       "definitions": [
@@ -9313,7 +10017,7 @@
             "id": "scenario:content",
             "kind": "scenario",
             "operation": null,
-            "order": 211,
+            "order": 227,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9321,7 +10025,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "2120bfbd48bc6f0cd9facf6985d8e80ae9ff19fc775fa1b1a47ae65d34fe8517",
+            "source_hash": "e73012f602ae856102a9c9adeb796c3a8156b08b51e9a949ab0c881743fede42",
             "title": "Scenario 3 \u2014 Content extraction: how much of this page is actually the page"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -9337,7 +10041,7 @@
         "id": "scenario:crawl-depth",
         "kind": "scenario",
         "operation": null,
-        "order": 212,
+        "order": 228,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9357,7 +10061,7 @@
             "id": "scenario:crawl-depth",
             "kind": "scenario",
             "operation": null,
-            "order": 212,
+            "order": 228,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9381,7 +10085,7 @@
         "id": "scenario:deliverable",
         "kind": "scenario",
         "operation": null,
-        "order": 213,
+        "order": 229,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9401,7 +10105,7 @@
             "id": "scenario:deliverable",
             "kind": "scenario",
             "operation": null,
-            "order": 213,
+            "order": 229,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9425,7 +10129,7 @@
         "id": "scenario:duplicate-content",
         "kind": "scenario",
         "operation": null,
-        "order": 214,
+        "order": 230,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9445,7 +10149,7 @@
             "id": "scenario:duplicate-content",
             "kind": "scenario",
             "operation": null,
-            "order": 214,
+            "order": 230,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9469,7 +10173,7 @@
         "id": "scenario:external-links",
         "kind": "scenario",
         "operation": null,
-        "order": 215,
+        "order": 231,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9489,7 +10193,7 @@
             "id": "scenario:external-links",
             "kind": "scenario",
             "operation": null,
-            "order": 215,
+            "order": 231,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9513,7 +10217,7 @@
         "id": "scenario:full-audit",
         "kind": "scenario",
         "operation": null,
-        "order": 216,
+        "order": 232,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9533,7 +10237,7 @@
             "id": "scenario:full-audit",
             "kind": "scenario",
             "operation": null,
-            "order": 216,
+            "order": 232,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9557,7 +10261,7 @@
         "id": "scenario:heading-hierarchy",
         "kind": "scenario",
         "operation": null,
-        "order": 217,
+        "order": 233,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9577,7 +10281,7 @@
             "id": "scenario:heading-hierarchy",
             "kind": "scenario",
             "operation": null,
-            "order": 217,
+            "order": 233,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9601,7 +10305,7 @@
         "id": "scenario:hreflang-codes",
         "kind": "scenario",
         "operation": null,
-        "order": 218,
+        "order": 234,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9621,7 +10325,7 @@
             "id": "scenario:hreflang-codes",
             "kind": "scenario",
             "operation": null,
-            "order": 218,
+            "order": 234,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9645,7 +10349,7 @@
         "id": "scenario:hreflang-return-links",
         "kind": "scenario",
         "operation": null,
-        "order": 219,
+        "order": 235,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9665,7 +10369,7 @@
             "id": "scenario:hreflang-return-links",
             "kind": "scenario",
             "operation": null,
-            "order": 219,
+            "order": 235,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9689,7 +10393,7 @@
         "id": "scenario:https",
         "kind": "scenario",
         "operation": null,
-        "order": 220,
+        "order": 236,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9709,7 +10413,7 @@
             "id": "scenario:https",
             "kind": "scenario",
             "operation": null,
-            "order": 220,
+            "order": 236,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9733,7 +10437,7 @@
         "id": "scenario:image-alt-text",
         "kind": "scenario",
         "operation": null,
-        "order": 221,
+        "order": 237,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9753,7 +10457,7 @@
             "id": "scenario:image-alt-text",
             "kind": "scenario",
             "operation": null,
-            "order": 221,
+            "order": 237,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9777,7 +10481,7 @@
         "id": "scenario:image-dimensions",
         "kind": "scenario",
         "operation": null,
-        "order": 222,
+        "order": 238,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9797,7 +10501,7 @@
             "id": "scenario:image-dimensions",
             "kind": "scenario",
             "operation": null,
-            "order": 222,
+            "order": 238,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9821,7 +10525,7 @@
         "id": "scenario:images",
         "kind": "scenario",
         "operation": null,
-        "order": 223,
+        "order": 239,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9841,7 +10545,7 @@
             "id": "scenario:images",
             "kind": "scenario",
             "operation": null,
-            "order": 223,
+            "order": 239,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9865,7 +10569,7 @@
         "id": "scenario:infrastructure",
         "kind": "scenario",
         "operation": null,
-        "order": 224,
+        "order": 240,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9885,7 +10589,7 @@
             "id": "scenario:infrastructure",
             "kind": "scenario",
             "operation": null,
-            "order": 224,
+            "order": 240,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9909,7 +10613,7 @@
         "id": "scenario:js-blocked-resources",
         "kind": "scenario",
         "operation": null,
-        "order": 225,
+        "order": 241,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9929,7 +10633,7 @@
             "id": "scenario:js-blocked-resources",
             "kind": "scenario",
             "operation": null,
-            "order": 225,
+            "order": 241,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9953,7 +10657,7 @@
         "id": "scenario:js-canonical",
         "kind": "scenario",
         "operation": null,
-        "order": 226,
+        "order": 242,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -9973,7 +10677,7 @@
             "id": "scenario:js-canonical",
             "kind": "scenario",
             "operation": null,
-            "order": 226,
+            "order": 242,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -9997,7 +10701,7 @@
         "id": "scenario:js-content",
         "kind": "scenario",
         "operation": null,
-        "order": 227,
+        "order": 243,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10017,7 +10721,7 @@
             "id": "scenario:js-content",
             "kind": "scenario",
             "operation": null,
-            "order": 227,
+            "order": 243,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10041,7 +10745,7 @@
         "id": "scenario:js-directives",
         "kind": "scenario",
         "operation": null,
-        "order": 228,
+        "order": 244,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10061,7 +10765,7 @@
             "id": "scenario:js-directives",
             "kind": "scenario",
             "operation": null,
-            "order": 228,
+            "order": 244,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10085,7 +10789,7 @@
         "id": "scenario:js-errors",
         "kind": "scenario",
         "operation": null,
-        "order": 229,
+        "order": 245,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10105,7 +10809,7 @@
             "id": "scenario:js-errors",
             "kind": "scenario",
             "operation": null,
-            "order": 229,
+            "order": 245,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10129,7 +10833,7 @@
         "id": "scenario:js-legacy-ajax",
         "kind": "scenario",
         "operation": null,
-        "order": 230,
+        "order": 246,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10149,7 +10853,7 @@
             "id": "scenario:js-legacy-ajax",
             "kind": "scenario",
             "operation": null,
-            "order": 230,
+            "order": 246,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10173,7 +10877,7 @@
         "id": "scenario:js-metadata",
         "kind": "scenario",
         "operation": null,
-        "order": 231,
+        "order": 247,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10193,7 +10897,7 @@
             "id": "scenario:js-metadata",
             "kind": "scenario",
             "operation": null,
-            "order": 231,
+            "order": 247,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10217,7 +10921,7 @@
         "id": "scenario:marketing-inventory",
         "kind": "scenario",
         "operation": null,
-        "order": 232,
+        "order": 248,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10237,7 +10941,7 @@
             "id": "scenario:marketing-inventory",
             "kind": "scenario",
             "operation": null,
-            "order": 232,
+            "order": 248,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10261,7 +10965,7 @@
         "id": "scenario:meta-descriptions",
         "kind": "scenario",
         "operation": null,
-        "order": 233,
+        "order": 249,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10281,7 +10985,7 @@
             "id": "scenario:meta-descriptions",
             "kind": "scenario",
             "operation": null,
-            "order": 233,
+            "order": 249,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10305,7 +11009,7 @@
         "id": "scenario:metadata",
         "kind": "scenario",
         "operation": null,
-        "order": 234,
+        "order": 250,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10325,7 +11029,7 @@
             "id": "scenario:metadata",
             "kind": "scenario",
             "operation": null,
-            "order": 234,
+            "order": 250,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10349,7 +11053,7 @@
         "id": "scenario:mobile-viewport",
         "kind": "scenario",
         "operation": null,
-        "order": 235,
+        "order": 251,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10369,7 +11073,7 @@
             "id": "scenario:mobile-viewport",
             "kind": "scenario",
             "operation": null,
-            "order": 235,
+            "order": 251,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10393,7 +11097,7 @@
         "id": "scenario:noindex-audit",
         "kind": "scenario",
         "operation": null,
-        "order": 236,
+        "order": 252,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10413,7 +11117,7 @@
             "id": "scenario:noindex-audit",
             "kind": "scenario",
             "operation": null,
-            "order": 236,
+            "order": 252,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10437,7 +11141,7 @@
         "id": "scenario:oversized-documents",
         "kind": "scenario",
         "operation": null,
-        "order": 237,
+        "order": 253,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10457,7 +11161,7 @@
             "id": "scenario:oversized-documents",
             "kind": "scenario",
             "operation": null,
-            "order": 237,
+            "order": 253,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10481,7 +11185,7 @@
         "id": "scenario:pagination",
         "kind": "scenario",
         "operation": null,
-        "order": 238,
+        "order": 254,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10501,7 +11205,7 @@
             "id": "scenario:pagination",
             "kind": "scenario",
             "operation": null,
-            "order": 238,
+            "order": 254,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10525,7 +11229,7 @@
         "id": "scenario:project-control",
         "kind": "scenario",
         "operation": null,
-        "order": 239,
+        "order": 255,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10545,7 +11249,7 @@
             "id": "scenario:project-control",
             "kind": "scenario",
             "operation": null,
-            "order": 239,
+            "order": 255,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10569,7 +11273,7 @@
         "id": "scenario:provider-evidence",
         "kind": "scenario",
         "operation": null,
-        "order": 240,
+        "order": 256,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10589,7 +11293,7 @@
             "id": "scenario:provider-evidence",
             "kind": "scenario",
             "operation": null,
-            "order": 240,
+            "order": 256,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10613,7 +11317,7 @@
         "id": "scenario:readability",
         "kind": "scenario",
         "operation": null,
-        "order": 241,
+        "order": 257,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10633,7 +11337,7 @@
             "id": "scenario:readability",
             "kind": "scenario",
             "operation": null,
-            "order": 241,
+            "order": 257,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10657,7 +11361,7 @@
         "id": "scenario:redirects",
         "kind": "scenario",
         "operation": null,
-        "order": 242,
+        "order": 258,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10677,7 +11381,7 @@
             "id": "scenario:redirects",
             "kind": "scenario",
             "operation": null,
-            "order": 242,
+            "order": 258,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10701,7 +11405,7 @@
         "id": "scenario:rendering",
         "kind": "scenario",
         "operation": null,
-        "order": 243,
+        "order": 259,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10721,7 +11425,7 @@
             "id": "scenario:rendering",
             "kind": "scenario",
             "operation": null,
-            "order": 243,
+            "order": 259,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10745,7 +11449,7 @@
         "id": "scenario:robots-blocked",
         "kind": "scenario",
         "operation": null,
-        "order": 244,
+        "order": 260,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10765,7 +11469,7 @@
             "id": "scenario:robots-blocked",
             "kind": "scenario",
             "operation": null,
-            "order": 244,
+            "order": 260,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10789,7 +11493,7 @@
         "id": "scenario:robots-directives",
         "kind": "scenario",
         "operation": null,
-        "order": 245,
+        "order": 261,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10809,7 +11513,7 @@
             "id": "scenario:robots-directives",
             "kind": "scenario",
             "operation": null,
-            "order": 245,
+            "order": 261,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10833,7 +11537,7 @@
         "id": "scenario:saved-evidence",
         "kind": "scenario",
         "operation": null,
-        "order": 246,
+        "order": 262,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10853,7 +11557,7 @@
             "id": "scenario:saved-evidence",
             "kind": "scenario",
             "operation": null,
-            "order": 246,
+            "order": 262,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10877,7 +11581,7 @@
         "id": "scenario:schema-validation",
         "kind": "scenario",
         "operation": null,
-        "order": 247,
+        "order": 263,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10897,7 +11601,7 @@
             "id": "scenario:schema-validation",
             "kind": "scenario",
             "operation": null,
-            "order": 247,
+            "order": 263,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10921,7 +11625,7 @@
         "id": "scenario:security-headers",
         "kind": "scenario",
         "operation": null,
-        "order": 248,
+        "order": 264,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10941,7 +11645,7 @@
             "id": "scenario:security-headers",
             "kind": "scenario",
             "operation": null,
-            "order": 248,
+            "order": 264,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -10965,7 +11669,7 @@
         "id": "scenario:sitemap-health",
         "kind": "scenario",
         "operation": null,
-        "order": 249,
+        "order": 265,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -10985,7 +11689,7 @@
             "id": "scenario:sitemap-health",
             "kind": "scenario",
             "operation": null,
-            "order": 249,
+            "order": 265,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11009,7 +11713,7 @@
         "id": "scenario:sitemap-reconciliation",
         "kind": "scenario",
         "operation": null,
-        "order": 250,
+        "order": 266,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11029,7 +11733,7 @@
             "id": "scenario:sitemap-reconciliation",
             "kind": "scenario",
             "operation": null,
-            "order": 250,
+            "order": 266,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11053,7 +11757,7 @@
         "id": "scenario:soft-404s",
         "kind": "scenario",
         "operation": null,
-        "order": 251,
+        "order": 267,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11073,7 +11777,7 @@
             "id": "scenario:soft-404s",
             "kind": "scenario",
             "operation": null,
-            "order": 251,
+            "order": 267,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11097,7 +11801,7 @@
         "id": "scenario:speed-delivery-and-weight",
         "kind": "scenario",
         "operation": null,
-        "order": 252,
+        "order": 268,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11117,7 +11821,7 @@
             "id": "scenario:speed-delivery-and-weight",
             "kind": "scenario",
             "operation": null,
-            "order": 252,
+            "order": 268,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11141,7 +11845,7 @@
         "id": "scenario:speed-javascript-bundles",
         "kind": "scenario",
         "operation": null,
-        "order": 253,
+        "order": 269,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11161,7 +11865,7 @@
             "id": "scenario:speed-javascript-bundles",
             "kind": "scenario",
             "operation": null,
-            "order": 253,
+            "order": 269,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11185,7 +11889,7 @@
         "id": "scenario:speed-render-blocking",
         "kind": "scenario",
         "operation": null,
-        "order": 254,
+        "order": 270,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11205,7 +11909,7 @@
             "id": "scenario:speed-render-blocking",
             "kind": "scenario",
             "operation": null,
-            "order": 254,
+            "order": 270,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11229,7 +11933,7 @@
         "id": "scenario:speed-server-response",
         "kind": "scenario",
         "operation": null,
-        "order": 255,
+        "order": 271,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11249,7 +11953,7 @@
             "id": "scenario:speed-server-response",
             "kind": "scenario",
             "operation": null,
-            "order": 255,
+            "order": 271,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11273,7 +11977,7 @@
         "id": "scenario:structure",
         "kind": "scenario",
         "operation": null,
-        "order": 256,
+        "order": 272,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11293,7 +11997,7 @@
             "id": "scenario:structure",
             "kind": "scenario",
             "operation": null,
-            "order": 256,
+            "order": 272,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11317,7 +12021,7 @@
         "id": "scenario:structured-data",
         "kind": "scenario",
         "operation": null,
-        "order": 257,
+        "order": 273,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11325,7 +12029,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "71ba21b145eba3ab09e6304ccacf202ae3788371e859002eda923f641496247f",
+        "source_hash": "2079f129feb55a62e2d2f1044ee744b314951b9d9307bb0e3fce7a962d2e34f9",
         "title": "Scenario 33 \u2014 Structured data: from \"we have markup\" to a rich result"
       },
       "definitions": [
@@ -11337,7 +12041,7 @@
             "id": "scenario:structured-data",
             "kind": "scenario",
             "operation": null,
-            "order": 257,
+            "order": 273,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11345,7 +12049,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "71ba21b145eba3ab09e6304ccacf202ae3788371e859002eda923f641496247f",
+            "source_hash": "2079f129feb55a62e2d2f1044ee744b314951b9d9307bb0e3fce7a962d2e34f9",
             "title": "Scenario 33 \u2014 Structured data: from \"we have markup\" to a rich result"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -11361,7 +12065,7 @@
         "id": "scenario:thin-content",
         "kind": "scenario",
         "operation": null,
-        "order": 258,
+        "order": 274,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11381,7 +12085,7 @@
             "id": "scenario:thin-content",
             "kind": "scenario",
             "operation": null,
-            "order": 258,
+            "order": 274,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11405,7 +12109,7 @@
         "id": "scenario:title-and-h1",
         "kind": "scenario",
         "operation": null,
-        "order": 259,
+        "order": 275,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11425,7 +12129,7 @@
             "id": "scenario:title-and-h1",
             "kind": "scenario",
             "operation": null,
-            "order": 259,
+            "order": 275,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11449,7 +12153,7 @@
         "id": "scenario:title-length",
         "kind": "scenario",
         "operation": null,
-        "order": 260,
+        "order": 276,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11469,7 +12173,7 @@
             "id": "scenario:title-length",
             "kind": "scenario",
             "operation": null,
-            "order": 260,
+            "order": 276,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11493,7 +12197,7 @@
         "id": "scenario:titles-missing",
         "kind": "scenario",
         "operation": null,
-        "order": 261,
+        "order": 277,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11513,7 +12217,7 @@
             "id": "scenario:titles-missing",
             "kind": "scenario",
             "operation": null,
-            "order": 261,
+            "order": 277,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11537,7 +12241,7 @@
         "id": "scenario:unlinked-canonical",
         "kind": "scenario",
         "operation": null,
-        "order": 262,
+        "order": 278,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11557,7 +12261,7 @@
             "id": "scenario:unlinked-canonical",
             "kind": "scenario",
             "operation": null,
-            "order": 262,
+            "order": 278,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11581,7 +12285,7 @@
         "id": "scenario:url-hygiene",
         "kind": "scenario",
         "operation": null,
-        "order": 263,
+        "order": 279,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11601,7 +12305,7 @@
             "id": "scenario:url-hygiene",
             "kind": "scenario",
             "operation": null,
-            "order": 263,
+            "order": 279,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11625,7 +12329,7 @@
         "id": "scenario:url-parameters",
         "kind": "scenario",
         "operation": null,
-        "order": 264,
+        "order": 280,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11645,7 +12349,7 @@
             "id": "scenario:url-parameters",
             "kind": "scenario",
             "operation": null,
-            "order": 264,
+            "order": 280,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11669,7 +12373,7 @@
         "id": "skill:general/article-writer",
         "kind": "skill",
         "operation": null,
-        "order": 265,
+        "order": 281,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11689,7 +12393,7 @@
             "id": "skill:general/article-writer",
             "kind": "skill",
             "operation": null,
-            "order": 265,
+            "order": 281,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11713,7 +12417,7 @@
         "id": "skill:general/semantic-core",
         "kind": "skill",
         "operation": null,
-        "order": 266,
+        "order": 282,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11733,7 +12437,7 @@
             "id": "skill:general/semantic-core",
             "kind": "skill",
             "operation": null,
-            "order": 266,
+            "order": 282,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11757,7 +12461,7 @@
         "id": "skill:general/seo-audit-page",
         "kind": "skill",
         "operation": null,
-        "order": 267,
+        "order": 283,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11777,7 +12481,7 @@
             "id": "skill:general/seo-audit-page",
             "kind": "skill",
             "operation": null,
-            "order": 267,
+            "order": 283,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11801,7 +12505,7 @@
         "id": "skill:general/seo-content",
         "kind": "skill",
         "operation": null,
-        "order": 268,
+        "order": 284,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11821,7 +12525,7 @@
             "id": "skill:general/seo-content",
             "kind": "skill",
             "operation": null,
-            "order": 268,
+            "order": 284,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11845,7 +12549,7 @@
         "id": "skill:general/seo-markup",
         "kind": "skill",
         "operation": null,
-        "order": 269,
+        "order": 285,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11865,7 +12569,7 @@
             "id": "skill:general/seo-markup",
             "kind": "skill",
             "operation": null,
-            "order": 269,
+            "order": 285,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11889,7 +12593,7 @@
         "id": "skill:general/seo-optimize",
         "kind": "skill",
         "operation": null,
-        "order": 270,
+        "order": 286,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11909,7 +12613,7 @@
             "id": "skill:general/seo-optimize",
             "kind": "skill",
             "operation": null,
-            "order": 270,
+            "order": 286,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11933,7 +12637,7 @@
         "id": "skill:general/seo-research",
         "kind": "skill",
         "operation": null,
-        "order": 271,
+        "order": 287,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11953,7 +12657,7 @@
             "id": "skill:general/seo-research",
             "kind": "skill",
             "operation": null,
-            "order": 271,
+            "order": 287,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -11977,7 +12681,7 @@
         "id": "skill:general/service-landing-copy",
         "kind": "skill",
         "operation": null,
-        "order": 272,
+        "order": 288,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -11997,7 +12701,7 @@
             "id": "skill:general/service-landing-copy",
             "kind": "skill",
             "operation": null,
-            "order": 272,
+            "order": 288,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12021,7 +12725,7 @@
         "id": "skill:workflow/analytics-console-review",
         "kind": "skill",
         "operation": null,
-        "order": 273,
+        "order": 289,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12041,7 +12745,7 @@
             "id": "skill:workflow/analytics-console-review",
             "kind": "skill",
             "operation": null,
-            "order": 273,
+            "order": 289,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12065,7 +12769,7 @@
         "id": "skill:workflow/audit-roadmap",
         "kind": "skill",
         "operation": null,
-        "order": 274,
+        "order": 290,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12073,7 +12777,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "0c6e5e956ac2842d9765b2042ec156ebd25f6435dea503fa32d2254c71b02dd8",
+        "source_hash": "f8ac664ffeb8fffe94096a37f4e7faf45884c6091e853968523eb32785b89a3f",
         "title": "audit-roadmap"
       },
       "definitions": [
@@ -12085,7 +12789,7 @@
             "id": "skill:workflow/audit-roadmap",
             "kind": "skill",
             "operation": null,
-            "order": 274,
+            "order": 290,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12093,7 +12797,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "0c6e5e956ac2842d9765b2042ec156ebd25f6435dea503fa32d2254c71b02dd8",
+            "source_hash": "f8ac664ffeb8fffe94096a37f4e7faf45884c6091e853968523eb32785b89a3f",
             "title": "audit-roadmap"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -12109,7 +12813,7 @@
         "id": "skill:workflow/backlinks-check",
         "kind": "skill",
         "operation": null,
-        "order": 275,
+        "order": 291,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12129,7 +12833,7 @@
             "id": "skill:workflow/backlinks-check",
             "kind": "skill",
             "operation": null,
-            "order": 275,
+            "order": 291,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12153,7 +12857,7 @@
         "id": "skill:workflow/control",
         "kind": "skill",
         "operation": null,
-        "order": 276,
+        "order": 292,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12173,7 +12877,7 @@
             "id": "skill:workflow/control",
             "kind": "skill",
             "operation": null,
-            "order": 276,
+            "order": 292,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12197,7 +12901,7 @@
         "id": "skill:workflow/duplicate-audit",
         "kind": "skill",
         "operation": null,
-        "order": 277,
+        "order": 293,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12217,7 +12921,7 @@
             "id": "skill:workflow/duplicate-audit",
             "kind": "skill",
             "operation": null,
-            "order": 277,
+            "order": 293,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12241,7 +12945,7 @@
         "id": "skill:workflow/full-audit-v1",
         "kind": "skill",
         "operation": null,
-        "order": 278,
+        "order": 294,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12261,7 +12965,7 @@
             "id": "skill:workflow/full-audit-v1",
             "kind": "skill",
             "operation": null,
-            "order": 278,
+            "order": 294,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12285,7 +12989,7 @@
         "id": "skill:workflow/geo-aeo-audit",
         "kind": "skill",
         "operation": null,
-        "order": 279,
+        "order": 295,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12305,7 +13009,7 @@
             "id": "skill:workflow/geo-aeo-audit",
             "kind": "skill",
             "operation": null,
-            "order": 279,
+            "order": 295,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12329,7 +13033,7 @@
         "id": "skill:workflow/heading-outline",
         "kind": "skill",
         "operation": null,
-        "order": 280,
+        "order": 296,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12349,7 +13053,7 @@
             "id": "skill:workflow/heading-outline",
             "kind": "skill",
             "operation": null,
-            "order": 280,
+            "order": 296,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12373,7 +13077,7 @@
         "id": "skill:workflow/internal-linking",
         "kind": "skill",
         "operation": null,
-        "order": 281,
+        "order": 297,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12393,7 +13097,7 @@
             "id": "skill:workflow/internal-linking",
             "kind": "skill",
             "operation": null,
-            "order": 281,
+            "order": 297,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12417,7 +13121,7 @@
         "id": "skill:workflow/js-render-check",
         "kind": "skill",
         "operation": null,
-        "order": 282,
+        "order": 298,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12437,7 +13141,7 @@
             "id": "skill:workflow/js-render-check",
             "kind": "skill",
             "operation": null,
-            "order": 282,
+            "order": 298,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12461,7 +13165,7 @@
         "id": "skill:workflow/regional-audit",
         "kind": "skill",
         "operation": null,
-        "order": 283,
+        "order": 299,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12481,7 +13185,7 @@
             "id": "skill:workflow/regional-audit",
             "kind": "skill",
             "operation": null,
-            "order": 283,
+            "order": 299,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12505,7 +13209,7 @@
         "id": "skill:workflow/robots-audit",
         "kind": "skill",
         "operation": null,
-        "order": 284,
+        "order": 300,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12525,7 +13229,7 @@
             "id": "skill:workflow/robots-audit",
             "kind": "skill",
             "operation": null,
-            "order": 284,
+            "order": 300,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12549,7 +13253,7 @@
         "id": "skill:workflow/schema-graph",
         "kind": "skill",
         "operation": null,
-        "order": 285,
+        "order": 301,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12569,7 +13273,7 @@
             "id": "skill:workflow/schema-graph",
             "kind": "skill",
             "operation": null,
-            "order": 285,
+            "order": 301,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12593,7 +13297,7 @@
         "id": "skill:workflow/security-audit",
         "kind": "skill",
         "operation": null,
-        "order": 286,
+        "order": 302,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12613,7 +13317,7 @@
             "id": "skill:workflow/security-audit",
             "kind": "skill",
             "operation": null,
-            "order": 286,
+            "order": 302,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12637,7 +13341,7 @@
         "id": "skill:workflow/seo-deep-audit",
         "kind": "skill",
         "operation": null,
-        "order": 287,
+        "order": 303,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12645,7 +13349,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "45457ee3930f65f333b50865acb89648125fdae7fdfc4b4a11c5fc07c654a450",
+        "source_hash": "5e9d0825378677982d3b2a1b54d8cc7b37f3f1eb813039cb13a651bf6a76b71e",
         "title": "seo-deep-audit"
       },
       "definitions": [
@@ -12657,7 +13361,7 @@
             "id": "skill:workflow/seo-deep-audit",
             "kind": "skill",
             "operation": null,
-            "order": 287,
+            "order": 303,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12665,7 +13369,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "45457ee3930f65f333b50865acb89648125fdae7fdfc4b4a11c5fc07c654a450",
+            "source_hash": "5e9d0825378677982d3b2a1b54d8cc7b37f3f1eb813039cb13a651bf6a76b71e",
             "title": "seo-deep-audit"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -12681,7 +13385,7 @@
         "id": "skill:workflow/seo-recon",
         "kind": "skill",
         "operation": null,
-        "order": 288,
+        "order": 304,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12701,7 +13405,7 @@
             "id": "skill:workflow/seo-recon",
             "kind": "skill",
             "operation": null,
-            "order": 288,
+            "order": 304,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12725,7 +13429,7 @@
         "id": "skill:workflow/sf-analyzer",
         "kind": "skill",
         "operation": null,
-        "order": 289,
+        "order": 305,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12745,7 +13449,7 @@
             "id": "skill:workflow/sf-analyzer",
             "kind": "skill",
             "operation": null,
-            "order": 289,
+            "order": 305,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12769,7 +13473,7 @@
         "id": "skill:workflow/sf-boundaries",
         "kind": "skill",
         "operation": null,
-        "order": 290,
+        "order": 306,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12789,7 +13493,7 @@
             "id": "skill:workflow/sf-boundaries",
             "kind": "skill",
             "operation": null,
-            "order": 290,
+            "order": 306,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12813,7 +13517,7 @@
         "id": "skill:workflow/sf-config",
         "kind": "skill",
         "operation": null,
-        "order": 291,
+        "order": 307,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12821,7 +13525,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "f01f2ef07ff401f304ad192620ae2ca0ef127c559ac85b63eaf0c26c1bc0021d",
+        "source_hash": "ffb5c013913446793c8a345279486414d4a24cbc8b0eef3ae975d6f58feb01d4",
         "title": "sf-config"
       },
       "definitions": [
@@ -12833,7 +13537,7 @@
             "id": "skill:workflow/sf-config",
             "kind": "skill",
             "operation": null,
-            "order": 291,
+            "order": 307,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12841,7 +13545,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "f01f2ef07ff401f304ad192620ae2ca0ef127c559ac85b63eaf0c26c1bc0021d",
+            "source_hash": "ffb5c013913446793c8a345279486414d4a24cbc8b0eef3ae975d6f58feb01d4",
             "title": "sf-config"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -12857,7 +13561,7 @@
         "id": "skill:workflow/sf-report",
         "kind": "skill",
         "operation": null,
-        "order": 292,
+        "order": 308,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12877,7 +13581,7 @@
             "id": "skill:workflow/sf-report",
             "kind": "skill",
             "operation": null,
-            "order": 292,
+            "order": 308,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12901,7 +13605,7 @@
         "id": "skill:workflow/sf-tasks",
         "kind": "skill",
         "operation": null,
-        "order": 293,
+        "order": 309,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12921,7 +13625,7 @@
             "id": "skill:workflow/sf-tasks",
             "kind": "skill",
             "operation": null,
-            "order": 293,
+            "order": 309,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12945,7 +13649,7 @@
         "id": "skill:workflow/silo-audit",
         "kind": "skill",
         "operation": null,
-        "order": 294,
+        "order": 310,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -12965,7 +13669,7 @@
             "id": "skill:workflow/silo-audit",
             "kind": "skill",
             "operation": null,
-            "order": 294,
+            "order": 310,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -12989,7 +13693,7 @@
         "id": "skill:workflow/site-report",
         "kind": "skill",
         "operation": null,
-        "order": 295,
+        "order": 311,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -13009,7 +13713,7 @@
             "id": "skill:workflow/site-report",
             "kind": "skill",
             "operation": null,
-            "order": 295,
+            "order": 311,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -13033,7 +13737,7 @@
         "id": "skill:workflow/tech-audit",
         "kind": "skill",
         "operation": null,
-        "order": 296,
+        "order": 312,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -13053,7 +13757,7 @@
             "id": "skill:workflow/tech-audit",
             "kind": "skill",
             "operation": null,
-            "order": 296,
+            "order": 312,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -13077,7 +13781,7 @@
         "id": "skill:workflow/traffic-report",
         "kind": "skill",
         "operation": null,
-        "order": 297,
+        "order": 313,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -13097,7 +13801,7 @@
             "id": "skill:workflow/traffic-report",
             "kind": "skill",
             "operation": null,
-            "order": 297,
+            "order": 313,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {

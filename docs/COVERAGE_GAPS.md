@@ -1,7 +1,7 @@
 # Audit coverage — the gap map
 
 **Purpose.** The list of SEO checks our SF audit
-(`seohead/sf/core/registry.py`, 202 checks) still **lacks**. For every gap:
+(`seohead/sf/core/registry.py`, 218 checks) still **lacks**. For every gap:
 value, implementation mode, likely home in the code. This is a filling plan,
 not a bug report. Items implemented since this map was written are marked
 **DONE**.
@@ -54,7 +54,7 @@ inventing a broader claim.
 |---|---|
 | 2.1–2.5 | **Covered in registry:** `NO_AUTHOR_BYLINE`, `NO_CONTENT_DATES`, the four trust-page checks, and `FEW_CITATIONS`. They report observed markup/discovery states, never trustworthiness or citation authority. |
 | 2.6–2.7 | **Partial / missing:** `YMYL_REVIEW_CANDIDATE` is a deterministic review candidate, not a classification; disclaimer/editorial-policy detection remains missing. |
-| 3.1–3.9 | **Explicitly out of scope:** no 92-item accessibility/AMP or WCAG engine. `provider-collect` can return a capped opt-in Lighthouse sample with provider, engine, version, strategy, score, and failed/incomplete IDs; it is not WCAG or legal-compliance evidence. |
+| 3.1–3.9 | **Static subset shipped:** document language, form labels, image alternatives, heading jumps and main landmark findings; structural AMP source checks. Full AMP validator rules, rendered axe-core and contrast remain unmeasured. `provider-collect` can return a capped opt-in Lighthouse sample; it is not WCAG or legal-compliance evidence. |
 | 6.3–6.4 | **Covered in registry:** `CANONICAL_TARGET_ERROR` and `CANONICAL_HOMEPAGE_GROUP`. |
 | 8.2 / 8.4 | **Covered in registry:** `ONLY_NOFOLLOW_INLINKS` for verified indexable targets (with partial-crawl withholding) and native `HTTP_LINK_ON_HTTPS` from retained raw hrefs; observed HTTP→HTTPS redirect convergence stays silent. |
 | 10.2 / 10.4 | **Covered in registry:** `URL_SESSION_ID` redacts values and `URL_TRAILING_SLASH_INCONSISTENT` requires observed, non-convergent indexable pairs while preserving path case. |
@@ -274,7 +274,7 @@ graph checks land in `inlinks.py` with almost no new math.
 
 | # | Name | Checks | Value | Mode | Home |
 |---|---|---|---|---|---|
-| 13.1 | Required fields per type | Product->price/availability, Article->datePublished/author, Review->rating, LocalBusiness->address, FAQ->mainEntity, Video->duration | **high** | **mostly DONE** in the live `schema-check` (vocabulary + Google rich-result eligibility per type); audit ids still absent | new `schema_fields.py` |
+| 13.1 | Required fields per type | Product->price/availability, Article->datePublished/author, Review->rating, LocalBusiness->address, FAQ->mainEntity, Video->duration | **high** | **DONE** for the bundled local rules: `schema-check` and document-bound native schema findings; Google display remains unknown | `schema_org.py`, `markup_rules.py` |
 | 13.2 | Type-specific scenarios | Breadcrumb/FAQ/Video/LocalBusiness/... where they are relevant | medium | B (SF "Schema Type") | id `SCHEMA_TYPE_OPPORTUNITY` |
 | 13.3 | Schema drift | Markup diverges from visible content (JSON-LD price ≠ page price) | medium | A (JSON-LD + render) | id `SCHEMA_CONTENT_DRIFT` |
 

@@ -1372,6 +1372,103 @@ CHECKS: dict[str, dict[str, Any]] = {
         "Your-Money-Your-Life topics; if it does, the attribution and "
         "trust-page evidence above deserves a closer look.",
     },
+    # Document markup: structural AMP, static accessibility, and Schema.org validation
+    "AMP_MISSING_HTML_ATTRIBUTE": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP target does not declare the html amp or lightning attribute",
+        "fix": "Add the AMP attribute to the root html element, or correct the rel=amphtml target.",
+    },
+    "AMP_INVALID_DOCTYPE": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP document has a missing or invalid HTML5 doctype",
+        "fix": "Start the AMP source document with <!doctype html>.",
+    },
+    "AMP_MISSING_HEAD": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP source document has no explicit head element",
+        "fix": "Include an explicit head element in the AMP source.",
+    },
+    "AMP_MISSING_BODY": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP source document has no explicit body element",
+        "fix": "Include an explicit body element in the AMP source.",
+    },
+    "AMP_INVALID_CHARSET": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP head does not start with the required UTF-8 charset declaration",
+        "fix": 'Place <meta charset="utf-8"> first in the AMP head.',
+    },
+    "AMP_INVALID_VIEWPORT": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP document lacks the required device-width viewport",
+        "fix": "Declare a viewport containing width=device-width in the head.",
+    },
+    "AMP_INVALID_RUNTIME": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP document lacks an async AMP runtime script in the head",
+        "fix": 'Add <script async src="https://cdn.ampproject.org/v0.js"></script> to the AMP head.',
+    },
+    "AMP_INVALID_BOILERPLATE": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP document lacks the structural AMP boilerplate declarations",
+        "fix": "Include the required amp-boilerplate style and noscript fallback; validate their content with the official AMP validator.",
+    },
+    "A11Y_HTML_LANG_MISSING": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "Root html element has no nonempty lang declaration",
+        "fix": "Declare the document language on html and review whether it matches the content.",
+    },
+    "A11Y_FORM_LABEL_MISSING": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "Form control has no static accessible label",
+        "fix": "Associate a label with the control, or provide a valid aria-label or aria-labelledby reference.",
+    },
+    "A11Y_IMAGE_ALT_MISSING": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "Image has no alt attribute or static accessible name",
+        "fix": "Provide meaningful alternative text; explicitly mark decorative images with empty alt text.",
+    },
+    "A11Y_HEADING_ORDER": {
+        "severity": "notice",
+        "source": "crawl:markup_evidence",
+        "message": "Heading sequence skips a level in the static document",
+        "fix": "Review the heading outline and use nested heading levels consistently.",
+    },
+    "A11Y_MAIN_LANDMARK_MISSING": {
+        "severity": "notice",
+        "source": "crawl:markup_evidence",
+        "message": "Document content has no main landmark",
+        "fix": "Mark the primary page content with main or role=main and verify navigation with assistive technology.",
+    },
+    "STRUCTURED_DATA_SCHEMA_ERROR": {
+        "severity": "warning",
+        "source": "crawl:structured_evidence",
+        "message": "Structured data contains errors under the bundled Schema.org vocabulary",
+        "fix": "Inspect the URL schema evidence and repair unknown types, properties, invalid values or unresolved references.",
+    },
+    "STRUCTURED_DATA_SCHEMA_WARNING": {
+        "severity": "notice",
+        "source": "crawl:structured_evidence",
+        "message": "Structured data contains warnings under the bundled Schema.org vocabulary",
+        "fix": "Review the URL schema evidence and correct ambiguous values or graph relationships.",
+    },
+    "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING": {
+        "severity": "warning",
+        "source": "crawl:structured_evidence",
+        "message": "Structured data lacks required properties in the bundled local rich-result rules",
+        "fix": "Fill the required properties for the declared type and validate the result; local eligibility does not guarantee Google display.",
+    },
 }
 
 
