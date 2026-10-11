@@ -192,8 +192,12 @@ def test_ingest_binds_effective_asset_policy_without_changing_frozen_scan(tmp_pa
     identity = source_identity(load_audit_source(scan, "baseline"))
     assert identity["results_policy_fingerprint"] != frozen
     ingest_scan(ledger, scan)
-    source = _occurrences(read_cases(ledger))[0]["observations"][0]["source_scan"]
-    assert source["config_fingerprint"] == identity["results_policy_fingerprint"]
+    con = open_ledger(ledger)
+    try:
+        policy = con.execute("SELECT config_fingerprint FROM source_scan").fetchone()[0]
+        assert policy == identity["results_policy_fingerprint"]
+    finally:
+        con.close()
     ingest_scan(ledger, scan)
     assert _file_sha(scan) == before
     assert len(_occurrences(read_cases(ledger))[0]["observations"]) == 1
