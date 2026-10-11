@@ -8,7 +8,7 @@ import time
 from collections import deque
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin, urlsplit, urlunsplit
+from urllib.parse import urldefrag, urljoin, urlsplit, urlunsplit
 
 from seohead.checks.parser import robots_directives
 from seohead.crawl.spider import _canonical_key
@@ -98,8 +98,10 @@ def _node(con, row, inlink_cap):
     count = con.execute(
         "SELECT COUNT(*) FROM (SELECT 1 FROM json_each(?) variants "
         "CROSS JOIN links l INDEXED BY links_destination_source_position "
-        "WHERE l.destination_url_id=variants.value LIMIT ?)",
-        (json.dumps(variants[:_FRAGMENT_VARIANTS]), inlink_cap + 1),
+        "ON l.destination_url_id=variants.value JOIN urls d ON d.url_id=l.destination_url_id "
+        + _target_join()
+        + "WHERE target.url_id=? LIMIT ?)",
+        (json.dumps(variants[:_FRAGMENT_VARIANTS]), row["url_id"], inlink_cap + 1),
     ).fetchone()[0]
     robots = con.execute(
         "SELECT payload_json FROM context_items WHERE kind='robots_blocked_url' AND item_key=?",
@@ -224,10 +226,12 @@ def _around(
     section_where,
     section_params,
 ):
+    _url(key, "around")
+    key = urldefrag(key).url
     row = con.execute(
         "SELECT p.url_id FROM urls u CROSS JOIN pages p ON p.url_id=u.url_id "
-        "WHERE u.url IN (?,?) LIMIT 1",
-        _spellings(key),
+        "WHERE u.url IN (?,?) ORDER BY u.url=? DESC LIMIT 1",
+        (key, _root_alias(key), key),
     ).fetchone()
     if row is None:
         raise LinksError("url_not_found", "around URL is not a retained page")
@@ -253,9 +257,11 @@ def _around(
             (
                 "SELECT l.source_url_id FROM json_each(?) variants CROSS JOIN links l "
                 "INDEXED BY links_destination_source_position ON l.destination_url_id=variants.value "
-                "JOIN pages p ON p.url_id=l.source_url_id JOIN urls u ON u.url_id=p.url_id "
-                f"WHERE {link_where} AND {section_where}",
-                [json.dumps(variants[:_FRAGMENT_VARIANTS]), *link_params, *section_params],
+                "JOIN urls d ON d.url_id=l.destination_url_id "
+                + _target_join()
+                + "JOIN pages p ON p.url_id=l.source_url_id JOIN urls u ON u.url_id=p.url_id "
+                f"WHERE target.url_id=? AND {link_where} AND {section_where}",
+                [json.dumps(variants[:_FRAGMENT_VARIANTS]), node, *link_params, *section_params],
             ),
         )
         for sql, params in queries:
@@ -401,7 +407,9 @@ def scan_graph(
     con = _open_light(scan_path)
     try:
         con.create_function("graph_root_alias", 1, _root_alias, deterministic=True)
-        con.create_function("graph_document_key", 1, _canonical_key, deterministic=True)
+        con.create_function(
+            "graph_document_key", 1, lambda value: urldefrag(value).url, deterministic=True
+        )
         header, _, _, start = _header(con)
         where, params = _section(section, start)
         link_where, link_params = _link_filter(positions, representation)
@@ -459,7 +467,7 @@ def scan_graph(
             if around is not None:
                 ids, local_capped, examined = _around(
                     con,
-                    _url(around, "around"),
+                    around,
                     depth,
                     max_nodes,
                     max_edges,
@@ -660,7 +668,7 @@ def _diff(con, path, positions, representation, section, start, offset, limit, c
     result = {
         "state": "complete",
         "scan_uuid": header["scan_uuid"],
-        "identity": "source/destination fragmentless crawler document URL pair",
+        "identity": "source/destination exact retained document URL pair; fragment targets resolved",
     }
     for label, left, lp, right, rp in (
         ("added", current, cp, previous, pp),

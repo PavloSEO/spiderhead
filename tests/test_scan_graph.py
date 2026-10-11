@@ -238,3 +238,56 @@ def test_node_indexability_uses_canonical_directives_and_retained_robots(tmp_pat
     assert nodes[B]["indexable"] and nodes[B]["indexability_state"] == "indexable_candidate"
     assert nodes[TARGET]["robots_blocked"] and nodes[TARGET]["robots_policy"] == "report_only"
     assert not nodes[TARGET]["indexable"]
+
+
+def test_distinct_captured_trailing_slash_pages_keep_inlink_sources_separate(tmp_path):
+    other = A + "/"
+    path = _scan(
+        tmp_path,
+        {ROOT: [_edge(ROOT, A + "#one")], B: [_edge(B, other + "#two")]},
+        pages=(ROOT, A, other, B),
+    )
+    nodes = {node["url"]: node for node in scan_graph(path)["nodes"]}
+    assert nodes[A]["inlinks"] == nodes[other]["inlinks"] == 1
+    assert nodes[A]["id"] != nodes[other]["id"]
+    assert {node["url"] for node in scan_graph(path, around=A, depth=1)["nodes"]} == {ROOT, A}
+    assert {node["url"] for node in scan_graph(path, around=other, depth=1)["nodes"]} == {B, other}
+
+
+def test_exact_retained_root_pages_take_precedence_over_root_alias_candidates(tmp_path):
+    import sqlite3
+
+    bare = ROOT.rstrip("/")
+    path = _scan(
+        tmp_path, {B: [_edge(B, ROOT + "#slash")], TARGET: [_edge(TARGET, bare + "#bare")]}
+    )
+    # Native discovery usually deduplicates root spellings; retained/imported artifacts may
+    # contain two distinct page records, which this light read must still resolve exactly.
+    with sqlite3.connect(path) as con:
+        con.execute("UPDATE urls SET url=? WHERE url=?", (bare, A))
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    graph = scan_graph(path)
+    nodes = {node["url"]: node for node in graph["nodes"]}
+    assert nodes[ROOT]["inlinks"] == nodes[bare]["inlinks"] == 1
+    targets = {edge["source_url"]: edge["target"] for edge in graph["edges"]}
+    assert targets == {B: nodes[ROOT]["id"], TARGET: nodes[bare]["id"]}
+    assert {node["url"] for node in scan_graph(path, around=ROOT, depth=1)["nodes"]} == {ROOT, B}
+    assert {node["url"] for node in scan_graph(path, around=bare, depth=1)["nodes"]} == {
+        bare,
+        TARGET,
+    }
+    assert graph["statistics"]["components"] == 2
+    assert graph["statistics"]["orphans"] == 2
+    moved = tmp_path / "moved.sqlite"
+    with sqlite3.connect(path) as source, sqlite3.connect(moved) as destination:
+        source.backup(destination)
+        destination.execute(
+            "UPDATE links SET destination_url_id=(SELECT url_id FROM urls WHERE url=?) "
+            "WHERE source_url_id=(SELECT url_id FROM urls WHERE url=?)",
+            (bare + "#bare", B),
+        )
+    comparison = scan_graph(moved, compare_to=path)["comparison"]
+    assert comparison["added"] == [{"source_url": B, "target_url": bare}]
+    assert comparison["removed"] == [{"source_url": B, "target_url": ROOT}]
+    assert comparison["new_orphans"] == [ROOT]
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == digest
