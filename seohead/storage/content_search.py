@@ -12,6 +12,7 @@ import hashlib
 import json
 import re
 import sqlite3
+from array import array
 from bisect import bisect_right
 from collections import Counter
 from collections.abc import Callable, Iterable
@@ -87,6 +88,7 @@ def _snippet(
     *,
     case_sensitive: bool,
     span: tuple[int, int] | None = None,
+    redaction_spans: tuple[array, array] | None = None,
 ) -> str:
     """Return a bounded match excerpt without commonly shaped credential values.
 
@@ -104,9 +106,9 @@ def _snippet(
         start, end = span
     left = max(0, start - MAX_SNIPPET_CHARS // 3)
     right = min(len(target), end + MAX_SNIPPET_CHARS * 2 // 3)
-    value = " ".join(target[left:right].split())
-    # The result is evidence for a literal marker, never a credential dump.
-    value = re.sub(_REDACTION_PATTERN, r"\1\2[REDACTED]", value)
+    value = " ".join(
+        _redact_slice(target, left, right, redaction_spans or _redaction_spans(target)).split()
+    )
     return value[:MAX_SNIPPET_CHARS]
 
 
@@ -149,8 +151,40 @@ def _occurrence_spans(
     return spans, total, total > MAX_OCCURRENCES_PER_DOCUMENT, timed_out
 
 
-def _line_starts(target: str) -> list[int]:
-    starts = [0]
+def _redaction_spans(target: str) -> tuple[array, array]:
+    starts, ends = array("I"), array("I")
+    for match in re.finditer(_REDACTION_PATTERN, target):
+        starts.append(match.start())
+        ends.append(match.end())
+    return starts, ends
+
+
+def _redact_slice(
+    target: str, start: int, end: int, spans: tuple[array, array]
+) -> str:
+    """Redact credential-shaped tokens intersecting one bounded source slice."""
+    starts, ends = spans
+    index = max(0, bisect_right(starts, start) - 1)
+    cursor = start
+    pieces: list[str] = []
+    while index < len(starts) and starts[index] < end:
+        token_start, token_end = starts[index], ends[index]
+        if token_end > start:
+            overlap_start = max(start, token_start)
+            overlap_end = min(end, token_end)
+            if overlap_start > cursor:
+                pieces.append(target[cursor:overlap_start])
+            if overlap_end > cursor:
+                pieces.append("[REDACTED]")
+                cursor = overlap_end
+        index += 1
+    if cursor < end:
+        pieces.append(target[cursor:end])
+    return "".join(pieces)
+
+
+def _line_starts(target: str) -> array:
+    starts = array("I", [0])
     index = 0
     while index < len(target):
         if target[index] == "\r":
@@ -165,7 +199,10 @@ def _line_starts(target: str) -> list[int]:
 
 
 def _match_window(
-    target: str, starts: list[int], span: tuple[int, int]
+    target: str,
+    starts: array,
+    span: tuple[int, int],
+    redaction_spans: tuple[array, array],
 ) -> tuple[int, str, bool]:
     """Return a six-line context window and its one-based first line."""
     match_line = bisect_right(starts, span[0])
@@ -177,29 +214,26 @@ def _match_window(
     end = starts[end_line] if end_line < len(starts) else len(target)
     if end_line < len(starts):
         end -= 2 if target[end - 2 : end] == "\r\n" else 1
-    value = target[start:end]
-    match_offset = span[0] - start
-    value = re.sub(_REDACTION_PATTERN, r"\1\2[REDACTED]", value)
-    if match_offset > 0:
-        match_offset = len(
-            re.sub(
-                _REDACTION_PATTERN,
-                r"\1\2[REDACTED]",
-                target[start : start + match_offset],
-            )
-        )
-    truncated = len(value) > MAX_MATCH_WINDOW_CHARS
+    truncated = end - start > MAX_MATCH_WINDOW_CHARS
+    left, right = start, end
     if truncated:
         content_chars = MAX_MATCH_WINDOW_CHARS - 2
-        left = max(0, match_offset - content_chars // 2)
-        right = min(len(value), left + content_chars)
-        left = max(0, right - content_chars)
-        value = ("…" if left else "") + value[left:right] + ("…" if right < len(value) else "")
+        left = max(start, span[0] - content_chars // 2)
+        right = min(end, left + content_chars)
+        left = max(start, right - content_chars)
+        if right < span[1]:
+            right = min(end, span[1])
+            left = max(start, right - content_chars)
+    value = _redact_slice(target, left, right, redaction_spans)
+    if truncated:
+        value = ("…" if left > start else "") + value + ("…" if right < end else "")
+    value = value[:MAX_MATCH_WINDOW_CHARS]
     return start_line, value, truncated
 
 
 def _row_stream(con, representations: tuple[str, ...], url: str | None = None):
     requested = ",".join("(?)" for _ in representations)
+    url_predicate = "u.url=?" if url is not None else "1"
     # The newest retained document wins per URL and representation.  A former
     # static document may remain after a rendered capture, but it is not the
     # current observation requested by this search.
@@ -210,6 +244,8 @@ def _row_stream(con, representations: tuple[str, ...], url: str | None = None):
                 PARTITION BY d.url_id,d.representation ORDER BY d.document_id DESC
             ) AS position
             FROM documents d JOIN requested USING(representation)
+            JOIN urls u USING(url_id)
+            WHERE {url_predicate}
         ), observations AS (
             SELECT l.document_id,l.url_id,l.representation,l.body_state,l.body_reason,
                    l.fidelity,l.decoder_errors,l.decoder_source,
@@ -218,7 +254,7 @@ def _row_stream(con, representations: tuple[str, ...], url: str | None = None):
             FROM latest l JOIN urls u USING(url_id)
             LEFT JOIN pages p USING(url_id)
             LEFT JOIN responses r ON r.response_id=l.source_response_id
-            WHERE l.position=1 AND (? IS NULL OR u.url=?)
+            WHERE l.position=1
             UNION ALL
             SELECT NULL,p.url_id,requested.representation,'unavailable',
                    CASE requested.representation
@@ -230,7 +266,7 @@ def _row_stream(con, representations: tuple[str, ...], url: str | None = None):
                    'unavailable','unknown','not_applicable',u.url,p.page_ordinal,
                    p.status_code,p.content_type
             FROM pages p JOIN urls u USING(url_id) CROSS JOIN requested
-            WHERE (? IS NULL OR u.url=?) AND NOT EXISTS (
+            WHERE {url_predicate} AND NOT EXISTS (
                 SELECT 1 FROM documents d
                 WHERE d.url_id=p.url_id AND d.representation=requested.representation
             )
@@ -238,7 +274,8 @@ def _row_stream(con, representations: tuple[str, ...], url: str | None = None):
         SELECT * FROM observations
         ORDER BY page_ordinal IS NULL,page_ordinal,url,representation
     """
-    return con.execute(sql, (*representations, url, url, url, url))
+    parameters = (*representations, *((url,) * 2 if url is not None else ()))
+    return con.execute(sql, parameters)
 
 
 def search_scan(
@@ -426,6 +463,11 @@ def search_scan(
                             occurrence_truncated += 1
                         if found:
                             line_starts = _line_starts(target)
+                            redaction_spans = (
+                                _redaction_spans(target)
+                                if include_snippets
+                                else (array("I"), array("I"))
+                            )
                             occurrence_rows = []
                             for match_index, span in enumerate(spans, start=1):
                                 occurrence = {
@@ -437,7 +479,7 @@ def search_scan(
                                 }
                                 if include_snippets:
                                     line_start, window, window_truncated = _match_window(
-                                        target, line_starts, span
+                                        target, line_starts, span, redaction_spans
                                     )
                                     occurrence.update(
                                         window_start_line=line_start,
@@ -460,6 +502,7 @@ def search_scan(
                                     query,
                                     case_sensitive=case_sensitive,
                                     span=spans[0] if spans else None,
+                                    redaction_spans=redaction_spans,
                                 )
                 except ScanError as exc:
                     unavailable += 1

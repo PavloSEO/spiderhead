@@ -12,7 +12,7 @@ import pytest
 from seohead import cli
 from seohead.mcp import handlers
 from seohead.storage import ScanError
-from seohead.storage.content_search import search_scan
+from seohead.storage.content_search import MAX_MATCH_WINDOW_CHARS, search_scan
 from seohead.storage.native_scan import NativeScan
 from tests.test_native_capture import _event, _renderer
 from tests.test_scan_corpus_inputs import _scan
@@ -195,6 +195,41 @@ def test_content_search_counts_matches_past_the_explicit_offset_output_limit(tmp
     assert len(records[0]["occurrences"]) == 10_000
     assert result["coverage"]["state"] == "partial"
     assert result["coverage"]["occurrence_truncated_documents"] == 1
+
+
+def test_content_search_bounds_many_windows_on_a_large_minified_body(tmp_path):
+    repeats = 8_500
+    segment = "x" * 500 + " authorization: Bearer SUPERSECRET " + "x" * 45 + "MATCH"
+    html = "<html><body>" + segment * repeats + "</body></html>"
+    scan = _scan(tmp_path / "scan", [("https://example.test/minified", html)])
+    observed = {}
+
+    def inspect(record):
+        if record["status"] != "matched":
+            return
+        windows = [match["window"] for match in record["occurrences"]]
+        observed.update(
+            occurrence_count=record["occurrence_count"],
+            returned=len(windows),
+            longest_window=max(map(len, windows)),
+            leaked_secret=any("SUPERSECRET" in window for window in windows),
+            redacted=any("[REDACTED]" in window for window in windows),
+        )
+
+    result = search_scan(
+        scan,
+        query="MATCH",
+        scope="raw_html",
+        include_snippets=True,
+        on_record=inspect,
+    )
+
+    assert result["coverage"]["state"] == "complete"
+    assert observed["occurrence_count"] == repeats
+    assert observed["returned"] == repeats
+    assert observed["longest_window"] <= MAX_MATCH_WINDOW_CHARS
+    assert observed["leaked_secret"] is False
+    assert observed["redacted"] is True
 
 
 def test_content_search_keeps_static_and_rendered_absence_separate(tmp_path):
