@@ -2123,13 +2123,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             metavar="PATH=VALUE",
             help="set PATH=VALUE after --config; repeatable; paths: --config-help",
         )
-        # Kept working for scripts written before --config existed, but no longer advertised in
-        # --help: depth and delay are exactly the kind of setting #13's config file exists for, and
-        # every flag shown here is one more line standing between a new setting and --config.
-        # --set is the answer to that tension rather than an exception to it: one flag reaches
-        # every setting, and a setting added tomorrow is reachable with no CLI change at all.
-        sub.add_argument("--max-depth", type=int, help=argparse.SUPPRESS)
-        sub.add_argument("--min-delay", type=float, help=argparse.SUPPRESS)
+        # Keep these compatibility controls discoverable while config remains the preferred route.
+        sub.add_argument("--max-depth", type=int, help="maximum link depth (legacy setting override)")
+        sub.add_argument("--min-delay", type=float, help="minimum delay between requests in seconds")
     if cmd == "crawl-control":
         _source_flag(sub, "--project", help="project containing the active crawl")
         _source_flag(sub, "--run-id", dest="run_id", help="active project run ID")
