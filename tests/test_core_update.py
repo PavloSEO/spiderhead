@@ -148,6 +148,20 @@ def test_download_requires_consent_before_reading_cached_release(monkeypatch):
     assert result["state"] == "consent_required"
 
 
+def test_download_reports_malformed_cached_release_rows(monkeypatch):
+    monkeypatch.setattr(update, "_read_state", lambda: {"result": {"releases": [None]}})
+
+    result = update.download_update(
+        consent=True,
+        tag="v3.1.0",
+        asset_name="seohead_seotools-3.1.0-py3-none-any.whl",
+        out="update.whl",
+    )
+
+    assert result["state"] == "unavailable"
+    assert result["reason"] == "checked release metadata is malformed"
+
+
 def test_download_cancellation_removes_partial_file(tmp_path, monkeypatch):
     body = b"synthetic wheel bytes"
     asset = {
@@ -191,7 +205,7 @@ def test_download_cancellation_removes_partial_file(tmp_path, monkeypatch):
     def cancelled():
         nonlocal calls
         calls += 1
-        return calls > 1
+        return calls > 3
 
     destination = tmp_path / asset["name"]
     progress = []

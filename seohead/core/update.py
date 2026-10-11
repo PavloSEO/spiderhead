@@ -12,7 +12,7 @@ from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 from seohead import __version__
 
@@ -124,14 +124,16 @@ def _asset(item: Any, tag: str) -> dict[str, Any] | None:
     ):
         return None
     parts = urlsplit(url)
+    expected_path = f"/{REPOSITORY}/releases/download/{tag}/{quote(name, safe='')}"
     if (
         parts.scheme != "https"
         or parts.hostname != "github.com"
+        or parts.netloc not in {"github.com", "github.com:443"}
         or parts.username
         or parts.password
         or parts.query
         or parts.fragment
-        or not parts.path.startswith(f"/{REPOSITORY}/releases/download/{tag}/")
+        or parts.path != expected_path
     ):
         return None
     digest = item.get("digest")
@@ -366,13 +368,25 @@ def download_update(
     if type(max_bytes) is not int or not 1 <= max_bytes <= MAX_DOWNLOAD_BYTES:
         raise ValueError(f"max_bytes must be 1..{MAX_DOWNLOAD_BYTES}")
     state = _read_state()
-    release = next(
-        (item for item in (state or {}).get("result", {}).get("releases", [])
-         if item.get("tag") == tag),
-        None,
-    )
+    releases = (state or {}).get("result", {}).get("releases")
+    if not isinstance(releases, list) or any(
+        not isinstance(item, dict)
+        or not isinstance(item.get("tag"), str)
+        or not isinstance(item.get("assets"), list)
+        for item in releases
+    ):
+        return {
+            "ok": False,
+            "state": "unavailable",
+            "reason": "checked release metadata is malformed",
+        }
+    release = next((item for item in releases if item["tag"] == tag), None)
     if release is None:
-        return {"ok": False, "state": "unavailable", "reason": "run an update check for this release first"}
+        return {
+            "ok": False,
+            "state": "unavailable",
+            "reason": "run an update check for this release first",
+        }
     cached_assets = release.get("assets")
     if not isinstance(cached_assets, list):
         return {"ok": False, "state": "unavailable", "reason": "checked release asset metadata is invalid"}
@@ -414,9 +428,13 @@ def download_update(
     temporary_path: Path | None = None
     try:
         with client:
+            if cancelled is not None and cancelled():
+                return {"ok": False, "state": "cancelled", "bytes": 0}
             expected, reason = _checksum(client, {**release, "assets": assets}, asset)
             if expected is None:
                 return {"ok": False, "state": "checksum_unavailable", "reason": reason}
+            if cancelled is not None and cancelled():
+                return {"ok": False, "state": "cancelled", "bytes": 0}
             with client.stream("GET", asset["url"]) as response:
                 if response.status_code != 200:
                     return {
