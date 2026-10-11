@@ -498,6 +498,55 @@ def _url(con, url: str) -> int:
     return con.execute("SELECT url_id FROM urls WHERE url = ?", (url,)).fetchone()[0]
 
 
+def _render_blocking_resources(value: Any) -> list[str] | None:
+    if value is None:
+        return None
+    if type(value) is not str:
+        raise ScanError("pages.render_blocking: expected a string or null")
+    resources = (
+        _loads(value, "pages.render_blocking")
+        if value.lstrip().startswith(("[", "{"))
+        else value.splitlines()
+    )
+    if not isinstance(resources, list) or any(type(url) is not str or not url for url in resources):
+        raise ScanError("pages.render_blocking: expected a nonempty-string resource list")
+    return resources
+
+
+def _validate_legacy_render_blocking_context(con, item) -> None:
+    payload = _loads(item["payload_json"], "legacy render-blocking measurement")
+    key = item["item_key"]
+    if (
+        item["payload_version"] != "scan_context.v1"
+        or not re.fullmatch(r"page:[1-9][0-9]{0,18}", key)
+        or not isinstance(payload, dict)
+        or set(payload) != {"schema_version", "resources"}
+        or payload["schema_version"] != "legacy_render_blocking.v1"
+        or (
+            payload["resources"] is not None
+            and (
+                not isinstance(payload["resources"], list)
+                or any(type(url) is not str or not url for url in payload["resources"])
+            )
+        )
+    ):
+        raise ScanError("legacy render-blocking measurement context is invalid")
+    expected_state = "unavailable" if payload["resources"] is None else "complete"
+    expected_reason = (
+        "legacy field records no render-blocking measurement"
+        if payload["resources"] is None
+        else ""
+    )
+    if item["completeness"] != expected_state or item["reason"] != expected_reason:
+        raise ScanError("legacy render-blocking measurement availability disagrees")
+    page_id = int(key[5:])
+    if (
+        page_id >= 2**63
+        or not con.execute("SELECT 1 FROM pages WHERE url_id=?", (page_id,)).fetchone()
+    ):
+        raise ScanError("legacy render-blocking measurement references an unknown page")
+
+
 def _import_pages(con, source: Path, limitations: list[str], inputs: list[dict]) -> None:
     names = {c[1] for c in _expected()[1]["pages"]} - {"url_id", "page_ordinal", "document_id"}
     names = (
@@ -523,11 +572,13 @@ def _import_pages(con, source: Path, limitations: list[str], inputs: list[dict])
     }
     for ordinal, record in enumerate(_jsonl(source / "pages.jsonl", limitations, inputs)):
         required = names - set(_LATE_PAGE_FIELDS) - _OPTIONAL_PAGE_RECORD_FIELDS
-        if required - set(record) or set(record) - names:
+        if required - set(record) or set(record) - names - {"render_blocking"}:
             raise ScanError(
                 f"pages.jsonl: fields differ from scan.v1: {sorted(set(record) ^ names)}"
             )
         row = dict(record)
+        has_render_blocking = "render_blocking" in row
+        render_resources = _render_blocking_resources(row.pop("render_blocking", None))
         for name in _LATE_PAGE_FIELDS:
             if name in row and row[name] is None:
                 raise ScanError(f"pages.{name}: present fields must have their recorded type")
@@ -577,6 +628,26 @@ def _import_pages(con, source: Path, limitations: list[str], inputs: list[dict])
             if row[key] is not None and (type(row[key]) is not int or row[key] < 0):
                 raise ScanError(f"pages.{key}: expected a nonnegative integer")
         _insert(con, "pages", row)
+        if has_render_blocking:
+            _insert(
+                con,
+                "context_items",
+                {
+                    "kind": "legacy_render_blocking",
+                    "item_key": f"page:{row['url_id']}",
+                    "payload_version": "scan_context.v1",
+                    "payload_json": _dump(
+                        {
+                            "schema_version": "legacy_render_blocking.v1",
+                            "resources": render_resources,
+                        }
+                    ),
+                    "completeness": "unavailable" if render_resources is None else "complete",
+                    "reason": "legacy field records no render-blocking measurement"
+                    if render_resources is None
+                    else "",
+                },
+            )
 
 
 def _import_links(con, source: Path, limitations: list[str], inputs: list[dict]) -> None:
@@ -687,7 +758,7 @@ def _validate_import_metadata(con, scan: dict, audit: dict) -> None:
         "SELECT 1 FROM links GROUP BY source_url_id HAVING MIN(ordinal) != 0 OR MAX(ordinal) != COUNT(*) - 1 LIMIT 1"
     ).fetchone():
         raise ScanError("link ordinals are not a contiguous per-source sequence")
-    context = list(con.execute("SELECT * FROM context_items"))
+    context = list(con.execute("SELECT * FROM context_items WHERE kind!='legacy_render_blocking'"))
     if len(context) != 1 or (
         context[0]["kind"],
         context[0]["item_key"],
@@ -728,6 +799,8 @@ def _validate_import_metadata(con, scan: dict, audit: dict) -> None:
         original["document_json"].encode("utf-8")
     ):
         raise ScanError("legacy audit input manifest does not match the retained document")
+    for item in con.execute("SELECT * FROM context_items WHERE kind='legacy_render_blocking'"):
+        _validate_legacy_render_blocking_context(con, item)
     recovered = [note for note in limitations if "recovered a truncated final line" in note]
     if len(recovered) > 1 or bool(recovered) != provenance["recovered_truncated_final_line"]:
         raise ScanError("truncated recovery provenance disagrees with limitations")
