@@ -5,6 +5,7 @@ from __future__ import annotations
 import zlib
 from collections.abc import Iterable
 from dataclasses import dataclass
+import time
 from typing import Any
 
 from seohead.core.common import utc_iso_z as now_utc
@@ -59,6 +60,93 @@ _SENSITIVE = frozenset(
 # header any site sends, and outside every sensitive-name check the artifact validates
 # against, so a reader can never confuse the marker with the header it stands for.
 REDACTED_NAMES_HEADER = "x-seohead-redacted-headers"
+
+TRANSPORT_PHASES = ("dns", "connect", "tls", "ttfb", "download")
+
+
+class TransportTrace:
+    """Measure only HTTPX trace events emitted by the request's own transport."""
+
+    def __init__(self) -> None:
+        self.started: dict[str, float] = {}
+        self.seconds: dict[str, float] = {name: 0.0 for name in TRANSPORT_PHASES}
+        self.observed: set[str] = set()
+        self.reasons: dict[str, str] = {}
+        self.request_started: float | None = None
+
+    def __call__(self, event_name: str, _info: dict[str, Any]) -> None:
+        if not isinstance(event_name, str):
+            return
+        event, separator, state = event_name.rpartition(".")
+        if not separator or state not in {"started", "complete", "failed"}:
+            return
+        now = time.monotonic()
+        if event in {"http11.send_request_headers", "http2.send_request_headers"}:
+            if state == "started":
+                self.request_started = now
+            return
+        mapping = {
+            "connection.connect_tcp": "connect",
+            "connection.start_tls": "tls",
+            "http11.receive_response_body": "download",
+            "http2.receive_response_body": "download",
+        }
+        phase = mapping.get(event)
+        if phase is not None:
+            if state == "started":
+                self.started[phase] = now
+            elif state == "complete" and phase in self.started:
+                self.seconds[phase] += max(0.0, now - self.started.pop(phase))
+                self.observed.add(phase)
+            elif state == "failed" and phase in self.started:
+                self.seconds[phase] += max(0.0, now - self.started.pop(phase))
+                self.observed.add(phase)
+                self.reasons[phase] = "transport phase failed"
+            return
+        if event in {"http11.receive_response_headers", "http2.receive_response_headers"}:
+            if state == "complete" and self.request_started is not None:
+                self.seconds["ttfb"] += max(0.0, now - self.request_started)
+                self.observed.add("ttfb")
+                self.request_started = None
+            elif state == "failed":
+                self.reasons["ttfb"] = "response headers were not received"
+
+    def snapshot(self) -> dict[str, dict[str, Any]]:
+        """Return explicit measurements and reasons; trace internals never enter the scan."""
+        result: dict[str, dict[str, Any]] = {}
+        for name in TRANSPORT_PHASES:
+            if name == "dns":
+                result[name] = {
+                    "seconds": None,
+                    "state": "unavailable",
+                    "reason": "HTTPX trace exposes no separate DNS timing event",
+                }
+            elif name in self.observed:
+                result[name] = {
+                    "seconds": round(self.seconds[name], 6),
+                    "state": "partial" if name in self.reasons else "measured",
+                    "reason": self.reasons.get(name)
+                    or (
+                        "DNS timing is not separate and may be included here"
+                        if name == "connect"
+                        else ""
+                    ),
+                }
+            else:
+                result[name] = {
+                    "seconds": None,
+                    "state": "unavailable",
+                    "reason": "transport trace event was not observed",
+                }
+        return result
+
+
+def unavailable_transport_phases(reason: str) -> dict[str, dict[str, Any]]:
+    """Name unmeasured phases for injected, cached or unsupported transports."""
+    return {
+        name: {"seconds": None, "state": "unavailable", "reason": reason}
+        for name in TRANSPORT_PHASES
+    }
 
 
 def header_pairs(headers: Any) -> tuple[tuple[str, str], ...]:
@@ -116,6 +204,7 @@ class CaptureEvent:
     session_changed: bool = False
     http_version: str | None = None
     timing_state: str = "unavailable"
+    transport_phases: dict[str, dict[str, Any]] | None = None
 
 
 class EntityLimitError(ValueError):

@@ -106,10 +106,21 @@ CREATE TABLE response_transport_meta (
   protocol TEXT,
   protocol_state TEXT NOT NULL,
   total_seconds REAL,
-  dns_state TEXT NOT NULL,
-  connect_state TEXT NOT NULL,
-  tls_state TEXT NOT NULL,
-  ttfb_state TEXT NOT NULL
+  dns_seconds REAL,
+  dns_state TEXT NOT NULL DEFAULT 'unavailable',
+  dns_reason TEXT NOT NULL DEFAULT 'not captured',
+  connect_seconds REAL,
+  connect_state TEXT NOT NULL DEFAULT 'unavailable',
+  connect_reason TEXT NOT NULL DEFAULT 'not captured',
+  tls_seconds REAL,
+  tls_state TEXT NOT NULL DEFAULT 'unavailable',
+  tls_reason TEXT NOT NULL DEFAULT 'not captured',
+  ttfb_seconds REAL,
+  ttfb_state TEXT NOT NULL DEFAULT 'unavailable',
+  ttfb_reason TEXT NOT NULL DEFAULT 'not captured',
+  download_seconds REAL,
+  download_state TEXT NOT NULL DEFAULT 'unavailable',
+  download_reason TEXT NOT NULL DEFAULT 'not captured'
 );
 
 CREATE TABLE scan_events (

@@ -106,6 +106,7 @@ def scan_link_inspect(
     status_class: str = "all",
     contains: str | None = None,
     sort: str = "order",
+    preset: str | None = None,
 ) -> dict[str, Any]:
     """One bounded saved-scan link query, shared by the CLI and local MCP."""
     if not isinstance(view, str) or view not in {"path", "inlinks", "context", "links"}:
@@ -116,7 +117,7 @@ def scan_link_inspect(
         }
     try:
         path = _path(input_path, "scan")
-        links_only = (url, direction, link_type, follow, status_class, contains, sort) != (
+        links_only = (url, direction, link_type, follow, status_class, contains, sort, preset) != (
             None,
             "out",
             "all",
@@ -124,6 +125,7 @@ def scan_link_inspect(
             "all",
             None,
             "order",
+            None,
         )
         if links_only and view != "links":
             raise ValueError("url, direction and link filters belong to view=links")
@@ -132,6 +134,25 @@ def scan_link_inspect(
         if view == "links":
             if not url:
                 raise ValueError("links view requires a url")
+            if preset is not None:
+                definitions = {
+                    "inlinks": {"direction": "in", "link_type": "internal", "status_class": "all"},
+                    "broken_links": {"direction": "out", "link_type": "internal", "status_class": "broken"},
+                }
+                if preset not in definitions:
+                    raise ValueError("preset must be inlinks or broken_links")
+                defaults = {"direction": "out", "link_type": "all", "status_class": "all"}
+                current = {
+                    "direction": direction,
+                    "link_type": link_type,
+                    "status_class": status_class,
+                }
+                for key, value in definitions[preset].items():
+                    if current[key] not in {defaults[key], value}:
+                        raise ValueError(f"preset {preset} conflicts with explicit {key}")
+                direction = definitions[preset]["direction"]
+                link_type = definitions[preset]["link_type"]
+                status_class = definitions[preset]["status_class"]
             if any(value is not None for value in (seed, target, cursor, link_id, document_id)) or (
                 max_nodes,
                 max_edges,
@@ -229,7 +250,7 @@ def scan_link_inspect(
                 )
             if representation != "all" and result["representation"] != representation:
                 raise ValueError("context representation differs from the requested filter")
-        answer = {"ok": True, "view": view, **result}
+        answer = {"ok": True, "view": view, **result, **({"preset": preset} if preset else {})}
         size = len(json.dumps(answer, ensure_ascii=False, default=str).encode("utf-8"))
         if size > max_bytes:
             return {

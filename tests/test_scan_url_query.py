@@ -497,6 +497,17 @@ def test_check_counts_are_opt_in_and_missing_audit_stays_unavailable(scan_path, 
     assert "include_check_counts" in tool.parameters["properties"]
 
 
+def test_frozen_scan_v1_exposes_unavailable_transport_phases_without_migration(scan_path):
+    before = hashlib.sha256(scan_path.read_bytes()).hexdigest()
+    got = _q(scan_path, columns=["url", "dns_seconds", "dns_state", "download_reason"])
+
+    assert got["ok"] is True
+    assert got["rows"][0]["dns_seconds"] is None
+    assert got["rows"][0]["dns_state"] == "unavailable"
+    assert got["rows"][0]["download_reason"] == "transport phase was not retained in this scan"
+    assert hashlib.sha256(scan_path.read_bytes()).hexdigest() == before
+
+
 @pytest.mark.parametrize(
     "kw",
     [

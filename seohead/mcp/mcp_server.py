@@ -3667,6 +3667,57 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         )
 
     @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_directory_tree(
+        input_path: str,
+        max_depth: int = 3,
+        max_children: int = 50,
+        max_nodes: int = 10_000,
+        max_bytes: int = 1_048_576,
+        timeout_seconds: float = 15.0,
+    ) -> dict[str, Any]:
+        """Read a bounded directory tree from retained page URLs using local SQLite only.
+
+        The tree counts pages at each path ancestor and folds omitted children into exact
+        `other_children`/`other_pages` totals. A temporary SQLite aggregation bounds Python memory.
+        It never fetches, replays, or mutates the scan.
+        """
+        return _checked(
+            handlers.scan_directory_tree(
+                input_path=input_path,
+                max_depth=max_depth,
+                max_children=max_children,
+                max_nodes=max_nodes,
+                max_bytes=max_bytes,
+                timeout_seconds=timeout_seconds,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_headers_analyze(
+        input_path: str,
+        url: str | None = None,
+        offset: int = 0,
+        limit: int = 100,
+        max_bytes: int = 1_048_576,
+        timeout_seconds: float = 15.0,
+    ) -> dict[str, Any]:
+        """Analyze redacted response headers and captured transport phases from a saved scan.
+
+        Reads retained local evidence only. Missing response headers or phases stay unavailable;
+        the command never probes the site or infers a measurement from total response time.
+        """
+        return _checked(
+            handlers.headers_analyze(
+                input_path=input_path,
+                url=url,
+                offset=offset,
+                limit=limit,
+                max_bytes=max_bytes,
+                timeout_seconds=timeout_seconds,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
     def seo_scan_link_inspect(
         input_path: str,
         view: str = "path",
@@ -3691,6 +3742,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         status_class: str = "all",
         contains: str | None = None,
         sort: str = "order",
+        preset: str | None = None,
     ) -> dict[str, Any]:
         """Inspect saved shortest paths, reverse inlinks, per-link DOM context, or one URL's links.
 
@@ -3700,6 +3752,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         target (outgoing) or source (incoming); the status is null when that page was not
         scanned. Filters: link_type, follow, status_class (2xx..5xx, broken, error, unscanned),
         contains; sort (out only): order, url, status. At most 200 rows per page with offset;
+        preset=inlinks selects internal incoming links; preset=broken_links selects internal
+        outgoing links whose saved targets are broken.
         `total` and `filtered_total` are exact or flagged capped/null. The scan is opened
         read-only without full validation; failures carry a machine `reason_code`
         (url_not_found, scan_not_available, url_not_scanned, links_not_retained).
@@ -3741,6 +3795,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 status_class=status_class,
                 contains=contains,
                 sort=sort,
+                preset=preset,
             )
         )
 

@@ -5110,6 +5110,69 @@ def scan_url_query(
     )
 
 
+def scan_directory_tree(
+    input_path: str,
+    max_depth: int = 3,
+    max_children: int = 50,
+    max_nodes: int = 10_000,
+    max_bytes: int = 1_048_576,
+    timeout_seconds: float = 15.0,
+) -> dict[str, Any]:
+    """Read a bounded URL-path directory tree from retained page URLs only."""
+    from seohead.storage.directory_tree import scan_directory_tree as core
+
+    try:
+        return {
+            "ok": True,
+            **core(
+                input_path,
+                max_depth=max_depth,
+                max_children=max_children,
+                max_nodes=max_nodes,
+                max_bytes=max_bytes,
+                timeout_seconds=timeout_seconds,
+            ),
+        }
+    except (ValueError, OSError) as exc:
+        return {
+            "ok": False,
+            "state": "invalid",
+            "reason_code": "invalid_directory_tree",
+            "error": str(exc),
+        }
+
+
+def headers_analyze(
+    input_path: str,
+    url: str | None = None,
+    offset: int = 0,
+    limit: int = 100,
+    max_bytes: int = 1_048_576,
+    timeout_seconds: float = 15.0,
+) -> dict[str, Any]:
+    """Analyze headers and phase timing retained in a scan; never fetch the URL."""
+    import sqlite3
+
+    from seohead.storage.headers_analyze import analyze
+
+    try:
+        return analyze(
+            input_path,
+            url=url,
+            offset=offset,
+            limit=limit,
+            max_bytes=max_bytes,
+            timeout_seconds=timeout_seconds,
+        )
+    except (ValueError, OSError, sqlite3.Error) as exc:
+        return {
+            "ok": False,
+            "state": "invalid",
+            "reason_code": "invalid_headers_analysis",
+            "error": str(exc),
+        }
+
+
 def scan_url_history(project: str, url: str, limit: int = 50) -> dict[str, Any]:
     """State of one exact URL in each retained scan of a project, newest first, read-only."""
     from seohead.projects.workspace import _load
@@ -5166,6 +5229,7 @@ def scan_link_inspect(
     status_class: str = "all",
     contains: str | None = None,
     sort: str = "order",
+    preset: str | None = None,
 ) -> dict[str, Any]:
     from seohead.mcp.history_handlers import scan_link_inspect as core
 
@@ -5193,6 +5257,7 @@ def scan_link_inspect(
         status_class=status_class,
         contains=contains,
         sort=sort,
+        preset=preset,
     )
 
 
@@ -7204,6 +7269,8 @@ _RAW_HANDLERS = {
     "scan_inspect": scan_inspect,
     "scan_url_detail": scan_url_detail,
     "scan_url_query": scan_url_query,
+    "scan_directory_tree": scan_directory_tree,
+    "headers_analyze": headers_analyze,
     "scan_url_history": scan_url_history,
     "scan_link_inspect": scan_link_inspect,
     "scan_status": scan_status,

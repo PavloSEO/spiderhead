@@ -144,6 +144,31 @@ def _validate_event(event: Any) -> CaptureEvent:
         raise ScanError("captured HTTP protocol is invalid")
     if event.timing_state not in {"partial", "unavailable"}:
         raise ScanError("captured timing state is invalid")
+    if event.transport_phases is not None:
+        from seohead.crawl.capture import TRANSPORT_PHASES
+
+        if not isinstance(event.transport_phases, dict) or set(event.transport_phases) != set(
+            TRANSPORT_PHASES
+        ):
+            raise ScanError("captured transport phases are invalid")
+        for name, phase in event.transport_phases.items():
+            if not isinstance(phase, dict) or set(phase) != {"seconds", "state", "reason"}:
+                raise ScanError(f"captured {name} phase has invalid fields")
+            seconds, state, reason = phase["seconds"], phase["state"], phase["reason"]
+            if not isinstance(state, str) or state not in {
+                "measured",
+                "partial",
+                "unavailable",
+                "failed",
+            }:
+                raise ScanError(f"captured {name} phase state is invalid")
+            if seconds is not None and (
+                type(seconds) not in {int, float} or not math.isfinite(seconds) or seconds < 0
+            ):
+                raise ScanError(f"captured {name} phase duration is invalid")
+            if state == "measured" and seconds is None:
+                raise ScanError(f"captured {name} phase duration is missing")
+            _text(reason, f"{name} phase reason")
     if not isinstance(event.redirect_history, tuple):
         raise ScanError("captured redirect history must be a tuple")
     for hop in event.redirect_history:

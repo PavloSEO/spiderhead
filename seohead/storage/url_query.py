@@ -127,6 +127,43 @@ COLUMNS: dict[str, Column] = {
     "canonical_other": Column(
         "(p.canonical<>'' AND p.canonical<>u.url)", "bool"
     ),
+    "resource_count": Column(
+        "(SELECT COUNT(*) FROM resource_graph_occurrences r "
+        "WHERE r.source_document_id=p.document_id)",
+        "int",
+    ),
+    "resource_images": Column(
+        "(SELECT COUNT(*) FROM resource_graph_occurrences r "
+        "WHERE r.source_document_id=p.document_id AND r.kind='image')",
+        "int",
+    ),
+    "resource_scripts": Column(
+        "(SELECT COUNT(*) FROM resource_graph_occurrences r "
+        "WHERE r.source_document_id=p.document_id AND r.kind IN ('script','module'))",
+        "int",
+    ),
+    "resource_stylesheets": Column(
+        "(SELECT COUNT(*) FROM resource_graph_occurrences r "
+        "WHERE r.source_document_id=p.document_id AND r.kind='stylesheet')",
+        "int",
+    ),
+    "resource_bytes": Column(
+        "(SELECT CASE WHEN COUNT(*)=0 THEN 0 "
+        "WHEN SUM(f.state='complete')<COUNT(*) THEN NULL ELSE SUM(f.bytes_received) END "
+        "FROM (SELECT DISTINCT resolved_url FROM resource_graph_occurrences "
+        "WHERE source_document_id=p.document_id) q "
+        "LEFT JOIN resource_graph_fetches f USING(resolved_url))",
+        "int",
+    ),
+    "resource_bytes_state": Column(
+        "(SELECT CASE WHEN COUNT(*)=0 THEN 'exact' "
+        "WHEN SUM(f.state='complete')=COUNT(*) THEN 'exact' "
+        "WHEN SUM(f.state='complete')=0 THEN 'unavailable' ELSE 'partial' END "
+        "FROM (SELECT DISTINCT resolved_url FROM resource_graph_occurrences "
+        "WHERE source_document_id=p.document_id) q "
+        "LEFT JOIN resource_graph_fetches f USING(resolved_url))",
+        "text",
+    ),
     # 2xx without a noindex directive in meta robots or X-Robots-Tag; canonical is not considered.
     "indexable": Column(
         "COALESCE(p.status_code BETWEEN 200 AND 299 AND "
@@ -134,6 +171,34 @@ COLUMNS: dict[str, Column] = {
         "bool",
     ),
 }
+_TRANSPORT_RESPONSE_ID = (
+    "COALESCE((SELECT d.source_response_id FROM documents d WHERE d.document_id=p.document_id),"
+    "(SELECT MAX(r.response_id) FROM responses r WHERE r.request_url_id=p.url_id AND r.purpose='page'))"
+)
+_TRANSPORT_COLUMNS: dict[str, Column] = {}
+for _phase in ("dns", "connect", "tls", "ttfb", "download"):
+    COLUMNS[f"{_phase}_seconds"] = Column(
+        f"(SELECT t.{_phase}_seconds FROM response_transport_meta t WHERE t.response_id={_TRANSPORT_RESPONSE_ID})",
+        "real",
+    )
+    COLUMNS[f"{_phase}_state"] = Column(
+        f"COALESCE((SELECT CASE WHEN t.{_phase}_state='unknown' THEN 'unavailable' "
+        f"ELSE t.{_phase}_state END FROM response_transport_meta t WHERE t.response_id={_TRANSPORT_RESPONSE_ID}),"
+        "'unavailable')",
+        "text",
+    )
+    COLUMNS[f"{_phase}_reason"] = Column(
+        f"COALESCE((SELECT t.{_phase}_reason FROM response_transport_meta t "
+        f"WHERE t.response_id={_TRANSPORT_RESPONSE_ID}),'transport phase was not retained in this scan')",
+        "text",
+    )
+    _TRANSPORT_COLUMNS.update(
+        {
+            f"{_phase}_seconds": COLUMNS[f"{_phase}_seconds"],
+            f"{_phase}_state": COLUMNS[f"{_phase}_state"],
+            f"{_phase}_reason": COLUMNS[f"{_phase}_reason"],
+        }
+    )
 DEFAULT_COLUMNS = (
     "url_id",
     "url",
@@ -209,6 +274,9 @@ _REQUIRED_PAGE_COLUMNS = frozenset(
     c.expr[2:] for c in COLUMNS.values() if re.fullmatch(r"p\.\w+", c.expr)
 )
 _STATUS_CLASSES = {f"{n}xx": (n * 100, n * 100 + 100) for n in range(1, 6)}
+_RESOURCE_KINDS = frozenset(
+    {"image", "media", "document", "stylesheet", "module", "manifest", "script", "css_import", "css_url", "font"}
+)
 # Facet expressions are fixed SQL; no caller-provided text reaches the query.
 FACET_GROUPS: dict[str, str] = {
     "all": "1",
@@ -232,6 +300,10 @@ FACET_GROUPS: dict[str, str] = {
     "canonical_self": "(p.canonical<>'' AND p.canonical=u.url)",
     "in_sitemap": "EXISTS (SELECT 1 FROM context_items s WHERE s.kind='sitemap_declared_url' AND CAST(json_extract(s.payload_json,'$.url_id') AS INTEGER)=p.url_id)",
     "with_inlinks": "EXISTS (SELECT 1 FROM links l WHERE l.destination_url_id=p.url_id)",
+    "with_resources": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.source_document_id=p.document_id)",
+    "with_images": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.source_document_id=p.document_id AND r.kind='image')",
+    "with_scripts": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.source_document_id=p.document_id AND r.kind IN ('script','module'))",
+    "with_stylesheets": "EXISTS (SELECT 1 FROM resource_graph_occurrences r WHERE r.source_document_id=p.document_id AND r.kind='stylesheet')",
 }
 _OPS = {
     "int": {"eq", "ne", "gt", "gte", "lt", "lte", "between", "in", "not_in", "is_null", "not_null"},
@@ -313,14 +385,16 @@ def _filter_clause(item: Any) -> tuple[str, list[Any], bool]:
     if unknown:
         raise QueryError("invalid_filter", "unknown filter key: " + ", ".join(sorted(unknown)))
     name, op, value = item.get("column"), item.get("op"), item.get("value")
+    sensitive = item.get("case_sensitive", False)
+    if type(sensitive) is not bool:
+        raise QueryError("invalid_filter", "case_sensitive must be a boolean")
+    if isinstance(name, str) and name in {"resource_url", "resource_kind"}:
+        return _resource_filter_clause(name, op, value, sensitive)
     if not isinstance(name, str) or name not in COLUMNS:
         raise QueryError("unknown_column", "filter column is not an allowed column name")
     col = COLUMNS[name]
     if op not in _OPS[col.kind]:
         raise QueryError("invalid_filter", f"operator {op!r} is not valid for column {name}")
-    sensitive = item.get("case_sensitive", False)
-    if type(sensitive) is not bool:
-        raise QueryError("invalid_filter", "case_sensitive must be a boolean")
     uses_url = "u." in col.expr
     x = col.expr
     if op in _NO_VALUE:
@@ -367,6 +441,68 @@ def _filter_clause(item: Any) -> tuple[str, list[Any], bool]:
     if op == "contains":
         return f"instr({hay},?)>0", [needle], uses_url
     return f"instr({hay},?)=0", [needle], uses_url  # not_contains
+
+
+def _resource_filter_clause(name: str, op: Any, value: Any, case_sensitive: bool) -> tuple[str, list[Any], bool]:
+    """Filter pages by a retained resource occurrence without duplicating page rows."""
+    if not isinstance(op, str):
+        raise QueryError("invalid_filter", "resource filter operator must be text")
+    column = "resolved_url" if name == "resource_url" else "kind"
+    if name == "resource_kind":
+        if op not in {"eq", "in"}:
+            raise QueryError("invalid_filter", "resource_kind supports eq and in")
+        values = [value] if op == "eq" else value
+        if type(values) is not list or not 1 <= len(values) <= MAX_IN_VALUES:
+            raise QueryError("invalid_filter", "resource_kind in needs a list of 1..100 values")
+        if any(type(item) is not str or item not in _RESOURCE_KINDS for item in values):
+            raise QueryError("invalid_filter", "resource_kind names an unknown resource kind")
+        marks = ",".join("?" for _ in values)
+        return (
+            "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
+            "WHERE r.source_document_id=p.document_id "
+            f"AND r.{column} IN ({marks}))",
+            values,
+            False,
+        )
+    if op == "eq":
+        value = _scalar("text", value, name)
+        return (
+            "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
+            "WHERE r.source_document_id=p.document_id AND r.resolved_url=?)",
+            [value],
+            False,
+        )
+    if op == "in":
+        if type(value) is not list or not 1 <= len(value) <= MAX_IN_VALUES:
+            raise QueryError("invalid_filter", "resource_url in needs a list of 1..100 values")
+        values = [_scalar("text", item, name) for item in value]
+        marks = ",".join("?" for _ in values)
+        return (
+            "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
+            f"WHERE r.source_document_id=p.document_id AND r.resolved_url IN ({marks}))",
+            values,
+            False,
+        )
+    if op not in {"contains", "starts_with"}:
+        raise QueryError("invalid_filter", "resource_url supports eq, in, contains and starts_with")
+    value = _scalar("text", value, name)
+    if op == "starts_with":
+        expr = "r.resolved_url" if case_sensitive else "lower(r.resolved_url)"
+        prefix = value if case_sensitive else _ascii_lower(value)
+        return (
+            "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
+            f"WHERE r.source_document_id=p.document_id AND {expr}>=? AND {expr}<?)",
+            [prefix, prefix + _TOP],
+            False,
+        )
+    expr = "r.resolved_url" if case_sensitive else "lower(r.resolved_url)"
+    needle = value if case_sensitive else _ascii_lower(value)
+    return (
+        "EXISTS (SELECT 1 FROM resource_graph_occurrences r "
+        f"WHERE r.source_document_id=p.document_id AND instr({expr},?)>0)",
+        [needle],
+        False,
+    )
 
 
 def _preset_filters(preset: str) -> list[dict[str, Any]]:
@@ -527,6 +663,10 @@ def _facet_counts(
         unavailable.add("in_sitemap")
     if "with_inlinks" in ids and not _links_measured(con):
         unavailable.add("with_inlinks")
+    if {"with_resources", "with_images", "with_scripts", "with_stylesheets"} & set(ids) and not _resource_graph_measured(con):
+        unavailable.update(
+            {"with_resources", "with_images", "with_scripts", "with_stylesheets"} & set(ids)
+        )
     active = [group for group in ids if group not in unavailable]
     counts: dict[str, int | None] = {group: None for group in unavailable}
     states = {group: "unavailable" for group in unavailable}
@@ -569,6 +709,72 @@ def _links_measured(con: sqlite3.Connection) -> bool:
     except (TypeError, ValueError, AttributeError):
         state = None
     return state in {"complete", "empty"}
+
+
+def _resource_graph_measured(con: sqlite3.Connection) -> bool:
+    if con.execute("PRAGMA user_version").fetchone()[0] != 2:
+        return False
+    tables = {
+        row[0]
+        for row in con.execute(
+            "SELECT name FROM main.sqlite_master WHERE type='table' AND name IN "
+            "('resource_graph_occurrences','resource_graph_fetches')"
+        )
+    }
+    if tables != {"resource_graph_occurrences", "resource_graph_fetches"}:
+        return False
+    return con.execute(
+        "SELECT 1 FROM pages p LEFT JOIN context_items c ON c.kind='resource_graph_coverage' "
+        "AND c.item_key='document:'||p.document_id "
+        "WHERE p.document_id IS NULL OR c.completeness IS NOT 'complete' LIMIT 1"
+    ).fetchone() is None
+
+
+def _prepare_transport_phase_projection(con: sqlite3.Connection) -> None:
+    """Expose unavailable phase columns for older/frozen scan files without schema writes."""
+    names = {
+        row[0]
+        for row in con.execute(
+            "SELECT name FROM main.sqlite_master WHERE type='table' AND name='response_transport_meta'"
+        )
+    }
+    if not names:
+        con.execute("PRAGMA query_only=OFF")
+        try:
+            con.execute(
+                "CREATE TEMP VIEW response_transport_meta AS SELECT NULL AS response_id,"
+                "NULL AS protocol,NULL AS protocol_state,NULL AS total_seconds,"
+                ",".join(
+                    f"NULL AS {phase}_seconds,'unavailable' AS {phase}_state,"
+                    f"'transport phase was not retained in this scan' AS {phase}_reason"
+                    for phase in ("dns", "connect", "tls", "ttfb", "download")
+                )
+                + " WHERE 0"
+            )
+        finally:
+            con.execute("PRAGMA query_only=ON")
+        return
+    columns = {row[1] for row in con.execute("PRAGMA table_info(main.response_transport_meta)")}
+    expected = {
+        f"{phase}_{suffix}"
+        for phase in ("dns", "connect", "tls", "ttfb", "download")
+        for suffix in ("seconds", "state", "reason")
+    }
+    if expected <= columns:
+        return
+    con.execute("PRAGMA query_only=OFF")
+    try:
+        phases = ",".join(
+            f"NULL AS {phase}_seconds,'unavailable' AS {phase}_state,"
+            f"'transport phase durations were not retained in this scan' AS {phase}_reason"
+            for phase in ("dns", "connect", "tls", "ttfb", "download")
+        )
+        con.execute(
+            "CREATE TEMP VIEW response_transport_meta AS SELECT response_id,protocol,"
+            "protocol_state,total_seconds," + phases + " FROM main.response_transport_meta"
+        )
+    finally:
+        con.execute("PRAGMA query_only=ON")
 
 
 def _issue_filter_set(check: Any, severity: Any) -> bool:
@@ -784,6 +990,24 @@ def _query(
             raise QueryError(
                 "inlinks_unavailable", "link observations were not retained for this scan", "unavailable"
             )
+        resource_names = {
+            "resource_count",
+            "resource_images",
+            "resource_scripts",
+            "resource_stylesheets",
+            "resource_bytes",
+            "resource_bytes_state",
+            "resource_url",
+            "resource_kind",
+        }
+        if requested_names & resource_names and not _resource_graph_measured(con):
+            raise QueryError(
+                "resource_graph_unavailable",
+                "complete retained resource declarations are unavailable for every page",
+                "unavailable",
+            )
+        if requested_names & set(_TRANSPORT_COLUMNS):
+            _prepare_transport_phase_projection(con)
         if "has_hreflang" in filter_names and con.execute(
             "SELECT 1 FROM pages WHERE hreflang_json IS NULL LIMIT 1"
         ).fetchone():

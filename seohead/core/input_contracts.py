@@ -1253,6 +1253,16 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
     ),
     _command("scan-url-query", "scan_url_query", _form("scan_artifact", "input_path")),
     _command(
+        "scan-directory-tree",
+        "scan_directory_tree",
+        _form("scan_artifact", "input_path", note="Retained URL paths only; no network access."),
+    ),
+    _command(
+        "headers-analyze",
+        "headers_analyze",
+        _form("scan_artifact", "input_path", note="Reads saved redacted response headers only."),
+    ),
+    _command(
         "scan-url-history",
         "scan_url_history",
         _form("project_directory", "project"),

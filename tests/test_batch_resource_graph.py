@@ -292,6 +292,35 @@ def test_v1_and_read_only_v2_access_do_not_create_or_upgrade_resource_graph(tmp_
         con.close()
 
 
+def test_resource_read_exposes_per_kind_declaration_and_weight_aggregates(tmp_path):
+    path = tmp_path / "aggregates.sqlite"
+    settings = load(
+        overrides={
+            "storage.format_version": "scan.v2",
+            "resources.fetch": True,
+            "speed.min_delay_seconds": 0,
+        }
+    )
+
+    def fetcher(url: str):
+        return _Response(200, b"resource", {"content-type": "image/png"})
+
+    with NativeScan.create(path, format_version="scan.v2", **_v2_metadata()) as scan:
+        _store_html(scan, '<img src="/image.png">')
+        capture(scan, settings, fetcher=fetcher, wait=lambda: None, clock=lambda: 0.0)
+        result = read(scan.con)
+
+    assert result["aggregates"]["occurrences_by_kind"] == {"image": 1}
+    assert result["aggregates"]["blocks_by_state"] == {"complete": 1}
+    assert result["aggregates"]["unique_resource_weight_by_kind"]["image"] == {
+        "unique_urls": 1,
+        "complete_urls": 1,
+        "unmeasured_urls": 0,
+        "bytes_received": len(b"resource"),
+        "bytes_state": "exact",
+    }
+
+
 def _v2_crawl(path, fetcher):
     settings = load(
         overrides={

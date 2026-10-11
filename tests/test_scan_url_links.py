@@ -273,3 +273,40 @@ def test_handler_cli_and_mcp_agree_and_reject_misplaced_arguments(scan, capsys):
     assert bad["ok"] is False and bad["reason_code"] == "invalid_page"
     old = handlers.scan_link_inspect(input_path=str(scan), view="inlinks", target=A)
     assert old["ok"] is True and old["returned"] >= 1
+
+
+def test_named_link_presets_reach_cli_mcp_and_apply_saved_filters(scan, capsys):
+    incoming = handlers.scan_link_inspect(
+        input_path=str(scan), view="links", url=ROOT, preset="inlinks", limit=100
+    )
+    expected_incoming = _page(scan, ROOT, direction="in", link_type="internal", limit=100)
+    assert incoming["ok"] is True
+    assert incoming["direction"] == "in"
+    assert incoming["items"] == expected_incoming["items"]
+
+    broken = handlers.scan_link_inspect(
+        input_path=str(scan), view="links", url=ROOT, preset="broken_links", limit=100
+    )
+    assert broken["ok"] is True
+    assert broken["direction"] == "out"
+    assert broken["filters"]["link_type"] == "internal"
+    assert broken["filters"]["status_class"] == "broken"
+    assert all(row["target_status"] is not None and row["target_status"] >= 400 for row in broken["items"])
+
+    code = cli.main(
+        [
+            "scan-link-inspect",
+            "--scan",
+            str(scan),
+            "--view",
+            "links",
+            "--url",
+            ROOT,
+            "--preset",
+            "inlinks",
+        ]
+    )
+    cli_result = json.loads(capsys.readouterr().out)
+    assert code == 0 and cli_result["direction"] == "in"
+    tool = build_server()._tool_manager.get_tool("seo_scan_link_inspect")
+    assert "preset" in tool.parameters["properties"]

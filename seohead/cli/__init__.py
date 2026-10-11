@@ -119,8 +119,10 @@ COMMANDS = (
     "scan-inspect",
     "scan-url-detail",
     "scan-url-query",
+    "scan-directory-tree",
     "scan-url-history",
     "scan-link-inspect",
+    "headers-analyze",
     "scan-status",
     "scan-rendered-routes",
     "scan-content-search",
@@ -282,7 +284,9 @@ _SCAN_PATH_COMMANDS = frozenset(
         "scan-inspect",
         "scan-url-detail",
         "scan-url-query",
+        "scan-directory-tree",
         "scan-link-inspect",
+        "headers-analyze",
         "scan-status",
         "scan-rendered-routes",
         "scan-snapshot",
@@ -543,6 +547,16 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "scan-directory-tree":
+        for name in ("input_path", "max_depth", "max_children", "max_nodes", "max_bytes", "timeout_seconds"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "headers-analyze":
+        for name in ("input_path", "url", "offset", "limit", "max_bytes", "timeout_seconds"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "scan-url-history":
         for name in ("project", "url", "limit"):
             if getattr(args, name, None) is not None:
@@ -1391,6 +1405,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "status_class",
             "contains",
             "sort",
+            "preset",
         ):
             value = getattr(args, name, None)
             if value is not None:
@@ -2539,6 +2554,11 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             choices=("all", "2xx", "3xx", "4xx", "5xx", "broken", "error", "unscanned"),
         )
         sub.add_argument("--contains", help="substring of the other URL or the anchor")
+        sub.add_argument(
+            "--preset",
+            choices=("inlinks", "broken_links"),
+            help="named view filter; applies incoming internal links or broken internal targets",
+        )
         sub.add_argument("--sort", choices=("order", "url", "status"))
         sub.add_argument("--seed")
         sub.add_argument("--target")
@@ -2556,6 +2576,18 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--max-nodes", dest="max_nodes", type=int)
         sub.add_argument("--max-edges", dest="max_edges", type=int)
         sub.add_argument("--max-depth", dest="max_depth", type=int)
+        sub.add_argument("--timeout-seconds", dest="timeout_seconds", type=float)
+    if cmd == "scan-directory-tree":
+        sub.add_argument("--max-depth", type=int)
+        sub.add_argument("--max-children", type=int)
+        sub.add_argument("--max-nodes", type=int)
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+        sub.add_argument("--timeout-seconds", dest="timeout_seconds", type=float)
+    if cmd == "headers-analyze":
+        _source_flag(sub, "--url", help="optional exact retained URL")
+        sub.add_argument("--offset", type=int)
+        sub.add_argument("--limit", type=int)
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
         sub.add_argument("--timeout-seconds", dest="timeout_seconds", type=float)
     if cmd == "scan-snapshot":
         _source_flag(sub, "--out", help="new snapshot SQLite file")
