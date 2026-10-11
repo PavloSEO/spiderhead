@@ -567,6 +567,28 @@ def _release(fd: int) -> None:
         os.close(fd)
 
 
+def active(root: str | Path) -> bool:
+    """Return whether a scheduler owns this project's persistent OS lock."""
+    from seohead.core import filesystem
+
+    path = Path(root) / LOCK_NAME
+    if not path.exists() and not path.is_symlink():
+        return False
+    try:
+        fd = filesystem.open_lock(path, create=False)
+    except OSError as exc:
+        raise ValueError("schedule lock is unsafe or unavailable") from exc
+    try:
+        try:
+            filesystem.lock_exclusive(fd)
+        except OSError:
+            return True
+        filesystem.unlock(fd)
+        return False
+    finally:
+        os.close(fd)
+
+
 def run_due(
     directory: str | Path,
     *,
@@ -651,7 +673,13 @@ def run_due(
             "decision": primary_decision,
             "competitors_due": 0,
         }
-    token = _acquire(root)
+    from .runtime import project_write_lock
+
+    with project_write_lock(root):
+        current_root, current_project, _, _ = _open(directory)
+        if current_root != root or current_project["project_uuid"] != project["project_uuid"]:
+            raise ValueError("project changed before scheduled-run admission")
+        token = _acquire(root)
     if token is None:
         journal.note(
             directory,
@@ -676,7 +704,14 @@ def run_due(
             decision = target["decision"]
             child_token = None
             if target_root != root:
-                child_token = _acquire(target_root)
+                with project_write_lock(target_root):
+                    child_root, child_project, _, _ = _open(target["directory"])
+                    if (
+                        child_root != target_root
+                        or child_project["project_uuid"] != target["project_uuid"]
+                    ):
+                        raise ValueError("competitor project changed before scheduled-run admission")
+                    child_token = _acquire(target_root)
             if target_root != root and child_token is None:
                 entry = {
                     "role": target["role"],

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import os
 from pathlib import Path
 
 import pytest
@@ -214,3 +215,36 @@ def test_project_delete_does_not_move_while_shared_writer_lock_is_unavailable(
     with pytest.raises(ValueError, match="another writer"):
         delete_project(project)
     assert project.is_dir()
+
+
+@pytest.mark.parametrize("kind", ["competitor", "export", "schedule"])
+def test_project_delete_refuses_each_active_domain_job(project, kind):
+    from seohead.projects import competitor_scans, exports, schedule
+    from seohead.core.filesystem import unlock
+
+    descriptor = None
+    local_lock = None
+    if kind == "competitor":
+        descriptor, local_lock = competitor_scans._open_run_lock(project)
+    elif kind == "export":
+        descriptor, busy = exports._acquire_job_lock(
+            project, "00000000-0000-4000-8000-000000000099", create=True
+        )
+        assert not busy
+    else:
+        descriptor = schedule._acquire(project)
+        assert descriptor is not None
+
+    try:
+        with pytest.raises(ValueError, match="active jobs"):
+            delete_project(project)
+        assert project.is_dir()
+    finally:
+        if kind == "competitor":
+            unlock(descriptor)
+            os.close(descriptor)
+            local_lock.release()
+        elif kind == "export":
+            exports._release_job_lock(descriptor)
+        else:
+            schedule._release(descriptor)

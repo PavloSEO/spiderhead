@@ -94,3 +94,20 @@ def test_pending_action_resolves_in_place_without_a_second_slot(project, monkeyp
     assert resolved["action"]["sequence"] == pending["sequence"]
     assert resolved["action"]["outcome"] == "applied"
     assert path.stat().st_size <= action_log.MAX_BYTES
+
+
+def test_page_does_not_create_or_change_project_files(project):
+    before = {
+        path.relative_to(project): path.read_bytes()
+        for path in project.rglob("*")
+        if path.is_file()
+    }
+
+    assert page(project)["items"] == []
+
+    after = {
+        path.relative_to(project): path.read_bytes()
+        for path in project.rglob("*")
+        if path.is_file()
+    }
+    assert after == before

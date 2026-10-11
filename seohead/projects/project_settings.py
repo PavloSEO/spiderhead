@@ -506,6 +506,26 @@ def delete_project(directory: str | Path, *, client: str = "cli") -> dict[str, A
                     detail="Project delete refused: active run.",
                 )
                 raise ValueError(f"project has an active run: {owner}")
+            from .competitor_scans import has_active_run
+            from .exports import has_active_jobs
+            from .schedule import active as schedule_active
+
+            active_jobs = []
+            if has_active_run(root):
+                active_jobs.append("competitor scan")
+            if has_active_jobs(root):
+                active_jobs.append("export")
+            if schedule_active(root):
+                active_jobs.append("scheduled scan")
+            if active_jobs:
+                labels = ", ".join(active_jobs)
+                resolve_pending(
+                    root,
+                    pending_action["sequence"],
+                    outcome="refused",
+                    detail=f"Project delete refused: active {labels} job.",
+                )
+                raise ValueError(f"project has active jobs: {labels}")
             trash.mkdir(mode=0o700, exist_ok=True)
             if not trash.is_dir():
                 resolve_pending(

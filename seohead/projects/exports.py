@@ -151,6 +151,31 @@ def _release_job_lock(descriptor: int | None) -> None:
         os.close(descriptor)
 
 
+def has_active_jobs(root: str | Path) -> bool:
+    """Fail closed when an export worker still owns any retained job lock."""
+    root = Path(root)
+    directory = root / JOB_DIR
+    if not directory.exists() and not directory.is_symlink():
+        return False
+    if directory.is_symlink() or not directory.is_dir():
+        raise ProjectExportError("unsafe export-job directory")
+    paths = sorted(directory.glob("*.lock"), key=lambda path: path.name)
+    if len(paths) > 10_000:
+        raise ProjectExportError("export-job history exceeds its inspection limit")
+    for path in paths:
+        if path.is_symlink() or path.suffix != ".lock":
+            raise ProjectExportError("unsafe export lock path")
+        try:
+            identity = str(uuid.UUID(path.stem))
+        except ValueError as exc:
+            raise ProjectExportError("invalid export lock path") from exc
+        descriptor, busy = _acquire_job_lock(root, identity, create=False)
+        if busy:
+            return True
+        _release_job_lock(descriptor)
+    return False
+
+
 def _read_job(root: Path, job_id: str) -> dict[str, Any]:
     path = _job_path(root, job_id, create=False)
     if path.is_symlink() or not path.is_file() or path.stat().st_size > 64 * 1024:
@@ -963,45 +988,57 @@ def start_export(
     if Path(output).suffix.casefold() != {"json": ".json", "csv": ".csv", "xlsx": ".xlsx"}[fmt]:
         raise ProjectExportError("output extension must match format")
     identity = str(uuid.UUID(job_id)) if job_id is not None else str(uuid.uuid4())
-    path = _job_path(root, identity, create=True)
-    lock_fd, busy = _acquire_job_lock(root, identity, create=True)
-    if busy or lock_fd is None:
-        raise ProjectExportError("export job is already running")
+    from .runtime import project_write_lock
+
+    with project_write_lock(root):
+        current_root, current_project = _load(directory)
+        if current_root != root or current_project["project_uuid"] != project["project_uuid"]:
+            raise ProjectExportError("project changed before export admission")
+        path = _job_path(root, identity, create=True)
+        lock_fd, busy = _acquire_job_lock(root, identity, create=True)
+        if busy or lock_fd is None:
+            raise ProjectExportError("export job is already running")
+        try:
+            if os.path.lexists(path):
+                existing = _read_job(root, identity)
+                if (
+                    existing.get("project_uuid") != project["project_uuid"]
+                    or existing.get("dataset") != dataset
+                    or existing.get("format") != fmt
+                    or existing.get("output") != output
+                    or existing.get("compare_manifest") != compare_manifest
+                ):
+                    raise ProjectExportError("job_id belongs to a different export request")
+                resumed = _resume_existing_export(root, str(root), existing)
+                if resumed is not None:
+                    _release_job_lock(lock_fd)
+                    return {"ok": resumed.get("state") == "completed", **resumed}
+                job = existing
+            else:
+                job = {
+                    "record_format": "seohead.project-export-job.v1",
+                    "job_id": identity,
+                    "project_uuid": project["project_uuid"],
+                    "dataset": dataset,
+                    "format": fmt,
+                    "output": output,
+                    "compare_manifest": compare_manifest,
+                    "state": "queued",
+                    "phase": "queued",
+                    "processed_rows": 0,
+                    "total_rows": None,
+                    "history_state": "not_recorded",
+                    "created_at": _now(),
+                    "updated_at": _now(),
+                }
+                _write_job(root, job)
+        except BaseException:
+            with contextlib.suppress(OSError):
+                _release_job_lock(lock_fd)
+            raise
+
     transferred = False
     try:
-        if os.path.lexists(path):
-            existing = _read_job(root, identity)
-            if (
-                existing.get("project_uuid") != project["project_uuid"]
-                or existing.get("dataset") != dataset
-                or existing.get("format") != fmt
-                or existing.get("output") != output
-                or existing.get("compare_manifest") != compare_manifest
-            ):
-                raise ProjectExportError("job_id belongs to a different export request")
-            resumed = _resume_existing_export(root, str(root), existing)
-            if resumed is not None:
-                return {"ok": resumed.get("state") == "completed", **resumed}
-            job = existing
-        else:
-            job = {
-                "record_format": "seohead.project-export-job.v1",
-                "job_id": identity,
-                "project_uuid": project["project_uuid"],
-                "dataset": dataset,
-                "format": fmt,
-                "output": output,
-                "compare_manifest": compare_manifest,
-                "state": "queued",
-                "phase": "queued",
-                "processed_rows": 0,
-                "total_rows": None,
-                "history_state": "not_recorded",
-                "created_at": _now(),
-                "updated_at": _now(),
-            }
-            _write_job(root, job)
-
         if wait:
             with _ACTIVE_LOCK:
                 _ACTIVE[identity] = threading.current_thread()

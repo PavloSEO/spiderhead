@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import os
+import stat
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -109,6 +111,80 @@ def _parse(stream: Any) -> list[dict[str, Any]]:
             raise ValueError("project action log exceeds its entry limit")
         rows.append(row)
     return rows
+
+
+def _read_snapshot(root: Path, path: Path) -> list[dict[str, Any]]:
+    """Read one bounded snapshot, taking only an already-existing writer lock."""
+    lock_path = root / f".{FILE}.lock"
+    descriptor = None
+    if os.path.lexists(lock_path):
+        try:
+            descriptor = filesystem.open_lock(lock_path, create=False)
+            filesystem.lock_exclusive(descriptor)
+        except OSError as exc:
+            if descriptor is not None:
+                os.close(descriptor)
+            raise ValueError("project action log is busy; retry the read") from exc
+    try:
+        return _read_snapshot_file(path)
+    finally:
+        if descriptor is not None:
+            try:
+                filesystem.unlock(descriptor)
+            finally:
+                os.close(descriptor)
+
+
+def _read_snapshot_file(path: Path) -> list[dict[str, Any]]:
+    """Read a bounded immutable file snapshot from an already opened file."""
+    if path.is_symlink():
+        raise ValueError("project action log is unsafe")
+    if not path.exists():
+        return []
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0)
+    try:
+        descriptor = os.open(path, flags)
+    except FileNotFoundError:
+        return []
+    try:
+        before = os.fstat(descriptor)
+        try:
+            named = path.lstat()
+        except FileNotFoundError as exc:
+            raise ValueError("project action log changed during read") from exc
+        if not os.path.samestat(before, named):
+            raise ValueError("project action log changed during read")
+        if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
+            raise ValueError("project action log is unsafe")
+        if before.st_size > MAX_BYTES:
+            raise ValueError("project action log exceeds its byte limit")
+        chunks = []
+        remaining = before.st_size
+        while remaining:
+            chunk = os.read(descriptor, min(remaining, 64 * 1024))
+            if not chunk:
+                raise ValueError("project action log changed during read")
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        content = b"".join(chunks)
+        after = os.fstat(descriptor)
+        if (before.st_dev, before.st_ino, before.st_size) != (
+            after.st_dev,
+            after.st_ino,
+            after.st_size,
+        ):
+            raise ValueError("project action log changed during read")
+    finally:
+        os.close(descriptor)
+    if content and not content.endswith(b"\n"):
+        raise ValueError("project action log is busy; retry the read")
+    try:
+        text = content.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("project action log is busy or invalid; retry the read") from exc
+    import io
+
+    return _parse(io.StringIO(text))
 
 
 def record(
@@ -328,18 +404,18 @@ def page(
     query = _text(query, "query", 200)
     root, _project = _load(directory)
     path = _path(root)
-    from .runtime import project_write_lock
-
-    with project_write_lock(root):
-        descriptor = _lock(root)
+    rows = None
+    for attempt in range(2):
         try:
-            if path.exists():
-                with path.open("r", encoding="utf-8") as stream:
-                    rows = _parse(stream)
-            else:
-                rows = []
-        finally:
-            _unlock(descriptor)
+            rows = _read_snapshot(root, path)
+            break
+        except ValueError as exc:
+            if "busy" not in str(exc) and "changed during read" not in str(exc):
+                raise
+            if attempt:
+                raise
+            time.sleep(0.01)
+    assert rows is not None
     needle = query.casefold()
     matched = [
         row

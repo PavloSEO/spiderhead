@@ -107,6 +107,12 @@ def _read_manifest(root: Path, run_id: str, project_uuid: str) -> dict[str, Any]
         or len(document["fingerprint"]) != 64
         or any(char not in "0123456789abcdef" for char in document["fingerprint"])
         or document.get("state") not in {"running", "interrupted", "completed", "partial", "failed", "cancelled"}
+        or document.get("runner_token") is not None
+        and (
+            not isinstance(document.get("runner_token"), str)
+            or len(document["runner_token"]) != 32
+            or any(char not in "0123456789abcdef" for char in document["runner_token"])
+        )
         or type(document.get("concurrency")) is not int
         or not 1 <= document["concurrency"] <= MAX_CONCURRENCY
         or type(document.get("approve_large_crawl")) is not bool
@@ -550,6 +556,62 @@ def _open_run_lock(root: Path) -> tuple[int, threading.Lock]:
         raise CompetitorScanError("another competitor scan owns the project") from exc
 
 
+def _set_run_lock_owner(fd: int, run_id: str, runner_token: str) -> None:
+    """Write identity in place while holding the lock; never replace its inode."""
+    record = json.dumps(
+        {"run_id": run_id, "runner_token": runner_token}, separators=(",", ":")
+    ).encode("ascii")
+    os.ftruncate(fd, 1)
+    os.lseek(fd, 0, os.SEEK_SET)
+    if os.write(fd, b"\0") != 1:
+        raise OSError("could not initialize competitor lock metadata")
+    os.lseek(fd, 1, os.SEEK_SET)
+    view = memoryview(record)
+    while view:
+        written = os.write(fd, view)
+        if written <= 0:
+            raise OSError("could not persist competitor lock identity")
+        view = view[written:]
+    os.fsync(fd)
+
+
+def _run_lock_owner_locked(root: Path) -> tuple[bool, dict[str, str] | None]:
+    """Read exact active-run identity while admission is fenced by project_write_lock."""
+    path = root / RUN_LOCK
+    if not os.path.lexists(path):
+        return False, None
+    try:
+        fd = open_lock(path, create=False)
+    except OSError as exc:
+        raise CompetitorScanError("competitor scan lock is unsafe or unavailable") from exc
+    try:
+        os.lseek(fd, 1, os.SEEK_SET)
+        raw = os.read(fd, 256)
+    finally:
+        os.close(fd)
+    active = _run_lock_active(root)
+    if not active:
+        return False, None
+    try:
+        value = json.loads(raw.decode("ascii"))
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise CompetitorScanError("active competitor runner identity is unavailable") from exc
+    if (
+        not isinstance(value, dict)
+        or set(value) != {"run_id", "runner_token"}
+        or not isinstance(value["run_id"], str)
+        or not isinstance(value["runner_token"], str)
+        or len(value["runner_token"]) != 32
+        or any(char not in "0123456789abcdef" for char in value["runner_token"])
+    ):
+        raise CompetitorScanError("active competitor runner identity is invalid")
+    try:
+        value["run_id"] = str(uuid.UUID(value["run_id"]))
+    except (TypeError, ValueError) as exc:
+        raise CompetitorScanError("active competitor runner identity is invalid") from exc
+    return True, value
+
+
 def _run_lock_active(root: Path) -> bool:
     local = _local_run_lock(root)
     if not local.acquire(blocking=False):
@@ -579,6 +641,11 @@ def _run_lock_active(root: Path) -> bool:
             os.close(fd)
         finally:
             local.release()
+
+
+def has_active_run(root: str | Path) -> bool:
+    """Return whether any competitor runner owns this project's durable lock."""
+    return _run_lock_active(Path(root))
 
 
 def _plans(target_rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, int]]:
@@ -648,6 +715,7 @@ def _new_manifest(
         "task_id": task_id,
         "coverage_revision": expected_revision,
         "state": "running",
+        "runner_token": None,
         "started_at": stamp,
         "updated_at": stamp,
         "finished_at": None,
@@ -746,7 +814,13 @@ def scan_task_competitors(
     plans, budgets = _plans(target_rows)
     fingerprint = _manifest_fingerprint(task_id, plans)
 
-    lock_fd, local_run_lock = _open_run_lock(root)
+    from .runtime import project_write_lock
+
+    with project_write_lock(root):
+        current_root, current_project = _load(directory)
+        if current_root != root or current_project["project_uuid"] != project["project_uuid"]:
+            raise CompetitorScanError("project changed before competitor-run admission")
+        lock_fd, local_run_lock = _open_run_lock(root)
     try:
         # Recheck the revision/task under the run lock before publishing a manifest.
         current = coverage_status(root)
@@ -825,7 +899,10 @@ def scan_task_competitors(
         manifest["state"] = "running"
         manifest["finished_at"] = None
         manifest.pop("cancel_reason", None)
-        _publish_start(root, manifest, cancel_path)
+        manifest["runner_token"] = uuid.uuid4().hex
+        with project_write_lock(root):
+            _set_run_lock_owner(lock_fd, manifest["run_id"], manifest["runner_token"])
+            _publish_start(root, manifest, cancel_path)
         crawl = tools["crawl_site"]
         state_lock = threading.RLock()
         cancel_event = threading.Event()
@@ -1057,30 +1134,40 @@ def scan_task_competitors(
 def get_competitor_scan_run(directory: str | Path, run_id: str) -> dict[str, Any]:
     """Read durable per-site state for an explicitly started competitor scan run."""
     root, project = _load(directory)
-    manifest = _read_manifest(root, run_id, project["project_uuid"])
+    from .runtime import project_write_lock
+
+    with project_write_lock(root):
+        manifest = _read_manifest(root, run_id, project["project_uuid"])
+        active, owner = _run_lock_owner_locked(root)
+        matches_owner = bool(
+            manifest["state"] == "running"
+            and active
+            and owner
+            and owner["run_id"] == manifest["run_id"]
+            and manifest.get("runner_token") == owner["runner_token"]
+        )
     marker = _cancel_path(root, run_id)
     if marker.is_symlink():
         raise CompetitorScanError("competitor scan cancellation marker is unsafe")
-    requested = marker.is_file()
-    active = _run_lock_active(root)
+    requested = marker.is_file() and matches_owner
     results = _manifest_result(manifest, resumed=False)["results"]
-    if manifest["state"] == "running" and not active:
+    if manifest["state"] == "running" and not matches_owner:
         for item in results:
             if item.get("state") == "running":
                 item["state"] = "interrupted"
-                item["reason"] = "the prior runner no longer holds the project lock"
+                item["reason"] = "this run no longer owns the project lock"
     return {
         "ok": True,
         "run_id": manifest["run_id"],
         "state": (
             "cancel_requested"
-            if requested and manifest["state"] == "running" and active
+            if requested and manifest["state"] == "running" and matches_owner
             else "interrupted"
-            if manifest["state"] == "running" and not active
+            if manifest["state"] == "running" and not matches_owner
             else manifest["state"]
         ),
         "cancel_requested": requested,
-        "runner_active": active,
+        "runner_active": matches_owner,
         "task_id": manifest["task_id"],
         "coverage_revision": manifest["coverage_revision"],
         "updated_at": manifest["updated_at"],
@@ -1097,7 +1184,15 @@ def cancel_competitor_scan_run(directory: str | Path, run_id: str) -> dict[str, 
 
     with project_write_lock(root, timeout_seconds=5.0):
         manifest = _read_manifest(root, run_id, project["project_uuid"])
-        if manifest["state"] != "running" or not _run_lock_active(root):
+        active, owner = _run_lock_owner_locked(root)
+        matches_owner = bool(
+            manifest["state"] == "running"
+            and active
+            and owner
+            and owner["run_id"] == manifest["run_id"]
+            and manifest.get("runner_token") == owner["runner_token"]
+        )
+        if manifest["state"] != "running" or not matches_owner:
             return {
                 "ok": True,
                 "run_id": manifest["run_id"],

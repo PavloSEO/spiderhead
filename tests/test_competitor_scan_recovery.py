@@ -251,3 +251,70 @@ def test_run_id_status_and_cancel_marker_are_durable(tmp_path, monkeypatch):
     final = competitor_scans.get_competitor_scan_run(project, run_id)
     assert final["state"] == "interrupted"
     assert final["results"][0]["state"] == "interrupted"
+
+
+def test_status_and_cancel_bind_the_live_lock_to_its_exact_run(tmp_path, monkeypatch):
+    project, _, revision = _project(tmp_path)
+    stale_id = "00000000-0000-4000-8000-000000000051"
+    live_id = "00000000-0000-4000-8000-000000000052"
+
+    def interrupted_crawl(**_kwargs):
+        raise KeyboardInterrupt("leave a stale running manifest")
+
+    with pytest.raises(KeyboardInterrupt):
+        competitor_scans.scan_task_competitors(
+            **_kwargs(
+                project,
+                revision,
+                tools={"crawl_site": interrupted_crawl},
+                run_id=stale_id,
+            )
+        )
+    stale = competitor_scans._read_manifest(
+        project, stale_id, competitor_scans._load(project)[1]["project_uuid"]
+    )
+    stale["state"] = "running"
+    stale["runner_token"] = "a" * 32
+    for site in stale["sites"]:
+        site["state"] = "running"
+    competitor_scans._write_manifest(project, stale)
+
+    started = threading.Event()
+    errors = []
+
+    def waiting_crawl(**kwargs):
+        while True:
+            started.set()
+            kwargs["progress"](1, 1)
+            time.sleep(0.01)
+
+    monkeypatch.setattr(competitor_scans, "_read_scan", lambda _path: _scan_record(partial=True))
+
+    def run_live():
+        try:
+            competitor_scans.scan_task_competitors(
+                **_kwargs(
+                    project,
+                    revision,
+                    tools={"crawl_site": waiting_crawl},
+                    run_id=live_id,
+                )
+            )
+        except BaseException as exc:
+            errors.append(exc)
+
+    thread = threading.Thread(target=run_live)
+    thread.start()
+    assert started.wait(timeout=5)
+
+    status = competitor_scans.get_competitor_scan_run(project, stale_id)
+    assert status["state"] == "interrupted"
+    assert status["runner_active"] is False
+    cancelled = competitor_scans.cancel_competitor_scan_run(project, stale_id)
+    assert cancelled["cancelled"] is False
+    assert not competitor_scans._cancel_path(project, stale_id).exists()
+
+    assert competitor_scans.cancel_competitor_scan_run(project, live_id)["cancelled"] is True
+    thread.join(timeout=5)
+    assert not thread.is_alive()
+    assert any(isinstance(error, KeyboardInterrupt) for error in errors)
