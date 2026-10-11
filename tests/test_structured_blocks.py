@@ -189,10 +189,27 @@ def test_scan_normalizes_shared_ids_against_the_document_final_url(tmp_path, rep
         lease = _claim(scan, url)
         record = _record(url)
         record["final_url"] = final_url
+        redirect_chain = [
+            {
+                "request_url": url,
+                "status_code": 301,
+                "location_raw": "/new",
+                "next_url": final_url,
+                "blocked": False,
+            }
+        ]
+        record["redirect_chain"] = redirect_chain
         scan.commit_page(
             lease,
             record,
-            captures=[_event(url, body=html.encode(), effective_url=final_url)],
+            captures=[
+                _event(
+                    url,
+                    body=html.encode(),
+                    effective_url=final_url,
+                    redirect_history=tuple(redirect_chain),
+                )
+            ],
             runtime=_runtime(),
         )
         if representation == "rendered":

@@ -23,6 +23,7 @@ from seohead.integrations.remote_api.contracts import (
     ScanSubmission,
 )
 from seohead.recon import net
+from seohead.storage.native_scan import read_effective_config
 
 TOKEN_A = "synthetic-remote-token-alpha-strong-1"
 TOKEN_B = "synthetic-remote-token-beta-strong-2"
@@ -285,15 +286,21 @@ def test_synthetic_api_queue_worker_result_and_private_artifacts(monkeypatch, tm
     path = backend.artifact_path("alpha", job_id, scan_ref["artifact_id"])
     assert path is not None and path.name == "scan.sqlite"
     with closing(sqlite3.connect(path)) as scan_db:
+        scan_db.row_factory = sqlite3.Row
         stored_config = scan_db.execute(
             "SELECT config_json FROM scan WHERE singleton=1"
         ).fetchone()[0]
-    assert (
-        json.loads(stored_config)
-        == ScanSubmission(
-            target_url=SITE, options={"max_urls": 1, "max_requests": 20}
-        ).options.effective_config()
-    )
+        effective_config = read_effective_config(scan_db)
+        assert (
+            effective_config
+            == ScanSubmission(
+                target_url=SITE, options={"max_urls": 1, "max_requests": 20}
+            ).options.effective_config()
+        )
+    frozen_config = json.loads(stored_config)
+    assert "asset_thresholds" not in frozen_config["analysis"]
+    effective_config["analysis"].pop("asset_thresholds")
+    assert frozen_config == effective_config
     download = api.get(
         f"{SCANS_A}/{job_id}/artifacts/{scan_ref['artifact_id']}", headers=_headers()
     )
