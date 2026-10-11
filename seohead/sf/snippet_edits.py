@@ -12,6 +12,8 @@ already appeared is reported as an error and skipped; the other rows still load.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+
 import csv
 import hashlib
 import io
@@ -206,6 +208,7 @@ def inspect_retained_document(
     query: str | None = None,
     content_area: dict[str, Any] | None = None,
     backend: Any = None,
+    ignore_words: Iterable[str] = (),
 ) -> dict[str, Any]:
     """Extract bounded snippet context from one complete retained HTML document.
 
@@ -278,7 +281,20 @@ def inspect_retained_document(
             if not excerpt["match_in_excerpt"]:
                 excerpt["state"] = "partial"
                 excerpt["reason"] = "query exceeds the bounded excerpt window"
-    spelling = spellcheck.run(html, backend, content_area=content_area)
+    if isinstance(ignore_words, str):
+        raise ValueError("ignore_words must be an iterable of strings")
+    try:
+        ignored = tuple(ignore_words)
+    except TypeError as exc:
+        raise ValueError("ignore_words must be an iterable of strings") from exc
+    if any(not isinstance(word, str) for word in ignored):
+        raise ValueError("ignore_words must be an iterable of strings")
+    spelling = spellcheck.run(
+        html,
+        backend,
+        content_area=content_area,
+        ignore_words=ignored,
+    )
     return {
         "state": "complete",
         "url": url,
@@ -306,6 +322,7 @@ def attach_retained_context(
     content_area: dict[str, Any] | None = None,
     max_decoded_bytes: int = DEFAULT_RETAINED_BODY_BYTES,
     backend: Any = None,
+    ignore_words: Iterable[str] = (),
 ) -> dict[str, Any]:
     """Attach exact-URL body context from a saved scan; this function never fetches URLs."""
     if representation not in {"static", "rendered", "legacy_fragment"}:
@@ -337,7 +354,11 @@ def attach_retained_context(
             except ScanError as exc:
                 document = {"state": "unavailable", "reason": str(exc)}
             task["retained_document"] = inspect_retained_document(
-                document, query=query, content_area=content_area, backend=backend
+                document,
+                query=query,
+                content_area=content_area,
+                backend=backend,
+                ignore_words=ignore_words,
             )
             source = task["retained_document"].get("source", {})
             identity = ", ".join(

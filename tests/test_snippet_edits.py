@@ -201,6 +201,33 @@ def test_retained_excerpt_reports_when_the_query_would_be_clipped():
     assert result["query_excerpt"]["match_in_excerpt"] is False
 
 
+def test_retained_spelling_accepts_only_explicit_injected_backend_and_word_list():
+    from seohead.sf.snippet_edits import inspect_retained_document
+
+    class Backend:
+        name = "local-test"
+
+        def check(self, text, _lang):
+            position = text.find("Brand")
+            return (
+                [{"word": "Brand", "offset": position, "suggestions": []}]
+                if position >= 0
+                else []
+            )
+
+    document = {
+        "state": "available",
+        "url": "https://example.test/p",
+        "text": "<html><body><main>Brand word.</main></body></html>",
+    }
+    skipped = inspect_retained_document(document)
+    checked = inspect_retained_document(document, backend=Backend(), ignore_words=["brand"])
+    assert skipped["spelling"]["state"] == "skipped"
+    assert checked["spelling"]["backend"] == "local-test"
+    assert checked["spelling"]["state"] == "complete"
+    assert checked["spelling"]["findings_total"] == 0
+
+
 def test_saved_scan_context_uses_exact_urls_and_keeps_source_identity(monkeypatch, tmp_path):
     from seohead import storage
     from seohead.storage import bodies
