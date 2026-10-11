@@ -1,0 +1,24 @@
+/* Project <-> resources connections (screens/project_sources_page.py): 50 px rows, divider under each */
+QFrame[source_row="item"] { background: transparent; border: 0; border-bottom: 1px solid $divider_inner; }
+QFrame[source_row="item"]:hover { background: $hover_row; }
+QFrame[source_row="head"] { background: $raised; border: 0; border-bottom: 1px solid $divider; }
+QWidget[rowbg="clear"] { background: transparent; }
+
+/* Project settings keep the tab bar and clock controls readable at compact widths. */
+QListWidget#projectSettingsTabs { border: 0; border-bottom: 1px solid $divider; padding: 4px 16px; background: $base; }
+QListWidget#projectSettingsTabs::item { padding: 6px 12px; border: 0; border-radius: 8px; color: $text_2; }
+QListWidget#projectSettingsTabs::item:selected { background: $selected; color: $on_selected; }
+QToolButton[schedule_day="true"] { padding: 0; border: 1px solid $divider; border-radius: 20px; background: $base; color: $text_2; }
+QToolButton[schedule_day="true"]:checked { background: $primary; color: $on_primary; border: 1px solid $primary; }
+QTimeEdit { min-height: 36px; min-width: 72px; padding: 0 8px; border: 1px solid $outline; border-radius: ${radius_control}px; background: $base; color: $text; }
+
+QStackedWidget#projectSettingsPages, QWidget#scheduleTab, QWidget#scheduleViewport { background: $surface; }
+QWidget#scheduleBody, QWidget#scheduleColumn, QWidget#scheduleCalendar { background: transparent; }
+QFrame[schedule_panel="true"] { background: $base; border: 1px solid $divider; border-radius: 14px; }
+QFrame[schedule_icon="info"] { background: $badge_info_bg; border: 0; border-radius: 10px; }
+QFrame[schedule_icon="warning"] { background: $badge_warn_bg; border: 0; border-radius: 10px; }
+QFrame[schedule_icon="ok"] { background: $badge_ok_bg; border: 0; border-radius: 10px; }
+QFrame[schedule_enabled="true"] { background: $base; border: 1px solid $outline; border-radius: 22px; }
+QLabel#scheduleNextDate { color: $primary; }
+QListWidget#projectSettingsTabs::item { padding: 6px 12px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: $base; }
+QListWidget#projectSettingsTabs::item:selected { background: $base; color: $primary; border-bottom: 2px solid $primary; }

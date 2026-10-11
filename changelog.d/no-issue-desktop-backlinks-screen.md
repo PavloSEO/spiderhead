@@ -1,0 +1,1 @@
+- Desktop: a Backlinks screen ("Внешние ссылки") in the design-v2 layout. It shows the honest waiting state until the core stores a project link profile (#999); no sample rows, and the group filters are disabled with the same reason.

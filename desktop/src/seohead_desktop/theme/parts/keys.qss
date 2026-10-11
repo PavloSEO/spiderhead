@@ -1,0 +1,12 @@
+/* settings → Горячие клавиши: key caps, recording state, conflicting row */
+QFrame[keycap] { border: 1px solid transparent; border-radius: ${radius_control}px; background: transparent; }
+QFrame[keycap]:hover:enabled { background: $hover; }
+QFrame[keycap]:focus { border: 2px solid $ring; }
+QFrame[keycap="recording"] { border: 2px solid $primary; background: $selected; }
+QFrame[set_row="true"][conflict="true"] QWidget { background: transparent; }
+QFrame[set_row="true"] QLabel[kbd] { min-width: 12px; height: 22px; padding: 0 5px; border: 1px solid $outline; border-radius: 6px; background: $base; color: $text; font-size: ${font_meta}px; font-weight: 500; }
+QFrame[set_row="true"] QLabel[kbd="bad"] { border-color: $error; }
+QFrame[set_row="true"] QLabel[kbd_prompt] { color: $on_selected; font-size: ${font_meta}px; font-weight: 500; background: transparent; }
+QFrame[set_row="true"][conflict="true"] { background: $error_hover; }
+/* board: action names are body text (400), not control weight */
+QFrame[shortcut="true"] QLabel[text_style="control"] { font-size: ${font_body}px; font-weight: 400; }

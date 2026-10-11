@@ -1,0 +1,27 @@
+/* Shell: top bar, pickers, navigation panel, profile button, avatar, status bar items */
+QPushButton[picker="true"] { background: transparent; border: 1px solid transparent; border-radius: ${radius_control}px; text-align: left; padding: 0; }
+QPushButton[picker="true"]:hover { background: $hover; }
+QPushButton[picker="true"]:pressed { background: $pressed; }
+QPushButton[picker="true"]:disabled { background: transparent; }
+QPushButton[picker="true"]:focus { border: 2px solid $ring; }
+QLabel[picker_part="title"] { font-size: ${font_control}px; font-weight: 500; background: transparent; }
+QLabel[picker_part="subtitle"] { font-size: ${font_overline}px; color: $text_3; background: transparent; }
+QPushButton[profile="true"] { background: transparent; border: 0; border-radius: 10px; text-align: left; padding: 0; }
+QPushButton[profile="true"]:hover { background: $nav_hover; }
+QPushButton[profile="true"]:focus { border: 2px solid $ring; }
+QPushButton[profile="true"] QLabel[avatar="true"] { background: $badge_goal_fg; color: $badge_goal_bg; border-radius: 14px; font-size: ${font_meta}px; font-weight: 500; }
+QFrame#navPanel { background: $raised; border: 0; border-right: 1px solid $divider; }
+QListWidget#navView { background: transparent; border: 0; outline: 0; }
+QToolButton[chrome="icon"] { width: ${control_icon}px; height: ${control_icon}px; }
+QLabel[brand="word"] { font-size: 15px; font-weight: 700; letter-spacing: 0.6px; background: transparent; }
+QFrame[divider="v"] { background: $divider; border: 0; max-width: 1px; min-width: 1px; }
+QPushButton[search_field="true"] { text-align: left; font-weight: 400; color: $text_2; padding: 0 10px; }
+QLabel[status_pill], QPushButton[status_pill] { border: 1px solid $badge_border; min-height: 26px; max-height: 26px; padding: 0 10px; border-radius: ${radius_chip}px; font-size: ${font_meta}px; font-weight: 500; }
+QLabel[status_pill="agent"], QPushButton[status_pill="agent"] { background: $badge_ok_bg; color: $badge_ok_fg; }
+QLabel[status_pill="simple"], QPushButton[status_pill="simple"] { background: $badge_mut_bg; color: $badge_mut_fg; }
+QPushButton[picker="true"] QWidget, QPushButton[profile="true"] QWidget { background: transparent; }
+QPushButton[search_field="true"] QLabel { background: transparent; }
+QLabel[kbd="true"] { font-size: ${font_overline}px; font-weight: 500; color: $text_muted; border: 1px solid $divider; border-radius: ${radius_field}px; padding: 1px 5px; }
+QPushButton[search_field="true"] QLabel[kbd_badge="true"] { background: $divider_inner; color: $text_muted; border: 0; border-radius: ${radius_field}px; font-size: ${font_overline}px; font-weight: 500; padding: 1px 6px; }
+QToolButton[tab_close="true"] { width: 20px; height: 20px; border-radius: ${radius_field}px; }
+QToolButton[tab_close="true"]:hover { background: $divider; }

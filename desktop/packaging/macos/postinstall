@@ -1,0 +1,10 @@
+#!/bin/sh
+# Installer supplies the destination volume as argument 3; no process is launched.
+set -eu
+volume=${3:-/}
+app="$volume/Applications/SEOHEAD Desktop.app"
+wrapper="$volume/usr/local/bin/seohead"
+[ -x "$app/Contents/Resources/core/seohead/seohead" ] || exit 69
+[ -f "$wrapper" ] || exit 69
+chmod 755 "$wrapper"
+exit 0

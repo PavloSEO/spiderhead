@@ -1,0 +1,59 @@
+{
+ "ok": true,
+ "project": {
+  "artifact_directories": {
+   "log": "log.md",
+   "reports": "reports",
+   "scans": "scans"
+  },
+  "created_at": "2026-10-09T08:20:06.690434Z",
+  "facts": [],
+  "format": "seohead.project.v1",
+  "profile_references": [],
+  "project_uuid": "1ad7dd9b-50d6-4068-82c8-758abbec0742",
+  "site": {
+   "host": "crawl.localhost",
+   "label": null,
+   "target": "http://crawl.localhost:54517/"
+  },
+  "template_references": [],
+  "version": 1
+ },
+ "path": "/project/qa",
+ "checklist": {
+  "state": "initialized",
+  "revision": 1,
+  "project_uuid": "1ad7dd9b-50d6-4068-82c8-758abbec0742",
+  "counts": {
+   "run": 0,
+   "not_applicable": 0,
+   "not_run": 276,
+   "total": 276,
+   "disabled": 0,
+   "excluded": 0,
+   "pending_exclusion": 0,
+   "not_agreed": 0,
+   "complete": 0,
+   "stale": 0,
+   "remaining": 276
+  },
+  "by_kind": {
+   "check": {
+    "total": 182,
+    "complete": 0
+   },
+   "skill": {
+    "total": 32,
+    "complete": 0
+   },
+   "scenario": {
+    "total": 62,
+    "complete": 0
+   },
+   "custom": {
+    "total": 0,
+    "complete": 0
+   }
+  }
+ }
+}

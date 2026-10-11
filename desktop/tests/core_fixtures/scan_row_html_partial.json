@@ -1,0 +1,70 @@
+{
+ "uuid": "0c2a2c3b-8921-4de6-a54e-8f3be86e41ee",
+ "path": "/project/qa/scans/20261009T132454Z_crawl.localhost_9c16fd73.sqlite",
+ "inode": {
+  "device": 16777230,
+  "inode": 104212841
+ },
+ "mtime_ns": 1791552297962676203,
+ "bytes": 188416,
+ "disk_bytes": 466944,
+ "audit_bytes": 278528,
+ "audit_inode": {
+  "device": 16777230,
+  "inode": 104212931
+ },
+ "lifecycle": "finished",
+ "finish_reason": "finished",
+ "pinned": false,
+ "crawl_partial": false,
+ "corpus_partial": true,
+ "start_url": "http://crawl.localhost:49775/",
+ "host": "crawl.localhost",
+ "config_fingerprint": "c1a738fbb05f387c",
+ "created_at": "2026-10-09T13:24:54.790025Z",
+ "finished_at": "2026-10-09T13:24:57.962525Z",
+ "writer_version": "3.0.0",
+ "writer_revision": "1b07799ccc0f0e10476b42da62d26d05837d26d2",
+ "source_kind": "native",
+ "parent_scan_uuid": null,
+ "evidence_revision": 6,
+ "capabilities": {
+  "html_bodies": {
+   "reason": "some HTML documents are missing or not retained",
+   "state": "partial"
+  },
+  "links": {
+   "reason": "committed native crawl observations",
+   "state": "complete"
+  },
+  "offline_reanalysis": {
+   "reason": "some HTML documents lack retained raw or selected inputs",
+   "state": "partial"
+  },
+  "pages": {
+   "reason": "committed native crawl observations",
+   "state": "complete"
+  },
+  "rendered_bodies": {
+   "reason": "no captured rendered documents",
+   "state": "unavailable"
+  },
+  "resource_bodies": {
+   "reason": "resources.fetch disabled",
+   "state": "unavailable"
+  },
+  "resource_refs": {
+   "reason": "",
+   "state": "complete"
+  },
+  "responses": {
+   "reason": "",
+   "state": "complete"
+  },
+  "resume": {
+   "reason": "native frontier and runtime state retained",
+   "state": "complete"
+  }
+ },
+ "history_warning_bytes": 21474836480
+}

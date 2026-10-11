@@ -1,0 +1,107 @@
+{
+ "state": "initialized",
+ "project": {
+  "site": "crawl.localhost",
+  "label": null
+ },
+ "revision": 1,
+ "scope": {
+  "recorded_for_all_sites": false,
+  "site_count": 1,
+  "plan_revision": null,
+  "reviewer": null,
+  "population": null,
+  "task_set": null,
+  "reason": null
+ },
+ "audit_task_completion": {
+  "label": "Audit-task completion",
+  "basis": null,
+  "numerator": null,
+  "denominator": null,
+  "percent": null,
+  "state": "unknown",
+  "reason": "record an explicit audit plan before reporting a percentage"
+ },
+ "url_population": {
+  "basis": "eligible URLs covered by fresh check measurements over the agreed eligible URL population",
+  "numerator": null,
+  "denominator": null,
+  "state": "unknown",
+  "reason": "no agreed URL population is recorded for this checklist",
+  "population_kind": null,
+  "population_name": null
+ },
+ "audit_complete": false,
+ "counts": {
+  "total": 276,
+  "complete": 0,
+  "remaining": 276,
+  "stale": 0,
+  "excluded": 0,
+  "pending_exclusion": 0,
+  "not_agreed": 0
+ },
+ "state_counts": {
+  "completed": 0,
+  "remaining": 182,
+  "running": 0,
+  "blocked": 0,
+  "stale": 0,
+  "unavailable": 0,
+  "review": 94,
+  "deliverable": 0,
+  "excluded": 0,
+  "not_agreed": 0
+ },
+ "next_actions": [
+  {
+   "kind": "scope",
+   "id": "scope:agree",
+   "state": "review",
+   "action": "record the agreed site population and applicable task set",
+   "reason": null
+  },
+  {
+   "kind": "task",
+   "id": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
+   "title": "Page declares <meta name=\"fragment\"> -- the page-wide opt-in to the deprecated AJAX crawling scheme",
+   "state": "remaining",
+   "action": "run this agreed checklist task",
+   "reason": "not attempted",
+   "blocked_by": []
+  }
+ ],
+ "items": [
+  {
+   "id": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
+   "title": "Page declares <meta name=\"fragment\"> -- the page-wide opt-in to the deprecated AJAX crawling scheme",
+   "kind": "automatic",
+   "state": "remaining",
+   "complete": false,
+   "stale": false,
+   "attempt_status": "not_run",
+   "applicability": "applicable",
+   "blocked_by": [],
+   "reason": "not attempted"
+  },
+  {
+   "id": "check:AJAX_CRAWLING_SCHEME_URL",
+   "title": "The deprecated AJAX crawling scheme (#! / _escaped_fragment_) is still used by this page's URL or by URLs it links to",
+   "kind": "automatic",
+   "state": "remaining",
+   "complete": false,
+   "stale": false,
+   "attempt_status": "not_run",
+   "applicability": "applicable",
+   "blocked_by": [],
+   "reason": "not attempted"
+  }
+ ],
+ "pagination": {
+  "limit": 100,
+  "offset": 0,
+  "total": 276,
+  "next_offset": 100
+ }
+}

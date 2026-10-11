@@ -1,0 +1,22 @@
+#!/bin/sh
+# Guard existing CLI/app before Installer replaces any payload bytes.
+set -eu
+volume=${3:-/}
+wrapper="$volume/usr/local/bin/seohead"
+app="$volume/Applications/SEOHEAD Desktop.app"
+stamp=$(date -u +%Y%m%dT%H%M%SZ)
+[ ! -L "$wrapper" ] && [ ! -L "$app" ] || { echo "Refusing aliased installation paths" >&2; exit 73; }
+if [ -e "$wrapper" ]; then
+    [ -f "$wrapper" ] && grep -q SEOHEAD_BUNDLED_CLI_V1 "$wrapper" || { echo "A foreign seohead command exists; installation refused" >&2; exit 73; }
+    backup="$wrapper.seohead-before-$stamp"
+    [ ! -e "$backup" ] || exit 73
+    cp -p "$wrapper" "$backup"
+    [ "$(shasum -a 256 < "$wrapper")" = "$(shasum -a 256 < "$backup")" ] || exit 74
+fi
+if [ -e "$app" ]; then
+    [ -f "$app/Contents/Resources/core-manifest.json" ] || { echo "Unrecognized application; installation refused" >&2; exit 73; }
+    backup="$app.seohead-before-$stamp"
+    [ ! -e "$backup" ] || exit 73
+    ditto "$app" "$backup"
+    diff -qr "$app" "$backup" >/dev/null || exit 74
+fi

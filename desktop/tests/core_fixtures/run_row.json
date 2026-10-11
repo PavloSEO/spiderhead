@@ -1,0 +1,76 @@
+{
+ "artifact": "scans/20261009T082104Z_crawl.localhost_0609ac70.sqlite",
+ "collector": {
+  "aggregate_max_requests_per_second": 2.0,
+  "config_fingerprint": "6d02e4b29c259e3d",
+  "max_crawl_seconds": 0,
+  "max_requests": 20000,
+  "max_requests_per_second": 2.0,
+  "max_urls": 60,
+  "mode": "spider",
+  "origin": "crawl.localhost",
+  "resumed": false
+ },
+ "collector_pid": null,
+ "collector_start_identity": null,
+ "collector_started_at": null,
+ "controller_pid": 62049,
+ "controller_start_identity": "Fri Oct  9 11:21:02 2026",
+ "counters": {
+  "excluded": 0,
+  "fetched": 20,
+  "inflight": 0,
+  "queued": 0,
+  "rate_per_second": 2.000844128854619
+ },
+ "events": [
+  {
+   "at": "2026-10-09T08:21:04.047695Z",
+   "code": "started",
+   "phase": "admission"
+  },
+  {
+   "at": "2026-10-09T08:21:04.072600Z",
+   "code": "entered",
+   "phase": "collection"
+  },
+  {
+   "at": "2026-10-09T08:21:04.111203Z",
+   "code": "progress",
+   "phase": "collection"
+  }
+ ],
+ "finish_reason": "finished",
+ "finished_at": "2026-10-09T08:21:14.245486Z",
+ "id": "22d43d8238fd4594966239154703455c",
+ "kind": "native",
+ "pid": 62049,
+ "source_metadata": null,
+ "started_at": "2026-10-09T08:21:04.040105Z",
+ "state": "finished",
+ "telemetry": {
+  "queue_semantics": "separate",
+  "rate_window_seconds": 5.497679624997545,
+  "sampled_at": "2026-10-09T08:21:14.245486Z",
+  "source": "native_frontier",
+  "unit": "pages",
+  "age_seconds": 2903.225654,
+  "state": "retained",
+  "current_rate_per_second": null
+ },
+ "source_kind": "native",
+ "pid_state": "retained",
+ "controller": {
+  "pid": 62049,
+  "start_identity": "Fri Oct  9 11:21:02 2026",
+  "state": "retained",
+  "observed_at": "2026-10-09T09:09:37.471126Z"
+ },
+ "collector_runtime": {
+  "pid": null,
+  "start_identity": null,
+  "started_at": null,
+  "state": "retained",
+  "observed_at": "2026-10-09T09:09:37.471126Z"
+ }
+}

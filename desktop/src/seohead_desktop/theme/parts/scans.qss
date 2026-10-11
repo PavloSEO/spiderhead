@@ -1,0 +1,9 @@
+/* Scans, Scan run, Journal screens */
+QFrame[page_bar="true"] { background: $base; border: 0; border-bottom: 1px solid $divider; }
+QFrame[aside="true"] { background: $surface; border: 0; border-left: 1px solid $divider; }
+QFrame[aside_head="true"] { background: $base; border: 0; border-bottom: 1px solid $divider_inner; }
+QLabel[log_box="true"] { background: $raised; border: 1px solid $divider_inner; border-radius: 8px; padding: 8px 10px; color: $text_2; }
+QToolButton[pill="group"]:disabled { color: $disabled_fg; }
+QProgressBar[scan_bar="true"] { min-height: 10px; max-height: 10px; border-radius: 5px; }
+QProgressBar[scan_bar="true"]::chunk { border-radius: 5px; }
+QFrame[scan_plot="true"] { background: $surface; border: 1px dashed $divider_inner; border-radius: 6px; }

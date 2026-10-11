@@ -1,0 +1,234 @@
+{
+ "ok": true,
+ "state": "available",
+ "validation": "light",
+ "source": {
+  "scan_uuid": "268ec05a-7276-4a95-a74e-7b26e481c5ee",
+  "format_version": "scan.v1",
+  "source_kind": "native",
+  "evidence_revision": 1321,
+  "lifecycle": "finished",
+  "finish_reason": "finished",
+  "crawl_partial": false,
+  "corpus_partial": true
+ },
+ "url": "http://shop.example.test:18431/",
+ "url_id": 1,
+ "page": {
+  "url_id": 1,
+  "page_ordinal": 0,
+  "document_id": 1,
+  "status_code": 200,
+  "content_type": "text/html; charset=utf-8",
+  "size_bytes": 8200,
+  "response_time": 0.002,
+  "redirect_url": "",
+  "title": "Мебельный магазин — кухни, шкафы и диваны с доставкой",
+  "meta_description": "Мебельный магазин — кухни, шкафы и диваны с доставкой — доставка по Минску и Беларуси, гарантия, сборка и подъём.",
+  "h1": "Мебельный магазин",
+  "h1_2": "Мебель для дома",
+  "h2": "Каталог",
+  "canonical": "http://shop.example.test:18431/",
+  "meta_robots": "",
+  "x_robots": "",
+  "og_title": "Мебельный магазин — кухни, шкафы и диваны с доставкой",
+  "og_description": "",
+  "og_image": "",
+  "og_url": "",
+  "word_count": 307,
+  "text_ratio": 60.5,
+  "content_frames": 0,
+  "content_frames_same_origin": 0,
+  "crawl_depth": 0,
+  "content_encoding": "",
+  "charset": "utf-8",
+  "doctype": "<!doctype html>",
+  "viewport": "width=device-width, initial-scale=1",
+  "meta_refresh": "",
+  "http_refresh": "",
+  "meta_description_count": 1,
+  "h1_alt_text": "",
+  "lorem_ipsum_count": 0,
+  "images_total": 2,
+  "images_missing_alt_attr": 0,
+  "images_max_alt_length": 22,
+  "plugin_elements": 0,
+  "meta_fragment": "",
+  "ajax_scheme_outlinks": 0,
+  "title_outside_head": 0,
+  "meta_description_outside_head": 0,
+  "canonical_outside_head": 0,
+  "directives_outside_head": null,
+  "hreflang_outside_head": 0,
+  "hreflang_json": [
+   {
+    "lang": "ru",
+    "raw_href": "http://shop.example.test:18431/",
+    "url": "http://shop.example.test:18431/"
+   },
+   {
+    "lang": "en",
+    "raw_href": "http://shop.example.test:18431/en/",
+    "url": "http://shop.example.test:18431/en/"
+   },
+   {
+    "lang": "x-default",
+    "raw_href": "http://shop.example.test:18431/",
+    "url": "http://shop.example.test:18431/"
+   }
+  ],
+  "heading_outline_json": [
+   {
+    "level": 1,
+    "region": "content",
+    "text": "Мебельный магазин"
+   },
+   {
+    "level": 1,
+    "region": "content",
+    "text": "Мебель для дома"
+   },
+   {
+    "level": 2,
+    "region": "content",
+    "text": "Каталог"
+   },
+   {
+    "level": 2,
+    "region": "content",
+    "text": "Новое в блоге"
+   },
+   {
+    "level": 2,
+    "region": "content",
+    "text": "О магазине"
+   }
+  ],
+  "link_placement_json": {
+   "image_no_text": [],
+   "image_no_text_total": 0,
+   "in_heading": [],
+   "in_heading_total": 0
+  },
+  "trust_signals_json": {
+   "article": [],
+   "author": [],
+   "dates": []
+  },
+  "duplicate_ids_json": [],
+  "canonical_chain_json": [],
+  "final_canonical": "",
+  "head_count": 1,
+  "body_count": 1,
+  "head_not_first": 0,
+  "invalid_head_elements": "",
+  "outlinks": 38,
+  "external_outlinks": 0,
+  "jsonld_blocks_found": 1,
+  "jsonld_blocks_parsed": 1,
+  "error": "",
+  "error_kind": "",
+  "cache_status": "",
+  "body_unavailable": "",
+  "representation": "static",
+  "final_url": "",
+  "url": "http://shop.example.test:18431/",
+  "redirect_chain": []
+ },
+ "responses": {
+  "offset": 0,
+  "limit": 1,
+  "items": [
+   {
+    "response_id": 1,
+    "request_ordinal": 0,
+    "request_url_id": 1,
+    "effective_url_id": 1,
+    "request_url": "http://shop.example.test:18431/",
+    "effective_url": "http://shop.example.test:18431/",
+    "method": "GET",
+    "purpose": "page",
+    "requested_at": "2026-10-09T09:32:57.850821Z",
+    "received_at": "2026-10-09T09:32:57.853375Z",
+    "credentials_used": 0,
+    "variant_key": "38a17223ffd60e33e579e6f27efd36ab97094999720af881f1e4090120ff39dd",
+    "status_code": 200,
+    "effective_status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "charset": "utf-8",
+    "content_encoding": "",
+    "reported_size_bytes": 8200,
+    "response_time": 0.002,
+    "transport_source": "network",
+    "cache_status": "",
+    "source_response_id": null,
+    "body_sha256": "9ab80c9da099e3dee4175d8e2b781e8cc2dcf78a6abd97682cdfe1a2b89da21d",
+    "body_fidelity": "entity_bytes",
+    "body_state": "complete",
+    "body_reason": "none",
+    "error": "",
+    "error_kind": "",
+    "redirect_chain": [],
+    "request_headers": [
+     [
+      "accept",
+      "*/*"
+     ],
+     [
+      "user-agent",
+      "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+     ],
+     [
+      "host",
+      "shop.example.test:18431"
+     ],
+     [
+      "accept-encoding",
+      "gzip, deflate"
+     ]
+    ],
+    "response_headers": [
+     [
+      "date",
+      "Fri, 09 Oct 2026 09:32:57 GMT"
+     ],
+     [
+      "content-type",
+      "text/html; charset=utf-8"
+     ],
+     [
+      "content-length",
+      "8200"
+     ]
+    ],
+    "effective_headers": [
+     [
+      "date",
+      "Fri, 09 Oct 2026 09:32:57 GMT"
+     ],
+     [
+      "content-type",
+      "text/html; charset=utf-8"
+     ],
+     [
+      "content-length",
+      "8200"
+     ]
+    ]
+   }
+  ],
+  "has_more": false,
+  "next_offset": 1,
+  "redirect_target_lookup": {
+   "state": "complete"
+  }
+ },
+ "forms": {
+  "offset": 0,
+  "limit": 20,
+  "items": [],
+  "has_more": false,
+  "next_offset": 0
+ },
+ "scope": "retained native metadata only; no HTML body, network request, or artifact mutation"
+}

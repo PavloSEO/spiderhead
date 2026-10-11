@@ -1,0 +1,67 @@
+{
+ "ok": true,
+ "revision": 1,
+ "item": {
+  "id": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
+  "title": "Page declares <meta name=\"fragment\"> -- the page-wide opt-in to the deprecated AJAX crawling scheme",
+  "kind": "check",
+  "scope": {
+   "site": "http://crawl.localhost:54517/",
+   "template": null,
+   "urls": []
+  },
+  "priority": "P1",
+  "priority_origin": "default",
+  "priority_reason": "not applied",
+  "order": 0,
+  "enabled": true,
+  "execution_kind": "automatic",
+  "state": "not_run",
+  "applicability": "applicable",
+  "applicability_reason": null,
+  "exclusion": null,
+  "stale": false,
+  "reason": "not attempted",
+  "attempt_status": "not_run",
+  "measurement": null,
+  "evidence_verification": {
+   "mode": "metadata_only",
+   "state": "not_applicable",
+   "verified_at": null
+  },
+  "blocked_by": [],
+  "complete": false,
+  "definition_versions": 1,
+  "attempts": 0,
+  "item_id": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
+  "display_state": "remaining",
+  "definition": {
+   "dependencies": [],
+   "enabled": true,
+   "execution_kind": "automatic",
+   "id": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
+   "kind": "check",
+   "operation": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
+   "order": 0,
+   "priority": "P1",
+   "priority_origin": "default",
+   "scope": {
+    "site": "http://crawl.localhost:54517/",
+    "template": null,
+    "urls": []
+   },
+   "source_hash": "71c59b905552678c7cdb1e761c3b069bb4491069f7c2632f861125b7a5bd991c",
+   "title": "Page declares <meta name=\"fragment\"> -- the page-wide opt-in to the deprecated AJAX crawling scheme"
+  },
+  "history": [],
+  "history_total": 0,
+  "history_truncated": false,
+  "catalogue": {
+   "definition_hash": "71c59b905552678c7cdb1e761c3b069bb4491069f7c2632f861125b7a5bd991c",
+   "id": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
+   "kind": "check",
+   "source": "runtime:CHECKS",
+   "title": "Page declares <meta name=\"fragment\"> -- the page-wide opt-in to the deprecated AJAX crawling scheme"
+  }
+ }
+}
