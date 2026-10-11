@@ -512,13 +512,17 @@ def _is_complete(row: dict) -> bool:
 
 
 def latest_project_scan(directory: str) -> Path:
-    """Return the newest finished, audited, complete scan of the project's own site."""
+    """Return the newest finished, audited scan of the project's own site.
+
+    A complete scan qualifies, and so does one stopped by its URL budget: that is a valid
+    scope-limited audit, and its report states the scope from the saved crawl summary.
+    """
     root, project = _load(directory)
     for row in _audited_scans(root, project["site"]["target"]):
-        if _is_complete(row):
+        if _is_complete(row) or row["finish_reason"] == "stopped_by_budget":
             return Path(row["path"])
     raise ValueError(
-        "no finished, complete audited scan in this project; run project-prepare or a crawl first"
+        "no finished, audited scan in this project; run project-prepare or a crawl first"
     )
 
 

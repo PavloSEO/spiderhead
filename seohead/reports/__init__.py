@@ -447,9 +447,6 @@ class _AuditV2ReportView:
                 yield finding
 
 
-STREAMED_PROJECT_ERROR = "project checklist coverage is unavailable for streamed audit.v2 inputs"
-
-
 def _build_audit_v2_report(
     reader: Any,
     fmt: str,
@@ -480,11 +477,6 @@ def _build_audit_v2_report(
                 + [name for name in ("issues", "pages") if f"/{name}" not in reader.collections]
             ),
         }
-    if project is not None:
-        return {
-            "ok": False,
-            "error": STREAMED_PROJECT_ERROR,
-        }
     if fmt == "pdf" and pdf_policy is None:
         return {
             "ok": False,
@@ -513,6 +505,22 @@ def _build_audit_v2_report(
     )
     if fmt == "xlsx":
         targets.append(target.with_suffix(target.suffix + ".index.json"))
+    if fmt == "csv" and project is not None:
+        targets.append(target.with_suffix(".coverage.csv"))
+    if project is not None:
+        from seohead.reports.project_coverage import (
+            attach_snapshot,
+            load_snapshot,
+            protected_destination,
+        )
+
+        try:
+            project_root, snapshot = load_snapshot(project, header, "sf-audit")
+        except (OSError, ValueError) as exc:
+            return {"ok": False, "error": str(exc)}
+        if error := protected_destination(project_root, targets):
+            return {"ok": False, "error": error}
+        view.document = attach_snapshot(view.document, snapshot)
     scan_source = getattr(source, "scan_path", source)
     from seohead.storage.inputs import protects_scan_input
 
