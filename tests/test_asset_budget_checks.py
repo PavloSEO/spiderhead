@@ -1227,3 +1227,45 @@ def test_offline_reanalysis_reuses_asset_threshold_adjunct(tmp_path, monkeypatch
         assert read_effective_config(con)["analysis"]["asset_thresholds"] == observed[0]
     finally:
         con.close()
+
+
+@pytest.mark.parametrize("legacy_manifest", [False, True])
+@pytest.mark.parametrize("mismatched_manifest", [False, True])
+def test_native_audit_validates_asset_adjunct_or_original_manifest(
+    tmp_path, legacy_manifest, mismatched_manifest
+):
+    import hashlib
+    import sqlite3
+
+    from seohead.crawl.settings import manifest
+    from seohead.storage.native_scan import read_effective_config
+    from tests.test_scan_reanalysis_integration import _source
+
+    path = tmp_path / "source.sqlite"
+    _source(path)
+    with sqlite3.connect(path) as con:
+        con.row_factory = sqlite3.Row
+        if legacy_manifest:
+            con.execute("DELETE FROM context_items WHERE kind='analysis_asset_thresholds'")
+            effective = json.loads(con.execute("SELECT config_json FROM scan").fetchone()[0])
+            assert "asset_thresholds" not in effective["analysis"]
+        else:
+            effective = read_effective_config(con)
+        if mismatched_manifest:
+            if legacy_manifest:
+                effective["limits"]["max_urls"] += 1
+            else:
+                effective["analysis"]["asset_thresholds"]["resource_max_bytes"] += 1
+        document = json.loads(con.execute("SELECT document_json FROM audit").fetchone()[0])
+        document["run"]["crawl_config"] = manifest(effective)
+        raw = json.dumps(document, ensure_ascii=False, sort_keys=True)
+        con.execute(
+            "UPDATE audit SET document_json=?,sha256=?",
+            (raw, hashlib.sha256(raw.encode("utf-8")).hexdigest()),
+        )
+    if mismatched_manifest:
+        with pytest.raises(ScanError, match="effective configuration disagrees"):
+            open_scan(path)
+    else:
+        con = open_scan(path)
+        con.close()

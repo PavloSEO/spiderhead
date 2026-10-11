@@ -864,7 +864,13 @@ class CrawlPage(_SettingsPage):
         self.identity_note = meta(
             "Your own bot is easy to find and filter in server logs and analytics."
         )
-        box.addWidget(self.identity_note)
+        self.identity_note_row = QWidget()
+        note = QHBoxLayout(self.identity_note_row)
+        note.setContentsMargins(0, 0, 0, 0)
+        note.setSpacing(8)
+        note.addWidget(MaterialIconLabel("info", 18, color="role:primary"), 0, Qt.AlignTop)
+        note.addWidget(self.identity_note, 1, Qt.AlignTop)
+        box.addWidget(self.identity_note_row)
         politeness, box = card("Politeness", "eco", "ok")
         row = QHBoxLayout()
         row.addWidget(field_label("Minimum delay"), 1)
@@ -973,7 +979,7 @@ class CrawlPage(_SettingsPage):
             self.preset_grid.setVisible(not compact)
             self.preset_field.setVisible(compact)
             self.preset_hint.setVisible(compact)
-            self.identity_note.setVisible(not compact)
+            self.identity_note_row.setVisible(not compact)
             self.policy_rows[1].setVisible(not compact)
             self.delay_ticks.setVisible(not compact)
             self.speed_layout.setSpacing(14 if compact else 8)

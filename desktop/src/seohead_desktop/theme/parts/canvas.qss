@@ -8,7 +8,7 @@ QFrame[canvas_component="code"] QLabel[code_meta="true"] { color: $canvas_code_m
 QFrame[canvas_component="field"] { background: $base; border: 1px solid $outline_hover; border-radius: ${canvas_field_radius}px; min-height: ${canvas_field_height}px; max-height: ${canvas_field_height}px; }
 QToolButton[canvas_component="preset"] { min-height: ${canvas_preset_height}px; max-height: ${canvas_preset_height}px; padding: 0 12px; border: 1px solid $outline; border-radius: ${canvas_preset_radius}px; background: $base; color: $text; }
 QToolButton[canvas_component="preset"]:checked { background: $selected; color: $on_selected; border-color: transparent; }
-QToolButton[canvas_component="preset"][custom_preset="true"]:!checked { color: $primary; }
+QToolButton[canvas_component="preset"][custom_preset="true"]:!checked { color: $primary; border-style: dashed; }
 QFrame[canvas_component="mode"] { border: 1px solid $outline; border-radius: ${canvas_mode_radius}px; background: $base; }
 QFrame[canvas_component="mode"][selected="true"] { border: 2px solid $primary; }
 QFrame[canvas_component="field"] QLineEdit, QFrame[canvas_component="field"] QComboBox, QFrame[canvas_component="mini"] QSpinBox { background: transparent; border: 0; padding: 0; }
