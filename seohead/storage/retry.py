@@ -179,7 +179,20 @@ def validate_discovery_ledger(con: sqlite3.Connection) -> None:
         target = con.execute(
             "SELECT url_id FROM urls WHERE url=?", (row["resolved_value"],)
         ).fetchone()
-        if (target[0] if target else None) != row["target_url_id"]:
+        recorded_target = row["target_url_id"]
+        if recorded_target is None:
+            # This is the capture-time lookup, not the current catalogue. A later
+            # sitemap/seed may retain a target that was unresolved or excluded
+            # when the immutable occurrence was written. Claimed queued/fetched
+            # targets still require a recorded identity, as do unexplained gaps.
+            if (
+                row["outcome"] not in {"unresolved", "unmeasured", "excluded"}
+                or not row["reason"].strip()
+            ):
+                raise ScanError(
+                    "discovery occurrence has no explained capture-time target identity"
+                )
+        elif target is None or target[0] != recorded_target:
             raise ScanError(
                 "discovery occurrence target identity disagrees with its resolved value"
             )
