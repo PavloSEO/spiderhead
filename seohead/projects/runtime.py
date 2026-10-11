@@ -460,6 +460,8 @@ def remove_competitor(directory: str, url: str) -> dict:
         }
     finally:
         lock.unlink(missing_ok=True)
+
+
 _CAP_STOPS = frozenset({"stopped_by_budget", "url_limit"})
 
 
