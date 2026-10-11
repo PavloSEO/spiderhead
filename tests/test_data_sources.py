@@ -2394,7 +2394,7 @@ def test_blocked_location_code_never_reaches_the_network(
     monkeypatch.setattr(urllib.request, "urlopen", fail_urlopen)
 
     func = getattr(dataforseo, func_name)
-    result = func(*args, location_code=location_code, country=None, env="prod")
+    result = func(*args, location_code=location_code, country=None, env="prod", confirm_paid=True)
     assert result["ok"] is False
     assert result["unsupported_geo"] in {"RU", "BY"}
 
@@ -2491,7 +2491,7 @@ def test_dataforseo_network_error_does_not_retry_and_logs_the_lost_attempt(monke
     monkeypatch.setattr(dataforseo, "open_no_redirect", fake_urlopen)
 
     result = dataforseo.search_volume(
-        ["buy apartment"], location_code=2840, country=None, env="prod"
+        ["buy apartment"], location_code=2840, country=None, env="prod", confirm_paid=True
     )
 
     assert result["ok"] is False
@@ -2537,7 +2537,9 @@ def test_dataforseo_malformed_response_still_creates_a_receipt(monkeypatch, jour
     monkeypatch.setattr(dataforseo, "open_no_redirect", fake_urlopen)
 
     with pytest.raises(json.JSONDecodeError):
-        dataforseo.search_volume(["buy apartment"], location_code=2840, country=None, env="prod")
+        dataforseo.search_volume(
+            ["buy apartment"], location_code=2840, country=None, env="prod", confirm_paid=True
+        )
 
     assert len(calls) == 1  # The request reached the provider exactly once.
     rows = spend.read_all()

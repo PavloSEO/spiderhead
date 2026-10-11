@@ -21,9 +21,12 @@ from __future__ import annotations
 
 import base64
 import json
+import math
+import os
 import time
 import urllib.error
 import urllib.request
+from datetime import date, timedelta
 
 from seohead.data_sources import spend, spend_gate
 from seohead.data_sources.credentials import (
@@ -75,6 +78,10 @@ ENDPOINTS = {
     "keyword_difficulty": "v3/dataforseo_labs/google/bulk_keyword_difficulty/live",
     "serp": "v3/serp/google/organic/live/advanced",
     "backlinks_summary": "v3/backlinks/summary/live",
+    "backlinks": "v3/backlinks/backlinks/live",
+    "referring_domains": "v3/backlinks/referring_domains/live",
+    "backlinks_history": "v3/backlinks/history/live",
+    "domain_pages_summary": "v3/backlinks/domain_pages_summary/live",
 }
 
 
@@ -121,9 +128,9 @@ class DataForSEOClient:
     def __init__(
         self, login: str | None = None, password: str | None = None, env: str | None = None
     ):
-        import os
-
         self.env = (env or os.environ.get("DATAFORSEO_ENV") or "sandbox").lower()
+        if self.env not in {"sandbox", "prod"}:
+            raise ValueError("env must be sandbox or prod")
         self.base = PROD_BASE if self.env == "prod" else SANDBOX_BASE
         self._login = login
         self._password = password
@@ -216,6 +223,7 @@ class DataForSEOClient:
             "env": self.env,
             "balance": (info.get("money") or {}).get("balance"),
             "limits": info.get("rates"),
+            "prices": info.get("price"),
         }
 
 
@@ -271,8 +279,10 @@ def task_errors(body: dict) -> list[str]:
         errors.append(f"{response_code}: {body.get('status_message')}")
     for task in body.get("tasks") or []:
         code = task.get("status_code")
-        if code and int(code) != 20000:
+        if _status_failed(code):
             errors.append(f"{code}: {task.get('status_message')}")
+    if not body.get("tasks") and not errors:
+        errors.append("provider response contains no task evidence")
     return errors
 
 
@@ -287,37 +297,203 @@ def tasks_all_failed(body: dict) -> bool:
         return True
     tasks = body.get("tasks") or []
     if not tasks:
-        return False
-    return all(int(t.get("status_code") or 0) != 20000 for t in tasks)
+        return True
+    return all(_status_failed(t.get("status_code")) or t.get("status_code") is None for t in tasks)
 
 
 def _run(
     client: DataForSEOClient, kind: str, payload: list[dict], items_count: int
 ) -> tuple[list[dict], list[str], float, bool]:
     body = client.post(ENDPOINTS[kind], payload, operation=f"{kind}.{client.env}")
-    cost = float(body.get("cost") or 0)
+    raw_cost = body.get("cost")
+    cost = (
+        float(raw_cost)
+        if isinstance(raw_cost, (int, float))
+        and not isinstance(raw_cost, bool)
+        and math.isfinite(raw_cost)
+        and raw_cost >= 0
+        else None
+    )
     spend.record(
         SOURCE,
         f"{kind}.{client.env}",
-        cost=cost,
+        cost=cost if cost is not None else 0.0,
         unit="usd",
         items=items_count,
-        extra={"env": client.env},
+        extra={
+            "env": client.env,
+            "cost_unknown": cost is None,
+            "charge_status": "unknown" if cost is None else "measured",
+        },
     )
     return task_items(body), task_errors(body), cost, tasks_all_failed(body)
 
 
-def _call(
-    kind: str, env: str | None, payload: list[dict], items_count: int
-) -> tuple[DataForSEOClient, list[dict], list[str], float, bool] | dict:
-    """Run one operation; return its parts, or the ``ok: false`` dict when it cannot run."""
+def estimate(
+    operation: str,
+    *,
+    query_count: int = 1,
+    row_limit: int = 0,
+    cache_hits: int = 0,
+    prices: dict | None = None,
+    env: str | None = None,
+) -> dict:
+    """Estimate a bounded call using a supplied appendix/user_data price snapshot.
+
+    No credential lookup or network request happens here. Provider prices omit additional paid
+    parameters; this adapter transmits none of them. Unknown pricing stays unavailable.
+    """
+    if operation not in ENDPOINTS:
+        raise ValueError("unsupported DataForSEO operation")
+    for name, value in (
+        ("query_count", query_count),
+        ("row_limit", row_limit),
+        ("cache_hits", cache_hits),
+    ):
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise ValueError(f"{name} must be a non-negative integer")
+    if cache_hits > query_count:
+        raise ValueError("cache_hits cannot exceed query_count")
+    requested_env = (env or os.environ.get("DATAFORSEO_ENV") or "sandbox").lower()
+    if requested_env not in {"sandbox", "prod"}:
+        raise ValueError("env must be sandbox or prod")
+    result = {
+        "operation": operation,
+        "env": requested_env,
+        "currency": "USD",
+        "query_count": query_count,
+        "cache_hits": cache_hits,
+        "cache_basis": "caller_declared",
+        "billable_queries": query_count - cache_hits,
+        "row_limit": row_limit,
+        "cost_usd": None,
+        "state": "unavailable",
+        "reason": "a current appendix/user_data price snapshot is required",
+    }
+    if requested_env == "sandbox" or query_count == cache_hits:
+        result.update(
+            cost_usd=0.0, state="complete", reason="sandbox or cached data incurs no new charge"
+        )
+        return result
+    node = prices or {}
+    for part in ENDPOINTS[operation].split("/")[1:]:
+        node = node.get(part, {}) if isinstance(node, dict) else {}
+    rates = node.get("priority_normal", []) if isinstance(node, dict) else []
+    if not isinstance(rates, list) or not rates:
+        return result
+    per_request = per_result = 0.0
+    for rate in rates:
+        if not isinstance(rate, dict):
+            return result
+        kind = str(rate.get("cost_type", "")).replace("_", "")
+        cost = rate.get("cost")
+        if (
+            isinstance(cost, bool)
+            or not isinstance(cost, (int, float))
+            or not math.isfinite(cost)
+            or cost < 0
+        ):
+            return result
+        if kind == "perrequest":
+            per_request += cost
+        elif kind == "perresult":
+            per_result += cost
+        else:
+            result["reason"] = "the supplied price uses an unsupported billing unit"
+            return result
     try:
-        client = DataForSEOClient(env=env)
+        total = (per_request + per_result * row_limit) * (query_count - cache_hits)
+    except OverflowError:
+        total = float("inf")
+    if not math.isfinite(total):
+        result["reason"] = "supplied pricing or volume exceeds a finite quote"
+        return result
+    result.update(
+        cost_usd=round(total, 10),
+        state="complete",
+        reason="upper bound from supplied provider base prices",
+        pricing_source="appendix/user_data",
+    )
+    return result
+
+
+def _preflight(
+    operation: str,
+    *,
+    env: str | None,
+    confirm_paid: bool,
+    spend_ceiling_usd: float | None,
+    prices: dict | None,
+    row_limit: int,
+    require_confirmation: bool = False,
+) -> tuple[dict, dict | None]:
+    quote = estimate(operation, row_limit=row_limit, prices=prices, env=env)
+    if spend_ceiling_usd is not None and (
+        isinstance(spend_ceiling_usd, bool)
+        or not isinstance(spend_ceiling_usd, (int, float))
+        or not math.isfinite(spend_ceiling_usd)
+        or spend_ceiling_usd < 0
+    ):
+        raise ValueError("spend_ceiling_usd must be a finite non-negative number")
+    if quote["env"] == "prod" or require_confirmation:
+        refusal = spend_gate.confirmation_required(confirm_paid, operation, quote)
+        if refusal:
+            return quote, refusal
+    if spend_ceiling_usd is not None:
+        if quote["cost_usd"] is None:
+            return quote, {
+                "ok": False,
+                "state": "unavailable",
+                "reason": "cannot enforce spend ceiling without current pricing",
+                "estimate": quote,
+            }
+        if quote["cost_usd"] > spend_ceiling_usd:
+            return quote, {
+                "ok": False,
+                "state": "spend_limit_exceeded",
+                "reason": "estimated cost exceeds spend_ceiling_usd before request",
+                "estimate": quote,
+            }
+    return quote, None
+
+
+def _call(
+    kind: str,
+    env: str | None,
+    payload: list[dict],
+    items_count: int,
+    *,
+    confirm_paid: bool = False,
+    spend_ceiling_usd: float | None = None,
+    prices: dict | None = None,
+    row_limit: int = 0,
+) -> tuple[DataForSEOClient, list[dict], list[str], float, bool] | dict:
+    """Gate before constructing a client; never send a production call implicitly."""
+    quote, refusal = _preflight(
+        kind,
+        env=env,
+        confirm_paid=confirm_paid,
+        spend_ceiling_usd=spend_ceiling_usd,
+        prices=prices,
+        row_limit=row_limit,
+    )
+    if refusal:
+        return refusal
+    try:
+        client = DataForSEOClient(env=quote["env"])
         items, errors, cost, failed = _run(client, kind, payload, items_count)
     except MissingCredential as exc:
-        return {"ok": False, "error": str(exc)}
+        return {"ok": False, "state": "not_configured", "error": str(exc)}
     except DataForSEOError as exc:
-        return {"ok": False, "error": exc.message, "status": exc.status}
+        return {"ok": False, "state": "failed", "error": exc.message, "status": exc.status}
+    if spend_ceiling_usd is not None and cost is not None and cost > spend_ceiling_usd:
+        return {
+            "ok": False,
+            "state": "partial",
+            "error": "provider-reported cost exceeds declared ceiling",
+            "cost_usd": cost,
+            "estimate": quote,
+        }
     return client, items, errors, cost, failed
 
 
@@ -331,6 +507,9 @@ def search_volume(
     language: str = "en",
     country: str | None = None,
     env: str | None = None,
+    confirm_paid: bool = False,
+    spend_ceiling_usd: float | None = None,
+    prices: dict | None = None,
 ) -> dict:
     """Return Google search volume for keywords; ``location_code`` 2840 is the United States."""
     blocked = geo_guard(country, location_code)
@@ -347,6 +526,10 @@ def search_volume(
             }
         ],
         len(keywords),
+        confirm_paid=confirm_paid,
+        spend_ceiling_usd=spend_ceiling_usd,
+        prices=prices,
+        row_limit=len(keywords),
     )
     if isinstance(result, dict):
         return result
@@ -376,6 +559,9 @@ def keyword_ideas(
     limit: int = 100,
     country: str | None = None,
     env: str | None = None,
+    confirm_paid: bool = False,
+    spend_ceiling_usd: float | None = None,
+    prices: dict | None = None,
 ) -> dict:
     """Expand a seed phrase, analogous to Wordstat's left column but for Google."""
     blocked = geo_guard(country, location_code)
@@ -393,6 +579,10 @@ def keyword_ideas(
             }
         ],
         1,
+        confirm_paid=confirm_paid,
+        spend_ceiling_usd=spend_ceiling_usd,
+        prices=prices,
+        row_limit=limit,
     )
     if isinstance(result, dict):
         return result
@@ -422,6 +612,9 @@ def keyword_difficulty(
     language: str = "en",
     country: str | None = None,
     env: str | None = None,
+    confirm_paid: bool = False,
+    spend_ceiling_usd: float | None = None,
+    prices: dict | None = None,
 ) -> dict:
     """Return bulk keyword difficulty: the estimated effort required to reach top results."""
     blocked = geo_guard(country, location_code)
@@ -438,6 +631,10 @@ def keyword_difficulty(
             }
         ],
         len(keywords),
+        confirm_paid=confirm_paid,
+        spend_ceiling_usd=spend_ceiling_usd,
+        prices=prices,
+        row_limit=len(keywords),
     )
     if isinstance(result, dict):
         return result
@@ -461,6 +658,9 @@ def serp(
     depth: int = 10,
     country: str | None = None,
     env: str | None = None,
+    confirm_paid: bool = False,
+    spend_ceiling_usd: float | None = None,
+    prices: dict | None = None,
 ) -> dict:
     """Return the live Google organic results that currently rank for a query."""
     blocked = geo_guard(country, location_code)
@@ -478,6 +678,10 @@ def serp(
             }
         ],
         1,
+        confirm_paid=confirm_paid,
+        spend_ceiling_usd=spend_ceiling_usd,
+        prices=prices,
+        row_limit=depth,
     )
     if isinstance(result, dict):
         return result
@@ -501,9 +705,12 @@ def serp(
     }
 
 
-def backlinks_summary(
+def backlink_call(
+    operation: str,
     target: str,
     *,
+    limit: int = 100,
+    offset: int = 0,
     enabled: bool = False,
     account_eligible: bool = False,
     production_approved: bool = False,
@@ -512,18 +719,26 @@ def backlinks_summary(
     spend_ceiling_usd: float | None = None,
     cache_key: str | None = None,
     env: str | None = None,
+    prices: dict | None = None,
     client: DataForSEOClient | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
 ) -> dict:
-    """Optional backlink-index summary outside every default crawl and audit path.
-
-    The adapter is deliberately disabled until the operator records account eligibility, an
-    approved production/cost decision, and a local cache key.  It returns a bounded summary,
-    never an unbounded backlink export.  Each call is billed, so it also needs
-    ``confirm_paid=True``; the check runs before any client or request is created.
-    """
-    if not target:
+    """Run one explicitly selected bounded backlink-index operation, never auto-paginate."""
+    if operation not in {
+        "backlinks_summary",
+        "backlinks",
+        "referring_domains",
+        "backlinks_history",
+        "domain_pages_summary",
+    }:
+        raise ValueError("unsupported backlink operation")
+    if not target or not isinstance(target, str):
         raise ValueError("target required")
-    requested_env = (env or "sandbox").lower()
+    if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 1000:
+        raise ValueError("limit must be between 1 and 1000")
+    if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+        raise ValueError("offset must be a non-negative integer")
     if not enabled:
         return {
             "ok": False,
@@ -536,46 +751,95 @@ def backlinks_summary(
             "state": "skipped",
             "reason": "account eligibility and an explicit local cache key are required",
         }
+    requested_env = (env or os.environ.get("DATAFORSEO_ENV") or "sandbox").lower()
+    if client is not None and client.env != requested_env:
+        raise ValueError("injected client environment must match requested environment")
     if requested_env == "prod" and (not production_approved or not cost_approved):
         return {
             "ok": False,
             "state": "skipped",
             "reason": "production backlink calls require explicit production and cost approval",
         }
-    if spend_ceiling_usd is not None and (
-        not isinstance(spend_ceiling_usd, (int, float)) or spend_ceiling_usd < 0
-    ):
-        raise ValueError("spend_ceiling_usd must be a non-negative number")
-    refusal = spend_gate.confirmation_required(confirm_paid, "backlinks_summary")
-    if refusal is not None:
+    history_dates = None
+    if operation == "backlinks_history":
+        end_date = date.fromisoformat(date_to) if date_to else date.today()
+        start_date = date.fromisoformat(date_from) if date_from else end_date - timedelta(days=30)
+        if start_date < date(2019, 1, 1) or start_date > end_date or end_date > date.today():
+            raise ValueError("history dates must be ordered within 2019-01-01 and today")
+        months = (end_date.year - start_date.year) * 12 + end_date.month - start_date.month + 1
+        if months > limit:
+            raise ValueError("history date range exceeds the declared row limit")
+        history_dates = {"date_from": start_date.isoformat(), "date_to": end_date.isoformat()}
+    row_limit = 1 if operation in {"backlinks_summary", "domain_pages_summary"} else limit
+    quote, refusal = _preflight(
+        operation,
+        env=requested_env,
+        confirm_paid=confirm_paid,
+        spend_ceiling_usd=spend_ceiling_usd,
+        prices=prices,
+        row_limit=row_limit,
+        require_confirmation=True,
+    )
+    if refusal:
         return refusal
+    payload = {"target": target}
+    if history_dates:
+        payload.update(history_dates)
+    if operation in {"backlinks", "referring_domains"}:
+        payload.update(limit=limit, offset=offset)
+    elif operation == "backlinks_summary":
+        payload.update(internal_list_limit=0, backlinks_limit=0)
     try:
         source = client or DataForSEOClient(env=requested_env)
-        items, errors, cost, failed = _run(
-            source,
-            "backlinks_summary",
-            [{"target": target, "internal_list_limit": 0, "backlinks_limit": 0}],
-            1,
-        )
+        items, errors, cost, failed = _run(source, operation, [payload], 1)
     except MissingCredential as exc:
         return {"ok": False, "state": "not_configured", "error": str(exc)}
     except DataForSEOError as exc:
         return {"ok": False, "state": "failed", "error": exc.message, "status": exc.status}
-    if spend_ceiling_usd is not None and cost > spend_ceiling_usd:
+    if spend_ceiling_usd is not None and cost is not None and cost > spend_ceiling_usd:
         return {
             "ok": False,
             "state": "partial",
             "error": "provider-reported cost exceeds the declared spend ceiling",
             "cost_usd": cost,
+            "estimate": quote,
         }
     return {
         "ok": not failed,
         "state": "complete" if not failed else "failed",
         "env": source.env,
-        "operation": "backlinks_summary",
+        "operation": operation,
         "api_version": "v3",
         "cache_key": cache_key,
         "cost_usd": cost,
         "errors": errors,
-        "summary": items,
+        "estimate": quote,
+        "items": items,
+        "summary": items if operation == "backlinks_summary" else None,
+        "coverage": {"bounded": True, "limit": limit, "offset": offset, "auto_paginated": False},
     }
+
+
+def backlinks_summary(target: str, **kwargs) -> dict:
+    """Return one optional backlink summary with explicit confirmation."""
+    return backlink_call("backlinks_summary", target, **kwargs)
+
+
+def backlinks(target: str, **kwargs) -> dict:
+    """Return one bounded page of backlinks."""
+    return backlink_call("backlinks", target, **kwargs)
+
+
+def referring_domains(target: str, **kwargs) -> dict:
+    """Return one bounded page of referring domains."""
+    return backlink_call("referring_domains", target, **kwargs)
+
+
+def backlinks_history(target: str, **kwargs) -> dict:
+    """Return provider history without inferring profile loss from missing rows."""
+    return backlink_call("backlinks_history", target, **kwargs)
+
+
+def domain_pages_summary(target: str, **kwargs) -> dict:
+    """Return the provider domain-pages summary."""
+    return backlink_call("domain_pages_summary", target, **kwargs)
