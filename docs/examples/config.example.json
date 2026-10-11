@@ -60,6 +60,15 @@
     "html_store_dir": null,
     "lighthouse_reports": {}
   },
+  "semantic_similarity": {
+    "adapter": null,
+    "embeddings": [],
+    "cache_path": null,
+    "threshold": 0.82,
+    "relevance_threshold": 0.35,
+    "max_documents": 1000,
+    "max_candidate_comparisons": 250000
+  },
   "filters": {
     "content_type_include": [
       "text/html"

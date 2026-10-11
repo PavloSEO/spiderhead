@@ -202,19 +202,26 @@ CATEGORIES: dict[str, list[Entry]] = {
             "never a substring of the whole document, so a page merely mentioning it once "
             "outside the content area is not flagged",
         ),
-        _p(
+        _c(
             "Near Duplicates",
-            'an SF export\'s native "No. Near Duplicates" column is read directly and answers '
-            "this fully; the SimHash-based fallback that answers it without one needs HTML "
-            "stored to disk (input.html_store_dir), which a native `crawl-site` run never "
-            "writes, so that run always skips this one by name instead",
             "NEAR_DUPLICATE",
+            note="SF native columns or bounded SimHash/LSH over content-area text from "
+            "the native scan's selected retained document or input.html_store_dir; "
+            "missing bodies and exhausted analysis budgets are explicit omissions",
         ),
         _g(
             "Semantically Similar",
-            "needs an embedding adapter; the semantic-similarity command and MCP tool take caller-supplied vectors or a local adapter, but no adapter ships and the SF run does not call it yet, so the row stays open. simhash finds near-duplicates by shingles, not by meaning",
+            "SF-run now invokes adapter-measured semantic candidates only when an explicit "
+            "local adapter or declared caller-supplied vectors are selected. No adapter ships; "
+            "the default is explicitly unavailable and the row stays a gap until an adapter "
+            "is chosen and validated. SimHash compares shingles, not meaning",
         ),
-        _g("Low Relevance Content", "needs a query or a topic model to be relevant to"),
+        _g(
+            "Low Relevance Content",
+            "an explicit embedding adapter can compare title and H1 against normalized retained "
+            "body text as review candidates. This does not establish query relevance; no model "
+            "is selected by default, so the row stays a gap pending an adapter decision",
+        ),
         _c("Low Content Pages", "THIN_CONTENT", "LOW_TEXT_RATIO"),
         _c("Readability Difficult", "READABILITY_DIFFICULT", "LONG_SENTENCES"),
         _c("Readability Very Difficult", "READABILITY_DIFFICULT"),
@@ -458,13 +465,12 @@ CATEGORIES: dict[str, list[Entry]] = {
             note="supplied Lighthouse bootup-time lab result",
         ),
         _o("Minimize Main-Thread Work", "needs a CPU profile"),
-        _p(
+        _c(
             "Optimize DOM Size",
-            "needs HTML stored to disk (input.html_store_dir) to measure; a Screaming Frog "
-            "export configured to store HTML supplies it, but a native `crawl-site` run never "
-            "writes one, so that run always skips both by name instead",
             "DOM_TOO_MANY_NODES",
             "DOM_TOO_DEEP",
+            note="reads the selected retained native document or SF stored HTML; "
+            "unretained, over-budget and invalid bodies are reported with their true reason",
         ),
         _c(
             "Font Display",
@@ -559,14 +565,14 @@ CATEGORIES: dict[str, list[Entry]] = {
 # imply each was considered on its own merits; it was not, and pretending otherwise would make
 # the map look more thorough than it is.
 _ACCESSIBILITY_NOTE = (
-    "A full WCAG/axe-core engine. Real, valuable, and a different product: it needs a rendered "
-    "DOM, computed styles and a rule set larger than this entire registry. Out of scope until "
-    "that is a deliberate decision with its own design, not a checkbox."
+    "First static HTML accessibility checks are available. The remaining WCAG/axe-core "
+    "rules need a rendered DOM or computed styles and are not measured by this subset."
 )
 _AMP_NOTE = (
     "AMP is effectively retired: Google dropped the Top Stories carousel requirement in 2021 "
     "and the format is in maintenance. The AMP validator's document model is a separate "
-    "project, so these ten rules stay declined; only the pairing rules are checked."
+    "project. Structural source checks are available; the complete validator rule set "
+    "remains unavailable pending an owner licence decision."
 )
 
 
@@ -694,11 +700,45 @@ AMP_RULES = [
     "Other Validation Errors",
 ]
 
-CATEGORIES["Accessibility"] = _bulk(ACCESSIBILITY_RULES, _ACCESSIBILITY_NOTE)
+_STATIC_ACCESSIBILITY = {
+    "WCAG 2.0 A - HTML Element Requires Lang Attribute": "A11Y_HTML_LANG_MISSING",
+    "WCAG 2.0 A - Form <input> Elements Require Labels": "A11Y_FORM_LABEL_MISSING",
+    "WCAG 2.0 A - Select Element Requires Accessible Name": "A11Y_FORM_LABEL_MISSING",
+    "WCAG 2.0 A - Images Require Alternate Text": "A11Y_IMAGE_ALT_MISSING",
+}
+CATEGORIES["Accessibility"] = [
+    _p(
+        name,
+        "conservative static HTML subset; computed styles and full axe-core rules are unmeasured",
+        _STATIC_ACCESSIBILITY[name],
+    )
+    if name in _STATIC_ACCESSIBILITY
+    else _o(name, _ACCESSIBILITY_NOTE)
+    for name in ACCESSIBILITY_RULES
+]
+_STATIC_AMP = {
+    "Missing <html amp> Tag": "AMP_MISSING_HTML_ATTRIBUTE",
+    "Missing/Invalid Doctype HTML Tag": "AMP_INVALID_DOCTYPE",
+    "Missing Head Tag": "AMP_MISSING_HEAD",
+    "Missing Body Tag": "AMP_MISSING_BODY",
+    "Missing/Invalid Meta Charset Tag": "AMP_INVALID_CHARSET",
+    "Missing/Invalid Meta Viewport Tag": "AMP_INVALID_VIEWPORT",
+    "Missing/Invalid AMP Script": "AMP_INVALID_RUNTIME",
+    "Missing/Invalid AMP Boilerplate": "AMP_INVALID_BOILERPLATE",
+}
 CATEGORIES["AMP"] = [
     _c(name, code, note="pairing read from the AMP target the crawl captured (#1020)")
     for name, code in AMP_PAIRING_RULES.items()
-] + _bulk(AMP_RULES, _AMP_NOTE)
+] + [
+    _p(
+        name,
+        "source structural check; boilerplate CSS and full validator rules are unmeasured",
+        _STATIC_AMP[name],
+    )
+    if name in _STATIC_AMP
+    else _o(name, _AMP_NOTE)
+    for name in AMP_RULES
+]
 
 
 def entries() -> list[tuple[str, Entry]]:

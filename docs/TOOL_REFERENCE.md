@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**188 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 197 in total.
+**192 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 201 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -795,14 +795,132 @@ Detect soft-404: whether the site returns an honest 404/410 for non-existent URL
 
 MCP name: `seo_log_analyze`
 
-Analyse a web server access log (Apache/Nginx Common or Combined, IIS W3C). Shows who actually crawls the site and how: hits per bot, bytes, unique IPs, response codes served to bots (they differ from what humans get more often than people expect), which site sections each bot family visits, top paths and a daily trend. Set verify_bots=true to check bot authenticity by forward-confirmed rDNS — a spoofed User-Agent is one line, a forged PTR of google.com is not. That check hits the network, and if reverse DNS is unavailable it says so instead of declaring every bot fake.
+Analyse an access log offline with exact disk-backed IP totals and a bounded IP page.
 
 | Argument | Type | Default |
 |---|---|---|
 | `path` | `str` | `required` |
 | `verify_bots` | `bool` | `False` |
+| `max_lines` | `int` | `5000000` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `100` |
+| `max_dns` | `int` | `20` |
+| `bot` | `str | None` | `None` |
+| `ip` | `str | None` | `None` |
 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Apache/Nginx Common/Combined, IIS and gzip are supported. User-agent labels
+are claims, not verified identities. verify_bots explicitly enables bounded,
+cached forward-confirmed reverse DNS for this page only (max_dns plus one
+canary). Every IP has its own PTR, forward match, verdict, visits and last visit.
+DNS failure/deadline remains unchecked; it never becomes a fake-bot verdict.
+
+### `logs-import`
+
+MCP name: `seo_logs_import`
+
+Stream supplied access logs into a new local project logs.v1 artifact.
+
+| Argument | Type | Default |
+|---|---|---|
+| `path` | `str` | `required` |
+| `project` | `str` | `required` |
+| `max_lines` | `int` | `100000000` |
+| `max_files` | `int` | `1000` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+Reads files/gzip or a bounded directory. Retains exact IP and date/URL/status
+aggregates, coverage and source digests; source files stay unchanged. No DNS,
+site request, provider call or scan mutation occurs. Raw client IPs stay local.
+
+### `logs-summary`
+
+MCP name: `seo_logs_summary`
+
+Read one bounded page of retained log URL, bot IP, bot, date, status or section aggregates.
+
+| Argument | Type | Default |
+|---|---|---|
+| `source` | `str` | `required` |
+| `view` | `str` | `'urls'` |
+| `limit` | `int` | `100` |
+| `offset` | `int` | `0` |
+| `bot` | `str` | `''` |
+| `family` | `str` | `''` |
+| `ip` | `str` | `''` |
+| `date_from` | `str` | `''` |
+| `date_to` | `str` | `''` |
+| `status` | `int | None` | `None` |
+| `section` | `str` | `''` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Totals remain exact for imported rows. UTC date and bot filters are explicit;
+unsupported/missing measurements remain unavailable. No DNS or source reimport.
+
+### `logs-join`
+
+MCP name: `seo_logs_join`
+
+Join retained access-log requests with a validated native scan, offline.
+
+| Argument | Type | Default |
+|---|---|---|
+| `source` | `str` | `required` |
+| `scan` | `str` | `required` |
+| `view` | `str` | `'scan_without_bot_visits'` |
+| `base_url` | `str` | `''` |
+| `family` | `str` | `''` |
+| `bot` | `str` | `''` |
+| `date_from` | `str` | `''` |
+| `date_to` | `str` | `''` |
+| `limit` | `int` | `100` |
+| `offset` | `int` | `0` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Read bounded views for scan URLs without recorded bot visits, bot URLs absent
+from the scan (candidates), response-code waste, nonindexable requests and
+sections. Absence conclusions require complete compatible evidence; missing
+or partial scans remain unavailable. No crawl, DNS or scan schema change.
+
+### `logs-bots`
+
+MCP name: `seo_logs_bots`
+
+Read a bounded per-IP bot page with retained PTR, forward result, visits and last visit.
+
+| Argument | Type | Default |
+|---|---|---|
+| `source` | `str` | `required` |
+| `verify_bots` | `bool` | `False` |
+| `limit` | `int` | `100` |
+| `offset` | `int` | `0` |
+| `bot` | `str` | `''` |
+| `family` | `str` | `''` |
+| `ip` | `str` | `''` |
+| `verdict` | `str` | `''` |
+| `max_dns` | `int` | `20` |
+
+**Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+No DNS runs by default. verify_bots explicitly refreshes only the selected page
+within max_dns (plus one canary), using a one-hour local cache. Requests are
+sequential and rate-limited. DNS failure/deadline is unchecked, not fake.
+Cached verdict filters are read-only; verification with a verdict filter is refused.
+The cache writes only to the supplied local log artifact, never to a scan.
 
 ### `regions-check`
 
@@ -3545,6 +3663,10 @@ this mode does not require Screaming Frog to be installed. The
 installed, licensed SF CLI. ``input`` is respectively an exports
 directory, .seospider path, start URL, or URL-list file. Returns a compact
 summary and absolute file paths instead of embedding the large reports.
+
+``config`` may explicitly select ``semantic_similarity.adapter`` and
+caller-supplied body/title/H1 vectors. No embedding model or provider
+is selected by default; absent bodies or adapters remain unavailable.
 
 A live crawl can run for a long time; this call runs off the server's
 event loop, so other sf_* calls stay answerable while it is in

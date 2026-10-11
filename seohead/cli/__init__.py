@@ -79,6 +79,10 @@ COMMANDS = (
     "social-meta-check",
     "soft404-check",
     "log-analyze",
+    "logs-import",
+    "logs-summary",
+    "logs-join",
+    "logs-bots",
     "regions-check",
     "render-check",
     "site-audit",
@@ -231,6 +235,7 @@ INTERACTIVE_COMMANDS = ("tui", "watch")
 # namespace entries own subcommand parsers; ``mcp`` and the interactive shell
 # own process/session behavior rather than a shared handler.
 DOCUMENTED_CLI_ENTRYPOINTS = (
+    "logs",
     "sf",
     "semantics",
     "mcp",
@@ -975,8 +980,55 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
                 kw[name] = value
         # items[], urls[] and rows[] are accepted through --input JSON, like the drafts command.
     elif cmd == "log-analyze":
-        if args.path:
-            kw["path"] = args.path
+        for name in ("path", "max_lines", "offset", "limit", "max_dns", "bot", "ip"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        if getattr(args, "verify_bots", False):
+            kw["verify_bots"] = True
+    elif cmd == "logs-import":
+        for name in ("path", "project", "max_lines", "max_files"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "logs-summary":
+        for name in (
+            "source",
+            "view",
+            "limit",
+            "offset",
+            "bot",
+            "family",
+            "ip",
+            "date_from",
+            "date_to",
+            "status",
+            "section",
+        ):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "logs-join":
+        for name in (
+            "source",
+            "scan",
+            "view",
+            "base_url",
+            "family",
+            "bot",
+            "date_from",
+            "date_to",
+            "limit",
+            "offset",
+        ):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "logs-bots":
+        for name in ("source", "limit", "offset", "bot", "family", "ip", "verdict", "max_dns"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
         if getattr(args, "verify_bots", False):
             kw["verify_bots"] = True
     elif cmd == "site-audit":
@@ -1766,17 +1818,39 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--url", help="target URL")
     if cmd == "links-check":
         sub.add_argument("--internal-only", action="store_true", help="check internal links only")
-    if cmd == "log-analyze":
-        _source_flag(
-            sub,
-            "--path",
-            help="web server access-log file (Apache, Nginx, or IIS; gzip-compressed allowed)",
-        )
+    if cmd in ("log-analyze", "logs-import"):
+        _source_flag(sub, "--path", help="access-log file or import directory; gzip allowed")
+        sub.add_argument("--max-lines", type=int, help="explicit input line budget")
+    if cmd == "logs-import":
+        sub.add_argument("--project", help="existing local project workspace")
+        sub.add_argument("--max-files", type=int, help="directory file budget")
+    if cmd in ("logs-summary", "logs-join", "logs-bots"):
+        sub.add_argument("--source", help="retained logs.v1 SQLite artifact")
+        sub.add_argument("--family", help="exact bot family filter")
+    if cmd == "logs-join":
+        sub.add_argument("--scan", help="validated retained native scan")
+        sub.add_argument("--base-url", help="explicit site origin for relative log paths")
+    if cmd in ("logs-summary", "logs-join"):
+        sub.add_argument("--view", help="registered evidence view")
+        sub.add_argument("--date-from", help="UTC date inclusive, YYYY-MM-DD")
+        sub.add_argument("--date-to", help="UTC date inclusive, YYYY-MM-DD")
+    if cmd == "logs-summary":
+        sub.add_argument("--status", type=int, help="exact HTTP status")
+        sub.add_argument("--section", help="exact first path segment")
+    if cmd in ("log-analyze", "logs-summary", "logs-join", "logs-bots"):
+        sub.add_argument("--limit", type=int, help="page size, 1..500")
+        sub.add_argument("--offset", type=int, help="stable page offset")
+        sub.add_argument("--bot", help="exact bot name filter")
+    if cmd in ("log-analyze", "logs-summary", "logs-bots"):
+        sub.add_argument("--ip", help="IP address or subnet filter")
+    if cmd in ("log-analyze", "logs-bots"):
         sub.add_argument(
-            "--verify-bots",
-            action="store_true",
-            help="verify bot identities with forward-confirmed reverse DNS "
-            "(performs network lookups)",
+            "--verify-bots", action="store_true", help="explicit bounded DNS verification"
+        )
+        sub.add_argument("--max-dns", type=int, help="maximum DNS checks, 0..100; plus one canary")
+    if cmd == "logs-bots":
+        sub.add_argument(
+            "--verdict", choices=("verified", "fake", "unchecked"), help="cached verdict filter"
         )
     if cmd == "webmaster-url-queries":
         _source_flag(sub, "--host-id", dest="host_id", help="verified Yandex Webmaster host ID")
@@ -3220,6 +3294,11 @@ def build_parser() -> argparse.ArgumentParser:
         cmd = "scan-" + action
         sp = scan_subs.add_parser(action, help=f"run {cmd}")
         _add_flags(sp, cmd)
+    logs = subs.add_parser("logs", help="local retained access-log evidence")
+    logs_subs = logs.add_subparsers(dest="logs_command", metavar="<action>", required=True)
+    for action in ("import", "summary", "join", "bots"):
+        sp = logs_subs.add_parser(action, help=f"run logs-{action}")
+        _add_flags(sp, "logs-" + action)
     project = subs.add_parser("project", help="local project workspace")
     project_subs = project.add_subparsers(dest="project_command", metavar="<action>", required=True)
     for action in (
@@ -3374,6 +3453,8 @@ def main(argv: list[str] | None = None) -> int:
         cmd = "scan-" + args.scan_command
     if cmd == "project":
         cmd = "project-" + args.project_command
+    if cmd == "logs":
+        cmd = "logs-" + args.logs_command
     if cmd == "skill":
         cmd = "skill-" + args.skill_command
     if cmd == "scenario":

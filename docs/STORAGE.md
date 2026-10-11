@@ -539,6 +539,22 @@ whenever this reads empty.
 
 ### Per-occurrence link context
 
+Native captures also retain `markup_evidence.v1` in the existing `context_items` table,
+bound to a page, document and representation. It stores structural AMP observations and
+five conservative static accessibility checks with full occurrence counts and at most
+20 examples per code. Unparsed documents are unavailable with a reason. AMP source
+checks read static source; accessibility and schema findings read the active document.
+The SQL `scan.v1` schema and `PageRecord` columns are unchanged. Full AMP validator
+rules, rendered axe-core and computed contrast remain explicitly unmeasured.
+
+`scan-structured-blocks` reads the latest retained complete body for the requested exact
+URL and representation. Each live JSON-LD block includes line/column, syntax error,
+types, validation messages, a property tree, source JSON and `parsed_json`. Source output
+is capped at 20,000 characters; oversized blocks return `parsed_json: null` and a
+truncation flag. Property trees stop at 500 entries and expose `property_limit_reached`.
+This read-only projection makes no request and never writes source JSON into body-free
+context evidence or changes the scan's retention policy.
+
 `seohead.storage.link_context.context_for_link(scan, link_id)` and
 `contexts_for_document(scan, document_id, offset=0, limit=100)` derive the
 versioned `link_occurrence_context.v1` result **on demand** from one complete

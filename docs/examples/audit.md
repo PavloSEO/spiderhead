@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-11T15:20:47Z
+- **Generated:** 2026-10-11T15:22:50Z
 
 ## Health summary
 
-> **No health score.** only 96 of 229 checks could run (42% coverage); too little evidence to score.
+> **No health score.** only 96 of 248 checks could run (39% coverage); too little evidence to score.
 
-_96 of 229 checks could run; the score is not comparable to a run with full evidence_
+_96 of 248 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 133 skipped, 76 silent, 0 disabled (of 229 total)
+- Checks: **20 fired**, 152 skipped, 76 silent, 0 disabled (of 248 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -260,6 +260,22 @@ Each check below describes more than half the crawled pages. That can be true --
 | Captured CSS or JavaScript does not look minified (heuristic) | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
 | Different script URLs on one page contain identical captured source bytes | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
 | Captured JavaScript has an unconditional legacy or polyfill marker (heuristic) | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| AMP document has a missing or invalid HTML5 doctype | document-bound markup evidence requires a retained native crawl |
+| AMP source document has no explicit head element | document-bound markup evidence requires a retained native crawl |
+| AMP source document has no explicit body element | document-bound markup evidence requires a retained native crawl |
+| AMP head does not start with the required UTF-8 charset declaration | document-bound markup evidence requires a retained native crawl |
+| AMP document lacks the required device-width viewport | document-bound markup evidence requires a retained native crawl |
+| AMP document lacks an async AMP runtime script in the head | document-bound markup evidence requires a retained native crawl |
+| AMP document lacks the structural AMP boilerplate declarations | document-bound markup evidence requires a retained native crawl |
+| AMP target does not declare the html amp or lightning attribute | document-bound markup evidence requires a retained native crawl |
+| Root html element has no nonempty lang declaration | document-bound markup evidence requires a retained native crawl |
+| Form control has no static accessible label | document-bound markup evidence requires a retained native crawl |
+| Image has no alt attribute or static accessible name | document-bound markup evidence requires a retained native crawl |
+| Heading sequence skips a level in the static document | document-bound markup evidence requires a retained native crawl |
+| Document content has no main landmark | document-bound markup evidence requires a retained native crawl |
+| Structured data contains errors under the bundled Schema.org vocabulary | document-bound markup evidence requires a retained native crawl |
+| Structured data contains warnings under the bundled Schema.org vocabulary | document-bound markup evidence requires a retained native crawl |
+| Structured data lacks required properties in the bundled local rich-result rules | document-bound markup evidence requires a retained native crawl |
 | A <head> script or stylesheet blocks first paint (no async/defer, no non-matching media) | no Render Blocking Resources column (needs a native seohead crawl) |
 | More than one <meta name="description"> element is present | no meta description count evidence (native crawl only) |
 | Page has an H1 but no H2 headings | requirements.require_h2 is false; the check was not evaluated |
@@ -345,10 +361,13 @@ Each check below describes more than half the crawled pages. That can be true --
 | Content-shaped page declares no author or byline markup | no Trust Signals column (native crawl or a same-named custom extraction) -- no author markup evidence at all |
 | Content-shaped page declares no publication or update date | no Trust Signals column and no Last Modified column -- no date evidence at all |
 | Content-shaped page has no observable outbound reference in its body content | no External Outlinks column and no all_inlinks export -- nothing to count outbound citations from |
-| DOM nesting is too deep | no stored HTML (input.html_store_dir not set) |
-| DOM contains too many nodes | no stored HTML (input.html_store_dir not set) |
+| DOM nesting is too deep | stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest |
+| DOM contains too many nodes | stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest |
 | Exact duplicate content (identical hash) | SF native Hash column already covers this |
-| Near-duplicate content | no stored HTML (input.html_store_dir not set) |
+| Near-duplicate content | stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) |
+| Pages have adapter-measured topical similarity; review candidate | no semantic embedding adapter is selected |
+| Title has low adapter-measured similarity to the page content; review candidate | no semantic embedding adapter is selected |
+| H1 has low adapter-measured similarity to the page content; review candidate | no semantic embedding adapter is selected |
 | Templated titles share a common prefix or suffix across most pages | too few titles to assess templating |
 | robots.txt does not declare a Sitemap directive | no sitemap URL to check (no export, no --sitemap, and live_recheck disabled) |
 | robots.txt blocks JavaScript or CSS resources required for rendering | no sitemap URL to check (no export, no --sitemap, and live_recheck disabled) |

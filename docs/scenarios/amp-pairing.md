@@ -12,13 +12,14 @@ reads that pairing from one crawl and stops at the judgement a person has to mak
 ## Covers
 
 - **AMP** — Indexable · Missing Canonical · Missing Canonical to Non-AMP · Missing Non-AMP Return Link · Non-200 Response · Non-Indexable Canonical
+- **AMP** — Missing <html amp> Tag · Missing/Invalid Doctype HTML Tag · Missing Head Tag · Missing Body Tag · Missing/Invalid Meta Charset Tag · Missing/Invalid Meta Viewport Tag · Missing/Invalid AMP Script · Missing/Invalid AMP Boilerplate
 
 ## The chain
 
 **1. Crawl the desktop pages and their AMP targets in the same run.**
 
 ```bash
-seohead crawl-site --url https://example.com --out-dir ./run
+seohead crawl-site --url https://example.com --scan-out ./run.sqlite
 ```
 
 The pairing is read from the AMP URL that a desktop page declares, so the AMP page has to be
@@ -49,6 +50,11 @@ It means the AMP page is itself indexable. That is only a problem when the non-A
 intended canonical. Decide that with the owner of the site before changing anything.
 
 ## What comes out
+
+The retained scan also reports original-source AMP structure: the root marker,
+doctype, explicit head/body, UTF-8 charset, viewport, async runtime script and
+boilerplate declarations. Boilerplate CSS and full validator rules remain unavailable;
+a structural check passing is not proof of full AMP validity.
 
 `audit.json` carries one issue per AMP check, with the desktop URL and the AMP URL in the
 details, under the `AMP` category. A check that could not run because its target was not

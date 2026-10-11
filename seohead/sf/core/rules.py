@@ -24,6 +24,7 @@ from seohead.core.canonical_policy import matching_canonical_rule
 
 from .asset_checks import check_lighthouse_reports, check_render_assets, check_resource_assets
 from .context import AuditContext
+from .markup_rules import check_document_markup
 from .models import Page
 from .normalize import norm_url
 
@@ -1285,8 +1286,9 @@ def check_duplicates(ctx: AuditContext) -> None:
     emit(by_h2, "H2_DUPLICATE")
     if has_hash:
         emit(by_hash, "DUPLICATE_BY_HASH")
-    else:
-        ctx.skip("DUPLICATE_BY_HASH", "no Hash/Page Hash column in Internal:All")
+    # With no SF hash, the retained-body heuristic owns both measurement and
+    # its actual unavailable/partial reason. Missing this column alone does
+    # not mean duplicate content is unmeasured.
 
 
 # --------------------------------------------------------------------------
@@ -3859,6 +3861,7 @@ ALL_CHECKS = [
     check_lighthouse_reports,
     check_render_assets,
     check_resource_assets,
+    check_document_markup,
     check_native_structured_and_mixed,
     check_response_codes,
     check_render_blocking,

@@ -3,18 +3,18 @@
   "source": {
     "project": "example.com",
     "site_name": "example.com",
-    "generated_at": "2026-10-11T15:20:47Z",
+    "generated_at": "2026-10-11T15:22:50Z",
     "health_score": null,
     "crawl_valid": true,
     "crawl_invalid_reason": null,
     "crawl_partial": false,
     "crawl_finish_reason": null,
     "health_score_scope": null,
-    "health_score_basis": "96 of 229 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_basis": "96 of 248 checks could run; the score is not comparable to a run with full evidence",
     "check_coverage": {
-      "checks_total": 229,
+      "checks_total": 248,
       "checks_fired": 20,
-      "checks_skipped": 133,
+      "checks_skipped": 152,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
       "checks_silent": 76,
@@ -96,7 +96,7 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.419
+      "coverage": 0.387
     }
   },
   "pipeline": {

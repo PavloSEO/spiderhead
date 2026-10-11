@@ -621,6 +621,8 @@ def aggregate(
                 "describe only the fetched set, not the whole site"
             )
         summary["trust_evidence"] = trust_evidence
+    if ctx.semantic_evidence:
+        summary["semantic_similarity"] = ctx.semantic_evidence
     if size_stats:
         summary["size_stats_bytes"] = {k: int(v) for k, v in size_stats.items() if k != "iqr"}
     if sitemap_summary:

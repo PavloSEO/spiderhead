@@ -27,13 +27,17 @@ finding rather than a cosmetic detail.
 from __future__ import annotations
 
 import json
+import math
 import re
+from datetime import date, datetime, time
 from functools import lru_cache
 from typing import Any
+from urllib.parse import urljoin
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
-from seohead.checks.parser import is_inert_template_content
+from seohead.checks.parser import document_base_url as html_document_base_url
+from seohead.checks.parser import is_inert_template_content, live_jsonld_tags
 from seohead.recon.net import http_client, normalize_url
 
 # Schema.org types documented by Google as their own rich-result feature.
@@ -63,9 +67,6 @@ def _rich_rules_file() -> dict[str, Any]:
 
 RICH_RESULTS_RULES_VERSION: str = _rich_rules_file()["version"]
 RICH_RESULTS: dict[str, dict[str, Any]] = _rich_rules_file()["rules"]
-
-_MICRODATA_RE = re.compile(r"\bitemscope\b", re.IGNORECASE)
-_RDFA_RE = re.compile(r'\bvocab\s*=\s*["\']https?://schema\.org', re.IGNORECASE)
 
 # Hosts recognized as Schema.org vocabulary origins, including the ``www`` alias.
 _SCHEMA_ORG_HOSTS = {"schema.org", "www.schema.org"}
@@ -165,7 +166,50 @@ def _block_vocab(block: Any) -> tuple[str, bool]:
     return ("https://schema.org", True)
 
 
-def _extract_blocks(html: str) -> tuple[list[Any], list[str], int]:
+def normalize_jsonld_ids(
+    payload: Any, base_url: str, *, _supported: bool = True, _depth: int = 0
+) -> Any:
+    """Copy a JSON-LD tree and resolve Schema.org identities against its local base.
+
+    Relative top-level identities and nested references must use the same base
+    as Microdata/RDFa for cross-format graph validation. Keep source JSON and
+    foreign-vocabulary identities unchanged; no remote contexts are fetched.
+    """
+    if _depth >= 64:
+        return payload  # Deeper entities are reported by the validator's depth limit.
+    if isinstance(payload, list):
+        return [
+            normalize_jsonld_ids(v, base_url, _supported=_supported, _depth=_depth + 1)
+            for v in payload
+        ]
+    if not isinstance(payload, dict):
+        return payload
+    if "@context" in payload:
+        _supported = _block_vocab(payload)[1]
+        contexts = payload["@context"]
+        for context in contexts if isinstance(contexts, list) else [contexts]:
+            if not isinstance(context, dict):
+                continue
+            declared_vocab = context.get("@vocab")
+            if isinstance(declared_vocab, str):
+                _supported = _is_schema_org_context(declared_vocab)
+            if "@base" in context:
+                declared_base = context["@base"]
+                if declared_base is None:
+                    base_url = ""
+                elif isinstance(declared_base, str):
+                    base_url = urljoin(base_url, declared_base)
+    copied = {
+        k: normalize_jsonld_ids(v, base_url, _supported=_supported, _depth=_depth + 1)
+        for k, v in payload.items()
+    }
+    identifier = copied.get("@id")
+    if _supported and isinstance(identifier, str) and not identifier.startswith("_:"):
+        copied["@id"] = urljoin(base_url, identifier)
+    return copied
+
+
+def _extract_blocks(html: str | BeautifulSoup) -> tuple[list[Any], list[str], int]:
     """Extract page JSON-LD.
 
     Returns the blocks that parsed, one finding per block that did not, and how
@@ -176,13 +220,8 @@ def _extract_blocks(html: str) -> tuple[list[Any], list[str], int]:
     """
     blocks, errors = [], []
     found = 0
-    soup = BeautifulSoup(html, features="lxml")
-    scripts = (
-        tag
-        for tag in soup.find_all("script")
-        if str(tag.get("type") or "").strip().lower() == "application/ld+json"
-        and not is_inert_template_content(tag)
-    )
+    soup = html if isinstance(html, BeautifulSoup) else BeautifulSoup(html, features="lxml")
+    scripts = live_jsonld_tags(soup)
     for i, tag in enumerate(scripts, 1):
         found += 1
         raw = tag.string or tag.get_text() or ""
@@ -198,6 +237,233 @@ def _extract_blocks(html: str) -> tuple[list[Any], list[str], int]:
                 + json_syntax_hint(text)
             )
     return blocks, errors, found
+
+
+def _tokens(tag: Tag, name: str) -> list[str]:
+    value = tag.get(name) or ""
+    return value if isinstance(value, list) else str(value).split()
+
+
+def _append_property(node: dict[str, Any], name: str, value: Any) -> None:
+    if name not in node:
+        node[name] = value
+    elif isinstance(node[name], list):
+        node[name].append(value)
+    else:
+        node[name] = [node[name], value]
+
+
+def _html_value(tag: Tag, base: str, *, rdfa: bool = False) -> str:
+    if rdfa and tag.has_attr("content"):
+        return str(tag["content"])
+    if rdfa:
+        for attr in ("resource", "href", "src"):
+            if tag.has_attr(attr):
+                return urljoin(base, str(tag[attr]))
+    attr = {
+        "meta": "content",
+        "audio": "src",
+        "embed": "src",
+        "iframe": "src",
+        "img": "src",
+        "source": "src",
+        "track": "src",
+        "video": "src",
+        "a": "href",
+        "area": "href",
+        "link": "href",
+        "object": "data",
+        "data": "value",
+        "meter": "value",
+        "time": "datetime",
+    }.get(tag.name)
+    if attr and (tag.name != "time" or tag.has_attr(attr)):
+        value = str(tag.get(attr) or "")
+        return urljoin(base, value) if attr in {"src", "href", "data"} else value
+    return tag.get_text(" ", strip=True)
+
+
+def _extract_microdata(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]], int]:
+    """Read HTML item scopes, respecting nested ownership and itemref boundaries."""
+    scopes = [
+        t for t in soup.find_all(attrs={"itemscope": True}) if not is_inert_template_content(t)
+    ]
+    positions = {id(t): i for i, t in enumerate(scopes, 1)}
+    cache: dict[int, dict[str, Any]] = {}
+    contained: set[int] = set()
+
+    def item(scope: Tag, ancestors: set[int]) -> dict[str, Any]:
+        key = id(scope)
+        if key in ancestors:
+            return {
+                "@id": urljoin(base, str(scope.get("itemid") or f"_:microdata{positions[key]}"))
+            }
+        if key in cache:
+            return cache[key]
+        types = _tokens(scope, "itemtype")
+        context = types[0] if types else "https://schema.org"
+        node: dict[str, Any] = {
+            "@type": types,
+            "_format": "microdata",
+            "_path": f"microdata[{positions[key]}]",
+            "_vocab_context": context,
+            "_vocab_supported": all(_is_schema_org_context(t) for t in types),
+        }
+        cache[key] = node
+        if len(ancestors) >= 64:
+            node["_markup_errors"] = ["Microdata nesting exceeds the validation depth limit (64)"]
+            return node
+        if scope.has_attr("itemid"):
+            node["@id"] = urljoin(base, str(scope["itemid"]))
+        pending = list(reversed(scope.find_all(recursive=False)))
+        for ref in reversed(_tokens(scope, "itemref")):
+            target = soup.find(id=ref)
+            if target is None:
+                node.setdefault("_markup_errors", []).append(f"itemref target {ref} is missing")
+            else:
+                pending.append(target)
+        seen = {key}
+        while pending:
+            tag = pending.pop()
+            if id(tag) in seen or is_inert_template_content(tag):
+                continue
+            seen.add(id(tag))
+            props = _tokens(tag, "itemprop")
+            if props:
+                if tag.has_attr("itemscope"):
+                    contained.add(id(tag))
+                    value: Any = item(tag, ancestors | {key})
+                    if id(tag) in ancestors | {key}:
+                        node.setdefault("_markup_errors", []).append("Cyclic itemref relationship")
+                else:
+                    value = _html_value(tag, base)
+                for prop in props:
+                    _append_property(
+                        node, _strip(prop) if _is_schema_org_context(prop) else prop, value
+                    )
+            if not tag.has_attr("itemscope"):
+                pending.extend(reversed(tag.find_all(recursive=False)))
+        return node
+
+    for scope in scopes:
+        item(scope, set())
+    roots = [cache[id(t)] for t in scopes if id(t) not in contained]
+    return roots or ([cache[id(scopes[0])]] if scopes else []), len(scopes)
+
+
+def _rdfa_term(value: str, vocab: str, prefixes: dict[str, str]) -> tuple[str, bool]:
+    value = value.strip("[]")
+    if ":" in value and not value.startswith(("http://", "https://")):
+        prefix, local = value.split(":", 1)
+        value = prefixes.get(prefix, prefix + ":") + local
+    elif ":" not in value:
+        value = vocab.rstrip("/") + "/" + value if vocab else value
+    return (_strip(value), True) if _is_schema_org_context(value) else (value, False)
+
+
+def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]], int, list[str]]:
+    """Extract common RDFa subjects; report advanced constructs as partial coverage.
+
+    This is a Schema.org HTML reader, not a general RDFa triple processor. rel,
+    rev and RDF collections are left explicitly unavailable instead of guessing
+    their graph semantics. No remote vocabularies or contexts are fetched.
+    """
+    nodes: list[dict[str, Any]] = []
+    by_subject: dict[str, dict[str, Any]] = {}
+    reasons: set[str] = set()
+    count = 0
+    pending = [(soup, "", {"schema": "https://schema.org/"}, None)]
+    while pending:
+        tag, vocab, prefixes, parent = pending.pop()
+        if is_inert_template_content(tag):
+            continue
+        vocab = str(tag.get("vocab", vocab))
+        prefixes = dict(prefixes)
+        for prefix, iri in re.findall(r"(\w[\w-]*):\s+(\S+)", str(tag.get("prefix") or "")):
+            prefixes[prefix] = iri
+        for attr, value in tag.attrs.items():
+            if attr.startswith("xmlns:"):
+                prefixes[attr[6:]] = str(value)
+        types = [_rdfa_term(t, vocab, prefixes) for t in _tokens(tag, "typeof")]
+        props = [_rdfa_term(p, vocab, prefixes) for p in _tokens(tag, "property")]
+        if not types and parent is None and not any(supported for _, supported in props):
+            props = []  # Foreign metadata (for example Open Graph) is not Schema.org evidence.
+        current = parent
+        if any(tag.has_attr(a) for a in ("rel", "rev", "inlist")) and (types or props or parent):
+            reasons.add("RDFa rel/rev/inlist graph semantics are not supported")
+        reused = False
+        if types:
+            count += 1
+            subject = tag.get("about")
+            if subject is None and (props or parent is None):
+                subject = tag.get("resource") or tag.get("href") or tag.get("src")
+            subject = urljoin(base, str(subject)) if subject is not None else None
+            current = by_subject.get(subject) if subject else None
+            reused = current is not None
+            if current is None:
+                current = {
+                    "@type": [],
+                    "_format": "rdfa",
+                    "_path": f"rdfa[{count}]",
+                    "_vocab_context": vocab or "/".join(t for t, _ in types),
+                    "_vocab_supported": all(supported for _, supported in types),
+                }
+                if subject:
+                    current["@id"] = subject
+                    by_subject[subject] = current
+                nodes.append(current)
+            current["@type"] = list(dict.fromkeys(current["@type"] + [t for t, _ in types]))
+            current["_vocab_supported"] = current["_vocab_supported"] and all(
+                supported for _, supported in types
+            )
+        elif tag.has_attr("about"):
+            subject = urljoin(base, str(tag["about"]))
+            current = by_subject.get(subject)
+            if current is None and props:
+                reasons.add("RDFa properties on an untyped subject cannot be validated")
+            # about changes the subject even when it has no type declaration.
+        elif tag.has_attr("resource") and not props and parent is not None:
+            current = by_subject.get(urljoin(base, str(tag["resource"])))
+            if current is None:
+                reasons.add("RDFa resource subject changes without typeof are not normalized")
+        if props:
+            owner = parent if types else current
+            if owner is None:
+                reasons.add("RDFa property has no typed subject")
+            else:
+                for prop, supported in props:
+                    if not supported:
+                        owner.setdefault("_markup_warnings", []).append(
+                            f"Property {prop} uses an unsupported vocabulary; validation was skipped"
+                        )
+                        reasons.add("RDFa contains properties from an unsupported vocabulary")
+                        continue
+                    if types:
+                        value = {"@id": current["@id"]} if reused else current
+                    else:
+                        value = _html_value(tag, base, rdfa=True)
+                        if not tag.has_attr("content") and any(
+                            tag.has_attr(attr) for attr in ("resource", "href", "src")
+                        ):
+                            ranges = load_vocab()["properties"].get(prop, {}).get("r", [])
+                            if ranges and not _literal_ok(value, ranges, load_vocab()):
+                                value = {"@id": value}
+                    if tag.has_attr("datatype") and str(tag["datatype"]):
+                        reasons.add("RDFa explicit datatypes are not normalized")
+                    _append_property(owner, prop, value)
+        pending.extend(
+            (child, vocab, prefixes, current) for child in reversed(tag.find_all(recursive=False))
+        )
+    # Nodes linked by property containment must not also be emitted as roots.
+    contained = {
+        id(v)
+        for n in nodes
+        for k, value in n.items()
+        if not k.startswith(("@", "_"))
+        for v in (value if isinstance(value, list) else [value])
+        if isinstance(v, dict)
+    }
+    return [n for n in nodes if id(n) not in contained], count, sorted(reasons)
 
 
 # JSON has no comments and permits no trailing comma. Both appear constantly in
@@ -223,6 +489,7 @@ def _flatten(
     path: str = "",
     contained: bool = False,
     parent_key: str | None = None,
+    depth: int = 0,
 ) -> None:
     """Flatten any JSON-LD payload while preserving each node's source path.
 
@@ -240,12 +507,12 @@ def _flatten(
     """
     if isinstance(payload, list):
         for i, item in enumerate(payload):
-            _flatten(item, out, f"{path}[{i}]", contained, parent_key)
+            _flatten(item, out, f"{path}[{i}]", contained, parent_key, depth + 1)
         return
     if not isinstance(payload, dict):
         return
     if "@graph" in payload:
-        _flatten(payload["@graph"], out, f"{path}@graph", contained, parent_key)
+        _flatten(payload["@graph"], out, f"{path}@graph", contained, parent_key, depth + 1)
         # An @graph wrapper may have properties, but it is not treated as an entity.
         return
     # A pure {"@id": ...} object is a reference, not an entity definition. Treating
@@ -253,17 +520,23 @@ def _flatten(
     if set(payload) <= {"@id"}:
         return
     node = dict(payload)
-    node_path = path or "@root"
+    node_path = node.get("_path") or path or "@root"
     node["_path"] = node_path
     node["_contained"] = contained
     node_key = node.get("@id") or f"_path:{node_path}"
     node["_key"] = node_key
     node["_parent_key"] = parent_key if contained else None
     out.append(node)
+    if depth >= 64:
+        node["_markup_errors"] = [
+            *(node.get("_markup_errors") or []),
+            "Structured-data nesting exceeds the validation depth limit (64)",
+        ]
+        return
     for key, value in payload.items():
         if key.startswith("@"):
             continue
-        _flatten(value, out, f"{path}.{key}" if path else key, True, node_key)
+        _flatten(value, out, f"{path}.{key}" if path else key, True, node_key, depth + 1)
 
 
 def _literal_ok(value: Any, ranges: list[str], vocab: dict[str, Any]) -> bool:
@@ -271,9 +544,33 @@ def _literal_ok(value: Any, ranges: list[str], vocab: dict[str, Any]) -> bool:
     if not ranges:
         return True  # A property without rangeIncludes provides no range to enforce.
     for r in ranges:
-        entry = vocab["types"].get(r, {})
-        if entry.get("datatype"):
-            return True
+        if any(vocab["types"][t].get("datatype") for t in type_chain(r, vocab)):
+            try:
+                if r in {"Number", "Float", "Integer"}:
+                    number = float(value)
+                    if (
+                        not isinstance(value, bool)
+                        and math.isfinite(number)
+                        and (r != "Integer" or number.is_integer())
+                    ):
+                        return True
+                elif r == "Boolean":
+                    if isinstance(value, bool) or value in ("true", "false", "True", "False"):
+                        return True
+                elif r == "Date":
+                    date.fromisoformat(str(value))
+                    return True
+                elif r == "DateTime":
+                    if "T" in str(value) or " " in str(value):
+                        datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+                        return True
+                elif r == "Time":
+                    time.fromisoformat(str(value))
+                    return True
+                elif value is not None:
+                    return True
+            except (ValueError, TypeError, OverflowError):
+                pass
         # Enumeration values are commonly expressed as URL strings and are valid.
         if "Enumeration" in type_chain(r, vocab):
             return True
@@ -282,8 +579,8 @@ def _literal_ok(value: Any, ranges: list[str], vocab: dict[str, Any]) -> bool:
 
 def _check_node(node: dict[str, Any], vocab: dict[str, Any], known_ids: set[str]) -> dict[str, Any]:
     """Validate one graph node against the bundled vocabulary."""
-    errors: list[str] = []
-    warnings: list[str] = []
+    errors: list[str] = list(node.get("_markup_errors") or [])
+    warnings: list[str] = list(node.get("_markup_warnings") or [])
     types = _types_of(node)
     path = node.get("_path", "?")
 
@@ -299,13 +596,15 @@ def _check_node(node: dict[str, Any], vocab: dict[str, Any], known_ids: set[str]
             "path": path,
             "types": types,
             "id": node.get("@id"),
+            "format": node.get("_format", "jsonld"),
             "errors": errors,
             "warnings": warnings,
         }
 
     if not types:
+        attribute = {"microdata": "itemtype", "rdfa": "typeof"}.get(node.get("_format"), "@type")
         errors.append(
-            "Missing @type; the entity cannot be validated and may be ignored by search engines"
+            f"Missing {attribute}; the entity cannot be validated and may be ignored by search engines"
         )
     chain: list[str] = []
     for t in types:
@@ -353,16 +652,27 @@ def _check_node(node: dict[str, Any], vocab: dict[str, Any], known_ids: set[str]
                 if not sub and "@id" in v and _strip(v["@id"]) and v["@id"] not in known_ids:
                     errors.append(f"{key}: @id reference {v['@id']} has no entity in the graph")
             elif not _literal_ok(v, prop["r"], vocab):
-                warnings.append(
-                    f"{key}: literal value supplied where an object is expected "
-                    f"({', '.join(prop['r'][:3])}); Google may accept it, but the "
-                    "entity relationship is lost"
-                )
+                if any(
+                    vocab["types"][t].get("datatype")
+                    for r in prop["r"]
+                    for t in type_chain(r, vocab)
+                ):
+                    warnings.append(
+                        f"{key}: literal value does not match expected ranges "
+                        f"({', '.join(prop['r'][:3])})"
+                    )
+                else:
+                    warnings.append(
+                        f"{key}: literal value supplied where an object is expected "
+                        f"({', '.join(prop['r'][:3])}); Google may accept it, but the "
+                        "entity relationship is lost"
+                    )
 
     return {
         "path": path,
         "types": types,
         "id": node.get("@id"),
+        "format": node.get("_format", "jsonld"),
         "errors": errors,
         "warnings": warnings,
     }
@@ -381,11 +691,21 @@ def _rich_results(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     out = []
     for node in nodes:
+        if not node.get("_vocab_supported", True):
+            continue
         for t in _types_of(node):
             spec = RICH_RESULTS.get(t)
             if not spec:
                 continue
-            present = {k for k in node if not k.startswith("@") and not k.startswith("_")}
+            present = {
+                k
+                for k, value in node.items()
+                if not k.startswith(("@", "_"))
+                and value is not None
+                and value != []
+                and value != {}
+                and (not isinstance(value, str) or value.strip())
+            }
             missing_req = [f for f in spec["required"] if f not in present]
             required_any = spec.get("required_any", [])
             missing_any = required_any if required_any and not (present & set(required_any)) else []
@@ -397,6 +717,8 @@ def _rich_results(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "missing_required_any_of": missing_any,
                 "missing_recommended": [f for f in spec["recommended"] if f not in present],
                 "rules_version": RICH_RESULTS_RULES_VERSION,
+                "format": node.get("_format", "jsonld"),
+                "path": node.get("_path", "@root"),
             }
             if spec.get("deprecated_for_rich"):
                 entry["note"] = (
@@ -488,7 +810,11 @@ def _graph_shape(nodes: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def check_schema(
-    url: str | None = None, html: str | None = None, timeout: float = 25.0
+    url: str | None = None,
+    html: str | None = None,
+    timeout: float = 25.0,
+    *,
+    document_base_url: str | None = None,
 ) -> dict[str, Any]:
     """Validate one page's vocabulary, entity graph, and rich-result readiness."""
     result: dict[str, Any] = {"ok": True}
@@ -509,7 +835,13 @@ def check_schema(
         result.update(url=target, final_url=str(resp.url), status_code=resp.status_code)
 
     vocab = load_vocab()
-    blocks, parse_errors, blocks_found = _extract_blocks(html)
+    soup = BeautifulSoup(html, features="lxml")
+    blocks, parse_errors, blocks_found = _extract_blocks(soup)
+    base = (
+        document_base_url
+        if document_base_url is not None
+        else html_document_base_url(soup, result.get("final_url") or url or "")
+    )
 
     nodes: list[dict[str, Any]] = []
     # Record each JSON-LD block's declared vocabulary. Resolve context once per
@@ -518,13 +850,15 @@ def check_schema(
     # nested contexts through the flattened representation.
     vocabularies: list[dict[str, Any]] = []
     _vocab_pos: dict[tuple[str, bool], int] = {}
-    for block in blocks:
+    for block_index, block in enumerate(blocks, 1):
         context, supported = _block_vocab(block)
         before = len(nodes)
-        _flatten(block, nodes)
+        normalized = normalize_jsonld_ids(block, base)
+        _flatten(normalized, nodes, f"jsonld[{block_index}]")
         for n in nodes[before:]:
             n["_vocab_context"] = context
             n["_vocab_supported"] = supported
+            n["_format"] = "jsonld"
         key = (context, supported)
         pos = _vocab_pos.get(key)
         if pos is None:
@@ -532,6 +866,17 @@ def check_schema(
             vocabularies.append({"context": context, "supported": supported, "blocks": 1})
         else:
             vocabularies[pos]["blocks"] += 1
+    microdata, microdata_count = _extract_microdata(soup, base)
+    rdfa, rdfa_count, rdfa_reasons = _extract_rdfa(soup, base)
+    for entity in microdata + rdfa:
+        _flatten(entity, nodes, entity["_path"])
+    for node in nodes:
+        if node.get("_format") == "jsonld":
+            continue
+        key = (node.get("_vocab_context", ""), node.get("_vocab_supported", True))
+        if key not in _vocab_pos:
+            _vocab_pos[key] = len(vocabularies)
+            vocabularies.append({"context": key[0], "supported": key[1], "blocks": 0})
     known_ids = {n["@id"] for n in nodes if isinstance(n.get("@id"), str)}
 
     entities = [_check_node(n, vocab, known_ids) for n in nodes]
@@ -551,9 +896,18 @@ def check_schema(
         rich_results=_rich_results(nodes),
         rules_version=RICH_RESULTS_RULES_VERSION,
         other_markup={
-            "microdata": bool(_MICRODATA_RE.search(html)),
-            "rdfa": bool(_RDFA_RE.search(html)),
+            "microdata": bool(microdata_count),
+            "rdfa": bool(rdfa_count or rdfa_reasons),
         },
+        markup_counts={"microdata": microdata_count, "rdfa": rdfa_count},
+        markup_coverage=[
+            {"format": "microdata", "status": "checked" if microdata_count else "absent"},
+            {
+                "format": "rdfa",
+                "status": "partial" if rdfa_reasons else "checked" if rdfa_count else "absent",
+                "reasons": rdfa_reasons,
+            },
+        ],
     )
     result["findings"] = _findings(result)
     return result
@@ -571,6 +925,10 @@ def _findings(r: dict[str, Any]) -> list[str]:
         )
     out += r["parse_errors"]
 
+    for coverage in r.get("markup_coverage", []):
+        for reason in coverage.get("reasons", []):
+            out.append(f"{coverage['format']} validation coverage is partial: {reason}")
+
     if not r["blocks"]:
         # "No blocks" and "block #1 cannot be parsed" cannot both be true, and
         # the second is the fact: the page does ship structured data, and search
@@ -582,12 +940,8 @@ def _findings(r: dict[str, Any]) -> list[str]:
             )
         else:
             out.append("The page contains no JSON-LD blocks")
-        if r["other_markup"]["microdata"]:
-            out.append(
-                "Microdata with itemscope is present; search engines can read it, "
-                "but it is harder to connect entities into a coherent graph"
-            )
-        return out
+        if not r["entities"]:
+            return out
 
     errors = sum(len(e["errors"]) for e in r["entities"])
     warnings = sum(len(e["warnings"]) for e in r["entities"])

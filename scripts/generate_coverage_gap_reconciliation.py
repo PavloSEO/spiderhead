@@ -16,10 +16,8 @@ ROW = re.compile(
 )
 BACKTICKED = re.compile(r"`([^`]+)`")
 
-# The reconciliation snapshot intentionally keeps the 92-item accessibility/AMP
-# decision. Those rows remain excluded even though their individual Mode cells
-# describe implementation possibilities rather than repeating the decision.
-OUT_OF_SCOPE_ROWS = frozenset({"3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.8", "3.9"})
+# Keep the excluded accessibility work outside the shipped static markup subset.
+OUT_OF_SCOPE_ROWS = frozenset({"3.1", "3.2", "3.3", "3.6", "3.8", "3.9"})
 VALUE_ORDER = {"**high**": 0, "high": 0, "medium": 1, "low": 2}
 STATE_ORDER = {"missing": 0, "partial": 1}
 

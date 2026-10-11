@@ -16,8 +16,8 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 `{"ok": false, "error": "..."}` instead of raising. An unreachable site is
 data, not an accident.
 
-The current registry has 188 commands and 197 callable tools,
-with 229 audit checks. These are inventories, not coverage on every input.
+The current registry has 192 commands and 201 callable tools,
+with 248 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
 ## Generated command inventory
@@ -34,25 +34,26 @@ and inputs remain in the nearby route sections and generated tool reference.
 `facts-export` · `findings-view` · `google-keywords` · `google-serp` · `gsc-archive` · `gsc-progress` ·
 `gsc-query` · `headers-check` · `hreflang-check` · `images-download` · `images-optimize` · `indexnow-submit` ·
 `inspect-url` · `keywords-cluster` · `keywords-exact` · `keywords-expand` · `keywords-seasonality` ·
-`links-check` · `llms-txt-check` · `log-analyze` · `log-scan` · `markdown-extract` · `marketing-inventory` ·
-`meta-description-drafts` · `metrika-counters` · `metrika-report` · `metrika-setup` · `metrika-traffic-pdf` ·
-`miratext-analyze` · `mirror-check` · `monitor-collect` · `monitor-configure` · `monitor-local-deliver` ·
-`monitor-run` · `monitor-schedule` · `monitor-status` · `parse` · `project-activity` ·
-`project-checklist-init` · `project-checklist-page` · `project-checklist-record` · `project-checklist-update`
-· `project-competitors-add` · `project-competitors-list` · `project-competitors-remove` ·
-`project-event-append` · `project-event-page` · `project-facts` · `project-inbox-acknowledge` ·
-`project-inbox-goal` · `project-inbox-list` · `project-inbox-read` · `project-inbox-submit` ·
-`project-inbox-triage` · `project-inbox-unread` · `project-new` · `project-observe` · `project-open` ·
-`project-policy` · `project-prepare` · `project-priorities` · `project-progress` · `project-scans` ·
-`project-sources-link` · `project-sources-list` · `project-sources-unlink` · `project-start` ·
-`project-status` · `project-task-detail` · `project-view-delete` · `project-view-list` · `project-view-rename`
-· `project-view-save` · `project-view-show` · `provider-auth` · `provider-collect` · `provider-join` ·
-`provider-readiness` · `provider-registry` · `provider-replay` · `provider-verify` · `publication-cohorts` ·
-`redirects-check` · `redirects-generate` · `regions-check` · `regions-tree` · `remediation-cases` ·
-`remediation-create` · `remediation-ingest` · `remediation-recheck` · `remediation-record-verification` ·
-`remediation-report` · `remediation-summary` · `remediation-transition` · `render-check` · `report-build` ·
-`robots-check` · `scan-body-diff` · `scan-content-search` · `scan-content-search-page` · `scan-evidence` ·
-`scan-export` · `scan-extract` · `scan-fragment-links` · `scan-graph` · `scan-import-urls` · `scan-inspect` ·
+`links-check` · `llms-txt-check` · `log-analyze` · `log-scan` · `logs-bots` · `logs-import` · `logs-join` ·
+`logs-summary` · `markdown-extract` · `marketing-inventory` · `meta-description-drafts` · `metrika-counters` ·
+`metrika-report` · `metrika-setup` · `metrika-traffic-pdf` · `miratext-analyze` · `mirror-check` ·
+`monitor-collect` · `monitor-configure` · `monitor-local-deliver` · `monitor-run` · `monitor-schedule` ·
+`monitor-status` · `parse` · `project-activity` · `project-checklist-init` · `project-checklist-page` ·
+`project-checklist-record` · `project-checklist-update` · `project-competitors-add` ·
+`project-competitors-list` · `project-competitors-remove` · `project-event-append` · `project-event-page` ·
+`project-facts` · `project-inbox-acknowledge` · `project-inbox-goal` · `project-inbox-list` ·
+`project-inbox-read` · `project-inbox-submit` · `project-inbox-triage` · `project-inbox-unread` ·
+`project-new` · `project-observe` · `project-open` · `project-policy` · `project-prepare` ·
+`project-priorities` · `project-progress` · `project-scans` · `project-sources-link` · `project-sources-list`
+· `project-sources-unlink` · `project-start` · `project-status` · `project-task-detail` ·
+`project-view-delete` · `project-view-list` · `project-view-rename` · `project-view-save` ·
+`project-view-show` · `provider-auth` · `provider-collect` · `provider-join` · `provider-readiness` ·
+`provider-registry` · `provider-replay` · `provider-verify` · `publication-cohorts` · `redirects-check` ·
+`redirects-generate` · `regions-check` · `regions-tree` · `remediation-cases` · `remediation-create` ·
+`remediation-ingest` · `remediation-recheck` · `remediation-record-verification` · `remediation-report` ·
+`remediation-summary` · `remediation-transition` · `render-check` · `report-build` · `robots-check` ·
+`scan-body-diff` · `scan-content-search` · `scan-content-search-page` · `scan-evidence` · `scan-export` ·
+`scan-extract` · `scan-fragment-links` · `scan-graph` · `scan-import-urls` · `scan-inspect` ·
 `scan-link-inspect` · `scan-list` · `scan-navigation` · `scan-pin` · `scan-prune` · `scan-reanalyze` ·
 `scan-rendered-routes` · `scan-requeue` · `scan-sitemap-generate` · `scan-snapshot` · `scan-status` ·
 `scan-structured-blocks` · `scan-url-detail` · `scan-url-history` · `scan-url-query` · `scenario-list` ·
@@ -64,6 +65,8 @@ and inputs remain in the nearby route sections and generated tool reference.
 `wayback-history` · `webmaster-url-queries` · `workflow-checkpoint` · `workflow-execute` · `workflow-resume` ·
 `workflow-start` · `workflow-status`
 <!-- generated-command-inventory:end -->
+See [Server logs](SERVER_LOGS.md) for import, join and DNS evidence contracts.
+
 ## Offline bounded comparison
 
 `compare-crawls --before before.sqlite --after after.sqlite --out-dir ./comparison`
@@ -258,7 +261,7 @@ because the rules could not be read, so the command never claims crawling is all
 
 | Command | What it does |
 |---|---|
-| `schema-check` | Schema.org validation **in two layers**: the vocabulary (1010 types, `domainIncludes`/`rangeIncludes`, inheritance, deprecated terms) and Google rich-result eligibility |
+| `schema-check` | JSON-LD, Microdata and common RDFa validation **in two layers**: the bundled vocabulary (`domainIncludes`/`rangeIncludes`, inheritance, deprecated terms and literal values) and local Google rich-result requirements; unsupported RDFa constructs are partial evidence |
 | `schema-build` | Builds a suggested connected `@graph` with `@id`s for the page type; `--type` sets the type manually when the classifier is unsure |
 | `social-meta-check` | Open Graph and Twitter Card: what is there, what is missing, what contradicts the content |
 | `citability-check` | How quotable a text is for an AI answer: direct answers, facts, structure. Fetching a URL scores the resolved content area's Markdown (nav/footer excluded), not the raw whole-document text |
@@ -335,7 +338,11 @@ are supplied lab results; the toolkit does not launch Lighthouse or infer field 
 
 | Command | What it does | Side effects |
 |---|---|---|
-| `log-analyze` | Web server log analysis (Apache Common/Combined, IIS W3C; `.gz` read directly): which bots crawl, where, which codes they get, how much budget is wasted. `--verify-bots` checks authenticity via forward-confirmed reverse DNS | reads a file |
+| `log-analyze` | Offline file analysis with exact disk-backed IP totals and bounded per-IP records; explicit `--verify-bots` checks only the selected page | reads a file; opt-in DNS |
+| `logs-import` | Stream files/gzip or a bounded directory into a fresh local project log artifact with date partitions and provenance | creates a local artifact |
+| `logs-summary` | Exact paged URL/IP/bot/date/status/section aggregates with explicit filters | offline, read-only |
+| `logs-join` | Compare retained bot visits with a validated native scan; incomplete evidence withholds absence claims | offline, read-only |
+| `logs-bots` | Read per-IP PTR, forward match, verdict, visits and last visit; explicit verification updates a one-hour local cache | opt-in DNS and local cache writes |
 | `log-scan` | Reads a finished run's own artifacts (`audit.json`, `pages.jsonl`, an `images-download` directory) and reports claims that cannot all be true at once: a recorded size that disagrees with the file, a check firing more often than there are pages to fire on, a finding about a URL the run never fetched, a summary that disagrees with its own rows. Not a second audit — only contradictions, each naming both values | reads files |
 | `images-download` | Download a list of images into a directory | writes files |
 | `images-optimize` | Recompress, resize, or convert raster images and conservatively minify SVG | requires `--output-dir`; source mutation needs explicit `--in-place` and backs up by default |
@@ -781,8 +788,24 @@ assignment or by the audit's already validated segment rules. It records
 assignment provenance and keeps candidate, declared, confirmed, and unassigned
 states separate; it does not infer a shared implementation from repeated findings.
 
-**229 checks**: 12 critical, 102 warnings, 115 notices. Sources: SF exports,
+**248 checks**: 12 critical, 115 warnings, 121 notices. Sources: SF exports,
 derived metrics, inlink exports, the sitemap module, and heuristics.
+
+Native scans with retained bodies evaluate DOM depth/node count and content-area exact/near
+duplicates offline, reading each page's selected document by exact URL. The duplicate fallback
+uses finite document (10,000), text-input (16 MiB), shingle (1,000,000) and candidate-comparison
+(250,000) budgets. Missing or invalid bodies and exhausted budgets stay explicit; partial
+findings carry coverage. A non-stored crawl has no body source for these checks.
+
+SF configuration can explicitly enable semantic review with `semantic_similarity.adapter`
+and caller-supplied `embeddings` rows (`url`, `body`, `title`, `h1` vectors). An adapter declaration
+contains `kind`, `model_id`, `model_version`, `settings` and `data_transfer`; an external declaration
+also requires `external_authorized=true`. Core callers may instead inject a local embedding adapter.
+`threshold` controls topical similarity (default 0.82), `relevance_threshold` controls title/H1
+review (0.35), `max_documents` defaults to 1,000, and comparisons default to 250,000. A durable
+`cache_path` is optional; otherwise the cache exists only for the run. No model is downloaded or
+selected automatically. These notice-level findings are review candidates, and the semantic SF
+coverage rows remain gaps until a real adapter is selected and validated.
 
 **Two modes.** A crawls by itself through the SF CLI (license required). B
 works from ready exports and is self-sufficient. Mode B is covered by tests
@@ -817,7 +840,7 @@ turns on automatically for crawl modes (`--crawl`, `--crawl-list`, `--load-crawl
 `--sitemap` is given; pass `--no-live-recheck` to keep it off.
 
 **MCP.** The same set under the `seo_*` names plus the `sf_*` audit tools and the
-`seo_semantics_*` tools (188 + 5 + 4):
+`seo_semantics_*` tools (192 + 5 + 4):
 
 ```bash
 seohead mcp        # stdio
@@ -825,7 +848,7 @@ seohead mcp        # stdio
 
 ## Where to go next
 - [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — every tool's arguments, types, defaults, cost, and failure modes, generated from the MCP definitions
-- [CHECKS.md](CHECKS.md) — the 229 checks the SF crawl audit runs, generated from the registry
+- [CHECKS.md](CHECKS.md) — the 248 checks the SF crawl audit runs, generated from the registry
 - [ARCHITECTURE.md](ARCHITECTURE.md) — layers, invariants, where new code goes
 - [SKILLS.md](SKILLS.md) — which skill drives which tool
 - [DECISIONS.md](DECISIONS.md) — why it was decided this way and not another

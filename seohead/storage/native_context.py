@@ -189,6 +189,11 @@ def validate_context(
 
         validate_content_evidence(con, item, payload)
         return
+    if item["kind"] == "markup_evidence":
+        from .markup_evidence import validate_context as validate_markup_evidence
+
+        validate_markup_evidence(con, item, payload)
+        return
     if item["kind"] == "browser_artifacts":
         from .browser_artifacts import validate_context as validate_browser_artifacts
 

@@ -514,6 +514,53 @@ def _seed_project_detection(monkeypatch) -> None:
     )
 
 
+def _seed_log_inputs(tmp_path: Path, argv: list[str], monkeypatch) -> None:
+    """Materialize each independent server-log walkthrough step without DNS/network."""
+    from collections import OrderedDict
+
+    from seohead.checks import logs
+    from seohead.checks.logstore import import_logs
+    from seohead.projects.workspace import create_project
+    from tests.test_logstore import _scan
+
+    project_path = tmp_path / (argv[argv.index("--project") + 1] if "--project" in argv else "shop")
+    create_project(project_path, "https://example.test/")
+    source_dir = tmp_path / "synthetic-logs"
+    source_dir.mkdir()
+    source = source_dir / "access.log"
+    source.write_text(
+        '192.0.2.1 - - [05/Oct/2026:12:00:00 +0000] "GET /visited HTTP/1.1" 200 10 "-" "Googlebot"\n'
+        '192.0.2.2 - - [05/Oct/2026:13:00:00 +0000] "GET /missing HTTP/1.1" 404 0 "-" "Googlebot"\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(logs, "_DNS_CACHE", OrderedDict())
+    monkeypatch.setattr(logs, "_dns_available", lambda: True)
+    monkeypatch.setattr(
+        logs,
+        "verify_bot_rdns",
+        lambda ip, suffixes: {
+            "verified": ip == "192.0.2.1",
+            "hostname": "synthetic.googlebot.com",
+            "forward_match": ip == "192.0.2.1",
+            "forward_addresses": [ip],
+            "reason": "Mocked DNS",
+        },
+    )
+    if "--source" in argv:
+        imported = import_logs(str(source_dir), str(project_path))
+        assert imported["ok"], imported
+        artifact = tmp_path / argv[argv.index("--source") + 1]
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(imported["source"], artifact)
+    if "--scan" in argv:
+        scan_dir = tmp_path / "log-scan-fixture"
+        scan_dir.mkdir()
+        scan = _scan(scan_dir)
+        target = tmp_path / argv[argv.index("--scan") + 1]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(scan, target)
+
+
 @pytest.fixture(scope="module")
 def fixture_site():
     with run_fixture_site() as base_url:
@@ -755,6 +802,8 @@ def test_documented_command_executes_or_at_least_still_parses(
         # site-level tool in it is a plain HTTP GET the fixture server answers.
         substituted += ["--skip", "domain_profile"]
 
+    if argv[:1] == ["logs"]:
+        _seed_log_inputs(tmp_path, argv, monkeypatch)
     stdout = io.StringIO()
     try:
         with contextlib.redirect_stdout(stdout):

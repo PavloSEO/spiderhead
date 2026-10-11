@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**229 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**248 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -97,6 +97,9 @@ python scripts/generate_checks_reference.py
 | `LOW_TEXT_RATIO` | notice | SF-derived | Low text-to-HTML ratio | Increase the proportion of meaningful visible content or reduce unnecessary markup. |
 | `DUPLICATE_BY_HASH` | warning | SF-derived | Exact duplicate content (identical hash) | Consolidate duplicates with canonicalization or rewrite them to serve distinct search intent. |
 | `NEAR_DUPLICATE` | warning | SF-derived | Near-duplicate content | Differentiate the pages with substantive content or consolidate them into one canonical page. |
+| `SEMANTIC_SIMILARITY_CANDIDATE` | notice | heuristic:explicit_embedding_adapter | Pages have adapter-measured topical similarity; review candidate | Review intent and useful internal linking. Semantic similarity alone does not prove duplicate content or cannibalization. |
+| `TITLE_LOW_SEMANTIC_RELEVANCE` | notice | heuristic:explicit_embedding_adapter | Title has low adapter-measured similarity to the page content; review candidate | Review whether the title describes the page's actual content and intent; the model score alone is not proof of irrelevance. |
+| `H1_LOW_SEMANTIC_RELEVANCE` | notice | heuristic:explicit_embedding_adapter | H1 has low adapter-measured similarity to the page content; review candidate | Review whether the heading describes the page's actual content and intent; the model score alone is not proof of irrelevance. |
 | `LOREM_IPSUM_PLACEHOLDER` | warning | crawl:lorem_ipsum_count | The Lorem Ipsum placeholder passage appears in the page's own content area | Replace the placeholder passage with real, reviewed copy before the page goes live or stays indexed. |
 
 ## 7.G — images
@@ -385,3 +388,24 @@ python scripts/generate_checks_reference.py
 | `IMAGE_DELIVERY` | notice | supplied Lighthouse JSON | The supplied Lighthouse image-delivery audit reports an opportunity | Optimize the measured image size and encoding while preserving visual quality. |
 | `FORCED_REFLOW` | notice | supplied Lighthouse JSON | The supplied Lighthouse forced-reflow audit reports an opportunity | Review the measured script stack and batch layout reads and writes. |
 | `JS_EXECUTION_TIME` | notice | supplied Lighthouse JSON | The supplied Lighthouse bootup-time audit reports expensive script execution | Reduce or defer the measured JavaScript execution work. |
+
+## Document markup: structural AMP, static accessibility, and Schema.org validation
+
+| Check id | Severity | Evidence | Fires on | Fix |
+|---|---|---|---|---|
+| `AMP_MISSING_HTML_ATTRIBUTE` | warning | crawl:markup_evidence | AMP target does not declare the html amp or lightning attribute | Add the AMP attribute to the root html element, or correct the rel=amphtml target. |
+| `AMP_INVALID_DOCTYPE` | warning | crawl:markup_evidence | AMP document has a missing or invalid HTML5 doctype | Start the AMP source document with <!doctype html>. |
+| `AMP_MISSING_HEAD` | warning | crawl:markup_evidence | AMP source document has no explicit head element | Include an explicit head element in the AMP source. |
+| `AMP_MISSING_BODY` | warning | crawl:markup_evidence | AMP source document has no explicit body element | Include an explicit body element in the AMP source. |
+| `AMP_INVALID_CHARSET` | warning | crawl:markup_evidence | AMP head does not start with the required UTF-8 charset declaration | Place <meta charset="utf-8"> first in the AMP head. |
+| `AMP_INVALID_VIEWPORT` | warning | crawl:markup_evidence | AMP document lacks the required device-width viewport | Declare a viewport containing width=device-width in the head. |
+| `AMP_INVALID_RUNTIME` | warning | crawl:markup_evidence | AMP document lacks an async AMP runtime script in the head | Add <script async src="https://cdn.ampproject.org/v0.js"></script> to the AMP head. |
+| `AMP_INVALID_BOILERPLATE` | warning | crawl:markup_evidence | AMP document lacks the structural AMP boilerplate declarations | Include the required amp-boilerplate style and noscript fallback; validate their content with the official AMP validator. |
+| `A11Y_HTML_LANG_MISSING` | warning | crawl:markup_evidence | Root html element has no nonempty lang declaration | Declare the document language on html and review whether it matches the content. |
+| `A11Y_FORM_LABEL_MISSING` | warning | crawl:markup_evidence | Form control has no static accessible label | Associate a label with the control, or provide a valid aria-label or aria-labelledby reference. |
+| `A11Y_IMAGE_ALT_MISSING` | warning | crawl:markup_evidence | Image has no alt attribute or static accessible name | Provide meaningful alternative text; explicitly mark decorative images with empty alt text. |
+| `A11Y_HEADING_ORDER` | notice | crawl:markup_evidence | Heading sequence skips a level in the static document | Review the heading outline and use nested heading levels consistently. |
+| `A11Y_MAIN_LANDMARK_MISSING` | notice | crawl:markup_evidence | Document content has no main landmark | Mark the primary page content with main or role=main and verify navigation with assistive technology. |
+| `STRUCTURED_DATA_SCHEMA_ERROR` | warning | crawl:structured_evidence | Structured data contains errors under the bundled Schema.org vocabulary | Inspect the URL schema evidence and repair unknown types, properties, invalid values or unresolved references. |
+| `STRUCTURED_DATA_SCHEMA_WARNING` | notice | crawl:structured_evidence | Structured data contains warnings under the bundled Schema.org vocabulary | Review the URL schema evidence and correct ambiguous values or graph relationships. |
+| `STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING` | warning | crawl:structured_evidence | Structured data lacks required properties in the bundled local rich-result rules | Fill the required properties for the declared type and validate the result; local eligibility does not guarantee Google display. |

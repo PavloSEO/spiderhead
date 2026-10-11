@@ -1,7 +1,7 @@
 # Audit coverage — the gap map
 
 **Purpose.** The list of SEO checks our SF audit
-(`seohead/sf/core/registry.py`, 229 checks) still **lacks**. For every gap:
+(`seohead/sf/core/registry.py`, 248 checks) still **lacks**. For every gap:
 value, implementation mode, likely home in the code. This is a filling plan,
 not a bug report. Items implemented since this map was written are marked
 **DONE**.
@@ -55,7 +55,7 @@ inventing a broader claim.
 | 1.5–1.7 | **Covered / partial:** `ASSET_SHORT_CACHE` reads captured resource headers and `RENDER_BLOCKING` selected retained static heads. `HEAVY_PAGE_WEIGHT` uses content-decoded navigation responses or an explicit HTML-only lower bound; no field CWV or later-request coverage is inferred. |
 | 2.1–2.5 | **Covered in registry:** `NO_AUTHOR_BYLINE`, `NO_CONTENT_DATES`, the four trust-page checks, and `FEW_CITATIONS`. They report observed markup/discovery states, never trustworthiness or citation authority. |
 | 2.6–2.7 | **Partial / missing:** `YMYL_REVIEW_CANDIDATE` is a deterministic review candidate, not a classification; disclaimer/editorial-policy detection remains missing. |
-| 3.1–3.9 | **Explicitly out of scope:** no 92-item accessibility/AMP or WCAG engine. `provider-collect` can return a capped opt-in Lighthouse sample with provider, engine, version, strategy, score, and failed/incomplete IDs; it is not WCAG or legal-compliance evidence. |
+| 3.1–3.9 | **Static subset shipped:** document language, form labels, image alternatives, heading jumps and main landmark findings; structural AMP source checks. Full AMP validator rules, rendered axe-core and contrast remain unmeasured. `provider-collect` can return a capped opt-in Lighthouse sample; it is not WCAG or legal-compliance evidence. |
 | 6.3–6.4 | **Covered in registry:** `CANONICAL_TARGET_ERROR` and `CANONICAL_HOMEPAGE_GROUP`. |
 | 8.2 / 8.4 | **Covered in registry:** `ONLY_NOFOLLOW_INLINKS` for verified indexable targets (with partial-crawl withholding) and native `HTTP_LINK_ON_HTTPS` from retained raw hrefs; observed HTTP→HTTPS redirect convergence stays silent. |
 | 10.2 / 10.4 | **Covered in registry:** `URL_SESSION_ID` redacts values and `URL_TRAILING_SLASH_INCONSISTENT` requires observed, non-convergent indexable pairs while preserving path case. |
@@ -79,7 +79,7 @@ The priority list below is therefore a backlog, not a product-capability claim.
 | 1.7 | Page weight (total) | Observed navigation weight; HTML-only lower bounds without rendering | medium | **PARTIAL** — `HEAVY_PAGE_WEIGHT` retains content-decoded response buckets, scope and missing counts; compressed transfer totals and later interactions remain unmeasured | native render + audit |
 
 **Context.** `SLOW_RESPONSE` already catches a slow server, but it is no
-substitute for real CWV. None of the 229 crawl-registry checks measures field
+substitute for real CWV. None of the 248 crawl-registry checks measures field
 CWV directly. The opt-in CrUX path added in #822 assesses current-window p75
 with URL/origin, form factor and period provenance; missing field data stays
 unavailable. A one-run `render-check` result remains lab evidence.
@@ -105,23 +105,24 @@ missing. These observations support specialist review rather than an E-E-A-T sco
 
 ---
 
-## 3. Accessibility (category missing entirely)
+## 3. Accessibility (bounded static subset)
 
 | # | Name | Checks | Value | Mode | Home |
 |---|---|---|---|---|---|
 | 3.1 | ARIA roles and labels | Correctness of `role`/`aria-label`/`aria-*` | **high** | A (HTML/render) | new `a11y.py` (or Lighthouse) |
 | 3.2 | Color contrast | Text/background contrast per WCAG | medium | A (Lighthouse) | `a11y.py` |
 | 3.3 | Focus-visible / keyboard | Focus visibility, keyboard navigation | medium | A (Lighthouse) | `a11y.py` |
-| 3.4 | Form labels | A `<label>` for every form field | medium | A (HTML) | `a11y.py` |
-| 3.5 | Heading order (a11y) | Logical h1->h2->h3 nesting for screen readers | medium | A (HTML/render — SF gives counts, not order) | `a11y.py`, id `HEADING_ORDER_BAD` |
+| 3.4 | Form labels | A `<label>` for every form field | medium | **Partial**: retained HTML label/name heuristic via `A11Y_FORM_LABEL_MISSING`; full accessible-name and interaction evaluation remain unmeasured | `checks/markup.py` |
+| 3.5 | Heading order (a11y) | Logical h1->h2->h3 nesting for screen readers | medium | **Partial**: retained HTML heading-level jumps via `A11Y_HEADING_ORDER`; screen-reader navigation and rendered visibility remain unmeasured | `checks/markup.py` |
 | 3.6 | Skip link | A "skip to content" link | low | A (HTML) | `a11y.py` |
 | 3.7 | Link text (descriptive) | Anchors like "here", "click" are uninformative | medium | **DONE** as `GENERIC_ANCHOR_TEXT` (RU+EN dictionary) | `inlinks.py` |
 | 3.8 | Touch-target size | Tap target size for fingers | low | A (render) — consciously excluded earlier, revisit | `a11y.py` |
 | 3.9 | Table headers | `<th>` in data tables | low | A (HTML) | `a11y.py` |
 
-**Context.** Most a11y checks need HTML/rendering and are best closed by a
-Lighthouse integration, not home-grown. The pragmatic path is one external
-`lighthouse-a11y` skill relaying Google's standard audits.
+**Context.** Retained markup supplies bounded form-label and heading-order
+heuristics, not a WCAG conformance verdict. Contrast, keyboard interaction and
+screen-reader navigation remain outside this static subset; broader evaluation
+needs browser or specialist evidence.
 
 ---
 
@@ -275,7 +276,7 @@ graph checks land in `inlinks.py` with almost no new math.
 
 | # | Name | Checks | Value | Mode | Home |
 |---|---|---|---|---|---|
-| 13.1 | Required fields per type | Product->price/availability, Article->datePublished/author, Review->rating, LocalBusiness->address, FAQ->mainEntity, Video->duration | **high** | **mostly DONE** in the live `schema-check` (vocabulary + Google rich-result eligibility per type); audit ids still absent | new `schema_fields.py` |
+| 13.1 | Required fields per type | Product->price/availability, Article->datePublished/author, Review->rating, LocalBusiness->address, FAQ->mainEntity, Video->duration | **high** | **DONE** for the bundled local rules: `schema-check` and document-bound native schema findings; Google display remains unknown | `schema_org.py`, `markup_rules.py` |
 | 13.2 | Type-specific scenarios | Breadcrumb/FAQ/Video/LocalBusiness/... where they are relevant | medium | B (SF "Schema Type") | id `SCHEMA_TYPE_OPPORTUNITY` |
 | 13.3 | Schema drift | Markup diverges from visible content (JSON-LD price ≠ page price) | medium | A (JSON-LD + render) | id `SCHEMA_CONTENT_DRIFT` |
 
