@@ -231,8 +231,20 @@ def decode_entity(raw: bytes, content_type: str) -> tuple[str, dict[str, str]]:
 
 def read_document(con: sqlite3.Connection, document_id: int, *, max_decoded_bytes: int) -> str:
     """Read one stored document only when its state and response lineage are complete."""
-    text, _decoder = _read_document(con, document_id, max_decoded_bytes=max_decoded_bytes)
+    text, _decoder, _raw = _read_document_parts(
+        con, document_id, max_decoded_bytes=max_decoded_bytes
+    )
     return text
+
+
+def read_document_body(
+    con: sqlite3.Connection, document_id: int, *, max_decoded_bytes: int
+) -> bytes:
+    """Read exact response bytes through the selected document's verified lineage."""
+    _text, _decoder, raw = _read_document_parts(
+        con, document_id, max_decoded_bytes=max_decoded_bytes
+    )
+    return raw
 
 
 def read_page_document(con: sqlite3.Connection, url: str, *, max_decoded_bytes: int) -> str:
@@ -270,7 +282,9 @@ def read_document_window(
         raise ScanError("window offset must be a nonnegative integer")
     if type(length) is not int or not 1 <= length <= MAX_WINDOW_CHARS:
         raise ScanError(f"window length must be an integer from 1 to {MAX_WINDOW_CHARS}")
-    text, decoder = _read_document(con, document_id, max_decoded_bytes=max_decoded_bytes)
+    text, decoder, _raw = _read_document_parts(
+        con, document_id, max_decoded_bytes=max_decoded_bytes
+    )
     window = text[offset : offset + length]
     return {
         "document_id": document_id,
@@ -285,10 +299,10 @@ def read_document_window(
     }
 
 
-def _read_document(
+def _read_document_parts(
     con: sqlite3.Connection, document_id: int, *, max_decoded_bytes: int
-) -> tuple[str, dict[str, str]]:
-    """Read one stored document and return its text with the verified decoder metadata."""
+) -> tuple[str, dict[str, str], bytes]:
+    """Read one document and verify both its exact body bytes and decoder metadata."""
     if type(document_id) is not int or document_id < 1:
         raise ScanError("document ID must be a positive integer")
     cursor = con.execute(
@@ -352,7 +366,7 @@ def _read_document(
         raise ScanError("document fidelity is unavailable or unsupported")
     if any(document[key] != value for key, value in decoder.items()):
         raise ScanError("document decoder metadata disagrees with stored bytes")
-    return text, decoder
+    return text, decoder, raw
 
 
 def read_document_navigation(con, document_id: int) -> dict[str, object]:

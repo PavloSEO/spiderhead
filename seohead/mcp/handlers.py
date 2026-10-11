@@ -2200,19 +2200,53 @@ def _audit_crawl_result(
     from seohead.crawl import body_mime
 
     if stored_scan is not None:
-        body_evidence = body_mime.evaluate(stored_scan.con)
-        for item in body_evidence["findings"]:
-            ctx.add(body_mime.CHECK_ID, target_url=item["target_url"], details=item)
-        if not body_evidence["findings"]:
-            if body_evidence["pages_unmeasured"]:
-                ctx.skip(
-                    body_mime.CHECK_ID,
-                    f"{body_evidence['pages_unmeasured']} page response body/bodies were unavailable, exceeded the byte limit, or had an ambiguous signature",
+        body_evidence = body_mime.evaluate(
+            stored_scan.con,
+            on_finding=lambda item: ctx.add(
+                body_mime.CHECK_ID, target_url=item["target_url"], details=item
+            ),
+        )
+        eligible = body_evidence["pages_eligible"]
+        measured = body_evidence["pages_measured"]
+        unavailable = body_evidence["pages_unavailable"]
+        measurement_reason = (
+            "no eligible page response with a supported Content-Type"
+            if not eligible
+            else "some supported response bodies were unavailable or ambiguous"
+            if unavailable
+            else ""
+        )
+        ctx.asset_measurements[body_mime.CHECK_ID] = {
+            "unit": "pages",
+            "eligible": eligible,
+            "measured": measured,
+            "partial": 0,
+            "unavailable": unavailable,
+            "state": (
+                "unavailable"
+                if not eligible or not measured
+                else "partial"
+                if unavailable
+                else "measured"
+            ),
+            "reason": measurement_reason,
+            "unavailable_reasons": body_evidence["unavailable_reasons"],
+            "body_retention_states": body_evidence["body_retention_states"],
+        }
+        if not body_evidence["findings_count"]:
+            if unavailable:
+                reason_counts = ", ".join(
+                    f"{name}={count}"
+                    for name, count in sorted(body_evidence["unavailable_reasons"].items())
                 )
-            elif not body_evidence["pages_measured"]:
                 ctx.skip(
                     body_mime.CHECK_ID,
-                    "no retained page response had a supported Content-Type and recognizable body signature",
+                    f"page body evidence was incomplete: {reason_counts}",
+                )
+            elif not measured:
+                ctx.skip(
+                    body_mime.CHECK_ID,
+                    "no page response had a supported Content-Type and recognizable body signature",
                 )
     else:
         ctx.skip(body_mime.CHECK_ID, "crawl was not stored; per-URL response bodies are unavailable")
