@@ -1,9 +1,11 @@
 import os
 import unittest
+from unittest import mock
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from seohead_desktop.common import TASK_PAGE_LIMIT
+from seohead_desktop.models import RecordModel
 from seohead_desktop.scans_urls import ScansUrlsMixin
 
 
@@ -61,6 +63,48 @@ class WorkTaskPagesTests(unittest.TestCase):
         ScansUrlsMixin.load_task_page(host, _page(0, 100, 150, 100))
         ScansUrlsMixin.load_task_page(host, _page(0, 2, 2, None))
         self.assertEqual([len(result["items"]) for result in host.loaded], [2])
+
+
+class _Panels:
+    def __init__(self):
+        self.calls = []
+
+    def set_page(self, name, items, **kwargs):
+        self.calls.append((name, list(items), kwargs))
+
+
+class _ShownHost(_Host):
+    """Work list with the real load_tasks and show_task_page; the Qt widgets are stand-ins."""
+
+    load_tasks = ScansUrlsMixin.load_tasks
+    show_task_page = ScansUrlsMixin.show_task_page
+
+    def __init__(self):
+        super().__init__()
+        self.task_model = RecordModel((("Задача", "title"),))
+        self.task_table = mock.MagicMock()
+        self.navigation = mock.MagicMock()
+        self.task_caption = mock.MagicMock()
+        self.project_panels = _Panels()
+        self.task_total = None
+
+
+class WorkTaskRowCountTests(unittest.TestCase):
+    def test_checklist_of_any_size_is_kept_whole_and_paged_for_the_panel(self):
+        host = _ShownHost()
+        host.load_tasks(_page(0, 277, 277, None))
+        self.assertEqual(len(host.task_model.rows), 277)
+        self.assertEqual(host.task_total, 277)
+        name, window, kwargs = host.project_panels.calls[-1]
+        self.assertEqual((name, len(window), kwargs["offset"], kwargs["has_more"]), ("tasks", 100, 0, True))
+        host.show_task_page(200)
+        _name, window, kwargs = host.project_panels.calls[-1]
+        self.assertEqual((window[0]["id"], len(window), kwargs["offset"], kwargs["has_more"]), ("check:200", 77, 200, False))
+
+    def test_a_row_past_the_panel_page_limit_does_not_raise(self):
+        host = _ShownHost()
+        host.load_tasks(_page(0, 101, 101, None))
+        self.assertEqual(len(host.project_panels.calls[-1][1]), 100)
 
 
 if __name__ == "__main__":

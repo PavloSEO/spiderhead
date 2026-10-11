@@ -21,7 +21,7 @@ def _usable(path):
 
 def discover_core(prefs=None):
     """First usable core, or None. Order: the user's own path (when enabled), the verified bundled core,
-    the desktop's own environment, PATH, the source checkout's venv, then common install directories."""
+    the desktop's own environment (its interpreter's directory, then sys.prefix), PATH, the source checkout's venv, then common install directories."""
     if prefs is not None and prefs.get("core.custom") and prefs.get("core.custom_path"):
         found = _usable(prefs.get("core.custom_path"))
         if found:
@@ -29,7 +29,11 @@ def discover_core(prefs=None):
     bundled = bundle.bundled_core_cli()
     if bundled is not None and _usable(bundled):
         return str(bundled)
-    found = _usable(Path(sys.executable).with_name("seohead")) or shutil.which("seohead") or _usable(SOURCE_VENV_CLI)
+    for candidate in (Path(sys.executable).with_name("seohead"), Path(sys.prefix) / "bin" / "seohead"):
+        found = _usable(candidate)
+        if found:
+            return found
+    found = shutil.which("seohead") or _usable(SOURCE_VENV_CLI)
     if found:
         return found
     for directory in COMMON_DIRECTORIES:

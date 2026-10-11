@@ -34,7 +34,8 @@ class CoreDiscoveryTests(unittest.TestCase):
                     mock.patch.object(core_discovery, "SOURCE_VENV_CLI", Path(tmp) / "missing"), \
                     mock.patch.object(core_discovery, "COMMON_DIRECTORIES", ()), \
                     mock.patch.object(core_discovery.bundle, "bundled_core_cli", return_value=None), \
-                    mock.patch.object(core_discovery.sys, "executable", str(Path(tmp) / "bin" / "python")):
+                    mock.patch.object(core_discovery.sys, "executable", str(Path(tmp) / "bin" / "python")), \
+                    mock.patch.object(core_discovery.sys, "prefix", str(Path(tmp) / "no-venv")):
                 self.assertIsNone(core_discovery.discover_core(prefs))
 
     def test_common_install_directory_is_found_without_path(self):
@@ -44,7 +45,8 @@ class CoreDiscoveryTests(unittest.TestCase):
                     mock.patch.object(core_discovery, "SOURCE_VENV_CLI", Path(tmp) / "missing"), \
                     mock.patch.object(core_discovery, "COMMON_DIRECTORIES", (tmp,)), \
                     mock.patch.object(core_discovery.bundle, "bundled_core_cli", return_value=None), \
-                    mock.patch.object(core_discovery.sys, "executable", str(Path(tmp) / "python")):
+                    mock.patch.object(core_discovery.sys, "executable", str(Path(tmp) / "python")), \
+                    mock.patch.object(core_discovery.sys, "prefix", str(Path(tmp) / "no-venv")):
                 self.assertEqual(core_discovery.discover_core(None), cli)
 
     def test_bundled_core_wins_over_path(self):
@@ -67,10 +69,22 @@ class CoreDiscoveryTests(unittest.TestCase):
             on_path = _cli(tmp)
             with mock.patch.object(core_discovery.bundle, "bundled_core_cli", return_value=None), \
                     mock.patch.object(core_discovery.sys, "executable", str(Path(tmp) / "missing" / "python")), \
+                    mock.patch.object(core_discovery.sys, "prefix", str(Path(tmp) / "no-venv")), \
                     mock.patch.object(core_discovery.shutil, "which", return_value=on_path), \
                     mock.patch.object(core_discovery, "SOURCE_VENV_CLI", Path(tmp) / "source" / "seohead"), \
                     mock.patch.object(core_discovery, "COMMON_DIRECTORIES", ()):
                 self.assertEqual(core_discovery.discover_core(None), on_path)
+
+    def test_core_in_the_interpreter_prefix_is_found_when_the_executable_is_elsewhere(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            venv = Path(tmp) / "venv"
+            (venv / "bin").mkdir(parents=True)
+            cli = _cli(venv / "bin")
+            with mock.patch.object(core_discovery.bundle, "bundled_core_cli", return_value=None), \
+                    mock.patch.object(core_discovery.sys, "executable", str(Path(tmp) / "base" / "python")), \
+                    mock.patch.object(core_discovery.sys, "prefix", str(venv)), \
+                    mock.patch.object(core_discovery.shutil, "which", return_value="/elsewhere/seohead"):
+                self.assertEqual(core_discovery.discover_core(None), cli)
 
     def test_non_executable_candidate_is_skipped(self):
         with tempfile.TemporaryDirectory() as tmp:

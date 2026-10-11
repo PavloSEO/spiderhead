@@ -22,6 +22,7 @@ from .common import (  # noqa: F401
     plain,
     scan_request_key,
 )
+from .ui.components import PAGE_LIMIT as PANEL_PAGE_LIMIT
 from .ui.icons import material_icon as icon
 from .ui.presentation import (
     FIELDS,
@@ -31,6 +32,19 @@ from .ui.presentation import (
     state_text,
     value_text,
 )
+
+
+def default_scan_index(rows):
+    """The scan to open when the owner has not picked one: the largest complete scan (a full audit), newest on a tie.
+
+    List rows carry no page count, so size is the scan file's byte count. Without a complete scan, the newest row (index 0)."""
+    complete = [
+        (index, item) for index, item in enumerate(rows)
+        if item.get("lifecycle") == "finished" and item.get("crawl_partial") is False and item.get("corpus_partial") is False
+    ]
+    if not complete:
+        return 0
+    return max(complete, key=lambda pair: (pair[1].get("bytes") or 0, -pair[0]))[0]
 
 
 class ScansUrlsMixin:
@@ -55,22 +69,29 @@ class ScansUrlsMixin:
         for item in result.get("items") or []:
             rows.append({"id": item.get("id"), "title": item.get("title"), "kind": item.get("kind"), "state": item.get("display_state"), "reason": item.get("reason"),
                          "priority": item.get("priority"), "execution_kind": item.get("execution_kind"), "blocked_by": item.get("blocked_by") or []})
-        self.task_model.replace(rows)
+        self.task_model.replace(rows)  # every row the Work list shows; the panel below only gets one page
         pagination = result.get("pagination") or {}
         total = pagination.get("total", len(rows))
         self.task_total = total if type(total) is int else len(rows)
         self.navigation.set_count("work", str(total) if total else None)
         self.task_caption.setText(f"Задачи · {pagination.get('total', len(rows))} всего · показано {len(rows)}")
-        self.project_panels.set_page(
-            "tasks",
-            rows,
-            total=pagination.get("total"),
-            offset=pagination.get("offset", 0),
-            has_more=pagination.get("next_offset") is not None,
-            source="Checklist проекта · сохранённые данные",
-        )
+        self.show_task_page(0)
         if rows:
             self.task_table.selectRow(0)
+
+    def show_task_page(self, offset=0):
+        """Project tasks panel: one presentation page cut from the rows already read, so any checklist size fits."""
+        rows = self.task_model.rows
+        offset = min(max(0, int(offset)), max(0, len(rows) - 1))
+        window = rows[offset:offset + PANEL_PAGE_LIMIT]
+        self.project_panels.set_page(
+            "tasks",
+            window,
+            total=self.task_total,
+            offset=offset,
+            has_more=offset + PANEL_PAGE_LIMIT < len(rows),
+            source="Checklist проекта · сохранённые данные",
+        )
 
     def show_task(self, current, _previous):
         if not current.isValid() or not self.project_directory:
@@ -126,12 +147,17 @@ class ScansUrlsMixin:
             self._known_projects[str(Path(self.project_directory).resolve())]["scans"] = rows
         restore = self._workspace_restore if self._workspace_restore and self._workspace_restore["id"] == self._active_workspace_id else None
         desired_uuid = restore.get("scan_uuid") if restore else None
-        index = next((index for index, item in enumerate(rows) if item.get("uuid") == desired_uuid), -1) if desired_uuid else next((index for index, item in enumerate(rows) if item.get("path") == self.selected_scan_path), 0)
-        if restore and desired_uuid and index < 0:
+        if desired_uuid:
+            index = next((index for index, item in enumerate(rows) if item.get("uuid") == desired_uuid), None)
+        else:
+            index = next((index for index, item in enumerate(rows) if item.get("path") == self.selected_scan_path), None)
+        if restore and desired_uuid and index is None:
             selection.blockSignals(False)
             self.clear_scan_selection("Скан этой вкладки отсутствует в текущей сохранённой выборке. Выберите доступный скан.")
             self.finish_workspace_restore()
             return
+        if index is None:
+            index = default_scan_index(rows)
         if rows:
             self.scan_table.selectRow(index)
             self.scan_picker.blockSignals(True)
@@ -476,12 +502,7 @@ class ScansUrlsMixin:
         if tab_id == "compare":
             self.comparison.page(offset, limit)
         elif tab_id == "tasks":
-            self.start_command(
-                "tasks",
-                "seo_project_checklist_page",
-                {"directory": self.project_directory, "limit": limit, "offset": offset},
-                self.load_tasks,
-            )
+            self.show_task_page(offset)
         elif tab_id == "scans":
             self.start_command(
                 "scans",
