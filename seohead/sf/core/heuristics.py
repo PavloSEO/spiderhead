@@ -206,6 +206,8 @@ def _body_coverage(matched: int, total: int, omitted: Counter) -> str | None:
 
 
 def check_dom(ctx: AuditContext) -> None:
+    from lxml.etree import LxmlError
+
     from seohead.storage import ScanError
 
     if not any(ctx.enabled(check) for check in ("DOM_TOO_DEEP", "DOM_TOO_MANY_NODES")):
@@ -219,7 +221,7 @@ def check_dom(ctx: AuditContext) -> None:
     for page in pages:
         try:
             depth, nodes = _dom_metrics(read(page.url))
-        except (ScanError, OSError, ValueError) as exc:
+        except (ScanError, OSError, ValueError, LxmlError) as exc:
             omitted[str(exc)] += 1
             continue
         matched += 1

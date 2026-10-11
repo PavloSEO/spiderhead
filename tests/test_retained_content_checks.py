@@ -173,6 +173,34 @@ def test_retained_dom_metrics_use_body_lineage_and_reject_corruption(tmp_path):
         ctx.close()
 
 
+@pytest.mark.parametrize("unparseable", ["", " \n\t", "<!-- no document element -->"])
+def test_retained_dom_unparseable_body_is_omitted_without_aborting(tmp_path, unparseable):
+    from seohead.sf.core.context import AuditContext
+    from seohead.sf.core.loader import load_exports
+    from tests.test_near_duplicate_content import _page_html, _write
+
+    valid_url, invalid_url = BASE + "/valid.html", BASE + "/invalid.html"
+    exports, cfg = _write(
+        tmp_path,
+        [valid_url, invalid_url],
+        {valid_url: _page_html("Readable retained content."), invalid_url: unparseable},
+    )
+    ctx = AuditContext(load_exports(exports), cfg)
+    try:
+        heuristics.check_dom(ctx)
+        pages = {page.url: page for page in ctx.pages}
+        assert pages[valid_url].metrics["dom_nodes"] > 0
+        assert pages[invalid_url].metrics["dom_nodes"] is None
+        assert pages[invalid_url].metrics["dom_depth"] is None
+        assert not ctx.issues
+        skipped = {item.id: item.reason for item in ctx.skipped}
+        for check in ("DOM_TOO_DEEP", "DOM_TOO_MANY_NODES"):
+            assert "matched only 1 of 2" in skipped[check]
+            assert "DOM size not assessed for the rest" in skipped[check]
+    finally:
+        ctx.close()
+
+
 def test_duplicate_budget_reports_partial_instead_of_clean(tmp_path, monkeypatch):
     from seohead.sf.core.context import AuditContext
     from seohead.sf.core.loader import load_exports
