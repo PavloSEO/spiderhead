@@ -20,6 +20,31 @@ collection policy, saved scans, tasks, review decisions and outputs. Start with
 accepts or rejects a proposed goal. None of these is permission to execute free text. A workflow
 requires the accepted goal, registered prompt and current incomplete custom task IDs.
 
+Accepting a proposed goal creates its stable `custom:goal-…` checklist task once. The task keeps
+the proposed text as its description and remains incomplete until the normal checklist workflow
+records an outcome. Acceptance does not start a crawl, approve a manual review, or mark the task
+complete. Custom task definitions can also carry `assignee`, `description`,
+`acceptance_criterion`, a typed `finding_ref` (`scan_id` plus `finding_id`), and a `method_ref` for a
+registered skill or scenario. The optional `competitors` field is a bounded list of `{url,
+max_urls}` entries for per-site task caps. Storing candidates and limits starts no scans; each
+competitor crawl remains an explicit action. These are checklist metadata and remain covered by
+the checklist's expected-revision write contract.
+
+`project-checklist-page` is filter-before-page and returns `total`, `next_offset`, and
+`previous_offset` for bounded offset/limit navigation. Each task row reports `task.state`,
+`task.executor`, `task.actor`, and `task.next_step`; absent values remain null. Per-task
+`affected_urls` has a nullable count plus `measured` or `not_measured` state and reason. The
+count is emitted only when retained measurement evidence enumerates affected URLs; a crawl's
+measured population is not substituted for a count of affected URLs. `project-task-detail` returns
+up to 20 recent comments, total count and truncation state. `project-task-comment` appends an
+attributed comment under the checklist revision and can store a typed scan or finding identity.
+The reference is metadata; recording it does not verify or fetch the referenced evidence.
+
+The existing `updated` sort field still means the newest execution-record timestamp. Whether it
+should instead be named `updated_at`, and whether definition-only state/priority edits should move
+it without adding execution evidence, remains an owner decision. No timestamp is fabricated for
+those edits.
+
 Use the revision returned by the latest read when writing. Old definitions, changed artifacts,
 changed scope or stale dependencies can leave work stale or unfinished; a handoff must include
 those reasons, the next action and its expected evidence, not just a completion count. Competitor
@@ -66,14 +91,44 @@ UTC time, source (`agent`, `user`, `scans`, `app`), actor (`user`, `agent`, `sch
 bounded text. It is append-only, read newest-first in pages of at most 200 with source and
 text filters, and refuses malformed lines instead of skipping them. The CLI
 (`project-event-append`, `project-event-page`) and the matching `seo_project_event_*`
-MCP tools expose the same two operations. `log.md` stays the human narrative: every event is
-also appended there as one bullet, and finished crawls, built project reports and checklist
-attempts write their entries automatically.
+MCP tools expose the same two operations. Each event sequence is the project journal revision;
+readers can pass `--since REVISION` (or `since_revision` over MCP) to receive only later events.
+When the cursor is current, the response sets `not_modified: true`. `--follow` waits up to
+30 seconds for a later event and requires a revision cursor; repeat the call with the returned
+revision to continue polling. `log.md` stays the human narrative: every event is
+also appended there as one bullet, and run start, the first measured progress update, run finish,
+built project reports and checklist attempts write entries automatically.
 `project.json` records format `seohead.project.v1`, integer version 1, a persistent
 project UUID, UTC creation time, normalized target/host and an optional human label.
 Unknown formats/versions refuse; opening never upgrades or rewrites the file.
 Existing project directories are never overwritten. Move the entire directory to
 preserve the relative artifact references.
+
+Project settings live in revisioned `project-settings.json`; read them with
+`seohead project-settings --directory DIR` or `seo_project_settings`. Label changes require
+`--expected-revision`. A project delete refuses while a run is live, then moves the entire
+directory into a sibling `Trash/` folder so scans and exports remain recoverable.
+
+Agents can submit a proposal for a project label or crawl policy with
+`seo_project_settings_propose` or `seohead project-settings-propose`, passing the current
+proposal-store `expected_revision` (zero for a new queue). Proposals capture the target store revision; an owner reviews
+them with `seohead project-settings-review --directory DIR --proposal-id ID --decision DECISION --expected-revision REV` (DECISION is `approve` or `deny`). A stale proposal is recorded as stale and is not applied. Use
+`seohead project-settings-proposals` to inspect the queue. The bounded `actions.jsonl` records
+the interface, action, outcome and proposal reference; pending operation rows are replaced
+atomically by their terminal outcome. `project-action-log` and
+`seo_project_action_log` provide bounded pages filtered by client, outcome or text.
+If the process stops during an approved change, the proposal remains `applying`; reread the queue
+and repeat `approve` with its current revision to finish or reconcile the same operation ID.
+An MCP client may call `seo_project_agent_heartbeat` to record a timestamped activity report.
+Status shows its source but never claims that the client remains connected.
+After a terminal run, the core stores a bounded byte/count measurement for regular files directly
+inside `scans/`; project-status reads that cached record instead of walking the directory. Nested
+scan directories or unsafe entries produce an unavailable state with a reason.
+
+This MCP permission policy is an application workflow boundary, not an operating-system sandbox.
+This local stdio server has no trusted per-caller owner identity, so MCP owner-only changes fail
+closed; local CLI commands provide the explicit review path. The `client` field records which
+interface wrote an action and does not establish who controlled that interface.
 
 Local portability: the project archive action writes one zip (a manifest with SHA-256 and size for
 each member, plus project.json, log.md, scans/, reports/ and the top-level SQLite stores, which are
@@ -446,6 +501,67 @@ filters. A BI cohort selection is a different dataset and does not replace a fin
 `report-build --project DIRECTORY` includes the validated checklist coverage, reasons,
 scope and measurement in a human report without fetching or rerunning the audit. The
 original JSON audit remains unchanged, and `--out` still controls the destination.
+
+### Owner tasks, exports, and competitor scans
+
+Custom project tasks retain optional assignee, description, acceptance criterion, typed
+finding/method references, per-competitor URL caps, comments, and revisioned execution history.
+Task writes use the checklist revision returned by `project-checklist-page` or
+`project-task-detail`. Clear optional text, finding, or method fields with `null`; clear the
+competitor list with `[]`. A measured affected-URL count is populated only from an exact saved-scan
+selection for its finding reference. Unsupported, capped, missing, or stale evidence remains
+explicitly unmeasured; it is not inferred from a sample.
+
+For tasks with competitors, `project-task-detail` includes `task.competitor_run`. Poll or cancel
+its `run_id` while `state` is `running`; resume the same `run_id` when state is `interrupted` and
+`resumable` is true. It reflects current competitor crawl inputs, while `coverage_revision` remains
+provenance for the original run; unrelated comments or task metadata revisions do not invalidate
+an otherwise compatible checkpoint. Preserve the run's `approve_large_crawl` and `producer_build`
+settings when resuming it.
+
+Accepted goals can become stable custom tasks through the local owner workflow. MCP can submit
+or triage proposals, but cannot accept a goal or provide owner signoff. A caller-supplied actor
+or reviewer name is attribution, not proof of owner identity. Ordinary task metadata and
+comments remain revision-checked local writes.
+
+Project exports are local artifacts under `reports/` with bounded, newest-first history in
+`exports.json`. Separate `tasks`, `task_comments`, and `task_history` datasets preserve every
+checklist item actually stored in the project, every attributed custom-task comment, and the
+append-only definition/attempt history. Task rows retain `kind`, catalogue `source_hash`, and
+`operation` separately, and never synthesize catalogue items absent from the project. All three
+datasets are available in JSON, CSV, and XLSX without packing unbounded history into one cell.
+Compare exports preserve the compare.v2 rows and source identities. Long exports expose job
+progress and a cancel request, and history records the artifact receipt. XLSX output above
+1,048,575 data rows is refused; any overflow alternative remains an owner decision. Export
+status and history reads do not create files.
+
+```bash
+seohead project export --directory ./shop-project --dataset task_comments \
+  --format csv --output task-comments.csv
+seohead project export --directory ./shop-project --dataset task_history \
+  --format xlsx --output task-history.xlsx
+```
+
+Task-scoped competitor scans accept only a current custom task and registered competitor
+workspaces. Each child scan obeys its per-site cap and selected bounded concurrency. This is an
+explicit one-shot action independent of persisted cadence and does not modify scheduler state.
+Progress and per-child result identities are retained locally so interrupted runs can resume
+unfinished children without restarting completed scans.
+
+```bash
+seohead project competitors-scan --directory ./shop-project \
+  --task-id custom:competitor-review --expected-revision 4 --confirm \
+  --run-id 00000000-0000-4000-8000-000000000002
+seohead project competitors-scan-status --directory ./shop-project \
+  --run-id 00000000-0000-4000-8000-000000000002
+seohead project competitors-scan-cancel --directory ./shop-project \
+  --run-id 00000000-0000-4000-8000-000000000002
+```
+
+Delivery adapters remain opt-in and require configured credentials/authorization. A delivery
+that may have reached its provider but lacks a durable receipt is marked uncertain for status
+reconciliation; it is never blindly retried. Local export generation and copy-link preparation
+do not deliver or publish an artifact.
 
 ### Definitions, evidence, and reusable templates
 

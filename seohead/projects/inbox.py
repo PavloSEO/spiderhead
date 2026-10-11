@@ -455,6 +455,7 @@ def set_goal_state(
                 directory,
                 item_id=goal_task_id(entry["id"]),
                 title=_goal_task_title(entry["text"]),
+                description=entry["text"],
             )
         changed = entry["goal_state"] != state
         entry["goal_state"] = state

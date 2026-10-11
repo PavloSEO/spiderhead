@@ -187,6 +187,14 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-competitors-list` | Read the recorded competitor candidates and their workspaces. | — |
 | `project-competitors-remove` | Drop one recorded competitor from the shortlist; its workspace stays on disk. | writes |
 | `project-open` | Open a local project workspace without executing template references. | offline, read-only |
+| `project-update` | Update the project label with an expected settings revision. | writes |
+| `project-delete` | Move a project with its scans and exports into a sibling `Trash/` directory; active runs are refused. | writes |
+| `project-settings` | Read project settings and their revision. | offline, read-only |
+| `project-settings-proposals` | Read a bounded page of pending and decided setting proposals. | offline, read-only |
+| `project-settings-propose` | Submit a label or crawl-policy proposal with the current proposal revision; it is not applied. | writes |
+| `project-settings-review` | Apply or deny a setting proposal against its stored revision. | writes |
+| `project-action-log` | Read bounded action history with interface, outcome and text filters. | offline, read-only |
+| `project-agent-heartbeat` | Record a timestamped report from this CLI process; it does not prove a client remains connected. | writes |
 | `project-status` | Show project scan history and named pending checklist/preparation states. | offline, read-only |
 | `project-sources-link` | Bind a provider resource ID (including a Cloudflare zone ID) to a project in `sources.json`; no provider call. | writes |
 | `project-sources-unlink` | Remove one resource binding from `sources.json`; no provider call. | writes |
@@ -196,13 +204,21 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-activity` | Read lightweight current activity for a local project and its sites. | offline, read-only |
 | `project-scans` | Read a bounded page of retained project scans with evidence metadata. | offline, read-only |
 | `project-task-detail` | Read one project task definition, evidence and bounded history. | offline, read-only |
+| `project-task-comment` | Append an attributed comment to a custom task with an optional retained scan/finding reference. | writes |
+| `project-competitors-scan` | Start bounded one-shot scans for the registered competitors and URL caps on one current task. | network, writes |
+| `project-competitors-scan-status` | Read durable progress and per-site results for a competitor scan run. | offline, read-only |
+| `project-competitors-scan-cancel` | Request stop at the next per-site crawl checkpoint. | writes |
+| `project-export` | Export the complete task, task-comments, task-history or compare.v2 dataset as JSON, CSV or XLSX. | writes |
+| `project-export-status` | Read a project export job's progress and recovery state. | offline, read-only |
+| `project-export-cancel` | Request cancellation at a project export checkpoint. | writes |
+| `project-exports-page` | Read a bounded page of export receipts and artifact hashes. | offline, read-only |
 | `project-checklist-init` | Initialize or reconcile a local checklist without executing a check, skill, or scenario. | writes |
 | `project-checklist-update` | Add or update one local checklist definition without executing it. | writes |
 | `project-checklist-record` | Record supplied evidence for one checklist item without executing its operation. | writes |
 | `project-checklist-page` | Read a bounded searchable page of project checklist evidence. | offline, read-only |
 | `project-facts` | Preview or record project stack facts that stack-aware priorities then read. | network, writes |
 | `project-priorities` | Preview stack-aware project priorities from saved facts without network requests. | writes |
-| `project-policy` | Read or explicitly update operator crawl defaults and project admission thresholds. | writes |
+| `project-policy` | Read or update crawl defaults and admission thresholds; MCP agents must submit proposals for owner review. | writes |
 | `project-view-list` | List saved declarative finding views and the current project view-config revision. | offline, read-only |
 | `project-view-show` | Read one saved finding view with its stable identity, schema version and revision. | offline, read-only |
 | `project-view-save` | Create or revise a bounded declarative finding view using an expected config revision. | writes |
@@ -216,7 +232,7 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-inbox-triage` | Append an explicit task, goal, competitor, blocked, or rejected note outcome. | writes |
 | `project-inbox-unread` | Return a bounded unread reference summary without changing delivery state. | offline, read-only |
 | `project-event-append` | Append one structured event (source, actor, text) to the project journal `events.jsonl`; earlier events are never edited. | writes |
-| `project-event-page` | Read a newest-first bounded page of project events, with optional source and text filters. | offline, read-only |
+| `project-event-page` | Read a bounded newest-first project-event page, optionally after a revision; `--follow` waits up to 30 seconds. | offline, read-only |
 | `audit-workflow` | Use a closed project workflow: status, bounded start/prepare, or an evidence-backed report. | network, writes |
 | `workflow-start` | Start a local registered workflow; it performs no scan or provider call. | writes |
 | `workflow-checkpoint` | Persist one registered-step result before the next step or agent handoff. | writes |

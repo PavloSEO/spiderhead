@@ -1,6 +1,6 @@
 # Packaging preparation
 
-SEOHEAD Desktop is prepared as one local artifact: the native PyQt shell and
+SpiderHead Desktop is prepared as one local artifact: the native PyQt shell and
 the exact compatible SEOHEAD Tools core. The desktop process invokes the
 co-shipped `seohead` executable by a relative path; it does not fall back to a
 global installation. That executable also exposes the core's local stdio MCP
@@ -46,7 +46,7 @@ python3 -m venv "$desktop/.build/venv"
 "$desktop/scripts/build_macos.sh" \
   --python "$desktop/.build/venv/bin/python" \
   --core-source "$core" \
-  --output "$desktop/dist/SEOHEAD Desktop.app"
+  --output "$desktop/dist/SpiderHead.app"
 ```
 
 The macOS script refuses an existing output path and a dirty core checkout. It first
@@ -68,7 +68,7 @@ For repeated macOS bundle previews add `--incremental`:
 
 ```bash
 scripts/build_macos.sh --core-source /path/to/seohead-tools \
-  --output "/new/path/SEOHEAD Desktop.preview.app" --incremental
+  --output "/new/path/SpiderHead.preview.app" --incremental
 ```
 
 This keeps PyInstaller analysis/work files under `.build/macos-preview-cache/`.
@@ -93,11 +93,11 @@ Linux and Windows use the same bundle specification, manifest generator,
 notice copier, and smoke check:
 
 ```bash
-scripts/build_linux.sh /path/to/seohead-tools /new/output/SEOHEAD\ Desktop
+scripts/build_linux.sh /path/to/seohead-tools /new/output/SpiderHead
 ```
 
 ```powershell
-scripts/build_windows.ps1 -CoreSource C:\path\to\seohead-tools -Output C:\new\output\SEOHEAD-Desktop
+scripts/build_windows.ps1 -CoreSource C:\path\to\seohead-tools -Output C:\new\output\SpiderHead
 ```
 
 Those commands are preparation only until they have separate native build and
@@ -108,7 +108,7 @@ clean-machine evidence. They do not cross-package from macOS.
 On the target machine, copy the complete `.app` directory and run:
 
 ```bash
-python3 scripts/smoke_bundle.py --bundle "/Applications/SEOHEAD Desktop.app"
+python3 scripts/smoke_bundle.py --bundle "/Applications/SpiderHead.app"
 ```
 
 The smoke check validates the manifest schema, rejects a path escaping the
@@ -121,7 +121,7 @@ read-only, and confirm that the desktop identifies the recorded bundled core.
 
 The app has no installer, service, listener, or migration. Keep the previous
 verified `.app` intact until the copied bundle has passed the clean-machine
-smoke and native UI acceptance. To roll back, quit SEOHEAD Desktop and replace
+smoke and native UI acceptance. To roll back, quit SpiderHead and replace
 the failed `.app` directory with that previous verified directory. Do not copy
 individual files between bundles: the executable hash and source provenance
 would no longer match the manifest.

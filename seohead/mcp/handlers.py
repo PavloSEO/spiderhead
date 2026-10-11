@@ -5436,6 +5436,79 @@ def project_open(directory: str, expected_site: str | None = None) -> dict[str, 
     return core(directory, expected_site=expected_site)
 
 
+def project_update(directory: str, label: str, expected_revision: int) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_update as core
+
+    return core(directory, label=label, expected_revision=expected_revision)
+
+
+def project_delete(directory: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_delete as core
+
+    return core(directory)
+
+
+def project_settings(directory: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_settings as core
+
+    return core(directory)
+
+
+def project_settings_propose(
+    directory: str, changes: dict[str, Any], expected_revision: int
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_settings_propose as core
+
+    return core(directory, changes=changes, expected_revision=expected_revision)
+
+
+def project_settings_proposals(
+    directory: str, offset: int = 0, limit: int = 50
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_settings_proposals as core
+
+    return core(directory, offset=offset, limit=limit)
+
+
+def project_settings_review(
+    directory: str, proposal_id: str, decision: str, expected_revision: int
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_settings_review as core
+
+    return core(
+        directory,
+        proposal_id=proposal_id,
+        decision=decision,
+        expected_revision=expected_revision,
+    )
+
+
+def project_action_log(
+    directory: str,
+    offset: int = 0,
+    limit: int = 50,
+    client: str | None = None,
+    outcome: str | None = None,
+    query: str = "",
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_action_log as core
+
+    return core(
+        directory,
+        offset=offset,
+        limit=limit,
+        client=client,
+        outcome=outcome,
+        query=query,
+    )
+
+
+def project_agent_heartbeat(directory: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_agent_heartbeat as core
+
+    return core(directory)
+
+
 def project_status(directory: str, consumer: str | None = None) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_basic_status
 
@@ -5846,6 +5919,28 @@ def remediation_report(
     )
 
 
+def _record_project_action(
+    directory: str,
+    *,
+    action: str,
+    outcome: str,
+    detail: str = "",
+    proposal_id: str | None = None,
+) -> None:
+    from seohead.projects.action_log import record_interface_action
+
+    try:
+        record_interface_action(
+            directory,
+            action=action,
+            outcome=outcome,
+            detail=detail,
+            proposal_id=proposal_id,
+        )
+    except (OSError, ValueError):
+        return None
+
+
 def project_inbox_submit(
     directory: str,
     text: str,
@@ -5856,7 +5951,7 @@ def project_inbox_submit(
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_inbox_submit as core
 
-    return core(
+    result = core(
         directory,
         text=text,
         kind=kind,
@@ -5864,6 +5959,13 @@ def project_inbox_submit(
         author_role=author_role,
         expected_revision=expected_revision,
     )
+    _record_project_action(
+        directory,
+        action="project.inbox.submit",
+        outcome="pending" if kind == "proposed_goal" else "applied",
+        detail=f"Recorded project inbox {kind}",
+    )
+    return result
 
 
 def project_inbox_list(
@@ -5909,7 +6011,14 @@ def project_inbox_goal(
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_inbox_goal as core
 
-    return core(directory, entry_id=entry_id, state=state, expected_revision=expected_revision)
+    result = core(directory, entry_id=entry_id, state=state, expected_revision=expected_revision)
+    _record_project_action(
+        directory,
+        action="project.goal." + state,
+        outcome="applied",
+        detail=f"Updated owner goal state to {state}",
+    )
+    return result
 
 
 def project_inbox_triage(
@@ -5948,10 +6057,22 @@ def project_event_page(
     limit: int = 50,
     source: str | None = None,
     query: str = "",
+    since_revision: int | None = None,
+    follow: bool = False,
+    wait_seconds: int = 0,
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_event_page as core
 
-    return core(directory, offset=offset, limit=limit, source=source, query=query)
+    return core(
+        directory,
+        offset=offset,
+        limit=limit,
+        source=source,
+        query=query,
+        since_revision=since_revision,
+        follow=follow,
+        wait_seconds=wait_seconds,
+    )
 
 
 def project_observe(
@@ -5999,7 +6120,14 @@ def project_checklist_init(
 def project_checklist_update(directory: str, item: dict, expected_revision: int) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_checklist_update as core
 
-    return core(directory, item=item, expected_revision=expected_revision)
+    result = core(directory, item=item, expected_revision=expected_revision)
+    _record_project_action(
+        directory,
+        action="project.checklist.update",
+        outcome="applied",
+        detail="Updated checklist item definition",
+    )
+    return result
 
 
 def project_checklist_record(
@@ -6007,7 +6135,21 @@ def project_checklist_record(
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_checklist_record as core
 
-    return core(directory, item_id=item_id, record=record, expected_revision=expected_revision)
+    result = core(directory, item_id=item_id, record=record, expected_revision=expected_revision)
+    action = (
+        "project.checklist.signoff"
+        if record.get("signoff") is True
+        else "project.checklist.review"
+        if record.get("review") == "approved"
+        else "project.checklist.record"
+    )
+    _record_project_action(
+        directory,
+        action=action,
+        outcome="applied",
+        detail=f"Recorded checklist item {item_id} as {record.get('status', 'unknown')}",
+    )
+    return result
 
 
 def project_view_list(directory: str) -> dict[str, Any]:
@@ -6070,8 +6212,55 @@ def project_policy(
     expected_revision: int | None = None,
 ) -> dict[str, Any]:
     from seohead.projects.runtime import project_policy as core
+    from seohead.projects.runtime import project_write_lock
+    from seohead.projects.workspace import _load
 
-    return core(directory, policy=policy, apply=apply, expected_revision=expected_revision)
+    root, _project = _load(directory)
+    with project_write_lock(root):
+        if not apply:
+            return core(directory, policy=policy, apply=False, expected_revision=expected_revision)
+        from seohead.projects.action_log import record as record_action
+        from seohead.projects.action_log import resolve_pending
+
+        import uuid
+
+        operation_id = uuid.uuid4().hex
+        pending = record_action(
+            root,
+            client="cli",
+            action="project.policy.apply",
+            outcome="pending",
+            detail="Crawl policy update pending; terminal result will replace this row.",
+            operation_id=operation_id,
+        )["action"]
+        try:
+            result = core(
+                directory,
+                policy=policy,
+                apply=True,
+                expected_revision=expected_revision,
+                operation_id=operation_id,
+            )
+        except (OSError, ValueError) as exc:
+            resolve_pending(
+                root,
+                pending["sequence"],
+                outcome="stale" if "revision" in str(exc).lower() else "refused",
+                detail="Crawl policy update did not apply.",
+                operation_id=operation_id,
+            )
+            raise
+        try:
+            resolve_pending(
+                root,
+                pending["sequence"],
+                outcome="applied",
+                detail=f"Applied crawl policy revision {result['revision']}.",
+                operation_id=operation_id,
+            )
+        except (OSError, ValueError):
+            result["audit_warning"] = "Policy was saved; its action row remains pending."
+        return result
 
 
 def project_prepare(
@@ -6111,6 +6300,82 @@ def project_competitors_remove(directory: str, url: str) -> dict[str, Any]:
     from seohead.projects.runtime import remove_competitor
 
     return remove_competitor(directory, url)
+
+
+def project_competitors_scan(
+    directory: str,
+    task_id: str,
+    expected_revision: int,
+    confirm: bool,
+    concurrency: int = 3,
+    approve_large_crawl: bool = False,
+    producer_build: str | None = None,
+    run_id: str | None = None,
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_competitors_scan as core
+
+    return core(
+        directory=directory,
+        task_id=task_id,
+        expected_revision=expected_revision,
+        confirm=confirm,
+        concurrency=concurrency,
+        approve_large_crawl=approve_large_crawl,
+        producer_build=producer_build,
+        run_id=run_id,
+    )
+
+
+def project_competitors_scan_status(directory: str, run_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_competitors_scan_status as core
+
+    return core(directory=directory, run_id=run_id)
+
+
+def project_competitors_scan_cancel(directory: str, run_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_competitors_scan_cancel as core
+
+    return core(directory=directory, run_id=run_id)
+
+
+def project_export_start(
+    directory: str,
+    dataset: str,
+    fmt: str,
+    output: str,
+    compare_manifest: str | None = None,
+    job_id: str | None = None,
+    wait: bool = True,
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_export_start as core
+
+    return core(
+        directory=directory,
+        dataset=dataset,
+        fmt=fmt,
+        output=output,
+        compare_manifest=compare_manifest,
+        job_id=job_id,
+        wait=wait,
+    )
+
+
+def project_export_status(directory: str, job_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_export_status as core
+
+    return core(directory=directory, job_id=job_id)
+
+
+def project_export_cancel(directory: str, job_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_export_cancel as core
+
+    return core(directory=directory, job_id=job_id)
+
+
+def project_exports_page(directory: str, offset: int = 0, limit: int = 50) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_exports_page as core
+
+    return core(directory=directory, offset=offset, limit=limit)
 
 
 def project_start(
@@ -6641,6 +6906,26 @@ def project_task_detail(directory: str, item_id: str) -> dict[str, Any]:
     from seohead.projects.observer import task_detail as core
 
     return core(directory=directory, item_id=item_id)
+
+
+def project_task_comment(
+    directory: str,
+    item_id: str,
+    text: str,
+    actor: str,
+    expected_revision: int,
+    reference: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_task_comment as core
+
+    return core(
+        directory=directory,
+        item_id=item_id,
+        text=text,
+        actor=actor,
+        expected_revision=expected_revision,
+        reference=reference,
+    )
 
 
 def project_scans(directory: str, offset: int = 0, limit: int = 20) -> dict[str, Any]:
@@ -7457,6 +7742,14 @@ _RAW_HANDLERS = {
     "scan_body_diff": scan_body_diff,
     "project_new": project_new,
     "project_open": project_open,
+    "project_update": project_update,
+    "project_delete": project_delete,
+    "project_settings": project_settings,
+    "project_settings_propose": project_settings_propose,
+    "project_settings_proposals": project_settings_proposals,
+    "project_settings_review": project_settings_review,
+    "project_action_log": project_action_log,
+    "project_agent_heartbeat": project_agent_heartbeat,
     "project_status": project_status,
     "project_sources_link": project_sources_link,
     "project_sources_unlink": project_sources_unlink,
@@ -7515,6 +7808,13 @@ _RAW_HANDLERS = {
     "project_competitors_add": project_competitors_add,
     "project_competitors_list": project_competitors_list,
     "project_competitors_remove": project_competitors_remove,
+    "project_competitors_scan": project_competitors_scan,
+    "project_competitors_scan_status": project_competitors_scan_status,
+    "project_competitors_scan_cancel": project_competitors_scan_cancel,
+    "project_export_start": project_export_start,
+    "project_export_status": project_export_status,
+    "project_export_cancel": project_export_cancel,
+    "project_exports_page": project_exports_page,
     "project_start": project_start,
     "skill_list": skill_list,
     "skill_show": skill_show,
@@ -7538,6 +7838,7 @@ _RAW_HANDLERS = {
     "project_activity": project_activity,
     "project_checklist_page": project_checklist_page,
     "project_task_detail": project_task_detail,
+    "project_task_comment": project_task_comment,
     "project_scans": project_scans,
     "publication_cohorts": publication_cohorts,
     "gsc_progress": gsc_progress,

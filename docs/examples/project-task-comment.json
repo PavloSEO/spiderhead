@@ -1,0 +1,12 @@
+{
+  "directory": "./shop-project",
+  "item_id": "custom:review-missing-title",
+  "text": "The rescan contains the expected canonical link; ready for owner review.",
+  "actor": "agent/review-session",
+  "expected_revision": 4,
+  "reference": {
+    "kind": "finding",
+    "scan_id": "scan-synthetic-2026-10-12",
+    "id": "finding-synthetic-001"
+  }
+}

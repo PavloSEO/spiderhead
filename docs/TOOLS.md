@@ -40,12 +40,14 @@ and inputs remain in the nearby route sections and generated tool reference.
 `monitor-collect` · `monitor-configure` · `monitor-local-deliver` · `monitor-run` · `monitor-schedule` ·
 `monitor-status` · `parse` · `project-activity` · `project-checklist-init` · `project-checklist-page` ·
 `project-checklist-record` · `project-checklist-update` · `project-competitors-add` ·
-`project-competitors-list` · `project-competitors-remove` · `project-event-append` · `project-event-page` ·
+`project-competitors-list` · `project-competitors-remove` · `project-competitors-scan` ·
+`project-competitors-scan-cancel` · `project-competitors-scan-status` · `project-event-append` · `project-event-page` ·
+`project-export` · `project-export-cancel` · `project-export-status` · `project-exports-page` ·
 `project-facts` · `project-inbox-acknowledge` · `project-inbox-goal` · `project-inbox-list` ·
 `project-inbox-read` · `project-inbox-submit` · `project-inbox-triage` · `project-inbox-unread` ·
 `project-new` · `project-observe` · `project-open` · `project-policy` · `project-prepare` ·
 `project-priorities` · `project-progress` · `project-scans` · `project-sources-link` · `project-sources-list`
-· `project-sources-unlink` · `project-start` · `project-status` · `project-task-detail` ·
+· `project-sources-unlink` · `project-start` · `project-status` · `project-task-comment` · `project-task-detail` ·
 `project-view-delete` · `project-view-list` · `project-view-rename` · `project-view-save` ·
 `project-view-show` · `provider-auth` · `provider-credential` · `provider-discover` · `provider-collect` · `provider-join` · `provider-readiness` ·
 `provider-registry` · `provider-replay` · `provider-verify` · `publication-cohorts` · `redirects-check` ·
@@ -98,6 +100,13 @@ one document. It never fetches a route or infers a link from unobserved script t
 `project-activity`, `project-checklist-page`, `project-task-detail`, and `project-scans`
 expose bounded local observer reads for agents and the terminal. Search, pagination,
 item definitions, evidence and history remain available without changing the project.
+
+Project exports are local jobs with bounded progress, explicit cancellation, restart
+recovery, and unconditional artifact receipts in export history. Separate task, comment, and
+append-only history datasets retain complete project records; compare exports preserve complete
+compare.v2 source rows and identities. Task-scoped competitor scans are an explicit
+one-shot action with per-site caps and at most three children in flight; they do not create or
+change scheduler cadence.
 
 `bi-export` writes typed, bounded CSV partitions and a provenance/coverage manifest
 from saved local scan/audit and supplied provider evidence. See [BI.md](BI.md) for
@@ -156,6 +165,11 @@ not the geographic region `key`; `summary` takes the singular `region_index`.
 | `project-facts` | Preview or record the project's stack facts; `--detect` fetches the target once after robots.txt, and an unavailable or ambiguous detection leaves the fact absent with its reason | only with `--detect` |
 | `project-checklist-init` | Initialize or reconcile a local checklist from the built-in catalogue, an optional data-only template, and an optional agreed scope `plan` that fixes the URL-population and task denominators; does not execute items | no |
 | `project-checklist-update` | Add or edit one checklist definition with an expected revision; does not execute it | no |
+| `project-task-comment` | Append an attributed comment to a custom task and optional retained-evidence link under the checklist revision | no |
+| `project-export-start` | Export the tasks, task_comments, task_history, or compare.v2 dataset to a local artifact | no |
+| `project-export-status` | Read bounded progress or restart-recovery state for an export job | no |
+| `project-export-cancel` | Request cancellation at a local export checkpoint | no |
+| `project-exports-page` | Read a bounded page of export artifact receipts | no |
 | `project-checklist-record` | Validate and record supplied evidence for one item with an expected revision; does not execute it | no |
 | `project-view-list` / `project-view-show` | List saved finding views or retrieve one with stable identity and schema/config revisions | no |
 | `project-view-save` | Create or revise a closed declarative finding view using an expected config revision | writes project view configuration |
@@ -167,6 +181,9 @@ not the geographic region `key`; `summary` takes the singular `region_index`.
 | `project-competitors-add` | Records supplied competitor candidates as separate local workspaces, without crawling | yes |
 | `project-competitors-list` | Reads the recorded competitor candidates and their workspaces | no |
 | `project-competitors-remove` | Drops one recorded competitor from the shortlist; the workspace stays on disk | yes |
+| `project-competitors-scan` | Starts explicit task-scoped bounded scans in registered competitor workspaces | yes |
+| `project-competitors-scan-status` | Reads retained per-site progress for one explicitly started scan run | no |
+| `project-competitors-scan-cancel` | Requests cancellation at the next crawl progress boundary | writes |
 
 The nested aliases are `seohead project new`, `seohead project open`,
 `seohead project status`, `seohead project facts`, `seohead project checklist-init`,

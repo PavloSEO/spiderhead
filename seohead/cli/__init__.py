@@ -135,6 +135,14 @@ COMMANDS = (
     "scan-body-diff",
     "project-new",
     "project-open",
+    "project-update",
+    "project-delete",
+    "project-settings",
+    "project-settings-proposals",
+    "project-settings-review",
+    "project-settings-propose",
+    "project-action-log",
+    "project-agent-heartbeat",
     "project-status",
     "project-progress",
     "project-sources-link",
@@ -191,6 +199,13 @@ COMMANDS = (
     "project-competitors-add",
     "project-competitors-list",
     "project-competitors-remove",
+    "project-competitors-scan",
+    "project-competitors-scan-status",
+    "project-competitors-scan-cancel",
+    "project-export",
+    "project-export-status",
+    "project-export-cancel",
+    "project-exports-page",
     "skill-list",
     "skill-show",
     "scenario-list",
@@ -213,6 +228,7 @@ COMMANDS = (
     "project-activity",
     "project-checklist-page",
     "project-task-detail",
+    "project-task-comment",
     "project-scans",
     "publication-cohorts",
     "gsc-progress",
@@ -765,6 +781,13 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     elif cmd in {
         "project-new",
         "project-open",
+        "project-update",
+        "project-delete",
+        "project-settings",
+        "project-settings-proposals",
+        "project-settings-review",
+        "project-settings-propose",
+        "project-agent-heartbeat",
         "project-status",
         "project-progress",
         "project-facts",
@@ -778,6 +801,13 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         "project-competitors-add",
         "project-competitors-list",
         "project-competitors-remove",
+        "project-competitors-scan",
+        "project-competitors-scan-status",
+        "project-competitors-scan-cancel",
+        "project-export",
+        "project-export-status",
+        "project-export-cancel",
+        "project-exports-page",
     }:
         for name in ("directory", "target", "label", "expected_site"):
             value = getattr(args, name, None)
@@ -786,12 +816,39 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         if cmd == "project-progress":
             kw["limit"] = args.limit
             kw["offset"] = args.offset
+        if cmd == "project-settings-proposals":
+            kw["limit"] = args.limit
+            kw["offset"] = args.offset
+        if cmd == "project-settings-review":
+            kw["proposal_id"] = args.proposal_id
+            kw["decision"] = args.decision
         if getattr(args, "expected_revision", None) is not None:
             kw["expected_revision"] = args.expected_revision
         if cmd == "project-prepare" and args.max_urls is not None:
             kw["max_urls"] = args.max_urls
         if getattr(args, "item_id", None) is not None:
             kw["item_id"] = args.item_id
+        if getattr(args, "task_id", None) is not None:
+            kw["task_id"] = args.task_id
+        if getattr(args, "concurrency", None) is not None:
+            kw["concurrency"] = args.concurrency
+        if cmd == "project-competitors-scan":
+            kw["confirm"] = bool(getattr(args, "confirm", False))
+            if getattr(args, "run_id", None) is not None:
+                kw["run_id"] = args.run_id
+        if cmd in {"project-competitors-scan-status", "project-competitors-scan-cancel"}:
+            kw["run_id"] = args.run_id
+        if cmd == "project-export":
+            for name in ("dataset", "fmt", "output", "compare_manifest", "job_id"):
+                value = getattr(args, name, None)
+                if value is not None:
+                    kw[name] = value
+            kw["wait"] = True
+        if cmd in {"project-export-status", "project-export-cancel"}:
+            kw["job_id"] = args.job_id
+        if cmd == "project-exports-page":
+            kw["offset"] = args.offset
+            kw["limit"] = args.limit
         if cmd in {"project-priorities", "project-policy", "project-facts"} and getattr(
             args, "apply", False
         ):
@@ -837,10 +894,28 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         for name in ("directory", "source", "actor", "text"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
-    elif cmd == "project-event-page":
-        for name in ("directory", "source", "offset", "limit", "query"):
+    elif cmd == "project-task-comment":
+        for name in ("directory", "item_id", "text", "actor", "expected_revision", "reference"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "project-event-page":
+        for name in (
+            "directory",
+            "source",
+            "offset",
+            "limit",
+            "query",
+            "since_revision",
+            "follow",
+            "wait_seconds",
+        ):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+    elif cmd == "project-action-log":
+        for name in ("directory", "offset", "limit", "client", "outcome", "query"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "project-observe":
         for name in ("directory", "consumer", "scan_limit", "run_offset", "run_limit"):
             if getattr(args, name, None) is not None:
@@ -938,6 +1013,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         "project-activity",
         "project-checklist-page",
         "project-task-detail",
+        "project-task-comment",
         "project-scans",
         "scan-navigation",
         "bi-filter",
@@ -2732,6 +2808,43 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--offset", type=int, default=0)
         sub.add_argument("--limit", type=int, default=50, help="events per page, 1..200")
         sub.add_argument("--query", default="", help="case-insensitive text substring")
+        sub.add_argument("--since", dest="since_revision", type=int, help="event revision cursor")
+        sub.add_argument("--follow", action="store_true", help="wait for a newer event")
+        sub.add_argument(
+            "--wait-seconds", type=int, default=30, help="maximum follow wait, 0..30 (default: 30)"
+        )
+    if cmd in {
+        "project-update",
+        "project-delete",
+        "project-settings",
+        "project-settings-proposals",
+        "project-settings-review",
+        "project-settings-propose",
+        "project-agent-heartbeat",
+        "project-action-log",
+    }:
+        _source_flag(sub, "--directory", help="validated local project workspace")
+    if cmd == "project-update":
+        sub.add_argument("--label", required=True, help="new project label, up to 128 characters")
+        sub.add_argument("--expected-revision", type=int, required=True)
+    if cmd == "project-settings-proposals":
+        sub.add_argument("--offset", type=int, default=0)
+        sub.add_argument("--limit", type=int, default=50)
+    if cmd == "project-settings-review":
+        sub.add_argument("--proposal-id", required=True)
+        sub.add_argument("--decision", required=True, choices=("approve", "deny"))
+        sub.add_argument("--expected-revision", type=int, required=True)
+    if cmd == "project-settings-propose":
+        sub.add_argument("--expected-revision", type=int, required=True)
+    if cmd == "project-action-log":
+        sub.add_argument("--offset", type=int, default=0)
+        sub.add_argument("--limit", type=int, default=50)
+        sub.add_argument("--client", choices=("cli", "mcp", "system"))
+        sub.add_argument(
+            "--outcome",
+            choices=("pending", "applied", "approved", "denied", "stale", "refused", "deleted"),
+        )
+        sub.add_argument("--query", default="")
     if cmd == "project-inbox-submit":
         _source_flag(sub, "--text", help="specialist note, proposed goal or question text")
         sub.add_argument(
@@ -2979,10 +3092,44 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "project-competitors-add",
         "project-competitors-list",
         "project-competitors-remove",
+        "project-competitors-scan",
+        "project-competitors-scan-status",
+        "project-competitors-scan-cancel",
+        "project-export",
+        "project-export-status",
+        "project-export-cancel",
+        "project-exports-page",
     }:
         _source_flag(sub, "--directory", help="project directory")
     if cmd == "project-competitors-remove":
         sub.add_argument("--url", required=True, help="recorded competitor URL to remove")
+    if cmd == "project-competitors-scan":
+        sub.add_argument(
+            "--task-id", required=True, help="current custom task with structured competitor limits"
+        )
+        sub.add_argument("--expected-revision", type=int, required=True)
+        sub.add_argument("--confirm", action="store_true", help="explicitly start competitor crawls")
+        sub.add_argument("--concurrency", type=int, default=3, help="parallel sites, 1..3")
+        sub.add_argument("--run-id", help="stable UUID for polling, cancellation and safe resume")
+    if cmd in {"project-competitors-scan-status", "project-competitors-scan-cancel"}:
+        _source_flag(sub, "--run-id", required=True, help="competitor scan run UUID")
+    if cmd == "project-export":
+        _source_flag(
+            sub,
+            "--dataset",
+            choices=("tasks", "task_comments", "task_history", "compare"),
+            required=True,
+            help="complete project dataset",
+        )
+        sub.add_argument("--format", dest="fmt", choices=("json", "csv", "xlsx"), required=True)
+        _source_flag(sub, "--output", required=True, help="new filename under project reports/")
+        _source_flag(sub, "--compare-manifest", help="compare.v2 manifest for dataset=compare")
+        sub.add_argument("--job-id", help="optional caller-generated UUID for later cancellation")
+    if cmd in {"project-export-status", "project-export-cancel"}:
+        _source_flag(sub, "--job-id", help="project export job UUID")
+    if cmd == "project-exports-page":
+        sub.add_argument("--offset", type=int, default=0)
+        sub.add_argument("--limit", type=int, default=50)
     if cmd == "project-policy":
         sub.add_argument(
             "--expected-revision", type=int, help="current policy revision, zero for a new policy"
@@ -2993,7 +3140,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             type=int,
             help="URL cap for a new preparation crawl: 1..1,000,000; reuses a suitable saved scan first",
         )
-    if cmd in {"project-prepare", "project-start"}:
+    if cmd in {"project-prepare", "project-start", "project-competitors-scan"}:
         sub.add_argument("--approve-large-crawl", action="store_true")
         sub.add_argument(
             "--producer-build", help="explicit producer revision when working outside a clean build"
@@ -3093,11 +3240,17 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "project-activity",
         "project-checklist-page",
         "project-task-detail",
+        "project-task-comment",
         "project-scans",
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
     if cmd == "project-task-detail":
         sub.add_argument("--item-id", help="exact checklist item identifier")
+    if cmd == "project-task-comment":
+        sub.add_argument("--item-id", help="exact custom task identifier")
+        sub.add_argument("--expected-revision", type=int)
+        sub.add_argument("--actor", help="person or agent adding the comment")
+        _source_flag(sub, "--text", help="comment text")
     if cmd in {"project-checklist-page", "project-scans", "scan-navigation"}:
         sub.add_argument("--limit", type=int, help="bounded page size")
         sub.add_argument("--offset", type=int, help="zero-based item offset")
@@ -3448,12 +3601,21 @@ def build_parser() -> argparse.ArgumentParser:
     for action in (
         "new",
         "open",
+        "update",
+        "delete",
+        "settings",
+        "settings-proposals",
+        "settings-review",
+        "settings-propose",
+        "action-log",
+        "agent-heartbeat",
         "status",
         "progress",
         "observe",
         "activity",
         "checklist-page",
         "task-detail",
+        "task-comment",
         "scans",
         "inbox-submit",
         "inbox-list",
@@ -3474,6 +3636,13 @@ def build_parser() -> argparse.ArgumentParser:
         "policy",
         "prepare",
         "start",
+        "competitors-scan",
+        "competitors-scan-status",
+        "competitors-scan-cancel",
+        "export",
+        "export-status",
+        "export-cancel",
+        "exports-page",
         "sources-link",
         "sources-unlink",
         "sources-list",

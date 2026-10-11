@@ -31,7 +31,9 @@ class CommandsMixin:
 
     def mcp_ready_state(self, _tools):
         self.mcp_ready = True
+        self._mcp_tools = frozenset(_tools)
         self.content_search.set_available(_tools)
+        self.data_changed.emit("mcp")
         self.statusBar().showMessage("Локальный SEOHEAD MCP подключён")
 
     def mcp_transport_failed(self, text):
@@ -135,6 +137,12 @@ class CommandsMixin:
         kind = {
             "tasks": "tasks",
             "task-detail": "tasks",
+            "task-update": "tasks",
+            "task-comment": "tasks",
+            "task-record": "tasks",
+            "competitors-scan": "tasks",
+            "competitors-add": "competitors",
+            "competitors-remove": "competitors",
             "inbox-submit": "inbox",
             "observer": "observer",
         }.get(operation)

@@ -8,10 +8,13 @@ shows the neutral «Недоступно» badge with a hint; nothing is estimat
 
 from __future__ import annotations
 
+import json
+
 from PyQt5.QtCore import QAbstractTableModel, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtWidgets import (
     QApplication,
+    QComboBox,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -101,8 +104,8 @@ UNAVAILABLE = {
     ),
     "schema": (
         "Структурированные данные",
-        "Содержимое блоков JSON-LD, microdata и ошибки разметки по URL ядро не отдаёт; ниже — что найдено на странице.",
-        948,
+        "JSON-LD читается только из сохранённого тела выбранного URL. Microdata, RDFa и проверки eligibility здесь не оцениваются.",
+        None,
     ),
     "checks": (
         "Проверки выбранного URL",
@@ -1077,22 +1080,39 @@ class HtmlPage(QWidget):
 
 
 class SchemaPage(QWidget):
-    """Structured data tab in the canvas layout: blocks | block tree | checks. The core gives only the JSON-LD block counts
-    per URL, so the three columns are honest waiting states; the counts and hreflang facts stay real."""
+    """Show exact-URL retained JSON-LD; keep other syntax and validation explicitly unavailable."""
 
     def __init__(self, ctx, parent=None):
         super().__init__(parent)
         self.ctx = ctx
+        self.loaded_for = None
+        self._pending = None
+        self.job = CoreJob(ctx.host_ref, self)
+        self.job.done.connect(self._done)
+        self.job.failed.connect(self._failed)
         title, text, issue = UNAVAILABLE["schema"]
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 14, 20, 14)
         layout.setSpacing(10)
         head = QHBoxLayout()
         head.addWidget(section_label(title))
-        head.addWidget(waiting_badge(issue))
+        if issue is not None:
+            head.addWidget(waiting_badge(issue))
         head.addStretch(1)
         layout.addLayout(head)
         layout.addWidget(label_row(text))
+        source_controls = QHBoxLayout()
+        self.representation = QComboBox()
+        self.representation.addItems(("static", "rendered", "legacy_fragment"))
+        self.variant_key = QLineEdit()
+        self.variant_key.setPlaceholderText("Optional retained variant key")
+        self.read_button = QPushButton("Read retained evidence")
+        self.read_button.clicked.connect(self.activate)
+        source_controls.addWidget(QLabel("Representation"))
+        source_controls.addWidget(self.representation)
+        source_controls.addWidget(self.variant_key, 1)
+        source_controls.addWidget(self.read_button)
+        layout.addLayout(source_controls)
         self.count = label_row("")
         self.count.setProperty("text_style", "meta")
         layout.addWidget(self.count)
@@ -1110,8 +1130,8 @@ class SchemaPage(QWidget):
         )
         self.checks = StatePanel(
             "waiting",
-            "Проверка не выполнена",
-            "Ошибки разбора и предупреждения появятся вместе с содержимым блока.",
+            "Проверка разметки ещё не получена",
+            "Локальная validation, ошибки и eligibility появятся из сохранённого документа; это не прогноз показа Google.",
         )
         for panel, stretch in ((self.blocks, 3), (self.tree, 5), (self.checks, 3)):
             columns.addWidget(panel, stretch)
@@ -1139,11 +1159,170 @@ class SchemaPage(QWidget):
             )
         )
         hreflang = page.get("hreflang_json")
-        rows = [("Записей hreflang", number(len(hreflang)) if isinstance(hreflang, list) else None)]
+        rows = [
+            ("Записей hreflang", number(len(hreflang)) if isinstance(hreflang, list) else None)
+        ]
         pairs = Pairs(tuple(key for key, _v in rows))
         for key, value in rows:
             pairs.set(key, value)
         self.facts.addWidget(pairs)
+        representation = self.representation.currentText()
+        variant_key = self.variant_key.text().strip()
+        key = (self.ctx.scan, self.ctx.url, representation, variant_key)
+        if not self.ctx.scan or not self.ctx.url:
+            self.blocks.text.setText("Select a retained scan URL to read its saved JSON-LD blocks.")
+            return
+        if self.loaded_for == key or (self._pending and self._pending[0] == key):
+            return
+        token = object()
+        self._pending = (key, token)
+        self.blocks.text.setText("Reading retained structured data…")
+        self.tree.text.setText(f"The exact URL and {representation} retained document are being read locally.")
+        arguments = [
+            "scan-structured-blocks",
+            "--scan",
+            self.ctx.scan,
+            "--url",
+            self.ctx.url,
+            "--representation",
+            representation,
+        ]
+        if variant_key:
+            arguments.extend(("--variant-key", variant_key))
+        self.job.start(arguments, token)
+
+    def _done(self, token, payload):
+        if self._pending is None or token is not self._pending[1]:
+            return
+        self.loaded_for, self._pending = self._pending[0], None
+        state = payload.get("state", "unknown")
+        reason = payload.get("reason")
+        detail = payload.get("schema_detail")
+        detail = detail if isinstance(detail, dict) else {}
+        formats = detail.get("formats")
+        formats = formats if isinstance(formats, dict) else {}
+        format_lines = []
+        for name in ("jsonld", "microdata", "rdfa"):
+            evidence = formats.get(name)
+            evidence = evidence if isinstance(evidence, dict) else {}
+            count = next(
+                (
+                    evidence.get(field)
+                    for field in ("count", "block_count", "entity_count")
+                    if type(evidence.get(field)) is int
+                ),
+                None,
+            )
+            count_name = "blocks" if name == "jsonld" else "entities"
+            format_lines.append(
+                f"{name}: {evidence.get('state') or 'not reported'} · "
+                f"{count if count is not None else 'count unavailable'} {count_name}"
+                + (f" · {evidence['reason']}" if evidence.get("reason") else "")
+            )
+        source_state = payload.get("source_state")
+        analysis_state = detail.get("analysis_state", "unavailable")
+        root_count = payload.get("block_count")
+        root_suffix = (
+            f" · source {source_state}" if source_state else ""
+        ) + (f" · {root_count} JSON-LD blocks" if type(root_count) is int else "")
+        if payload.get("blocks_truncated"):
+            root_suffix += " · block output truncated"
+        self.blocks.title.setText(
+            f"Schema analysis: {analysis_state} · JSON-LD: {state}{root_suffix}"
+        )
+        notes = format_lines[:]
+        partial_reasons = detail.get("partial_reasons")
+        if isinstance(partial_reasons, list):
+            notes.extend(str(note) for note in partial_reasons)
+        if reason:
+            notes.append(reason)
+        detail_reason = detail.get("reason")
+        if detail_reason and detail_reason != reason:
+            notes.append(str(detail_reason))
+        self.blocks.text.setText("\n".join(str(note) for note in notes))
+
+        jsonld = formats.get("jsonld")
+        blocks = payload.get("blocks")
+        if blocks is None and isinstance(jsonld, dict):
+            blocks = jsonld.get("blocks")
+        structured = payload.get("structured_evidence")
+        if blocks is None and isinstance(structured, dict):
+            blocks = structured.get("blocks")
+        self.tree.title.setText("JSON-LD blocks")
+        self.tree.text.setText(
+            json.dumps(blocks, ensure_ascii=False, indent=2)[:30_000]
+            if isinstance(blocks, list)
+            else "No retained JSON-LD block detail was returned."
+        )
+
+        validation = detail.get("validation")
+        validation = validation if isinstance(validation, dict) else {}
+        checks = {
+            "rules_version": detail.get("rules_version") or validation.get("rules_version"),
+            "syntax_state": validation.get("syntax_state"),
+            "structural_state": validation.get("structural_state"),
+            "feature_eligibility_state": validation.get("feature_eligibility_state"),
+            "feature_checks": validation.get("feature_checks"),
+            "unsupported_context_normalization": validation.get("unsupported_context_normalization"),
+            "entity_errors": validation.get("entity_errors"),
+            "entity_warnings": validation.get("entity_warnings"),
+            "markup_coverage": detail.get("markup_coverage"),
+            "parse_errors": detail.get("parse_errors"),
+            "partial_reasons": detail.get("partial_reasons"),
+            "graph": detail.get("graph"),
+            "entities": detail.get("entities"),
+            "local_eligibility": detail.get("local_eligibility") or detail.get("rich_results"),
+            "google_display": detail.get("google_display", "unknown"),
+        }
+        self.checks.title.setText("Retained local validation")
+        self.checks.text.setText(
+            json.dumps(checks, ensure_ascii=False, indent=2)[:30_000]
+            if validation or detail.get("local_eligibility") or detail.get("rich_results")
+            else "The retained URL reader did not return validation fields."
+        )
+
+        source = payload.get("source")
+        source = source if isinstance(source, dict) else payload
+        identity = Pairs(
+            (
+                "Scan UUID",
+                "Evidence revision",
+                "Document ID",
+                "Representation",
+                "Variant",
+                "Content type",
+                "Body SHA-256",
+            "Decoded SHA-256",
+                "Source state",
+                "Analysis state",
+            ),
+            mono=("Scan UUID", "Body SHA-256", "Decoded SHA-256"),
+        )
+        for label, field in (
+            ("Scan UUID", "scan_uuid"),
+            ("Evidence revision", "evidence_revision"),
+            ("Document ID", "document_id"),
+            ("Representation", "representation"),
+            ("Variant", "variant_key"),
+            ("Content type", "content_type"),
+            ("Body SHA-256", "raw_body_sha256"),
+            ("Decoded SHA-256", "sha256"),
+            ("Source state", "source_state"),
+        ):
+            identity.set(label, source.get(field))
+        identity.set("Analysis state", detail.get("analysis_state"))
+        self.facts.addWidget(identity)
+        language = payload.get("language_evidence")
+        if isinstance(language, dict):
+            self.facts.addWidget(
+                label_row("Language evidence: " + json.dumps(language, ensure_ascii=False)[:2000])
+            )
+
+    def _failed(self, token, reason):
+        if self._pending is None or token is not self._pending[1]:
+            return
+        self._pending = None
+        self.blocks.text.setText(f"Saved JSON-LD reader unavailable: {str(reason)[:300]}")
 
 
 class UrlCard(QFrame):
@@ -1209,7 +1388,7 @@ class UrlCard(QFrame):
         self.redirects = RedirectsPage(self.ctx)
         self.history = HistoryPage(self.ctx)
         self.history.counted.connect(lambda n: self._counter("hist", number(n) if n else ""))
-        self.snippet = SnippetPage()
+        self.snippet = SnippetPage(host)
         self.facts = {
             tab: HtmlPage(self.ctx)
             if tab == "html"
@@ -1337,7 +1516,7 @@ class UrlCard(QFrame):
             self.head.set_row(row)
             self.overview.fill(row, page, detail, state, text)
             self.headers.fill(detail)
-            self.snippet.fill(page)
+            self.snippet.fill(page, self.ctx.url)
             count = self.headers.count()
             self._counter("hdr", number(count) if count else "")
             source = (detail or {}).get("source") or {}

@@ -29,7 +29,7 @@ class AboutSectionTests(unittest.TestCase):
 
     def test_licences_match_notices(self):
         names = dict(about.LICENSES)
-        self.assertEqual(names["SEOHEAD Desktop"], "GPL v3+")
+        self.assertEqual(names["SpiderHead Desktop"], "GPL v3+")
         self.assertEqual(names["seohead (ядро)"], "MIT")
         self.assertEqual(names["Roboto, Roboto Mono"], "OFL 1.1")
         text = all_text(make("about")[2])

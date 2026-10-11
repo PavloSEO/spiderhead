@@ -27,6 +27,11 @@ and this decision makes no backend migration.
 | `project-activity` | Project directory (`directory`) | — |
 | `project-checklist-page` | Project directory (`directory`)<br>Selector (`offset, limit, query, kind, state, sort, descending, states`) | — |
 | `project-task-detail` | Project directory (`directory`)<br>Selector (`item_id`) | — |
+| `project-export-start` | Project directory (`directory`)<br>Local output name (`output`)<br>Selector (`dataset, fmt, compare_manifest, job_id, wait`) | `dataset` is `tasks`, `task_comments`, `task_history`, or `compare`; `compare_manifest` is required for `dataset=compare`; output is a new file under project `reports/`. |
+| `project-export-status` / `project-export-cancel` | Project directory (`directory`)<br>Selector (`job_id`) | Status is read-only; cancel is an explicit local request. |
+| `project-exports-page` | Project directory (`directory`)<br>Selector (`offset, limit`) | Reads bounded export history. |
+| `project-competitors-scan` | Project directory (`directory`)<br>Task identity (`task_id, expected_revision`)<br>Selector (`confirm, concurrency, approve_large_crawl, producer_build, run_id`) | Current task and registered child workspace identities are validated before bounded scans; reuse a caller UUID to poll, cancel or resume the same run. |
+| `project-competitors-scan-status` / `project-competitors-scan-cancel` | Project directory (`directory`)<br>Selector (`run_id`) | Status reads retained state; cancel is a durable checkpointed request. |
 | `project-scans` | Project directory (`directory`)<br>Selector (`offset, limit`) | — |
 | `provider-auth` | Inline JSON for ordinary actions; callback requires stdin JSON with `state` and `code` via `--callback-stdin` | GSC read-only consent start/callback, grant status/refresh, pending-flow cancel, confirmed disconnect or remote revoke. Tokens and callback codes are never returned. |
 | `provider-credential` | Flags; `set` reads the raw credential only from stdin with `--value-stdin` | Write-only local set/replace and confirmed revoke. No secret values in arguments or results. MCP exposes status only because it has no trusted caller identity. |

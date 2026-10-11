@@ -61,6 +61,41 @@ def test_source_and_case_insensitive_text_filters(project):
     assert combined["items"][0]["text"] == "Check the robots rules"
 
 
+def test_revision_cursor_returns_only_newer_events_and_marks_unchanged(project):
+    first = _add(project, text="first")
+    _add(project, text="second")
+
+    changed = event_log.page(project, since_revision=first["sequence"])
+    unchanged = event_log.page(project, since_revision=2)
+
+    assert changed["revision"] == 2
+    assert changed["not_modified"] is False
+    assert [row["text"] for row in changed["items"]] == ["second"]
+    assert unchanged["revision"] == 2
+    assert unchanged["not_modified"] is True
+    assert unchanged["items"] == []
+
+
+def test_follow_waits_for_a_new_event(project, monkeypatch):
+    _add(project, text="first")
+    original_sleep = event_log.time.sleep
+    appended = False
+
+    def sleep(_seconds):
+        nonlocal appended
+        if not appended:
+            appended = True
+            _add(project, text="followed")
+        original_sleep(0)
+
+    monkeypatch.setattr(event_log.time, "sleep", sleep)
+    result = event_log.page(project, since_revision=1, follow=True, wait_seconds=1)
+
+    assert result["revision"] == 2
+    assert result["not_modified"] is False
+    assert [row["text"] for row in result["items"]] == ["followed"]
+
+
 def test_pagination_walks_all_events_without_gaps(project):
     for index in range(5):
         _add(project, text=f"event {index}")
@@ -108,6 +143,9 @@ def test_invalid_appends_are_refused_and_write_nothing(project, kwargs):
         {"limit": event_log.MAX_LIMIT + 1},
         {"source": "bot"},
         {"query": "x" * (event_log.MAX_QUERY + 1)},
+        {"since_revision": -1},
+        {"follow": True},
+        {"wait_seconds": event_log.MAX_FOLLOW_SECONDS + 1},
     ],
 )
 def test_invalid_reads_are_refused(project, kwargs):

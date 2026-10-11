@@ -2,6 +2,7 @@ import copy
 import os
 import time
 import unittest
+from pathlib import Path
 from threading import Event
 from unittest.mock import patch
 
@@ -161,6 +162,45 @@ class ScheduleTabTests(unittest.TestCase):
         self.assertIn("Europe/Minsk", page.zone_note.text())
         self.assertTrue(page.save_button.isEnabled())
         page.close()
+
+    def test_competitor_schedule_reads_and_saves_the_child_project_settings(self):
+        owner = core_state(
+            competitors=[
+                {
+                    "directory": "competitors/example",
+                    "url": "https://example.test/",
+                    "schedule_configured": False,
+                },
+                {"directory": "../outside", "url": "https://unsafe.example.test/"},
+            ]
+        )
+        owner["settings"]["month_days"] = []
+        child = core_state(revision=3, competitors=[])
+        child["settings"]["month_days"] = []
+        saves = []
+        with (
+            patch(f"{MODULE}.read_schedule", side_effect=[owner, child]),
+            patch(
+                f"{MODULE}.save_schedule",
+                side_effect=lambda _exe, directory, _revision, _settings: (
+                    saves.append(directory),
+                    child,
+                )[1],
+            ),
+        ):
+            page = SchedulePage(self.host)
+            self.wait(lambda: page.state is not None and page.state["revision"] == 7)
+            self.assertGreaterEqual(page.target_selector.findData("competitors/example"), 0)
+            self.assertEqual(page.target_selector.findData("../outside"), -1)
+            page.target_selector.setCurrentIndex(page.target_selector.findData("competitors/example"))
+            self.wait(lambda: page.state is not None and page.state["revision"] == 3)
+            self.assertEqual(
+                page._directory(), str(Path("/project/qa/competitors/example").resolve())
+            )
+            page.save()
+            self.wait(lambda: bool(saves))
+            self.assertEqual(saves[0], page._directory())
+            page.close()
 
     def test_save_sends_the_form_with_the_revision_that_was_read(self):
         sent = []

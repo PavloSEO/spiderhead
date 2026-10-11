@@ -107,6 +107,16 @@ def _write(document: Any, out: _Lines) -> None:
             "",
         ]
         counts = status.get("counts")
+        task_kpis = status.get("task_kpis") or {}
+        if task_kpis:
+            affected = task_kpis.get("affected_urls") or {}
+            out += [
+                "Custom tasks: "
+                f"{task_kpis.get('complete', 0)} complete / {task_kpis.get('total', 0)} total; "
+                f"{task_kpis.get('assigned', 0)} assigned; affected URLs "
+                f"{_field(affected.get('count'))} ({_field(affected.get('state'))}).",
+                "",
+            ]
         if isinstance(counts, dict):
             out += [
                 "| Total | Complete | Remaining | Run | Not applicable | Not run | Stale | Disabled |",
@@ -128,12 +138,12 @@ def _write(document: Any, out: _Lines) -> None:
         items = status.get("items") or []
         if items:
             out += [
-                "| Item | Kind | Execution | Priority | State | Attempt | Complete | Blocked by | Enabled | Scope | Measurement | Reason |",
-                "|---|---|---|---|---|---|---|---|---|---|---|---|",
+                "| Item | Kind | Execution | Priority | State | Attempt | Complete | Blocked by | Enabled | Scope | Measurement | Task assignee | Affected URLs | Reason |",
+                "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
             ]
             for item in items:
                 out.append(
-                    "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
+                    "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
                         _coverage_field(item.get("title") or item.get("id")),
                         _coverage_field(item.get("kind")),
                         _coverage_field(item.get("execution_kind")),
@@ -145,6 +155,8 @@ def _write(document: Any, out: _Lines) -> None:
                         _coverage_field(item.get("enabled")),
                         _coverage_field(value_text(item.get("scope"))),
                         _coverage_field(value_text(item.get("measurement"))),
+                        _coverage_field(value_text((item.get("task") or {}).get("assignee"))),
+                        _coverage_field(value_text(item.get("affected_urls"))),
                         _coverage_field(item.get("reason")),
                     )
                 )

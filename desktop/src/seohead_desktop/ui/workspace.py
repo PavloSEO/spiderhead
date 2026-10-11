@@ -51,6 +51,7 @@ VIEW_IDS = (
     "crawler",
     "methods",
     "graph",
+    "logs",
 )
 
 
@@ -110,7 +111,7 @@ class ProjectMonitor(QDockWidget):
     """One extra native window; no new gateway, worker, polling, or controller."""
 
     def __init__(self, owner, configure_table):
-        super().__init__("Монитор проекта · SEOHEAD", owner)
+        super().__init__("Монитор проекта · SpiderHead", owner)
         self.owner = owner
         self.setObjectName("projectMonitorDock")
         self.setAllowedAreas(
@@ -193,7 +194,7 @@ class ProjectMonitor(QDockWidget):
     def sync_context(self):
         project = self.owner.project_picker.currentText()
         self.context.setText(project)
-        self.setWindowTitle(f"Монитор · {project} · SEOHEAD")
+        self.setWindowTitle(f"Монитор · {project} · SpiderHead")
 
 
 class ActionFinder(QDialog):
@@ -203,7 +204,7 @@ class ActionFinder(QDialog):
         super().__init__(parent)
         self.actions = tuple(actions)
         self.selected_callback = None
-        self.setWindowTitle("Действия SEOHEAD")
+        self.setWindowTitle("Действия SpiderHead")
         self.resize(640, 480)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)

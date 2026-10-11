@@ -18,7 +18,7 @@ STATUS = {
     "enabled": True,
     "tools": 180,
     "profile": "full",
-    "by": "SEOHEAD Desktop",
+    "by": "SpiderHead Desktop",
     "clients": {
         "claude-code": {"registered": True, "last_seen": "3 мин назад"},
         "codex": {"registered": False},

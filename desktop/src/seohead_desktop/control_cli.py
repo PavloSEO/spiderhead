@@ -18,7 +18,7 @@ def create_mcp_server(endpoint: str):
     from mcp.types import ToolAnnotations
 
     server = FastMCP(
-        "SEOHEAD Desktop control",
+        "SpiderHead Desktop control",
         instructions=(
             "Controls one explicitly selected running native Desktop. Read status/tabs first. "
             "Only use IDs returned by this Desktop. Run mutations require direct user authorization "
@@ -143,7 +143,7 @@ def create_mcp_server(endpoint: str):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Control one running native SEOHEAD Desktop")
+    parser = argparse.ArgumentParser(description="Control one running native SpiderHead Desktop")
     parser.add_argument(
         "--endpoint",
         required=True,

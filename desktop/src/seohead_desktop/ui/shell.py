@@ -42,6 +42,7 @@ SECTIONS = (
     ("methods", "menu_book", "Методы", "result", False, True),
     ("reports", "description", "Отчёты и задачи", "result", True, True),
     ("log", "terminal", "Журнал", "result", True, True),
+    ("logs", "manage_search", "Server logs", "result", True, True),
 )
 # Navigation section -> view id used by workspace contexts and the page stack.
 VIEW_OF = {
@@ -54,6 +55,7 @@ VIEW_OF = {
     "search": "content_search",
     "reports": "reports",
     "log": "journal",
+    "logs": "logs",
     "crawler": "crawler",
     "methods": "methods",
     "graph": "graph",
@@ -61,7 +63,7 @@ VIEW_OF = {
 # SideNav sheet: without a project these items are shown dimmed with «нужен проект»; the rest stay active.
 # SHELL-CANON hotkeys: ⌘1 Работа · ⌘2 Сканы · ⌘3 URL · ⌘4 Проблемы; the canon gives no other numbers
 NUMBERED_SECTIONS = {1: "work", 2: "scans", 3: "url", 4: "issues"}
-NEEDS_PROJECT = frozenset({"work", "inbox", "issues", "compare", "search", "methods", "reports"})
+NEEDS_PROJECT = frozenset({"work", "inbox", "issues", "compare", "search", "reports", "logs"})
 SIMPLE_VIEW_OF = {
     **VIEW_OF,
     "work": "tasks",
