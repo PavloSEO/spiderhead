@@ -2483,12 +2483,122 @@ def schema_build(
     return builder.build_schema(url=url, html=html, override_type=override_type)
 
 
-def log_analyze(path: str | None = None, verify_bots: bool = False) -> dict[str, Any]:
+def log_analyze(
+    path: str | None = None,
+    verify_bots: bool = False,
+    max_lines: int = 5_000_000,
+    offset: int = 0,
+    limit: int = 100,
+    max_dns: int = 20,
+    bot: str | None = None,
+    ip: str | None = None,
+) -> dict[str, Any]:
     if not path:
         raise ValueError("path required (web server access-log file)")
     from seohead.checks import logs as logs_core
 
-    return logs_core.analyze_log(path, verify_bots=bool(verify_bots))
+    return logs_core.analyze_log(
+        path,
+        verify_bots=verify_bots,
+        max_lines=max_lines,
+        offset=offset,
+        limit=limit,
+        max_dns=max_dns,
+        bot=bot,
+        ip=ip,
+    )
+
+
+def logs_import(
+    path: str, project: str, max_lines: int = 100_000_000, max_files: int = 1000
+) -> dict[str, Any]:
+    from seohead.checks.logstore import import_logs
+
+    return import_logs(path, project, max_lines=max_lines, max_files=max_files)
+
+
+def logs_summary(
+    source: str,
+    view: str = "urls",
+    limit: int = 100,
+    offset: int = 0,
+    bot: str = "",
+    family: str = "",
+    ip: str = "",
+    date_from: str = "",
+    date_to: str = "",
+    status: int | None = None,
+    section: str = "",
+) -> dict[str, Any]:
+    from seohead.checks.logstore import log_summary
+
+    return log_summary(
+        source,
+        view=view,
+        limit=limit,
+        offset=offset,
+        bot=bot,
+        family=family,
+        ip=ip,
+        date_from=date_from,
+        date_to=date_to,
+        status=status,
+        section=section,
+    )
+
+
+def logs_join(
+    source: str,
+    scan: str,
+    view: str = "scan_without_bot_visits",
+    base_url: str = "",
+    family: str = "",
+    bot: str = "",
+    date_from: str = "",
+    date_to: str = "",
+    limit: int = 100,
+    offset: int = 0,
+) -> dict[str, Any]:
+    from seohead.checks.logstore import join_log_scan
+
+    return join_log_scan(
+        source,
+        scan,
+        view=view,
+        base_url=base_url,
+        family=family,
+        bot=bot,
+        date_from=date_from,
+        date_to=date_to,
+        limit=limit,
+        offset=offset,
+    )
+
+
+def logs_bots(
+    source: str,
+    verify_bots: bool = False,
+    limit: int = 100,
+    offset: int = 0,
+    bot: str = "",
+    family: str = "",
+    ip: str = "",
+    verdict: str = "",
+    max_dns: int = 20,
+) -> dict[str, Any]:
+    from seohead.checks.logbots import bot_verification
+
+    return bot_verification(
+        source,
+        verify_bots=verify_bots,
+        limit=limit,
+        offset=offset,
+        bot=bot,
+        family=family,
+        ip=ip,
+        verdict=verdict,
+        max_dns=max_dns,
+    )
 
 
 def regions_check(
@@ -6631,6 +6741,10 @@ _RAW_HANDLERS = {
     "social_meta_check": social_meta_check,
     "soft404_check": soft404_check,
     "log_analyze": log_analyze,
+    "logs_import": logs_import,
+    "logs_summary": logs_summary,
+    "logs_join": logs_join,
+    "logs_bots": logs_bots,
     "regions_check": regions_check,
     "render_check": render_check,
     "site_audit": site_audit,

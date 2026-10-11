@@ -777,16 +777,156 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         return _checked(handlers.soft404_check(url=url))
 
     @mcp.tool(annotations=fetch, structured_output=True)
-    def seo_log_analyze(path: str, verify_bots: bool = False) -> dict[str, Any]:
-        """Analyse a web server access log (Apache/Nginx Common or Combined, IIS W3C).
-        Shows who actually crawls the site and how: hits per bot, bytes, unique IPs,
-        response codes served to bots (they differ from what humans get more often than
-        people expect), which site sections each bot family visits, top paths and a daily
-        trend. Set verify_bots=true to check bot authenticity by forward-confirmed rDNS —
-        a spoofed User-Agent is one line, a forged PTR of google.com is not. That check
-        hits the network, and if reverse DNS is unavailable it says so instead of
-        declaring every bot fake."""
-        return _checked(handlers.log_analyze(path=path, verify_bots=verify_bots))
+    def seo_log_analyze(
+        path: str,
+        verify_bots: bool = False,
+        max_lines: int = 5_000_000,
+        offset: int = 0,
+        limit: int = 100,
+        max_dns: int = 20,
+        bot: str | None = None,
+        ip: str | None = None,
+    ) -> dict[str, Any]:
+        """Analyse an access log offline with exact disk-backed IP totals and a bounded IP page.
+
+        Apache/Nginx Common/Combined, IIS and gzip are supported. User-agent labels
+        are claims, not verified identities. verify_bots explicitly enables bounded,
+        cached forward-confirmed reverse DNS for this page only (max_dns plus one
+        canary). Every IP has its own PTR, forward match, verdict, visits and last visit.
+        DNS failure/deadline remains unchecked; it never becomes a fake-bot verdict.
+        """
+        return _checked(
+            handlers.log_analyze(
+                path=path,
+                verify_bots=verify_bots,
+                max_lines=max_lines,
+                offset=offset,
+                limit=limit,
+                max_dns=max_dns,
+                bot=bot,
+                ip=ip,
+            )
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_logs_import(
+        path: str, project: str, max_lines: int = 100_000_000, max_files: int = 1000
+    ) -> dict[str, Any]:
+        """Stream supplied access logs into a new local project logs.v1 artifact.
+
+        Reads files/gzip or a bounded directory. Retains exact IP and date/URL/status
+        aggregates, coverage and source digests; source files stay unchanged. No DNS,
+        site request, provider call or scan mutation occurs. Raw client IPs stay local.
+        """
+        return _checked(
+            handlers.logs_import(
+                path=path, project=project, max_lines=max_lines, max_files=max_files
+            )
+        )
+
+    @mcp.tool(annotations=pure, structured_output=True)
+    def seo_logs_summary(
+        source: str,
+        view: str = "urls",
+        limit: int = 100,
+        offset: int = 0,
+        bot: str = "",
+        family: str = "",
+        ip: str = "",
+        date_from: str = "",
+        date_to: str = "",
+        status: int | None = None,
+        section: str = "",
+    ) -> dict[str, Any]:
+        """Read one bounded page of retained log URL, bot IP, bot, date, status or section aggregates.
+
+        Totals remain exact for imported rows. UTC date and bot filters are explicit;
+        unsupported/missing measurements remain unavailable. No DNS or source reimport.
+        """
+        return _checked(
+            handlers.logs_summary(
+                source=source,
+                view=view,
+                limit=limit,
+                offset=offset,
+                bot=bot,
+                family=family,
+                ip=ip,
+                date_from=date_from,
+                date_to=date_to,
+                status=status,
+                section=section,
+            )
+        )
+
+    @mcp.tool(annotations=pure, structured_output=True)
+    def seo_logs_join(
+        source: str,
+        scan: str,
+        view: str = "scan_without_bot_visits",
+        base_url: str = "",
+        family: str = "",
+        bot: str = "",
+        date_from: str = "",
+        date_to: str = "",
+        limit: int = 100,
+        offset: int = 0,
+    ) -> dict[str, Any]:
+        """Join retained access-log requests with a validated native scan, offline.
+
+        Read bounded views for scan URLs without recorded bot visits, bot URLs absent
+        from the scan (candidates), response-code waste, nonindexable requests and
+        sections. Absence conclusions require complete compatible evidence; missing
+        or partial scans remain unavailable. No crawl, DNS or scan schema change.
+        """
+        return _checked(
+            handlers.logs_join(
+                source=source,
+                scan=scan,
+                view=view,
+                base_url=base_url,
+                family=family,
+                bot=bot,
+                date_from=date_from,
+                date_to=date_to,
+                limit=limit,
+                offset=offset,
+            )
+        )
+
+    @mcp.tool(annotations=create_files_from_web, structured_output=True)
+    def seo_logs_bots(
+        source: str,
+        verify_bots: bool = False,
+        limit: int = 100,
+        offset: int = 0,
+        bot: str = "",
+        family: str = "",
+        ip: str = "",
+        verdict: str = "",
+        max_dns: int = 20,
+    ) -> dict[str, Any]:
+        """Read a bounded per-IP bot page with retained PTR, forward result, visits and last visit.
+
+        No DNS runs by default. verify_bots explicitly refreshes only the selected page
+        within max_dns (plus one canary), using a one-hour local cache. Requests are
+        sequential and rate-limited. DNS failure/deadline is unchecked, not fake.
+        Cached verdict filters are read-only; verification with a verdict filter is refused.
+        The cache writes only to the supplied local log artifact, never to a scan.
+        """
+        return _checked(
+            handlers.logs_bots(
+                source=source,
+                verify_bots=verify_bots,
+                limit=limit,
+                offset=offset,
+                bot=bot,
+                family=family,
+                ip=ip,
+                verdict=verdict,
+                max_dns=max_dns,
+            )
+        )
 
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_regions_check(

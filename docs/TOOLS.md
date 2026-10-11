@@ -16,7 +16,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 `{"ok": false, "error": "..."}` instead of raising. An unreachable site is
 data, not an accident.
 
-The current registry has 183 commands and 192 callable tools,
+The current registry has 187 commands and 196 callable tools,
 with 202 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
@@ -33,34 +33,39 @@ and inputs remain in the nearby route sections and generated tool reference.
 `evidence-normalize` · `facts-export` · `findings-view` · `google-keywords` · `google-serp` · `gsc-archive` ·
 `gsc-progress` · `gsc-query` · `headers-check` · `hreflang-check` · `images-download` · `images-optimize` ·
 `indexnow-submit` · `inspect-url` · `keywords-cluster` · `keywords-exact` · `keywords-expand` ·
-`keywords-seasonality` · `links-check` · `llms-txt-check` · `log-analyze` · `log-scan` · `markdown-extract` ·
-`marketing-inventory` · `meta-description-drafts` · `metrika-counters` · `metrika-report` · `metrika-setup` ·
-`metrika-traffic-pdf` · `miratext-analyze` · `mirror-check` · `monitor-collect` · `monitor-configure` ·
-`monitor-local-deliver` · `monitor-run` · `monitor-schedule` · `monitor-status` · `parse` · `project-activity`
-· `project-checklist-init` · `project-checklist-page` · `project-checklist-record` ·
-`project-checklist-update` · `project-event-append` · `project-event-page` · `project-facts` ·
-`project-inbox-acknowledge` · `project-inbox-goal` · `project-inbox-list` · `project-inbox-read` ·
-`project-inbox-submit` · `project-inbox-triage` · `project-inbox-unread` · `project-new` · `project-observe` ·
-`project-competitors-add` · `project-competitors-list` · `project-competitors-remove` · `project-open` · `project-policy` · `project-prepare` · `project-priorities` · `project-progress` ·
-`project-scans` · `project-sources-link` · `project-sources-list` · `project-sources-unlink` · `project-start`
-· `project-status` · `project-task-detail` · `project-view-delete` · `project-view-list` ·
-`project-view-rename` · `project-view-save` · `project-view-show` · `provider-auth` · `provider-collect` ·
-`provider-join` · `provider-readiness` · `provider-registry` · `provider-replay` · `provider-verify` ·
-`publication-cohorts` · `redirects-check` · `redirects-generate` · `regions-check` · `regions-tree` ·
-`remediation-cases` · `remediation-create` · `remediation-ingest` · `remediation-recheck` ·
-`remediation-record-verification` · `remediation-report` · `remediation-summary` · `remediation-transition` ·
-`render-check` · `report-build` · `robots-check` · `scan-body-diff` · `scan-content-search` ·
-`scan-content-search-page` · `scan-evidence` · `scan-export` · `scan-extract` · `scan-fragment-links` ·
-`scan-import-urls` · `scan-inspect` · `scan-link-inspect` · `scan-list` · `scan-navigation` · `scan-pin` ·
-`scan-prune` · `scan-reanalyze` · `scan-rendered-routes` · `scan-requeue` · `scan-snapshot` · `scan-status` ·
-`scan-structured-blocks` · `scan-url-detail` · `scan-url-history` · `scan-url-query` · `scenario-list` ·
-`scenario-show` · `schedule-install` · `schedule-run-due` · `schedule-set` · `schedule-show` · `schedule-uninstall` · `schema-build` · `schema-check` · `security-check` · `segment-diff` · `semantic-inputs` ·
+`keywords-seasonality` · `links-check` · `llms-txt-check` · `log-analyze` · `log-scan` · `logs-bots` ·
+`logs-import` · `logs-join` · `logs-summary` · `markdown-extract` · `marketing-inventory` ·
+`meta-description-drafts` · `metrika-counters` · `metrika-report` · `metrika-setup` · `metrika-traffic-pdf` ·
+`miratext-analyze` · `mirror-check` · `monitor-collect` · `monitor-configure` · `monitor-local-deliver` ·
+`monitor-run` · `monitor-schedule` · `monitor-status` · `parse` · `project-activity` ·
+`project-checklist-init` · `project-checklist-page` · `project-checklist-record` · `project-checklist-update`
+· `project-competitors-add` · `project-competitors-list` · `project-competitors-remove` ·
+`project-event-append` · `project-event-page` · `project-facts` · `project-inbox-acknowledge` ·
+`project-inbox-goal` · `project-inbox-list` · `project-inbox-read` · `project-inbox-submit` ·
+`project-inbox-triage` · `project-inbox-unread` · `project-new` · `project-observe` · `project-open` ·
+`project-policy` · `project-prepare` · `project-priorities` · `project-progress` · `project-scans` ·
+`project-sources-link` · `project-sources-list` · `project-sources-unlink` · `project-start` ·
+`project-status` · `project-task-detail` · `project-view-delete` · `project-view-list` · `project-view-rename`
+· `project-view-save` · `project-view-show` · `provider-auth` · `provider-collect` · `provider-join` ·
+`provider-readiness` · `provider-registry` · `provider-replay` · `provider-verify` · `publication-cohorts` ·
+`redirects-check` · `redirects-generate` · `regions-check` · `regions-tree` · `remediation-cases` ·
+`remediation-create` · `remediation-ingest` · `remediation-recheck` · `remediation-record-verification` ·
+`remediation-report` · `remediation-summary` · `remediation-transition` · `render-check` · `report-build` ·
+`robots-check` · `scan-body-diff` · `scan-content-search` · `scan-content-search-page` · `scan-evidence` ·
+`scan-export` · `scan-extract` · `scan-fragment-links` · `scan-import-urls` · `scan-inspect` ·
+`scan-link-inspect` · `scan-list` · `scan-navigation` · `scan-pin` · `scan-prune` · `scan-reanalyze` ·
+`scan-rendered-routes` · `scan-requeue` · `scan-snapshot` · `scan-status` · `scan-structured-blocks` ·
+`scan-url-detail` · `scan-url-history` · `scan-url-query` · `scenario-list` · `scenario-show` ·
+`schedule-install` · `schedule-run-due` · `schedule-set` · `schedule-show` · `schedule-uninstall` ·
+`schema-build` · `schema-check` · `security-check` · `segment-diff` · `semantic-inputs` ·
 `semantic-similarity` · `serp-fetch` · `site-audit` · `sitemap-crawl` · `skill-list` · `skill-show` ·
 `social-meta-check` · `soft404-check` · `sources-doctor` · `sources-export` · `sources-status` ·
 `sources-sync` · `spend-report` · `tech-detect` · `tool-catalog` · `topvisor-read` · `verify-fixes` ·
 `wayback-history` · `webmaster-url-queries` · `workflow-checkpoint` · `workflow-execute` · `workflow-resume` ·
 `workflow-start` · `workflow-status`
 <!-- generated-command-inventory:end -->
+See [Server logs](SERVER_LOGS.md) for import, join and DNS evidence contracts.
+
 ## Offline bounded comparison
 
 `compare-crawls --before before.sqlite --after after.sqlite --out-dir ./comparison`
@@ -273,7 +278,11 @@ because the rules could not be read, so the command never claims crawling is all
 
 | Command | What it does | Side effects |
 |---|---|---|
-| `log-analyze` | Web server log analysis (Apache Common/Combined, IIS W3C; `.gz` read directly): which bots crawl, where, which codes they get, how much budget is wasted. `--verify-bots` checks authenticity via forward-confirmed reverse DNS | reads a file |
+| `log-analyze` | Offline file analysis with exact disk-backed IP totals and bounded per-IP records; explicit `--verify-bots` checks only the selected page | reads a file; opt-in DNS |
+| `logs-import` | Stream files/gzip or a bounded directory into a fresh local project log artifact with date partitions and provenance | creates a local artifact |
+| `logs-summary` | Exact paged URL/IP/bot/date/status/section aggregates with explicit filters | offline, read-only |
+| `logs-join` | Compare retained bot visits with a validated native scan; incomplete evidence withholds absence claims | offline, read-only |
+| `logs-bots` | Read per-IP PTR, forward match, verdict, visits and last visit; explicit verification updates a one-hour local cache | opt-in DNS and local cache writes |
 | `log-scan` | Reads a finished run's own artifacts (`audit.json`, `pages.jsonl`, an `images-download` directory) and reports claims that cannot all be true at once: a recorded size that disagrees with the file, a check firing more often than there are pages to fire on, a finding about a URL the run never fetched, a summary that disagrees with its own rows. Not a second audit — only contradictions, each naming both values | reads files |
 | `images-download` | Download a list of images into a directory | writes files |
 | `images-optimize` | Recompress, resize, or convert raster images and conservatively minify SVG | requires `--output-dir`; source mutation needs explicit `--in-place` and backs up by default |
@@ -755,7 +764,7 @@ turns on automatically for crawl modes (`--crawl`, `--crawl-list`, `--load-crawl
 `--sitemap` is given; pass `--no-live-recheck` to keep it off.
 
 **MCP.** The same set under the `seo_*` names plus the `sf_*` audit tools and the
-`seo_semantics_*` tools (183 + 5 + 4):
+`seo_semantics_*` tools (187 + 5 + 4):
 
 ```bash
 seohead mcp        # stdio
