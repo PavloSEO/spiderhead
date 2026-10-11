@@ -1378,6 +1378,103 @@ CHECKS: dict[str, dict[str, Any]] = {
         "Your-Money-Your-Life topics; if it does, the attribution and "
         "trust-page evidence above deserves a closer look.",
     },
+    # Native asset budgets and supplied Lighthouse lab evidence (issue #1303)
+    "ASSET_SHORT_CACHE": {
+        "severity": "notice",
+        "source": "native resource delivery",
+        "message": "A captured resource has no long-lived public cache policy",
+        "fix": "Use an appropriate public max-age for versioned static assets; keep private and no-store policies where required.",
+    },
+    "FONT_DISPLAY_MISSING": {
+        "severity": "notice",
+        "source": "native resource delivery",
+        "message": "An observed stylesheet font-face lacks an accepted font-display value",
+        "fix": "Set font-display to swap, fallback or optional when appropriate for the font.",
+    },
+    "HEAVY_PAGE_WEIGHT": {
+        "severity": "warning",
+        "source": "native render responses / HTML",
+        "message": "Observed navigation responses or HTML alone exceed the configured content-decoded byte budget",
+        "fix": "Reduce the measured document, images, fonts and scripts; keep raw-only and incomplete runtime coverage explicit.",
+    },
+    "RESOURCE_OVER_2MB": {
+        "severity": "warning",
+        "source": "native resource graph",
+        "message": "A captured resource exceeds the configured individual byte budget",
+        "fix": "Reduce or split the identified resource; the default budget is 2 MiB.",
+    },
+    "UNUSED_CSS_JS": {
+        "severity": "notice",
+        "source": "native render coverage",
+        "message": "CSS or JavaScript source is substantially unused in the captured navigation window",
+        "fix": "Split or defer unused code after testing the interactions and routes that need it; lab coverage is not proof code is universally unused.",
+    },
+    "UNMINIFIED_CSS_JS": {
+        "severity": "notice",
+        "source": "native resource delivery",
+        "message": "Captured CSS or JavaScript does not look minified (heuristic)",
+        "fix": "Apply the existing production minifier and verify the result still works.",
+    },
+    "DUPLICATED_JS": {
+        "severity": "notice",
+        "source": "native resource delivery",
+        "message": "Different script URLs on one page contain identical captured source bytes",
+        "fix": "Load the identical script once; review the build and page template.",
+    },
+    "LEGACY_JS": {
+        "severity": "notice",
+        "source": "native resource delivery",
+        "message": "Captured JavaScript has an unconditional legacy or polyfill marker (heuristic)",
+        "fix": "Review target browser support before removing or splitting legacy code.",
+    },
+    "IMG_INTRINSIC_OVERSIZED": {
+        "severity": "notice",
+        "source": "native render layout",
+        "message": "A heavy image has more intrinsic width than its displayed device pixels need",
+        "fix": "Serve a responsive image sized for the observed viewport and device pixel ratio.",
+    },
+    "IMG_UPSCALED": {
+        "severity": "warning",
+        "source": "native render layout",
+        "message": "An image has less intrinsic width than its displayed device pixels need",
+        "fix": "Supply an image with enough intrinsic pixels for the observed viewport and device pixel ratio.",
+    },
+    "LCP_DISCOVERY": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse LCP discovery audit reports an opportunity",
+        "fix": "Review the recorded LCP element and make its image discoverable and appropriately prioritized.",
+    },
+    "NETWORK_DEPENDENCY_TREE": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse dependency-tree audit reports a request-chain opportunity",
+        "fix": "Shorten the measured critical request chain; inspect the supplied lab trace evidence.",
+    },
+    "LAYOUT_SHIFT_CULPRITS": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse layout-shift audit reports culprits",
+        "fix": "Reserve layout space and correct the measured shift sources.",
+    },
+    "IMAGE_DELIVERY": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse image-delivery audit reports an opportunity",
+        "fix": "Optimize the measured image size and encoding while preserving visual quality.",
+    },
+    "FORCED_REFLOW": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse forced-reflow audit reports an opportunity",
+        "fix": "Review the measured script stack and batch layout reads and writes.",
+    },
+    "JS_EXECUTION_TIME": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse bootup-time audit reports expensive script execution",
+        "fix": "Reduce or defer the measured JavaScript execution work.",
+    },
 }
 
 

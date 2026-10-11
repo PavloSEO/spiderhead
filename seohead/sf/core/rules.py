@@ -20,6 +20,7 @@ from typing import Any
 from seohead.checks.parser import robots_directives, uses_ajax_crawling_scheme
 from seohead.core.canonical_policy import matching_canonical_rule
 
+from .asset_checks import check_lighthouse_reports, check_render_assets, check_resource_assets
 from .context import AuditContext
 from .models import Page
 from .normalize import norm_url
@@ -2559,45 +2560,73 @@ def _check_retained_render_blocking(ctx: AuditContext) -> None:
     from seohead.storage import ScanError
     from seohead.storage.bodies import read_document
 
-    measured = False
-    unavailable = False
+    metrics = ctx.asset_measurements["RENDER_BLOCKING"]
     rows = ctx.scan_con.execute(
-        "SELECT u.url,d.document_id,d.body_state,COALESCE(final.url,u.url) "
+        "WITH active_static AS ("
+        "SELECT d.url_id,MAX(d.document_id) AS document_id FROM documents d "
+        "JOIN context_items c ON c.kind='resource_inventory' AND c.item_key='document:'||d.document_id "
+        "WHERE d.representation='static' GROUP BY d.url_id) "
+        "SELECT u.url,d.document_id,d.body_state,COALESCE(final.url,u.url),p.status_code "
         "FROM pages p JOIN urls u USING(url_id) "
-        "LEFT JOIN documents d ON d.url_id=p.url_id AND d.representation='static' "
+        "LEFT JOIN active_static a ON a.url_id=p.url_id "
+        "LEFT JOIN documents d ON d.document_id=CASE WHEN p.representation='static' "
+        "THEN p.document_id ELSE a.document_id END AND d.representation='static' "
         "LEFT JOIN responses r ON r.response_id=d.source_response_id "
         "LEFT JOIN urls final ON final.url_id=r.effective_url_id "
-        "WHERE lower(p.content_type) LIKE '%html%' ORDER BY p.page_ordinal"
+        "WHERE lower(p.content_type) LIKE '%html%' AND p.status_code BETWEEN 200 AND 299 "
+        "ORDER BY p.page_ordinal"
     )
-    for url, document_id, state, final_url in rows:
+    for url, document_id, state, final_url, status in rows:
+        metrics["eligible"] += 1
         if document_id is None or state != "complete":
-            unavailable = True
+            metrics["unavailable"] += 1
             continue
         try:
             html = read_document(ctx.scan_con, document_id, max_decoded_bytes=2 * 1024 * 1024)
             soup = BeautifulSoup(html, features="lxml")
             resources = find_render_blocking_resources(soup, document_base_url(soup, final_url))
         except (ScanError, ValueError):
-            unavailable = True
+            metrics["unavailable"] += 1
             continue
-        measured = True
+        metrics["measured"] += 1
         if resources:
+            sample = []
+            sample_bytes = 2
+            for item in resources:
+                size = len(json.dumps(item["url"], ensure_ascii=True)) + (2 if sample else 0)
+                if len(sample) < 200 and sample_bytes + size <= 64 * 1024:
+                    sample.append(item["url"])
+                    sample_bytes += size
+            if len(sample) < len(resources):
+                metrics["partial"] += 1
             ctx.add(
                 "RENDER_BLOCKING",
                 target_url=url,
+                status_code=status,
                 details={
-                    "resources": [item["url"] for item in resources[:200]],
+                    "resources": sample,
                     "resources_observed": len(resources),
-                    "resources_omitted": max(0, len(resources) - 200),
+                    "resources_omitted": len(resources) - len(sample),
                     "source": "native-retained-static-head",
                     "source_page": url,
                     "reason": "retained source head declares blocking scripts or stylesheets; runtime blocking time was not measured",
                 },
             )
-    if not measured or unavailable:
+    metrics["state"] = (
+        "unavailable"
+        if not metrics["measured"]
+        else "partial"
+        if metrics["unavailable"] or metrics["partial"]
+        else "complete"
+    )
+    if metrics["state"] != "complete":
+        metrics["reason"] = (
+            "not fully measured by this native crawl: static HTML is absent, incomplete or "
+            "exceeds the 2 MiB per-document head-analysis budget, or resource samples were bounded"
+        )
         ctx.skip(
             "RENDER_BLOCKING",
-            "not fully measured by this native crawl: static HTML is absent, incomplete or exceeds the 2 MiB per-document head-analysis budget",
+            metrics["reason"],
         )
 
 
@@ -2607,25 +2636,34 @@ def check_render_blocking(ctx: AuditContext) -> None:
     Only a native seohead crawl measures this (#1022); an SF export without the column
     skips honestly rather than reporting every page as clean.
     """
+    if not hasattr(ctx, "asset_measurements"):
+        ctx.asset_measurements = {}
+    metrics = ctx.asset_measurements["RENDER_BLOCKING"] = {
+        "unit": "pages",
+        "eligible": 0,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 0,
+        "state": "unavailable",
+        "reason": "",
+    }
     if ctx.scan_con is not None:
         _check_retained_render_blocking(ctx)
         return
     if not _has_column(ctx, "render_blocking"):
+        metrics["eligible"] = metrics["unavailable"] = len(ctx.html_pages())
+        metrics["reason"] = "no Render Blocking Resources column (needs a native seohead crawl)"
         ctx.skip(
             "RENDER_BLOCKING",
-            "no Render Blocking Resources column (needs a native seohead crawl)",
+            metrics["reason"],
         )
         return
     for page in ctx.html_pages():
+        metrics["eligible"] += 1
         rec = _rec(page)
-        if _body_unavailable(rec):
-            continue
         value = rec.get("render_blocking")
-        if value is None:
-            ctx.skip(
-                "RENDER_BLOCKING",
-                "not measured by this native crawl: retained head-resource markup is absent",
-            )
+        if _body_unavailable(rec) or value is None:
+            metrics["unavailable"] += 1
             continue
         try:
             payload = (
@@ -2650,21 +2688,45 @@ def check_render_blocking(ctx: AuditContext) -> None:
             if not isinstance(urls, list) or any(type(url) is not str for url in urls):
                 raise ValueError("invalid retained resource URLs")
         except (ValueError, TypeError, KeyError):
-            ctx.skip("RENDER_BLOCKING", "retained render-blocking markup could not be read")
+            metrics["unavailable"] += 1
             continue
+        metrics["measured"] += 1
+        sample = []
+        sample_bytes = 2
+        for url in urls:
+            size = len(json.dumps(url, ensure_ascii=True)) + (2 if sample else 0)
+            if len(sample) < 200 and sample_bytes + size <= 64 * 1024:
+                sample.append(url)
+                sample_bytes += size
+        omitted += len(urls) - len(sample)
+        if omitted:
+            metrics["partial"] += 1
         if observed:
             ctx.add(
                 "RENDER_BLOCKING",
                 target_url=page.url,
+                status_code=page.status_code,
                 details={
-                    "resources": urls[:200],
-                    "resources_omitted": omitted + max(0, len(urls) - 200),
+                    "resources": sample,
+                    "resources_omitted": omitted,
                     "resources_observed": observed,
                     "source": "native-head-markup",
                     "source_page": page.url,
                     "reason": "head markup declares render-blocking scripts or stylesheets; runtime blocking time was not measured",
                 },
             )
+    metrics["state"] = (
+        "unavailable"
+        if not metrics["measured"]
+        else "partial"
+        if metrics["unavailable"] or metrics["partial"]
+        else "complete"
+    )
+    if metrics["state"] != "complete":
+        metrics["reason"] = (
+            "retained render-blocking markup is absent, unreadable or resource samples were bounded"
+        )
+        ctx.skip("RENDER_BLOCKING", metrics["reason"])
 
 
 # --------------------------------------------------------------------------
@@ -3445,9 +3507,12 @@ def check_native_exports(ctx: AuditContext) -> None:
 
 
 ALL_CHECKS = [
-    check_render_blocking,
+    check_lighthouse_reports,
+    check_render_assets,
+    check_resource_assets,
     check_native_structured_and_mixed,
     check_response_codes,
+    check_render_blocking,
     check_indexability,
     check_redirect_type,
     check_titles,

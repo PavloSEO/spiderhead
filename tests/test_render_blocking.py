@@ -6,9 +6,20 @@ No network: the head is read from the HTML the crawl already has.
 from __future__ import annotations
 
 import csv
+import json
+
+import pandas as pd
+import pytest
 
 from seohead.checks.parser import parse_html
+from seohead.sf.config import load_config
 from seohead.sf.core.audit import run_audit
+from seohead.sf.core.context import AuditContext
+from seohead.sf.core.loader import LoadedExports
+from seohead.sf.core.rules import check_render_blocking
+from seohead.storage.native_scan import NativeScan
+from tests.test_native_capture import _claim, _event, _renderer
+from tests.test_scan_native import _metadata, _record, _runtime
 
 TITLE = "A descriptive page title with sufficient length"
 DESC = "A meta description deliberately longer than seventy characters to clear the validation threshold."
@@ -137,3 +148,206 @@ def test_native_unretained_body_is_unavailable_not_clean(tmp_path):
         assert not ctx.issues
         reason = next(i.reason for i in ctx.skipped if i.id == "RENDER_BLOCKING")
         assert "native crawl" in reason and "HTML" in reason
+        assert ctx.asset_measurements["RENDER_BLOCKING"]["state"] == "unavailable"
+        assert ctx.asset_measurements["RENDER_BLOCKING"]["unavailable"] == 1
+
+
+URL = "https://example.test/"
+
+
+def _retained_context(scan):
+    ctx = AuditContext(LoadedExports(), load_config(None))
+    ctx.scan_con = scan.con
+    check_render_blocking(ctx)
+    return ctx
+
+
+def _commit_html(scan, html, *, url=URL, status=200, no_store=False):
+    lease = _claim(scan, url)
+    record = _record(url)
+    record.update(status_code=status, size_bytes=len(html.encode()))
+    changes = {"status_code": status, "effective_status_code": status}
+    if no_store:
+        changes.update(
+            response_headers=(("content-type", "text/html"), ("cache-control", "no-store")),
+            effective_headers=(("content-type", "text/html"), ("cache-control", "no-store")),
+        )
+    scan.commit_page(
+        lease,
+        record,
+        captures=[_event(url, html.encode(), **changes)],
+        runtime=_runtime(),
+        resource_inventory_state="complete",
+    )
+
+
+def test_retained_render_blocking_uses_the_current_head_after_requeue(tmp_path):
+    from seohead.storage.retry import requeue_scan
+
+    path = tmp_path / "retry.sqlite"
+    with NativeScan.create(path, **_metadata()) as scan:
+        _commit_html(scan, '<html><head><script src="/old.js"></script></head></html>')
+        scan.finish_without_audit("retained head fixture")
+    backup = tmp_path / "before-requeue.sqlite"
+    requeue_scan(path, where='url = "https://example.test/"', backup_path=backup)
+    assert backup.exists()
+    with NativeScan.open(path) as scan:
+        _commit_html(scan, "<html><head></head><body>fixed</body></html>")
+        assert scan.con.execute("SELECT COUNT(*) FROM documents").fetchone()[0] == 2
+        ctx = _retained_context(scan)
+        assert ctx.issues == []
+        assert ctx.skipped == []
+        assert ctx.asset_measurements["RENDER_BLOCKING"] == {
+            "unit": "pages",
+            "eligible": 1,
+            "measured": 1,
+            "partial": 0,
+            "unavailable": 0,
+            "state": "complete",
+            "reason": "",
+        }
+
+
+@pytest.mark.parametrize("status", [301, 404, 500])
+def test_retained_and_export_render_blocking_exclude_error_and_redirect_html(tmp_path, status):
+    html = '<html><head><script src="/app.js"></script></head></html>'
+    with NativeScan.create(tmp_path / "status.sqlite", **_metadata()) as scan:
+        _commit_html(scan, html, status=status)
+        native = _retained_context(scan)
+    exports = LoadedExports()
+    exports.frames["internal_all"] = pd.DataFrame(
+        [
+            {
+                "Address": URL,
+                "Content Type": "text/html",
+                "Status Code": status,
+                "Render Blocking Resources": json.dumps([URL + "app.js"]),
+            }
+        ]
+    )
+    supplied = AuditContext(exports, load_config(None))
+    check_render_blocking(supplied)
+    for ctx in (native, supplied):
+        assert ctx.issues == []
+        assert ctx.asset_measurements["RENDER_BLOCKING"]["eligible"] == 0
+        assert ctx.asset_measurements["RENDER_BLOCKING"]["state"] == "unavailable"
+
+
+def test_rendered_page_uses_its_active_static_head_after_requeue(tmp_path):
+    from seohead.storage.retry import requeue_scan
+
+    path = tmp_path / "rendered-retry.sqlite"
+    with NativeScan.create(path, **_metadata()) as scan:
+        _commit_html(scan, '<html><head><script src="/old.js"></script></head></html>')
+        scan.finish_without_audit("retained head fixture")
+    requeue_scan(
+        path, where='url = "https://example.test/"', backup_path=tmp_path / "before.sqlite"
+    )
+    with NativeScan.open(path) as scan:
+        _commit_html(scan, '<html><head><script src="/current.js"></script></head></html>')
+        scan.commit_render(
+            URL,
+            {**_record(URL), "representation": "rendered"},
+            html='<html><head><script src="/rendered-only.js"></script></head></html>',
+            renderer=_renderer(URL),
+            captured_at="2026-10-11T12:00:00Z",
+        )
+        ctx = _retained_context(scan)
+        assert len(ctx.issues) == 1
+        assert ctx.issues[0].details["resources"] == [URL + "current.js"]
+        assert ctx.issues[0].status_code == 200
+        assert ctx.asset_measurements["RENDER_BLOCKING"]["measured"] == 1
+
+
+def test_missing_retained_head_preserves_partial_scope_when_another_page_fires(tmp_path):
+    with NativeScan.create(tmp_path / "partial.sqlite", **_metadata()) as scan:
+        _commit_html(scan, '<html><head><script src="/app.js"></script></head></html>')
+        _commit_html(scan, "<html><head></head></html>", url=URL + "private", no_store=True)
+        ctx = _retained_context(scan)
+        assert len(ctx.issues) == 1
+        assert ctx.issues[0].status_code == 200
+        metrics = ctx.asset_measurements["RENDER_BLOCKING"]
+        assert metrics["eligible"] == 2
+        assert metrics["measured"] == metrics["unavailable"] == 1
+        assert metrics["state"] == "partial" and metrics["reason"]
+
+
+def test_head_analysis_budget_does_not_treat_an_oversized_retained_body_as_clean(tmp_path):
+    with NativeScan.create(tmp_path / "oversized.sqlite", **_metadata()) as scan:
+        _commit_html(scan, "<html><head></head><body>" + "x" * (2 * 1024 * 1024) + "</body></html>")
+        ctx = _retained_context(scan)
+        assert ctx.issues == []
+        assert {item.id for item in ctx.skipped} == {"RENDER_BLOCKING"}
+        assert ctx.asset_measurements["RENDER_BLOCKING"]["unavailable"] == 1
+
+
+@pytest.mark.parametrize(("count", "tail"), [(205, ""), (80, "é" * 600)])
+def test_retained_render_blocking_resource_samples_obey_count_and_byte_budgets(
+    tmp_path, count, tail
+):
+    html = (
+        "<html><head>"
+        + "".join(f'<script src="/{index}{tail}.js"></script>' for index in range(count))
+        + "</head></html>"
+    )
+    with NativeScan.create(tmp_path / "samples.sqlite", **_metadata()) as scan:
+        _commit_html(scan, html)
+        ctx = _retained_context(scan)
+        issue = ctx.issues[0]
+        sample = issue.details["resources"]
+        assert len(sample) <= 200
+        assert len(json.dumps(sample, ensure_ascii=True)) <= 64 * 1024
+        assert issue.details["resources_observed"] == count
+        assert issue.details["resources_omitted"] == count - len(sample) > 0
+        assert issue.status_code == 200
+        assert ctx.asset_measurements["RENDER_BLOCKING"]["partial"] == 1
+        assert ctx.asset_measurements["RENDER_BLOCKING"]["state"] == "partial"
+
+
+def test_export_render_blocking_missing_page_measurement_is_not_clean():
+    exports = LoadedExports()
+    exports.frames["internal_all"] = pd.DataFrame(
+        [
+            {
+                "Address": URL,
+                "Content Type": "text/html",
+                "Status Code": 200,
+                "Render Blocking Resources": "[]",
+            },
+            {
+                "Address": URL + "missing",
+                "Content Type": "text/html",
+                "Status Code": 200,
+                "Render Blocking Resources": None,
+            },
+        ]
+    )
+    ctx = AuditContext(exports, load_config(None))
+    check_render_blocking(ctx)
+    assert ctx.issues == []
+    assert {item.id for item in ctx.skipped} == {"RENDER_BLOCKING"}
+    metrics = ctx.asset_measurements["RENDER_BLOCKING"]
+    assert metrics["eligible"] == 2 and metrics["measured"] == 1
+    assert metrics["unavailable"] == 1 and metrics["state"] == "partial"
+
+
+def test_export_render_blocking_bounded_samples_keep_status_and_counts():
+    urls = [URL + str(index) + "é" * 600 + ".js" for index in range(80)]
+    exports = LoadedExports()
+    exports.frames["internal_all"] = pd.DataFrame(
+        [
+            {
+                "Address": URL,
+                "Content Type": "text/html",
+                "Status Code": 201,
+                "Render Blocking Resources": json.dumps(urls),
+            }
+        ]
+    )
+    ctx = AuditContext(exports, load_config(None))
+    check_render_blocking(ctx)
+    issue = ctx.issues[0]
+    assert issue.status_code == 201
+    assert len(json.dumps(issue.details["resources"], ensure_ascii=True)) <= 64 * 1024
+    assert issue.details["resources_omitted"] == len(urls) - len(issue.details["resources"])
+    assert ctx.asset_measurements["RENDER_BLOCKING"]["state"] == "partial"

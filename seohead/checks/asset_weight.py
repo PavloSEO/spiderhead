@@ -140,6 +140,40 @@ def content_hash(text: str) -> str:
     return hashlib.sha256(normalized.encode("utf-8", "ignore")).hexdigest()
 
 
+def resource_delivery_evidence(body: bytes, kind: str, headers: Any) -> dict[str, Any]:
+    """Summarize a completed native resource fetch without retaining source code."""
+    from seohead.storage.bodies import decode_entity
+    from seohead.storage.resources import media_matches
+
+    kind = {"module": "script", "css_import": "stylesheet"}.get(kind, kind)
+    values: dict[str, str] = {}
+    for k, v in headers:
+        name = str(k).lower()
+        values[name] = ",".join(filter(None, (values.get(name), str(v))))
+    is_source = kind in {"script", "stylesheet"} and media_matches(
+        kind, values.get("content-type", "")
+    )
+    text = decode_entity(body, values.get("content-type", ""))[0] if is_source else ""
+    fonts = find_missing_font_display(text) if is_source and kind == "stylesheet" else []
+    return {
+        "cache": check_cache_lifetime(values.get("cache-control")),
+        "source_state": "complete"
+        if is_source
+        else "unavailable"
+        if kind in {"script", "stylesheet"}
+        else "not_applicable",
+        "font_display": fonts[:20] if is_source else None,
+        "font_display_count": len(fonts) if is_source else None,
+        "font_display_omitted": max(0, len(fonts) - 20) if is_source else None,
+        "unminified": bool(text) and not looks_minified(text) if is_source else None,
+        "legacy_js": looks_legacy_transpiled(text) if is_source and kind == "script" else None,
+        # Exact bytes: stripping whitespace inside string literals can conflate different programs.
+        "sha256": hashlib.sha256(body).hexdigest()
+        if is_source and kind == "script" and body
+        else None,
+    }
+
+
 def find_duplicate_libraries(resources: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Group fetched resources of the same kind by content hash.
 
@@ -280,6 +314,12 @@ def check_cache_lifetime(cache_control: str | None) -> dict[str, Any]:
     if "no-store" in lowered or "no-cache" in lowered:
         return {"ok": False, "max_age": 0, "reason": "no-store/no-cache on a static asset"}
     match = _MAX_AGE_RE.search(value)
+    if match and len(match.group(1)) > 19:
+        return {
+            "ok": False,
+            "max_age": None,
+            "reason": "Cache-Control max-age exceeds the supported integer bound",
+        }
     max_age = int(match.group(1)) if match else None
     if max_age is None:
         return {"ok": False, "max_age": None, "reason": "no Cache-Control max-age"}

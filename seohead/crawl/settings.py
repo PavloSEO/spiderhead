@@ -174,6 +174,10 @@ DEFAULTS: dict[str, Any] = {
     "analysis": {
         "segments": [],
         "canonical_policy": {"pagination": [], "filters": []},
+        "asset_thresholds": {
+            "page_weight_max_bytes": 2 * 1024 * 1024,
+            "resource_max_bytes": 2 * 1024 * 1024,
+        },
         # Post-analysis URL-pattern suppressions. These never affect scope or
         # collection; the effective ordered policy is stored with the scan.
         "finding_exclusions": [],
@@ -495,6 +499,8 @@ RESULTS_AFFECTING: frozenset[str] = frozenset(
         "analysis.finding_exclusions",
         "analysis.canonical_policy.pagination",
         "analysis.canonical_policy.filters",
+        "analysis.asset_thresholds.page_weight_max_bytes",
+        "analysis.asset_thresholds.resource_max_bytes",
         # Seeding from the sitemap changes which URLs are fetched at all.
         "sitemaps.auto_discover",
         "discovery.hyperlinks.store",
@@ -624,6 +630,8 @@ RESULTS_AFFECTING: frozenset[str] = frozenset(
 # --config-help and, eventually, an MCP "describe settings" tool (#23) — so the three cannot drift
 # into different descriptions of the same setting. A test fails if a DEFAULTS path has no entry here.
 DESCRIPTIONS: dict[str, str] = {
+    "analysis.asset_thresholds.page_weight_max_bytes": "Native declared-resource page budget in captured content-decoded bytes; incomplete runtime payloads remain lower bounds.",
+    "analysis.asset_thresholds.resource_max_bytes": "Native per-resource budget in captured content-decoded bytes; defaults to 2 MiB.",
     "evidence.retain_no_store_acknowledged": (
         "Allow bounded SQLite body retention for anonymous responses carrying Cache-Control: "
         "no-store; off by default and never permits credentialed response retention."
@@ -1242,6 +1250,11 @@ def validate(config: dict[str, Any]) -> None:
             )
 
     _validate_segments(config["scope"])
+    for name, value in config["analysis"].get("asset_thresholds", {}).items():
+        if type(value) is not int or not 0 < value < 2**63:
+            raise ConfigError(
+                f"analysis.asset_thresholds.{name} must be a positive SQLite-sized integer"
+            )
     if not isinstance(config["analysis"]["segments"], list):
         raise ConfigError("analysis.segments must be a list")
     from seohead.checks.finding_exclusions import validate_rules

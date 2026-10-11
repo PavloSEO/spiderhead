@@ -204,10 +204,8 @@ LIGHTHOUSE_AUDIT_IDS: frozenset[str] = frozenset(
     }
 )
 
-# check_id -> Lighthouse correspondence. Every entry here is either a check
-# this PR adds (charset/doctype/viewport/compression) or an existing check
-# that already covers the audit's rule (HTTP1_ONLY, IMG_MISSING_DIMENSIONS) —
-# recorded rather than duplicated, per the issue.
+# check_id -> Lighthouse correspondence. Each note distinguishes independently
+# implemented static rules from explicitly supplied Lighthouse lab results.
 LIGHTHOUSE_MAP: dict[str, dict[str, str]] = {
     "MISSING_CHARSET": {
         "audit_id": "charset",
@@ -272,5 +270,36 @@ LIGHTHOUSE_MAP: dict[str, dict[str, str]] = {
             "width/height, which is a CLS risk on the served markup). "
             "`unsized-images` is still a classic, non-trace Lighthouse audit."
         ),
+    },
+    # Imported lab verdicts: no Lighthouse implementation or score calculation is copied.
+    "LCP_DISCOVERY": {
+        "audit_id": "lcp-discovery-insight",
+        "doc_url": "https://developer.chrome.com/docs/performance/insights/lcp-discovery",
+        "note": "Reads the supplied matching per-URL Lighthouse JSON lab result, with input hash and capture provenance. Missing, failed and unscored audits remain unavailable; this is not a native trace or field Core Web Vitals.",
+    },
+    "NETWORK_DEPENDENCY_TREE": {
+        "audit_id": "network-dependency-tree-insight",
+        "doc_url": "https://developer.chrome.com/docs/performance/insights/network-dependency-tree",
+        "note": "Reads the supplied matching per-URL Lighthouse JSON lab result, with input hash and capture provenance. Missing, failed and unscored audits remain unavailable; this is not a native trace or field Core Web Vitals.",
+    },
+    "LAYOUT_SHIFT_CULPRITS": {
+        "audit_id": "cls-culprits-insight",
+        "doc_url": "https://developer.chrome.com/docs/performance/insights/cls-culprits",
+        "note": "Reads the supplied matching per-URL Lighthouse JSON lab result, with input hash and capture provenance. Missing, failed and unscored audits remain unavailable; this is not a native trace or field Core Web Vitals.",
+    },
+    "IMAGE_DELIVERY": {
+        "audit_id": "image-delivery-insight",
+        "doc_url": "https://developer.chrome.com/docs/performance/insights/image-delivery",
+        "note": "Reads the supplied matching per-URL Lighthouse JSON lab result, with input hash and capture provenance. Missing, failed and unscored audits remain unavailable; this is not a native trace or field Core Web Vitals.",
+    },
+    "FORCED_REFLOW": {
+        "audit_id": "forced-reflow-insight",
+        "doc_url": "https://developer.chrome.com/docs/performance/insights/forced-reflow",
+        "note": "Reads the supplied matching per-URL Lighthouse JSON lab result, with input hash and capture provenance. Missing, failed and unscored audits remain unavailable; this is not a native trace or field Core Web Vitals.",
+    },
+    "JS_EXECUTION_TIME": {
+        "audit_id": "bootup-time",
+        "doc_url": "https://developer.chrome.com/docs/lighthouse/performance/bootup-time/",
+        "note": "Reads the supplied matching per-URL Lighthouse JSON lab result, with input hash and capture provenance. Missing, failed and unscored audits remain unavailable; this is not a native trace or field Core Web Vitals.",
     },
 }

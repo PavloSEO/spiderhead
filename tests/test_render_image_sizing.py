@@ -76,6 +76,11 @@ def test_one_entry_per_source_url():
     assert len(image_sizing_findings(images, dpr=1.0)["oversized"]) == 1
 
 
+def test_repeated_source_in_different_boxes_keeps_both_layout_observations():
+    images = [_img("https://ex.test/a.jpg", 600, 600), _img("https://ex.test/a.jpg", 600, 100)]
+    assert len(image_sizing_findings(images, dpr=1.0)["oversized"]) == 1
+
+
 def test_entries_carry_the_numbers_a_reader_needs():
     entry = image_sizing_findings([_img("https://ex.test/a.jpg", 300, 600)], dpr=2.0)["upscaled"][0]
     assert entry == {

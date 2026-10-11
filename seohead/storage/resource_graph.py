@@ -69,11 +69,15 @@ def ensure_schema(con: sqlite3.Connection) -> None:
         ("width", "INTEGER"),
         ("height", "INTEGER"),
         ("body_state", "TEXT NOT NULL DEFAULT 'unavailable'"),
+        ("delivery_json", "TEXT"),
     ):
         if name not in existing:
             con.execute(f"ALTER TABLE resource_graph_fetches ADD COLUMN {name} {definition}")
     con.execute(
         "CREATE INDEX IF NOT EXISTS resource_graph_occurrences_url ON resource_graph_occurrences(resolved_url)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS resource_graph_pending ON resource_graph_occurrences(occurrence_id) WHERE state='disabled'"
     )
 
 
@@ -474,6 +478,25 @@ def validate(con: sqlite3.Connection) -> None:
     ).fetchone():
         raise ScanError("resource graph occurrence ordinals are not contiguous")
     for row in con.execute("SELECT * FROM resource_graph_fetches"):
+        if "delivery_json" in row.keys() and row["delivery_json"] is not None:  # noqa: SIM118 -- sqlite3.Row membership checks values.
+            try:
+                if len(row["delivery_json"]) > 16 * 1024:
+                    raise ValueError("delivery summary exceeds its bound")
+                delivery = json.loads(row["delivery_json"])
+                if (
+                    not isinstance(delivery, dict)
+                    or not isinstance(delivery.get("cache"), dict)
+                    or type(delivery["cache"].get("ok")) is not bool
+                    or (
+                        delivery.get("font_display") is not None
+                        and not isinstance(delivery["font_display"], list)
+                    )
+                    or type(delivery.get("unminified")) not in {bool, type(None)}
+                    or type(delivery.get("legacy_js")) not in {bool, type(None)}
+                ):
+                    raise ValueError("invalid delivery summary")
+            except (TypeError, ValueError) as exc:
+                raise ScanError("resource delivery evidence is invalid") from exc
         if (
             row["state"] not in {"complete", "partial", "failed", "excluded", "budget"}
             or row["bytes_received"] < 0
@@ -654,6 +677,14 @@ def capture(
                 ),
             )
             _set_occurrence_state(scan.con, url, state, reason)
+            if state == "complete" and event is not None and body is not None:
+                from seohead.checks.asset_weight import resource_delivery_evidence
+
+                delivery = resource_delivery_evidence(body, row["kind"], event.response_headers)
+                scan.con.execute(
+                    "UPDATE resource_graph_fetches SET delivery_json=? WHERE resolved_url=?",
+                    (json.dumps(delivery), url),
+                )
             if state == "complete":
                 totals["fetched"] += 1
             elif state == "excluded":
