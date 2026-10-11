@@ -47,7 +47,8 @@ class ProjectMixin:
             return
         if not (Path(directory) / "project.json").is_file():
             self.statusBar().showMessage("В папке нет project.json SEOHEAD")
-            self.notice.show_error("В выбранной папке нет project.json SEOHEAD. Выберите сохранённый проект через меню проекта.", "project-open")
+            if self.recent_projects or self.prefs.get("shell.onboarding_done"):  # first-run wizard owns the screen until it is passed
+                self.notice.show_error("В выбранной папке нет project.json SEOHEAD. Выберите сохранённый проект через меню проекта.", "project-open")
             return
         self._project_loading = True
         self.update_note_controls()

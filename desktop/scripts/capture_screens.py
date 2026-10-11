@@ -286,6 +286,7 @@ def build(name, width, height, store, theme="light", lang="ru"):
         window = MainWindow(persistent=False)
         window.prefs.set("view.theme", theme)
         window.prefs.set("view.language", lang)
+        window.prefs.set("shell.onboarding_done", True)  # captures show the workspace, not the first-run wizard
         if arg == "simple" or OPTIONS.get("display") == "simple":
             window.set_display("simple", remember=False)
         window.show_startup_workspace()
