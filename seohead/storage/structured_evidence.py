@@ -70,10 +70,6 @@ def _has_schema_rdfa(soup: BeautifulSoup) -> bool:
             for node in ancestors
         ):
             return True
-        if not any(node.has_attr("vocab") for node in ancestors) and any(
-            term and ":" not in term and not term.startswith("_") for term in terms
-        ):
-            return True
         prefix_text = " ".join(str(node.get("prefix") or "") for node in ancestors if hasattr(node, "get"))
         prefix_map = {
             name: namespace

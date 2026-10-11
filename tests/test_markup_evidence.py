@@ -202,6 +202,31 @@ def test_rdfa_graph_is_retained_as_native_validation():
     }
 
 
+def test_retained_rdfa_property_copy_keeps_the_v2_validation_shape():
+    from pathlib import Path
+
+    html = (Path(__file__).parent / "fixtures" / "rdfa_copy_graph.html").read_text("utf-8")
+    payload = structured_payload(
+        page_url_id=1,
+        source_document_id=1,
+        representation="static",
+        parsed=parse_html(html, URL),
+        html=html,
+    )
+    assert payload["state"] == "valid"
+    assert payload["validation"]["structural_state"] == "valid"
+    assert payload["validation"]["feature_checks"] == []
+    assert set(payload["validation"]) == {
+        "syntax_state",
+        "structural_state",
+        "feature_eligibility_state",
+        "unsupported_context_normalization",
+        "entity_errors",
+        "entity_warnings",
+        "feature_checks",
+    }
+
+
 def test_schema_warning_is_a_native_finding(tmp_path):
     html = '<script type="application/ld+json">{"@type":"Product","name":"A","brand":"Brand literal"}</script>'
     path = _scan(tmp_path, [(URL, html)])

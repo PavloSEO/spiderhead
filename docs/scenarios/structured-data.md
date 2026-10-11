@@ -12,9 +12,13 @@
 
 The shared checker validates JSON-LD, Microdata and offline RDFa subject graphs with
 the bundled vocabulary and local rich-result rules. RDFa forward/reverse relations,
-resource and literal values, and ordered `inlist` collections use the same graph
-validator. A retained native scan emits per-URL schema errors, warnings and missing
-required properties; extraction limits report partial coverage. Local eligibility
+resource and literal values, ordered `inlist` collections and bounded iterative
+property copying use the same graph validator. [HTML+RDFa defines no default
+vocabulary](https://www.w3.org/TR/html-rdfa/#additional-rdfa-processing-rules); use
+an explicit `vocab` or Schema.org prefix. [Property copying](https://www.w3.org/TR/html-rdfa/#property-copying)
+is resolved after graph extraction. A retained native scan emits per-URL schema
+errors, warnings and missing required properties; extraction limits report partial
+coverage. Local eligibility
 never guarantees Google display. Use `scan-structured-blocks` for the original and
 parsed JSON-LD tree.
 
