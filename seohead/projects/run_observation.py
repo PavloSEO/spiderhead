@@ -328,6 +328,15 @@ def _owner_busy(run: dict[str, Any]) -> bool:
     return owner in {"live", "unknown"}
 
 
+def live_holder(directory: str | Path) -> str | None:
+    """Describe the running collector whose controller is still alive, if there is one."""
+    _, _, document = _load(directory)
+    for run in document["runs"]:
+        if run["state"] == "running" and _owner_busy(run):
+            return f"{run['kind']} run {run['id']} (pid {run['controller_pid']})"
+    return None
+
+
 def start(
     directory: str | Path,
     *,

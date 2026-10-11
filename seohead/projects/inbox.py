@@ -448,9 +448,8 @@ def set_goal_state(
         if state == "completed" and entry["goal_state"] != "accepted":
             raise ValueError("a proposed goal must be accepted before completion")
         if state == "accepted":
-            from .coverage import ensure_goal_task, initialize_coverage
+            from .coverage import ensure_goal_task
 
-            initialize_coverage(directory)
             ensure_goal_task(
                 directory,
                 item_id=goal_task_id(entry["id"]),

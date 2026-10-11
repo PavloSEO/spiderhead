@@ -666,6 +666,29 @@ def _record_shape(record: Any, definition_hashes: dict) -> None:
             raise ValueError("review history is missing approval")
 
 
+def _busy_reason(root: Path, lock: Path) -> str:
+    """Name the live holder of the writer lock; only an unexplained lock is a leftover."""
+    from .run_observation import live_holder
+
+    try:
+        holder = live_holder(root)
+    except ValueError:  # an unreadable collector log must not hide the lock holder check
+        holder = None
+    if holder is not None:
+        return (
+            f"coverage writer is busy: {holder} is running on this project; wait for it to finish"
+        )
+    try:
+        pid = int(lock.read_text().strip())
+        os.kill(pid, 0)
+    except (OSError, ValueError):
+        return (
+            "coverage writer is busy; no live holder is recorded, so .coverage.lock is a "
+            "leftover from an interrupted process"
+        )
+    return f"coverage writer is busy: process pid {pid} holds .coverage.lock"
+
+
 @contextmanager
 def _transaction(directory: str | Path, expected_revision: int | None):
     root, project = _load(directory)
@@ -673,10 +696,9 @@ def _transaction(directory: str | Path, expected_revision: int | None):
     try:
         fd = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     except FileExistsError as exc:
-        raise ValueError(
-            "coverage writer is busy; inspect a leftover lock after an interrupted process"
-        ) from exc
+        raise ValueError(_busy_reason(root, lock)) from exc
     try:
+        os.write(fd, f"{os.getpid()}\n".encode())
         os.close(fd)
         document = _read(root, project)
         revision = document["revision"] if document else 0
@@ -770,6 +792,27 @@ def _builtin(item_id: str, entry: dict, order: int, site: str) -> dict:
     }
 
 
+def _materialize_builtin(document: dict, item_id: str, project: dict) -> None:
+    """A goal-only checklist gains the catalogue rows only when one of them is actually touched."""
+    catalogue = load_catalogue()
+    if item_id not in document["items"] and item_id in catalogue:
+        _reconcile_builtins(document["items"], catalogue, project["site"]["target"])
+
+
+def _reconcile_builtins(items: dict, catalogue: dict, site: str) -> None:
+    """Add or refresh every built-in row; only checklist setup and on-demand touches call this."""
+    for order, (item_id, entry) in enumerate(catalogue.items()):
+        if item_id in items:
+            definition = {
+                **items[item_id]["definition"],
+                "source_hash": entry["definition_hash"],
+                "title": entry["title"],
+            }
+        else:
+            definition = _builtin(item_id, entry, order, site)
+        _set(items, _definition(definition, catalogue))
+
+
 def initialize_coverage(
     directory: str | Path,
     template: dict | None = None,
@@ -787,16 +830,7 @@ def initialize_coverage(
         raise ValueError("unsupported checklist template")
     with _transaction(directory, expected_revision) as (_, project, document):
         items = document["items"]
-        for order, (item_id, entry) in enumerate(catalogue.items()):
-            if item_id in items:
-                definition = {
-                    **items[item_id]["definition"],
-                    "source_hash": entry["definition_hash"],
-                    "title": entry["title"],
-                }
-            else:
-                definition = _builtin(item_id, entry, order, project["site"]["target"])
-            _set(items, _definition(definition, catalogue))
+        _reconcile_builtins(items, catalogue, project["site"]["target"])
         seen = set()
         for value in (template or {}).get("items", []):
             if not isinstance(value, dict):
@@ -854,6 +888,7 @@ def update_item(directory: str | Path, item: dict, expected_revision: int) -> di
     with _transaction(directory, expected_revision) as (_, project, document):
         if document["revision"] == 0:
             raise ValueError("initialize the checklist first")
+        _materialize_builtin(document, item.get("id"), project)
         previous = (
             document["items"].get(item.get("id"), {}).get("definition")
             if isinstance(item, dict)
@@ -874,7 +909,8 @@ def record_execution(
         raise ValueError("expected_revision must be an integer")
     if not isinstance(record, dict):
         raise ValueError("record must be an object")
-    with _transaction(directory, expected_revision) as (root, _, document):
+    with _transaction(directory, expected_revision) as (root, project, document):
+        _materialize_builtin(document, item_id, project)
         if item_id not in document["items"]:
             raise ValueError("unknown checklist item")
         item = document["items"][item_id]
@@ -941,6 +977,22 @@ def _disposition(item: dict, record: dict, stale_reason: str) -> tuple[str, dict
             "reason": "disabled without a reviewed exclusion; it stays inside the agreed denominator"
         }
     return "applicable", None
+
+
+_AGENT_REVIEWER = re.compile(r"(agent|assistant|claude|codex|llm|ai)\b", re.IGNORECASE)
+
+
+def _owner_decided(record: dict) -> bool:
+    """Manual work counts as owner-complete only by owner signoff or a non-agent review.
+
+    An agent may record that it reviewed an artifact; that leaves the item waiting for the
+    owner rather than completing it. The reviewer name is the only identity the record holds.
+    """
+    if record.get("signoff") is True:
+        return True
+    return record.get("review") == "approved" and not _AGENT_REVIEWER.search(
+        str(record.get("reviewer") or "")
+    )
 
 
 def _measured_urls(row: dict) -> tuple[set[str], bool]:
@@ -1153,7 +1205,8 @@ def _status(
             "blocked_by": [],
             "complete": state == "run"
             and applicability == "applicable"
-            and not partial_measurement,
+            and not partial_measurement
+            and (definition["execution_kind"] == "automatic" or _owner_decided(record)),
             "definition_versions": len(item["definitions"]),
             "attempts": len(item["records"]),
         }

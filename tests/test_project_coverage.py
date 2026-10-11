@@ -581,3 +581,31 @@ def test_scoped_competitor_task_detail_never_rehashes_any_site_artifact(tmp_path
     detail = task_detail(root, item_id=identifier)
     assert detail["item"]["complete"]
     assert detail["item"]["evidence_verification"]["state"] == "metadata_matches"
+
+
+def test_agent_review_leaves_a_deliverable_waiting_for_owner_completion(project):
+    edit(project, id="custom:delivery", execution_kind="deliverable")
+    (project / "reports/client.md").write_text("Reviewed synthetic client deliverable")
+    result = record(
+        project,
+        "custom:delivery",
+        status="succeeded",
+        reason="Agent reviewed package",
+        artifact="reports/client.md",
+        reviewer="Claude Code",
+        review="approved",
+    )
+    assert row(result, "custom:delivery")["state"] == "run"
+    assert not row(result, "custom:delivery")["complete"]
+    assert "custom:delivery" in result["views"]["waiting_for_manual_review"]
+    assert "custom:delivery" not in result["views"]["deliverable_ready"]
+    owner = record(
+        project,
+        "custom:delivery",
+        status="succeeded",
+        reason="Owner approved package",
+        artifact="reports/client.md",
+        reviewer="Pavel",
+        review="approved",
+    )
+    assert row(owner, "custom:delivery")["complete"]

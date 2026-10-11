@@ -570,3 +570,51 @@ def server_status(root):
     server = build_server()
     progress = server._tool_manager.get_tool("seo_project_progress")
     return progress.fn(directory=str(root), consumer="agent/session-a")
+
+
+def test_accepted_goal_adds_only_its_own_task_to_a_fresh_checklist(tmp_path):
+    import json
+
+    from seohead.projects.catalogue import load_catalogue
+    from seohead.projects.inbox import goal_task_id
+
+    root = _project(tmp_path)
+    goal = submit(root, text="Compare two competitors", kind="proposed_goal")["entry"]
+    set_goal_state(root, entry_id=goal["id"], state="accepted")
+    stored = json.loads((root / "coverage.json").read_text())["items"]
+    assert set(stored) == {goal_task_id(goal["id"])}
+    # Touching a built-in row materializes the catalogue on demand, not at goal acceptance.
+    builtin = next(iter(load_catalogue()))
+    update_item(root, {"id": builtin, "priority": "P2"}, coverage_status(root)["revision"])
+    assert (
+        next(row for row in coverage_status(root)["items"] if row["id"] == builtin)["priority"]
+        == "P2"
+    )
+
+
+def test_busy_checklist_names_the_live_collector_instead_of_a_leftover_lock(tmp_path):
+    from seohead.projects import run_observation
+
+    root = _project(tmp_path)
+    goal = submit(root, text="Blocked by a running crawl", kind="proposed_goal")["entry"]
+    run = run_observation.start(
+        root,
+        kind="native",
+        mode="spider",
+        max_urls=10,
+        config_fingerprint="synthetic",
+        artifact=root / "scans" / "scan.sqlite",
+    )
+    (root / ".coverage.lock").write_text("")
+    with pytest.raises(ValueError, match=rf"coverage writer is busy: native run {run['id']}"):
+        set_goal_state(root, entry_id=goal["id"], state="accepted")
+    (root / ".coverage.lock").unlink()
+
+
+def test_unexplained_writer_lock_is_reported_as_a_leftover(tmp_path):
+    root = _project(tmp_path)
+    goal = submit(root, text="Blocked by a stale file", kind="proposed_goal")["entry"]
+    (root / ".coverage.lock").write_text("")
+    with pytest.raises(ValueError, match=r"no live holder is recorded.*leftover"):
+        set_goal_state(root, entry_id=goal["id"], state="accepted")
+    (root / ".coverage.lock").unlink()
