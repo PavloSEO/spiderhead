@@ -1811,6 +1811,58 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         )
 
     @mcp.tool(annotations=fetch, structured_output=True)
+    def seo_cloudflare_logpush_import(
+        input_path: str, project: str, max_events: int = 10_000
+    ) -> dict[str, Any]:
+        """Import a caller-supplied UTF-8 Logpush JSON Lines file into the selected project's
+        local logstore. This operation reads only the supplied local file and makes no provider
+        request; input is capped at 16 MiB and 10,000 records."""
+        return _checked(
+            handlers.cloudflare_logpush_import(
+                input_path=input_path, project=project, max_events=max_events
+            )
+        )
+
+    @mcp.tool(annotations=fetch, structured_output=True)
+    async def seo_cloudflare_instant_logs(
+        project: str,
+        confirm_live_capture: bool = False,
+        max_seconds: int = 10,
+        max_events: int = 100,
+        max_bytes: int = 1_048_576,
+        sample: int = 10,
+    ) -> dict[str, Any]:
+        """Explicitly create one short, bounded Instant Logs session for a Business/Enterprise
+        project zone. Requires confirm_live_capture=true. A session already active for the zone is
+        left untouched. Only an allowlisted sample is imported locally; canceling closes this
+        client's socket and Cloudflare automatically expires idle sessions."""
+        import asyncio
+        import threading
+
+        cancelled = threading.Event()
+        task = asyncio.create_task(
+            asyncio.to_thread(
+                handlers.cloudflare_instant_logs,
+                project=project,
+                confirm_live_capture=confirm_live_capture,
+                max_seconds=max_seconds,
+                max_events=max_events,
+                max_bytes=max_bytes,
+                sample=sample,
+                cancel_event=cancelled,
+            )
+        )
+        try:
+            return _checked(await asyncio.shield(task))
+        except asyncio.CancelledError:
+            cancelled.set()
+            try:
+                await asyncio.shield(task)
+            except Exception:
+                pass
+            raise
+
+    @mcp.tool(annotations=fetch, structured_output=True)
     def seo_crtsh_subdomains(domain: str) -> dict[str, Any]:
         """Subdomains discovered from public Certificate Transparency logs (crt.sh). Free and
         keyless. Every TLS certificate ever issued for a domain is public record, so this finds

@@ -600,8 +600,9 @@ retention window, ending at least five minutes ago, and caps one request at 10,0
 It reuses the logs core with reverse-DNS checks off; the temporary text conversion is removed
 immediately. A response at the row cap is retained as partial. It requires Zone Read and Logs Read.
 The read-only Logpush status lists existing jobs but never accesses their destination data; Logpush
-destinations are customer-owned. Instant Logs is not ingested because its API creates a live session
-and requires a WebSocket stream.
+destinations are customer-owned. A separate local-file route imports caller-supplied Logpush NDJSON.
+Instant Logs is separately opt-in: it creates one transient live session, reads a bounded prefix,
+and closes only the socket it created.
 Contracts: [Logpull](https://developers.cloudflare.com/logs/logpull/), [received logs API](https://developers.cloudflare.com/api/resources/logs/subresources/received/methods/get/), [Instant Logs availability and session lifecycle](https://developers.cloudflare.com/logs/instant-logs/), [zone settings](https://developers.cloudflare.com/api/resources/zones/subresources/settings/methods/get/), [Rulesets entrypoint](https://developers.cloudflare.com/api/resources/rulesets/subresources/phases/methods/get/), and [AI Crawl Control WAF rules](https://developers.cloudflare.com/ai-crawl-control/configuration/ai-crawl-control-with-waf/).
 
 Provider evidence can change work order only when its coverage is usable; sampled,
@@ -631,6 +632,15 @@ priority adjustment. It never changes a technical finding's severity. See the
 | `crtsh-subdomains` | Hosts named in public TLS certificates for a domain — subdomains nothing links to | free, no key |
 | `cloudflare-traffic` | Bot/human traffic summaries plus bounded per-URL daily edge/origin status, cache, redirect status and verified-bot category facts. Use `--zone` or a project with one selected Cloudflare zone ID binding. `--include-configuration` adds AI zone settings, bounded redirect/custom-WAF rulesets, and safe Logpush job summaries without destination data; rules describe configuration, not per-request matches. Aggregated (`source: cloudflare-aggregated`), not raw logs: no IPs, sub-day timestamps, rule IDs or reverse-DNS verification; URL facts cap at 50,000 and report truncation; Free plan keeps 32 days | free; traffic needs Zone Read and Account Analytics Read; configuration additionally needs Zone Settings Read, Rulesets Read and Logs Read |
 | `cloudflare-history` | Read paged Cloudflare per-URL/day aggregate snapshots retained by explicit project-bound `cloudflare-traffic` calls | local, read-only |
+| `cloudflare-logpush-import` | Import a caller-supplied UTF-8 Logpush NDJSON file into the existing project-local server-log store; no destination is configured and no provider call occurs | local file + project write; 16 MiB and 10,000-event cap |
+| `cloudflare-instant-logs` | Explicit, confirmed Business/Enterprise live capture from the bound zone, capped at 60 seconds, 1,000 events, and 8 MiB; checks for an existing session and never replaces it | live provider session (`Logs Read`) + local logstore; requires the optional `cloudflare-stream` extra |
+
+Instant Logs uses Cloudflare's `POST /zones/{zone_id}/logpush/edge/jobs` plus the returned WebSocket
+address. Cancellation closes this client's socket. The Edge API has no session delete/stop operation;
+Cloudflare documents automatic session stop after five idle minutes (and a 60-minute maximum), so
+the result reports that provider-side expiry instead of claiming immediate cancellation. See
+[Instant Logs](https://developers.cloudflare.com/logs/instant-logs/) and the
+[create-session API](https://developers.cloudflare.com/api/resources/logpush/subresources/edge/methods/create/).
 | `gsc-query` | Search Console: clicks, impressions, position and CTR per query or page, plus Google's own indexing verdict for one URL | free; needs OAuth against a property you own |
 | `webmaster-url-queries` | Yandex Webmaster query evidence for one URL or a bounded URL population; URL/query rows stay separate and caps are explicit | free within Webmaster quota; needs an own verified host |
 | `miratext-analyze` | Start or resume bounded competitor text analysis; paid and keyword modes require explicit confirmation | paid provider; API key required |

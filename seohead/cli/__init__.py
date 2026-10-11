@@ -110,6 +110,8 @@ COMMANDS = (
     "crtsh-subdomains",
     "cloudflare-traffic",
     "cloudflare-history",
+    "cloudflare-logpush-import",
+    "cloudflare-instant-logs",
     "gsc-query",
     "webmaster-url-queries",
     "miratext-analyze",
@@ -1303,6 +1305,18 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             value = getattr(args, name, None)
             if value is not None:
                 kw[name] = value
+    if cmd == "cloudflare-logpush-import":
+        for name in ("input_path", "project", "max_events"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    if cmd == "cloudflare-instant-logs":
+        for name in ("project", "max_seconds", "max_events", "max_bytes", "sample"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        if getattr(args, "confirm_live_capture", False):
+            kw["confirm_live_capture"] = True
     if cmd == "gsc-query":
         if args.site_url:
             kw["site_url"] = args.site_url
@@ -2291,6 +2305,17 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--zone-id", dest="zone_id", help="optional zone ID filter")
         sub.add_argument("--limit", type=int, default=20, help="snapshots per page, 1..100")
         sub.add_argument("--offset", type=int, default=0, help="zero-based snapshot offset")
+    if cmd == "cloudflare-logpush-import":
+        _source_flag(sub, "--file", dest="input_path", help="caller-supplied UTF-8 Logpush JSON Lines file")
+        _source_flag(sub, "--project", help="local project that owns the logstore")
+        sub.add_argument("--max-events", type=int, default=10_000, help="maximum records to import")
+    if cmd == "cloudflare-instant-logs":
+        _source_flag(sub, "--project", help="project with one selected Cloudflare zone binding")
+        sub.add_argument("--confirm-live-capture", action="store_true", help="confirm creating a transient Instant Logs session")
+        sub.add_argument("--max-seconds", type=int, default=10, help="capture duration, 1..60 seconds")
+        sub.add_argument("--max-events", type=int, default=100, help="maximum records to retain, 1..1000")
+        sub.add_argument("--max-bytes", type=int, default=1_048_576, help="maximum received frame bytes, 1..8388608")
+        sub.add_argument("--sample", type=int, default=10, help="Cloudflare sample interval, 1..100")
     if cmd == "crtsh-subdomains":
         _source_flag(sub, "--domain", help="domain to search Certificate Transparency logs for")
     if cmd == "gsc-query":

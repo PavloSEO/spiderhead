@@ -4613,6 +4613,40 @@ def cloudflare_history(
     return list_snapshots(project=project, zone_id=zone_id, limit=limit, offset=offset)
 
 
+def cloudflare_logpush_import(
+    input_path: str,
+    project: str,
+    max_events: int = 10_000,
+) -> dict[str, Any]:
+    """Import a supplied Logpush JSON Lines file into the project's local logstore."""
+    from seohead.data_sources.cloudflare_logs import import_logpush_file
+
+    return import_logpush_file(input_path, project, max_events=max_events)
+
+
+def cloudflare_instant_logs(
+    project: str,
+    confirm_live_capture: bool = False,
+    max_seconds: int = 10,
+    max_events: int = 100,
+    max_bytes: int = 1_048_576,
+    sample: int = 10,
+    cancel_event: Any = None,
+) -> dict[str, Any]:
+    """Explicitly create and bound a transient Cloudflare Instant Logs capture."""
+    from seohead.data_sources.cloudflare_logs import instant_logs_capture
+
+    return instant_logs_capture(
+        project,
+        confirm_live_capture=confirm_live_capture,
+        max_seconds=max_seconds,
+        max_events=max_events,
+        max_bytes=max_bytes,
+        sample=sample,
+        cancel_event=cancel_event,
+    )
+
+
 def crtsh_subdomains(domain: str | None = None) -> dict[str, Any]:
     """Subdomains discovered from public Certificate Transparency logs (crt.sh).
 
@@ -7228,6 +7262,8 @@ _RAW_HANDLERS = {
     "crtsh_subdomains": crtsh_subdomains,
     "cloudflare_traffic": cloudflare_traffic,
     "cloudflare_history": cloudflare_history,
+    "cloudflare_logpush_import": cloudflare_logpush_import,
+    "cloudflare_instant_logs": cloudflare_instant_logs,
     "gsc_query": gsc_query,
     "webmaster_url_queries": webmaster_url_queries,
     "miratext_analyze": miratext_analyze,
