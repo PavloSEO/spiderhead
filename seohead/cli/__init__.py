@@ -947,6 +947,9 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             kw["_report"] = args.report
             kw["_out"] = getattr(args, "out", None)
     elif cmd == "report-build":
+        if "format" in kw:
+            # --input JSON uses the CLI spelling; the handler parameter is fmt.
+            kw["fmt"] = kw.pop("format")
         if getattr(args, "pdf_policy", None) is not None:
             kw["pdf_policy"] = args.pdf_policy
         if getattr(args, "audit", None):

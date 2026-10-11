@@ -1147,8 +1147,12 @@ replay remains unavailable; retained-evidence reanalysis is documented above.
 
 Saved finding views are currently unavailable for streamed audit.v2 report inputs.
 The report builder refuses that combination explicitly rather than silently ignoring
-the selected view. Project coverage remains explicitly unavailable on the
-streaming path; bounded inline audit reports retain their view/language support.
+the selected view. Project checklist coverage is bound on the streaming path too:
+`report-build --project` and `audit-workflow --action report` attach the same
+checklist snapshot as inline reports, and a budget-capped (`stopped_by_budget`)
+scan is accepted as a scope-limited audit. Streamed JSON with `--project` is refused,
+because the JSON is written verbatim. Bounded inline audit reports retain
+their view/language support.
 
 For streamed PDF output, explicitly pass `pdf_policy="overview-v1"` (CLI
 `--pdf-policy overview-v1`). It creates a bounded PDF view with complete JSON/CSV
