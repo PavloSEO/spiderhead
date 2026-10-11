@@ -1,3 +1,4 @@
+import copy
 import os
 import time
 import unittest
@@ -20,19 +21,21 @@ MODULE = "seohead_desktop.screens.project_schedule_page"
 
 
 def core_state(**changes):
-    settings = schedule_core.validate({"schedule": {"enabled": True, "weekdays": [0, 3], "days_of_month": [1],
-                                                    "window_start": "01:00", "window_end": "06:00",
-                                                    "time_zone": "Europe/Minsk", "competitors": True},
-                                       "crawl": {"mode": "sitemap", "user_agent_preset": "bingbot", "user_agent": "",
-                                                 "requests_per_second": 2.0, "url_budget": 4000}})
-    state = {"revision": 7, "settings": settings, "next_run": "12.10.2026 01:00", "last_run": {"at": "05.10.2026 01:00", "status": "finished"}}
+    """What read_schedule returns for a project whose schedule.json has these settings (the core's shape)."""
+    settings = copy.deepcopy(schedule_core.DEFAULT_SETTINGS)
+    settings.update({"enabled": True, "weekdays": ["mon", "thu"], "month_days": [1], "time_zone": "Europe/Minsk",
+                     "include_competitors": True})
+    settings["crawl"].update({"mode": "sitemap", "sitemap_url": "https://example.by/sitemap.xml", "max_urls": 4000,
+                              "min_delay_seconds": 2.0})
+    settings["user_agent"] = {"preset": "bingbot", "custom": None}
+    state = {"revision": 7, "settings": settings, "next_run": "12.10.2026 01:00",
+             "last_run": {"at": "05.10.2026 01:00", "status": "ok"}, "zone": "Europe/Minsk", "resume": False,
+             "due_now": False}
     state.update(changes)
     return state
 
 
 class CoreHost(Host):
-    """The desktop test host, with a core executable, as a window has after discovery."""
-
     def __init__(self):
         super().__init__()
         self.core_executable = "/fake/seohead"
@@ -79,8 +82,7 @@ class ScheduleTabTests(unittest.TestCase):
         self.assertIsInstance(dialog.pages.currentWidget(), CrawlPage)
 
     def test_without_a_core_the_tab_is_an_honest_unavailable_state(self):
-        host = Host()  # no core executable
-        page = SchedulePage(host)
+        page = SchedulePage(Host())
         page.show()
         self.app.processEvents()
         self.assertFalse(page.save_button.isEnabled())
@@ -93,11 +95,12 @@ class ScheduleTabTests(unittest.TestCase):
             page = SchedulePage(self.host)
             self.wait(lambda: page.state is not None)
         self.assertTrue(page.enabled.isChecked())
-        self.assertEqual([c.isChecked() for c in page.weekdays].count(True), 2)
-        self.assertEqual(page.days_of_month.text(), "1")
-        self.assertEqual(page.time_zone.currentText(), "Europe/Minsk")
+        self.assertEqual(sorted(name for name, check in page.weekdays.items() if check.isChecked()), ["mon", "thu"])
+        self.assertEqual(page.month_days.text(), "1")
+        self.assertEqual(page.time_zone.currentData(), "Europe/Minsk")
         self.assertIn("Следующий запуск: 12.10.2026 01:00", page.status.text())
-        self.assertIn("Последний: 05.10.2026 01:00 · finished", page.status.text())
+        self.assertIn("Последний: 05.10.2026 01:00 · ok", page.status.text())
+        self.assertIn("Europe/Minsk", page.zone_note.text())
         self.assertTrue(page.save_button.isEnabled())
         page.close()
 
@@ -116,15 +119,16 @@ class ScheduleTabTests(unittest.TestCase):
             self.wait(lambda: page.state["revision"] == 8)
         executable, directory, revision, settings = sent[0]
         self.assertEqual((executable, directory, revision), ("/fake/seohead", "/project/qa", 7))
-        self.assertFalse(settings["schedule"]["enabled"])
+        self.assertFalse(settings["enabled"])
         self.assertEqual(settings["crawl"]["mode"], "sitemap")  # the other section is kept as read
+        self.assertEqual(settings["user_agent"], {"preset": "bingbot", "custom": None})
         page.close()
 
-    def test_bad_days_of_month_are_refused_before_any_core_call(self):
+    def test_bad_month_days_are_refused_before_any_core_call(self):
         with patch(f"{MODULE}.read_schedule", return_value=core_state()), patch(f"{MODULE}.save_schedule") as save:
             page = SchedulePage(self.host)
             self.wait(lambda: page.state is not None)
-            page.days_of_month.setText("1, пятнадцать")
+            page.month_days.setText("1, пятнадцать")
             page.save()
         save.assert_not_called()
         self.assertIn("Проверьте значения", page.status.text())
@@ -132,45 +136,58 @@ class ScheduleTabTests(unittest.TestCase):
 
     def test_core_refusal_is_shown_and_keeps_the_form(self):
         def refuse(*_args):
-            raise ValueError("revision conflict")
+            raise ValueError("schedule revision conflict")
 
         with patch(f"{MODULE}.read_schedule", return_value=core_state()), patch(f"{MODULE}.save_schedule", side_effect=refuse):
             page = SchedulePage(self.host)
             self.wait(lambda: page.state is not None)
             page.save()
             self.wait(lambda: "Не сохранено" in page.status.text())
+        self.assertIn("revision conflict", page.status.text())
         self.assertTrue(page.enabled.isChecked())
         page.close()
 
-    def test_custom_user_agent_enables_the_field_and_shows_what_is_sent(self):
-        with patch(f"{MODULE}.read_schedule", return_value=core_state()):
-            page = CrawlPage(self.host)
-            self.wait(lambda: page.state is not None)
-        self.assertFalse(page.custom.isEnabled())
-        self.assertIn("bingbot", page.effective.text().lower())
-        page.preset.setCurrentIndex(page.preset.findData("custom"))
-        self.assertTrue(page.custom.isEnabled())
-        page.custom.setText("  MyAudit/1.0  ")
-        self.assertEqual(page.effective.text(), "MyAudit/1.0")
-        page.custom.setText("")
-        page.save()  # refused locally: an empty custom string is not a user agent
-        self.assertIn("Проверьте значения", page.status.text())
-        page.close()
-
-    def test_crawl_page_sends_mode_politeness_and_budget(self):
+    def test_custom_user_agent_enables_the_field_and_is_saved_on_the_default_preset(self):
         sent = []
         with patch(f"{MODULE}.read_schedule", return_value=core_state()), \
                 patch(f"{MODULE}.save_schedule", side_effect=lambda *a: (sent.append(a[3]), core_state())[1]):
             page = CrawlPage(self.host)
             self.wait(lambda: page.state is not None)
-            page.mode.setCurrentIndex(page.mode.findData("url_list"))
-            page.rps.setValue(0.5)
+            self.assertFalse(page.custom.isEnabled())
+            page.preset.setCurrentIndex(page.preset.findData("custom"))
+            self.assertTrue(page.custom.isEnabled())
+            page.custom.setText("  MyAudit/1.0  ")
+            page.save()
+            self.wait(lambda: sent)
+        self.assertEqual(sent[0]["user_agent"], {"preset": "spiderhead", "custom": "MyAudit/1.0"})
+        page.close()
+
+    def test_empty_custom_user_agent_is_refused_locally(self):
+        with patch(f"{MODULE}.read_schedule", return_value=core_state()), patch(f"{MODULE}.save_schedule") as save:
+            page = CrawlPage(self.host)
+            self.wait(lambda: page.state is not None)
+            page.preset.setCurrentIndex(page.preset.findData("custom"))
+            page.custom.setText("")
+            page.save()
+        save.assert_not_called()
+        self.assertIn("Проверьте значения", page.status.text())
+        page.close()
+
+    def test_crawl_page_sends_mode_list_delay_budget_and_slice(self):
+        sent = []
+        with patch(f"{MODULE}.read_schedule", return_value=core_state()), \
+                patch(f"{MODULE}.save_schedule", side_effect=lambda *a: (sent.append(a[3]), core_state())[1]):
+            page = CrawlPage(self.host)
+            self.wait(lambda: page.state is not None)
+            page.mode.setCurrentIndex(page.mode.findData("list"))
+            page.urls.setPlainText("https://example.by/a\n\nhttps://example.by/b")
+            page.delay.setValue(0.5)
             page.budget.setValue(1500)
             page.save()
             self.wait(lambda: sent)
         crawl = sent[0]["crawl"]
-        self.assertEqual((crawl["mode"], crawl["requests_per_second"], crawl["url_budget"]), ("url_list", 0.5, 1500))
-        self.assertEqual(crawl["user_agent_preset"], "bingbot")
+        self.assertEqual((crawl["mode"], crawl["urls"], crawl["min_delay_seconds"], crawl["max_urls"]),
+                         ("list", ["https://example.by/a", "https://example.by/b"], 0.5, 1500))
         page.close()
 
     def test_no_page_shows_sample_schedules_or_issue_numbers(self):
@@ -185,8 +202,9 @@ class ScheduleTabTests(unittest.TestCase):
 
     def test_overview_summary_states(self):
         self.assertEqual(summary_text(None), "Расписание недоступно в этой версии ядра")
-        self.assertEqual(summary_text(core_state(settings=schedule_core.validate(
-            {"schedule": {"enabled": False}, "crawl": {}}))), "Расписание выключено")
+        off = core_state()
+        off["settings"]["enabled"] = False
+        self.assertEqual(summary_text(off), "Расписание выключено")
 
 
 if __name__ == "__main__":

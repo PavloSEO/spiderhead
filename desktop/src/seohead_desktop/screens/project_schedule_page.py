@@ -1,13 +1,15 @@
 """«Расписание» and «Обход» tabs of «Настройки проекта».
 
-Both tabs read the project's settings through the core (schedule_core) and write them back with the revision they read.
+Both tabs read the project's schedule through the core (schedule_core) and write it back with the revision they read.
 The desktop keeps no copy: after a save the page shows what the core stored. When the core cannot answer (no CLI, or a
-core without these commands yet) the tab shows the neutral waiting state and its controls stay disabled.
+core without these commands) the tab shows the neutral waiting state and its controls stay disabled.
 """
 
 from __future__ import annotations
 
-from PyQt5.QtCore import QTime, Qt
+import copy
+
+from PyQt5.QtCore import QTime
 from PyQt5.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -16,6 +18,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QPlainTextEdit,
     QPushButton,
     QSpinBox,
     QTimeEdit,
@@ -25,17 +28,20 @@ from PyQt5.QtWidgets import (
 
 from ..i18n import tr, trf
 from ..schedule_core import (
+    AUTO_ZONE,
     BUDGET_RANGE,
+    CUSTOM,
+    DAY_LABELS,
+    DAYS,
+    DEFAULT_PRESET,
+    DELAY_RANGE,
     FAILED,
     MODES,
-    RPS_RANGE,
     USER_AGENT_PRESETS,
-    WEEKDAYS,
     ScheduleJobs,
     read_schedule,
     save_schedule,
     time_zones,
-    user_agent_text,
     validate,
 )
 from ..ui.icons import material_icon
@@ -61,25 +67,19 @@ def meta(text):
     return label
 
 
-def stamp_text(value):
-    return value or tr("не запланирован")
-
-
 def summary_text(state):
-    """One line for the project overview: next and last scheduled run, or why there is none."""
+    """One line for the project overview and the tab: next and last scheduled run, or why there is none."""
     if state is None:
         return tr("Расписание недоступно в этой версии ядра")
-    if not state["settings"]["schedule"]["enabled"]:
+    if not state["settings"]["enabled"]:
         return tr("Расписание выключено")
     last = state["last_run"]
-    last_text = f"{last['at']} · {last['status']}" if last and last.get("at") else tr("нет данных")
-    return trf("Следующий запуск: {next} · Последний: {last}", next=stamp_text(state["next_run"]), last=last_text)
+    last_text = f"{last['at']} · {tr('ok') if last['status'] == 'ok' else tr('с ошибкой')}" if last and last.get("at") else tr("ещё не запускалось")
+    return trf("Следующий запуск: {next} · Последний: {last}", next=state["next_run"] or tr("не запланирован"), last=last_text)
 
 
 class _SettingsPage(QWidget):
-    """Loads the whole settings document, lets one section change, and saves it with the revision it read."""
-
-    section = ""
+    """Loads the whole schedule document, changes one section, and saves it with the revision it read."""
 
     def __init__(self, host):
         super().__init__()
@@ -98,10 +98,12 @@ class _SettingsPage(QWidget):
         self.unavailable = StatePanel("waiting", "Расписание недоступно", FAILED)
         self.unavailable.hide()
         outer.addWidget(self.unavailable)
-        self.body = QVBoxLayout()
+        self.form_widget = QWidget()
+        self.body = QVBoxLayout(self.form_widget)
+        self.body.setContentsMargins(0, 0, 0, 0)
         self.body.setSpacing(12)
-        outer.addLayout(self.body)
         self.build(self.body)
+        outer.addWidget(self.form_widget)
         footer = QHBoxLayout()
         footer.addStretch(1)
         self.revert = QPushButton(tr("Отменить"))
@@ -116,14 +118,14 @@ class _SettingsPage(QWidget):
         outer.addStretch(1)
         self.reload()
 
-    # Subclasses: title, subtitle, build(layout), fill(settings), collect() -> the section's dict.
+    # Subclasses: title, subtitle, build(layout), fill(settings), apply(settings) changes a copy of the settings.
     def build(self, layout):
         raise NotImplementedError
 
     def fill(self, settings):
         raise NotImplementedError
 
-    def collect(self):
+    def apply(self, settings):
         raise NotImplementedError
 
     def _executable(self):
@@ -134,9 +136,9 @@ class _SettingsPage(QWidget):
 
     def _set_available(self, available):
         self.unavailable.setVisible(not available)
+        self.form_widget.setEnabled(available)
         self.save_button.setEnabled(available and self.state is not None)
         self.revert.setEnabled(available)
-        self.form_widget.setEnabled(available)
 
     def reload(self):
         executable, directory = self._executable(), self._directory()
@@ -166,7 +168,7 @@ class _SettingsPage(QWidget):
         if self.state is None:
             return
         try:
-            settings = validate({**self.state["settings"], self.section: self.collect()})
+            settings = validate(self.apply(copy.deepcopy(self.state["settings"])))
         except ValueError:
             self.status.setText(tr("Проверьте значения: часть полей заполнена неверно."))
             return
@@ -185,33 +187,28 @@ class _SettingsPage(QWidget):
 
 
 class SchedulePage(_SettingsPage):
-    section = "schedule"
     title = "Расписание сканов"
     subtitle = "запуски по расписанию из файлов проекта"
 
     def build(self, layout):
-        self.form_widget = QWidget()
-        form = QVBoxLayout(self.form_widget)
-        form.setContentsMargins(0, 0, 0, 0)
-        form.setSpacing(12)
         frame, box = card("Расписание")
         self.enabled = QCheckBox(tr("Запускать сканы по расписанию"))
         box.addWidget(self.enabled)
+        box.addWidget(meta(tr("Дни недели · пусто — каждый день")))
         days = QHBoxLayout()
         days.setSpacing(6)
-        self.weekdays = []
-        for index, name in enumerate(WEEKDAYS):
-            check = QCheckBox(tr(name))
-            self.weekdays.append(check)
+        self.weekdays = {}
+        for name in DAYS:
+            check = QCheckBox(tr(DAY_LABELS[name]))
+            self.weekdays[name] = check
             days.addWidget(check)
         days.addStretch(1)
-        box.addWidget(meta(tr("Дни недели")))
         box.addLayout(days)
-        self.days_of_month = QLineEdit()
-        self.days_of_month.setPlaceholderText(tr("например 1, 15; пусто — не выбирать"))
-        self.days_of_month.setAccessibleName(tr("Дни месяца"))
-        box.addWidget(meta(tr("Числа месяца")))
-        box.addWidget(self.days_of_month)
+        box.addWidget(meta(tr("Числа месяца · через запятую, пусто — не выбирать")))
+        self.month_days = QLineEdit()
+        self.month_days.setPlaceholderText(tr("например 1, 15"))
+        self.month_days.setAccessibleName(tr("Числа месяца"))
+        box.addWidget(self.month_days)
         window = QHBoxLayout()
         window.setSpacing(8)
         self.window_start, self.window_end = QTimeEdit(), QTimeEdit()
@@ -224,137 +221,160 @@ class SchedulePage(_SettingsPage):
         window.addWidget(self.window_end)
         window.addStretch(1)
         box.addLayout(window)
+        box.addWidget(meta(tr("Часовой пояс")))
         self.time_zone = QComboBox()
-        self.time_zone.setEditable(True)
-        self.time_zone.addItems(time_zones())
+        self.time_zone.addItem(tr("Авто — по домену сайта"), AUTO_ZONE)
+        for zone in time_zones():
+            self.time_zone.addItem(zone, zone)
         self.time_zone.setAccessibleName(tr("Часовой пояс"))
-        box.addWidget(meta(tr("Часовой пояс сайта")))
         box.addWidget(self.time_zone)
+        self.zone_note = meta("")
+        box.addWidget(self.zone_note)
         self.competitors = QCheckBox(tr("Сканировать конкурентов по тому же расписанию"))
         box.addWidget(self.competitors)
-        form.addWidget(frame)
-        layout.addWidget(self.form_widget)
+        layout.addWidget(frame)
 
     def fill(self, settings):
-        schedule = settings["schedule"]
-        self.enabled.setChecked(schedule["enabled"])
-        for index, check in enumerate(self.weekdays):
-            check.setChecked(index in schedule["weekdays"])
-        self.days_of_month.setText(", ".join(str(d) for d in schedule["days_of_month"]))
-        for edit, key in ((self.window_start, "window_start"), (self.window_end, "window_end")):
-            hour, minute = (int(part) for part in schedule[key].split(":"))
+        self.enabled.setChecked(settings["enabled"])
+        for name, check in self.weekdays.items():
+            check.setChecked(name in settings["weekdays"])
+        self.month_days.setText(", ".join(str(d) for d in settings["month_days"]))
+        for edit, key in ((self.window_start, "start"), (self.window_end, "end")):
+            hour, minute = (int(part) for part in settings["window"][key].split(":"))
             edit.setTime(QTime(hour, minute))
-        self.time_zone.setCurrentText(schedule["time_zone"])
-        self.competitors.setChecked(schedule["competitors"])
+        self.time_zone.setCurrentIndex(max(0, self.time_zone.findData(settings["time_zone"])))
+        self.competitors.setChecked(settings["include_competitors"])
 
-    def collect(self):
+    def apply(self, settings):
         days = []
-        for part in self.days_of_month.text().replace(";", ",").split(","):
+        for part in self.month_days.text().replace(";", ",").split(","):
             part = part.strip()
             if part:
                 if not part.isdigit():
-                    raise ValueError("days of month")
+                    raise ValueError("month days")
                 days.append(int(part))
-        return {
+        settings.update({
             "enabled": self.enabled.isChecked(),
-            "weekdays": [i for i, check in enumerate(self.weekdays) if check.isChecked()],
-            "days_of_month": days,
-            "window_start": self.window_start.time().toString("HH:mm"),
-            "window_end": self.window_end.time().toString("HH:mm"),
-            "time_zone": self.time_zone.currentText().strip(),
-            "competitors": self.competitors.isChecked(),
-        }
+            "weekdays": [name for name, check in self.weekdays.items() if check.isChecked()],
+            "month_days": sorted(set(days)),
+            "window": {"start": self.window_start.time().toString("HH:mm"), "end": self.window_end.time().toString("HH:mm")},
+            "time_zone": self.time_zone.currentData(),
+            "include_competitors": self.competitors.isChecked(),
+        })
+        return settings
 
     def _show_state(self, state):
         self.status.setText(summary_text(state))
+        self.zone_note.setText(trf("Сейчас для расписания используется пояс {zone}", zone=state["zone"]) if state.get("zone") else "")
 
 
 class CrawlPage(_SettingsPage):
-    section = "crawl"
     title = "Обход и User-Agent"
     subtitle = "как запускается обход по расписанию и как сайт видит сканер"
 
     def build(self, layout):
-        self.form_widget = QWidget()
-        form = QVBoxLayout(self.form_widget)
-        form.setContentsMargins(0, 0, 0, 0)
-        form.setSpacing(12)
         frame, box = card("Режим обхода")
         self.mode = QComboBox()
         for key, label in MODES.items():
             self.mode.addItem(tr(label), key)
         self.mode.setAccessibleName(tr("Режим обхода"))
+        self.mode.currentIndexChanged.connect(self._mode_changed)
         box.addWidget(self.mode)
-        form.addWidget(frame)
+        self.sitemap_url = QLineEdit()
+        self.sitemap_url.setPlaceholderText(tr("https://example.com/sitemap.xml"))
+        self.sitemap_url.setAccessibleName(tr("Адрес sitemap"))
+        self.sitemap_row = meta(tr("Адрес sitemap"))
+        box.addWidget(self.sitemap_row)
+        box.addWidget(self.sitemap_url)
+        self.urls = QPlainTextEdit()
+        self.urls.setPlaceholderText(tr("по одному URL в строке, до 500"))
+        self.urls.setAccessibleName(tr("Список URL"))
+        self.urls_row = meta(tr("Важные URL"))
+        box.addWidget(self.urls_row)
+        box.addWidget(self.urls)
+        self.slice = QCheckBox(tr("Продолжать неполный обход в следующие ночи"))
+        box.addWidget(self.slice)
+        layout.addWidget(frame)
 
         frame, box = card("User-Agent")
         self.preset = QComboBox()
-        for key, (label, _agent) in USER_AGENT_PRESETS.items():
+        for key, label in USER_AGENT_PRESETS.items():
             self.preset.addItem(tr(label), key)
         self.preset.setAccessibleName(tr("Пресет User-Agent"))
         self.preset.currentIndexChanged.connect(self._preset_changed)
         self.custom = QLineEdit()
         self.custom.setPlaceholderText(tr("Строка User-Agent целиком"))
         self.custom.setAccessibleName(tr("Свой User-Agent"))
-        self.custom.textChanged.connect(self._preview)
-        self.effective = QLabel()
-        self.effective.setProperty("text_style", "mono")
-        self.effective.setWordWrap(True)
-        self.effective.setTextInteractionFlags(Qt.TextSelectableByMouse)
         box.addWidget(self.preset)
         box.addWidget(self.custom)
-        box.addWidget(meta(tr("Так сайт видит сканер (SpiderHeadBot попадает в логи и его можно фильтровать):")))
-        box.addWidget(self.effective)
-        form.addWidget(frame)
+        box.addWidget(meta(tr("SpiderHeadBot попадает в логи сайта, и его можно фильтровать.")))
+        layout.addWidget(frame)
 
         frame, box = card("Вежливость")
         row = QHBoxLayout()
         row.setSpacing(12)
-        self.rps = QDoubleSpinBox()
-        self.rps.setRange(*RPS_RANGE)
-        self.rps.setDecimals(1)
-        self.rps.setSingleStep(0.1)
-        self.rps.setSuffix(tr(" запр/с"))
-        self.rps.setAccessibleName(tr("Запросов в секунду"))
+        self.delay = QDoubleSpinBox()
+        self.delay.setRange(*DELAY_RANGE)
+        self.delay.setDecimals(1)
+        self.delay.setSingleStep(0.5)
+        self.delay.setSuffix(tr(" с между запросами"))
+        self.delay.setAccessibleName(tr("Пауза между запросами"))
         self.budget = QSpinBox()
         self.budget.setRange(*BUDGET_RANGE)
         self.budget.setSingleStep(500)
         self.budget.setSuffix(tr(" URL за запуск"))
         self.budget.setAccessibleName(tr("Лимит URL за запуск"))
-        row.addWidget(meta(tr("Скорость")))
-        row.addWidget(self.rps)
+        row.addWidget(meta(tr("Пауза")))
+        row.addWidget(self.delay)
         row.addSpacing(12)
         row.addWidget(meta(tr("Бюджет")))
         row.addWidget(self.budget)
         row.addStretch(1)
         box.addLayout(row)
-        form.addWidget(frame)
-        layout.addWidget(self.form_widget)
+        layout.addWidget(frame)
+
+    def _mode_changed(self, _index):
+        mode = self.mode.currentData()
+        self.sitemap_row.setVisible(mode == "sitemap")
+        self.sitemap_url.setVisible(mode == "sitemap")
+        self.urls_row.setVisible(mode == "list")
+        self.urls.setVisible(mode == "list")
+        self.slice.setVisible(mode == "spider")
 
     def _preset_changed(self, _index):
-        self.custom.setEnabled(self.preset.currentData() == "custom")
-        self._preview()
-
-    def _preview(self, *_args):
-        key = self.preset.currentData()
-        text = self.custom.text().strip() if key == "custom" else user_agent_text({"user_agent_preset": key})
-        self.effective.setText(text or tr("Строка не задана"))
+        self.custom.setEnabled(self.preset.currentData() == CUSTOM)
 
     def fill(self, settings):
-        crawl = settings["crawl"]
+        crawl, agent = settings["crawl"], settings["user_agent"]
         self.mode.setCurrentIndex(max(0, self.mode.findData(crawl["mode"])))
-        self.preset.setCurrentIndex(max(0, self.preset.findData(crawl["user_agent_preset"])))
-        self.custom.setText(crawl["user_agent"])
-        self.rps.setValue(float(crawl["requests_per_second"]))
-        self.budget.setValue(int(crawl["url_budget"]))
+        self.sitemap_url.setText(crawl["sitemap_url"] or "")
+        self.urls.setPlainText("\n".join(crawl["urls"]))
+        self.slice.setChecked(crawl["slice"])
+        if agent["custom"] is not None:
+            self.preset.setCurrentIndex(self.preset.findData(CUSTOM))
+            self.custom.setText(agent["custom"])
+        else:
+            self.preset.setCurrentIndex(max(0, self.preset.findData(agent["preset"])))
+            self.custom.setText("")
+        self.delay.setValue(float(crawl["min_delay_seconds"]))
+        self.budget.setValue(int(crawl["max_urls"]))
+        self._mode_changed(0)
         self._preset_changed(0)
 
-    def collect(self):
+    def apply(self, settings):
         key = self.preset.currentData()
-        return {
+        urls = [line.strip() for line in self.urls.toPlainText().splitlines() if line.strip()]
+        settings["crawl"] = {
+            **settings["crawl"],
             "mode": self.mode.currentData(),
-            "user_agent_preset": key,
-            "user_agent": self.custom.text().strip() if key == "custom" else "",
-            "requests_per_second": round(self.rps.value(), 1),
-            "url_budget": self.budget.value(),
+            "sitemap_url": self.sitemap_url.text().strip() or None,
+            "urls": urls,
+            "slice": self.slice.isChecked(),
+            "max_urls": self.budget.value(),
+            "min_delay_seconds": round(self.delay.value(), 1),
         }
+        if key == CUSTOM:
+            settings["user_agent"] = {"preset": DEFAULT_PRESET, "custom": self.custom.text().strip()}
+        else:
+            settings["user_agent"] = {"preset": key, "custom": None}
+        return settings
