@@ -2252,6 +2252,8 @@ class NativeScan:
             raise ScanError("page record URL differs from the claimed frontier lease")
         if record.get("crawl_depth") != lease.depth:
             raise ScanError("page record crawl depth differs from the claimed frontier lease")
+        # Legacy JSONL carries this transient projection; scan.v1 keeps source bodies.
+        record = {name: value for name, value in record.items() if name != "render_blocking"}
         columns = self._page_columns
         source_names = {"url"}
         for name in columns:

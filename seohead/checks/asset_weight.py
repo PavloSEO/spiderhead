@@ -51,7 +51,7 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from seohead.checks.parser import document_base_url, is_inert_template_content
+from seohead.checks.parser import _rel_has, document_base_url, is_inert_template_content
 from seohead.recon.net import UA, http_client
 
 DEFAULT_TIMEOUT = 15.0
@@ -244,12 +244,10 @@ def find_render_blocking_resources(soup: BeautifulSoup, base_url: str) -> list[d
     for tag in head.find_all("link"):
         if is_inert_template_content(tag):
             continue
-        rels = tag.get("rel") or []
-        rels = [rels] if isinstance(rels, str) else rels
         href = tag.get("href")
         if (
             href
-            and "stylesheet" in [r.lower() for r in rels]
+            and _rel_has("stylesheet")(tag.get("rel"))
             and is_render_blocking("link", tag.attrs)
         ):
             out.append({"url": urljoin(base_url, href), "tag": "link"})

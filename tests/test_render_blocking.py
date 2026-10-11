@@ -42,6 +42,36 @@ def test_parse_html_lists_only_blocking_head_resources():
     ]
 
 
+@pytest.mark.parametrize("rel", ["stylesheet preload", "stylesheet custom", "STYLESHEET\tpreload"])
+def test_raw_multitoken_stylesheet_rel_remains_render_blocking(rel):
+    html = f'<html><head><link rel="{rel}" href="/style.css"></head></html>'
+    parsed = parse_html(html, "https://example.com/")
+    assert parsed["render_blocking"] == ["https://example.com/style.css"]
+
+
+def test_unstored_native_render_blocking_survives_jsonl_projection():
+    from dataclasses import asdict
+
+    from seohead.crawl.collect import CrawlResult, PageRecord, _record_from_parsed
+    from seohead.crawl.evidence import build_evidence
+
+    parsed = parse_html(HEAD_HTML, "https://example.com/page")
+    record = PageRecord(
+        url="https://example.com/page",
+        status_code=200,
+        content_type="text/html",
+        **_record_from_parsed(parsed),
+    )
+    restored = PageRecord(**json.loads(json.dumps(asdict(record))))
+    evidence = build_evidence(CrawlResult(pages=[restored]))
+    ctx = AuditContext(LoadedExports(frames=evidence["frames"]), load_config(None))
+    assert ctx.scan_con is None
+    check_render_blocking(ctx)
+    issue = next(i for i in ctx.issues if i.check == "RENDER_BLOCKING")
+    assert issue.details["resources"] == parsed["render_blocking"]
+    assert ctx.asset_measurements["RENDER_BLOCKING"]["state"] == "complete"
+
+
 def test_parse_html_without_head_resources_is_empty():
     parsed = parse_html("<html><head></head><body>x</body></html>", "https://example.com/")
     assert parsed["render_blocking"] == []
@@ -129,6 +159,26 @@ def test_native_retained_head_runs_without_changing_frozen_scan_schema(tmp_path)
         issue = next(i for i in ctx.issues if i.check == "RENDER_BLOCKING")
         assert issue.target_url == "https://example.test/"
         assert issue.details["resources"] == ["https://example.test/app.js"]
+
+
+def test_native_scan_ignores_legacy_projection_and_uses_retained_head(tmp_path):
+    path = tmp_path / "scan.sqlite"
+    html = '<html><head><script src="/current.js"></script></head></html>'
+    with NativeScan.create(path, **_metadata()) as scan:
+        lease = _claim(scan)
+        record = _record()
+        record.update(status_code=200, render_blocking=URL + "obsolete.js")
+        scan.commit_page(
+            lease,
+            record,
+            captures=[_event(URL, html.encode())],
+            runtime=_runtime(),
+            resource_inventory_state="complete",
+        )
+        assert "render_blocking" not in {r[1] for r in scan.con.execute("PRAGMA table_info(pages)")}
+        ctx = _retained_context(scan)
+        issue = next(i for i in ctx.issues if i.check == "RENDER_BLOCKING")
+        assert issue.details["resources"] == [URL + "current.js"]
 
 
 def test_native_unretained_body_is_unavailable_not_clean(tmp_path):

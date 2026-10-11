@@ -189,6 +189,7 @@ def _row(
         # a native Screaming Frog export carries none of these four by default,
         # so they stay blank there and the checks skip honestly (see rules.py).
         "Content-Encoding": record.content_encoding,
+        "Render Blocking Resources": getattr(record, "render_blocking", None),
         # Native-crawl only (#385): the raw HTTP "Refresh" response header, distinct
         # from a <meta http-equiv="refresh"> element (META_REFRESH_REDIRECT).
         "Refresh": record.http_refresh,
