@@ -36,6 +36,7 @@ try {
     Copy-Item "$CoreSource\THIRD_PARTY_NOTICES.md" "$Resources\licenses\SEOHEAD-Tools-THIRD_PARTY_NOTICES.md"
     Copy-Item "$ProjectRoot\src\seohead_desktop\assets\fonts\OFL.txt" "$Resources\licenses\Roboto-OFL-1.1.txt"
     Copy-Item "$ProjectRoot\src\seohead_desktop\assets\fonts\OFL-RobotoMono.txt" "$Resources\licenses\RobotoMono-OFL-1.1.txt"
+    Copy-Item "$ProjectRoot\src\seohead_desktop\assets\fonts\LICENSE-MaterialSymbols.txt" "$Resources\licenses\MaterialSymbols-Apache-2.0.txt"
     Copy-Item "$ProjectRoot\src\seohead_desktop\assets\icons\LICENSE.txt" "$Resources\licenses\Material-Design-Icons-Apache-2.0.txt"
     Copy-Item "$ProjectRoot\src\seohead_desktop\assets\asset-manifest.json" "$Resources\licenses\desktop-assets-manifest.json"
     Invoke-Python "$ProjectRoot\scripts\copy_runtime_notices.py" --output "$Resources\licenses"

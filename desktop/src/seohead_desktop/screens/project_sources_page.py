@@ -7,15 +7,12 @@ does not have yet: they are shown as the neutral «Недоступно в эт�
 
 from __future__ import annotations
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import (
     QDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
-    QListView,
-    QListWidget,
-    QListWidgetItem,
     QPushButton,
     QScrollArea,
     QStackedWidget,
@@ -27,12 +24,13 @@ from PyQt5.QtWidgets import (
 from .. import i18n, theming
 from ..i18n import joined, tr, trf
 from ..ui.brand_logos import BrandTile
+from ..ui.canvas_components import CanvasTabs
 from ..ui.controls import Note
-from ..ui.icons import material_icon
+from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import UNAVAILABLE, PageHeader, StatePanel, waiting_badge
 from ..ui.presentation import ElidedLabel
 from ..ui.settings.listing import badge, terminal
-from .project_schedule_page import CrawlPage, SchedulePage
+from .project_schedule_page import CrawlPage, SchedulePage, next_run_text
 from .project_sources import GAP, GAP_HINT, access_count, build_rows
 from .work import project_names
 
@@ -357,22 +355,21 @@ class ProjectSettingsPage(QWidget):
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
-        root.addLayout(self._header())
+        self.header_frame = self._header()
+        root.addWidget(self.header_frame)
         self.page = ProjectSourcesPage(host)
-        self.nav = QListWidget()
+        self.nav = CanvasTabs()
         self.nav.setObjectName("projectSettingsTabs")
-        self.nav.setFlow(QListView.LeftToRight)
-        self.nav.setWrapping(False)
-        self.nav.setSpacing(4)
-        self.nav.setFixedHeight(44)
-        self.nav.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.nav.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.nav.setExpanding(False)
+        self.nav.setDrawBase(False)
+        self.nav.setIconSize(QSize(20, 20))
+        self.nav.setFixedHeight(45)
         self.pages = QStackedWidget()
         self.pages.setObjectName("projectSettingsPages")
         tabs = (
-            ("settings", "Основное", self._main_page()),
-            ("dns", "Источники", _scrolled(self.page)),
-            ("event_repeat", "Расписание", SchedulePage(host)),
+            ("settings", "Main", self._main_page()),
+            ("database", "Sources", _scrolled(self.page)),
+            ("event_repeat", "Schedule", SchedulePage(host)),
             ("travel_explore", "Обход", CrawlPage(host)),
             (
                 "ios_share",
@@ -383,20 +380,25 @@ class ProjectSettingsPage(QWidget):
             ),
         )
         for icon_name, title, widget in tabs:
-            item = QListWidgetItem(material_icon(icon_name, "role:text_2"), tr(title))
-            self.nav.addItem(item)
+            self.nav.add_canvas_tab(icon_name, tr(title))
             self.pages.addWidget(widget)
             if isinstance(widget, (SchedulePage, CrawlPage)):
                 widget.revert.hide()
                 widget.save_button.hide()
                 widget.availabilityChanged.connect(lambda _available: self._sync_actions())
-        self.nav.currentRowChanged.connect(self.pages.setCurrentIndex)
-        self.nav.currentRowChanged.connect(self._sync_actions)
-        self.nav.setCurrentRow(0)
+        self.nav.currentChanged.connect(self.pages.setCurrentIndex)
+        self.nav.currentChanged.connect(self._sync_actions)
+        self.nav.currentChanged.connect(
+            lambda index: self.header_icon.setPixmap(
+                material_icon(self.nav.names[index], "role:primary").pixmap(20, 20)
+            )
+        )
+        self.nav.setCurrentIndex(0)
         root.addWidget(self.nav)
         self.pages.setContentsMargins(24, 20, 24, 20)
         root.addWidget(self.pages, 1)
         i18n.retranslate(self)
+        self._sync_actions()
 
     def refresh(self):
         label, host_name = project_names(self.host)
@@ -408,22 +410,46 @@ class ProjectSettingsPage(QWidget):
     def _sync_actions(self):
         page = self.pages.currentWidget()
         editable = isinstance(page, (SchedulePage, CrawlPage))
-        self.save.setEnabled(editable and page.state is not None)
-        self.cancel.setEnabled(editable)
+        self.save.setEnabled(editable and page.save_button.isEnabled())
+        self.cancel.setEnabled(editable and page.revert.isEnabled())
+        state = getattr(page, "state", None)
+        self.next_pill.setVisible(
+            self.nav.currentIndex() == 2
+            and self.width() >= 1000
+            and bool(state and state["settings"]["enabled"] and state["next_run"])
+        )
+        if state:
+            self.next_badge.setText("Next scan · " + next_run_text(state["next_run"]))
+        if hasattr(self.host, "navigation") and hasattr(self.host.navigation, "settings_note"):
+            nav = self.host.navigation
+            nav.settings_note.setVisible(
+                self.isVisible()
+                and self.nav.currentIndex() == 2
+                and self.width() >= 1000
+                and bool(state)
+            )
+            if state:
+                nav.settings_revision.setText(f"schedule.json · rev {state['revision']}")
 
     def _edit_action(self, method):
         page = self.pages.currentWidget()
-        if isinstance(page, (SchedulePage, CrawlPage)):
+        if isinstance(page, (SchedulePage, CrawlPage)) and page.isEnabled():
             getattr(page, method)()
 
     def _header(self):
-        head = QHBoxLayout()
+        frame = QFrame()
+        frame.setObjectName("projectSettingsHeader")
+        frame.setFixedHeight(65)
+        head = QHBoxLayout(frame)
         head.setContentsMargins(24, 14, 24, 14)
+        head.setSpacing(12)
         icon_label = QLabel()
         icon_label.setPixmap(material_icon("event_repeat", "role:primary").pixmap(24, 24))
+        self.header_icon = icon_label
         head.addWidget(icon_label)
         title = QLabel(tr("Настройки проекта"))
         title.setProperty("text_style", "title")
+        self.header_title = title
         label, host_name = project_names(self.host)
         meta = QLabel(
             joined(
@@ -432,23 +458,59 @@ class ProjectSettingsPage(QWidget):
             )
         )
         meta.setProperty("text_style", "meta")
+        meta.setProperty("canvas_context", True)
         head.addWidget(title)
         head.addWidget(meta)
         self.context = meta
         head.addStretch(1)
+        self.next_pill = QFrame()
+        self.next_pill.setProperty("canvas_next", True)
+        self.next_pill.setFixedHeight(24)
+        pill = QHBoxLayout(self.next_pill)
+        pill.setContentsMargins(8, 0, 8, 0)
+        pill.setSpacing(6)
+        pill.addWidget(MaterialIconLabel("schedule", 18, color="role:on_selected"))
+        self.next_badge = QLabel()
+        pill.addWidget(self.next_badge)
+        self.next_pill.hide()
+        head.addWidget(self.next_pill)
         self.cancel = QPushButton(tr("Отмена"))
+        self.cancel.setProperty("size", "lg")
+        self.cancel.setFixedSize(76, 36)
         self.cancel.clicked.connect(lambda: self._edit_action("reload"))
         self.save = QPushButton(tr("Сохранить"))
         self.save.setProperty("role", "primary")
-        self.save.setIcon(material_icon("save", "#FFFFFF"))
+        self.save.setProperty("size", "lg")
+        self.save.setFixedSize(92, 36)
+        self.save.setIconSize(QSize(20, 20))
+        self.save.setIcon(material_icon("save", "role:on_primary"))
         self.save.clicked.connect(lambda: self._edit_action("save"))
         head.addWidget(self.cancel)
         head.addWidget(self.save)
-        return head
+        return frame
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.context.setVisible(self.width() >= 1000)
+        self.header_title.setProperty("compact", self.width() < 1000)
+        self.header_title.style().unpolish(self.header_title)
+        self.header_title.style().polish(self.header_title)
+        compact = self.width() < 1000
+        self.header_frame.setFixedHeight(61 if compact else 65)
+        margin = 16 if compact else 24
+        self.header_frame.layout().setContentsMargins(
+            margin, 12 if compact else 14, margin, 12 if compact else 14
+        )
+        self.pages.setContentsMargins(margin, 16 if compact else 20, margin, 16 if compact else 20)
+        self.nav.setTabText(3, "Crawl" if compact else "Crawl & User-Agent")
+        self.nav.setTabText(4, "" if compact else "Export")
+        self.nav.names[4] = "more_horiz" if compact else "ios_share"
+        self.nav.setTabToolTip(4, "Export")
+        self.header_icon.setVisible(not compact)
+        self.header_icon.setPixmap(
+            material_icon(self.nav.names[self.nav.currentIndex()], "role:primary").pixmap(20, 20)
+        )
+        self._sync_actions()
 
     def _main_page(self):
         label, host_name = project_names(self.host)
@@ -577,6 +639,7 @@ class ProjectSettingsDialog(QDialog):
         layout.setContentsMargins(0, 0, 0, 0)
         self.content = ProjectSettingsPage(host)
         self.nav, self.pages = self.content.nav, self.content.pages
+        self.page = self.content.page
         layout.addWidget(self.content)
 
 

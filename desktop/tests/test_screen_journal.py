@@ -3,6 +3,8 @@ import re
 import unittest
 from unittest.mock import patch
 
+from tests._qt import ui
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import Qt
@@ -69,18 +71,38 @@ class JournalTests(unittest.TestCase):
         self.assertEqual(len(times), 8)
         stamps = [event.at for event, _group, _role in self.screen.model.rows]
         self.assertEqual(stamps, sorted(stamps, reverse=True))
-        self.assertTrue(all(source.startswith("Скан · встроенный краулер") for source in self.column(1)))
+        self.assertTrue(
+            all(source.startswith("Скан · встроенный краулер") for source in self.column(1))
+        )
         self.assertIn("Запуск принят · проверка лимитов", self.column(2))
         self.assertIn("Обновление счётчиков · сбор страниц", self.column(2))
         self.assertEqual(set(self.column(3)), {"r-" + run()["id"][:4], "r-" + live_run()["id"][:4]})
 
     def test_a_message_from_the_core_is_shown_as_is(self):
-        item = run(event_list=[{"at": "2026-10-09T09:00:00Z", "code": "progress", "phase": "collection", "message": "checkpoint 400"}])
+        item = run(
+            event_list=[
+                {
+                    "at": "2026-10-09T09:00:00Z",
+                    "code": "progress",
+                    "phase": "collection",
+                    "message": "checkpoint 400",
+                }
+            ]
+        )
         self.feed([item])
         self.assertEqual(self.column(2), ["checkpoint 400"])
 
     def test_only_the_last_200_events_are_kept(self):
-        many = run(event_list=[{"at": f"2026-10-09T08:{i // 60:02d}:{i % 60:02d}Z", "code": "progress", "phase": "collection"} for i in range(300)])
+        many = run(
+            event_list=[
+                {
+                    "at": f"2026-10-09T08:{i // 60:02d}:{i % 60:02d}Z",
+                    "code": "progress",
+                    "phase": "collection",
+                }
+                for i in range(300)
+            ]
+        )
         shown, total = collect_events([many])
         self.assertEqual((len(shown), total), (LIMIT, 300))
         self.assertGreater(shown[0].at, shown[-1].at)
@@ -89,7 +111,12 @@ class JournalTests(unittest.TestCase):
         self.assertEqual(self.screen.foot_text.text(), "Показаны последние 200 событий")
 
     def test_identical_events_in_a_row_fold_into_one_unfoldable_row(self):
-        many = run(event_list=[{"at": f"2026-10-09T08:00:{i:02d}Z", "code": "progress", "phase": "collection"} for i in range(42)])
+        many = run(
+            event_list=[
+                {"at": f"2026-10-09T08:00:{i:02d}Z", "code": "progress", "phase": "collection"}
+                for i in range(42)
+            ]
+        )
         self.feed([many])
         self.assertEqual(self.screen.model.rowCount(), 1)
         head = self.column(2)[0]
@@ -114,14 +141,23 @@ class JournalTests(unittest.TestCase):
 
     def test_footer_says_the_paged_journal_waits_for_the_core(self):
         self.feed([run()])
-        waiting = [label.text() for label in self.screen.findChildren(QLabel) if label.text().startswith("Недоступно")]
-        self.assertEqual(waiting, ["Недоступно в этой версии ядра"])
+        waiting = [
+            label.text()
+            for label in self.screen.findChildren(QLabel)
+            if label.text().startswith(ui("Недоступно"))
+        ]
+        self.assertEqual(waiting, [ui("Недоступно в этой версии ядра")])
         self.assertEqual(self.screen.foot_text.text(), "Показаны последние 4 событий")
 
     def test_search_filters_the_loaded_events_and_offers_a_reset(self):
         self.feed([run(), live_run()])
         self.screen.search.setText("анализ")
-        self.assertEqual(self.screen.model.rowCount(), 0 if "анализ" not in " ".join(self.column(2)).lower() else self.screen.model.rowCount())
+        self.assertEqual(
+            self.screen.model.rowCount(),
+            0
+            if ui("анализ") not in " ".join(self.column(2)).lower()
+            else self.screen.model.rowCount(),
+        )
         self.screen.search.setText("завершено")
         self.assertEqual(self.column(2), ["Завершено · сохранение результата"])
         self.screen.search.setText(live_run()["id"][:8])
@@ -147,10 +183,25 @@ class JournalTests(unittest.TestCase):
         self.feed([run(), live_run()])
         i18n.set_language("en")
         i18n.retranslate(self.screen)
-        texts = [label.text() for label in self.screen.findChildren(QLabel)] + [b.text() for b in self.screen.findChildren(QPushButton)]
-        texts += [self.screen.model.index(r, c).data() for r in range(self.screen.model.rowCount()) for c in (1, 2)]
-        texts += [self.screen.model.headerData(c, Qt.Horizontal) for c in range(4)] + [p.text() for p in self.screen.pills.values()]
-        self.assertEqual([t for t in texts if t and re.search("[Ѐ-ӿ]", t) and not t.startswith("Недоступно")], [])
+        texts = [label.text() for label in self.screen.findChildren(QLabel)] + [
+            b.text() for b in self.screen.findChildren(QPushButton)
+        ]
+        texts += [
+            self.screen.model.index(r, c).data()
+            for r in range(self.screen.model.rowCount())
+            for c in (1, 2)
+        ]
+        texts += [self.screen.model.headerData(c, Qt.Horizontal) for c in range(4)] + [
+            p.text() for p in self.screen.pills.values()
+        ]
+        self.assertEqual(
+            [
+                t
+                for t in texts
+                if t and re.search("[Ѐ-ӿ]", t) and not t.startswith(ui("Недоступно"))
+            ],
+            [],
+        )
 
 
 class WindowTests(unittest.TestCase):

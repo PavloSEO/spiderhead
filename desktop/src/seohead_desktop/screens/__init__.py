@@ -7,18 +7,43 @@ from importlib import import_module
 from .base import SLOTS
 
 # slot -> "module:Class"; modules appear as screens are rebuilt from the canvas
-SCREENS = {"scans": "scans:ScansScreen", "journal": "journal:JournalScreen", "work": "work:WorkScreen", "tasks": "simple:SimpleScreen",
-           "inbox": "inbox:InboxScreen", "content_search": "search:SearchScreen",
-           "issues": "issues:IssuesScreen", "url": "url:UrlScreen", "reports": "project_export:ProjExportScreen"}
+SCREENS = {
+    "scans": "scans:ScansScreen",
+    "journal": "journal:JournalScreen",
+    "work": "work:WorkScreen",
+    "tasks": "simple:SimpleScreen",
+    "inbox": "inbox:InboxScreen",
+    "content_search": "search:SearchScreen",
+    "issues": "issues:IssuesScreen",
+    "url": "url:UrlScreen",
+    "reports": "project_export:ProjExportScreen",
+}
 # name -> "module:Class"; screens outside the navigation slots (start, first-run wizard), appended after the pages
-EXTRAS = {"start": "start:StartScreen", "onboarding": "onboarding:OnboardingScreen", "backlinks": "backlinks:BacklinksScreen", "logs_bots": "logs_bots:LogsBotsScreen",
-          "project_settings": "project_sources_page:ProjectSettingsPage",
-          "help": "help:HelpScreen", "new_tab": "new_tab:NewTabScreen", "fatal": "fatal:FatalStatesScreen",
-          "semantics_io": "semantics_io:SemImportScreen", "tools": "tools:ToolsScreen",
-          "semantics": "semantics:SemanticsScreen", "tool_run": "tool_run:ToolRunScreen",
-          "semimport": "sem_import:SemImportScreen", "competitors": "competitors:CompetitorsScreen"}
+EXTRAS = {
+    "start": "start:StartScreen",
+    "onboarding": "onboarding:OnboardingScreen",
+    "backlinks": "backlinks:BacklinksScreen",
+    "logs_bots": "logs_bots:LogsBotsScreen",
+    "project_settings": "project_sources_page:ProjectSettingsPage",
+    "help": "help:HelpScreen",
+    "new_tab": "new_tab:NewTabScreen",
+    "fatal": "fatal:FatalStatesScreen",
+    "semantics_io": "semantics_io:SemImportScreen",
+    "tools": "tools:ToolsScreen",
+    "semantics": "semantics:SemanticsScreen",
+    "tool_run": "tool_run:ToolRunScreen",
+    "semimport": "sem_import:SemImportScreen",
+    "competitors": "competitors:CompetitorsScreen",
+}
 # top-bar widgets that a screen with ``chrome_free = True`` hides (SHELL-CANON §7)
-PROJECT_CHROME = ("project_button", "project_chevron", "scan_button", "scan_state_badge", "new_scan", "refresh_button")
+PROJECT_CHROME = (
+    "project_button",
+    "project_chevron",
+    "scan_button",
+    "scan_state_badge",
+    "new_scan",
+    "refresh_button",
+)
 
 
 def install_screens(window):
@@ -46,7 +71,10 @@ def install_screens(window):
     window.show_start = lambda: show_start(window)
     window.leave_start = lambda: leave_start(window)
     window.pages.currentChanged.connect(lambda _index: sync_chrome(window))
-    window.data_changed.connect(lambda kind: leave_start(window) if kind == "project" and window.project_directory else None)
+    window.navigation.contextRequested.connect(lambda name: show_screen(window, name))
+    window.data_changed.connect(
+        lambda kind: leave_start(window) if kind == "project" and window.project_directory else None
+    )
 
 
 def open_url_filtered(window, label, filters):
@@ -79,9 +107,47 @@ def leave_start(window):
 def sync_chrome(window):
     """Hide the project / scan switchers while an extra screen without project context is shown."""
     free = bool(getattr(window.pages.currentWidget(), "chrome_free", False))
+    settings = window.pages.currentWidget() is window.extra_screens.get("project_settings")
+    compact = window.width() < 1000
+    window.navigation.set_settings_context(settings)
+    window.workspace_tabs.setVisible(not (settings and compact))
+    window.workspace_tabs.set_screen_presentation(
+        "Project settings" if settings else None, "settings"
+    )
+    if settings:
+        window.statusBar().hide()
+        window.navigation.profile.hide()
+    else:
+        window.statusBar().show()
+        window.navigation.profile.show()
+        window.navigation.settings_note.hide()
     for name in PROJECT_CHROME:
         widget = getattr(window, name, None)
         if widget is not None:
             widget.setVisible(not free)
     if not free and hasattr(window, "sync_picker"):
-        window.sync_picker(window.scan_picker, window.scan_button)  # the state badge follows the scan choice
+        window.sync_picker(
+            window.scan_picker, window.scan_button
+        )  # the state badge follows the scan choice
+    if settings:
+        for name in ("scan_button", "project_chevron", "scan_state_badge", "refresh_button"):
+            getattr(window, name).setVisible(not compact)
+        window.scan_state_badge.setVisible(
+            not compact and isinstance(window.scan_picker.currentData(), dict)
+        )
+        window.agent_gap.hide()
+        window.agent_pill.setVisible(
+            not compact and bool(window.agent_pill.text()) and not window.agent_pill.isHidden()
+        )
+        window.project_button.set_compact(False)
+        window.project_button.setMinimumWidth(180)
+        window.project_button.setMaximumWidth(240 if compact else 360)
+        window.project_button._chevron.setVisible(not compact)
+        window.new_scan.setProperty("size", "lg")
+        window.new_scan.setFixedHeight(36)
+        window.action_finder_button.setFixedHeight(34)
+        window.action_finder_button.setProperty("canvas_search", compact)
+        window.action_finder_button.style().unpolish(window.action_finder_button)
+        window.action_finder_button.style().polish(window.action_finder_button)
+    else:
+        window.project_button._chevron.show()

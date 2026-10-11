@@ -2,6 +2,8 @@ import os
 import unittest
 from unittest.mock import patch
 
+from tests._qt import ui
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import Qt
@@ -21,7 +23,9 @@ CYRILLIC = "[Ѐ-ӿ]"
 
 
 def texts(root):
-    return [label.text() for label in root.findChildren(QLabel)] + [button.text() for button in root.findChildren(QPushButton)]
+    return [label.text() for label in root.findChildren(QLabel)] + [
+        button.text() for button in root.findChildren(QPushButton)
+    ]
 
 
 class Base(unittest.TestCase):
@@ -62,20 +66,45 @@ class RowTests(unittest.TestCase):
     def setUpClass(cls):
         cls.app = qt_app()
 
+    def setUp(self):
+        i18n.set_language("ru")
+
     def test_runs_scans_and_owned_runs_are_joined_by_artifact_and_id(self):
-        finished, other = run(), run("4b80b8ea140a4cdb86b529def1fc14fc", artifact="scans/20261009T082041Z_crawl.localhost_6c672516.sqlite")
+        finished, other = (
+            run(),
+            run(
+                "4b80b8ea140a4cdb86b529def1fc14fc",
+                artifact="scans/20261009T082041Z_crawl.localhost_6c672516.sqlite",
+            ),
+        )
         host = FakeHost()
         host.observed_runs = [finished, other, live_run()]
-        host.scan_model.rows = [scan(), scan("11111111-2222-3333-4444-555555555555", "scans/imported_without_run.sqlite")]
+        host.scan_model.rows = [
+            scan(),
+            scan("11111111-2222-3333-4444-555555555555", "scans/imported_without_run.sqlite"),
+        ]
         host.owned = [owned(), owned("b" * 32, "queued", core=None)]
         rows = build_rows(host)
-        self.assertEqual(len(rows), 5)  # 3 runs + a queued run without a core record + a saved scan without a run
+        self.assertEqual(
+            len(rows), 5
+        )  # 3 runs + a queued run without a core record + a saved scan without a run
         by_id = {row.id: row for row in rows}
         self.assertIs(by_id[finished["id"]].scan["uuid"], host.scan_model.rows[0]["uuid"])
-        self.assertIsNone(by_id[other["id"]].scan)  # the artifact is not in the loaded page of scans
+        self.assertIsNone(
+            by_id[other["id"]].scan
+        )  # the artifact is not in the loaded page of scans
         self.assertEqual(by_id[live_run()["id"]].owned["state"], "running")
-        self.assertTrue(any(row.run is None and row.scan and row.scan["path"].endswith("imported_without_run.sqlite") for row in rows))
-        self.assertTrue(any(row.run is None and row.owned and row.state == "queued" for row in rows))
+        self.assertTrue(
+            any(
+                row.run is None
+                and row.scan
+                and row.scan["path"].endswith("imported_without_run.sqlite")
+                for row in rows
+            )
+        )
+        self.assertTrue(
+            any(row.run is None and row.owned and row.state == "queued" for row in rows)
+        )
 
     def test_no_project_gives_no_rows(self):
         host = FakeHost(project=None)
@@ -83,19 +112,35 @@ class RowTests(unittest.TestCase):
         self.assertEqual(build_rows(host), [])
 
     def test_unmeasured_counters_stay_none_and_found_is_the_sum_only_when_complete(self):
-        failed = RunRow(run(state="failed", counters={"fetched": 0, "queued": 0, "inflight": None, "excluded": None, "rate_per_second": None}, finish_reason="ValueError"))
+        failed = RunRow(
+            run(
+                state="failed",
+                counters={
+                    "fetched": 0,
+                    "queued": 0,
+                    "inflight": None,
+                    "excluded": None,
+                    "rate_per_second": None,
+                },
+                finish_reason="ValueError",
+            )
+        )
         self.assertEqual((failed.fetched, failed.queued), (0, 0))
         self.assertIsNone(failed.inflight)
         self.assertIsNone(failed.found)
         self.assertEqual(failed.group, "failed")
         live = RunRow(live_run())
-        self.assertEqual((live.fetched, live.queued, live.inflight, live.excluded, live.found), (5, 13, 0, 0, 18))
+        self.assertEqual(
+            (live.fetched, live.queued, live.inflight, live.excluded, live.found), (5, 13, 0, 0, 18)
+        )
         self.assertEqual(live.urls_text, "5 / 18")
 
     def test_rate_is_shown_only_for_a_fresh_measurement(self):
         self.assertEqual(RunRow(live_run()).rate, 1.0)
         self.assertIsNone(RunRow(stale_run()).rate)
-        self.assertIsNone(RunRow(run()).rate)  # a finished run keeps its last rate in counters; it is not «now»
+        self.assertIsNone(
+            RunRow(run()).rate
+        )  # a finished run keeps its last rate in counters; it is not «now»
 
     def test_groups_and_badges_follow_the_core_state_and_telemetry(self):
         cases = {
@@ -108,17 +153,25 @@ class RowTests(unittest.TestCase):
         for group, (row, badge) in cases.items():
             with self.subTest(group=group):
                 self.assertEqual((row.group, row.badge_kind), (group, badge))
-        self.assertEqual(RunRow(stale_run(), observed_at=stamp(0)).state_label(NOW), "Устарело · 1 мин 35 с")
+        self.assertEqual(
+            RunRow(stale_run(), observed_at=stamp(0)).state_label(NOW), "Устарело · 1 мин 35 с"
+        )
         self.assertEqual(RunRow(run(), scan=scan(crawl_partial=True)).group, "partial")
         self.assertEqual(RunRow(None, owned("c" * 32, "starting", core=None)).group, "pending")
         self.assertEqual(RunRow(None, owned("c" * 32, "stop_requested")).group, "live")
 
     def test_completeness_does_not_claim_more_than_the_scan_flags_say(self):
-        self.assertEqual(RunRow(run(), scan=scan(crawl_partial=False, corpus_partial=False)).completeness, "полный")
-        self.assertEqual(RunRow(run(), scan=scan(crawl_partial=False, corpus_partial=True)).completeness, "обход полный · корпус неполный")
-        self.assertEqual(RunRow(run(), scan=scan(crawl_partial=True)).completeness, "частичный")
+        self.assertEqual(
+            RunRow(run(), scan=scan(crawl_partial=False, corpus_partial=False)).completeness,
+            ui("полный"),
+        )
+        self.assertEqual(
+            RunRow(run(), scan=scan(crawl_partial=False, corpus_partial=True)).completeness,
+            ui("обход полный · корпус неполный"),
+        )
+        self.assertEqual(RunRow(run(), scan=scan(crawl_partial=True)).completeness, ui("частичный"))
         self.assertIsNone(RunRow(run(state="failed")).completeness)  # no saved scan: «Нет данных»
-        self.assertEqual(RunRow(live_run()).completeness, "идёт")
+        self.assertEqual(RunRow(live_run()).completeness, ui("идёт"))
 
     def test_navigation_card_uses_measured_counters_only(self):
         host = FakeHost()
@@ -126,16 +179,21 @@ class RowTests(unittest.TestCase):
         host.observed_runs = [run()]
         self.assertIsNone(active_scan_summary(host))  # a finished run is not an active scan
         host.observed_runs = [live_run()]
-        self.assertEqual(active_scan_summary(host), {"text": "Скан · 5 / 18 URL", "done": 5, "total": 18, "stale": False})
+        self.assertEqual(
+            active_scan_summary(host),
+            {"text": "Скан · 5 / 18 URL", "done": 5, "total": 18, "stale": False},
+        )
         host.observed_runs = [stale_run()]
         summary = active_scan_summary(host)
         self.assertTrue(summary["stale"])
         self.assertIn("наблюдение устарело", summary["text"])
-        unmeasured = live_run(counters=dict.fromkeys(("fetched", "queued", "inflight", "excluded", "rate_per_second")))
+        unmeasured = live_run(
+            counters=dict.fromkeys(("fetched", "queued", "inflight", "excluded", "rate_per_second"))
+        )
         host.observed_runs = [unmeasured]
         summary = active_scan_summary(host)
         self.assertEqual((summary["total"], summary["done"]), (None, None))
-        self.assertEqual(summary["text"], "Скан идёт · число страниц не измерено")
+        self.assertEqual(summary["text"], ui("Скан идёт · число страниц не измерено"))
         host.observed_runs = [live_run(), live_run("f" * 32)]
         self.assertTrue(active_scan_summary(host)["text"].endswith("· ещё 1"))
 
@@ -161,34 +219,67 @@ class ScreenTests(Base):
         self.assertTrue(self.screen.aside.isVisible())
 
     def test_table_shows_runs_with_badges_and_honest_missing_values(self):
-        self.feed(runs=[run(), run("14337d5c" + "0" * 24, "failed", artifact="scans/x.sqlite", started=620, finished=618, counters={"fetched": 0, "queued": 0, "inflight": None, "excluded": None, "rate_per_second": None}, finish_reason="ValueError")], scans=[scan()])
+        self.feed(
+            runs=[
+                run(),
+                run(
+                    "14337d5c" + "0" * 24,
+                    "failed",
+                    artifact="scans/x.sqlite",
+                    started=620,
+                    finished=618,
+                    counters={
+                        "fetched": 0,
+                        "queued": 0,
+                        "inflight": None,
+                        "excluded": None,
+                        "rate_per_second": None,
+                    },
+                    finish_reason="ValueError",
+                ),
+            ],
+            scans=[scan()],
+        )
         self.assertEqual(self.screen.proxy.rowCount(), 2)
         states = {self.cell(r, 3, BADGE_ROLE)[0] for r in range(2)}
         self.assertEqual(states, {"ok", "err"})
         failed_row = next(r for r in range(2) if self.cell(r, 3, BADGE_ROLE)[0] == "err")
-        self.assertEqual(self.cell(failed_row, 6), "Нет данных")  # no saved scan: completeness unknown, not «0» or empty
+        self.assertEqual(
+            self.cell(failed_row, 6), ui("Нет данных")
+        )  # no saved scan: completeness unknown, not «0» or empty
         self.assertEqual(self.cell(failed_row, 4), "0")  # measured zero stays 0
         ok_row = 1 - failed_row
         self.assertEqual(self.cell(ok_row, 4), "20")
-        self.assertEqual(self.cell(ok_row, 6), "обход полный · корпус неполный")
+        self.assertEqual(self.cell(ok_row, 6), ui("обход полный · корпус неполный"))
         self.assertIn("2 запусков в загруженной странице", self.screen.header.meta.text())
 
     def test_live_run_is_selected_and_its_aside_shows_measured_counters(self):
         self.feed(runs=[run(), live_run()], scans=[scan()], owned=[owned()])
         row = self.screen.current_row()
-        self.assertEqual(row.group, "live")  # an active run is followed until the user picks another row
+        self.assertEqual(
+            row.group, "live"
+        )  # an active run is followed until the user picks another row
         aside = self.screen.aside
         self.assertEqual(aside.stack.currentIndex(), 1)
         self.assertEqual(aside.live_ratio.text(), "5 / 18")
         self.assertEqual((aside.live_bar.maximum(), aside.live_bar.value()), (18, 5))
         values = {key: cell.value.text() for key, cell in aside.cells.items()}
-        self.assertEqual((values["found"], values["queued"], values["inflight"], values["fetched"], values["excluded"]), ("18", "13", "0", "5", "0"))
+        self.assertEqual(
+            (
+                values["found"],
+                values["queued"],
+                values["inflight"],
+                values["fetched"],
+                values["excluded"],
+            ),
+            ("18", "13", "0", "5", "0"),
+        )
         self.assertTrue(aside.cells["errors"].value.isHidden())  # errors wait for #921, no number
-        self.assertIn("1,0 · окно 5 с", aside.live_pairs.values["Сейчас, запросов/с"].text())
-        self.assertEqual(aside.live_pairs.values["Связан с задачами"].text(), "Нет данных")
+        self.assertIn("1,0 · окно 5 с", aside.live_pairs.values[ui("Сейчас, запросов/с")].text())
+        self.assertEqual(aside.live_pairs.values[ui("Связан с задачами")].text(), ui("Нет данных"))
         self.assertIn("наблюдение 0 с назад", aside.live_age.text())
-        self.assertEqual(aside.live_badge.text(), "Идёт")
-        self.assertIn("сбор страниц", aside.live_events.text())
+        self.assertEqual(aside.live_badge.text(), ui("Идёт"))
+        self.assertIn(ui("сбор страниц"), aside.live_events.text())
 
     def test_user_choice_is_kept_when_data_refreshes(self):
         self.feed(runs=[run(), live_run()], scans=[scan()])
@@ -206,8 +297,8 @@ class ScreenTests(Base):
         aside = self.screen.aside
         self.assertEqual(aside.stack.currentIndex(), 2)
         self.assertIn("Наблюдение устарело · 1 мин 35 с", aside.stale_note.text())
-        self.assertEqual(aside.stale_pairs.values["Скорость"].text(), "Счётчик недоступен")
-        self.assertEqual(aside.stale_pairs.values["Последний счётчик"].text()[:5], "5 URL")
+        self.assertEqual(aside.stale_pairs.values[ui("Скорость")].text(), ui("Счётчик недоступен"))
+        self.assertEqual(aside.stale_pairs.values[ui("Последний счётчик")].text()[:5], "5 URL")
         self.assertEqual(self.cell(0, 3, BADGE_ROLE)[0], "warn")
         for bar in self.screen.findChildren(QProgressBar):
             self.assertFalse(bar.minimum() == bar.maximum() == 0, "no busy bar on stale data")
@@ -219,7 +310,9 @@ class ScreenTests(Base):
         stop = self.screen.aside.stop_button
         self.assertTrue(stop.isEnabled())
         stop.click()
-        self.assertEqual(self.host.calls[-2:], [("choose_owned_run", owned()["id"]), ("cancel_active_work",)])
+        self.assertEqual(
+            self.host.calls[-2:], [("choose_owned_run", owned()["id"]), ("cancel_active_work",)]
+        )
         self.host.calls.clear()
         self.feed(runs=[live_run()], owned=[])
         self.assertFalse(self.screen.aside.stop_button.isEnabled())
@@ -233,7 +326,9 @@ class ScreenTests(Base):
         aside = self.screen.aside
         self.assertEqual(aside.stack.currentIndex(), 3)
         self.assertFalse(aside.resume_button.isHidden())
-        self.assertFalse(aside.resume_button.isEnabled())  # the host has not confirmed that this snapshot can be resumed
+        self.assertFalse(
+            aside.resume_button.isEnabled()
+        )  # the host has not confirmed that this snapshot can be resumed
         self.host.selected_scan_path = partial["path"]
         self.host.resume_scan_button.setEnabled(True)
         self.feed(runs=[run(state="partial")], scans=[partial], kind="scan_status")
@@ -242,18 +337,22 @@ class ScreenTests(Base):
         self.assertEqual(self.host.calls[-1][0], "resume_selected_scan")
         aside.open_button.click()
         self.assertEqual(self.host.navigation.sections[-1], "url")
-        self.assertNotIn("select_project_scan", [c[0] for c in self.host.calls[-1:]])  # already the selected scan
+        self.assertNotIn(
+            "select_project_scan", [c[0] for c in self.host.calls[-1:]]
+        )  # already the selected scan
         self.feed(runs=[run()], scans=[scan()])
         self.assertTrue(self.screen.aside.resume_button.isHidden())
 
     def test_source_filter_and_sort_act_on_the_loaded_page(self):
-        sitemap = run("a" * 32, kind="sitemap", artifact="scans/s.sqlite", started=300, finished=290)
+        sitemap = run(
+            "a" * 32, kind="sitemap", artifact="scans/s.sqlite", started=300, finished=290
+        )
         self.feed(runs=[run(), sitemap], scans=[scan()])
         self.assertEqual(self.screen.proxy.rowCount(), 2)
-        self.assertEqual(self.screen.source_menu.actions()[0].text(), "Все источники")
+        self.assertEqual(self.screen.source_menu.actions()[0].text(), ui("Все источники"))
         self.screen.set_source("По sitemap")
         self.assertEqual(self.screen.proxy.rowCount(), 1)
-        self.assertEqual(self.cell(0, 2), "По sitemap")
+        self.assertEqual(self.cell(0, 2), ui("По sitemap"))
         self.assertIn("показано 1 из 2", self.screen.foot_text.text())
         self.screen.set_source(None)
         self.screen.table.sortByColumn(5, Qt.AscendingOrder)
@@ -263,7 +362,11 @@ class ScreenTests(Base):
 
     def test_footer_says_filters_work_only_on_the_loaded_page_with_core_issues(self):
         self.feed(runs=[run()], scans=[scan()])
-        waiting = {label.property("waiting_issue") for label in self.screen.foot.findChildren(QLabel) if label.property("waiting_issue")}
+        waiting = {
+            label.property("waiting_issue")
+            for label in self.screen.foot.findChildren(QLabel)
+            if label.property("waiting_issue")
+        }
         self.assertEqual(waiting, {927})
         self.assertIn("только в загруженной странице", self.screen.foot_text.text())
         self.host.scan_manager = FakeManager()
@@ -292,7 +395,11 @@ class ScreenTests(Base):
         i18n.retranslate(self.screen)
         import re
 
-        leftovers = [t for t in texts(self.screen) if re.search(CYRILLIC, t) and not t.startswith("Недоступно")]
+        leftovers = [
+            t
+            for t in texts(self.screen)
+            if re.search(CYRILLIC, t) and not t.startswith(ui("Недоступно"))
+        ]
         self.assertEqual(leftovers, [])
         self.assertEqual(self.screen.proxy.headerData(1, Qt.Horizontal), "Scan run")
 
@@ -328,7 +435,9 @@ class WindowIntegrationTests(unittest.TestCase):
         screen = window.screens["scans"]
         self.assertIsInstance(screen, ScansScreen)
         self.assertIs(window.pages.widget(5), screen)
-        window.project_directory = "/p"  # without a project «Сканы» is the «Раздел готовится» placeholder
+        window.project_directory = (
+            "/p"  # without a project «Сканы» is the «Раздел готовится» placeholder
+        )
         window.navigation.select_section("scans")
         self.assertIs(window.pages.currentWidget(), screen)
         self.open_project([run(), live_run()], [scan()])
@@ -342,19 +451,39 @@ class WindowIntegrationTests(unittest.TestCase):
         window.update_active_scan_card()
         card = window.navigation.card
         self.assertTrue(card.active)
-        self.assertEqual(card.text.text(), "Скан · 5 / 18 URL")
+        self.assertEqual(card.text.text(), "Scan · 5 / 18 URL")
         self.assertEqual((card.bar.maximum(), card.bar.value()), (18, 5))
         window.observed_runs = [stale_run()]
         stale = live_run()
-        stale["counters"] = {"fetched": None, "queued": None, "inflight": None, "excluded": None, "rate_per_second": None}
+        stale["counters"] = {
+            "fetched": None,
+            "queued": None,
+            "inflight": None,
+            "excluded": None,
+            "rate_per_second": None,
+        }
         stale["telemetry"] = {**stale["telemetry"], "state": "stale"}
         window.observed_runs = [stale]
         window.update_active_scan_card()
-        self.assertEqual(card.text.text(), "Скан идёт · число страниц не измерено · наблюдение устарело")
+        self.assertEqual(
+            card.text.text(), "Scan running · page count not measured · observation is stale"
+        )
         self.assertFalse(card.bar.minimum() == card.bar.maximum() == 0)
-        window.observed_runs = [live_run(counters={"fetched": None, "queued": None, "inflight": None, "excluded": None, "rate_per_second": None})]
+        window.observed_runs = [
+            live_run(
+                counters={
+                    "fetched": None,
+                    "queued": None,
+                    "inflight": None,
+                    "excluded": None,
+                    "rate_per_second": None,
+                }
+            )
+        ]
         window.update_active_scan_card()
-        self.assertTrue(card.bar.minimum() == card.bar.maximum() == 0)  # live and unmeasured: honest indeterminate bar
+        self.assertTrue(
+            card.bar.minimum() == card.bar.maximum() == 0
+        )  # live and unmeasured: honest indeterminate bar
         window.observed_runs = [run()]
         window.update_active_scan_card()
         self.assertFalse(card.active)

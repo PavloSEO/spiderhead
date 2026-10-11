@@ -5,6 +5,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from tests._qt import ui
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import QCoreApplication, QEvent, Qt
@@ -53,7 +55,9 @@ class OnboardingTests(unittest.TestCase):
     def test_a_project_opened_by_any_route_takes_over_from_the_wizard(self):
         self.window.show_startup_workspace()
         self.assertIs(self.window.pages.currentWidget(), self.wizard)
-        self.window.project_directory = str(self.base)  # what project_loaded has set once the core answered
+        self.window.project_directory = str(
+            self.base
+        )  # what project_loaded has set once the core answered
         self.window.data_changed.emit("project")
         self.assertIsNot(self.window.pages.currentWidget(), self.wizard)
         self.assertNotIn(self.window.pages.currentWidget(), self.window.extra_screens.values())
@@ -78,19 +82,26 @@ class OnboardingTests(unittest.TestCase):
         for step in range(3):
             wizard.go(step)
             self.app.processEvents()
-            self.assertLessEqual(wizard.stack.minimumSizeHint().width(), scroll.viewport().width(), f"step {step + 1} is wider than the window")
+            self.assertLessEqual(
+                wizard.stack.minimumSizeHint().width(),
+                scroll.viewport().width(),
+                f"step {step + 1} is wider than the window",
+            )
 
     def test_steps_follow_the_sheet_and_the_counter_is_honest(self):
         self.window.show_startup_workspace()
         wizard = self.wizard
-        self.assertEqual([name.text() for name in wizard.names], ["Папка проектов", "Проверка ядра", "Отображение"])
-        self.assertEqual(wizard.counter.text(), "Шаг 1 из 3")
+        self.assertEqual(
+            [name.text() for name in wizard.names],
+            [ui("Папка проектов"), ui("Проверка ядра"), ui("Отображение")],
+        )
+        self.assertEqual(wizard.counter.text(), "Step 1 of 3")
         self.assertTrue(wizard.back_button.isHidden())
         self.assertFalse(wizard.next_button.isHidden())
         self.assertTrue(wizard.finish_button.isHidden())
         wizard.next_button.click()
         wizard.next_button.click()
-        self.assertEqual(wizard.counter.text(), "Шаг 3 из 3")
+        self.assertEqual(wizard.counter.text(), "Step 3 of 3")
         self.assertEqual([dot.text() for dot in wizard.dots], ["✓", "✓", "3"])
         self.assertTrue(wizard.next_button.isHidden())
         self.assertFalse(wizard.finish_button.isHidden())
@@ -104,9 +115,11 @@ class OnboardingTests(unittest.TestCase):
         self.settle(lambda: wizard.folder_state is not None)
         facts = wizard.folder_state
         self.assertTrue(facts["exists"] and facts["writable"] and facts["projects"] == 0)
-        self.assertEqual(wizard.fact_values["write"].text(), "есть")
-        self.assertEqual(wizard.fact_values["projects"].text(), "не найдены — начнём с пустой папки")
-        self.assertIn("ГБ", wizard.fact_values["free"].text())
+        self.assertEqual(wizard.fact_values["write"].text(), ui("есть"))
+        self.assertEqual(
+            wizard.fact_values["projects"].text(), ui("не найдены — начнём с пустой папки")
+        )
+        self.assertIn(ui("ГБ"), wizard.fact_values["free"].text())
         self.assertTrue(wizard.folder_warning.isHidden())
 
     def test_folder_facts_count_projects_and_flag_a_missing_folder(self):
@@ -122,7 +135,7 @@ class OnboardingTests(unittest.TestCase):
         self.window.show_startup_workspace()
         self.settle(lambda: self.wizard.folder_state is not None)
         self.assertFalse(self.wizard.folder_warning.isHidden())
-        self.assertEqual(self.wizard.fact_values["projects"].text(), "папки нет")
+        self.assertEqual(self.wizard.fact_values["projects"].text(), ui("папки нет"))
 
     def test_worker_does_the_disk_reads(self):
         import threading
@@ -144,11 +157,16 @@ class OnboardingTests(unittest.TestCase):
         self.window.show_startup_workspace()
         target = self.base / "chosen"
         target.mkdir()
-        with patch("seohead_desktop.screens.onboarding.QFileDialog.getExistingDirectory", return_value=str(target)):
+        with patch(
+            "seohead_desktop.screens.onboarding.QFileDialog.getExistingDirectory",
+            return_value=str(target),
+        ):
             self.wizard.choose_button.click()
         self.assertEqual(self.window.prefs.get("general.projects_folder"), str(target))
         self.settle(lambda: self.wizard.folder_state is not None)
-        with patch("seohead_desktop.screens.onboarding.QFileDialog.getExistingDirectory", return_value=""):
+        with patch(
+            "seohead_desktop.screens.onboarding.QFileDialog.getExistingDirectory", return_value=""
+        ):
             self.wizard.choose_button.click()
         self.assertEqual(self.window.prefs.get("general.projects_folder"), str(target))
 
@@ -157,11 +175,11 @@ class OnboardingTests(unittest.TestCase):
         wizard = self.wizard
         wizard.go(1)
         self.settle(lambda: wizard.core_state is not None)
-        self.assertEqual(wizard.core_heading.text(), "Ядро найдено")
+        self.assertEqual(wizard.core_heading.text(), ui("Ядро найдено"))
         self.assertIn(os.path.basename(self.core), wizard.core_text.text())
-        self.assertEqual(wizard.version_text.text(), "Версия и совместимость ядра — нет данных")
+        self.assertEqual(wizard.version_text.text(), ui("Версия и совместимость ядра — нет данных"))
         texts = " ".join(label.text() for label in wizard.findChildren(QLabel))
-        self.assertIn("в этой версии ядра", texts)
+        self.assertIn("in this core version", texts)
         for invented in ("3.4", "3.0.0", "совместимо ", "Python 3", "200 за"):
             self.assertNotIn(invented, texts)
 
@@ -172,15 +190,17 @@ class OnboardingTests(unittest.TestCase):
             wizard = self.wizard
             wizard.go(1)
             self.settle(lambda: wizard.core_state is not None)
-        self.assertEqual(wizard.core_heading.text(), "Ядро не найдено")
-        self.assertEqual(wizard.core_text.text(), "Ядро seohead не найдено ни в одном из известных мест")
+        self.assertEqual(wizard.core_heading.text(), ui("Ядро не найдено"))
+        self.assertEqual(
+            wizard.core_text.text(), ui("Ядро seohead не найдено ни в одном из известных мест")
+        )
         self.assertTrue(wizard.version_line.isHidden())
         with patch("seohead_desktop.screens.onboarding.discover_core", return_value=self.core):
             wizard.recheck_button.click()
             self.settle(lambda: wizard.core_state is not None and wizard.core_state["ok"])
         self.assertEqual(self.window.core_executable, self.core)
-        self.assertEqual(wizard.core_heading.text(), "Ядро найдено")
-        self.assertEqual(self.window.core_label.text(), "Ядро найдено")
+        self.assertEqual(wizard.core_heading.text(), ui("Ядро найдено"))
+        self.assertEqual(self.window.core_label.text(), ui("Ядро найдено"))
 
     def test_unrunnable_core_is_not_called_found(self):
         facts = core_facts(str(self.base / "nope"))
@@ -214,9 +234,9 @@ class OnboardingTests(unittest.TestCase):
         self.window.show_startup_workspace()
         wizard = self.wizard
         wizard.go(2)
-        self.assertEqual(wizard.connect_button.text(), "Прописать…")
+        self.assertEqual(wizard.connect_button.text(), ui("Прописать…"))
         self.assertEqual(wizard.connect_button.isEnabled(), bool(self.window.core_executable))
-        self.assertIn("разрешения", wizard.later_note.findChildren(QLabel)[-1].text())
+        self.assertIn("permission", wizard.later_note.findChildren(QLabel)[-1].text())
         self.assertFalse(self.window.agent_pill.isVisibleTo(self.window))
 
     def test_theme_and_language_choices_go_to_the_preferences(self):
@@ -261,11 +281,30 @@ class OnboardingTests(unittest.TestCase):
         switch_language(self.window, "en")
         for step in range(3):
             wizard.go(step)
-            self.settle(lambda step=step: wizard.folder_state is not None if step == 0 else wizard.core_state is not None if step == 1 else True)
+            self.settle(
+                lambda step=step: (
+                    wizard.folder_state is not None
+                    if step == 0
+                    else wizard.core_state is not None
+                    if step == 1
+                    else True
+                )
+            )
             i18n.retranslate(self.window)
             texts = [label.text() for label in wizard.findChildren(QLabel)]
-            texts += [button.text() for button in wizard.findChildren(__import__("PyQt5.QtWidgets", fromlist=["QPushButton"]).QPushButton)]
-            leftovers = [t for t in texts if any("Ѐ" <= ch <= "ӿ" for ch in t) and t != "Русский" and not t.startswith("Недоступно")]  # kit badges are not retranslated
+            texts += [
+                button.text()
+                for button in wizard.findChildren(
+                    __import__("PyQt5.QtWidgets", fromlist=["QPushButton"]).QPushButton
+                )
+            ]
+            leftovers = [
+                t
+                for t in texts
+                if any("Ѐ" <= ch <= "ӿ" for ch in t)
+                and t != "Русский"
+                and not t.startswith(ui("Недоступно"))
+            ]  # kit badges are not retranslated
             self.assertEqual(leftovers, [], f"step {step + 1}")
         self.assertEqual(wizard.skip_button.text(), "Skip")
 

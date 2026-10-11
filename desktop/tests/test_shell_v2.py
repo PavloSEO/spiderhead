@@ -2,11 +2,13 @@ import os
 import unittest
 from unittest.mock import patch
 
+from tests._qt import ui
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import QCoreApplication, QEvent
 from PyQt5.QtGui import QKeySequence
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QWidget
 
 from seohead_desktop import theming
 from seohead_desktop.app import MainWindow, load_theme
@@ -47,25 +49,63 @@ class ShellV2Tests(unittest.TestCase):
 
     def test_agent_display_sections_follow_the_canvas(self):
         nav = self.window.navigation
-        self.assertEqual(section_ids(nav), ["work", "inbox", "crawler", "scans", "url", "issues", "compare", "graph", "search", "methods", "reports", "log"])
-        self.assertEqual(headers(nav), ["Данные", "Результат"])
+        self.assertEqual(
+            section_ids(nav),
+            [
+                "work",
+                "inbox",
+                "crawler",
+                "scans",
+                "url",
+                "issues",
+                "compare",
+                "graph",
+                "search",
+                "methods",
+                "reports",
+                "log",
+            ],
+        )
+        self.assertEqual(headers(nav), [ui("Данные"), ui("Результат")])
 
     def test_simple_display_has_no_agent_sections_and_is_remembered(self):
         self.window.set_display("simple")
         nav = self.window.navigation
         ids = section_ids(nav)
-        self.assertEqual(ids[0], "work")  # SHELL-CANON §3: same labels, the agent items are only hidden
+        self.assertEqual(
+            ids[0], "work"
+        )  # SHELL-CANON §3: same labels, the agent items are only hidden
         self.assertNotIn("inbox", ids)
         self.assertNotIn("methods", ids)  # SideNav sheet: only the agent items are hidden
-        self.assertEqual(ids, ["work", "crawler", "scans", "url", "issues", "compare", "graph", "search", "reports", "log"])
+        self.assertEqual(
+            ids,
+            [
+                "work",
+                "crawler",
+                "scans",
+                "url",
+                "issues",
+                "compare",
+                "graph",
+                "search",
+                "reports",
+                "log",
+            ],
+        )
         self.window.navigation.select_section("work")
-        self.assertEqual(self.window.pages.currentIndex(), 4)  # «Работа» is the simple task list in Simple
+        self.assertEqual(
+            self.window.pages.currentIndex(), 4
+        )  # «Работа» is the simple task list in Simple
         self.assertTrue(self.window.simple_pill.isVisibleTo(self.window))
         self.assertEqual(self.window.prefs.get("shell.display"), "simple")
-        self.assertEqual(self.window.mode_label.text(), "Простой режим · агент и MCP выключены")
-        self.assertEqual(self.window.navigation.profile.mode_line.text(), "Простой режим · MCP выкл.")  # SideNav sheet profile line
+        self.assertEqual(self.window.mode_label.text(), ui("Простой режим · агент и MCP выключены"))
+        self.assertEqual(
+            self.window.navigation.profile.mode_line.text(), ui("Простой режим · MCP выкл.")
+        )  # SideNav sheet profile line
         self.window.set_display("agent")
-        self.assertEqual(self.window.navigation.profile.mode_line.text(), "С агентом · MCP вкл.")
+        self.assertEqual(
+            self.window.navigation.profile.mode_line.text(), ui("С агентом · MCP вкл.")
+        )
         self.assertEqual(section_ids(nav)[:2], ["work", "inbox"])
         self.assertEqual(self.window.pages.currentIndex(), 0)
         with self.assertRaises(ValueError):
@@ -73,6 +113,23 @@ class ShellV2Tests(unittest.TestCase):
 
     def test_agent_pill_is_never_claimed_without_a_heartbeat(self):
         self.assertFalse(self.window.agent_pill.isVisibleTo(self.window))
+
+    def test_find_shortcut_focuses_the_english_search_field(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        field = QLineEdit("retained query")
+        field.setPlaceholderText("Search saved URLs")
+        layout.addWidget(field)
+        self.window.pages.addWidget(page)
+        self.window.pages.setCurrentWidget(page)
+        self.window.show()
+        self.app.processEvents()
+        self.window.project_button.setFocus()
+
+        self.window.focus_search()
+
+        self.assertTrue(field.hasFocus())
+        self.assertEqual(field.selectedText(), "retained query")
 
     def test_agent_slot_is_a_neutral_gap_badge_in_agent_mode_only(self):
         self.assertTrue(self.window.agent_gap.isVisibleTo(self.window))
@@ -98,23 +155,35 @@ class ShellV2Tests(unittest.TestCase):
         texts = [label.text() for label in top.findChildren(QLabel)]
         self.assertNotIn("SEOHEAD", texts)
         self.assertFalse(hasattr(self.window, "brand"))
-        self.assertEqual(self.window.windowTitle(), "SEOHEAD")  # the brand stays in the window title
+        self.assertEqual(
+            self.window.windowTitle(), "SEOHEAD"
+        )  # the brand stays in the window title
 
     def test_top_bar_height_and_labels(self):
         top = self.window.findChild(type(self.window.centralWidget()), "topbar")
         self.assertEqual(top.height(), theming.metrics()["layout"]["topbar"])
-        self.assertEqual(self.window.project_button.title.text(), "Проект не открыт")
-        self.assertEqual(self.window.scan_button.title.text(), "Нет сохранённых сканов")
+        self.assertEqual(self.window.project_button.title.text(), ui("Проект не открыт"))
+        self.assertEqual(self.window.scan_button.title.text(), ui("Нет сохранённых сканов"))
         self.assertFalse(self.window.scan_button.isEnabled())
         self.assertFalse(self.window.scan_state_badge.isVisibleTo(self.window))
 
     def test_pickers_mirror_their_combo_boxes(self):
         self.window.scan_picker.clear()
-        self.window.scan_picker.addItem("raw", {"uuid": "ab12cd34", "created_at": "2026-10-09T09:12:00Z", "finished_at": "2026-10-09T09:14:00Z", "crawl_partial": True})
+        self.window.scan_picker.addItem(
+            "raw",
+            {
+                "uuid": "ab12cd34",
+                "created_at": "2026-10-09T09:12:00Z",
+                "finished_at": "2026-10-09T09:14:00Z",
+                "crawl_partial": True,
+            },
+        )
         self.window.scan_picker.setEnabled(True)
-        self.assertEqual(self.window.scan_button.title.text(), "Скан №1 · r-ab12")
+        self.assertEqual(self.window.scan_button.title.text(), "Scan #1 · r-ab12")
         subtitle = self.window.scan_button.subtitle.text()
-        self.assertRegex(subtitle, r"^\d\d\.\d\d\.2026 \d\d:\d\d · частичный$")  # no seconds, no timezone, no truncation
+        self.assertRegex(
+            subtitle, r"^\d\d\.\d\d\.2026 \d\d:\d\d · partial$"
+        )  # no seconds, no timezone, no truncation
         self.assertTrue(self.window.scan_button.isEnabled())
         self.window.scan_picker.setEnabled(False)
         self.window.show()
@@ -122,20 +191,30 @@ class ShellV2Tests(unittest.TestCase):
         self.assertFalse(self.window.scan_button.isEnabled())
 
     def test_picker_menu_choice_activates_the_combo(self):
-        self.window.scan_picker.addItem("raw", {"uuid": "y123", "created_at": "2026-10-09T09:12:00Z"})
-        self.window.scan_picker.addItem("raw", {"uuid": "z456", "created_at": "2026-10-08T09:12:00Z"})
+        self.window.scan_picker.addItem(
+            "raw", {"uuid": "y123", "created_at": "2026-10-09T09:12:00Z"}
+        )
+        self.window.scan_picker.addItem(
+            "raw", {"uuid": "z456", "created_at": "2026-10-08T09:12:00Z"}
+        )
         self.window.scan_picker.setEnabled(True)
         seen = []
         self.window.scan_picker.activated.connect(seen.append)
         self.window._pick(self.window.scan_picker, 1)
         self.assertEqual(seen, [1])
-        self.assertEqual(self.window.scan_button.title.text(), "Скан №2 · r-y123")  # numbered by creation time, oldest first
+        self.assertEqual(
+            self.window.scan_button.title.text(), "Scan #2 · r-y123"
+        )  # numbered by creation time, oldest first
 
     def test_picker_title_elides_by_word_and_keeps_the_full_name_in_the_tooltip(self):
         from seohead_desktop.ui.shell import elide_words
 
         metrics = self.window.project_button.title.fontMetrics()
-        text = elide_words(metrics, "Мебельный магазин на Садовой", metrics.horizontalAdvance("Мебельный магазин") + 8)
+        text = elide_words(
+            metrics,
+            "Мебельный магазин на Садовой",
+            metrics.horizontalAdvance("Мебельный магазин") + 8,
+        )
         self.assertEqual(text, "Мебельный…")
         self.window.project_button.set_texts("Мебельный магазин на Садовой", "shop.example.test")
         self.assertIn("Мебельный магазин на Садовой", self.window.project_button.toolTip())
@@ -147,17 +226,21 @@ class ShellV2Tests(unittest.TestCase):
         self.assertEqual(short_run_id("e134abcd-0000"), "r-e134")
         self.assertEqual(short_run_id(None), "")
         self.window.scan_picker.clear()
-        self.window.scan_picker.addItem("raw", {"uuid": "ab12cd34", "created_at": "2026-10-09T09:12:00Z"})
+        self.window.scan_picker.addItem(
+            "raw", {"uuid": "ab12cd34", "created_at": "2026-10-09T09:12:00Z"}
+        )
         self.window.scan_picker.setEnabled(True)
         self.window.resize(960, 800)
         self.window.show()
         self.app.processEvents()
-        self.assertEqual(self.window.scan_button.title.text(), "№1 · r-ab12")
+        self.assertEqual(self.window.scan_button.title.text(), "#1 · r-ab12")
         self.assertFalse(self.window.scan_button.subtitle.isVisibleTo(self.window))
-        self.assertIn("ab12cd34", self.window.scan_button.toolTip())  # the full id lives in the tooltip
+        self.assertIn(
+            "ab12cd34", self.window.scan_button.toolTip()
+        )  # the full id lives in the tooltip
         self.window.resize(1440, 900)
         self.app.processEvents()
-        self.assertEqual(self.window.scan_button.title.text(), "Скан №1 · r-ab12")
+        self.assertEqual(self.window.scan_button.title.text(), "Scan #1 · r-ab12")
 
     def test_navigation_is_an_icon_rail_below_900_px_only(self):
         self.window.show()
@@ -178,7 +261,10 @@ class ShellV2Tests(unittest.TestCase):
             page = self.window.pages.currentWidget()
             self.assertIn(page, self.window.placeholder_pages.values())
             panel = page.findChild(StatePanel)
-            self.assertEqual(panel.title.text(), "Граф ссылок" if section == "graph" else "Раздел готовится")
+            self.assertEqual(
+                panel.title.text(),
+                ui("Граф ссылок") if section == "graph" else ui("Раздел готовится"),
+            )
             self.assertNotRegex(panel.text.text() + panel.title.text(), r"#\d")
             if section == "graph":
                 self.assertEqual(panel.kind, "waiting")
@@ -188,7 +274,9 @@ class ShellV2Tests(unittest.TestCase):
         page = self.window.pages.currentWidget()
         self.assertIn(page, self.window.placeholder_pages.values())
         self.assertIsInstance(page, CrawlerScreen)
-        self.assertEqual(page.findChild(StatePanel).title.text(), "Краул без проекта пока не запускается")
+        self.assertEqual(
+            page.findChild(StatePanel).title.text(), ui("Краул без проекта пока не запускается")
+        )
         self.assertNotRegex("\n".join(label.text() for label in page.findChildren(QLabel)), r"#\d")
 
         # The link graph has its own screen; it waits for the core and shows no issue numbers either
@@ -204,8 +292,10 @@ class ShellV2Tests(unittest.TestCase):
         self.assertTrue(self.window.navigation.select_section("graph"))
         page = self.window.pages.currentWidget()
         self.assertIsInstance(page, GraphScreen)
-        self.assertEqual([kpi.number.text() for kpi in page.kpis], ["Нет данных"] * 3)
-        self.assertEqual(page.gate.currentWidget(), page.gate.open_panel)  # no project open: nothing drawn
+        self.assertEqual([kpi.number.text() for kpi in page.kpis], [ui("Нет данных")] * 3)
+        self.assertEqual(
+            page.gate.currentWidget(), page.gate.open_panel
+        )  # no project open: nothing drawn
         self.window.project_directory = "/p"
         page.gate.refresh()
         panel = page.gate.content.findChild(StatePanel)
@@ -220,8 +310,10 @@ class ShellV2Tests(unittest.TestCase):
 
         items = self.window.navigation.list._items
         locked = {name for name, item in items.items() if item.data(ROLE_LOCKED)}
-        self.assertEqual(locked, {"work", "inbox", "issues", "compare", "search", "methods", "reports"})
-        self.assertIn("Нужен проект", items["work"].toolTip())
+        self.assertEqual(
+            locked, {"work", "inbox", "issues", "compare", "search", "methods", "reports"}
+        )
+        self.assertIn("Project needed", items["work"].toolTip())
         clicked = []
         self.window.navigation.lockedClicked.connect(clicked.append)
         self.window.navigation.list.lockedClicked.emit("work")
@@ -234,14 +326,45 @@ class ShellV2Tests(unittest.TestCase):
         items = self.window.navigation.list._items
         self.window.project_directory = "/p"
         self.window.selected_scan_path = "/p/s.sqlite"
-        self.window.scan_model.replace([{"path": "/p/s.sqlite", "evidence": {"frontier": {"counts": {"done": 1314}},
-                                                                             "findings": {"state": "available", "truncated": False, "total": 3,
-                                                                                          "items": [{"check": "A"}, {"check": "B"}, {"check": "A"}]}}}])
+        self.window.scan_model.replace(
+            [
+                {
+                    "path": "/p/s.sqlite",
+                    "evidence": {
+                        "frontier": {"counts": {"done": 1314}},
+                        "findings": {
+                            "state": "available",
+                            "truncated": False,
+                            "total": 3,
+                            "items": [{"check": "A"}, {"check": "B"}, {"check": "A"}],
+                        },
+                    },
+                }
+            ]
+        )
         self.window.sync_navigation_state()
-        self.assertEqual((items["url"].data(ROLE_COUNT), items["issues"].data(ROLE_COUNT)), ("1\u202f314", 2))
-        self.window.scan_model.replace([{"path": "/p/s.sqlite", "evidence": {"findings": {"state": "available", "truncated": True, "total": 4272, "items": [{"check": "A"}]}}}])
+        self.assertEqual(
+            (items["url"].data(ROLE_COUNT), items["issues"].data(ROLE_COUNT)), ("1\u202f314", 2)
+        )
+        self.window.scan_model.replace(
+            [
+                {
+                    "path": "/p/s.sqlite",
+                    "evidence": {
+                        "findings": {
+                            "state": "available",
+                            "truncated": True,
+                            "total": 4272,
+                            "items": [{"check": "A"}],
+                        }
+                    },
+                }
+            ]
+        )
         self.window.sync_navigation_state()
-        self.assertEqual((items["url"].data(ROLE_COUNT), items["issues"].data(ROLE_COUNT)), ("", ""))  # unknown is not «0»
+        self.assertEqual(
+            (items["url"].data(ROLE_COUNT), items["issues"].data(ROLE_COUNT)), ("", "")
+        )  # unknown is not «0»
 
     def test_active_scan_card_only_with_an_active_run(self):
         from tests._scan_fixtures import live_run
@@ -264,7 +387,9 @@ class ShellV2Tests(unittest.TestCase):
 
         pill = self.window.action_finder_button
         self.assertEqual(pill.height(), 32)
-        self.assertIs(self.window.finder_hint.parentWidget(), pill)  # a child of the pill, not a separate cell
+        self.assertIs(
+            self.window.finder_hint.parentWidget(), pill
+        )  # a child of the pill, not a separate cell
         buttons = [b for b in pill.findChildren(QAbstractButton)]
         self.assertEqual(buttons, [])
         self.assertTrue(self.window.finder_hint.property("kbd_badge"))
@@ -277,40 +402,59 @@ class ShellV2Tests(unittest.TestCase):
         self.window.project_result = None
         self.window.core_executable = "/nowhere/seohead"
         self.window.update_status_tail()
-        self.assertEqual(self.window.core_label.text(), "Ядро найдено")
+        self.assertEqual(self.window.core_label.text(), ui("Ядро найдено"))
         self.window.core_executable = None
         self.window.update_status_tail()
-        self.assertEqual(self.window.core_label.text(), "Ядро не найдено")
-        self.window.core_executable = os.path.join(os.path.dirname(__import__("sys").executable), "seohead")
+        self.assertEqual(self.window.core_label.text(), ui("Ядро не найдено"))
+        self.window.core_executable = os.path.join(
+            os.path.dirname(__import__("sys").executable), "seohead"
+        )
         self.window.project_result = {"path": "/p"}
         self.window.update_status_tail()
-        self.assertRegex(self.window.core_label.text(), r"^Ядро (seohead \d+\.\d+|подключено · версия неизвестна)$")
+        self.assertRegex(
+            self.window.core_label.text(),
+            r"^(seohead core \d+\.\d+|Core connected · version unknown)$",
+        )
 
     def test_profile_menu_contents_and_unavailable_actions(self):
         menu = self.window.build_profile_menu()
         actions = {a.text(): a for a in menu.actions() if a.text()}
-        for title in ("Быстрый краул без проекта", "Настройки", "MCP-сервер", "Командная строка", "Справка"):
+        for title in (
+            ui("Быстрый краул без проекта"),
+            ui("Настройки"),
+            ui("MCP-сервер"),
+            ui("Командная строка"),
+            ui("Справка"),
+        ):
             self.assertIn(title, actions)
-        self.assertFalse(actions["Быстрый краул без проекта"].isEnabled())
-        self.assertFalse(actions["Командная строка"].isEnabled())
-        self.assertEqual(actions["Командная строка"].toolTip(), "Недоступно в этой сборке")
-        self.assertTrue(any(t.startswith("Тема · ") for t in actions))
-        self.assertTrue(any(t.startswith("Язык · ") for t in actions))
+        self.assertFalse(actions[ui("Быстрый краул без проекта")].isEnabled())
+        self.assertFalse(actions[ui("Командная строка")].isEnabled())
+        self.assertEqual(actions[ui("Командная строка")].toolTip(), ui("Недоступно в этой сборке"))
+        self.assertTrue(any(t.startswith("Theme · ") for t in actions))
+        self.assertTrue(any(t.startswith("Language · ") for t in actions))
 
     def test_profile_menu_opens_at_the_profile_button(self):
         shown = []
-        with patch("seohead_desktop.shell_mixin.QMenu.exec_", lambda menu, pos=None: shown.append(pos)):
+        with patch(
+            "seohead_desktop.shell_mixin.QMenu.exec_", lambda menu, pos=None: shown.append(pos)
+        ):
             self.window.show_profile_menu()
         self.assertEqual(len(shown), 1)
 
     def test_settings_are_a_modal_window_never_a_workspace_tab(self):
         opened = []
         tabs_before = [(c.id, c.view_id) for c in self.window.workspace_tabs.contexts()]
-        with patch.object(SettingsDialog, "exec_", lambda dialog: opened.append((dialog.current_section(), dialog.isModal()))):
+        with patch.object(
+            SettingsDialog,
+            "exec_",
+            lambda dialog: opened.append((dialog.current_section(), dialog.isModal())),
+        ):
             self.window.open_settings("view")
             self.window.open_settings()
         self.assertEqual(opened, [("view", True), ("general", True)])
-        self.assertEqual([(c.id, c.view_id) for c in self.window.workspace_tabs.contexts()], tabs_before)
+        self.assertEqual(
+            [(c.id, c.view_id) for c in self.window.workspace_tabs.contexts()], tabs_before
+        )
         self.assertFalse(hasattr(self.window, "settings_view"))
 
     def test_preferences_drive_theme_density_and_motion(self):
@@ -352,8 +496,12 @@ class ShellV2Tests(unittest.TestCase):
     def test_sections_action_lists_only_the_canon_numbers(self):
         from seohead_desktop import shortcuts
 
-        self.assertEqual(shortcuts.BY_ID["sections"].fixed, ("Ctrl+1", "Ctrl+2", "Ctrl+3", "Ctrl+4"))
-        self.window.prefs.set("keys.palette", "Ctrl+5")  # numbers beyond the canon are free for the user
+        self.assertEqual(
+            shortcuts.BY_ID["sections"].fixed, ("Ctrl+1", "Ctrl+2", "Ctrl+3", "Ctrl+4")
+        )
+        self.window.prefs.set(
+            "keys.palette", "Ctrl+5"
+        )  # numbers beyond the canon are free for the user
         self.assertEqual(self.window.prefs.get("keys.palette"), "Ctrl+5")
 
     def test_scans_without_a_project_is_a_placeholder_until_one_opens(self):
@@ -362,7 +510,7 @@ class ShellV2Tests(unittest.TestCase):
         self.window.navigation.select_section("scans")
         page = self.window.pages.currentWidget()
         self.assertIs(page, self.window.scans_placeholder)
-        self.assertEqual(page.findChild(StatePanel).title.text(), "Раздел готовится")
+        self.assertEqual(page.findChild(StatePanel).title.text(), ui("Раздел готовится"))
         self.window.project_directory = "/p"
         self.window.sync_navigation_state()
         self.assertIsNot(self.window.pages.currentWidget(), self.window.scans_placeholder)
@@ -380,23 +528,48 @@ class ShellV2Tests(unittest.TestCase):
         for section in ("work", "log", "inbox"):
             self.window.navigation.select_section(section)
             self.app.processEvents()
-            panels = [p for p in self.window.pages.currentWidget().findChildren(StatePanel) if p.secondary is not None]
+            panels = [
+                p
+                for p in self.window.pages.currentWidget().findChildren(StatePanel)
+                if p.secondary is not None
+            ]
             self.assertTrue(panels, section)
-            self.assertEqual((panels[0].action.text(), panels[0].secondary.text()), ("Открыть проект…", "Создать проект"))
+            self.assertEqual(
+                (panels[0].action.text(), panels[0].secondary.text()),
+                (ui("Открыть проект…"), ui("Создать проект")),
+            )
 
     def test_status_bar_right_side_has_at_most_three_segments(self):
         self.window.project_directory = "/p"
         self.window.update_status_tail()
-        right = [w for w in (self.window.project_label, self.window.scans_label, self.window.mode_label, self.window.core_label, self.window.observed_label)
-                 if not w.isHidden()]
+        right = [
+            w
+            for w in (
+                self.window.project_label,
+                self.window.scans_label,
+                self.window.mode_label,
+                self.window.core_label,
+                self.window.observed_label,
+            )
+            if not w.isHidden()
+        ]
         self.assertLessEqual(len(right), 3)
-        self.assertTrue(self.window.core_label.toolTip().count("Наблюдение") <= 1)
-        self.assertIn("Наблюдение", self.window.core_label.toolTip())
+        self.assertTrue(self.window.core_label.toolTip().count("Observation") <= 1)
+        self.assertIn("Observation", self.window.core_label.toolTip())
 
     def test_no_demo_wording_in_real_mode_chrome(self):
-        texts = [self.window.windowTitle(), self.window.project_button.title.text(), self.window.scan_button.title.text(),
-                 self.window.source_badge.text(), self.window.mode_label.text(), self.window.core_label.text()]
-        texts += [self.window.navigation.list.item(r).text() for r in range(self.window.navigation.list.count())]
+        texts = [
+            self.window.windowTitle(),
+            self.window.project_button.title.text(),
+            self.window.scan_button.title.text(),
+            self.window.source_badge.text(),
+            self.window.mode_label.text(),
+            self.window.core_label.text(),
+        ]
+        texts += [
+            self.window.navigation.list.item(r).text()
+            for r in range(self.window.navigation.list.count())
+        ]
         self.assertFalse([t for t in texts if "Демо" in t])
 
 

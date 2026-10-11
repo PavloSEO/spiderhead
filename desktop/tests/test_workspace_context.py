@@ -25,7 +25,9 @@ class WorkspaceContextTests(unittest.TestCase):
         self.window = MainWindow(persistent=False)
         self.addCleanup(self.window.close)
         self.calls = []
-        self.window.ensure_mcp_gateway = lambda: SimpleNamespace(set_project_scope=lambda root: None)
+        self.window.ensure_mcp_gateway = lambda: SimpleNamespace(
+            set_project_scope=lambda root: None
+        )
         self.window.start_command = self.respond
         self.roots = {}
         for name in ("A", "B"):
@@ -44,10 +46,37 @@ class WorkspaceContextTests(unittest.TestCase):
         elif tool == "seo_project_observe":
             root = arguments["directory"]
             name = Path(root).name
-            handler({"progress": {}, "runs": {"items": []}, "scans": {"total": 2, "items": [{"uuid": name + str(i), "path": root + f"/scans/{i}.sqlite", "source_kind": "native", "lifecycle": "finished"} for i in range(2)]}, "inbox": {"revision": 1, "entries": []}})
+            handler(
+                {
+                    "progress": {},
+                    "runs": {"items": []},
+                    "scans": {
+                        "total": 2,
+                        "items": [
+                            {
+                                "uuid": name + str(i),
+                                "path": root + f"/scans/{i}.sqlite",
+                                "source_kind": "native",
+                                "lifecycle": "finished",
+                            }
+                            for i in range(2)
+                        ],
+                    },
+                    "inbox": {"revision": 1, "entries": []},
+                }
+            )
         elif tool == "seo_scan_inspect":
             offset = arguments["offset"]
-            handler({"offset": offset, "has_more": offset < 100, "rows": [{"url": f"https://fixture.test/{i}", "status_code": 200} for i in range(offset, offset + 50)]})
+            handler(
+                {
+                    "offset": offset,
+                    "has_more": offset < 100,
+                    "rows": [
+                        {"url": f"https://fixture.test/{i}", "status_code": 200}
+                        for i in range(offset, offset + 50)
+                    ],
+                }
+            )
         elif tool == "seo_scan_status":
             handler({"source": {"lifecycle": "finished"}})
         elif tool == "seo_project_checklist_page":
@@ -102,7 +131,9 @@ class WorkspaceContextTests(unittest.TestCase):
         w = self.window
         original = w._active_workspace_id
         other = w.duplicate_workspace_tab(original)
-        manager = SimpleNamespace(snapshot=lambda *args: [], detail=lambda key: None, active_count=0)
+        manager = SimpleNamespace(
+            snapshot=lambda *args: [], detail=lambda key: None, active_count=0
+        )
         w.scan_manager = manager
         w.close_workspace_tab(original)
         self.assertIs(w.scan_manager, manager)
@@ -126,7 +157,11 @@ class WorkspaceContextTests(unittest.TestCase):
         w.dispatch_control("select_view", {"view_id": "content_search"})
         self.assertEqual(w.selected_scan_uuid, "A1")
         self.assertEqual(w.navigation.currentRow(), 10)
-        for operation, args in (("stop_run", {"run_id": "external", "approved": True}), ("select_scan", {"project_uuid": "B", "scan_uuid": "A1"}), ("new_tab", {"project_uuid": "unknown"})):
+        for operation, args in (
+            ("stop_run", {"run_id": "external", "approved": True}),
+            ("select_scan", {"project_uuid": "B", "scan_uuid": "A1"}),
+            ("new_tab", {"project_uuid": "unknown"}),
+        ):
             with self.subTest(operation=operation), self.assertRaises(ValueError):
                 w.dispatch_control(operation, args)
 
@@ -135,19 +170,60 @@ class WorkspaceContextTests(unittest.TestCase):
         w.crawl_descriptor = descriptor()
         config = {"max_urls": 40, "rendering_mode": "raw", "max_requests": 100, "max_seconds": 60}
         with self.assertRaises(ControlError):
-            w.dispatch_control("new_scan", {"project_uuid": "A", "config": config, "approved": False})
+            w.dispatch_control(
+                "new_scan", {"project_uuid": "A", "config": config, "approved": False}
+            )
         with self.assertRaises(ValueError):
-            w.dispatch_control("new_scan", {"project_uuid": "A", "config": {**config, "configuration_overrides": {"not.advertised": True}}, "approved": True})
+            w.dispatch_control(
+                "new_scan",
+                {
+                    "project_uuid": "A",
+                    "config": {**config, "configuration_overrides": {"not.advertised": True}},
+                    "approved": True,
+                },
+            )
         self.assertIsNone(w.scan_manager)
 
     def test_work_cards_and_second_monitor_select_only_exact_owned_target(self):
         w = self.window
-        rows = [{"id": "owned-" + name, "project": self.roots["A"], "project_uuid": "A", "observer_run_id": "core-" + name, "core_run_id": "core-" + name, "kind": "crawl", "state": "running"} for name in ("one", "two")]
+        rows = [
+            {
+                "id": "owned-" + name,
+                "project": self.roots["A"],
+                "project_uuid": "A",
+                "observer_run_id": "core-" + name,
+                "core_run_id": "core-" + name,
+                "kind": "crawl",
+                "state": "running",
+            }
+            for name in ("one", "two")
+        ]
         stopped = []
-        w.scan_manager = SimpleNamespace(snapshot=lambda *args: rows, detail=lambda identifier: next((row for row in rows if row["id"] == identifier), None), stop=lambda identifier: stopped.append(identifier) or True, active_count=0)
+        w.scan_manager = SimpleNamespace(
+            snapshot=lambda *args: rows,
+            detail=lambda identifier: next((row for row in rows if row["id"] == identifier), None),
+            stop=lambda identifier: stopped.append(identifier) or True,
+            active_count=0,
+        )
         try:
             w.managed_scan_changed(rows[0])
-            w.present_observed_runs([{"id": "core-" + name, "state": "running", "kind": "crawl", "counters": {"fetched": 3, "queued": 4}, "telemetry": {"state": "fresh", "current_rate_per_second": 1.2, "unit": "pages"}} for name in ("one", "two")], "2026-10-07T18:00:00Z")
+            w.present_observed_runs(
+                [
+                    {
+                        "id": "core-" + name,
+                        "state": "running",
+                        "kind": "crawl",
+                        "counters": {"fetched": 3, "queued": 4},
+                        "telemetry": {
+                            "state": "fresh",
+                            "current_rate_per_second": 1.2,
+                            "unit": "pages",
+                        },
+                    }
+                    for name in ("one", "two")
+                ],
+                "2026-10-07T18:00:00Z",
+            )
             w.refresh_work_monitor()
             QTest.mouseClick(w.work_monitor.run_cards["core-one"], Qt.LeftButton)
             self.assertEqual(w.selected_managed_run_id, "owned-one")

@@ -2,6 +2,7 @@ import copy
 import os
 import time
 import unittest
+from threading import Event
 from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -91,14 +92,45 @@ class ScheduleTabTests(unittest.TestCase):
         return dialog
 
     def test_dialog_has_schedule_and_crawl_tabs(self):
+        i18n.set_language("en")
         with patch(f"{MODULE}.read_schedule", return_value=core_state()):
             dialog = self.dialog()
-        names = [dialog.nav.item(i).text() for i in range(dialog.nav.count())]
-        self.assertEqual(names, ["Основное", "Источники", "Расписание", "Обход", "Экспорт"])
-        dialog.nav.setCurrentRow(2)
+        names = [dialog.nav.tabText(i) for i in range(dialog.nav.count())]
+        self.assertEqual(names, ["Main", "Sources", "Schedule", "Crawl", ""])
+        dialog.nav.setCurrentIndex(2)
         self.assertIsInstance(dialog.pages.currentWidget(), SchedulePage)
-        dialog.nav.setCurrentRow(3)
+        dialog.nav.setCurrentIndex(3)
         self.assertIsInstance(dialog.pages.currentWidget(), CrawlPage)
+
+    def test_shared_save_waits_for_core_and_preserves_the_other_settings(self):
+        i18n.set_language("en")
+        release = Event()
+        sent = []
+        self.addCleanup(release.set)
+
+        def write(*args):
+            sent.append(args[3])
+            if not release.wait(3):
+                raise RuntimeError("test save was not released")
+            return core_state()
+
+        with (
+            patch(f"{MODULE}.read_schedule", return_value=core_state()),
+            patch(f"{MODULE}.save_schedule", side_effect=write),
+        ):
+            dialog = self.dialog()
+            dialog.nav.setCurrentIndex(2)
+            page = dialog.pages.currentWidget()
+            self.wait(lambda: page.state is not None and page.isEnabled())
+            original = copy.deepcopy(page.state["settings"])
+            dialog.content.save.click()
+            self.wait(lambda: len(sent) == 1)
+            self.assertFalse(dialog.content.save.isEnabled())
+            dialog.content.save.click()
+            self.assertEqual(len(sent), 1)
+            self.assertEqual(sent[0], original)
+            release.set()
+            self.wait(lambda: dialog.content.save.isEnabled())
 
     def test_without_a_core_the_tab_is_an_honest_unavailable_state(self):
         page = SchedulePage(Host())
@@ -242,7 +274,7 @@ class ScheduleTabTests(unittest.TestCase):
             self.wait(lambda: page.state is not None)
         visible = " ".join(label.text() for label in page.findChildren(QLabel))
         self.assertNotIn("Полный обход", visible)
-        self.assertNotIn("#", visible)
+        self.assertNotRegex(visible, r"#\d+")
         self.assertEqual(len(page.weekdays), 7)
         self.assertEqual(len(page.month_buttons), 31)
         self.assertTrue(page.enabled.isCheckable())

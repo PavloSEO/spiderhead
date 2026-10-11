@@ -48,9 +48,7 @@ def _freeze(value, depth=0):
     if isinstance(value, Mapping):
         if any(type(key) is not str for key in value):
             raise TypeError("Workspace state keys must be strings")
-        return MappingProxyType(
-            {key: _freeze(item, depth + 1) for key, item in value.items()}
-        )
+        return MappingProxyType({key: _freeze(item, depth + 1) for key, item in value.items()})
     if isinstance(value, (tuple, list)):
         return tuple(_freeze(item, depth + 1) for item in value)
     raise TypeError("Workspace state accepts data only, never controllers or widgets")
@@ -95,9 +93,7 @@ class WorkspaceContext:
         if self.display_alias is not None and (
             not isinstance(self.display_alias, str) or not self.display_alias.strip()
         ):
-            raise ValueError(
-                "Workspace display alias must be a non-empty string or None"
-            )
+            raise ValueError("Workspace display alias must be a non-empty string or None")
         if type(self.pinned) is not bool:
             raise TypeError("Workspace pinned flag must be a boolean")
         if not isinstance(self.state, Mapping):
@@ -123,9 +119,7 @@ class _WorkspaceTabBar(QTabBar):
     def mousePressEvent(self, event):
         index = self.tabAt(event.pos())
         self._drag_id = (
-            self.tabData(index)
-            if event.button() == Qt.LeftButton and index >= 0
-            else None
+            self.tabData(index) if event.button() == Qt.LeftButton and index >= 0 else None
         )
         if self._drag_id is not None:
             self._drag_offset = event.x() - self.tabRect(index).center().x()
@@ -196,9 +190,7 @@ class WorkspaceTabs(QWidget):
     def __init__(self, parent=None, *, max_tabs=MAX_WORKSPACE_TABS):
         super().__init__(parent)
         if type(max_tabs) is not int or not 1 <= max_tabs <= MAX_WORKSPACE_TABS:
-            raise ValueError(
-                f"Workspace tab limit must be between 1 and {MAX_WORKSPACE_TABS}"
-            )
+            raise ValueError(f"Workspace tab limit must be between 1 and {MAX_WORKSPACE_TABS}")
         self.max_tabs = max_tabs
         self._contexts = {}
         self._titles = {}
@@ -208,7 +200,7 @@ class WorkspaceTabs(QWidget):
         self._shortcuts = []
         self._shortcut_owner = None
         self.setObjectName("tabstrip")
-        self.setFixedHeight(36)
+        self.setFixedHeight(38)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setAccessibleName("Рабочие вкладки SEOHEAD")
         layout = QHBoxLayout(self)
@@ -224,7 +216,9 @@ class WorkspaceTabs(QWidget):
         self.tabbar.setExpanding(False)
         self.tabbar.setMovable(True)
         self.tabbar.setTabsClosable(True)
-        self.tabbar.setElideMode(Qt.ElideNone)  # full names at 800 px: the strip scrolls instead of cutting them
+        self.tabbar.setElideMode(
+            Qt.ElideNone
+        )  # full names at 800 px: the strip scrolls instead of cutting them
         self.tabbar.setSelectionBehaviorOnRemove(QTabBar.SelectLeftTab)
         self.tabbar.setDrawBase(False)
         self.tabbar.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
@@ -277,17 +271,12 @@ class WorkspaceTabs(QWidget):
 
     def contexts(self) -> tuple[WorkspaceContext, ...]:
         return tuple(
-            self._contexts[self.tabbar.tabData(index)]
-            for index in range(self.tabbar.count())
+            self._contexts[self.tabbar.tabData(index)] for index in range(self.tabbar.count())
         )
 
     def _index(self, id):
         return next(
-            (
-                index
-                for index in range(self.tabbar.count())
-                if self.tabbar.tabData(index) == id
-            ),
+            (index for index in range(self.tabbar.count()) if self.tabbar.tabData(index) == id),
             -1,
         )
 
@@ -380,9 +369,7 @@ class WorkspaceTabs(QWidget):
     def set_alias(self, id, alias: str | None) -> WorkspaceContext:
         if alias is not None and not isinstance(alias, str):
             raise TypeError("Workspace display alias must be a string or None")
-        return self.update_context(
-            id, display_alias=alias.strip() or None if alias else None
-        )
+        return self.update_context(id, display_alias=alias.strip() or None if alias else None)
 
     def set_pinned(self, id, pinned: bool) -> WorkspaceContext:
         return self.update_context(id, pinned=pinned)
@@ -393,7 +380,11 @@ class WorkspaceTabs(QWidget):
     def _refresh_tab(self, id):
         context = self._contexts[id]
         index = self._index(id)
-        title = context.display_alias or tr(self._titles[id])
+        override = getattr(self, "_screen_presentation", None)
+        active_override = override if override and override[0] == id else None
+        title = (
+            active_override[1] if active_override else context.display_alias or tr(self._titles[id])
+        )
         self.tabbar.setTabText(index, title)
         tooltip = trf("Закреплена · {title}", title=title) if context.pinned else title
         if context.display_alias and context.display_alias != self._titles[id]:
@@ -404,10 +395,15 @@ class WorkspaceTabs(QWidget):
             index,
             pin_icon
             if pin_icon is not None and not pin_icon.isNull()
+            else material_icon(active_override[2])
+            if active_override
             else self._icons[id],
         )
-        if self.tabbar.tabsClosable() and not isinstance(self.tabbar.tabButton(index, QTabBar.RightSide), _CloseButton):
+        if self.tabbar.tabsClosable() and not isinstance(
+            self.tabbar.tabButton(index, QTabBar.RightSide), _CloseButton
+        ):
             self.tabbar.setTabButton(index, QTabBar.RightSide, _CloseButton(self))
+
         for side in (QTabBar.LeftSide, QTabBar.RightSide):
             button = self.tabbar.tabButton(index, side)
             if button is not None:
@@ -415,6 +411,17 @@ class WorkspaceTabs(QWidget):
                 button.setToolTip(trf("Закрыть вкладку {title}", title=title))
                 button.setEnabled(not context.pinned)
                 button.setVisible(not context.pinned)
+
+    def set_screen_presentation(self, title=None, icon=None):
+        """Temporary screen caption; stored aliases, project and view identity remain intact."""
+        old = getattr(self, "_screen_presentation", None)
+        new = (self.current_id, title, icon) if title and self.current_id else None
+        if old == new:
+            return
+        self._screen_presentation = new
+        for id in {item[0] for item in (old, new) if item}:
+            if id in self._contexts:
+                self._refresh_tab(id)
 
     @staticmethod
     def _checked_title(title):
@@ -460,15 +467,11 @@ class WorkspaceTabs(QWidget):
 
     def select_next(self):
         if self.tabbar.count():
-            self.tabbar.setCurrentIndex(
-                (self.tabbar.currentIndex() + 1) % self.tabbar.count()
-            )
+            self.tabbar.setCurrentIndex((self.tabbar.currentIndex() + 1) % self.tabbar.count())
 
     def select_previous(self):
         if self.tabbar.count():
-            self.tabbar.setCurrentIndex(
-                (self.tabbar.currentIndex() - 1) % self.tabbar.count()
-            )
+            self.tabbar.setCurrentIndex((self.tabbar.currentIndex() - 1) % self.tabbar.count())
 
     def _sync_selected(self, *_args):
         current = self.current_id
@@ -486,9 +489,7 @@ class WorkspaceTabs(QWidget):
         context = self._contexts[self.tabbar.tabData(destination)]
         pinned_count = sum(item.pinned for item in self._contexts.values())
         boundary = (
-            min(destination, pinned_count - 1)
-            if context.pinned
-            else max(destination, pinned_count)
+            min(destination, pinned_count - 1) if context.pinned else max(destination, pinned_count)
         )
         if boundary != destination:
             blocked = self.tabbar.blockSignals(True)
@@ -553,9 +554,7 @@ class WorkspaceTabs(QWidget):
         pin.setEnabled(context is not None)
         pin.triggered.connect(lambda: self.toggle_pinned(id))
         duplicate = menu.addAction(material_icon("content_copy"), tr("Дублировать вкладку"))
-        duplicate.setEnabled(
-            context is not None and len(self._contexts) < self.max_tabs
-        )
+        duplicate.setEnabled(context is not None and len(self._contexts) < self.max_tabs)
         duplicate.triggered.connect(lambda: self.request_duplicate(id))
         close = menu.addAction(
             material_icon("close"),
@@ -569,9 +568,7 @@ class WorkspaceTabs(QWidget):
         if self._shortcut_owner is owner:
             return
         if self._shortcut_owner is not None:
-            raise ValueError(
-                "Workspace shortcuts are already attached to another window"
-            )
+            raise ValueError("Workspace shortcuts are already attached to another window")
         if not isinstance(owner, QWidget):
             raise TypeError("Shortcut owner must be a QWidget")
         self._shortcut_owner = owner
@@ -585,11 +582,7 @@ class WorkspaceTabs(QWidget):
         for standard, callback, tab_only in bindings:
             for sequence in QKeySequence.keyBindings(standard):
                 text = sequence.toString(QKeySequence.PortableText)
-                if (
-                    text in seen
-                    or (tab_only
-                    and text.split("+")[-1] not in {"Tab", "Backtab"})
-                ):
+                if text in seen or (tab_only and text.split("+")[-1] not in {"Tab", "Backtab"}):
                     continue
                 seen.add(text)
                 shortcut = QShortcut(sequence, owner)

@@ -34,7 +34,7 @@ SECTIONS = (
     ("inbox", "inbox", "Входящие", "top", False, True),
     ("crawler", "travel_explore", "Краулер", "top", True, True),
     ("scans", "history", "Сканы", "data", True, True),
-    ("url", "table_view", "URL", "data", True, True),
+    ("url", "table_rows", "URL", "data", True, True),
     ("issues", "rule", "Проблемы", "data", True, True),
     ("compare", "compare_arrows", "Сравнение", "data", True, True),
     ("graph", "hub", "Граф ссылок", "data", True, True),
@@ -44,16 +44,31 @@ SECTIONS = (
     ("log", "terminal", "Журнал", "result", True, True),
 )
 # Navigation section -> view id used by workspace contexts and the page stack.
-VIEW_OF = {"work": "work", "inbox": "inbox", "scans": "scans", "url": "url", "issues": "issues",
-           "compare": "compare", "search": "content_search", "reports": "reports", "log": "journal",
-           "crawler": "crawler", "methods": "methods", "graph": "graph"}
+VIEW_OF = {
+    "work": "work",
+    "inbox": "inbox",
+    "scans": "scans",
+    "url": "url",
+    "issues": "issues",
+    "compare": "compare",
+    "search": "content_search",
+    "reports": "reports",
+    "log": "journal",
+    "crawler": "crawler",
+    "methods": "methods",
+    "graph": "graph",
+}
 # SideNav sheet: without a project these items are shown dimmed with «нужен проект»; the rest stay active.
 # SHELL-CANON hotkeys: ⌘1 Работа · ⌘2 Сканы · ⌘3 URL · ⌘4 Проблемы; the canon gives no other numbers
 NUMBERED_SECTIONS = {1: "work", 2: "scans", 3: "url", 4: "issues"}
 NEEDS_PROJECT = frozenset({"work", "inbox", "issues", "compare", "search", "methods", "reports"})
-SIMPLE_VIEW_OF = {**VIEW_OF, "work": "tasks"}  # «Работа» opens the simple task list in the Simple display
+SIMPLE_VIEW_OF = {
+    **VIEW_OF,
+    "work": "tasks",
+}  # «Работа» opens the simple task list in the Simple display
 GROUP_TITLES = {"data": "Данные", "result": "Результат"}
 ROLE_ID, ROLE_COUNT, ROLE_DOT, ROLE_HEADER, ROLE_LOCKED = (Qt.UserRole + i for i in range(5))
+ROLE_CONTEXT = Qt.UserRole + 5
 
 
 def elide_words(metrics, text, width):
@@ -138,7 +153,9 @@ class PickerButton(QPushButton):
         layout.addWidget(self._chevron)
 
     def sizeHint(self):
-        return self.layout().sizeHint()  # QPushButton would ignore the inner layout and stay at the minimum width
+        return (
+            self.layout().sizeHint()
+        )  # QPushButton would ignore the inner layout and stay at the minimum width
 
     def minimumSizeHint(self):
         return self.layout().minimumSize()
@@ -161,8 +178,14 @@ class _NavDelegate(QStyledItemDelegate):
 
     def sizeHint(self, option, index):
         if index.data(ROLE_HEADER):
-            return QSize(option.rect.width(), 0 if self.view.rail else 28)
-        return QSize(option.rect.width(), 44 if self.view.rail else 36)
+            return QSize(
+                option.rect.width(),
+                0 if self.view.rail else 36 if self.view.property("settings_context") else 28,
+            )
+        return QSize(
+            option.rect.width(),
+            40 if self.view.property("settings_context") else 44 if self.view.rail else 36,
+        )
 
     def paint(self, painter, option, index):
         r = theming.roles()
@@ -176,35 +199,66 @@ class _NavDelegate(QStyledItemDelegate):
                 font.setWeight(QFont.Medium)
                 font.setLetterSpacing(QFont.AbsoluteSpacing, 0.4)
                 painter.setFont(font)
-                painter.setPen(QColor(r["text_3"]))
-                painter.drawText(rect.adjusted(12, 6, 0, 0), Qt.AlignLeft | Qt.AlignTop, index.data(Qt.DisplayRole).upper())
+                painter.setPen(
+                    QColor(r["text_2"] if self.view.property("settings_context") else r["text_3"])
+                )
+                painter.drawText(
+                    rect.adjusted(12, 6, 0, 0),
+                    Qt.AlignLeft | Qt.AlignTop,
+                    index.data(Qt.DisplayRole).upper(),
+                )
             painter.restore()
             return
         locked = bool(index.data(ROLE_LOCKED))
         if locked:
             painter.setOpacity(0.5)
-        selected = bool(option.state & QStyle.State_Selected) and not locked
+        selected = (
+            bool(option.state & QStyle.State_Selected)
+            or index.data(ROLE_CONTEXT) == "project_settings"
+        ) and not locked
         hovered = bool(option.state & QStyle.State_MouseOver) and not locked
         ink = QColor(r["on_selected"] if selected else r["text_2"])
         font = QFont(painter.font())
         font.setWeight(QFont.Medium)
         if self.view.rail:
-            pill = QRect(rect.center().x() - 22, rect.top() + 8, 44, 28)  # icon only: the full label is the tooltip
+            pill = QRect(
+                rect.center().x() - 22, rect.top() + 8, 44, 28
+            )  # icon only: the full label is the tooltip
+            canvas = bool(self.view.property("settings_context"))
+            if canvas:
+                pill = QRect(rect.left() + rect.width() // 2 - 24, rect.top(), 48, 38)
             if selected or hovered:
                 painter.setPen(Qt.NoPen)
-                painter.setBrush(QColor(r["selected"] if selected else r["nav_hover"]))
-                painter.drawRoundedRect(pill, 14, 14)
-            index.data(Qt.DecorationRole).paint(painter, QRect(pill.center().x() - 10, pill.center().y() - 10, 20, 20), Qt.AlignCenter,
-                                                 QIcon.Selected if selected else QIcon.Normal)
+                painter.setBrush(
+                    QColor(
+                        r["canvas_segment_bg"]
+                        if canvas and selected
+                        else r["selected"]
+                        if selected
+                        else r["nav_hover"]
+                    )
+                )
+                painter.drawRoundedRect(pill, 10 if canvas else 14, 10 if canvas else 14)
+            index.data(Qt.DecorationRole).paint(
+                painter,
+                QRect(pill.center().x() - 10, pill.center().y() - 10, 20, 20),
+                Qt.AlignCenter,
+                QIcon.Selected if selected else QIcon.Normal,
+            )
         else:
             body = rect.adjusted(0, 0, 0, 0)
             if selected or hovered:
                 painter.setPen(Qt.NoPen)
                 painter.setBrush(QColor(r["selected"] if selected else r["nav_hover"]))
                 painter.drawRoundedRect(body, 8, 8)
-            index.data(Qt.DecorationRole).paint(painter, QRect(body.left() + 12, body.center().y() - 10, 20, 20), Qt.AlignCenter,
-                                                 QIcon.Selected if selected else QIcon.Normal)
-            font.setPixelSize(13)
+            index.data(Qt.DecorationRole).paint(
+                painter,
+                QRect(body.left() + 12, body.center().y() - 10, 20, 20),
+                Qt.AlignCenter,
+                QIcon.Selected if selected else QIcon.Normal,
+            )
+            font.setPixelSize(14 if self.view.property("settings_context") else 13)
+            font.setWeight(QFont.Normal if self.view.property("settings_context") else QFont.Medium)
             painter.setFont(font)
             painter.setPen(ink)
             count = index.data(ROLE_COUNT)
@@ -213,12 +267,23 @@ class _NavDelegate(QStyledItemDelegate):
             small = QFont(font)
             small.setPixelSize(10)
             hint_width = QFontMetrics(small).horizontalAdvance(hint) if hint else 0
-            hint = hint if hint and 44 + label_width + 8 + hint_width + 12 <= body.width() else ""  # no room: the tooltip says it
-            painter.drawText(body.adjusted(44, 0, -(hint_width + 16) if hint else -48 if count else -8, 0), Qt.AlignLeft | Qt.AlignVCenter,
-                             QFontMetrics(font).elidedText(index.data(Qt.DisplayRole), Qt.ElideRight, body.width() - 44 - ((hint_width + 16) if hint else 48 if count else 8)))
+            hint = (
+                hint if hint and 44 + label_width + 8 + hint_width + 12 <= body.width() else ""
+            )  # no room: the tooltip says it
+            painter.drawText(
+                body.adjusted(44, 0, -(hint_width + 16) if hint else -48 if count else -8, 0),
+                Qt.AlignLeft | Qt.AlignVCenter,
+                QFontMetrics(font).elidedText(
+                    index.data(Qt.DisplayRole),
+                    Qt.ElideRight,
+                    body.width() - 44 - ((hint_width + 16) if hint else 48 if count else 8),
+                ),
+            )
             if hint:
                 painter.setFont(small)
-                painter.setPen(QColor(r["text_3"]))
+                painter.setPen(
+                    QColor(r["text_2"] if self.view.property("settings_context") else r["text_3"])
+                )
                 painter.drawText(body.adjusted(0, 0, -12, 0), Qt.AlignRight | Qt.AlignVCenter, hint)
             elif count:
                 font.setPixelSize(11)
@@ -232,7 +297,9 @@ class _NavDelegate(QStyledItemDelegate):
                     painter.drawText(badge, Qt.AlignCenter, str(count))
                 else:
                     painter.setPen(QColor(r["on_selected"] if selected else r["text_3"]))
-                    painter.drawText(body.adjusted(0, 0, -12, 0), Qt.AlignRight | Qt.AlignVCenter, str(count))
+                    painter.drawText(
+                        body.adjusted(0, 0, -12, 0), Qt.AlignRight | Qt.AlignVCenter, str(count)
+                    )
         if option.state & QStyle.State_HasFocus:
             painter.setPen(QColor(r["ring"]))
             painter.setBrush(Qt.NoBrush)
@@ -262,14 +329,22 @@ class NavList(QListWidget):
 
     def mousePressEvent(self, event):
         item = self.itemAt(event.pos())
-        if item is not None and item.data(ROLE_LOCKED):  # dimmed «нужен проект»: a click leads to the project start, not to a page
+        if item is not None and item.data(
+            ROLE_LOCKED
+        ):  # dimmed «нужен проект»: a click leads to the project start, not to a page
             self.lockedClicked.emit(item.data(ROLE_ID))
             return
         super().mousePressEvent(event)
 
     def set_project_open(self, opened):
         self.project_open = bool(opened)
-        self.setToolTip("" if self.project_open else tr("Разделы с пометкой «нужен проект» откроются после открытия или создания проекта"))
+        self.setToolTip(
+            ""
+            if self.project_open
+            else tr(
+                "Разделы с пометкой «нужен проект» откроются после открытия или создания проекта"
+            )
+        )
         for section_id, item in self._items.items():
             locked = section_id in NEEDS_PROJECT and not self.project_open
             item.setData(ROLE_LOCKED, locked)
@@ -369,7 +444,9 @@ class ProfileButton(QPushButton):
 
     def set_mode_line(self, text):
         self.mode_line.setText(text)
-        self.setToolTip(text)  # the subtitle elides on narrow widths; the full line stays one hover away
+        self.setToolTip(
+            text
+        )  # the subtitle elides on narrow widths; the full line stays one hover away
 
     def set_rail(self, rail):
         self._texts.setVisible(not rail)
@@ -429,10 +506,13 @@ class NavPanel(QFrame):
     """Left column: sections, active-scan card and the profile button. ``current_section`` follows the list."""
 
     sectionChanged = pyqtSignal(str)
-    currentRowChanged = pyqtSignal(int)  # index into VIEW_IDS (page/workspace identity), kept for existing callers
+    currentRowChanged = pyqtSignal(
+        int
+    )  # index into VIEW_IDS (page/workspace identity), kept for existing callers
     profileClicked = pyqtSignal()
     openScanRequested = pyqtSignal()
     lockedClicked = pyqtSignal(str)
+    contextRequested = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -443,6 +523,13 @@ class NavPanel(QFrame):
         layout.setSpacing(8)
         self.list = NavList()
         self.list.currentItemChanged.connect(self._item_changed)
+        self.list.itemClicked.connect(
+            lambda item: (
+                self.contextRequested.emit(item.data(ROLE_CONTEXT))
+                if item.data(ROLE_CONTEXT)
+                else None
+            )
+        )
         self.list.lockedClicked.connect(self.lockedClicked)
         layout.addWidget(self.list, 1)
         self.card = ActiveScanCard()
@@ -453,6 +540,76 @@ class NavPanel(QFrame):
         layout.addWidget(self.profile)
         self.simple = False
         self.list.rebuild(False, None)
+        self._context_items = []
+        self.settings_note = QFrame()
+        self.settings_note.setProperty("canvas_component", "panel")
+        self.settings_note.setObjectName("settingsRevisionNote")
+        note_box = QVBoxLayout(self.settings_note)
+        note_box.setContentsMargins(14, 12, 14, 12)
+        note_box.setSpacing(2)
+        line = QHBoxLayout()
+        line.setSpacing(8)
+        line.addWidget(MaterialIconLabel("description", 18, color="role:primary"))
+        self.settings_revision = QLabel()
+        self.settings_revision.setProperty("text_style", "meta")
+        line.addWidget(self.settings_revision, 1)
+        note_box.addLayout(line)
+        hint = QLabel("The agent reads and changes the same settings over MCP and the CLI.")
+        hint.setProperty("text_style", "meta")
+        hint.setWordWrap(True)
+        hint.setMinimumHeight(58)
+        note_box.addWidget(hint)
+        self.layout().addWidget(self.settings_note)
+        self.settings_note.hide()
+
+    def set_settings_context(self, active):
+        """Presentation of the existing Tools/settings destinations in the settings shell."""
+        compact = self.list.rail
+        key = (bool(active), compact)
+        if key == getattr(self, "_settings_context_key", None):
+            return
+        self._settings_context_key = key
+        self.list.setProperty("settings_context", bool(active))
+        self.list.blockSignals(True)
+        for item in self._context_items:
+            self.list.takeItem(self.list.row(item))
+        self._context_items.clear()
+        for row in range(self.list.count()):
+            item = self.list.item(row)
+            section = item.data(ROLE_ID)
+            item.setHidden(
+                bool(
+                    active
+                    and (
+                        (
+                            compact
+                            and (
+                                not section
+                                or section
+                                not in {"work", "inbox", "crawler", "scans", "url", "issues"}
+                            )
+                        )
+                        or (not compact and section in {"search", "log"})
+                    )
+                )
+            )
+        if active:
+            self.list.clearSelection()
+            self.list._items["reports"].setText("Reports and tasks")
+            item = QListWidgetItem("Settings" if compact else "Tools")
+            item.setData(ROLE_CONTEXT, "project_settings" if compact else "tools")
+            item.setIcon(material_icon("settings" if compact else "build"))
+            item.setToolTip(item.text())
+            self.list.insertItem(
+                self.list.row(self.list._items["reports"]) if not compact else self.list.count(),
+                item,
+            )
+            self._context_items.append(item)
+        if not active:
+            self.list._items["reports"].setText(tr("Отчёты и задачи"))
+        self.list.blockSignals(False)
+        self.list.scheduleDelayedItemsLayout()
+        self.list.viewport().update()
 
     def _item_changed(self, current, _previous):
         if current is not None and current.data(ROLE_ID):
@@ -468,14 +625,22 @@ class NavPanel(QFrame):
 
     def setCurrentRow(self, row):
         view = VIEW_IDS[row] if 0 <= row < len(VIEW_IDS) else None
-        section = next((s for s, v in self.views().items() if v == view and self.has_section(s)), None)
+        section = next(
+            (s for s, v in self.views().items() if v == view and self.has_section(s)), None
+        )
         return self.select_section(section) if section else False
 
     def set_display(self, simple):
         current = self.list.current_section()
         self.simple = bool(simple)
+        context_active = getattr(self, "_settings_context_key", (False, False))[0]
+        self._context_items.clear()
+        self._settings_context_key = None
         self.list.rebuild(self.simple, current)
-        self.profile.set_mode_line(tr("Простой режим · MCP выкл." if self.simple else "С агентом · MCP вкл."))
+        self.set_settings_context(context_active)
+        self.profile.set_mode_line(
+            tr("Простой режим · MCP выкл." if self.simple else "С агентом · MCP вкл.")
+        )
         if current in self.list._items:
             self.currentRowChanged.emit(self.currentRow())
 

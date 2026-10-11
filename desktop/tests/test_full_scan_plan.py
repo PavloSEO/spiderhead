@@ -14,6 +14,7 @@ from seohead_desktop.app import MainWindow, load_theme
 from seohead_desktop.local_control import ControlError
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.ui.panels import component_stylesheet
+from tests._qt import ui
 from tests.test_crawl_configuration import descriptor
 from tests.test_scan_runner import (
     close_window,
@@ -50,11 +51,17 @@ class FullScanPlanTests(unittest.TestCase):
         self.addCleanup(self.window.close)
         self.window.project_directory = str(self.root)
         self.window.current_project_uuid = "plan-project"
-        self.window.project_result = {"project": {"site": {"target": "http://crawl.localhost/", "host": "crawl.localhost"}}}
-        self.window.crawl_descriptor = {**descriptor(), "capabilities": {"full_site_native_sqlite": True, "sitemap_only_retained": True}}
+        self.window.project_result = {
+            "project": {"site": {"target": "http://crawl.localhost/", "host": "crawl.localhost"}}
+        }
+        self.window.crawl_descriptor = {
+            **descriptor(),
+            "capabilities": {"full_site_native_sqlite": True, "sitemap_only_retained": True},
+        }
 
     def inspect_dialog(self, inspect):
         errors = []
+
         def run():
             dialog = self.app.activeModalWidget()
             try:
@@ -64,6 +71,7 @@ class FullScanPlanTests(unittest.TestCase):
             finally:
                 if dialog.isVisible():
                     dialog.reject()
+
         QTimer.singleShot(20, run)
         self.window.scan_preview()
         if errors:
@@ -72,28 +80,39 @@ class FullScanPlanTests(unittest.TestCase):
     def test_full_plan_has_no_population_time_or_request_limit_and_speed_is_explicit(self):
         calls = []
         self.window.launch_scan = lambda *values: calls.append(values)
-        self.window.prefs.set("scan.depth", 0)  # «Глубина обхода: 0 — без ограничения» is the core's -1
+        self.window.prefs.set(
+            "scan.depth", 0
+        )  # «Глубина обхода: 0 — без ограничения» is the core's -1
+
         def inspect(dialog):
-            self.assertEqual((dialog.draft.value("limits.max_requests"), dialog.draft.value("limits.max_crawl_seconds")), (0, 0))
+            self.assertEqual(
+                (
+                    dialog.draft.value("limits.max_requests"),
+                    dialog.draft.value("limits.max_crawl_seconds"),
+                ),
+                (0, 0),
+            )
             dialog.findChild(QAbstractButton, "scanLimitEnabled").click()
             self.assertFalse(dialog.findChild(QAbstractButton, "scanLimitEnabled").isChecked())
             type_into(dialog.findChild(QLineEdit, "scanRequestRate"), "10")
             type_into(dialog.findChild(QLineEdit, "scanConcurrency"), "3")
             dialog.findChild(QCheckBox, "scanLargeApproval").click()
             QTest.mouseClick(dialog.findChild(QPushButton, "scanStartButton"), Qt.LeftButton)
+
         self.inspect_dialog(inspect)
         self.assertEqual(len(calls), 1)
         plan = calls[0]
         self.assertEqual(plan[:5], (0, "raw", 0, 0, True))
         self.assertEqual(plan[5]["limits.max_depth"], -1)
         self.assertEqual(plan[5]["storage.min_free_bytes"], 12 * 1024**3)
-        self.assertEqual(plan[5]["speed.min_delay_seconds"], .1)
+        self.assertEqual(plan[5]["speed.min_delay_seconds"], 0.1)
         self.assertEqual(plan[5]["speed.concurrency"], 3)
 
     def test_old_core_blocks_full_plan_but_explicit_bounded_plan_is_available(self):
         self.window.crawl_descriptor["capabilities"].pop("full_site_native_sqlite")
         calls = []
         self.window.launch_scan = lambda *values: calls.append(values)
+
         def inspect(dialog):
             start = dialog.findChild(QPushButton, "scanStartButton")
             dialog.findChild(QAbstractButton, "scanLimitEnabled").click()
@@ -104,19 +123,24 @@ class FullScanPlanTests(unittest.TestCase):
             dialog.findChild(QCheckBox, "scanLargeApproval").setChecked(True)
             self.assertTrue(start.isEnabled())
             QTest.mouseClick(start, Qt.LeftButton)
+
         self.inspect_dialog(inspect)
         self.assertEqual(calls[0][0], 2000)
-        self.assertEqual(calls[0][5]["limits.max_depth"], 10)  # the setting's depth is explicit, not the core's hidden default
+        self.assertEqual(
+            calls[0][5]["limits.max_depth"], 10
+        )  # the setting's depth is explicit, not the core's hidden default
 
     def test_quick_html_switch_preserves_the_explicit_capture_setting(self):
         calls = []
         self.window.launch_scan = lambda *values: calls.append(values)
+
         def inspect(dialog):
             toggle = dialog.findChild(QAbstractButton, "scanSaveHtml")
             self.assertTrue(toggle.isChecked())
             toggle.click()
             dialog.findChild(QCheckBox, "scanLargeApproval").click()
             QTest.mouseClick(dialog.findChild(QPushButton, "scanStartButton"), Qt.LeftButton)
+
         self.inspect_dialog(inspect)
         self.assertEqual(calls[0][5]["storage.body_mode"], "off")
         self.assertFalse(self.window._scan_drafts[self.window.note_project_key()]["save_html"])
@@ -130,6 +154,7 @@ class FullScanPlanTests(unittest.TestCase):
                 self.assertFalse(dialog.findChild(QPushButton, "scanStartButton").isEnabled())
                 self.assertTrue(dialog.isVisible())
             type_into(rate, "5")
+
         self.inspect_dialog(inspect)
         self.assertEqual(self.window._scan_drafts[self.window.note_project_key()]["rps"], "5")
         self.assertIsNone(self.window.scan_manager)
@@ -147,7 +172,8 @@ class FullScanPlanTests(unittest.TestCase):
             self.assertTrue(toggle.isChecked())
             self.assertTrue(limit.isEnabled())
             self.assertEqual(limit.text(), "1500")
-            self.assertEqual(toggle.accessibleName(), "Ограничить число URL")
+            self.assertEqual(toggle.accessibleName(), ui("Ограничить число URL"))
+
         self.inspect_dialog(inspect)
         self.assertIsNone(self.window.scan_manager)
 
@@ -156,7 +182,20 @@ class FullScanPlanTests(unittest.TestCase):
         self.assertIsNone(self.window.launch_scan(0, "raw", approve_large_crawl=True))
         self.assertIsNone(self.window.scan_manager)
         with self.assertRaises(ControlError) as rejected:
-            self.window.dispatch_control("new_scan", {"project_uuid": "plan-project", "approved": True, "config": {"max_urls": 0, "rendering_mode": "raw", "max_requests": 0, "max_seconds": 0, "approve_large_crawl": True}})
+            self.window.dispatch_control(
+                "new_scan",
+                {
+                    "project_uuid": "plan-project",
+                    "approved": True,
+                    "config": {
+                        "max_urls": 0,
+                        "rendering_mode": "raw",
+                        "max_requests": 0,
+                        "max_seconds": 0,
+                        "approve_large_crawl": True,
+                    },
+                },
+            )
         self.assertEqual(rejected.exception.code, "capability_unavailable")
         self.assertIsNone(self.window.scan_manager)
 
@@ -168,10 +207,17 @@ class FullScanPlanTests(unittest.TestCase):
             window.show()
             try:
                 window.read_project(str(project))
-                wait_for(self, lambda: window.crawl_descriptor and not window.requests, "core settings did not load")
+                wait_for(
+                    self,
+                    lambda: window.crawl_descriptor and not window.requests,
+                    "core settings did not load",
+                )
                 window.prefs.set("scan.depth", 0)
-                self.assertTrue(window.crawl_descriptor.get("capabilities", {}).get("full_site_native_sqlite"))
+                self.assertTrue(
+                    window.crawl_descriptor.get("capabilities", {}).get("full_site_native_sqlite")
+                )
                 errors = []
+
                 def launch():
                     dialog = self.app.activeModalWidget()
                     try:
@@ -189,20 +235,46 @@ class FullScanPlanTests(unittest.TestCase):
                     except BaseException as exc:
                         errors.append(exc)
                         dialog.reject()
+
                 QTimer.singleShot(120, launch)
                 window.scan_preview()
                 if errors:
                     raise errors[0]
-                wait_for(self, lambda: window.scan_manager and window.scan_manager.snapshot()[0]["state"] in {"finished", "partial", "failed", "rejected", "status_unavailable"}, "the owned full-plan run did not finish", timeout=45)
+                wait_for(
+                    self,
+                    lambda: (
+                        window.scan_manager
+                        and window.scan_manager.snapshot()[0]["state"]
+                        in {"finished", "partial", "failed", "rejected", "status_unavailable"}
+                    ),
+                    "the owned full-plan run did not finish",
+                    timeout=45,
+                )
                 run = window.scan_manager.snapshot()[0]
                 self.assertEqual(run["state"], "finished", window.scan_manager.detail(run["id"]))
                 stored = snapshot(run["artifact"])
                 config = json.loads(stored["scan"]["config_json"])
                 self.assertEqual(stored["pages"], 7)
-                self.assertEqual([config["limits"][key] for key in ("max_urls", "max_depth", "max_requests", "max_crawl_seconds")], [0, -1, 0, 0])
+                self.assertEqual(
+                    [
+                        config["limits"][key]
+                        for key in ("max_urls", "max_depth", "max_requests", "max_crawl_seconds")
+                    ],
+                    [0, -1, 0, 0],
+                )
                 self.assertEqual(config["storage"]["min_free_bytes"], 12 * 1024**3)
-                self.assertEqual(config["speed"]["min_delay_seconds"], .2)
+                self.assertEqual(config["speed"]["min_delay_seconds"], 0.2)
                 self.assertEqual(config["speed"]["concurrency"], 2)
-                preserve(root, "full-plan-native", {"run": run, "stored": stored, "requests": list(server.hits), "claims": "Seven owned loopback pages. No million-page capacity claim."}, window)
+                preserve(
+                    root,
+                    "full-plan-native",
+                    {
+                        "run": run,
+                        "stored": stored,
+                        "requests": list(server.hits),
+                        "claims": "Seven owned loopback pages. No million-page capacity claim.",
+                    },
+                    window,
+                )
             finally:
                 close_window(self, window)

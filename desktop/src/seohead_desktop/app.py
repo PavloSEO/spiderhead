@@ -85,21 +85,38 @@ def load_theme(app, theme=None):
     return tokens
 
 
-class MainWindow(ShellMixin, ChromeMixin, PagesMixin, CommandsMixin, ProjectMixin, ScansUrlsMixin, InboxMixin, WorkspaceMixin, AgentMixin, ViewStateMixin, ScanControlMixin, QMainWindow):
+class MainWindow(
+    ShellMixin,
+    ChromeMixin,
+    PagesMixin,
+    CommandsMixin,
+    ProjectMixin,
+    ScansUrlsMixin,
+    InboxMixin,
+    WorkspaceMixin,
+    AgentMixin,
+    ViewStateMixin,
+    ScanControlMixin,
+    QMainWindow,
+):
     """Desktop presentation adapter. All scanning remains owned by core CLI."""
 
     crawl_descriptor_changed = pyqtSignal()
-    data_changed = pyqtSignal(str)  # "project" | "scans" | "scan_status" | "tasks" | "inbox" | "observer" | "progress"
+    data_changed = pyqtSignal(
+        str
+    )  # "project" | "scans" | "scan_status" | "tasks" | "inbox" | "observer" | "progress"
 
     def __init__(self, *, persistent=True, core_executable=None):
         super().__init__()
         self.setWindowTitle("SEOHEAD")
         self.resize(1440, 900)
-        self.setMinimumSize(theming.metrics()["layout"]["min_width"], theming.metrics()["layout"]["min_height"])
+        self.setMinimumSize(
+            theming.metrics()["layout"]["min_width"], theming.metrics()["layout"]["min_height"]
+        )
         self.persistent = persistent
         self.settings = QSettings("SEOHEAD", "DesktopPreparation") if persistent else None
         self.prefs = AppSettings(self.settings, full_schema())
-        i18n.set_language(self.prefs.get("view.language"))
+        i18n.set_language("en")
         self.display = self.prefs.get("shell.display")
         self.core_executable = core_executable or discover_core(self.prefs)
         self.pool = QThreadPool(self)
@@ -155,14 +172,24 @@ class MainWindow(ShellMixin, ChromeMixin, PagesMixin, CommandsMixin, ProjectMixi
         self.recent_projects = self.settings.value("recent_projects", []) if self.settings else []
         if not isinstance(self.recent_projects, list):
             self.recent_projects = []
-        self.recent_projects = [item for item in self.recent_projects[:20] if isinstance(item, dict) and isinstance(item.get("path"), str) and isinstance(item.get("label"), str)]
+        self.recent_projects = [
+            item
+            for item in self.recent_projects[:20]
+            if isinstance(item, dict)
+            and isinstance(item.get("path"), str)
+            and isinstance(item.get("label"), str)
+        ]
         system_motion = system_reduced_motion()
         self.system_reduced_motion = system_motion
-        self.reduced_motion = system_motion or (self.settings.value("reduced_motion", False, type=bool) if self.settings else False)
+        self.reduced_motion = system_motion or (
+            self.settings.value("reduced_motion", False, type=bool) if self.settings else False
+        )
         self._navigation_animation = QVariantAnimation(self)
         self._navigation_animation.setDuration(theme_tokens()["motion"]["duration_ms"])
         self._navigation_animation.setEasingCurve(QEasingCurve.InOutCubic)
-        self._navigation_animation.valueChanged.connect(lambda value: self.navigation.setFixedWidth(int(value)))
+        self._navigation_animation.valueChanged.connect(
+            lambda value: self.navigation.setFixedWidth(int(value))
+        )
         self.observed_runs = []
         self.observed_at = None
         self._work_progress = {}
@@ -201,6 +228,7 @@ class MainWindow(ShellMixin, ChromeMixin, PagesMixin, CommandsMixin, ProjectMixi
         self.navigation.set_display(self.display == "simple")
         body.addWidget(self.navigation)
         from .ui.components import PanelStack
+
         self.pages = PanelStack()
         body.addWidget(self.pages, 1)
         shell.addLayout(body, 1)
@@ -211,7 +239,9 @@ class MainWindow(ShellMixin, ChromeMixin, PagesMixin, CommandsMixin, ProjectMixi
         self.pages.addWidget(self.project_page())
         self.comparison = ComparisonController(self)
         self.comparison.changed.connect(self.load_comparison)
-        self.project_panels.panel("compare").pair_changed.connect(lambda: self.comparison.clear("Выбрана другая пара; нажмите «Сравнить»"))
+        self.project_panels.panel("compare").pair_changed.connect(
+            lambda: self.comparison.clear("Выбрана другая пара; нажмите «Сравнить»")
+        )
         self.pages.addWidget(self.tasks_page())
         self.pages.addWidget(self.scans_page())
         self.pages.addWidget(self.inbox_page())
@@ -219,7 +249,9 @@ class MainWindow(ShellMixin, ChromeMixin, PagesMixin, CommandsMixin, ProjectMixi
         self.pages.addWidget(self.journal_page())
         self.content_search_panel = ContentSearchPanel()
         self.pages.addWidget(self.content_search_panel)
-        self.content_search_panel.searchRequested.connect(lambda values: self.content_search.start(**values))
+        self.content_search_panel.searchRequested.connect(
+            lambda values: self.content_search.start(**values)
+        )
         self.content_search_panel.pageRequested.connect(self.content_search.page)
         self.content_search_panel.cancelRequested.connect(self.content_search.cancel)
         self.content_search_panel.helpRequested.connect(self.show_help)
@@ -240,32 +272,61 @@ class MainWindow(ShellMixin, ChromeMixin, PagesMixin, CommandsMixin, ProjectMixi
         self.connect_preferences()
         file_menu = self.menuBar().addMenu("Проект")
         file_menu.addAction("Открыть проект…", self.choose_project, QKeySequence.Open)
-        fill_menu(self.menuBar().addMenu("Правка"), [
-            unavailable("undo", "Отменить", "⌘Z"),
-            None,
-            entry("content_copy", "Копировать URL", lambda: self.screens["url"].copy_row(), "⌘C"),
-            entry("table_rows", "Копировать как TSV", lambda: self.screens["url"].copy_tsv(), "⌘⇧C"),
-            entry("select_all", "Выделить видимые строки", lambda: self.screens["url"].table.selectAll(), "⌘A"),
-            None,
-            entry("search", "Найти в таблице", self.focus_search, "⌘F"),
-        ])
+        fill_menu(
+            self.menuBar().addMenu("Правка"),
+            [
+                unavailable("undo", "Отменить", "⌘Z"),
+                None,
+                entry(
+                    "content_copy", "Копировать URL", lambda: self.screens["url"].copy_row(), "⌘C"
+                ),
+                entry(
+                    "table_rows",
+                    "Копировать как TSV",
+                    lambda: self.screens["url"].copy_tsv(),
+                    "⌘⇧C",
+                ),
+                entry(
+                    "select_all",
+                    "Выделить видимые строки",
+                    lambda: self.screens["url"].table.selectAll(),
+                    "⌘A",
+                ),
+                None,
+                entry("search", "Найти в таблице", self.focus_search, "⌘F"),
+            ],
+        )
         file_menu.addAction("Импорт фраз в ядро…", lambda: self.show_screen("semimport"))
         file_menu.addAction("Конкуренты…", lambda: self.show_screen("competitors"))
         view_menu = self.menuBar().addMenu("Вид")
         self.panel_actions = {}
-        for name, widget in [("Навигация", self.navigation), ("Сводка", self.overview), ("Инспектор URL", self.inspector)]:
+        for name, widget in [
+            ("Навигация", self.navigation),
+            ("Сводка", self.overview),
+            ("Инспектор URL", self.inspector),
+        ]:
             action = view_menu.addAction(name)
             action.setCheckable(True)
             action.setChecked(True)
-            action.toggled.connect(lambda shown, name=name, widget=widget: self.panel_action_changed(name, widget, shown))
+            action.toggled.connect(
+                lambda shown, name=name, widget=widget: self.panel_action_changed(
+                    name, widget, shown
+                )
+            )
             self.panel_actions[name] = action
         self.panel_actions["Инспектор URL"].toggled.connect(self.inspector_toggle.setChecked)
         view_menu.addSeparator()
-        self.expand_action = view_menu.addAction("Развернуть таблицу / вернуть панели", self.toggle_focus_mode)
+        self.expand_action = view_menu.addAction(
+            "Развернуть таблицу / вернуть панели", self.toggle_focus_mode
+        )
         view_menu.addAction("Восстановить панели", self.restore_panels)
         density_menu = view_menu.addMenu("Плотность таблиц")
         density_group = QActionGroup(self)
-        for label, density in [("Компактная · 28 px", "compact"), ("Обычная · 32 px", "standard"), ("Свободная · 40 px", "comfortable")]:
+        for label, density in [
+            ("Компактная · 28 px", "compact"),
+            ("Обычная · 32 px", "standard"),
+            ("Свободная · 40 px", "comfortable"),
+        ]:
             action = density_menu.addAction(label)
             action.setCheckable(True)
             action.setChecked(density == "standard")
@@ -273,7 +334,9 @@ class MainWindow(ShellMixin, ChromeMixin, PagesMixin, CommandsMixin, ProjectMixi
             action.triggered.connect(lambda checked, density=density: self.set_density(density))
         layout_menu = view_menu.addMenu("Раскладка")
         for identifier, title in LAYOUTS.items():
-            layout_menu.addAction(title, lambda checked=False, identifier=identifier: self.apply_layout(identifier))
+            layout_menu.addAction(
+                title, lambda checked=False, identifier=identifier: self.apply_layout(identifier)
+            )
         layout_menu.addSeparator()
         layout_menu.addAction("Сохранить расположение", self.save_workspace_layout)
         layout_menu.addAction("Восстановить сохранённое", self.restore_workspace_layout)
@@ -284,31 +347,52 @@ class MainWindow(ShellMixin, ChromeMixin, PagesMixin, CommandsMixin, ProjectMixi
         motion_action.setCheckable(True)
         motion_action.setChecked(self.reduced_motion)
         motion_action.setEnabled(not self.system_reduced_motion)
-        motion_action.setToolTip("Системное уменьшение движения имеет приоритет" if self.system_reduced_motion else "Отключить плавное сворачивание навигации")
+        motion_action.setToolTip(
+            "Системное уменьшение движения имеет приоритет"
+            if self.system_reduced_motion
+            else "Отключить плавное сворачивание навигации"
+        )
         motion_action.toggled.connect(self.set_reduced_motion)
-        fill_menu(self.menuBar().addMenu("Скан"), [
-            entry("play_arrow", "Новый скан…", self.scan_preview, "⌘N"),
-            unavailable("format_list_bulleted", "Скан по списку URL…"),
-            None,
-            entry("stop_circle", "Запросить остановку", self.stop_selected_run, "⌘."),
-            entry("resume", "Продолжить запуск", self.resume_selected_scan),
-            None,
-            entry("compare_arrows", "Сравнить запуски…", lambda: self.navigation.select_section("compare")),
-            unavailable("download", "Экспорт…", "⌘E"),
-        ])
-        fill_menu(self.menuBar().addMenu("Агент"), [
-            entry("smart_toy", "Подключение агента…", self.show_agent_connection),
-            entry("inbox", "Входящие", lambda: self.navigation.select_section("inbox"), "⌘2"),
-            unavailable("edit_note", "Новая заметка агенту", "⌘⇧N"),
-            None,
-            entry("terminal", "Журнал действий", lambda: self.navigation.select_section("log")),
-        ])
-        fill_menu(self.menuBar().addMenu("Окно"), [
-            entry("minimize", "Свернуть", self.showMinimized, "⌘M"),
-            entry("open_in_full", "Масштаб", lambda: self.showNormal() if self.isMaximized() else self.showMaximized()),
-            None,
-            entry("sensors", "Наблюдение в отдельном окне", self.open_monitor_window),
-        ])
+        fill_menu(
+            self.menuBar().addMenu("Скан"),
+            [
+                entry("play_arrow", "Новый скан…", self.scan_preview, "⌘N"),
+                unavailable("format_list_bulleted", "Скан по списку URL…"),
+                None,
+                entry("stop_circle", "Запросить остановку", self.stop_selected_run, "⌘."),
+                entry("resume", "Продолжить запуск", self.resume_selected_scan),
+                None,
+                entry(
+                    "compare_arrows",
+                    "Сравнить запуски…",
+                    lambda: self.navigation.select_section("compare"),
+                ),
+                unavailable("download", "Экспорт…", "⌘E"),
+            ],
+        )
+        fill_menu(
+            self.menuBar().addMenu("Агент"),
+            [
+                entry("smart_toy", "Подключение агента…", self.show_agent_connection),
+                entry("inbox", "Входящие", lambda: self.navigation.select_section("inbox"), "⌘2"),
+                unavailable("edit_note", "Новая заметка агенту", "⌘⇧N"),
+                None,
+                entry("terminal", "Журнал действий", lambda: self.navigation.select_section("log")),
+            ],
+        )
+        fill_menu(
+            self.menuBar().addMenu("Окно"),
+            [
+                entry("minimize", "Свернуть", self.showMinimized, "⌘M"),
+                entry(
+                    "open_in_full",
+                    "Масштаб",
+                    lambda: self.showNormal() if self.isMaximized() else self.showMaximized(),
+                ),
+                None,
+                entry("sensors", "Наблюдение в отдельном окне", self.open_monitor_window),
+            ],
+        )
         help_menu = self.menuBar().addMenu("Справка")
         self.help_action = help_menu.addAction("Как работать с SEOHEAD…", self.show_help)
         help_menu.addAction("Горячие клавиши…", self.open_shortcuts)
@@ -322,7 +406,11 @@ class MainWindow(ShellMixin, ChromeMixin, PagesMixin, CommandsMixin, ProjectMixi
         self.copy_shortcut.activated.connect(self.copy_url_selection)
         self.apply_shortcuts()
         if self.settings:
-            for key, widget in [("geometry", self), ("horizontal", self.horizontal), ("vertical", self.vertical)]:
+            for key, widget in [
+                ("geometry", self),
+                ("horizontal", self.horizontal),
+                ("vertical", self.vertical),
+            ]:
                 value = self.settings.value(key)
                 if value:
                     (widget.restoreGeometry if widget is self else widget.restoreState)(value)
@@ -344,9 +432,17 @@ class MainWindow(ShellMixin, ChromeMixin, PagesMixin, CommandsMixin, ProjectMixi
 
 # Loaders keep updating the legacy models; screens subscribe to the change notification.
 for _name, _kind in {
-    "project_loaded": "project", "clear_workspace_presentation": "project", "load_scans": "scans",
-    "load_scan_status": "scan_status", "load_tasks": "tasks", "load_inbox": "inbox", "load_unread": "inbox",
-    "load_observer": "observer", "load_activity": "observer", "present_observed_runs": "observer", "load_progress": "progress",
+    "project_loaded": "project",
+    "clear_workspace_presentation": "project",
+    "load_scans": "scans",
+    "load_scan_status": "scan_status",
+    "load_tasks": "tasks",
+    "load_inbox": "inbox",
+    "load_unread": "inbox",
+    "load_observer": "observer",
+    "load_activity": "observer",
+    "present_observed_runs": "observer",
+    "load_progress": "progress",
 }.items():
     setattr(MainWindow, _name, emits(_kind)(getattr(MainWindow, _name)))
 
@@ -354,12 +450,28 @@ for _name, _kind in {
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--core-cli", help="Existing seohead CLI executable; local project adapter")
-    parser.add_argument("--project", type=Path, help="Explicit existing SEOHEAD project to open; never starts a scan")
-    parser.add_argument("--capture", type=Path, help="Save the native widget rendering to a PNG and exit")
-    parser.add_argument("--export-svg", type=Path, help="Export actual Qt painting as SVG for Figma import")
+    parser.add_argument(
+        "--project",
+        type=Path,
+        help="Explicit existing SEOHEAD project to open; never starts a scan",
+    )
+    parser.add_argument(
+        "--capture", type=Path, help="Save the native widget rendering to a PNG and exit"
+    )
+    parser.add_argument(
+        "--export-svg", type=Path, help="Export actual Qt painting as SVG for Figma import"
+    )
     parser.add_argument("--no-settings", action="store_true")
-    parser.add_argument("--tray", action="store_true", help="Run in the system tray: the core runs due scheduled scans, the window starts hidden")
-    parser.add_argument("--agent-control", type=Path, help="Existing owned runtime directory for explicit local agent control")
+    parser.add_argument(
+        "--tray",
+        action="store_true",
+        help="Run in the system tray: the core runs due scheduled scans, the window starts hidden",
+    )
+    parser.add_argument(
+        "--agent-control",
+        type=Path,
+        help="Existing owned runtime directory for explicit local agent control",
+    )
     args = parser.parse_args()
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
@@ -369,10 +481,16 @@ def main():
     window = MainWindow(persistent=not args.no_settings, core_executable=args.core_cli)
     tray_on = False
     if args.tray:
-        app.setQuitOnLastWindowClosed(False)  # the tray keeps the application alive after the window is hidden
+        app.setQuitOnLastWindowClosed(
+            False
+        )  # the tray keeps the application alive after the window is hidden
         tray_on = install_tray(window) is not None
         if not tray_on:
-            print("seohead: no system tray here; the window opens normally", file=sys.stderr, flush=True)
+            print(
+                "seohead: no system tray here; the window opens normally",
+                file=sys.stderr,
+                flush=True,
+            )
     if args.agent_control:
         try:
             descriptor = window.start_agent_control(str(args.agent_control.resolve()))
@@ -391,6 +509,7 @@ def main():
         QTimer.singleShot(0, lambda: window.read_project(str(args.project.resolve())))
     if args.capture or args.export_svg:
         capture_waits = 0
+
         def capture():
             nonlocal capture_waits
             if args.project and (
@@ -423,6 +542,7 @@ def main():
                 painter.end()
             window.close()
             app.quit()
+
         QTimer.singleShot(500, capture)
     code = app.exec_()
     if window.settings:

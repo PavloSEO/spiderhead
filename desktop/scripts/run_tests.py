@@ -16,9 +16,19 @@ sys.path[:0] = [str(ROOT), str(ROOT / "src")]
 from seohead_desktop import qt  # noqa: E402
 
 
+class IsolatedResult(unittest.TextTestResult):
+    def startTest(self, test):
+        from seohead_desktop import i18n
+
+        # Legacy translation fixtures must not inherit a preceding window's language.
+        # MainWindow independently chooses English; explicit fixture languages still win.
+        i18n.set_language("ru")
+        super().startTest(test)
+
+
 def main(argv):
     suite = unittest.defaultTestLoader.discover(str(ROOT / "tests"), **_options(argv))
-    result = unittest.TextTestRunner(verbosity=1).run(suite)
+    result = unittest.TextTestRunner(verbosity=1, resultclass=IsolatedResult).run(suite)
     return 0 if result.wasSuccessful() else 1
 
 

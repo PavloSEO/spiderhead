@@ -20,11 +20,5 @@ QFrame[schedule_icon="warning"] { background: $badge_warn_bg; border: 0; border-
 QFrame[schedule_icon="ok"] { background: $badge_ok_bg; border: 0; border-radius: 10px; }
 QFrame[schedule_enabled="true"] { background: $base; border: 1px solid $outline; border-radius: 22px; }
 QLabel#scheduleNextDate { color: $primary; }
-QFrame#scheduleFrequency { border: 1px solid $outline_hover; border-radius: 18px; background: $base; }
-QFrame#scheduleFrequency QToolButton { height: 34px; padding: 0 14px; border: 0; border-right: 1px solid $outline_hover; border-radius: 0; background: $base; color: $text; font-weight: 500; }
-QFrame#scheduleFrequency QToolButton:checked { background: $note_info_bg; color: $text; }
-QFrame#scheduleFrequency QToolButton[schedule_segment="first"] { border-top-left-radius: 17px; border-bottom-left-radius: 17px; }
-QFrame#scheduleFrequency QToolButton[schedule_segment="last"] { border-right: 0; border-top-right-radius: 17px; border-bottom-right-radius: 17px; }
-QComboBox#scheduleZone { min-height: 44px; border-color: $outline_hover; }
 QListWidget#projectSettingsTabs::item { padding: 6px 12px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: $base; }
 QListWidget#projectSettingsTabs::item:selected { background: $base; color: $primary; border-bottom: 2px solid $primary; }

@@ -2,6 +2,8 @@ import os
 import unittest
 from unittest.mock import patch
 
+from tests._qt import ui
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import QCoreApplication, QEvent
@@ -41,7 +43,11 @@ class SimpleScreenTests(unittest.TestCase):
             load_theme(self.app, "light")
 
     def panel(self):
-        return self.screen.empty_holder.itemAt(0).widget() if self.screen.empty_holder.count() else None
+        return (
+            self.screen.empty_holder.itemAt(0).widget()
+            if self.screen.empty_holder.count()
+            else None
+        )
 
     def test_work_in_the_simple_display_opens_this_screen(self):
         self.assertIsInstance(self.window.pages.widget(4), SimpleScreen)
@@ -68,9 +74,9 @@ class SimpleScreenTests(unittest.TestCase):
         scan_kpi, issues_kpi, fixed_kpi, tasks_kpi = self.screen.kpis
         self.assertIn("20 URL", scan_kpi.sub.text())
         self.assertEqual(issues_kpi.number.text(), "116")
-        self.assertIn("70 предупреждений", issues_kpi.sub.text())
-        self.assertEqual(fixed_kpi.number.text(), "Нет данных")
-        self.assertIn("в этой версии ядра", fixed_kpi.sub.text())
+        self.assertIn("70 warnings", issues_kpi.sub.text())
+        self.assertEqual(fixed_kpi.number.text(), ui("Нет данных"))
+        self.assertIn("in this core version", fixed_kpi.sub.text())
         self.assertEqual(tasks_kpi.number.text(), "0 / 276")
         self.assertFalse(self.screen.bar.isHidden())
 
@@ -78,19 +84,21 @@ class SimpleScreenTests(unittest.TestCase):
         open_qa(self.window, scans=False)
         self.window.scan_model.replace([])
         self.window.data_changed.emit("scans")
-        self.assertEqual(self.screen.kpis[0].number.text(), "Нет данных")
-        self.assertEqual(self.screen.kpis[1].number.text(), "Нет данных")
+        self.assertEqual(self.screen.kpis[0].number.text(), ui("Нет данных"))
+        self.assertEqual(self.screen.kpis[1].number.text(), ui("Нет данных"))
         self.assertEqual(self.screen.scan_state.itemAt(0).widget().kind, "empty")
 
     def test_task_and_scan_tables_use_core_rows(self):
         open_qa(self.window)
         self.assertEqual(len(self.screen.tasks.rows), 3)
-        self.assertEqual(self.screen.tasks.index(0, 1).data(BADGE_ROLE), ("info", "Новая"))
-        self.assertEqual(self.screen.tabs.tabText(0), "Задачи · 276")
-        self.assertEqual(self.screen.tabs.tabText(1), "Сканы · 1")
+        self.assertEqual(self.screen.tasks.index(0, 1).data(BADGE_ROLE), ("info", ui("Новая")))
+        self.assertEqual(self.screen.tabs.tabText(0), "Tasks · 276")
+        self.assertEqual(self.screen.tabs.tabText(1), "Scans · 1")
         self.assertEqual(self.screen.scans.index(0, 3).data(), "20")
-        self.assertEqual(self.screen.scans.index(0, 1).data(BADGE_ROLE)[0], "warn")  # finished, corpus partial
-        self.assertIn("в этой версии ядра", self.screen.limits.text())
+        self.assertEqual(
+            self.screen.scans.index(0, 1).data(BADGE_ROLE)[0], "warn"
+        )  # finished, corpus partial
+        self.assertIn("in this core version", self.screen.limits.text())
 
     def test_picking_a_scan_row_selects_it_in_the_window(self):
         open_qa(self.window)
@@ -103,14 +111,14 @@ class SimpleScreenTests(unittest.TestCase):
         open_qa(self.window)
         recheck, report, table, crawl = self.screen.tiles
         self.assertFalse(recheck.isEnabled())
-        self.assertIn("в этой версии ядра", "\n".join(texts(recheck)))
+        self.assertIn("in this core version", "\n".join(texts(recheck)))
         report.clicked.emit()
         self.assertEqual(self.window.navigation.current_section(), "reports")
         table.clicked.emit()
         self.assertEqual(self.window.navigation.current_section(), "url")
         self.assertEqual(crawl.isEnabled(), self.window.can_open_crawler())
         self.assertFalse(self.screen.from_issue.isEnabled())
-        self.assertIn("в этой версии ядра", self.screen.from_issue.toolTip())
+        self.assertIn("in this core version", self.screen.from_issue.toolTip())
         with patch.object(self.window, "scan_preview") as preview:
             self.screen.new_scan.click()
         preview.assert_called_once()

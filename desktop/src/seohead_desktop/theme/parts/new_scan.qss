@@ -47,3 +47,6 @@ QToolButton[quick_chip="true"] { height: 28px; padding: 0 8px; border: 1px solid
 QToolButton[quick_chip="true"]:hover { background: $raised; }
 QProgressBar#quickScanRunBar { background: $divider; border: 0; border-radius: 2px; }
 QProgressBar#quickScanRunBar::chunk { background: $data_progress; border-radius: 2px; }
+
+QToolButton[card="choice"][compact="true"] { height: 38px; min-height: 38px; max-height: 38px; }
+QToolButton[card="choice"][compact="true"]:checked { height: 36px; min-height: 36px; max-height: 36px; }

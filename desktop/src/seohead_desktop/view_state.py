@@ -21,19 +21,24 @@ from .common import (  # noqa: F401
     plain,
     scan_request_key,
 )
-from .ui.tab_settings import TabSettingsDialog
+from .i18n import tr
 from .ui.presentation import (
     content_spacing,
     short_run_id,
     theme_tokens,
 )
+from .ui.tab_settings import TabSettingsDialog
 
 
 class ViewStateMixin:
     def open_tab_settings(self):
         """«Вкладки и панели»: the open project's audit decks, or none (catalogue only) before a project is open."""
         audit = getattr(self, "audit_workspace", None)
-        decks = {} if audit is None else {"main": audit.main, "detail": audit.detail, "right": audit.right}
+        decks = (
+            {}
+            if audit is None
+            else {"main": audit.main, "detail": audit.detail, "right": audit.right}
+        )
         self.tab_settings = TabSettingsDialog(decks, self._density, self.set_density, self)
         self.tab_settings.open()
         return self.tab_settings
@@ -78,7 +83,11 @@ class ViewStateMixin:
         if action is not None:
             self._syncing_panel = True
             action.setChecked(visible)
-            {"Навигация": self.navigation, "Сводка": self.overview, "Инспектор URL": self.inspector}[name].setVisible(visible)
+            {
+                "Навигация": self.navigation,
+                "Сводка": self.overview,
+                "Инспектор URL": self.inspector,
+            }[name].setVisible(visible)
             self._syncing_panel = False
 
     def sync_workspace_width(self):
@@ -95,33 +104,62 @@ class ViewStateMixin:
         narrow = width < 1000  # compact top bar: scan switcher «№3 · r-e134», icon-only search
         if narrow != self._narrow_chrome:
             self._narrow_chrome = narrow
-            self.action_finder_button.setText("" if narrow else "Действия и переходы")
+            self.action_finder_button.setText("" if narrow else tr("Действия и переходы"))
             self.finder_hint.setVisible(not narrow)
             self.action_finder_button.setFixedWidth(40 if narrow else 220)
             for picker in (self.project_button, self.scan_button):
                 picker.set_compact(narrow)
-                picker.setMinimumWidth(120 if narrow else 250 if picker is self.scan_button else 180)
+                picker.setMinimumWidth(
+                    120 if narrow else 250 if picker is self.scan_button else 180
+                )
             self.sync_picker(self.scan_picker, self.scan_button)
             self.source_badge.setVisible(not narrow)
             self.update_status_tail()
-            self.cancel_button.setText("" if narrow else "Остановить " + short_run_id(self.selected_managed_run_id) if self.selected_managed_run_id else "Отменить чтение")
-        compact = self.centralWidget().width() < theme_tokens()["layout"]["compact_breakpoint"] and self.prefs.get("view.rail_when_narrow")
-        rail = self.centralWidget().width() < 900 and bool(self.prefs.get("view.rail_when_narrow"))  # below 900 px: icon rail
+            self.cancel_button.setText(
+                ""
+                if narrow
+                else "Остановить " + short_run_id(self.selected_managed_run_id)
+                if self.selected_managed_run_id
+                else "Отменить чтение"
+            )
+        compact = self.centralWidget().width() < theme_tokens()["layout"][
+            "compact_breakpoint"
+        ] and self.prefs.get("view.rail_when_narrow")
+        rail = self.centralWidget().width() < 900 and bool(
+            self.prefs.get("view.rail_when_narrow")
+        )  # below 900 px: icon rail
         if rail != getattr(self, "_rail", None):
             self._rail = rail
-            self.set_navigation_compact(rail if self._navigation_compact_intent is None else self._navigation_compact_intent)
+            self.set_navigation_compact(
+                rail if self._navigation_compact_intent is None else self._navigation_compact_intent
+            )
         if compact != self._compact:
             self._compact = compact
             wanted = self._panel_intent["Сводка"]
-            self.set_panel_visible("Сводка", (not compact if wanted is None else wanted) and not self._focus_mode, remember=False)
+            self.set_panel_visible(
+                "Сводка",
+                (not compact if wanted is None else wanted) and not self._focus_mode,
+                remember=False,
+            )
             self.audit_workspace.right.setVisible(not compact and not self._focus_mode)
+        if hasattr(self, "extra_screens"):
+            from .screens import sync_chrome
+
+            sync_chrome(self)
 
     def eventFilter(self, watched, event):
         if event.type() == QEvent.EnabledChange:
-            for combo, button in ((self.project_picker, self.project_button), (self.scan_picker, self.scan_button)):
+            for combo, button in (
+                (self.project_picker, self.project_button),
+                (self.scan_picker, self.scan_button),
+            ):
                 if watched is combo:
                     self.sync_picker(combo, button)
-        if hasattr(self, "table") and watched is self.table.viewport() and event.type() == QEvent.Resize:
+        if (
+            hasattr(self, "table")
+            and watched is self.table.viewport()
+            and event.type() == QEvent.Resize
+        ):
             self.fit_url_columns()
         if watched is self.centralWidget() and event.type() == QEvent.Resize:
             self.sync_workspace_width()
@@ -144,10 +182,15 @@ class ViewStateMixin:
     def toggle_focus_mode(self):
         self._focus_mode = not self._focus_mode
         if self._focus_mode:
-            self._panel_visibility = {name: action.isChecked() for name, action in self.panel_actions.items()}
+            self._panel_visibility = {
+                name: action.isChecked() for name, action in self.panel_actions.items()
+            }
             for name in ("Сводка", "Инспектор URL"):
                 self.set_panel_visible(name, False, remember=False)
-            self._audit_visibility = (not self.audit_workspace.detail.isHidden(), not self.audit_workspace.right.isHidden())
+            self._audit_visibility = (
+                not self.audit_workspace.detail.isHidden(),
+                not self.audit_workspace.right.isHidden(),
+            )
             self.audit_workspace.detail.hide()
             self.audit_workspace.right.hide()
         else:
@@ -155,7 +198,9 @@ class ViewStateMixin:
                 self.set_panel_visible(name, visible, remember=False)
             self._compact = None
             self.sync_workspace_width()
-            for widget, visible in zip((self.audit_workspace.detail, self.audit_workspace.right), self._audit_visibility):
+            for widget, visible in zip(
+                (self.audit_workspace.detail, self.audit_workspace.right), self._audit_visibility
+            ):
                 widget.setVisible(visible)
 
     def set_density(self, density):
@@ -167,7 +212,21 @@ class ViewStateMixin:
 
     def focus_search(self):
         current = self.pages.currentWidget()
-        search = next((field for field in current.findChildren(QLineEdit) if field.isVisible() and field.isEnabled() and ("Поиск" in field.accessibleName() or "Поиск" in field.placeholderText())), None)
+        search_labels = (tr("Поиск").casefold(), tr("Найти").casefold())
+        search = next(
+            (
+                field
+                for field in current.findChildren(QLineEdit)
+                if field.isVisible()
+                and field.isEnabled()
+                and any(
+                    label in field.accessibleName().casefold()
+                    or label in field.placeholderText().casefold()
+                    for label in search_labels
+                )
+            ),
+            None,
+        )
         if search:
             search.setFocus()
             search.selectAll()
@@ -177,10 +236,30 @@ class ViewStateMixin:
         if self.pages.currentIndex() == 1:
             areas = [self.navigation, self.table, self.inspector, self.overview]
         current = QApplication.focusWidget()
-        index = next((index for index, area in enumerate(areas) if current is area or area.isAncestorOf(current)), -1) if current else -1
+        index = (
+            next(
+                (
+                    index
+                    for index, area in enumerate(areas)
+                    if current is area or area.isAncestorOf(current)
+                ),
+                -1,
+            )
+            if current
+            else -1
+        )
         for step in range(1, len(areas) + 1):
             area = areas[(index + step) % len(areas)]
-            target = next((widget for widget in [area, *area.findChildren(QWidget)] if widget.isVisible() and widget.isEnabled() and widget.focusPolicy() & Qt.TabFocus), None)
+            target = next(
+                (
+                    widget
+                    for widget in [area, *area.findChildren(QWidget)]
+                    if widget.isVisible()
+                    and widget.isEnabled()
+                    and widget.focusPolicy() & Qt.TabFocus
+                ),
+                None,
+            )
             if target:
                 target.setFocus(Qt.ShortcutFocusReason)
                 return
