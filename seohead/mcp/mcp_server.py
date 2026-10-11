@@ -1230,13 +1230,14 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         return _checked(handlers.facts_export(sites=sites))
 
     @mcp.tool(annotations=create_files, structured_output=True)
-    def seo_compare_crawls(
+    async def seo_compare_crawls(
         before: Any,
         after: Any,
         force: bool = False,
         correspondence: Any = None,
         out_dir: str | None = None,
         compression: Literal["none", "gzip"] = "none",
+        resume: bool = False,
     ) -> dict[str, Any]:
         """Diff two audit documents (dict, JSON path, or scan.v1 SQLite path) into four disjoint
         sets per finding: entered (new problem on a page that existed before),
@@ -1258,16 +1259,152 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         a package and never collects evidence or calls the network. Explicit
         compression='gzip' requires out_dir and preserves every row in deterministic
         .ndjson.gz files; manifests record compressed checksums and both byte counts.
-        Default compression='none' keeps uncompressed output.
+        Default compression='none' keeps uncompressed output. Exact-input results are
+        reusable from the same out_dir. A matching interrupted job requires resume=True;
+        its source identities and options are verified before any checkpoint is read.
+        """
+        import asyncio
+        import queue
+        import threading
+
+        from seohead.mcp.mcp_progress import ProgressReporter
+
+        try:
+            context = mcp.get_context()
+        except Exception:
+            context = None
+        reporter = ProgressReporter(context, "compare-crawls")
+        updates = queue.SimpleQueue()
+
+        def collect(update: Any) -> None:
+            if reporter.enabled:
+                updates.put(update)
+
+        cancel_event = threading.Event()
+        async with reporter:
+            task = asyncio.create_task(
+                asyncio.to_thread(
+                    handlers.compare_crawls,
+                    before=before,
+                    after=after,
+                    force=force,
+                    correspondence=correspondence,
+                    out_dir=out_dir,
+                    compression=compression,
+                    resume=resume,
+                    progress=collect,
+                    cancel_event=cancel_event,
+                )
+            )
+            try:
+                while not task.done():
+                    await asyncio.sleep(0.5)
+                    while not updates.empty():
+                        update = updates.get()
+                        detail = (
+                            f"{update.stage}: {update.completed} / {update.total}"
+                            if update.total is not None
+                            else f"{update.stage}: {update.completed} completed; total unknown"
+                        )
+                        try:
+                            await reporter.elapsed(detail)
+                        except Exception:
+                            pass
+                while not updates.empty():
+                    update = updates.get()
+                    detail = (
+                        f"{update.stage}: {update.completed} / {update.total}"
+                        if update.total is not None
+                        else f"{update.stage}: {update.completed} completed; total unknown"
+                    )
+                    try:
+                        await reporter.elapsed(detail)
+                    except Exception:
+                        pass
+                return _checked(await task)
+            except asyncio.CancelledError:
+                cancel_event.set()
+                # The worker checks this token at every indexing/classification/export batch
+                # and immediately before entering the publish step.
+                try:
+                    await asyncio.shield(task)
+                except Exception:
+                    pass
+                raise
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_read(
+        manifest_path: str,
+        file: str,
+        offset: int = 0,
+        limit: int = 200,
+        sort: Literal["url", "check", "severity"] = "url",
+        direction: Literal["asc", "desc"] = "asc",
+        contains: str | None = None,
+        segment: str | None = None,
+        change: Literal["entered", "left", "appeared", "disappeared", "unchanged"] | None = None,
+        max_bytes: int = 1_048_576,
+    ) -> dict[str, Any]:
+        """Read a bounded, sorted page from one integrity-checked compare.v2 file."""
+        return _checked(
+            handlers.compare_read(
+                manifest_path=manifest_path,
+                file=file,
+                offset=offset,
+                limit=limit,
+                sort=sort,
+                direction=direction,
+                contains=contains,
+                segment=segment,
+                change=change,
+                max_bytes=max_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_status(out_dir: str) -> dict[str, Any]:
+        """Read the checkpoint or completed cache state for one compare.v2 output path."""
+        return _checked(handlers.compare_status(out_dir=out_dir))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_compare_report(
+        manifest_path: str,
+        out_file: str,
+        max_bytes: int = 65_536,
+    ) -> dict[str, Any]:
+        """Write a new, bounded Markdown summary from a compare.v2 manifest."""
+        return _checked(
+            handlers.compare_report(
+                manifest_path=manifest_path,
+                out_file=out_file,
+                max_bytes=max_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_url(
+        before: Any,
+        after: Any,
+        url: str,
+        max_bytes: int = 65_536,
+        max_lines: int = 200,
+        left_representation: Literal["static", "rendered", "legacy_fragment"] = "static",
+        right_representation: Literal["static", "rendered", "legacy_fragment"] = "static",
+    ) -> dict[str, Any]:
+        """Show exact-URL before/after facts, finding deltas and a bounded body diff.
+
+        A URL absent from either scan is not classified as a fixed finding. Text is read only
+        from compatible retained native bodies; this call never fetches the URL.
         """
         return _checked(
-            handlers.compare_crawls(
+            handlers.compare_url(
                 before=before,
                 after=after,
-                force=force,
-                correspondence=correspondence,
-                out_dir=out_dir,
-                compression=compression,
+                url=url,
+                max_bytes=max_bytes,
+                max_lines=max_lines,
+                left_representation=left_representation,
+                right_representation=right_representation,
             )
         )
 

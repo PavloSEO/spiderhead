@@ -41,6 +41,10 @@ COMMANDS = (
     "crawl-diagnose",
     "crawl-diagnose-export",
     "compare-crawls",
+    "compare-read",
+    "compare-report",
+    "compare-status",
+    "compare-url",
     "verify-fixes",
     "crawl-enrich",
     "crawl-import",
@@ -1136,6 +1140,40 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             kw["correspondence"] = args.correspondence
         if getattr(args, "force", False):
             kw["force"] = True
+        if getattr(args, "resume", False):
+            kw["resume"] = True
+    elif cmd == "compare-read":
+        for name in (
+            "manifest_path",
+            "file",
+            "offset",
+            "limit",
+            "sort",
+            "direction",
+            "contains",
+            "segment",
+            "change",
+            "max_bytes",
+        ):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "compare-report":
+        for name in ("manifest_path", "out_file", "max_bytes"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "compare-status":
+        if getattr(args, "out_dir", None) is not None:
+            kw["out_dir"] = args.out_dir
+    elif cmd == "compare-url":
+        for name in (
+            "before", "after", "url", "max_bytes", "max_lines",
+            "left_representation", "right_representation",
+        ):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "verify-fixes":
         for name in ("baseline", "view", "urls_file", "after", "config", "out_dir"):
             value = getattr(args, name, None)
@@ -2450,6 +2488,62 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             sub, "--before", help="path to the earlier audit.json or scan.v1 SQLite artifact"
         )
         _source_flag(sub, "--after", help="path to the later audit.json or scan.v1 SQLite artifact")
+        sub.add_argument(
+            "--resume",
+            action="store_true",
+            help="resume the matching local comparison checkpoint for --out-dir",
+        )
+    if cmd == "compare-read":
+        _source_flag(
+            sub, "--manifest", dest="manifest_path", help="compare.v2 compare.json manifest"
+        )
+        sub.add_argument(
+            "--file",
+            choices=(
+                "entered",
+                "left",
+                "appeared",
+                "disappeared",
+                "unchanged",
+                "by_check",
+                "facts",
+                "correspondence",
+                "segment_changes",
+            ),
+        )
+        sub.add_argument("--offset", type=int)
+        sub.add_argument("--limit", type=int)
+        sub.add_argument("--sort", choices=("url", "check", "severity"))
+        sub.add_argument("--direction", choices=("asc", "desc"))
+        sub.add_argument("--contains")
+        sub.add_argument("--segment")
+        sub.add_argument(
+            "--change",
+            choices=("entered", "left", "appeared", "disappeared", "unchanged"),
+        )
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+    if cmd == "compare-report":
+        _source_flag(
+            sub, "--manifest", dest="manifest_path", help="compare.v2 compare.json manifest"
+        )
+        _source_flag(sub, "--out-file", help="new Markdown report path; refuses overwrite")
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+    if cmd == "compare-status":
+        _source_flag(sub, "--out-dir", help="compare.v2 destination or checkpoint base path")
+    if cmd == "compare-url":
+        _source_flag(sub, "--before", help="earlier audit.json or native scan SQLite")
+        _source_flag(sub, "--after", help="later audit.json or native scan SQLite")
+        _source_flag(sub, "--url", help="exact URL to compare")
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+        sub.add_argument("--max-lines", dest="max_lines", type=int)
+        sub.add_argument(
+            "--left-representation",
+            choices=("static", "rendered", "legacy_fragment"),
+        )
+        sub.add_argument(
+            "--right-representation",
+            choices=("static", "rendered", "legacy_fragment"),
+        )
     if cmd == "verify-fixes":
         _source_flag(sub, "--baseline", help="saved baseline audit.json or SQLite scan")
         sub.add_argument("--finding-ids", help="comma-separated baseline finding IDs")
@@ -3659,6 +3753,23 @@ def main(argv: list[str] | None = None) -> int:
                 _print_effective_rate(kwargs)
             progress = _crawl_progress(kwargs)
             kwargs["progress"] = progress
+        elif cmd == "compare-crawls" and not quiet and kwargs.get("out_dir"):
+            from time import monotonic
+
+            last_emit = {"stage": None, "at": 0.0}
+
+            def comparison_progress(update: Any) -> None:
+                now = monotonic()
+                if update.stage != last_emit["stage"] or now - last_emit["at"] >= 1.0:
+                    total = update.total if update.total is not None else "unknown"
+                    completed = update.completed if update.completed is not None else "unknown"
+                    print(
+                        f"compare-crawls: {update.stage} {completed}/{total} ({update.state})",
+                        file=sys.stderr,
+                    )
+                    last_emit.update(stage=update.stage, at=now)
+
+            kwargs["progress"] = comparison_progress
         try:
             result = handlers.HANDLERS[handler_name](**kwargs)
         finally:
