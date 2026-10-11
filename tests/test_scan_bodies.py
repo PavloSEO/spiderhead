@@ -18,6 +18,7 @@ from seohead.storage.bodies import (
     read_document,
     read_page_document_content,
     read_document_window,
+    _line_count,
 )
 
 
@@ -289,6 +290,11 @@ def test_document_window_counts_characters_and_keeps_multibyte_whole():
     assert window["encoding"] == "utf-8"
     assert window["sha256"] == hashlib.sha256(text.encode()).hexdigest()
     assert window["raw_body_sha256"] == hashlib.sha256(raw).hexdigest()
+
+
+@pytest.mark.parametrize("text", ["", "one\n", "one\ntwo", "\r\n\n", "a\v b\u2028c\x1cd"])
+def test_line_count_matches_splitlines_without_materializing_lines(text):
+    assert _line_count(text) == len(text.splitlines())
 
 
 def test_document_window_full_read_and_empty_body():

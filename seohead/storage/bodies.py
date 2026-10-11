@@ -16,6 +16,15 @@ from . import ScanError
 
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _DECODER_VERSION = "scan_decoder.v1"
+_LINE_BOUNDARIES = re.compile(r"\r\n|[\n\r\v\f\x1c-\x1e\x85\u2028\u2029]")
+
+
+def _line_count(text: str) -> int:
+    """Count splitlines() records without materializing a list of substrings."""
+    if not text:
+        return 0
+    boundaries = sum(1 for _match in _LINE_BOUNDARIES.finditer(text))
+    return boundaries + (text[-1] not in "\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029")
 
 
 def _navigation_evidence(renderer: dict):
@@ -279,7 +288,7 @@ def read_document_window(
         "length": len(window),
         "total_chars": len(text),
         "truncated": offset + len(window) < len(text),
-        "lines": len(text.splitlines()),
+        "lines": _line_count(text),
         "encoding": decoder["decoder_charset"],
         "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
         "raw_body_sha256": con.execute(
@@ -320,7 +329,7 @@ def read_document_content(
         "encoding": decoder["decoder_charset"],
         "decoder": decoder,
         "total_chars": len(text),
-        "lines": len(text.splitlines()),
+        "lines": _line_count(text),
         "text": text,
     }
 
