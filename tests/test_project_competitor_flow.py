@@ -1,14 +1,13 @@
-"""Competitor workspaces: crawl the URL as entered, accept the documented consumer key,
-open with a damaged competitor, and keep competitor crawl results out of owner items."""
+"""Competitor workspaces: crawl the URL as entered, open with a damaged competitor,
+and keep competitor crawl results out of owner items."""
 
 from __future__ import annotations
 
 import json
 
-from seohead.mcp import handlers
 from seohead.mcp.handlers import _evidence_root, _project_start_url, _record_scoped_failure
 from seohead.projects.coverage import initialize_coverage
-from seohead.projects.runtime import add_competitors, preparation_status
+from seohead.projects.runtime import add_competitors
 from seohead.projects.workspace import create_project, open_project, project_status
 
 
@@ -49,21 +48,6 @@ def test_competitor_crawl_result_never_reaches_owner_items(tmp_path):
     assert _evidence_root(root, "https://www.iana.org/") is None
     assert _evidence_root(root, "https://owner.example.test/") == root
     assert _evidence_root(child, "https://www.iana.org/") == child
-
-
-def test_competitors_add_accepts_the_consumer_key(tmp_path):
-    root = tmp_path / "owner"
-    create_project(root, "https://owner.example.test/")
-    candidates = [_candidate("https://one.example.test/")]
-
-    plain = handlers.project_competitors_add(str(root), candidates)
-    assert "inbox_unread" not in plain
-
-    with_consumer = handlers.project_competitors_add(
-        str(root), [_candidate("https://two.example.test/")], consumer="agent-1"
-    )
-    assert "inbox_unread" in with_consumer
-    assert len(preparation_status(str(root))["competitors"]) == 2
 
 
 def test_opening_a_project_survives_a_damaged_competitor_workspace(tmp_path):

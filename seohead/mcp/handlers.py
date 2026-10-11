@@ -5400,15 +5400,10 @@ def project_prepare(
     )
 
 
-def project_competitors_add(
-    directory: str, competitors: list, consumer: str | None = None
-) -> dict[str, Any]:
+def project_competitors_add(directory: str, competitors: list) -> dict[str, Any]:
     from seohead.projects.runtime import add_competitors
 
-    result = add_competitors(directory, competitors)
-    if consumer is not None:
-        result["inbox_unread"] = project_inbox_unread(directory, consumer)
-    return result
+    return add_competitors(directory, competitors)
 
 
 def project_competitors_list(directory: str) -> dict[str, Any]:
