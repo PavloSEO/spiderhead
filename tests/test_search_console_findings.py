@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from seohead.checks import search_console_findings
 from seohead.checks.search_console_findings import (
     CHECK_IDS,
     GSC_ORPHAN,
@@ -62,6 +63,21 @@ def test_gsc_orphan_flags_impressions_outside_crawl_on_crawled_origin():
     result = _eval([_page("/a")], doc)
     assert _urls(result, GSC_ORPHAN) == ["https://example.com/gone"]
     assert result[GSC_ORPHAN][0]["details"] == {"impressions": 12.0}
+
+
+def test_gsc_issue_url_identity_is_preserved_alongside_safe_display_url():
+    doc = _doc(
+        [
+            {
+                "url": "https://example.com/gone?token=private",
+                "impressions": "12",
+            }
+        ]
+    )
+    result = _eval([_page("https://example.com/seen")], doc)
+    exact_url = result[GSC_ORPHAN][0]["url"]
+    assert exact_url == "https://example.com/gone?token=private"
+    assert search_console_findings._public_url(exact_url) == "https://example.com/gone"
 
 
 def test_gsc_orphan_ignores_other_origins():
@@ -170,3 +186,20 @@ def test_bounded_inspection_maps_six_positive_findings_without_census_claims():
     assert findings["GSC_USER_CANONICAL_NOT_SELECTED"][0]["details"]["google_canonical"] == "https://example.com/canonical"
     assert findings["GSC_URL_NOT_ON_GOOGLE"][0]["url"] == "https://example.com/two"
     assert "not a site-wide census" in result["scope"]
+
+
+def test_empty_cached_index_status_is_not_a_complete_inspection():
+    result = evaluate_inspections(
+        [_page("https://example.com/a")],
+        [
+            {
+                "url": "https://example.com/a",
+                "state": "complete",
+                "index_status": {},
+            }
+        ],
+        requested=1,
+    )
+    assert result["inspected"] == 0
+    assert result["failed"] == 1
+    assert all(not rows for rows in result["findings"].values())

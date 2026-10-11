@@ -1297,14 +1297,16 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         if getattr(args, "include_configuration", False):
             kw["include_configuration"] = True
     if cmd == "cloudflare-history":
-        for name in ("project", "zone_id"):
+        for name in ("project", "zone_id", "snapshot_id"):
             value = getattr(args, name, None)
             if value:
                 kw[name] = value
-        for name in ("limit", "offset"):
+        for name in ("limit", "offset", "facts_offset", "facts_limit"):
             value = getattr(args, name, None)
             if value is not None:
                 kw[name] = value
+        if getattr(args, "include_facts", False):
+            kw["include_facts"] = True
     if cmd == "cloudflare-logpush-import":
         for name in ("input_path", "project", "max_events"):
             value = getattr(args, name, None)
@@ -2303,8 +2305,12 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "cloudflare-history":
         _source_flag(sub, "--project", help="local project containing Cloudflare history")
         sub.add_argument("--zone-id", dest="zone_id", help="optional zone ID filter")
+        sub.add_argument("--snapshot-id", dest="snapshot_id", type=int, help="optional exact snapshot ID filter")
         sub.add_argument("--limit", type=int, default=20, help="snapshots per page, 1..100")
         sub.add_argument("--offset", type=int, default=0, help="zero-based snapshot offset")
+        sub.add_argument("--include-facts", action="store_true", help="include bounded URL/day fact rows; default is metadata-only")
+        sub.add_argument("--facts-offset", dest="facts_offset", type=int, default=0, help="fact offset within each returned snapshot")
+        sub.add_argument("--facts-limit", dest="facts_limit", type=int, default=100, help="facts per snapshot page, 1..500")
     if cmd == "cloudflare-logpush-import":
         _source_flag(sub, "--file", dest="input_path", help="caller-supplied UTF-8 Logpush JSON Lines file")
         _source_flag(sub, "--project", help="local project that owns the logstore")

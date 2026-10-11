@@ -631,7 +631,7 @@ priority adjustment. It never changes a technical finding's severity. See the
 | `wayback-history` | Every Internet Archive snapshot of a URL: when it changed, what status it returned, what MIME type it was | free, no key |
 | `crtsh-subdomains` | Hosts named in public TLS certificates for a domain — subdomains nothing links to | free, no key |
 | `cloudflare-traffic` | Bot/human traffic summaries plus bounded per-URL daily edge/origin status, cache, redirect status and verified-bot category facts. Use `--zone` or a project with one selected Cloudflare zone ID binding. `--include-configuration` adds AI zone settings, bounded redirect/custom-WAF rulesets, and safe Logpush job summaries without destination data; rules describe configuration, not per-request matches. Aggregated (`source: cloudflare-aggregated`), not raw logs: no IPs, sub-day timestamps, rule IDs or reverse-DNS verification; URL facts cap at 50,000 and report truncation; Free plan keeps 32 days | free; traffic needs Zone Read and Account Analytics Read; configuration additionally needs Zone Settings Read, Rulesets Read and Logs Read |
-| `cloudflare-history` | Read paged Cloudflare per-URL/day aggregate snapshots retained by explicit project-bound `cloudflare-traffic` calls | local, read-only |
+| `cloudflare-history` | Read metadata-only Cloudflare aggregate snapshot pages by default; `--include-facts` returns a bounded URL/day fact page, with `--snapshot-id`, `--facts-offset`, and `--facts-limit` for continuation | local, read-only; 2 MiB response cap |
 | `cloudflare-logpush-import` | Import a caller-supplied UTF-8 Logpush NDJSON file into the existing project-local server-log store; no destination is configured and no provider call occurs | local file + project write; 16 MiB and 10,000-event cap |
 | `cloudflare-instant-logs` | Explicit, confirmed Business/Enterprise live capture from the bound zone, capped at 60 seconds, 1,000 events, and 8 MiB; checks for an existing session and never replaces it | live provider session (`Logs Read`) + local logstore; requires the optional `cloudflare-stream` extra |
 
@@ -835,10 +835,11 @@ and must not be broken for the sake of mode A.
 
 With `--project DIR`, `sf run` joins the last complete, locally retained 28-day GSC, GA4, and
 Metrika URL history to the audited pages, without contacting a provider. The resulting
-`summary.provider_findings` is a separate typed section in `audit.json` and `audit.md`; it does not
-change technical issue totals or the health score. Missing bindings, gaps and capped reads remain
-unavailable/partial; negative orphan or no-data findings require complete 28-day provider coverage
-and a complete crawl.
+`summary.provider_findings` keeps typed source provenance in `audit.json` and `audit.md`; derived
+per-URL findings also enter the registered audit issue stream and its normal reports. Missing
+bindings, gaps and capped reads remain unavailable/partial; negative orphan or no-data findings
+require complete 28-day provider coverage and a complete crawl. Cloudflare retains its own native
+snapshot interval and freshness state; it is not represented as a 28-day history.
 
 `--gsc-inspect` is a separate opt-in live read that inspects a deterministic sample of up to 50
 URLs through the bound GSC property. It stores allowlisted index/AMP/rich-result results and a local

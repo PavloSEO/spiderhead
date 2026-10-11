@@ -263,9 +263,10 @@ def write_markdown(result: AuditResult, path: str) -> str:
         w("|---|---|---|---|---|")
         for issue in result.suppressed_issues[:MAX_GENERIC_ROWS]:
             suppression = issue.get("suppression") or {}
+            details = issue.get("details") or {}
             w(
                 f"| {issue.get('check', '')} | {issue.get('severity', '')} "
-                f"| {_esc(issue.get('target_url'))} | {_esc(suppression.get('rule_id'))} "
+                f"| {_esc(details.get('safe_url') or issue.get('target_url'))} | {_esc(suppression.get('rule_id'))} "
                 f"| {_esc(suppression.get('reason'))} |"
             )
         if len(result.suppressed_issues) > MAX_GENERIC_ROWS:
@@ -278,11 +279,12 @@ def write_markdown(result: AuditResult, path: str) -> str:
 
     provider_findings = s.get("provider_findings")
     if isinstance(provider_findings, dict):
-        w("## Search and analytics evidence")
+        w("## Search, analytics, and Cloudflare evidence")
         w("")
         w(
             "These measurements come from retained, project-bound provider history. "
-            "They are separate from the crawl issue totals and health score."
+            "Registered per-URL findings also appear in the ordinary audit issue list; "
+            "this section preserves source periods, coverage, and sample scope."
         )
         w("")
         w(f"- Evidence state: **{_esc(provider_findings.get('state'))}**")
@@ -325,14 +327,20 @@ def write_markdown(result: AuditResult, path: str) -> str:
                     state = "reported"
                     reason = "measured URL evidence"
                     urls = [entry.get("url") for entry in finding if isinstance(entry, dict)]
+                    safe_urls = [
+                        entry.get("safe_url") or entry.get("url")
+                        for entry in finding
+                        if isinstance(entry, dict)
+                    ]
                 elif isinstance(finding, dict):
                     state = finding.get("state", "unavailable")
                     reason = finding.get("reason")
                     urls = finding.get("urls") or []
+                    safe_urls = finding.get("safe_urls") or urls
                 else:
                     continue
                 w(f"- **{check_title(check)}** — {_esc(state)}: {_esc(reason)}")
-                for url in urls[:20]:
+                for url in safe_urls[:20]:
                     w(f"  - {_esc(url)}")
                 if len(urls) > 20:
                     w(f"  - … {len(urls) - 20} more")
@@ -361,11 +369,16 @@ def write_markdown(result: AuditResult, path: str) -> str:
                     f"inspected; {_esc(inspection.get('deferred', 0))} deferred; "
                     f"state {_esc(inspection.get('state'))}."
                 )
+                if not inspection.get("sample_population_complete"):
+                    w(
+                        "- Unsampled crawl URLs remain unknown; no site-wide clean conclusion "
+                        "is drawn from this bounded inspection sample."
+                    )
                 for check, rows in (inspection.get("findings") or {}).items():
                     label = (inspection.get("sf_checks") or {}).get(check, check)
                     w(f"- **{_esc(label)}** — {len(rows)} sampled findings")
                     for row in rows[:20]:
-                        w(f"  - {_esc(row.get('url'))}")
+                        w(f"  - {_esc(row.get('safe_url') or row.get('url'))}")
                     if len(rows) > 20:
                         w(f"  - … {len(rows) - 20} more")
         w("")
@@ -497,12 +510,18 @@ def _render_generic(w, group: list[Issue]) -> None:
             detail = ", ".join(
                 f"{k.replace('_', ' ').capitalize()}: {_esc(v)}"
                 for k, v in issue.details.items()
-                if not isinstance(v, (list, dict))
+                if k not in {
+                    "safe_url",
+                    "url_id",
+                    "user_canonical",
+                    "google_canonical",
+                }
+                and not isinstance(v, (list, dict))
             )
-            w(f"| {_esc(issue.target_url)} | {detail} |")
+            w(f"| {_esc(issue.details.get('safe_url') or issue.target_url)} | {detail} |")
     else:
         for issue in group[:MAX_GENERIC_ROWS]:
-            w(f"- {_esc(issue.target_url)}")
+            w(f"- {_esc(issue.details.get('safe_url') or issue.target_url)}")
     if len(group) > MAX_GENERIC_ROWS:
         w(f"- … {len(group) - MAX_GENERIC_ROWS} more")
     w("")

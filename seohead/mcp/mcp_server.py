@@ -1799,14 +1799,28 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=pure, structured_output=True)
     def seo_cloudflare_history(
-        project: str, zone_id: str | None = None, limit: int = 20, offset: int = 0
+        project: str,
+        zone_id: str | None = None,
+        snapshot_id: int | None = None,
+        limit: int = 20,
+        offset: int = 0,
+        include_facts: bool = False,
+        facts_offset: int = 0,
+        facts_limit: int = 100,
     ) -> dict[str, Any]:
         """Read retained, bounded Cloudflare aggregate snapshots from a local project. History
-        contains URL/day counts and cache/status/bot dimensions, not client IP logs. This read
-        does not contact Cloudflare."""
+        defaults to metadata-only; set include_facts for a bounded page of URL/day counts and
+        cache/status/bot dimensions. It contains no client IP logs and makes no provider request."""
         return _checked(
             handlers.cloudflare_history(
-                project=project, zone_id=zone_id, limit=limit, offset=offset
+                project=project,
+                zone_id=zone_id,
+                snapshot_id=snapshot_id,
+                limit=limit,
+                offset=offset,
+                include_facts=include_facts,
+                facts_offset=facts_offset,
+                facts_limit=facts_limit,
             )
         )
 

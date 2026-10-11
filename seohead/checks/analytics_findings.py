@@ -95,14 +95,18 @@ def analytics_findings(
     partial: bool,
     evidence_complete: bool = True,
     evidence_reason: str | None = None,
+    empty_is_complete: bool = False,
     visits_column: str | None = None,
     bounce_column: str | None = None,
+    bounce_reason: str | None = None,
 ) -> dict[str, Any]:
     """Return the four analytics findings, each with a state and a reason.
 
     ``state`` is ``reported`` (the check ran; ``urls`` holds its hits),
     ``withheld`` (the check ran but its claim is unsound for this crawl), or
     ``skipped`` (the check had no input or no readable value; ``reason`` says why).
+    A provider history explicitly declaring complete empty days can set
+    ``empty_is_complete``; an empty offline file remains a skip by default.
     """
     pages_by_url = {page.get("url"): page for page in pages}
     joined = join_result.get("joined") or []
@@ -133,7 +137,7 @@ def analytics_findings(
         no_data = _finding(
             "withheld", evidence_reason or "analytics history coverage is incomplete"
         )
-    elif rows_total == 0:
+    elif rows_total == 0 and not empty_is_complete:
         no_data = _finding(
             "skipped", "analytics input has no rows; a no-data claim would not be meaningful"
         )
@@ -171,7 +175,8 @@ def analytics_findings(
     if bounce_column is None:
         bounce = _finding(
             "skipped",
-            "bounce_column not given; per-URL bounce needs a per-URL export (#990, #984)",
+            bounce_reason
+            or "bounce_column not given; per-URL bounce needs a per-URL export (#990, #984)",
         )
     else:
         hits = []

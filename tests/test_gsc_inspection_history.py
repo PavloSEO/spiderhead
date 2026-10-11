@@ -2,6 +2,8 @@
 
 from datetime import datetime, timezone
 
+import pytest
+
 from seohead.data_sources import gsc_inspection_history
 from seohead.data_sources import credentials
 from seohead.projects import workspace
@@ -75,3 +77,54 @@ def test_gsc_inspection_history_keeps_only_sanitized_result_fields(tmp_path, mon
     assert stored["stored"] == 1
     assert history["rows"][0]["index_status"]["verdict"] == "PASS"
     assert "token" not in str(history)
+
+
+def test_gsc_inspection_settlement_rejects_urls_outside_reserved_population(tmp_path, monkeypatch):
+    config_root = tmp_path / "config"
+    config_root.mkdir(mode=0o700)
+    monkeypatch.setattr(credentials, "CONFIG_ROOT", config_root)
+    project = _project(tmp_path)["path"]
+    reservation = gsc_inspection_history.reserve(
+        project, "sc-domain:example.test", ["https://example.test/a"]
+    )
+    with pytest.raises(ValueError, match="reserved population"):
+        gsc_inspection_history.settle(
+            project,
+            reservation["reservation_id"],
+            [
+                {
+                    "url": "https://other.example.test/private",
+                    "state": "complete",
+                    "index_status": {"verdict": "PASS"},
+                }
+            ],
+            requests_made=1,
+        )
+
+
+def test_gsc_inspection_latest_history_is_paged_by_url(tmp_path, monkeypatch):
+    config_root = tmp_path / "config"
+    config_root.mkdir(mode=0o700)
+    monkeypatch.setattr(credentials, "CONFIG_ROOT", config_root)
+    project = _project(tmp_path)["path"]
+    urls = ["https://example.test/a", "https://example.test/b"]
+    reservation = gsc_inspection_history.reserve(project, "sc-domain:example.test", urls)
+    gsc_inspection_history.settle(
+        project,
+        reservation["reservation_id"],
+        [
+            {"url": url, "state": "complete", "index_status": {"verdict": "PASS"}}
+            for url in urls
+        ],
+        requests_made=2,
+    )
+
+    first = gsc_inspection_history.latest(project, "sc-domain:example.test", limit=1)
+    second = gsc_inspection_history.latest(
+        project, "sc-domain:example.test", limit=1, offset=first["next_offset"]
+    )
+
+    assert first["total"] == 2 and first["has_more"] is True
+    assert first["next_offset"] == 1
+    assert second["has_more"] is False
+    assert len({first["rows"][0]["url"], second["rows"][0]["url"]}) == 2

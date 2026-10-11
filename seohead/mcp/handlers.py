@@ -4602,15 +4602,28 @@ def cloudflare_traffic(
 def cloudflare_history(
     project: str | None = None,
     zone_id: str | None = None,
+    snapshot_id: int | None = None,
     limit: int = 20,
     offset: int = 0,
+    include_facts: bool = False,
+    facts_offset: int = 0,
+    facts_limit: int = 100,
 ) -> dict[str, Any]:
     """Read retained aggregate Cloudflare snapshots from a local project."""
     if not project:
         raise ValueError("project required")
     from seohead.data_sources.cloudflare_history import list_snapshots
 
-    return list_snapshots(project=project, zone_id=zone_id, limit=limit, offset=offset)
+    return list_snapshots(
+        project=project,
+        zone_id=zone_id,
+        snapshot_id=snapshot_id,
+        limit=limit,
+        offset=offset,
+        include_facts=include_facts,
+        facts_offset=facts_offset,
+        facts_limit=facts_limit,
+    )
 
 
 def cloudflare_logpush_import(

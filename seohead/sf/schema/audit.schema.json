@@ -142,7 +142,7 @@
         "sitemap": {"type": "object"},
         "provider_findings": {
           "type": "object",
-          "description": "Optional URL findings from retained project provider history; separate from crawl issue totals and score."
+          "description": "Optional typed source periods, coverage, quota, and sampled-history provenance; registered per-URL provider findings also appear in the ordinary issues array."
         },
         "evidence_contract": {"type": "object"},
         "saved_corpus_derivations": {"type": "object"},

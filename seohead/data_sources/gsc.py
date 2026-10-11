@@ -54,6 +54,7 @@ _ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 Fetcher = Callable[[dict[str, Any], str], str]
 RequestTransport = Callable[[str, str, dict[str, Any] | None, str], str]
 MAX_INSPECTION_URLS = 50
+MAX_INSPECTION_URL_BYTES = 8192
 MAX_ANALYTICS_ROWS = 25_000
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 
@@ -680,7 +681,17 @@ def inspect_urls(
     transport: RequestTransport | None = None,
 ) -> dict[str, Any]:
     """Inspect a declared bounded sample; this is never an index census."""
-    if not site_url or not urls or len(urls) > MAX_INSPECTION_URLS:
+    if (
+        not site_url
+        or not urls
+        or len(urls) > MAX_INSPECTION_URLS
+        or not all(
+            isinstance(url, str)
+            and url
+            and len(url.encode("utf-8")) <= MAX_INSPECTION_URL_BYTES
+            for url in urls
+        )
+    ):
         raise ValueError(f"site_url and 1..{MAX_INSPECTION_URLS} inspection URLs are required")
     bearer, token_error = _acquire_token(token)
     if bearer is None:
@@ -723,7 +734,8 @@ def inspect_urls(
             )
             continue
         index_status = inspection.get("indexStatusResult")
-        if not isinstance(index_status, dict):
+        verdict = index_status.get("verdict") if isinstance(index_status, dict) else None
+        if not isinstance(index_status, dict) or verdict not in {"PASS", "FAIL", "NEUTRAL"}:
             outcomes.append(
                 {"url": url, "state": "failed", "error": "Search Console malformed inspection response"}
             )
@@ -739,26 +751,35 @@ def inspect_urls(
             "lastCrawlTime",
             "crawledAs",
         )
-        index_summary = (
-            {name: index_status[name] for name in index_fields if name in index_status}
-        )
+        index_summary = {}
+        for name in index_fields:
+            value = index_status.get(name)
+            if isinstance(value, str):
+                limit = MAX_INSPECTION_URL_BYTES if name.endswith("Canonical") else 256
+                index_summary[name] = value[:limit]
+            elif name == "verdict" and value in {"PASS", "FAIL", "NEUTRAL"}:
+                index_summary[name] = value
         amp = inspection.get("ampResult")
         amp_summary = None
         if isinstance(amp, dict):
             amp_summary = {
-                name: amp[name]
+                name: amp[name][:256]
                 for name in ("verdict", "ampIndexStatusVerdict", "pageFetchState", "indexingState")
-                if name in amp
+                if name in amp and isinstance(amp[name], str)
             }
         rich = inspection.get("richResultsResult")
         rich_summary = None
         if isinstance(rich, dict):
             detected = rich.get("detectedItems")
             rich_summary = {
-                "verdict": rich.get("verdict"),
+                "verdict": rich.get("verdict")[:64]
+                if isinstance(rich.get("verdict"), str)
+                else None,
                 "detected_items": [
                     {
-                        "type": item.get("richResultType"),
+                        "type": item.get("richResultType")[:128]
+                        if isinstance(item.get("richResultType"), str)
+                        else None,
                         "items": len(item.get("items") or [])
                         if isinstance(item.get("items"), list)
                         else 0,

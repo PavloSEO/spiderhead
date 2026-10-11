@@ -232,33 +232,60 @@ def run_audit(
                 ),
             }
         )
-    result = aggregate(ctx, run_meta, size_stats, sitemap_summary)
+    from itertools import islice
+
+    from .aggregate import PARTIAL_CRAWL_RATIO, _crawl_validity
+    from .provider_findings import (
+        MAX_CRAWL_PAGES,
+        emit_provider_issues,
+        project_provider_findings,
+    )
+
+    included_pages = []
+    omitted_pages = 0
+    crawl_partial = False
     if project_dir is not None:
-        from itertools import islice
-
-        from .provider_findings import MAX_CRAWL_PAGES, project_provider_findings
-
         page_count = len(ctx.pages)
         included_pages = [
             {"url": page.url, "indexability": page.indexability}
             for page in islice(ctx.pages, MAX_CRAWL_PAGES)
         ]
         omitted_pages = max(0, page_count - len(included_pages))
-        try:
-            result.summary["provider_findings"] = project_provider_findings(
+        html_count = len(ctx.html_pages())
+        crawl_valid, _ = _crawl_validity(html_count, {}, page_count)
+        urls_in_sitemap = int((sitemap_summary or {}).get("urls_in_sitemap") or 0)
+        sitemap_partial = bool(
+            urls_in_sitemap
+            and crawl_valid
+            and page_count < urls_in_sitemap * PARTIAL_CRAWL_RATIO
+        )
+        crawl_partial = sitemap_partial or omitted_pages > 0
+    try:
+        if project_dir is None:
+            provider_evidence = {
+                "schema_version": "provider_findings.v1",
+                "state": "unavailable",
+                "reason": "no validated project selected for provider bindings and retained history",
+                "sources": {},
+            }
+        else:
+            provider_evidence = project_provider_findings(
                 included_pages,
                 project_dir=project_dir,
-                crawl_partial=bool(result.run.get("crawl_partial")) or omitted_pages > 0,
+                crawl_partial=crawl_partial,
                 crawl_pages_omitted=omitted_pages,
                 inspect_gsc=inspect_gsc,
             )
-        except (OSError, KeyError, TypeError, ValueError):
-            result.summary["provider_findings"] = {
-                "schema_version": "provider_findings.v1",
-                "state": "unavailable",
-                "reason": "retained provider history could not be read",
-                "sources": {},
-            }
+    except Exception:
+        provider_evidence = {
+            "schema_version": "provider_findings.v1",
+            "state": "unavailable",
+            "reason": "retained provider history could not be read",
+            "sources": {},
+        }
+    emit_provider_issues(ctx, provider_evidence)
+    result = aggregate(ctx, run_meta, size_stats, sitemap_summary)
+    result.summary["provider_findings"] = provider_evidence
     log(
         f"[audit] {result.summary['totals']['issues_total']} issues "
         f"(critical={result.summary['by_severity']['critical']}, "

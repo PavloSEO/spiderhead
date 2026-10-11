@@ -49,3 +49,28 @@ def test_inspect_urls_preserves_index_amp_and_rich_verdicts_without_raw_bodies()
     assert row["rich_results_result"]["detected_items"] == [{"type": "Product", "items": 1}]
     assert "unmodeledSecret" not in json.dumps(result)
     assert "inspectionResultLink" not in json.dumps(result)
+
+
+def test_inspect_urls_rejects_empty_index_status_result():
+    result = gsc.inspect_urls(
+        "sc-domain:example.test",
+        ["https://example.test/a"],
+        token="synthetic-token",
+        transport=lambda *args: json.dumps(
+            {"inspectionResult": {"indexStatusResult": {}}}
+        ),
+    )
+    assert result["state"] == "partial"
+    assert result["urls"][0]["state"] == "failed"
+
+
+def test_inspect_urls_accepts_only_official_index_status_verdicts():
+    result = gsc.inspect_urls(
+        "sc-domain:example.test",
+        ["https://example.test/a"],
+        token="synthetic-token",
+        transport=lambda *args: json.dumps(
+            {"inspectionResult": {"indexStatusResult": {"verdict": "VERDICT_UNSPECIFIED"}}}
+        ),
+    )
+    assert result["urls"][0]["state"] == "failed"

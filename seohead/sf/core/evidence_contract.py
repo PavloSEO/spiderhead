@@ -160,6 +160,22 @@ def _prerequisites(check_id: str, source: str) -> dict[str, Any]:
             "value": "native crawl evidence records",
             "reason": "",
         }
+    elif source.startswith("provider:"):
+        result["required_evidence"] = {
+            "state": "derived",
+            "items": [{"kind": "retained_project_provider_history", "source": source}],
+            "reason": "provider findings require an explicitly bound local property and retained coverage",
+        }
+        result["population"] = {
+            "state": "derived",
+            "value": "audited crawl URLs joined to the source's retained reporting interval",
+            "reason": "the exact native provider interval and coverage are attached to the finding",
+        }
+        result["representation"] = {
+            "state": "not_applicable",
+            "value": None,
+            "reason": "provider observations are not page-body representation checks",
+        }
     return result
 
 

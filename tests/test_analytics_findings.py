@@ -113,6 +113,21 @@ def test_no_data_is_skipped_for_an_empty_analytics_file():
     assert finding["urls"] == []
 
 
+def test_complete_empty_provider_window_can_report_no_data():
+    pages = [_page("https://example.test/a")]
+    finding = analytics_findings(
+        pages,
+        {"summary": {"rows": 0}, "crawl_only": ["https://example.test/a"], "joined": []},
+        partial=False,
+        evidence_complete=True,
+        empty_is_complete=True,
+        visits_column="sessions",
+    )["findings"][NO_DATA]
+
+    assert finding["state"] == "reported"
+    assert finding["urls"] == ["https://example.test/a"]
+
+
 def test_non_indexable_with_data_needs_visits_column_and_visits_above_zero():
     pages = [
         _page("https://example.test/noindex", "Non-Indexable"),

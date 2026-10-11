@@ -32,7 +32,15 @@ NO_EVIDENCE_REASON = "no Search Console evidence"
 
 def _public_url(value: str) -> str:
     parts = urlsplit(value)
-    return urlunsplit((parts.scheme, parts.netloc, parts.path, "", ""))
+    host = parts.hostname or ""
+    if ":" in host and not host.startswith("["):
+        host = f"[{host}]"
+    try:
+        port = parts.port
+    except ValueError:
+        port = None
+    netloc = f"{host}:{port}" if port is not None else host
+    return urlunsplit((parts.scheme, netloc, parts.path, "", ""))
 
 
 def _indexable(page: Mapping[str, Any]) -> bool | None:
@@ -151,11 +159,16 @@ def evaluate_inspections(
     findings = {name: [] for name in INSPECTION_CHECKS}
     failed = 0
     for row in rows:
-        if row.get("state") != "complete" or not isinstance(row.get("url"), str):
+        status = row.get("index_status")
+        if (
+            row.get("state") != "complete"
+            or not isinstance(row.get("url"), str)
+            or not isinstance(status, Mapping)
+            or status.get("verdict") not in {"PASS", "FAIL", "NEUTRAL"}
+        ):
             failed += 1
             continue
         url = row["url"]
-        status = row.get("index_status") or {}
         amp = row.get("amp_result") or {}
         rich = row.get("rich_results_result") or {}
         verdict = status.get("verdict")
@@ -163,7 +176,12 @@ def evaluate_inspections(
         rich_verdict = rich.get("verdict")
 
         def add(check: str, details: dict[str, Any]) -> None:
-            findings[check].append({"url": url, "details": details})
+            findings[check].append(
+                {
+                    "url": url,
+                    "details": {**details, "inspected_at": row.get("inspected_at")},
+                }
+            )
 
         if verdict == "PASS" and (amp_verdict == "FAIL" or rich_verdict == "FAIL"):
             add(
@@ -192,8 +210,10 @@ def evaluate_inspections(
             add(
                 "GSC_USER_CANONICAL_NOT_SELECTED",
                 {
-                    "user_canonical": _public_url(user_canonical),
-                    "google_canonical": _public_url(google_canonical),
+                    "user_canonical": user_canonical,
+                    "google_canonical": google_canonical,
+                    "safe_user_canonical": _public_url(user_canonical),
+                    "safe_google_canonical": _public_url(google_canonical),
                 },
             )
         if verdict in {"FAIL", "NEUTRAL"}:
