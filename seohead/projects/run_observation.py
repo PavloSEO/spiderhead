@@ -437,6 +437,9 @@ def start(
         document["runs"].append(run)
         try:
             _save(root, document)
+            from .journal import note
+
+            note(root, source="scans", actor="agent", text=f"run {run_id} started ({kind}/{mode})")
             return copy.deepcopy(run)
         except ValueError as exc:
             if not _contention(exc) or attempt + 1 == WRITE_ATTEMPTS:
@@ -517,6 +520,10 @@ def progress(
         run = _find(document, run_id)
         if run["state"] != "running":
             return
+        first_progress = not any(
+            event.get("phase") == "collection" and event.get("code") == "progress"
+            for event in run["events"]
+        )
         run["counters"] = values
         run["telemetry"] = {
             "sampled_at": _now(),
@@ -528,6 +535,18 @@ def progress(
         _event(run, "collection", "progress")
         try:
             _save(root, document)
+            if first_progress:
+                from .journal import note
+
+                note(
+                    root,
+                    source="scans",
+                    actor="agent",
+                    text=(
+                        f"run {run_id} progress: fetched={values['fetched']}, "
+                        f"queued={values['queued']}, inflight={values['inflight']}"
+                    ),
+                )
             return
         except ValueError as exc:
             if not _contention(exc) or attempt + 1 == WRITE_ATTEMPTS:

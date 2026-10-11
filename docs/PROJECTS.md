@@ -66,9 +66,13 @@ UTC time, source (`agent`, `user`, `scans`, `app`), actor (`user`, `agent`, `sch
 bounded text. It is append-only, read newest-first in pages of at most 200 with source and
 text filters, and refuses malformed lines instead of skipping them. The CLI
 (`project-event-append`, `project-event-page`) and the matching `seo_project_event_*`
-MCP tools expose the same two operations. `log.md` stays the human narrative: every event is
-also appended there as one bullet, and finished crawls, built project reports and checklist
-attempts write their entries automatically.
+MCP tools expose the same two operations. Each event sequence is the project journal revision;
+readers can pass `--since REVISION` (or `since_revision` over MCP) to receive only later events.
+When the cursor is current, the response sets `not_modified: true`. `--follow` waits up to
+30 seconds for a later event and requires a revision cursor; repeat the call with the returned
+revision to continue polling. `log.md` stays the human narrative: every event is
+also appended there as one bullet, and run start, the first measured progress update, run finish,
+built project reports and checklist attempts write entries automatically.
 `project.json` records format `seohead.project.v1`, integer version 1, a persistent
 project UUID, UTC creation time, normalized target/host and an optional human label.
 Unknown formats/versions refuse; opening never upgrades or rewrites the file.

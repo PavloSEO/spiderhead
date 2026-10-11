@@ -2180,11 +2180,21 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         limit: int = 50,
         source: Literal["agent", "user", "scans", "app"] | None = None,
         query: str = "",
+        since_revision: int | None = None,
+        follow: bool = False,
+        wait_seconds: int = 0,
     ) -> dict[str, Any]:
-        """Read a newest-first bounded page of project events, optionally filtered."""
+        """Read project events after a revision; optionally wait up to 30 seconds for an update."""
         return _checked(
             handlers.project_event_page(
-                directory=directory, offset=offset, limit=limit, source=source, query=query
+                directory=directory,
+                offset=offset,
+                limit=limit,
+                source=source,
+                query=query,
+                since_revision=since_revision,
+                follow=follow,
+                wait_seconds=wait_seconds,
             )
         )
 

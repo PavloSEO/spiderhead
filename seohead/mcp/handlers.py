@@ -5819,10 +5819,22 @@ def project_event_page(
     limit: int = 50,
     source: str | None = None,
     query: str = "",
+    since_revision: int | None = None,
+    follow: bool = False,
+    wait_seconds: int = 0,
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_event_page as core
 
-    return core(directory, offset=offset, limit=limit, source=source, query=query)
+    return core(
+        directory,
+        offset=offset,
+        limit=limit,
+        source=source,
+        query=query,
+        since_revision=since_revision,
+        follow=follow,
+        wait_seconds=wait_seconds,
+    )
 
 
 def project_observe(

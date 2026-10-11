@@ -829,7 +829,16 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "project-event-page":
-        for name in ("directory", "source", "offset", "limit", "query"):
+        for name in (
+            "directory",
+            "source",
+            "offset",
+            "limit",
+            "query",
+            "since_revision",
+            "follow",
+            "wait_seconds",
+        ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "project-observe":
@@ -2624,6 +2633,11 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--offset", type=int, default=0)
         sub.add_argument("--limit", type=int, default=50, help="events per page, 1..200")
         sub.add_argument("--query", default="", help="case-insensitive text substring")
+        sub.add_argument("--since", dest="since_revision", type=int, help="event revision cursor")
+        sub.add_argument("--follow", action="store_true", help="wait for a newer event")
+        sub.add_argument(
+            "--wait-seconds", type=int, default=30, help="maximum follow wait, 0..30 (default: 30)"
+        )
     if cmd == "project-inbox-submit":
         _source_flag(sub, "--text", help="specialist note, proposed goal or question text")
         sub.add_argument(

@@ -11,6 +11,7 @@ from __future__ import annotations
 import fcntl
 import json
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -25,6 +26,7 @@ MAX_QUERY = 200
 MAX_EVENTS = 10_000
 MAX_BYTES = 8 * 1024 * 1024
 MAX_LIMIT = 200
+MAX_FOLLOW_SECONDS = 30
 _KEYS = {"sequence", "occurred_at", "source", "actor", "text"}
 
 
@@ -113,8 +115,11 @@ def page(
     limit: int = 50,
     source: str | None = None,
     query: str = "",
+    since_revision: int | None = None,
+    follow: bool = False,
+    wait_seconds: int = 0,
 ) -> dict[str, Any]:
-    """Read a newest-first page, optionally filtered by source and a text substring."""
+    """Read a newest-first page, optionally waiting for events after a revision."""
     if (
         type(offset) is not int
         or offset < 0
@@ -126,34 +131,59 @@ def page(
         raise ValueError("event source filter is unsupported")
     if not isinstance(query, str) or len(query) > MAX_QUERY:
         raise ValueError(f"query must be at most {MAX_QUERY} characters")
+    if since_revision is not None and (type(since_revision) is not int or since_revision < 0):
+        raise ValueError("since_revision must be a nonnegative integer")
+    if type(follow) is not bool:
+        raise ValueError("follow must be a boolean")
+    if type(wait_seconds) is not int or not 0 <= wait_seconds <= MAX_FOLLOW_SECONDS:
+        raise ValueError(f"wait_seconds must be within 0..{MAX_FOLLOW_SECONDS}")
+    if follow and since_revision is None:
+        raise ValueError("follow requires since_revision")
+
     root, _project = _load(directory)
     path = _path(root)
-    if path.exists():
-        with path.open("r", encoding="utf-8") as stream:
-            fcntl.flock(stream.fileno(), fcntl.LOCK_SH)
-            try:
-                rows = _parse(stream)
-            finally:
-                fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
-    else:
-        rows = []
-    needle = query.casefold()
-    matched = [
-        row
-        for row in reversed(rows)
-        if (source is None or row["source"] == source)
-        and (not needle or needle in row["text"].casefold())
-    ]
-    total = len(matched)
-    return {
-        "ok": True,
-        "total": total,
-        "items": matched[offset : offset + limit],
-        "pagination": {
+
+    def snapshot() -> dict[str, Any]:
+        if path.exists():
+            with path.open("r", encoding="utf-8") as stream:
+                fcntl.flock(stream.fileno(), fcntl.LOCK_SH)
+                try:
+                    rows = _parse(stream)
+                finally:
+                    fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+        else:
+            rows = []
+        revision = rows[-1]["sequence"] if rows else 0
+        needle = query.casefold()
+        matched = [
+            row
+            for row in reversed(rows)
+            if (since_revision is None or row["sequence"] > since_revision)
+            and (source is None or row["source"] == source)
+            and (not needle or needle in row["text"].casefold())
+        ]
+        total = len(matched)
+        return {
+            "ok": True,
+            "revision": revision,
+            "not_modified": since_revision is not None and revision <= since_revision,
             "total": total,
-            "offset": offset,
-            "limit": limit,
-            "next_offset": offset + limit if offset + limit < total else None,
-            "previous_offset": max(0, offset - limit) if offset else None,
-        },
-    }
+            "items": matched[offset : offset + limit],
+            "pagination": {
+                "total": total,
+                "offset": offset,
+                "limit": limit,
+                "next_offset": offset + limit if offset + limit < total else None,
+                "previous_offset": max(0, offset - limit) if offset else None,
+            },
+        }
+
+    result = snapshot()
+    if follow and result["not_modified"] and wait_seconds:
+        deadline = time.monotonic() + wait_seconds
+        while time.monotonic() < deadline:
+            time.sleep(min(0.25, max(0.0, deadline - time.monotonic())))
+            result = snapshot()
+            if not result["not_modified"]:
+                break
+    return result

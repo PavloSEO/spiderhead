@@ -214,7 +214,7 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-inbox-triage` | Append an explicit task, goal, competitor, blocked, or rejected note outcome. | writes |
 | `project-inbox-unread` | Return a bounded unread reference summary without changing delivery state. | offline, read-only |
 | `project-event-append` | Append one structured event (source, actor, text) to the project journal `events.jsonl`; earlier events are never edited. | writes |
-| `project-event-page` | Read a newest-first bounded page of project events, with optional source and text filters. | offline, read-only |
+| `project-event-page` | Read a bounded newest-first project-event page, optionally after a revision; `--follow` waits up to 30 seconds. | offline, read-only |
 | `audit-workflow` | Use a closed project workflow: status, bounded start/prepare, or an evidence-backed report. | network, writes |
 | `workflow-start` | Start a local registered workflow; it performs no scan or provider call. | writes |
 | `workflow-checkpoint` | Persist one registered-step result before the next step or agent handoff. | writes |
