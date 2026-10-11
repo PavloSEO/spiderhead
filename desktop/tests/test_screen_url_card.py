@@ -139,7 +139,7 @@ class CardTests(CardBase):
         self.assertEqual(page.entries[0]["state"], "ok")
         self.assertEqual(page.entries[0]["status"], 200)
         self.assertEqual(page.table.rowCount(), len(page.scans))
-        self.assertEqual(page.table.item(0, 6).text(), i18n.tr("Первое появление"))
+        self.assertEqual(page.table.item(0, 6).text(), i18n.tr("Первое появление в выборке"))
         self.assertIn("Недоступно", page.metrics["in"].value.text())
         self.assertTrue(card.tabs.tabText(TAB_ORDER.index("hist")).startswith(i18n.tr("История")))
 
@@ -148,10 +148,54 @@ class CardTests(CardBase):
 
         first = {"state": "ok", "status": 200, "title": "A", "words": 300, "ms": 2.0}
         second = {"state": "ok", "status": 503, "title": "B", "words": 320, "ms": None}
-        self.assertEqual(changes(first, None), i18n.tr("Первое появление"))
+        self.assertEqual(changes(first, None), i18n.tr("Первое появление в выборке"))
         self.assertIn("503", changes(second, first))
         self.assertIn("+20", changes(dict(second, status=200), first))
         self.assertEqual(changes({"state": "missing"}, first), i18n.tr("Не найден в скане"))
+
+    def test_history_keeps_selected_oldest_scan_within_twelve_scan_budget(self):
+        from seohead_desktop.screens.url_history import MAX_SCANS, entry_from
+
+        card = self.open_tab("hist")
+        page = card.history
+        scans = [{"path": f"/project/shop/scans/history-{i}.sqlite", "uuid": f"scan-{i:04d}",
+                  "created_at": f"2026-10-{i + 1:02d}T00:00:00Z"} for i in range(13)]
+        self.host.scan_model.rows = scans
+        page.ctx.scan = scans[0]["path"]
+        page.scans = page._scans()
+        self.assertEqual(len(page.scans), MAX_SCANS)
+        self.assertEqual(page.scans, [scans[0], *scans[2:]])
+        saved = fixture("scan_url_detail.json")
+        saved["source"]["scan_uuid"] = scans[0]["uuid"]
+        page.entries = [entry_from(saved), *({"state": "missing"} for _ in range(MAX_SCANS - 1))]
+        page._render()
+        self.assertTrue(page.table.isVisibleTo(page))
+        self.assertIn("r-scan", page.table.item(0, 0).text())
+        self.assertIn(i18n.tr("Текущий скан"), page.table.item(0, 0).text())
+        self.assertEqual(page.table.item(0, 0).toolTip(), scans[0]["uuid"])
+        self.assertIn("12", page.note.text())
+        self.assertIn("13", page.note.text())
+        self.assertNotIn(i18n.tr("Текущий скан"), page.table.item(1, 0).text())
+
+    def test_history_retains_selected_scan_absent_from_loaded_model(self):
+        card = self.open_tab("hist")
+        self.host.scan_model.rows = []
+        scans = card.history._scans()
+        self.assertEqual([scan["path"] for scan in scans], [card.ctx.scan])
+        self.assertEqual(scans[0]["uuid"], card.ctx.detail["source"]["scan_uuid"])
+
+    def test_history_failed_reads_do_not_claim_url_absent(self):
+        from seohead_desktop.ui.kit import StatePanel
+
+        card = self.open_tab("hist")
+        page = card.history
+        page.entries = [{"state": "error", "text": "scan unreadable"} for _ in page.scans]
+        page._render()
+        panel = page.state_host.findChild(StatePanel)
+        self.assertIsNotNone(panel)
+        text = " ".join(label.text() for label in panel.findChildren(type(card.scan_caption)))
+        self.assertIn("scan unreadable", text)
+        self.assertNotIn("Ни один сохранённый скан", text)
 
     def test_scan_is_shown_as_short_run_id_with_the_full_id_in_the_tooltip(self):
         card = self.open_tab("hdr")

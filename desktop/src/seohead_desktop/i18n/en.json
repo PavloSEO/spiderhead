@@ -2497,5 +2497,10 @@
  "Старые адреса → правила": "Old addresses → rules",
  "Вставьте старые адреса выше: таблица заполнится по строкам списка.": "Paste the old addresses above: the table fills in line by line.",
  "Сведения": "Info",
- "Исходник": "Source code"
+ "Исходник": "Source code",
+ "Текущий скан": "Current scan",
+ "Первое появление в выборке": "First appearance in this selection",
+ "В прочитанных сканах нет этого URL": "This URL is not in the scans read",
+ "Этот адрес не найден в прочитанных сканах. Другие сканы проекта могли остаться за пределами выборки.": "This address was not found in the scans read. Other project scans may be outside this selection.",
+ "Показано {shown} из {total} сканов: выбранный и самые новые. Изменения сравниваются только внутри этой выборки.": "Showing {shown} of {total} scans: the selected scan and the most recent ones. Changes are compared only within this selection."
 }
