@@ -852,7 +852,7 @@ def aggregate_coverage(
                 or metadata["project_uuid"] in seen
             ):
                 raise ValueError("competitor project identity mismatch")
-        except (OSError, ValueError) as exc:
+        except (OSError, ValueError, KeyError) as exc:
             # A damaged competitor workspace leaves its own row unavailable; the owner opens.
             sites.append(
                 {
