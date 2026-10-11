@@ -26,7 +26,7 @@ from ...screens.scan_common import StatusBadge
 from ...settings_store import Setting
 from ..controls import Note, SettingRow, Switch
 from ..icons import material_icon
-from .helpers import group_label, page, switch_row, column_stack
+from .helpers import group_label, keyed, page, column_stack
 
 ID, ICON, TITLE = "agent", "smart_toy", "Агент"
 HINT = "Что агент видит и что может делать через MCP"
@@ -203,6 +203,13 @@ def _log_block(context):
     return box
 
 
+def _later_switch(title, description):
+    """Stored in the schema but unused: shown off and disabled, never written."""
+    switch = Switch(title, False)
+    switch.setEnabled(False)
+    return SettingRow(title, description, switch)
+
+
 def build_page(store, context):
     paid = Switch("Платные провайдеры", True)
     paid.setEnabled(False)
@@ -210,12 +217,12 @@ def build_page(store, context):
     left = [
         _projects_block(store, context),
         group_label("Права"),
-        switch_row(store, "agent.run_scans", "Запускать сканы", "С лимитами и подтверждениями проекта"),
-        switch_row(store, "agent.change_tasks", "Менять задачи и статусы", "Иначе — только предлагать во «Входящие»"),
+        keyed(_later_switch("Запускать сканы", "С лимитами и подтверждениями проекта"), "agent.run_scans"),
+        keyed(_later_switch("Менять задачи и статусы", "Иначе — только предлагать во «Входящие»"), "agent.change_tasks"),
         SettingRow("Платные провайдеры", "Всегда спрашивать о расходе · не отключается", paid),
     ]
     right = [
-        switch_row(store, "agent.show_actions", "Показывать действия агента", "Плашка и тосты, когда агент меняет проект"),
+        keyed(_later_switch("Показывать действия агента", "Плашка и тосты, когда агент меняет проект"), "agent.show_actions"),
         _log_block(context),
         Note("info", "Что это меняет.", "Границы агента.<br>Права работают в ядре, а не в окне: CLI и любой MCP-клиент получают те же ограничения."),
     ]

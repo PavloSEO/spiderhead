@@ -64,6 +64,29 @@ def section_of(url):
     return parts[0] if parts else "/"
 
 
+class EdgeItem(QGraphicsLineItem):
+    """A link line; its anchor text shows at the midpoint while the pointer is on the line."""
+
+    def __init__(self, start, end, anchor, pen, text_color):
+        super().__init__(start.x(), start.y(), end.x(), end.y())
+        self.setPen(pen)
+        self.setAcceptHoverEvents(True)
+        self.label = QGraphicsSimpleTextItem(anchor, self)
+        self.label.setBrush(QBrush(text_color))
+        self.label.setZValue(2)
+        middle = self.line().center()
+        self.label.setPos(middle.x() + 6, middle.y() - 6)
+        self.label.hide()
+
+    def hoverEnterEvent(self, event):
+        self.label.show()
+        super().hoverEnterEvent(event)
+
+    def hoverLeaveEvent(self, event):
+        self.label.hide()
+        super().hoverLeaveEvent(event)
+
+
 class GraphPage(QWidget):
     """UrlGraph sheet of the URL card: canvas with depth and layout controls, and the side panel of the selected URL."""
 
@@ -83,7 +106,8 @@ class GraphPage(QWidget):
         self.job.done.connect(self._done)
         self.job.failed.connect(self._failed)
         self._reset_walk()
-        theming.signals.changed.connect(lambda _name: self.draw())
+        theming.signals.changed.connect(self._theme_changed)
+        self.destroyed.connect(lambda *_: theming.signals.changed.disconnect(self._theme_changed))
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -210,6 +234,9 @@ class GraphPage(QWidget):
 
     def retranslate(self):
         self._labels()
+        self.draw()
+
+    def _theme_changed(self, _name):
         self.draw()
 
     def _update_panel(self):
@@ -432,13 +459,11 @@ class GraphPage(QWidget):
         edge_color.setAlpha(90)
         edge_pen = QPen(edge_color, 0.9)
         edge_pen.setCosmetic(True)
+        anchor_color = QColor(roles["text"])
         for (source, target), anchor in self.edges.items():
             if source not in pos or target not in pos:
                 continue
-            line = QGraphicsLineItem(pos[source].x(), pos[source].y(), pos[target].x(), pos[target].y())
-            line.setPen(edge_pen)
-            line.setToolTip(anchor or tr("[без текста]"))
-            line.setAcceptHoverEvents(True)
+            line = EdgeItem(pos[source], pos[target], anchor or tr("[без текста]"), edge_pen, anchor_color)
             self.scene.addItem(line)
         label_font = QFont()
         label_font.setPointSizeF(9.5)

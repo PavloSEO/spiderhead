@@ -84,7 +84,7 @@ QScrollBar::add-page, QScrollBar::sub-page { background: transparent; }
 QAbstractScrollArea::corner { border: none; background: transparent; }
 QPlainTextEdit[role="summary"] { border: none; padding: 12px; background: $surface_container_lowest; }
 QWidget#inlineNotice { background: $error_container; border-radius: ${radius_control}px; }
-QWidget#inlineNotice QLabel { color: $on_error_container; }
+QWidget#inlineNotice QLabel { color: $error; }
 QWidget#comparisonHeader { background: $surface_container_lowest; border: none; }
 QLabel#comparisonStep { font-size: 12px; color: $on_surface_variant; font-weight: 500; }
 QLabel#comparisonValue { font-size: 18px; font-weight: 500; }
