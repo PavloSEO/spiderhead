@@ -5342,6 +5342,24 @@ def project_prepare(
     )
 
 
+def project_competitors_add(directory: str, competitors: list) -> dict[str, Any]:
+    from seohead.projects.runtime import add_competitors
+
+    return add_competitors(directory, competitors)
+
+
+def project_competitors_list(directory: str) -> dict[str, Any]:
+    from seohead.projects.runtime import list_competitors
+
+    return list_competitors(directory)
+
+
+def project_competitors_remove(directory: str, url: str) -> dict[str, Any]:
+    from seohead.projects.runtime import remove_competitor
+
+    return remove_competitor(directory, url)
+
+
 def project_start(
     directory: str,
     target: str,
@@ -6616,6 +6634,9 @@ _RAW_HANDLERS = {
     "tool_catalog": tool_catalog,
     "project_policy": project_policy,
     "project_prepare": project_prepare,
+    "project_competitors_add": project_competitors_add,
+    "project_competitors_list": project_competitors_list,
+    "project_competitors_remove": project_competitors_remove,
     "project_start": project_start,
     "skill_list": skill_list,
     "skill_show": skill_show,

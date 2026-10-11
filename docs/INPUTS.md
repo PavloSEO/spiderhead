@@ -146,6 +146,9 @@ and this decision makes no backend migration.
 | `project-policy` | Project directory (`directory`)<br>Inline JSON (`policy`) | Optional data-only policy; preview by default. Apply requires expected_revision. |
 | `project-prepare` | Project directory (`directory`)<br>Inline JSON (`template`)<br>Inline JSON (`competitors`) | Optional data-only project template.; Optional bounded competitor inputs. |
 | `project-start` | Project directory (`directory`)<br>Live URL (`target`)<br>Inline JSON (`facts`)<br>Inline JSON (`template`)<br>Inline JSON (`competitors`) | Optional supplied project facts.; Optional data-only project template.; Optional bounded competitor inputs. |
+| `project-competitors-add` | Project directory (`directory`)<br>Inline JSON (`competitors`) | Required list of candidates with url, source and observed_at. |
+| `project-competitors-list` | Project directory (`directory`) | — |
+| `project-competitors-remove` | Project directory (`directory`)<br>Live URL (`url`) | The recorded competitor URL to drop from the shortlist. |
 | `skill-list` | No direct input | — |
 | `skill-show` | Selector (`name`) | — |
 | `scenario-list` | No direct input | — |

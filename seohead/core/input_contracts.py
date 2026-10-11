@@ -785,6 +785,27 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         _form("inline_json", "template", note="Optional data-only project template."),
         _form("inline_json", "competitors", note="Optional bounded competitor inputs."),
     ),
+    _command(
+        "project-competitors-add",
+        "project_competitors_add",
+        _form("project_directory", "directory"),
+        _form(
+            "inline_json",
+            "competitors",
+            note="Required list of candidates with url, source and observed_at.",
+        ),
+    ),
+    _command(
+        "project-competitors-list",
+        "project_competitors_list",
+        _form("project_directory", "directory"),
+    ),
+    _command(
+        "project-competitors-remove",
+        "project_competitors_remove",
+        _form("project_directory", "directory"),
+        _form("live_url", "url", note="The recorded competitor URL to drop from the shortlist."),
+    ),
     _command("skill-list", "skill_list", _form("no_input")),
     _command("skill-show", "skill_show", _form("selector", "name")),
     _command("scenario-list", "scenario_list", _form("no_input")),

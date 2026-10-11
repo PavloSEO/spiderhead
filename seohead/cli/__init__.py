@@ -171,6 +171,9 @@ COMMANDS = (
     "project-policy",
     "project-prepare",
     "project-start",
+    "project-competitors-add",
+    "project-competitors-list",
+    "project-competitors-remove",
     "skill-list",
     "skill-show",
     "scenario-list",
@@ -703,6 +706,9 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         "project-policy",
         "project-prepare",
         "project-start",
+        "project-competitors-add",
+        "project-competitors-list",
+        "project-competitors-remove",
     }:
         for name in ("directory", "target", "label", "expected_site"):
             value = getattr(args, name, None)
@@ -725,6 +731,8 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             kw["approve_large_crawl"] = True
         if getattr(args, "producer_build", None):
             kw["producer_build"] = args.producer_build
+        if cmd == "project-competitors-remove":
+            kw["url"] = args.url
     elif cmd.startswith("project-sources-"):
         for name in ("directory", "service", "resource", "label"):
             value = getattr(args, name, None)
@@ -2556,8 +2564,17 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             action="store_true",
             help="apply the previewed policy with an expected revision",
         )
-    if cmd in {"project-policy", "project-prepare", "project-start"}:
+    if cmd in {
+        "project-policy",
+        "project-prepare",
+        "project-start",
+        "project-competitors-add",
+        "project-competitors-list",
+        "project-competitors-remove",
+    }:
         _source_flag(sub, "--directory", help="project directory")
+    if cmd == "project-competitors-remove":
+        sub.add_argument("--url", required=True, help="recorded competitor URL to remove")
     if cmd == "project-policy":
         sub.add_argument(
             "--expected-revision", type=int, help="current policy revision, zero for a new policy"

@@ -306,6 +306,161 @@ def _candidate(value: Any) -> dict:
     return {**value, "url": _candidate_url(value["url"])}
 
 
+def _competitor_identity(url: str) -> str:
+    """The core site identity a candidate URL resolves to; the stored URL keeps its www host."""
+    return _target(url)
+
+
+def _competitor_workspaces(root: Path, candidates: list[dict]) -> list[dict]:
+    """Create or reuse one local workspace per candidate and return its shortlist rows."""
+    from .workspace import create_project
+
+    directory_root = root / "competitors"
+    if directory_root.is_symlink():
+        raise ValueError("unsafe competitor workspace directory")
+    directory_root.mkdir(mode=0o700, exist_ok=True)
+    rows = []
+    for candidate in candidates:
+        slug = hashlib.sha256(candidate["url"].encode()).hexdigest()[:16]
+        child = directory_root / slug
+        if not child.exists():
+            create_project(
+                child,
+                candidate["url"],
+                facts=[
+                    {
+                        "name": "candidate_source",
+                        "value": candidate["source"],
+                        "provenance": "project preparation",
+                        "observed_at": candidate["observed_at"],
+                    }
+                ],
+            )
+        _, child_project = _load(child)
+        if child_project["site"]["target"] != _competitor_identity(candidate["url"]):
+            raise ValueError("competitor workspace site identity mismatch")
+        initialize_coverage(child, template=None)
+        rows.append(
+            {
+                **candidate,
+                "directory": child.relative_to(root).as_posix(),
+                "project_uuid": child_project["project_uuid"],
+                "state": "candidate; audit not run",
+            }
+        )
+    return rows
+
+
+def add_competitors(directory: str, competitors: list) -> dict:
+    """Record operator-supplied competitor candidates without running a preparation crawl."""
+    root, project = _load(directory)
+    policy = project_policy(directory)["policy"]
+    if not isinstance(competitors, list) or not competitors:
+        raise ValueError("competitors must be a non-empty list of candidates")
+    candidates = [_candidate(value) for value in competitors]
+    identities = [_competitor_identity(row["url"]) for row in candidates]
+    if len(set(identities)) != len(identities):
+        raise ValueError("duplicate competitor candidates")
+    if project["site"]["target"] in identities:
+        raise ValueError("the primary site cannot be its own competitor candidate")
+    lock = root / ".prepare.lock"
+    try:
+        fd = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError as exc:
+        raise ValueError("project preparation is already running") from exc
+    os.close(fd)
+    try:
+        current = read_document(root, "preparation.json")
+        if current is not None and (
+            current.get("format") != PREPARATION_FORMAT
+            or current.get("project_uuid") != project["project_uuid"]
+            or not isinstance(current.get("steps"), dict)
+            or not isinstance(current.get("competitors"), list)
+        ):
+            raise ValueError("invalid project preparation state")
+        existing = current["competitors"] if current else []
+        known = {_competitor_identity(row["url"]) for row in existing}
+        duplicates = sorted(
+            row["url"]
+            for row, identity in zip(candidates, identities, strict=True)
+            if identity in known
+        )
+        if duplicates:
+            raise ValueError("competitor already recorded: " + duplicates[0])
+        if len(existing) + len(candidates) > policy["competitor_limit"]:
+            raise ValueError("competitor candidate list exceeds the project limit")
+        revision = current.get("revision", 0) if current else 0
+        state = current or {
+            "format": PREPARATION_FORMAT,
+            "project_uuid": project["project_uuid"],
+            "revision": 0,
+            "started_at": _now(),
+            "state": "partial",
+            "steps": {},
+            "competitors": [],
+        }
+        state["competitors"] = [*existing, *_competitor_workspaces(root, candidates)]
+        state["steps"]["competitors"] = {
+            "state": "run",
+            "reason": "operator-supplied candidate shortlist; competitiveness is not verified",
+            "count": len(state["competitors"]),
+        }
+        state["revision"] = revision + 1
+        write_document(root, "preparation.json", state, expected_revision=revision)
+        return {"ok": True, "competitors": state["competitors"], "preparation": state}
+    finally:
+        lock.unlink(missing_ok=True)
+
+
+def list_competitors(directory: str) -> dict:
+    """Read the recorded competitor candidates without changing them."""
+    status = preparation_status(directory)
+    return {"ok": True, "competitors": status.get("competitors", [])}
+
+
+def remove_competitor(directory: str, url: str) -> dict:
+    """Drop one candidate from the shortlist; its local workspace stays on disk, untouched."""
+    root, _ = _load(directory)
+    target = _competitor_identity(_candidate_url(url))
+    lock = root / ".prepare.lock"
+    try:
+        fd = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError as exc:
+        raise ValueError("project preparation is already running") from exc
+    os.close(fd)
+    try:
+        current = read_document(root, "preparation.json")
+        if current is None or not isinstance(current.get("competitors"), list):
+            raise ValueError("no competitor candidates are recorded")
+        if not isinstance(current.get("steps"), dict):
+            raise ValueError("invalid project preparation state")
+        revision = current.get("revision", 0)
+        kept = [row for row in current["competitors"] if _competitor_identity(row["url"]) != target]
+        if len(kept) == len(current["competitors"]):
+            raise ValueError("competitor is not recorded: " + url)
+        removed = next(
+            row for row in current["competitors"] if _competitor_identity(row["url"]) == target
+        )
+        current["competitors"] = kept
+        current["steps"]["competitors"] = {
+            "state": "run" if kept else "not_run",
+            "reason": "operator-supplied candidate shortlist; competitiveness is not verified"
+            if kept
+            else "no supplied or authorized competitor source; no competitors invented",
+            "count": len(kept),
+        }
+        current["revision"] = revision + 1
+        write_document(root, "preparation.json", current, expected_revision=revision)
+        return {
+            "ok": True,
+            "removed": removed["url"],
+            "workspace_kept": removed.get("directory"),
+            "competitors": kept,
+        }
+    finally:
+        lock.unlink(missing_ok=True)
+
+
 def prepare_project(
     directory: str,
     *,
@@ -317,7 +472,7 @@ def prepare_project(
 ) -> dict:
     """Run the bounded native preparation path using explicitly injected shared tools."""
     from .priorities import project_priorities
-    from .workspace import create_project, project_status
+    from .workspace import project_status
 
     root, project = _load(directory)
     policy = project_policy(directory)["policy"]
@@ -482,38 +637,7 @@ def prepare_project(
             }
         save()
         if candidates:
-            directory_root = root / "competitors"
-            if directory_root.is_symlink():
-                raise ValueError("unsafe competitor workspace directory")
-            directory_root.mkdir(mode=0o700, exist_ok=True)
-            for candidate in candidates:
-                slug = hashlib.sha256(candidate["url"].encode()).hexdigest()[:16]
-                child = directory_root / slug
-                if not child.exists():
-                    create_project(
-                        child,
-                        candidate["url"],
-                        facts=[
-                            {
-                                "name": "candidate_source",
-                                "value": candidate["source"],
-                                "provenance": "project preparation",
-                                "observed_at": candidate["observed_at"],
-                            }
-                        ],
-                    )
-                _, child_project = _load(child)
-                if child_project["site"]["target"] != candidate["url"]:
-                    raise ValueError("competitor workspace site identity mismatch")
-                initialize_coverage(child, template=None)
-                state["competitors"].append(
-                    {
-                        **candidate,
-                        "directory": child.relative_to(root).as_posix(),
-                        "project_uuid": child_project["project_uuid"],
-                        "state": "candidate; audit not run",
-                    }
-                )
+            state["competitors"].extend(_competitor_workspaces(root, candidates))
             state["steps"]["competitors"] = {
                 "state": "run",
                 "reason": "operator-supplied candidate shortlist; competitiveness is not verified",
@@ -611,7 +735,7 @@ def aggregate_coverage(
         _, metadata = _load(path)
         if (
             metadata["project_uuid"] != child.get("project_uuid")
-            or metadata["site"]["target"] != child.get("url")
+            or metadata["site"]["target"] != _competitor_identity(child.get("url"))
             or metadata["project_uuid"] in seen
         ):
             raise ValueError("competitor project identity mismatch")

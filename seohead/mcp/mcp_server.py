@@ -2447,6 +2447,35 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             )
         )
 
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_competitors_add(
+        directory: str,
+        competitors: list,
+        consumer: str | None = None,
+    ) -> dict[str, Any]:
+        """Record supplied competitor candidates as separate local workspaces, without crawling.
+
+        Each item needs url, source and observed_at. Scans are started separately per workspace.
+        """
+        return _checked(
+            with_project_notice(
+                handlers.project_competitors_add(directory, competitors=competitors),
+                directory,
+                consumer,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_competitors_list(directory: str) -> dict[str, Any]:
+        """List the recorded competitor candidates and their local workspaces; no change."""
+        return _checked(handlers.project_competitors_list(directory))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_competitors_remove(directory: str, url: str) -> dict[str, Any]:
+        """Drop one recorded competitor from the shortlist. Its local workspace and scans stay
+        on disk, untouched; no crawl runs."""
+        return _checked(handlers.project_competitors_remove(directory, url))
+
     @mcp.tool(annotations=create_files_from_web, structured_output=True)
     def seo_project_prepare(
         directory: str,
