@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sqlite3
+
 from .inputs import resolve_audit_source
 
 
@@ -27,37 +29,34 @@ def materialize(con, path, *, checks=None, severity=None, timeout_seconds=5.0):
     else:
         source, _notices = resolve_audit_source(path)
     streaming = hasattr(source, "iter_collection")
-    header = source.header if streaming else source
-    skipped_rows = (
-        source.iter_collection("/run/checks_skipped")
-        if streaming and "/run/checks_skipped" in source.collections
-        else (header.get("run") or {}).get("checks_skipped", [])
-    )
-    skipped = [row for row in skipped_rows if wanted and _code(row["id"]) in wanted]
-    if skipped:
-        if streaming:
-            source.close()
-        raise UnmeasuredChecks("; ".join(f"{row['id']}: {row['reason']}" for row in skipped))
-    coverage = (header.get("summary") or {}).get("check_coverage") or {}
-    disabled = {_code(value) for value in coverage.get("checks_disabled_ids", [])}
-    if wanted & disabled:
-        if streaming:
-            source.close()
-        raise UnmeasuredChecks(
-            "requested check(s) disabled in saved audit: " + ", ".join(sorted(wanted & disabled))
-        )
-    measured = {_code(value) for value in coverage.get("checks_silent_ids", [])} & wanted
-    issues = (
-        source.iter_collection("/issues")
-        if streaming and "/issues" in source.collections
-        else header.get("issues", [])
-    )
-    groups = (
-        source.iter_collection("/groups")
-        if streaming and "/groups" in source.collections
-        else header.get("groups", [])
-    )
     try:
+        header = source.header if streaming else source
+        skipped_rows = (
+            source.iter_collection("/run/checks_skipped")
+            if streaming and "/run/checks_skipped" in source.collections
+            else (header.get("run") or {}).get("checks_skipped", [])
+        )
+        skipped = [row for row in skipped_rows if wanted and _code(row["id"]) in wanted]
+        if skipped:
+            raise UnmeasuredChecks("; ".join(f"{row['id']}: {row['reason']}" for row in skipped))
+        coverage = (header.get("summary") or {}).get("check_coverage") or {}
+        disabled = {_code(value) for value in coverage.get("checks_disabled_ids", [])}
+        if wanted & disabled:
+            raise UnmeasuredChecks(
+                "requested check(s) disabled in saved audit: "
+                + ", ".join(sorted(wanted & disabled))
+            )
+        measured = {_code(value) for value in coverage.get("checks_silent_ids", [])} & wanted
+        issues = (
+            source.iter_collection("/issues")
+            if streaming and "/issues" in source.collections
+            else header.get("issues", [])
+        )
+        groups = (
+            source.iter_collection("/groups")
+            if streaming and "/groups" in source.collections
+            else header.get("groups", [])
+        )
         con.execute("PRAGMA query_only=OFF")
         con.execute("PRAGMA temp_store=FILE")
         con.execute("CREATE TEMP TABLE issue_urls(url_id INTEGER PRIMARY KEY)")
@@ -91,7 +90,15 @@ def materialize(con, path, *, checks=None, severity=None, timeout_seconds=5.0):
                 con.execute(
                     "INSERT OR IGNORE INTO issue_urls SELECT url_id FROM urls WHERE url=?", (url,)
                 )
+        con.execute("PRAGMA query_only=ON")
+    except sqlite3.OperationalError as exc:
+        if "interrupted" in str(exc).lower():
+            from .audit_v2 import AuditReadTimeout
+
+            raise AuditReadTimeout(
+                "saved issue selection exceeded its explicit query budget"
+            ) from exc
+        raise
     finally:
         if streaming:
             source.close()
-        con.execute("PRAGMA query_only=ON")

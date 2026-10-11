@@ -139,3 +139,33 @@ def test_streaming_issue_reader_deadline_is_explicit_unavailable(tmp_path, monke
     assert queried["ok"] and queried["state"] == "unavailable"
     assert queried["reason_code"] == "issue_selection_timeout"
     assert queried["filtered_total"] is None
+
+
+def test_interrupted_skipped_check_stream_closes_reader_and_is_unavailable(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from seohead.storage import audit_v2
+
+    _capture(tmp_path, {BASE: _Response(_html())})
+    closed = []
+
+    class InterruptedReader:
+        def __init__(self):
+            self.header = {"run": {}, "summary": {}}
+            self.collections = {"/run/checks_skipped"}
+
+        def iter_collection(self, _pointer):
+            raise sqlite3.OperationalError("interrupted")
+            yield  # keep a lazy cursor interface
+
+        def close(self):
+            closed.append(True)
+
+    monkeypatch.setattr(
+        audit_v2, "audit_v2_path", lambda _path: SimpleNamespace(exists=lambda: True)
+    )
+    monkeypatch.setattr(audit_v2, "AuditV2Reader", lambda *_args, **_kwargs: InterruptedReader())
+    queried = scan_url_query(str(tmp_path / "scan.sqlite"), issue_check="TITLE_MISSING")
+    assert queried["ok"] and queried["state"] == "unavailable"
+    assert queried["reason_code"] == "issue_selection_timeout"
+    assert queried["filtered_total"] is None and closed == [True]
