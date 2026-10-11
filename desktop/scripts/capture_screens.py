@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Render native screens offscreen to PNG: capture_screens.py OUT_DIR NAME [NAME ...] [--theme light] [--lang ru|en] [--sizes 1440x900,800x800].
 
-NAME: settings:<section id> | start[:banner] (Start, no project open; banner = one missing recent folder) | tabsettings | shell[:<section>] | url[:<detail tab>] | help[:url-section] | logsbots (Проверка ботов, extra screen) | newscan[:state] | scanset:<page> | quickscan[:state] | projschedule (project settings → Расписание) | menu | gallery | modal:<id> (one per modal of the Modals board: settings, project-settings, help, action-finder, tab-config, new-project, crawl-config, permission, new-scan, scan-settings, quick-scan) (the three scan kinds: capture_scan_dialog.py). In-memory settings; scans only through --project.
+NAME: settings:<section id> | start[:banner] (Start, no project open; banner = one missing recent folder) | tabsettings | shell[:<section>] | url[:<detail tab>[:<path>]] | help[:url-section] | logsbots (Проверка ботов, extra screen) | newscan[:state] | scanset:<page> | quickscan[:state] | projschedule (project settings → Расписание) | menu | gallery | modal:<id> (one per modal of the Modals board: settings, project-settings, help, action-finder, tab-config, new-project, crawl-config, permission, new-scan, scan-settings, quick-scan) (the three scan kinds: capture_scan_dialog.py). In-memory settings; scans only through --project.
 Options for shell: --project DIR opens an existing project through the core CLI (read-only; e.g. the QA project) and
 --display simple switches the display; ``shell:scans`` selects a navigation section after the project has loaded.
 ``shell:graph`` needs a QA project with a saved scan: --project DIR, or the SEOHEAD_QA_PROJECT environment variable.
@@ -210,8 +210,8 @@ def modal_dialog(arg, width, height, theme, lang):
     raise SystemExit(f"unknown modal: {arg}")
 
 
-def url_tab(window, tab, timeout=120):
-    """Select the first saved URL of the URL section and open its detail on ``tab``; every answer is read through the core."""
+def url_tab(window, tab, path="", timeout=120):
+    """Select a saved URL by path (or the first row) and open its detail on ``tab``; every answer is read through the core."""
     import time
 
     deadline = time.monotonic() + timeout
@@ -225,7 +225,10 @@ def url_tab(window, tab, timeout=120):
     window.navigation.select_section("url")
     screen = window.screens["url"]
     wait(lambda: bool(screen.rows))
-    screen.table.selectRow(0)
+    from urllib.parse import urlsplit
+
+    index = next((i for i, row in enumerate(screen.rows) if path and urlsplit(row.get("url", "")).path == path), 0)
+    screen.table.selectRow(index)
     wait(lambda: screen.detail_job.busy or screen._select_timer.isActive() or screen.detail_data is not None)
     wait(lambda: not screen.detail_job.busy and not screen._select_timer.isActive())
     screen._open_tab(tab)
@@ -273,7 +276,8 @@ def build(name, width, height, store, theme="light", lang="ru"):
                 raise SystemExit("url:<tab> needs --project")
             window.show_startup_workspace()
             open_project(window, OPTIONS["project"])
-            url_tab(window, arg or "info")
+            tab, _, path = arg.partition(":")
+            url_tab(window, tab or "info", path)
         else:
             window.prefs.set("shell.onboarding_done", True)
             if arg == "banner":
@@ -391,7 +395,7 @@ def main(argv=None):
             width, height = (int(v) for v in size.split("x"))
             widget = build(name, width, height, store, args.theme, args.lang)
             suffix = "" if args.lang == "ru" else f"-{args.lang}"
-            path = args.out_dir / f"{name.replace(':', '-')}-{args.theme}-{size}{suffix}.png"
+            path = args.out_dir / f"{name.replace(':', '-').replace('/', '_')}-{args.theme}-{size}{suffix}.png"
             if name.startswith(("settings", "tabsettings", "projsources", "projschedule", "sources", "sourcekey")) or isinstance(widget, QDialog):  # settings, sources, project settings and every modal:<id> dialog
                 image = render_modal(widget, width, height, args.theme, args.lang)
                 image.save(str(path))
