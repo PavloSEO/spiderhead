@@ -103,9 +103,10 @@ def _drop_retained_only_checks(audit: dict) -> dict:
     it -- issues, skip declarations, coverage rows and their dependent totals --
     keeps this test measuring the shared-evidence parity it exists for.
     """
-    # The four security-header checks (#1013) read each page's stored response headers, which
-    # the legacy graph never keeps: the same retained-only shape as BROKEN_BOOKMARK.
-    retained_only = {"BROKEN_BOOKMARK", *security_headers.HEADER_CHECKS}
+    # The security-header checks (#1013, and the repeated-header check) read each page's stored
+    # response headers, which the legacy graph never keeps: the same retained-only shape as
+    # BROKEN_BOOKMARK.
+    retained_only = {"BROKEN_BOOKMARK", *security_headers.CHECK_IDS}
     document = copy.deepcopy(audit)
     summary = document.get("summary") if isinstance(document.get("summary"), dict) else {}
     summary.pop("fragment_links", None)

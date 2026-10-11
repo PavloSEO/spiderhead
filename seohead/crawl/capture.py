@@ -36,6 +36,14 @@ _ALLOW = frozenset(
         "range",
         "content-range",
         "link",
+        # Judged by the security-header checks (seohead.crawl.security_headers). Their
+        # values are policy text, not credentials, so they are stored as sent.
+        "strict-transport-security",
+        "content-security-policy",
+        "x-frame-options",
+        "x-content-type-options",
+        "referrer-policy",
+        "permissions-policy",
     }
 )
 
@@ -51,6 +59,23 @@ _SENSITIVE = frozenset(
 # header any site sends, and outside every sensitive-name check the artifact validates
 # against, so a reader can never confuse the marker with the header it stands for.
 REDACTED_NAMES_HEADER = "x-seohead-redacted-headers"
+
+# One pair per Set-Cookie header the site sent, carrying only its attribute flags
+# (secure, httponly, samesite=...) -- never the cookie's name or value. An empty value
+# means the cookie carried no flags.
+COOKIE_FLAGS_HEADER = "x-seohead-cookie-flags"
+
+
+def _cookie_flags(set_cookie: str) -> str:
+    flags = []
+    for attribute in set_cookie.split(";")[1:]:
+        key, _, value = attribute.strip().partition("=")
+        key = key.strip().lower()
+        if key in ("secure", "httponly"):
+            flags.append(key)
+        elif key == "samesite":
+            flags.append(f"samesite={value.strip().lower()}")
+    return ",".join(flags)
 
 
 def header_pairs(headers: Any) -> tuple[tuple[str, str], ...]:
@@ -76,6 +101,11 @@ def redact_headers(headers: Any) -> tuple[tuple[str, str], ...]:
     """
     pairs = header_pairs(headers)
     kept = tuple((name, value) for name, value in pairs if name in _ALLOW)
+    kept += tuple(
+        (COOKIE_FLAGS_HEADER, _cookie_flags(value))
+        for name, value in pairs
+        if name == "set-cookie" and value
+    )
     redacted = sorted({name for name, value in pairs if name in _SENSITIVE and value})
     if redacted:
         kept += ((REDACTED_NAMES_HEADER, ",".join(redacted)),)
@@ -185,6 +215,7 @@ def bounded_entity_chunks(chunks: Iterable[bytes], content_encoding: str, limit:
 
 
 __all__ = [
+    "COOKIE_FLAGS_HEADER",
     "REDACTED_NAMES_HEADER",
     "CaptureEvent",
     "bounded_entity",

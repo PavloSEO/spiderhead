@@ -2056,7 +2056,7 @@ def _audit_crawl_result(
             elif not header_evidence["pages_measured"]:
                 ctx.skip(check_id, "no HTML page with a 2xx response was stored")
     else:
-        for check_id in security_headers.HEADER_CHECKS:
+        for check_id in security_headers.CHECK_IDS:
             ctx.skip(check_id, "crawl was not stored; per-URL response headers are not retained")
 
     # A broken bookmark is not a link-status problem: the fragment resolves

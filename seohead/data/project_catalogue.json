@@ -309,6 +309,13 @@
       "title": "The page repeats the same link -- same destination, same anchor text -- more than once"
     },
     {
+      "definition_hash": "4c268ea630bd7ea3402f16cac6f64335b389dac8e35da130cf6777a2ff45b513",
+      "id": "check:DUPLICATE_SECURITY_HEADER",
+      "kind": "check",
+      "source": "runtime:CHECKS",
+      "title": "HTML page sends a security header more than once"
+    },
+    {
       "definition_hash": "8b7b283513b75fd79179470a963040e6330e9098a6b29e8e82ad44af06e553dd",
       "id": "check:EXTERNAL_LINK_TO_REDIRECT",
       "kind": "check",

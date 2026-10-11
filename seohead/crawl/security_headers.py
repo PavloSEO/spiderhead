@@ -6,6 +6,7 @@ final response of an HTML page that answered 2xx. Other media types are not judg
 missing Content-Security-Policy on a PDF or an image is not a defect of the page that links it.
 
 Presence is what is checked, matching how Screaming Frog words these issues ("Missing ... Header").
+A header sent more than once on one response is reported as DUPLICATE_SECURITY_HEADER.
 Header values are not validated. X-Frame-Options is satisfied by a CSP ``frame-ancestors``
 directive, the same rule ``seohead.recon.security`` applies to a live response.
 """
@@ -25,6 +26,13 @@ HEADER_CHECKS: dict[str, str] = {
     "MISSING_REFERRER_POLICY": "referrer-policy",
 }
 
+# A security header sent more than once on one response. Kept apart from HEADER_CHECKS, which
+# reports absence; every check id the evaluation returns is listed in CHECK_IDS.
+DUPLICATE_CHECK = "DUPLICATE_SECURITY_HEADER"
+CHECK_IDS: tuple[str, ...] = (*HEADER_CHECKS, DUPLICATE_CHECK)
+
+_SECURITY_HEADERS = (*HEADER_CHECKS.values(), "permissions-policy")
+
 _HTML_TYPES = frozenset({"text/html", "application/xhtml+xml"})
 
 # The final page response, not every request: a redirected or re-fetched URL can own several
@@ -40,15 +48,15 @@ _PAGE_RESPONSES_SQL = (
 )
 
 
-def _header_map(raw: Any) -> dict[str, str] | None:
-    """Lower-cased header name -> combined value, or None when the stored pairs do not parse."""
+def _header_pairs(raw: Any) -> list[tuple[str, str]] | None:
+    """The stored (name, value) pairs in wire order, or None when they do not parse."""
     try:
         pairs = json.loads(raw)
     except (TypeError, ValueError):
         return None
     if not isinstance(pairs, list):
         return None
-    headers: dict[str, str] = {}
+    out: list[tuple[str, str]] = []
     for pair in pairs:
         if not (
             isinstance(pair, list)
@@ -57,9 +65,24 @@ def _header_map(raw: Any) -> dict[str, str] | None:
             and isinstance(pair[1], str)
         ):
             return None
-        name = pair[0].lower()
-        headers[name] = f"{headers[name]}, {pair[1]}" if name in headers else pair[1]
+        out.append((pair[0].lower(), pair[1]))
+    return out
+
+
+def _header_map(pairs: list[tuple[str, str]]) -> dict[str, str]:
+    """Lower-cased header name -> combined value; repeated names are joined, not overwritten."""
+    headers: dict[str, str] = {}
+    for name, value in pairs:
+        headers[name] = f"{headers[name]}, {value}" if name in headers else value
     return headers
+
+
+def _repeated(pairs: list[tuple[str, str]]) -> list[str]:
+    """The security headers that appear more than once on the same response."""
+    counts: dict[str, int] = {}
+    for name, _value in pairs:
+        counts[name] = counts.get(name, 0) + 1
+    return [header for header in _SECURITY_HEADERS if counts.get(header, 0) > 1]
 
 
 def _is_judged_html(status_code: Any, content_type: str) -> bool:
@@ -85,18 +108,21 @@ def evaluate(con: sqlite3.Connection) -> dict[str, Any]:
     """
     if not isinstance(con, sqlite3.Connection):
         raise TypeError("security header evaluation requires a SQLite scan connection")
-    findings: dict[str, list[dict[str, Any]]] = {check_id: [] for check_id in HEADER_CHECKS}
+    findings: dict[str, list[dict[str, Any]]] = {check_id: [] for check_id in CHECK_IDS}
     measured = 0
     unmeasured = 0
     for url, status_code, content_type, raw_headers in con.execute(_PAGE_RESPONSES_SQL):
         if not _is_judged_html(status_code, content_type):
             continue
-        headers = _header_map(raw_headers) if raw_headers is not None else None
-        if headers is None:
+        pairs = _header_pairs(raw_headers) if raw_headers is not None else None
+        if pairs is None:
             unmeasured += 1
             continue
         measured += 1
+        headers = _header_map(pairs)
         for check_id in HEADER_CHECKS:
             if _missing(check_id, headers):
                 findings[check_id].append({"target_url": url, "header": HEADER_CHECKS[check_id]})
+        for header in _repeated(pairs):
+            findings[DUPLICATE_CHECK].append({"target_url": url, "header": header})
     return {"findings": findings, "pages_measured": measured, "pages_unmeasured": unmeasured}

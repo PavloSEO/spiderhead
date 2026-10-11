@@ -90,7 +90,7 @@ def test_empty_header_value_counts_as_missing_for_csp():
     assert _fired(security_headers.evaluate(con)) == {"MISSING_CSP": ["https://e.test/"]}
 
 
-def test_repeated_header_names_are_combined_not_last_wins():
+def test_repeated_header_names_are_combined_and_the_repeat_is_reported():
     headers = [
         ["strict-transport-security", "max-age=31536000"],
         ["content-security-policy", "default-src 'self'"],
@@ -99,7 +99,9 @@ def test_repeated_header_names_are_combined_not_last_wins():
         ["referrer-policy", "no-referrer"],
     ]
     con = _store([(1, "https://e.test/", 200, "text/html", headers)])
-    assert _fired(security_headers.evaluate(con)) == {}
+    assert _fired(security_headers.evaluate(con)) == {
+        "DUPLICATE_SECURITY_HEADER": ["https://e.test/"]
+    }
 
 
 @pytest.mark.parametrize(
@@ -194,3 +196,12 @@ def test_hsts_is_read_from_the_final_response_not_a_redirect_hop():
     con = _store([(1, "https://e.test/", 200, "text/html", _ALL_PRESENT)])
     con.execute("UPDATE responses SET response_headers_redacted_json = '[]'")
     assert _fired(security_headers.evaluate(con)) == {}
+
+
+def test_duplicate_security_header_fires_on_a_repeat_and_stays_silent_on_clean():
+    defect = _store(
+        [(1, "https://e.test/", 200, "text/html", [*_ALL_PRESENT, ["x-frame-options", "DENY"]])]
+    )
+    clean = _store([(1, "https://e.test/", 200, "text/html", _ALL_PRESENT)])
+    assert "DUPLICATE_SECURITY_HEADER" in _fired(security_headers.evaluate(defect))
+    assert "DUPLICATE_SECURITY_HEADER" not in _fired(security_headers.evaluate(clean))
