@@ -369,3 +369,41 @@ def test_retained_only_findings_are_unmeasured_on_export_input():
         "INTERNALLY_LINKED_ROBOTS_BLOCKED",
     ):
         assert skipped[check] == "this check requires retained native scan evidence"
+
+
+def test_descriptive_internal_anchor_is_clean(tmp_path):
+    con, page, link = corpus(tmp_path)
+    page("/source")
+    page("/destination")
+    link("/source", "/destination", "Read the installation guide")
+    with RetainedLinkFindings(con) as retained:
+        checks = {item["check"] for item in retained.findings()}
+    assert "INTERNAL_LINK_NO_ANCHOR" not in checks
+    assert "BROKEN_INTERNAL_LINK" not in checks
+    assert "LINK_TO_5XX" not in checks
+    assert "INTERNAL_LINK_TO_REDIRECT" not in checks
+    assert "REDIRECT_CHAIN" not in checks
+    assert "REDIRECT_LOOP" not in checks
+
+
+def test_external_successful_response_is_clean(tmp_path):
+    from seohead.crawl.external import ExternalCheck
+    from seohead.storage.external_checks import ensure_schema
+
+    con, page, _link = corpus(tmp_path)
+    page("/")
+    ensure_schema(con)
+    response = ExternalCheck(
+        url="https://outside.test/",
+        outcome="fetched",
+        status_code=200,
+        sources=[ROOT + "/"],
+        source_count=1,
+        final_url="https://outside.test/",
+    )
+    con.execute(
+        "INSERT INTO external_checks VALUES(0,'fetched',?)", (json.dumps(response.as_dict()),)
+    )
+    with RetainedLinkFindings(con) as retained:
+        checks = {item["check"] for item in retained.external_findings()}
+    assert "EXTERNAL_NO_RESPONSE" not in checks

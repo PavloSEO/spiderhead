@@ -135,6 +135,14 @@ def test_all_retained_contradictions_and_fifteen_clean_showcase_pages(tmp_path, 
         }
         assert expected <= findings
         assert not any(target in clean for _check, target in findings)
+        clean_checks = {check for check, target in findings if target in clean}
+        assert "SITEMAP_URL_3XX" not in clean_checks
+        assert "SITEMAP_URL_4XX_5XX" not in clean_checks
+        assert "SITEMAP_URL_NON_INDEXABLE" not in clean_checks
+        assert "URL_NOT_IN_SITEMAP" not in clean_checks
+        assert "SITEMAP_URL_NON_CANONICAL" not in clean_checks
+        assert "SITEMAP_URL_BLOCKED_ROBOTS" not in clean_checks
+        assert "INTERNALLY_LINKED_ROBOTS_BLOCKED" not in clean_checks
         assert result["canonical_pages_not_in_sitemap_count"] == 2
         assert result["sitemap_status_unmeasured"] == 1
         resources = [
