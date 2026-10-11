@@ -6,6 +6,7 @@ The core reports only run events (time, phase, code) with no actor and no text, 
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from PyQt5.QtCore import QAbstractTableModel, Qt, QUrl
@@ -43,8 +44,13 @@ UNAVAILABLE_SOURCE = "Источник не указан: ядро не запи
 
 
 def app_logs_directory():
-    """Folder of the app logs; it is read by the app itself, so it does not need the core."""
-    return Path.home() / "Library" / "Logs" / "SEOHEAD"
+    """Directory of the existing launch log supplied by the source launcher."""
+    value = os.environ.get("SEOHEAD_DESKTOP_LOG")
+    if value:
+        log = Path(value)
+        if log.is_absolute() and log.is_file():
+            return log.parent
+    return None
 
 
 class ElidedLabel(QLabel):
@@ -301,8 +307,8 @@ class JournalScreen(Screen):
 
     def reveal_logs(self):
         path = app_logs_directory()
-        path.mkdir(parents=True, exist_ok=True)
-        QDesktopServices.openUrl(QUrl.fromLocalFile(str(path)))
+        if path is not None:
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(path)))
 
     def _set_state(self, kind, panel=None):
         if self.state is not None:
@@ -339,3 +345,6 @@ class JournalScreen(Screen):
         self.foot_text.set_full_text(
             trf("Показаны последние {n} событий: постраничное чтение журнала ещё не поддержано ядром", n=loaded) if loaded
             else tr("Журнал проекта читается только как события запусков"))
+        log_directory = app_logs_directory()
+        self.open_folder.setEnabled(log_directory is not None)
+        self.open_folder.setToolTip(str(log_directory) if log_directory is not None else tr("Путь журнала запуска не передан приложению или файл недоступен"))

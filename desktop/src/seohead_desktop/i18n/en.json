@@ -802,6 +802,7 @@
  "Проекты": "Projects",
  "Открыть папку проекта": "Open project folder",
  "Открыть папку логов": "Open logs folder",
+ "Путь журнала запуска не передан приложению или файл недоступен": "The launch log path was not supplied to the app or the file is unavailable",
  "Найти по имени или домену": "Search by name or domain",
  "Найти проект": "Search projects",
  "Указать новый путь": "Set the new path",

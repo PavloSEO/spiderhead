@@ -144,11 +144,11 @@ class JournalTests(unittest.TestCase):
         self.assertEqual(self.screen.model.rowCount(), 4)
         self.feed([run(), live_run()])
         self.assertEqual(self.screen.model.rowCount(), 8)
-        with tempfile.TemporaryDirectory() as home, patch("seohead_desktop.screens.journal.app_logs_directory", return_value=Path(home, "SEOHEAD")):
+        with tempfile.TemporaryDirectory() as home, patch("seohead_desktop.screens.journal.app_logs_directory", return_value=Path(home)):
+            self.screen.refresh()
             with patch("seohead_desktop.screens.journal.QDesktopServices.openUrl") as opened:
                 self.screen.open_folder.click()
-            self.assertTrue(Path(home, "SEOHEAD").is_dir())
-        self.assertEqual(opened.call_args[0][0].toLocalFile(), str(Path(home, "SEOHEAD")))
+        self.assertEqual(opened.call_args[0][0].toLocalFile(), home)
 
     def test_english_leaves_no_russian_in_visible_texts(self):
         self.feed([run(), live_run()])

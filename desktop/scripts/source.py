@@ -223,7 +223,7 @@ def run(args) -> int:
             cwd=ROOT,
             stdout=output,
             stderr=subprocess.STDOUT,
-            env=dict(os.environ, PYTHONUNBUFFERED="1"),
+            env=dict(os.environ, PYTHONUNBUFFERED="1", SEOHEAD_DESKTOP_LOG=str(log.resolve())),
         )
         output.write(json.dumps({"exit_code": result.returncode}) + "\n")
     return result.returncode
