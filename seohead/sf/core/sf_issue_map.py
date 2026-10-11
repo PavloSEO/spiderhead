@@ -399,7 +399,7 @@ CATEGORIES: dict[str, list[Entry]] = {
     "PageSpeed": [
         _c("Document Request Latency", "SLOW_RESPONSE"),
         _o("LCP Request Discovery", "needs Lighthouse's own trace of the loading sequence"),
-        _t("Render Blocking Requests", "asset-weight-check"),
+        _c("Render Blocking Requests", "RENDER_BLOCKING"),
         _o("Network Dependency Tree", "needs a full request waterfall from a real navigation"),
         _t("Use Efficient Cache Lifetimes", "headers-check", "cdn-check"),
         _o("Layout Shift Culprits", "needs layout instrumentation during a real render"),

@@ -1008,6 +1008,12 @@ CHECKS: dict[str, dict[str, Any]] = {
         "crawlable client-rendered). Nothing requests the _escaped_fragment_ companion URL it "
         "advertises any more, so the declaration is inert -- informational rather than broken.",
     },
+    "RENDER_BLOCKING": {
+        "severity": "notice",
+        "source": "crawl:render_blocking",
+        "message": "A <head> script or stylesheet blocks first paint (no async/defer, no non-matching media)",
+        "fix": "Add `defer` or `async` to the <script src>, move it out of <head>, or give the stylesheet a `media` value that the first render does not need.",
+    },
     "NO_COMPRESSION": {
         "severity": "notice",
         "source": "SF-derived",

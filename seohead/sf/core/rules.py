@@ -8,6 +8,7 @@ when a column the data would need is absent.
 from __future__ import annotations
 
 import itertools
+import json
 import mimetypes
 import re
 import urllib.parse
@@ -273,6 +274,7 @@ _BODY_DERIVED_HTML_CHECKS = (
     "PAGINATION_NONINDEXABLE",
     "MISSING_DOCTYPE",
     "VIEWPORT_MISSING",
+    "RENDER_BLOCKING",
     "HEAD_MISSING",
     "HEAD_MULTIPLE",
     "BODY_MISSING",
@@ -2548,6 +2550,123 @@ def check_compression(ctx: AuditContext) -> None:
         )
 
 
+def _check_retained_render_blocking(ctx: AuditContext) -> None:
+    """Read frozen native scan bodies without adding fields to scan.v1."""
+    from bs4 import BeautifulSoup
+
+    from seohead.checks.asset_weight import find_render_blocking_resources
+    from seohead.checks.parser import document_base_url
+    from seohead.storage import ScanError
+    from seohead.storage.bodies import read_document
+
+    measured = False
+    unavailable = False
+    rows = ctx.scan_con.execute(
+        "SELECT u.url,d.document_id,d.body_state,COALESCE(final.url,u.url) "
+        "FROM pages p JOIN urls u USING(url_id) "
+        "LEFT JOIN documents d ON d.url_id=p.url_id AND d.representation='static' "
+        "LEFT JOIN responses r ON r.response_id=d.source_response_id "
+        "LEFT JOIN urls final ON final.url_id=r.effective_url_id "
+        "WHERE lower(p.content_type) LIKE '%html%' ORDER BY p.page_ordinal"
+    )
+    for url, document_id, state, final_url in rows:
+        if document_id is None or state != "complete":
+            unavailable = True
+            continue
+        try:
+            html = read_document(ctx.scan_con, document_id, max_decoded_bytes=2 * 1024 * 1024)
+            soup = BeautifulSoup(html, features="lxml")
+            resources = find_render_blocking_resources(soup, document_base_url(soup, final_url))
+        except (ScanError, ValueError):
+            unavailable = True
+            continue
+        measured = True
+        if resources:
+            ctx.add(
+                "RENDER_BLOCKING",
+                target_url=url,
+                details={
+                    "resources": [item["url"] for item in resources[:200]],
+                    "resources_observed": len(resources),
+                    "resources_omitted": max(0, len(resources) - 200),
+                    "source": "native-retained-static-head",
+                    "source_page": url,
+                    "reason": "retained source head declares blocking scripts or stylesheets; runtime blocking time was not measured",
+                },
+            )
+    if not measured or unavailable:
+        ctx.skip(
+            "RENDER_BLOCKING",
+            "not fully measured by this native crawl: static HTML is absent, incomplete or exceeds the 2 MiB per-document head-analysis budget",
+        )
+
+
+def check_render_blocking(ctx: AuditContext) -> None:
+    """Render Blocking Requests (SF PageSpeed): <head> scripts/stylesheets that hold first paint.
+
+    Only a native seohead crawl measures this (#1022); an SF export without the column
+    skips honestly rather than reporting every page as clean.
+    """
+    if ctx.scan_con is not None:
+        _check_retained_render_blocking(ctx)
+        return
+    if not _has_column(ctx, "render_blocking"):
+        ctx.skip(
+            "RENDER_BLOCKING",
+            "no Render Blocking Resources column (needs a native seohead crawl)",
+        )
+        return
+    for page in ctx.html_pages():
+        rec = _rec(page)
+        if _body_unavailable(rec):
+            continue
+        value = rec.get("render_blocking")
+        if value is None:
+            ctx.skip(
+                "RENDER_BLOCKING",
+                "not measured by this native crawl: retained head-resource markup is absent",
+            )
+            continue
+        try:
+            payload = (
+                json.loads(value) if str(value).startswith(("[", "{")) else str(value).split("\n")
+            )
+            if isinstance(payload, dict):
+                urls, observed, omitted = (
+                    payload["resources"],
+                    payload["observed"],
+                    payload["omitted"],
+                )
+                if (
+                    type(observed) is not int
+                    or type(omitted) is not int
+                    or omitted < 0
+                    or observed != len(urls) + omitted
+                ):
+                    raise ValueError("invalid retained resource counts")
+            else:
+                urls = payload
+                observed, omitted = len(urls), 0
+            if not isinstance(urls, list) or any(type(url) is not str for url in urls):
+                raise ValueError("invalid retained resource URLs")
+        except (ValueError, TypeError, KeyError):
+            ctx.skip("RENDER_BLOCKING", "retained render-blocking markup could not be read")
+            continue
+        if observed:
+            ctx.add(
+                "RENDER_BLOCKING",
+                target_url=page.url,
+                details={
+                    "resources": urls[:200],
+                    "resources_omitted": omitted + max(0, len(urls) - 200),
+                    "resources_observed": observed,
+                    "source": "native-head-markup",
+                    "source_page": page.url,
+                    "reason": "head markup declares render-blocking scripts or stylesheets; runtime blocking time was not measured",
+                },
+            )
+
+
 # --------------------------------------------------------------------------
 # Element position & document skeleton (issue #123)
 #
@@ -3326,6 +3445,7 @@ def check_native_exports(ctx: AuditContext) -> None:
 
 
 ALL_CHECKS = [
+    check_render_blocking,
     check_native_structured_and_mixed,
     check_response_codes,
     check_indexability,
