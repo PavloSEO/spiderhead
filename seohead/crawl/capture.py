@@ -36,6 +36,14 @@ _ALLOW = frozenset(
         "range",
         "content-range",
         "link",
+        # Judged by the security-header checks (seohead.crawl.security_headers). Their
+        # values are policy text, not credentials, so they are stored as sent.
+        "strict-transport-security",
+        "content-security-policy",
+        "x-frame-options",
+        "x-content-type-options",
+        "referrer-policy",
+        "permissions-policy",
     }
 )
 
@@ -51,7 +59,6 @@ _SENSITIVE = frozenset(
 # header any site sends, and outside every sensitive-name check the artifact validates
 # against, so a reader can never confuse the marker with the header it stands for.
 REDACTED_NAMES_HEADER = "x-seohead-redacted-headers"
-
 
 def header_pairs(headers: Any) -> tuple[tuple[str, str], ...]:
     items = (

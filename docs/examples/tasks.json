@@ -3,21 +3,21 @@
   "source": {
     "project": "example.com",
     "site_name": "example.com",
-    "generated_at": "2026-10-10T19:12:52Z",
+    "generated_at": "2026-10-11T02:10:14Z",
     "health_score": null,
     "crawl_valid": true,
     "crawl_invalid_reason": null,
     "crawl_partial": false,
     "crawl_finish_reason": null,
     "health_score_scope": null,
-    "health_score_basis": "93 of 201 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_basis": "94 of 202 checks could run; the score is not comparable to a run with full evidence",
     "check_coverage": {
-      "checks_total": 201,
+      "checks_total": 202,
       "checks_fired": 20,
       "checks_skipped": 108,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
-      "checks_silent": 73,
+      "checks_silent": 74,
       "checks_silent_ids": [
         "BAD_REDIRECT_TYPE",
         "BLOCKED_BY_ROBOTS",
@@ -32,6 +32,7 @@
         "DECLARED_MIME_MISMATCH",
         "DEEP_CRAWL_DEPTH",
         "DESC_TOO_LONG",
+        "DUPLICATE_SECURITY_HEADER",
         "FOLLOW_AND_NOFOLLOW_INLINKS",
         "FORM_ON_HTTP_URL",
         "FORM_URL_INSECURE",
@@ -93,7 +94,7 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.463
+      "coverage": 0.465
     }
   },
   "pipeline": {

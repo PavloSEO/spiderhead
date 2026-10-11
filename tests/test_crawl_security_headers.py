@@ -90,14 +90,18 @@ def test_empty_header_value_counts_as_missing_for_csp():
     assert _fired(security_headers.evaluate(con)) == {"MISSING_CSP": ["https://e.test/"]}
 
 
-def test_repeated_header_names_are_combined_not_last_wins():
-    headers = [
-        ["strict-transport-security", "max-age=31536000"],
-        ["content-security-policy", "default-src 'self'"],
-        ["content-security-policy", "frame-ancestors 'none'"],
-        ["x-content-type-options", "nosniff"],
-        ["referrer-policy", "no-referrer"],
+def test_repeated_security_header_is_reported_and_its_values_combined():
+    headers = [*_ALL_PRESENT, ["x-content-type-options", "nosniff"]]
+    con = _store([(1, "https://e.test/", 200, "text/html", headers)])
+    result = security_headers.evaluate(con)
+    assert _fired(result) == {"DUPLICATE_SECURITY_HEADER": ["https://e.test/"]}
+    assert result["findings"]["DUPLICATE_SECURITY_HEADER"] == [
+        {"target_url": "https://e.test/", "header": "x-content-type-options"}
     ]
+
+
+def test_repeated_content_security_policy_is_not_a_defect():
+    headers = [*_ALL_PRESENT, ["content-security-policy", "frame-ancestors 'none'"]]
     con = _store([(1, "https://e.test/", 200, "text/html", headers)])
     assert _fired(security_headers.evaluate(con)) == {}
 
@@ -194,3 +198,12 @@ def test_hsts_is_read_from_the_final_response_not_a_redirect_hop():
     con = _store([(1, "https://e.test/", 200, "text/html", _ALL_PRESENT)])
     con.execute("UPDATE responses SET response_headers_redacted_json = '[]'")
     assert _fired(security_headers.evaluate(con)) == {}
+
+
+def test_duplicate_security_header_fires_on_a_repeat_and_stays_silent_on_clean():
+    defect = _store(
+        [(1, "https://e.test/", 200, "text/html", [*_ALL_PRESENT, ["x-frame-options", "DENY"]])]
+    )
+    clean = _store([(1, "https://e.test/", 200, "text/html", _ALL_PRESENT)])
+    assert "DUPLICATE_SECURITY_HEADER" in _fired(security_headers.evaluate(defect))
+    assert "DUPLICATE_SECURITY_HEADER" not in _fired(security_headers.evaluate(clean))

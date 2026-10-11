@@ -124,7 +124,8 @@ def test_silent_checks_are_named_so_the_gap_is_visible(tmp_path):
     # a named silent check rather than a manufactured finding.
     # 67 = 66 (batch-4) + 1 (HTML_OVER_2MB); +1 INTERNAL_LINK_SPONSORED_UGC; +1 URL_HAS_PARAMETERS;
     # +4 per-URL security-header checks (#1013) that stay named silent without a stored crawl.
-    assert coverage["checks_silent"] <= 73
+    # +1 DUPLICATE_SECURITY_HEADER: the same per-URL evidence, silent without a stored crawl.
+    assert coverage["checks_silent"] <= 74
 
 
 def test_a_disabled_check_is_its_own_bucket_never_silent_or_clean(tmp_path):

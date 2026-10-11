@@ -1201,6 +1201,13 @@ CHECKS: dict[str, dict[str, Any]] = {
         "message": "HTML page has no Referrer-Policy header",
         "fix": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
     },
+    "DUPLICATE_SECURITY_HEADER": {
+        "severity": "notice",
+        "source": "crawl:security_headers",
+        "message": "HTML page sends a security header more than once",
+        "fix": "Send each security header once. A repeated header can be ignored or applied "
+        "next to the other copy, so the policy the browser enforces may not be the one intended.",
+    },
     "OUTLINK_TO_LOCALHOST": {
         "severity": "warning",
         "source": "crawl:link_findings",
