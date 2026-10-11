@@ -23,6 +23,8 @@ from seohead.checks.parser import _rel_has, robots_directives, uses_ajax_crawlin
 from seohead.core.canonical_policy import matching_canonical_rule
 
 from .asset_checks import check_lighthouse_reports, check_render_assets, check_resource_assets
+from .mobile_checks import CHECKS as MOBILE_RENDER_CHECKS, check_mobile_render_layout
+from .render_checks import CHECKS as RENDER_ELEMENT_CHECKS, check_rendered_elements
 from .context import AuditContext
 from .markup_rules import check_document_markup
 from .models import Page
@@ -3774,6 +3776,8 @@ def native_check_ids(ctx: AuditContext) -> frozenset[str]:
     if con is None:
         return frozenset(ids)
     ids.update(NATIVE_RESOLVED_CHECKS)
+    ids.update(MOBILE_RENDER_CHECKS)
+    ids.update(RENDER_ELEMENT_CHECKS)
     from seohead.storage.retained_link_findings import CHECK_IDS
 
     ids.update(CHECK_IDS)
@@ -3898,6 +3902,8 @@ ALL_CHECKS = [
     check_native_page_evidence,
     check_native_image_resources,
     check_native_image_size,
+    check_mobile_render_layout,
+    check_rendered_elements,
     check_native_export_aggregates,
     check_ajax_crawling_scheme,
     check_charset,
