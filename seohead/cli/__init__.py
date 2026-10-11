@@ -218,6 +218,7 @@ COMMANDS = (
     "tool-catalog",
     "scan-evidence",
     "scan-extract",
+    "custom-extract-sample",
     "marketing-inventory",
     "scan-fragment-links",
     "scan-structured-blocks",
@@ -512,6 +513,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "representation",
             "selector",
             "kind",
+            "url",
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
@@ -1924,6 +1926,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--selector", help="CSS selector required only by selector_markup")
         sub.add_argument("--case-sensitive", action="store_true")
         sub.add_argument("--include-snippets", action="store_true")
+        _source_flag(sub, "--url", help="optional exact logical URL filter")
     if cmd == "scan-content-search-page":
         _source_flag(sub, "--package", help="completed local content-search package directory")
         sub.add_argument("--offset", type=int, help="zero-based derived record offset")

@@ -173,6 +173,26 @@ def test_check_sample_returns_values_from_saved_html_without_a_scan():
     assert by_name["title"]["values"] == ["Title"]
 
 
+def test_check_sample_is_registered_offline_through_cli_and_mcp(capsys):
+    import json
+
+    from seohead import cli
+    from seohead.mcp.mcp_server import build_server
+
+    request = {
+        "html": '<div class="price">$19.99</div>',
+        "extractors": [{"name": "price", "mode": "css", "query": ".price"}],
+        "url": "https://example.test/saved",
+    }
+    assert cli.main(["custom-extract-sample", "--input", json.dumps(request)]) == 0
+    output = json.loads(capsys.readouterr().out)
+    assert output["url"] == request["url"]
+    assert output["extractors"][0]["values"] == ["$19.99"]
+
+    tool = build_server()._tool_manager.get_tool("seo_custom_extract_sample")
+    assert tool.fn(**request) == output
+
+
 def test_check_sample_reports_no_match_as_a_reason_not_a_clean_empty():
     result = check_sample("<p>nothing here</p>", [{"name": "price", "query": ".price"}])
     extractor = result["extractors"][0]
