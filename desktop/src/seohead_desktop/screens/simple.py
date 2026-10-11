@@ -21,10 +21,12 @@ from PyQt5.QtWidgets import (
 )
 
 from .. import i18n
+from ..schedule_core import ScheduleJobs, read_schedule
 from ..i18n import tr, trf
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import Kpi, StatePanel, clear_layout, no_project_panel, show_empty, waiting_badge
 from .base import Screen
+from .project_schedule_page import summary_text
 from .scan_common import number
 from .work import (
     RowsModel,
@@ -128,6 +130,11 @@ class SimpleScreen(Screen):
         center.setContentsMargins(24, 20, 24, 16)
         center.setSpacing(16)
         center.addLayout(self._build_header())
+        self.schedule_line = QLabel()
+        self.schedule_line.setProperty("text_style", "meta")
+        center.addWidget(self.schedule_line)
+        self.schedule_jobs = ScheduleJobs(self)
+        self._schedule_for = None
         self.kpi_host = QWidget()
         self.kpi_layout = QVBoxLayout(self.kpi_host)
         self.kpi_layout.setContentsMargins(0, 0, 0, 0)
@@ -313,6 +320,7 @@ class SimpleScreen(Screen):
         self._layout_grids(force=True)
         label, site = project_names(host)
         self.eyebrow.setText(" · ".join(part for part in (label, site) if part) or tr("Проект"))
+        self._request_schedule()
         self._fill_kpis()
         rows = list(host.task_model.rows)
         self.tasks.set_rows([r for r in rows if is_open(r)] + [r for r in rows if not is_open(r)])
@@ -334,6 +342,21 @@ class SimpleScreen(Screen):
         self.tabs.setTabText(1, trf("Сканы · {n}", n=scans_total))
         self.limits.setText(trf("Показано {shown} из {total}. Исполнитель, URL и время обновления недоступны в этой версии ядра.", shown=len(rows), total=number(total) if total is not None else "—"))
         self.task_table.setColumnHidden(2, self.task_table.viewport().width() < 420)
+
+    def _request_schedule(self):
+        """Next and last scheduled run from the core, read once per opened project (not on every observer poll)."""
+        executable, directory = getattr(self.host, "core_executable", None), getattr(self.host, "project_directory", None)
+        if not executable or not directory:
+            self.schedule_line.setText(summary_text(None))
+            return
+        if directory == self._schedule_for:
+            return
+        self._schedule_for = directory
+        self.schedule_line.setText(tr("Читаем расписание из ядра…"))
+        self.schedule_jobs.submit(lambda: read_schedule(executable, directory), self._schedule_read, lambda _text: self._schedule_read(None), self)
+
+    def _schedule_read(self, state):
+        self.schedule_line.setText(summary_text(state))
 
     def _fill_kpis(self):
         host = self.host

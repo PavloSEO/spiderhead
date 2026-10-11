@@ -51,6 +51,7 @@ from .scans_urls import ScansUrlsMixin
 from .screens import install_screens
 from .settings_store import AppSettings
 from .shell_mixin import ShellMixin
+from .tray import install as install_tray
 from .ui.content_search_panel import ContentSearchPanel
 from .ui.menus import entry, fill_menu, unavailable
 from .ui.panels import component_stylesheet
@@ -362,6 +363,7 @@ def main():
     parser.add_argument("--capture", type=Path, help="Save the native widget rendering to a PNG and exit")
     parser.add_argument("--export-svg", type=Path, help="Export actual Qt painting as SVG for Figma import")
     parser.add_argument("--no-settings", action="store_true")
+    parser.add_argument("--tray", action="store_true", help="Run in the system tray: the core runs due scheduled scans, the window starts hidden")
     parser.add_argument("--agent-control", type=Path, help="Existing owned runtime directory for explicit local agent control")
     args = parser.parse_args()
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
@@ -370,6 +372,12 @@ def main():
     app.setStyle("Fusion")
     load_theme(app)
     window = MainWindow(persistent=not args.no_settings, core_executable=args.core_cli)
+    tray_on = False
+    if args.tray:
+        app.setQuitOnLastWindowClosed(False)  # the tray keeps the application alive after the window is hidden
+        tray_on = install_tray(window) is not None
+        if not tray_on:
+            print("seohead: no system tray here; the window opens normally", file=sys.stderr, flush=True)
     if args.agent_control:
         try:
             descriptor = window.start_agent_control(str(args.agent_control.resolve()))
@@ -380,7 +388,10 @@ def main():
         window.show()
     else:
         window.show_startup_workspace()
-        window.showMaximized()
+        if tray_on:
+            window.hide()
+        else:
+            window.showMaximized()
     if args.project:
         QTimer.singleShot(0, lambda: window.read_project(str(args.project.resolve())))
     if args.capture or args.export_svg:

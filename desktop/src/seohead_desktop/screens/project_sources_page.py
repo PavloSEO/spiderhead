@@ -11,7 +11,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QDialog,
     QFrame,
-    QGridLayout,
     QHBoxLayout,
     QLabel,
     QListWidget,
@@ -33,7 +32,7 @@ from ..ui.icons import material_icon
 from ..ui.kit import UNAVAILABLE, PageHeader, StatePanel, waiting_badge
 from ..ui.presentation import ElidedLabel
 from ..ui.settings.listing import badge, terminal
-from .project_schedule_page import SchedulePage
+from .project_schedule_page import CrawlPage, SchedulePage
 from .project_sources import GAP, GAP_HINT, access_count, build_rows
 from .work import project_names
 
@@ -276,7 +275,7 @@ class ProjectSettingsDialog(QDialog):
 
     Only «Источники» (the core's readiness) and the read-only «Основное» (name, host, folder from the open project) show
     real data. Default profile, goals and deletion need core storage that does not exist yet: they are neutral «Недоступно»
-    badges, never samples. «Расписание» and «Экспорт» are waiting states until the core provides them.
+    badges, never samples. «Расписание» and «Обход» read and write the project settings through the core; «Экспорт» is a waiting state.
     """
 
     def __init__(self, host, parent=None):
@@ -299,6 +298,7 @@ class ProjectSettingsDialog(QDialog):
             ("settings", "Основное", self._main_page()),
             ("dns", "Источники", _scrolled(self.page)),
             ("event_repeat", "Расписание", SchedulePage(host)),
+            ("travel_explore", "Обход", CrawlPage(host)),
             ("ios_share", "Экспорт", StatePanel("waiting", "Экспорт и отчёты", "Экспорт настроек проекта появится позже")),
         )
         for icon_name, title, widget in tabs:
@@ -381,43 +381,6 @@ class ProjectSettingsDialog(QDialog):
         save.setToolTip(tr(UNAVAILABLE))
         footer_layout.addWidget(save)
         return footer
-
-
-def _schedule_page():
-    """«Расписание» tab: the layout of the sheet, with no rows. The core does not store schedules yet (issue 940), so the
-    table and the run history stay honest waiting states instead of sample rows."""
-    page = QWidget()
-    layout = QVBoxLayout(page)
-    layout.setContentsMargins(20, 16, 20, 16)
-    layout.setSpacing(16)
-    head = QHBoxLayout()
-    meta = QLabel(tr("запуски по профилю проекта"))
-    meta.setProperty("text_style", "meta")
-    add = QPushButton(tr("Новое расписание"))
-    add.setProperty("role", "primary")
-    add.setEnabled(False)
-    add.setToolTip(tr(UNAVAILABLE))
-    head.addWidget(meta, 1)
-    head.addWidget(add)
-    layout.addLayout(head)
-    layout.addWidget(Note("info", tr("Расписание срабатывает"), tr("только пока открыт SEOHEAD Desktop или запущен seohead watch в терминале. Пропущенный запуск выполнится при следующем старте.")))
-    table = _card("Расписания")
-    table.layout().addWidget(waiting_badge(940, "Расписание появится, когда ядро начнёт его хранить"), 0, Qt.AlignLeft)
-    columns = QGridLayout()
-    columns.setHorizontalSpacing(8)
-    for column, caption in enumerate(("Название", "Повтор", "Профиль", "Следующий запуск", "Последний", "Вкл.")):
-        label = QLabel(tr(caption))
-        label.setProperty("text_style", "meta")
-        columns.addWidget(label, 0, column)
-    table.layout().addLayout(columns)
-    table.layout().addWidget(StatePanel("waiting", "Расписаний пока нет", "Расписание появится, когда ядро начнёт его хранить"))
-    layout.addWidget(table)
-    history = _card("История запусков")
-    history.layout().addWidget(waiting_badge(940, "Запуски появятся, когда ядро начнёт их хранить"), 0, Qt.AlignLeft)
-    history.layout().addWidget(_text(tr("Запуски появятся, когда ядро начнёт их хранить")))
-    layout.addWidget(history)
-    layout.addStretch(1)
-    return _scrolled(page)
 
 
 def _scrolled(widget):
