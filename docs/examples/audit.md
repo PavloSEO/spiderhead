@@ -4,9 +4,9 @@
 
 ## Health summary
 
-> **No health score.** only 94 of 202 checks could run (46% coverage); too little evidence to score.
+> **No health score.** only 94 of 204 checks could run (46% coverage); too little evidence to score.
 
-_94 of 202 checks could run; the score is not comparable to a run with full evidence_
+_94 of 204 checks could run; the score is not comparable to a run with full evidence_
 
 - Checks: **20 fired**, 108 skipped, 74 silent, 0 disabled (of 202 total)
 

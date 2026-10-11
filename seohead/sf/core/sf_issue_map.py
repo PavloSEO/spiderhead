@@ -248,15 +248,10 @@ CATEGORIES: dict[str, list[Entry]] = {
     "Canonicals": [
         _c("Multiple Conflicting", "CANONICAL_MULTIPLE"),
         _c("Non-Indexable Canonical", "CANONICAL_NON_INDEXABLE"),
-        _g(
+        _c(
             "Invalid Attribute In Annotation",
-            "a matched canonical <link> already has a well-formed 'canonical' token by "
-            "construction (BeautifulSoup only yields whitespace-free tokens, and the match "
-            "itself requires one); every other token a real document could add is either a "
-            "known link-relation keyword or an unrecognised-but-well-formed one, which the "
-            "issue's own acceptance criteria say must stay unknown, not invalid -- leaving no "
-            "reachable case that is actually malformed without a raw-attribute-text signal "
-            "this parser does not keep",
+            "CANONICAL_INVALID_ATTRIBUTE",
+            note="native selected-document annotations preserve raw rel/href text; malformed separators, missing href and non-HTTP(S) targets are observable; unknown well-formed relation keywords remain unknown",
         ),
         _c("Contains Fragment URL", "CANONICAL_FRAGMENT"),
         _c("Outside <head>", "CANONICAL_OUTSIDE_HEAD"),
@@ -272,14 +267,10 @@ CATEGORIES: dict[str, list[Entry]] = {
         _c("Unlinked Pagination URLs", "UNLINKED_PAGINATION_SERIES"),
         _c("Multiple Pagination URLs", "PAGINATION_MULTIPLE"),
         _c("Pagination Loop", "PAGINATION_LOOP"),
-        _p(
+        _c(
             "Sequence Error",
-            "a run that increments by one, or a stride that one step covers most of, is "
-            "judged; an irregular offset scheme, or one whose URLs do not state a page number, "
-            "is left unevaluated rather than reported against a numbering we would have had to "
-            "invent -- and is then named, with the reason true of that series, among the run's "
-            "skipped checks",
             "PAGINATION_SEQUENCE_ERROR",
+            note="numbered runs and dominant strides use observed page-number steps; opaque native rel=next/prev chains are judged only for explicit reciprocal contradictions in selected-document annotations; absent, ambiguous or uncaptured relationships remain unjudged",
         ),
         _c("Non-Indexable", "PAGINATION_NONINDEXABLE"),
     ],

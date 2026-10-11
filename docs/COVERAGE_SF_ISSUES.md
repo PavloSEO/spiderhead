@@ -15,17 +15,17 @@ here is written about *our own* behaviour.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| check | 142 | a registry check finds it |
+| check | 144 | a registry check finds it |
 | tool | 32 | a command outside the crawl registry finds it |
-| partial | 19 | we find part of it; the missing part is stated |
-| gap | 3 | we should find it and do not |
+| partial | 18 | we find part of it; the missing part is stated |
+| gap | 2 | we should find it and do not |
 | out of scope | 124 | a decision, with its reason |
 | **total** | **320** | |
 
 108 of the out-of-scope entries are two whole categories declined as single
 decisions — accessibility and AMP, each explained in its own section below. Of the
-remaining 212 issues, **174 are found today**, 19 are
-found in part, 3 are gaps worth closing, and
+remaining 212 issues, **176 are found today**, 18 are
+found in part, 2 are gaps worth closing, and
 16 need something we have decided not to build.
 
 A gap is not a defect. It is a named, deliberate absence — which is the only kind worth
@@ -166,7 +166,7 @@ having, because the alternative is an absence nobody has noticed.
 |---|---|---|---|
 | Multiple Conflicting | check | `CANONICAL_MULTIPLE` |  |
 | Non-Indexable Canonical | check | `CANONICAL_NON_INDEXABLE` |  |
-| Invalid Attribute In Annotation | gap | — | a matched canonical <link> already has a well-formed 'canonical' token by construction (BeautifulSoup only yields whitespace-free tokens, and the match itself requires one); every other token a real document could add is either a known link-relation keyword or an unrecognised-but-well-formed one, which the issue's own acceptance criteria say must stay unknown, not invalid -- leaving no reachable case that is actually malformed without a raw-attribute-text signal this parser does not keep |
+| Invalid Attribute In Annotation | check | `CANONICAL_INVALID_ATTRIBUTE` | native selected-document annotations preserve raw rel/href text; malformed separators, missing href and non-HTTP(S) targets are observable; unknown well-formed relation keywords remain unknown |
 | Contains Fragment URL | check | `CANONICAL_FRAGMENT` |  |
 | Outside <head> | check | `CANONICAL_OUTSIDE_HEAD` |  |
 | Canonicalised | check | `CANONICALISED` |  |
@@ -184,7 +184,7 @@ having, because the alternative is an absence nobody has noticed.
 | Unlinked Pagination URLs | check | `UNLINKED_PAGINATION_SERIES` |  |
 | Multiple Pagination URLs | check | `PAGINATION_MULTIPLE` |  |
 | Pagination Loop | check | `PAGINATION_LOOP` |  |
-| Sequence Error | partial | `PAGINATION_SEQUENCE_ERROR` | a run that increments by one, or a stride that one step covers most of, is judged; an irregular offset scheme, or one whose URLs do not state a page number, is left unevaluated rather than reported against a numbering we would have had to invent -- and is then named, with the reason true of that series, among the run's skipped checks |
+| Sequence Error | check | `PAGINATION_SEQUENCE_ERROR` | numbered runs and dominant strides use observed page-number steps; opaque native rel=next/prev chains are judged only for explicit reciprocal contradictions in selected-document annotations; absent, ambiguous or uncaptured relationships remain unjudged |
 | Non-Indexable | check | `PAGINATION_NONINDEXABLE` |  |
 
 ## Directives

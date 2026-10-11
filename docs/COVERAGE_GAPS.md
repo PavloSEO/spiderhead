@@ -1,7 +1,7 @@
 # Audit coverage — the gap map
 
 **Purpose.** The list of SEO checks our SF audit
-(`seohead/sf/core/registry.py`, 202 checks) still **lacks**. For every gap:
+(`seohead/sf/core/registry.py`, 204 checks) still **lacks**. For every gap:
 value, implementation mode, likely home in the code. This is a filling plan,
 not a bug report. Items implemented since this map was written are marked
 **DONE**.
@@ -258,14 +258,14 @@ graph checks land in `inlinks.py` with almost no new math.
 
 ---
 
-## 12. Pagination (currently only `PAGINATION_NONINDEXABLE`)
+## 12. Pagination
 
 | # | Name | Checks | Value | Mode | Home |
 |---|---|---|---|---|---|
 | 12.1 | Invalid rel=next/prev | The `href` does not parse as a URL | medium | B (Internal:All: rel_next/rel_prev) | extend `check_pagination`, id `PAGINATION_BROKEN` |
 | 12.2 | Canonical chain on pagination | The whole series canonicalizes to page one — the tail is lost | medium | B (canonical x rel_next graph) | id `PAGINATION_CANONICAL_CHAIN` |
 | 12.3 | Pagination loop | rel=next forms a cycle | medium | B (graph) | id `PAGINATION_LOOP` |
-| 12.4 | Sequence gap | `/page/2` without `/page/3` while `/page/4` exists | low | **DONE** (issue #385) — `PAGINATION_SEQUENCE_ERROR`, over the `rel="next"` graph rather than over URL numbers alone; a series with an irregular offset scheme, or one whose URLs do not state a page number, is named as unjudged instead of reported (stride series with a dominant step are judged, #1057) | `check_pagination_sequence` |
+| 12.4 | Sequence gap | `/page/2` without `/page/3` while `/page/4` exists | low | **DONE** (issue #385) — `PAGINATION_SEQUENCE_ERROR`, over the `rel="next"` graph rather than over URL numbers alone; dominant strides are judged; opaque native next/prev chains are checked for reciprocal contradictions from selected-document annotations; irregular numeric runs and absent/ambiguous opaque relationships stay unjudged (#1305) | `check_pagination_sequence` |
 | 12.5 | Pagination orphan | A pagination page without internal inlinks | medium | B (Inlinks x rel_next) | id `PAGINATION_ORPHAN` |
 
 ---

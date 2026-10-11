@@ -17,7 +17,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 data, not an accident.
 
 The current registry has 183 commands and 192 callable tools,
-with 202 audit checks. These are inventories, not coverage on every input.
+with 204 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
 ## Generated command inventory
@@ -38,10 +38,11 @@ and inputs remain in the nearby route sections and generated tool reference.
 `metrika-traffic-pdf` · `miratext-analyze` · `mirror-check` · `monitor-collect` · `monitor-configure` ·
 `monitor-local-deliver` · `monitor-run` · `monitor-schedule` · `monitor-status` · `parse` · `project-activity`
 · `project-checklist-init` · `project-checklist-page` · `project-checklist-record` ·
-`project-checklist-update` · `project-event-append` · `project-event-page` · `project-facts` ·
+`project-checklist-update` · `project-competitors-add` · `project-competitors-list` ·
+`project-competitors-remove` · `project-event-append` · `project-event-page` · `project-facts` ·
 `project-inbox-acknowledge` · `project-inbox-goal` · `project-inbox-list` · `project-inbox-read` ·
 `project-inbox-submit` · `project-inbox-triage` · `project-inbox-unread` · `project-new` · `project-observe` ·
-`project-competitors-add` · `project-competitors-list` · `project-competitors-remove` · `project-open` · `project-policy` · `project-prepare` · `project-priorities` · `project-progress` ·
+`project-open` · `project-policy` · `project-prepare` · `project-priorities` · `project-progress` ·
 `project-scans` · `project-sources-link` · `project-sources-list` · `project-sources-unlink` · `project-start`
 · `project-status` · `project-task-detail` · `project-view-delete` · `project-view-list` ·
 `project-view-rename` · `project-view-save` · `project-view-show` · `provider-auth` · `provider-collect` ·
@@ -719,7 +720,7 @@ assignment or by the audit's already validated segment rules. It records
 assignment provenance and keeps candidate, declared, confirmed, and unassigned
 states separate; it does not infer a shared implementation from repeated findings.
 
-**202 checks**: 12 critical, 93 warnings, 97 notices. Sources: SF exports,
+**204 checks**: 12 critical, 94 warnings, 98 notices. Sources: SF exports,
 derived metrics, inlink exports, the sitemap module, and heuristics.
 
 **Two modes.** A crawls by itself through the SF CLI (license required). B
@@ -763,7 +764,7 @@ seohead mcp        # stdio
 
 ## Where to go next
 - [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — every tool's arguments, types, defaults, cost, and failure modes, generated from the MCP definitions
-- [CHECKS.md](CHECKS.md) — the 202 checks the SF crawl audit runs, generated from the registry
+- [CHECKS.md](CHECKS.md) — the 204 checks the SF crawl audit runs, generated from the registry
 - [ARCHITECTURE.md](ARCHITECTURE.md) — layers, invariants, where new code goes
 - [SKILLS.md](SKILLS.md) — which skill drives which tool
 - [DECISIONS.md](DECISIONS.md) — why it was decided this way and not another

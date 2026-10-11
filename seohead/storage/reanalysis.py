@@ -315,6 +315,19 @@ def replace_reparsed_page(scan: NativeScan, replay: Any) -> None:
             scan._write_observations(
                 lease, document_id, representation, links, replay.forms[representation]
             )
+            from .head_links import context_item
+            from .native_context import put_context
+
+            annotations = facts["head_links"]
+            put_context(
+                scan.con,
+                context_item(
+                    page_url_id=current["url_id"],
+                    source_document_id=document_id,
+                    representation=representation,
+                    parsed={"head_links": annotations} if annotations is not None else None,
+                ),
+            )
             prior = [
                 tuple(row)
                 for row in scan.con.execute(

@@ -196,6 +196,11 @@ def validate_context(
     if item["kind"] == "extraction_rule_evidence":
         _validate_extraction_rule_evidence(con, item, payload)
         return
+    if item["kind"] == "head_links":
+        from .head_links import validate_context as validate_head_links
+
+        validate_head_links(con, item, payload)
+        return
     if item["kind"] == "target_probe":
         from .target_probes import validate_context as validate_target_probe
 

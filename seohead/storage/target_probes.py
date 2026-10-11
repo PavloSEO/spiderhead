@@ -1,4 +1,4 @@
-"""Bounded fetches of canonical and hreflang targets the crawl never captured (#987).
+"""Bounded fetches of canonical, hreflang and pagination targets the crawl never captured (#987).
 
 A crawl records only what it fetched. A canonical or hreflang target that no link reached
 is therefore unmeasured even when it answers 404 -- exactly the case CANONICAL_TARGET_ERROR
@@ -15,19 +15,24 @@ from typing import Any
 from urllib.parse import urlsplit
 
 KIND = "target_probe"
-SCHEMA_VERSION = "target_probe.v1"
+SCHEMA_VERSION = "target_probe.v2"
+LEGACY_VERSION = "target_probe.v1"
 # A hard cap keeps a 1M-URL site from turning the post-crawl step into a second crawl. Targets
 # past the cap stay unmeasured, which the audit reports as such.
 MAX_PROBES = 5000
 
 
 def _same_host(url: str, host: str) -> bool:
-    parts = urlsplit(url)
+    try:
+        parts = urlsplit(url)
+        _port = parts.port
+    except ValueError:
+        return False
     return parts.scheme in {"http", "https"} and (parts.hostname or "").lower() == host
 
 
 def _candidate_targets(con: Any, host: str) -> dict[str, str]:
-    """Same-host canonical and hreflang targets that no captured page answers, keyed by norm."""
+    """Same-host canonical, hreflang and pagination targets that no captured page answers, keyed by norm."""
     from seohead.sf.core.normalize import norm_url
     from seohead.storage.structured_evidence import read as read_structured
 
@@ -48,6 +53,11 @@ def _candidate_targets(con: Any, host: str) -> dict[str, str]:
         "SELECT DISTINCT canonical FROM pages WHERE canonical IS NOT NULL AND canonical<>''"
     ):
         offer(canonical)
+    from seohead.storage.head_links import active
+
+    for _source, declarations in active(con):
+        for declaration in declarations or []:
+            offer(declaration["target"])
     for evidence in read_structured(con, streaming=True)["language"]:
         for declaration in evidence.get("declarations") or []:
             if isinstance(declaration, dict):
@@ -63,7 +73,8 @@ def capture(
     fetcher: Any = None,
     wait: Any = None,
 ) -> dict[str, int]:
-    """Probe every same-host uncaptured canonical/hreflang target once and store the result."""
+    """Probe every same-host uncaptured head-annotation target once and store the result."""
+    from seohead.checks.parser import robots_directives
     from seohead.crawl.collect import fetch_one
     from seohead.crawl.throttle import RequestBudgetExhausted
     from seohead.sf.core.normalize import norm_url
@@ -81,7 +92,7 @@ def capture(
         except RequestBudgetExhausted:
             break  # unprobed targets stay unmeasured rather than overrunning the budget
         try:
-            record, _ = fetch_one(
+            record, parsed = fetch_one(
                 url,
                 client=client,
                 fetcher=fetcher,
@@ -95,6 +106,12 @@ def capture(
                 "status_code": status,
                 "redirect_url": record.redirect_url or "",
                 "error": record.error or "",
+                "noindex": True
+                if "noindex" in robots_directives(record.meta_robots, record.x_robots)
+                else False
+                if parsed is not None
+                else None,
+                "canonical": record.canonical if parsed is not None else None,
             }
         except Exception as exc:  # one unreachable target must not stop the others
             status = None
@@ -104,6 +121,8 @@ def capture(
                 "status_code": None,
                 "redirect_url": "",
                 "error": type(exc).__name__,
+                "noindex": None,
+                "canonical": None,
             }
         counts["probed"] += 1
         counts["answered" if status is not None else "failed"] += 1
@@ -127,10 +146,21 @@ def validate_context(item: dict[str, Any], payload: Any) -> None:
     from seohead.storage import ScanError
 
     status = payload.get("status_code") if isinstance(payload, dict) else None
+    version = payload.get("schema_version") if isinstance(payload, dict) else None
+    fields = {"schema_version", "url", "status_code", "redirect_url", "error"}
+    if version == SCHEMA_VERSION:
+        fields |= {"noindex", "canonical"}
     if (
         not isinstance(payload, dict)
-        or set(payload) != {"schema_version", "url", "status_code", "redirect_url", "error"}
-        or payload["schema_version"] != SCHEMA_VERSION
+        or set(payload) != fields
+        or version not in {SCHEMA_VERSION, LEGACY_VERSION}
+        or (
+            version == SCHEMA_VERSION
+            and (
+                (payload["noindex"] is not None and type(payload["noindex"]) is not bool)
+                or (payload["canonical"] is not None and type(payload["canonical"]) is not str)
+            )
+        )
         or type(payload["url"]) is not str
         or not payload["url"]
         or (status is not None and type(status) is not int)
@@ -149,6 +179,25 @@ def load(con: Any) -> dict[str, dict[str, Any]]:
     return {key[len("url:") :]: json.loads(payload) for key, payload in rows}
 
 
+def indexability(payload: dict[str, Any]) -> dict[str, str]:
+    """State exactly what the stored response and parsed directives establish."""
+    from seohead.sf.core.normalize import norm_url
+
+    status = payload.get("status_code")
+    if type(status) is not int:
+        return {"state": "unmeasured", "reason": "target probe has no HTTP status"}
+    if not 200 <= status < 300:
+        return {"state": "non_indexable", "reason": f"HTTP {status}"}
+    if payload.get("noindex") is True:
+        return {"state": "non_indexable", "reason": "noindex directive"}
+    if payload.get("noindex") is None:
+        return {"state": "unmeasured", "reason": "target probe did not measure HTML directives"}
+    canonical = payload.get("canonical")
+    if canonical and norm_url(canonical) != norm_url(payload["url"]):
+        return {"state": "non_indexable", "reason": "canonicalized to another URL"}
+    return {"state": "indexable", "reason": "probed HTML has no noindex or cross-URL canonical"}
+
+
 def observation(payload: dict[str, Any]) -> dict[str, Any] | None:
     """The target observation a probe supports, or None when it answered no status."""
     if type(payload.get("status_code")) is not int:
@@ -159,4 +208,6 @@ def observation(payload: dict[str, Any]) -> dict[str, Any] | None:
         "redirect_url": payload.get("redirect_url") or "",
         "reason": "fetched by the target probe; the target was not captured by the crawl",
         "probe_error": payload.get("error") or "",
+        "canonical": payload.get("canonical"),
+        "indexability": indexability(payload),
     }
