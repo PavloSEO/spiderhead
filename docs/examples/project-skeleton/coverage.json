@@ -12073,7 +12073,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "414ea9f296509a9688fb47405f1e00dd03ca5a91776597f49d33ff6b8e33d708",
+        "source_hash": "0c6e5e956ac2842d9765b2042ec156ebd25f6435dea503fa32d2254c71b02dd8",
         "title": "audit-roadmap"
       },
       "definitions": [
@@ -12093,7 +12093,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "414ea9f296509a9688fb47405f1e00dd03ca5a91776597f49d33ff6b8e33d708",
+            "source_hash": "0c6e5e956ac2842d9765b2042ec156ebd25f6435dea503fa32d2254c71b02dd8",
             "title": "audit-roadmap"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -12645,7 +12645,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "622dd29b931d701945034f1168be558594e622a8ad7cd902e37cb5e642df4595",
+        "source_hash": "45457ee3930f65f333b50865acb89648125fdae7fdfc4b4a11c5fc07c654a450",
         "title": "seo-deep-audit"
       },
       "definitions": [
@@ -12665,7 +12665,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "622dd29b931d701945034f1168be558594e622a8ad7cd902e37cb5e642df4595",
+            "source_hash": "45457ee3930f65f333b50865acb89648125fdae7fdfc4b4a11c5fc07c654a450",
             "title": "seo-deep-audit"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -12821,7 +12821,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "58fa79abee8ae43924432f135ce72dd3012fd5a68a1ec33a5e6a62be73c37d42",
+        "source_hash": "f01f2ef07ff401f304ad192620ae2ca0ef127c559ac85b63eaf0c26c1bc0021d",
         "title": "sf-config"
       },
       "definitions": [
@@ -12841,7 +12841,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "58fa79abee8ae43924432f135ce72dd3012fd5a68a1ec33a5e6a62be73c37d42",
+            "source_hash": "f01f2ef07ff401f304ad192620ae2ca0ef127c559ac85b63eaf0c26c1bc0021d",
             "title": "sf-config"
           },
           "observed_at": "2026-09-09T00:00:00Z"
