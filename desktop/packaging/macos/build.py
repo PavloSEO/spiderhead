@@ -30,8 +30,8 @@ def main():
     if not dist.is_relative_to((desktop / "dist").resolve()):
         parser.error("output must stay under desktop/dist")
     dist.mkdir(parents=True, exist_ok=True)
-    bundle = dist / "SEOHEAD Desktop.app"
-    package = dist / "SEOHEAD-Desktop.pkg"
+    bundle = dist / "SpiderHead.app"
+    package = dist / "SpiderHead.pkg"
     if bundle.exists() or package.exists():
         parser.error("refusing to overwrite an existing build")
     run(
@@ -50,7 +50,7 @@ def main():
         (payload / "Applications").mkdir(parents=True)
         (payload / "usr/local/bin").mkdir(parents=True)
         scripts.mkdir()
-        run("ditto", bundle, payload / "Applications/SEOHEAD Desktop.app")
+        run("ditto", bundle, payload / "Applications/SpiderHead.app")
         for name, destination in (
             ("seohead", payload / "usr/local/bin/seohead"),
             ("postinstall", scripts / "postinstall"),
@@ -87,12 +87,12 @@ def main():
                 "hdiutil",
                 "create",
                 "-volname",
-                "SEOHEAD Desktop",
+                "SpiderHead",
                 "-srcfolder",
                 staging,
                 "-format",
                 "UDZO",
-                dist / "SEOHEAD-Desktop.dmg",
+                dist / "SpiderHead.dmg",
             )
     return 0
 

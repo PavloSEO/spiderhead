@@ -4,7 +4,7 @@ set -eu
 [ "${1:-}" = "--yes" ] || { echo "Usage: sudo $0 --yes [DESTINATION_VOLUME]" >&2; exit 64; }
 volume=${2:-/}
 wrapper="$volume/usr/local/bin/seohead"
-app="$volume/Applications/SEOHEAD Desktop.app"
+app="$volume/Applications/SpiderHead.app"
 [ ! -e "$wrapper" ] || {
     grep -q 'SEOHEAD_BUNDLED_CLI_V1' "$wrapper" || { echo "Foreign CLI wrapper; refusing removal" >&2; exit 73; }
     rm "$wrapper"

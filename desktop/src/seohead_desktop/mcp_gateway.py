@@ -40,9 +40,32 @@ TOOL_ALLOWLIST = frozenset(
         "seo_semantics_run",
     }
 )
-OPTIONAL_TOOLS = frozenset({"seo_scan_content_search", "seo_scan_content_search_page"})
+OPTIONAL_TOOLS = frozenset(
+    {
+        "seo_scan_content_search",
+        "seo_scan_content_search_page",
+        "seo_project_checklist_update",
+        "seo_project_checklist_record",
+        "seo_project_task_comment",
+        "seo_project_competitors_add",
+        "seo_project_competitors_list",
+        "seo_project_competitors_remove",
+        "seo_project_competitors_scan",
+    }
+)
 _WRITE_TOOLS = frozenset(
-    {"seo_project_inbox_submit", "seo_compare_crawls", "seo_verify_fixes", "seo_semantics_run"}
+    {
+        "seo_project_inbox_submit",
+        "seo_project_checklist_update",
+        "seo_project_checklist_record",
+        "seo_project_task_comment",
+        "seo_project_competitors_add",
+        "seo_project_competitors_remove",
+        "seo_project_competitors_scan",
+        "seo_compare_crawls",
+        "seo_verify_fixes",
+        "seo_semantics_run",
+    }
 )
 
 _DIRECTORY_TOOLS = frozenset(
@@ -51,7 +74,14 @@ _DIRECTORY_TOOLS = frozenset(
         "seo_project_observe",
         "seo_project_policy",
         "seo_project_checklist_page",
+        "seo_project_checklist_update",
+        "seo_project_checklist_record",
         "seo_project_task_detail",
+        "seo_project_task_comment",
+        "seo_project_competitors_add",
+        "seo_project_competitors_list",
+        "seo_project_competitors_remove",
+        "seo_project_competitors_scan",
         "seo_project_inbox_submit",
         "seo_project_inbox_list",
         "seo_project_scans",
@@ -135,9 +165,13 @@ class PersistentMcpGateway(QRunnable):
         self.startup_timeout = startup_timeout
         self.read_timeout = read_timeout
         # Retained comparisons may traverse large scans and write an immutable report.
-        self.tool_timeouts = {"seo_compare_crawls": 900.0, "seo_verify_fixes": 900.0}
+        self.tool_timeouts = {
+            "seo_compare_crawls": 900.0,
+            "seo_verify_fixes": 900.0,
+            "seo_project_competitors_scan": 8 * 3600.0,
+        }
         self.tool_timeouts.update(tool_timeouts or {})
-        if self.tool_timeouts.keys() - TOOL_ALLOWLIST:
+        if self.tool_timeouts.keys() - (TOOL_ALLOWLIST | OPTIONAL_TOOLS):
             raise ValueError("deadline override requires a declared desktop MCP tool")
         if any(
             isinstance(value, bool) or not math.isfinite(value) or value <= 0
@@ -211,7 +245,7 @@ class PersistentMcpGateway(QRunnable):
             self._notify(abort=True)
 
     def _validate(self, tool: str, arguments: dict[str, Any]) -> None:
-        if tool not in TOOL_ALLOWLIST or not isinstance(arguments, dict):
+        if tool not in (TOOL_ALLOWLIST | OPTIONAL_TOOLS) or not isinstance(arguments, dict):
             raise ValueError("desktop request is not declared by the local MCP adapter")
         scope = self._scope
         if tool in _GLOBAL_READ_TOOLS:

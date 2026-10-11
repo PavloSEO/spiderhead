@@ -1,4 +1,4 @@
-# SEOHEAD Desktop roadmap
+# SpiderHead Desktop roadmap
 
 Desktop remains a native Python/PyQt5 presentation adapter over the core CLI and local stdio MCP contracts. Feature availability follows the connected core and retained evidence.
 

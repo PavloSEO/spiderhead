@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 from datetime import datetime
+from pathlib import Path
 
 from PyQt5.QtCore import QEvent, QLocale, QSize, Qt, QTime, pyqtSignal
 from PyQt5.QtWidgets import (
@@ -16,6 +17,7 @@ from PyQt5.QtWidgets import (
     QBoxLayout,
     QButtonGroup,
     QComboBox,
+    QDialog,
     QDoubleSpinBox,
     QFrame,
     QGridLayout,
@@ -70,6 +72,7 @@ from ..ui.canvas_components import (
 )
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import PageHeader, StatePanel
+from ..ui.modal import ModalDialog
 
 
 def meta(text):
@@ -273,11 +276,40 @@ class SchedulePage(_SettingsPage):
     title = "Расписание сканов"
     subtitle = "The site scans itself — at night, a little at a time, in the site's own time zone. Every run lands in the project history."
 
+    def __init__(self, host):
+        self._target_key = "owner"
+        self._target_rows = []
+        self._loading_targets = False
+        super().__init__(host)
+
+    def _directory(self):
+        root = getattr(self.host, "project_directory", None)
+        if not root or not hasattr(self, "target_selector"):
+            return root
+        relative = self.target_selector.currentData()
+        if not isinstance(relative, str) or not relative:
+            return root
+        base = Path(root).resolve()
+        child = (base / relative).resolve()
+        try:
+            child.relative_to(base)
+        except ValueError:
+            return None
+        return str(child)
+
     def build(self, layout):
         from ..ui.controls import Note
         from .work import project_names
 
         _, host_name = project_names(self.host)
+        target_row = QHBoxLayout()
+        target_row.addWidget(field_label(tr("Schedule for")))
+        self.target_selector = QComboBox()
+        self.target_selector.addItem(tr("Your site"), None)
+        self.target_selector.setAccessibleName(tr("Schedule for"))
+        self.target_selector.currentIndexChanged.connect(self._target_changed)
+        target_row.addWidget(CanvasField(self.target_selector, "public"), 1)
+        layout.addLayout(target_row)
         primary = QWidget()
         primary.setObjectName("scheduleColumn")
         left = QVBoxLayout(primary)
@@ -395,19 +427,19 @@ class SchedulePage(_SettingsPage):
         self.time_row.addLayout(zone, 1)
         box.addLayout(self.time_row)
         left.addWidget(frame)
-        frame, box = card(
+        self.competitor_frame, box = card(
             "Competitors",
             "groups",
             "warning",
             subtitle=meta(tr("Include linked sites in the same schedule.")),
         )
         self.competitors = CanvasSwitch(tr("Include competitors"))
-        frame.heading.addWidget(self.competitors)
+        self.competitor_frame.heading.addWidget(self.competitors)
         self.competitor_note = meta(
             tr("Each run uses the core's stored competitor list and scan limits.")
         )
         box.addWidget(self.competitor_note)
-        left.addWidget(frame)
+        left.addWidget(self.competitor_frame)
         self.slice_hint = meta("")
         frame, box = card("Big site, slice by slice", "splitscreen", "ok", subtitle=self.slice_hint)
         self.slice_title = frame.heading.itemAt(1).layout().itemAt(0).widget()
@@ -478,13 +510,116 @@ class SchedulePage(_SettingsPage):
         right.addStretch(1)
         layout.addWidget(Columns(primary, side))
 
+    def _target_changed(self, _index):
+        if self._loading_targets:
+            return
+        selected = self.target_selector.currentData()
+        key = selected or "owner"
+        if key == self._target_key:
+            return
+        if self.state is not None:
+            try:
+                dirty = self.apply(copy.deepcopy(self.state["settings"])) != self.state["settings"]
+            except ValueError:
+                dirty = True
+            if dirty:
+                dialog = ModalDialog(
+                    "Discard unsaved schedule changes?",
+                    "Switching schedules will reload settings from the project.",
+                    icon="warning",
+                    tone="warning",
+                    width=520,
+                    parent=self,
+                )
+                dialog.add_button("Cancel", "text", on_click=dialog.reject)
+                dialog.add_button(
+                    "Discard", "destructive", icon="delete", on_click=dialog.accept
+                )
+                if dialog.exec_() != QDialog.Accepted:
+                    self._loading_targets = True
+                    previous = next(
+                        (
+                            index
+                            for index in range(self.target_selector.count())
+                            if (self.target_selector.itemData(index) or "owner")
+                            == self._target_key
+                        ),
+                        0,
+                    )
+                    self.target_selector.setCurrentIndex(previous)
+                    self._loading_targets = False
+                    return
+        self._target_key = key
+        self.enabled_frame.setVisible(key == "owner" and self.state is not None)
+        self.competitor_frame.setVisible(key == "owner" and self.state is not None)
+        self.competitor_note.setVisible(key == "owner" and self.state is not None)
+        self.reload()
+
+    def _loaded(self, state):
+        if self._target_key == "owner":
+            self._target_rows = state.get("competitors") or []
+            self._fill_targets()
+        super()._loaded(state)
+        is_owner = self._target_key == "owner"
+        self.enabled_frame.setVisible(is_owner)
+        self.competitor_frame.setVisible(is_owner)
+        self.competitor_note.setVisible(is_owner and self.width() >= 1000)
+
+    def _fill_targets(self):
+        current = self._target_key
+        self._loading_targets = True
+        self.target_selector.clear()
+        self.target_selector.addItem(tr("Your site"), None)
+        for item in self._target_rows:
+            relative = item.get("directory")
+            if not self._safe_child_directory(relative):
+                continue
+            label = item.get("url") or item.get("host") or relative
+            configured = item.get("schedule_configured")
+            suffix = tr(" · schedule not set") if configured is False else ""
+            self.target_selector.addItem(f"{label}{suffix}", relative)
+        index = next(
+            (
+                candidate
+                for candidate in range(self.target_selector.count())
+                if (self.target_selector.itemData(candidate) or "owner") == current
+            ),
+            0,
+        )
+        if index == 0 and current != "owner":
+            self._target_key = "owner"
+        self.target_selector.setCurrentIndex(index)
+        self._loading_targets = False
+
+    def _safe_child_directory(self, relative):
+        if not isinstance(relative, str) or not relative.strip():
+            return False
+        base = Path(getattr(self.host, "project_directory", "")).resolve()
+        child = (base / relative).resolve()
+        try:
+            child.relative_to(base)
+        except ValueError:
+            return False
+        return child != base
+
+    def _target_label(self):
+        relative = self.target_selector.currentData()
+        if not relative:
+            from .work import project_names
+
+            return project_names(self.host)[1] or ""
+        item = next(
+            (row for row in self._target_rows if row.get("directory") == relative), {}
+        )
+        return item.get("url") or item.get("host") or relative
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
         compact = self.width() < 1000
         self.time_row.setDirection(QBoxLayout.TopToBottom if compact else QBoxLayout.LeftToRight)
         self.time_row.setSpacing(6 if compact else 16)
         self.zone_note.setVisible(not compact)
-        self.competitor_note.setVisible(not compact)
+        self.competitor_note.setVisible(not compact and self._target_key == "owner")
         self.enabled_label.setVisible(not compact)
         self.enabled_frame.setProperty("compact", compact)
         self.enabled_frame.setFixedHeight(26 if compact else 44)
@@ -611,9 +746,7 @@ class SchedulePage(_SettingsPage):
             state["last_run"]["at"] if state["last_run"] else tr("No scheduled runs yet")
         )
         crawl = state["settings"]["crawl"]
-        from .work import project_names
-
-        _, host_name = project_names(self.host)
+        host_name = self._target_label()
         mode_text = {"spider": "full crawl", "sitemap": "from sitemap", "list": "key URLs"}[
             crawl["mode"]
         ]

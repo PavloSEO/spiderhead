@@ -32,6 +32,7 @@ def _page(offset, count, total, next_offset):
         for n in range(offset, offset + count)
     ]
     return {
+        "revision": 4,
         "items": items,
         "pagination": {
             "total": total,
@@ -105,9 +106,13 @@ class _ShownHost(_Host):
 class WorkTaskRowCountTests(unittest.TestCase):
     def test_checklist_of_any_size_is_kept_whole_and_paged_for_the_panel(self):
         host = _ShownHost()
-        host.load_tasks(_page(0, 277, 277, None))
+        page = _page(0, 277, 277, None)
+        page["items"][0]["task"] = {"executor": "owner", "next_step": "Review"}
+        host.load_tasks(page)
         self.assertEqual(len(host.task_model.rows), 277)
         self.assertEqual(host.task_total, 277)
+        self.assertEqual(host.task_revision, 4)
+        self.assertEqual(host.task_model.rows[0]["task"]["executor"], "owner")
         name, window, kwargs = host.project_panels.calls[-1]
         self.assertEqual(
             (name, len(window), kwargs["offset"], kwargs["has_more"]), ("tasks", 100, 0, True)

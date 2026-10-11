@@ -14,7 +14,7 @@ from datetime import datetime
 from zoneinfo import available_timezones
 
 from PyQt5 import sip
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal
+from PyQt5.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal, pyqtSlot
 
 # Core commands (CLI). Each prints one JSON object on stdout; a refusal prints nothing there and "error: ..." on stderr.
 READ_COMMAND = "schedule-show"
@@ -228,6 +228,15 @@ def parse_state(value):
         "due_now": due.get("due") is True,
         "zone": due.get("time_zone"),
         "resume": value.get("resume_artifact") is not None,
+        "competitors": [
+            dict(item)
+            for item in value.get("competitors", [])
+            if isinstance(item, dict)
+            and isinstance(item.get("directory"), str)
+            and item.get("directory")
+        ]
+        if isinstance(value.get("competitors"), list)
+        else [],
     }
 
 
@@ -312,13 +321,34 @@ class ScheduleJobs(QObject):
     def submit(self, function, callback, on_error, owner):
         self._serial += 1
         serial = self._serial
-        job = self._pending[serial] = _Job(function)
-
-        def deliver(handler, value):
-            self._pending.pop(serial, None)
-            if not sip.isdeleted(owner):
-                handler(value)
-
-        job.signals.done.connect(lambda value: deliver(callback, value))
-        job.signals.failed.connect(lambda value: deliver(on_error, value))
+        job = _Job(function)
+        delivery = _ScheduleDelivery(self, serial, callback, on_error, owner)
+        self._pending[serial] = (job, delivery)
+        job.signals.done.connect(delivery.succeeded)
+        job.signals.failed.connect(delivery.failed)
         QThreadPool.globalInstance().start(job)
+
+    def _deliver(self, serial, handler, value, owner):
+        self._pending.pop(serial, None)
+        if not sip.isdeleted(owner):
+            handler(value)
+
+
+class _ScheduleDelivery(QObject):
+    """Bound Qt slots ensure worker results are queued back to the GUI thread."""
+
+    def __init__(self, service, serial, callback, on_error, owner):
+        super().__init__(service)
+        self.service = service
+        self.serial = serial
+        self.callback = callback
+        self.on_error = on_error
+        self.owner = owner
+
+    @pyqtSlot(object)
+    def succeeded(self, value):
+        self.service._deliver(self.serial, self.callback, value, self.owner)
+
+    @pyqtSlot(str)
+    def failed(self, value):
+        self.service._deliver(self.serial, self.on_error, value, self.owner)

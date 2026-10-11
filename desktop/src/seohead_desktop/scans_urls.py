@@ -59,6 +59,8 @@ class ScansUrlsMixin:
         """Work list: read the checklist page by page (the core caps a page), then show every task as one list."""
         pagination = result.get("pagination") or {}
         offset = pagination.get("offset", 0)
+        if not offset:
+            self._task_revision = result.get("revision")
         self._task_pages = (getattr(self, "_task_pages", []) if offset else []) + list(
             result.get("items") or []
         )
@@ -79,10 +81,13 @@ class ScansUrlsMixin:
             {
                 "items": self._task_pages,
                 "pagination": {**pagination, "offset": 0, "next_offset": None},
+                "revision": getattr(self, "_task_revision", None),
             }
         )
 
     def load_tasks(self, result):
+        revision = result.get("revision")
+        self.task_revision = revision if type(revision) is int else None
         rows = []
         for item in result.get("items") or []:
             rows.append(
@@ -95,6 +100,7 @@ class ScansUrlsMixin:
                     "priority": item.get("priority"),
                     "execution_kind": item.get("execution_kind"),
                     "blocked_by": item.get("blocked_by") or [],
+                    "task": item.get("task") if isinstance(item.get("task"), dict) else {},
                 }
             )
         self.task_model.replace(

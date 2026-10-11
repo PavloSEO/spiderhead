@@ -32,6 +32,7 @@ from ..ui.presentation import ElidedLabel
 from ..ui.settings.listing import badge, terminal
 from .project_schedule_page import CrawlPage, SchedulePage, next_run_text
 from .project_sources import GAP, GAP_HINT, access_count, build_rows
+from .vitals import VitalsPage
 from .work import project_names
 
 # Canvas grid: status, sync and actions are fixed widths. The free width goes to service and resource at 2 : 1,
@@ -358,6 +359,7 @@ class ProjectSettingsPage(QWidget):
         self.header_frame = self._header()
         root.addWidget(self.header_frame)
         self.page = ProjectSourcesPage(host)
+        self.vitals_page = VitalsPage(host)
         self.nav = CanvasTabs()
         self.nav.setObjectName("projectSettingsTabs")
         self.nav.setExpanding(False)
@@ -378,6 +380,7 @@ class ProjectSettingsPage(QWidget):
                     "waiting", "Экспорт и отчёты", "Экспорт настроек проекта появится позже"
                 ),
             ),
+            ("speed", "Core Web Vitals", self.vitals_page),
         )
         for icon_name, title, widget in tabs:
             self.nav.add_canvas_tab(icon_name, tr(title))
@@ -406,6 +409,7 @@ class ProjectSettingsPage(QWidget):
         for index in (2, 3):
             self.pages.widget(index).reload()
         self.page.reload()
+        self.vitals_page.refresh_history()
 
     def _sync_actions(self):
         page = self.pages.currentWidget()

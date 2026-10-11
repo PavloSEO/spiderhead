@@ -12,7 +12,7 @@ from pathlib import Path
 
 from PyQt5.QtCore import Qt
 
-from seohead_desktop.mcp_gateway import TOOL_ALLOWLIST, PersistentMcpGateway
+from seohead_desktop.mcp_gateway import OPTIONAL_TOOLS, TOOL_ALLOWLIST, PersistentMcpGateway
 from seohead_desktop.qt import app as qt_app
 
 PEER = r"""
@@ -254,6 +254,60 @@ class McpGatewayLifecycleTests(unittest.TestCase):
         self.assertFalse(self.failures)
         self.assertFalse(self.transports)
         self.assertFalse(process_exists(self.events("started")[0]["pid"]))
+
+    def test_task_writes_are_scoped_to_the_open_project(self):
+        project = self.root / "project"
+        project.mkdir()
+        gateway = PersistentMcpGateway("/not-dispatched")
+        gateway.set_project_scope(str(project))
+        update = {
+            "directory": str(project),
+            "item": {"id": "custom:owner-note", "description": "Review"},
+            "expected_revision": 4,
+        }
+        record = {
+            "directory": str(project),
+            "item_id": "custom:owner-note",
+            "record": {"status": "running", "reason": "Started review", "actor": "owner/desktop"},
+            "expected_revision": 4,
+        }
+        comment = {
+            "directory": str(project),
+            "item_id": "custom:owner-note",
+            "text": "Please review the evidence.",
+            "actor": "owner/desktop",
+            "expected_revision": 4,
+        }
+        competitor_add = {
+            "directory": str(project),
+            "competitors": [{"url": "https://competitor.example.test/"}],
+        }
+        competitor_list = {"directory": str(project)}
+        competitor_remove = {
+            "directory": str(project),
+            "url": "https://competitor.example.test/",
+        }
+        competitor_scan = {
+            "directory": str(project),
+            "task_id": "custom:owner-task",
+            "expected_revision": 4,
+            "confirm": True,
+            "concurrency": 3,
+            "approve_large_crawl": False,
+        }
+        for tool, arguments in (
+            ("seo_project_checklist_update", update),
+            ("seo_project_checklist_record", record),
+            ("seo_project_task_comment", comment),
+            ("seo_project_competitors_add", competitor_add),
+            ("seo_project_competitors_list", competitor_list),
+            ("seo_project_competitors_remove", competitor_remove),
+            ("seo_project_competitors_scan", competitor_scan),
+        ):
+            self.assertIn(tool, TOOL_ALLOWLIST | OPTIONAL_TOOLS)
+            gateway._validate(tool, arguments)
+            with self.assertRaises(ValueError):
+                gateway._validate(tool, {**arguments, "directory": str(self.root)})
 
     def test_changing_scope_aborts_old_read_before_next_project_result(self):
         self.start("first_call", read_timeout=30)
