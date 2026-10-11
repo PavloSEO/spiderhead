@@ -43,6 +43,10 @@ def test_pause_request_is_consumed_once_and_checkpoints_by_run_id(tmp_path, monk
     assert requested == {"ok": True, "run_id": run["id"], "state": "pause_requested"}
     assert run_control.consume(project, run["id"]) == "pause"
     assert run_control.consume(project, run["id"]) is None
+    with run_control._connect(project) as con:
+        assert con.execute(
+            "SELECT state FROM requests WHERE run_id=?", (run["id"],)
+        ).fetchone() == ("applied",)
 
 
 @pytest.mark.parametrize(
@@ -78,6 +82,51 @@ def test_control_rejects_an_existing_pending_request(tmp_path, monkeypatch):
     run_control.request(project, run["id"], "pause")
     with pytest.raises(ValueError, match="already pending"):
         run_control.request(project, run["id"], "stop")
+
+
+def test_post_insert_recheck_reports_applied_request_when_run_exits(tmp_path, monkeypatch):
+    project = tmp_path / "shop"
+    create_project(project, "https://example.test/")
+    (project / "scans" / "scan.sqlite").write_bytes(b"scan")
+    run = _active_run()
+    calls = 0
+
+    def status(*_args, **_kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return {"items": [run]}
+        assert run_control.consume(project, run["id"]) == "pause"
+        return {"items": []}
+
+    monkeypatch.setattr("seohead.storage.open_scan", lambda *_args, **_kwargs: _Scan())
+    monkeypatch.setattr("seohead.projects.run_observation.status", status)
+
+    requested = run_control.request(project, run["id"], "pause")
+    assert requested == {"ok": True, "run_id": run["id"], "state": "pause_applied"}
+
+
+def test_post_insert_recheck_deletes_only_a_still_pending_request(tmp_path, monkeypatch):
+    project = tmp_path / "shop"
+    create_project(project, "https://example.test/")
+    (project / "scans" / "scan.sqlite").write_bytes(b"scan")
+    run = _active_run()
+    calls = 0
+
+    def status(*_args, **_kwargs):
+        nonlocal calls
+        calls += 1
+        return {"items": [run]} if calls == 1 else {"items": []}
+
+    monkeypatch.setattr("seohead.storage.open_scan", lambda *_args, **_kwargs: _Scan())
+    monkeypatch.setattr("seohead.projects.run_observation.status", status)
+
+    with pytest.raises(ValueError, match="no longer an active"):
+        run_control.request(project, run["id"], "stop")
+    with run_control._connect(project) as con:
+        assert con.execute(
+            "SELECT 1 FROM requests WHERE run_id=?", (run["id"],)
+        ).fetchone() is None
 
 
 def test_controlled_reporter_turns_the_next_progress_boundary_into_checkpoint_interrupt(

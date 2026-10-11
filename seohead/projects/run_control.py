@@ -87,9 +87,46 @@ def _connect(root: Path) -> sqlite3.Connection:
     con.execute("PRAGMA busy_timeout=5000")
     con.execute(
         "CREATE TABLE IF NOT EXISTS requests (run_id TEXT PRIMARY KEY, action TEXT NOT NULL, "
-        "requested_at TEXT NOT NULL)"
+        "requested_at TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'pending')"
     )
+    columns = {str(row[1]) for row in con.execute("PRAGMA table_info(requests)")}
+    if "state" not in columns:
+        con.execute(
+            "ALTER TABLE requests ADD COLUMN state TEXT NOT NULL DEFAULT 'pending'"
+        )
     return con
+
+
+def _inactive_request_receipt(root: Path, run_id: str, action: str) -> bool:
+    """Return true if consumed; otherwise delete only a still-pending request."""
+    with closing(_connect(root)) as con:
+        try:
+            con.execute("BEGIN IMMEDIATE")
+            row = con.execute(
+                "SELECT action, state FROM requests WHERE run_id=?", (run_id,)
+            ).fetchone()
+            if row == (action, "applied"):
+                con.execute("COMMIT")
+                return True
+            if row == (action, "pending"):
+                # A competing consumer may have applied the request immediately
+                # before this transaction acquired the write lock. The predicate
+                # makes deletion conditional on it still being pending.
+                con.execute(
+                    "DELETE FROM requests WHERE run_id=? AND action=? AND state='pending'",
+                    (run_id, action),
+                )
+                if con.execute(
+                    "SELECT state FROM requests WHERE run_id=?", (run_id,)
+                ).fetchone() == ("applied",):
+                    con.execute("COMMIT")
+                    return True
+            con.execute("COMMIT")
+            return False
+        except BaseException:
+            if con.in_transaction:
+                con.execute("ROLLBACK")
+            raise
 
 
 def request(directory: str | Path, run_id: str, action: str) -> dict[str, str]:
@@ -134,8 +171,13 @@ def request(directory: str | Path, run_id: str, action: str) -> dict[str, str]:
     with closing(_connect(root)) as con:
         try:
             con.execute("BEGIN IMMEDIATE")
-            if con.execute("SELECT 1 FROM requests WHERE run_id=?", (run_id,)).fetchone():
-                raise ValueError("a control request is already pending for this run")
+            existing = con.execute(
+                "SELECT state FROM requests WHERE run_id=?", (run_id,)
+            ).fetchone()
+            if existing:
+                if existing[0] == "pending":
+                    raise ValueError("a control request is already pending for this run")
+                raise ValueError("a control request was already applied for this run")
             con.execute(
                 "INSERT INTO requests(run_id,action,requested_at) VALUES(?,?,?)",
                 (run_id, action, stamp),
@@ -152,8 +194,8 @@ def request(directory: str | Path, run_id: str, action: str) -> dict[str, str]:
         or active["state"] != "running"
         or active.get("pid_state") != "live"
     ):
-        with closing(_connect(root)) as con:
-            con.execute("DELETE FROM requests WHERE run_id=?", (run_id,))
+        if _inactive_request_receipt(root, run_id, action):
+            return {"ok": True, "run_id": run_id, "state": f"{action}_applied"}
         raise ValueError("run_id is no longer an active native crawl")
     return {"ok": True, "run_id": run_id, "state": f"{action}_requested"}
 
@@ -167,11 +209,16 @@ def consume(directory: str | Path, run_id: str) -> str | None:
     with closing(_connect(root)) as con:
         try:
             con.execute("BEGIN IMMEDIATE")
-            row = con.execute("SELECT action FROM requests WHERE run_id=?", (run_id,)).fetchone()
-            if row is None:
+            row = con.execute(
+                "SELECT action, state FROM requests WHERE run_id=?", (run_id,)
+            ).fetchone()
+            if row is None or row[1] != "pending":
                 con.execute("COMMIT")
                 return None
-            con.execute("DELETE FROM requests WHERE run_id=?", (run_id,))
+            con.execute(
+                "UPDATE requests SET state='applied' WHERE run_id=? AND state='pending'",
+                (run_id,),
+            )
             con.execute("COMMIT")
             return str(row[0])
         except BaseException:

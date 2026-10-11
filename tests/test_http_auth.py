@@ -1,6 +1,9 @@
 """Host-bound Basic/Digest auth stays out of unrelated requests and gates retries."""
 
 import base64
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
 
 import httpx
 
@@ -62,6 +65,63 @@ def test_digest_challenge_retry_reserves_an_extra_request_turn(monkeypatch):
     assert seen[0] is None
     assert seen[1].startswith("Digest username=\"crawler\"")
     assert turns == ["retry"]
+
+
+def test_concurrent_digest_flows_serialize_shared_nonce_state(monkeypatch):
+    monkeypatch.setenv("SEOHEAD_TEST_USER", "crawler")
+    monkeypatch.setenv("SEOHEAD_TEST_PASSWORD", "fixture-secret")
+    guard = threading.Lock()
+    active = 0
+    maximum = 0
+
+    class SharedStateDigest:
+        def __init__(self, *_args):
+            pass
+
+        def auth_flow(self, request):
+            nonlocal active, maximum
+
+            def advance_shared_state():
+                nonlocal active, maximum
+                with guard:
+                    active += 1
+                    maximum = max(maximum, active)
+                # Give a second request time to overlap if generator advancement
+                # is not protected by the authenticator's shared lock.
+                time.sleep(0.02)
+                with guard:
+                    active -= 1
+
+            advance_shared_state()
+            response = yield request
+            advance_shared_state()
+            yield request
+
+    monkeypatch.setattr(httpx, "DigestAuth", SharedStateDigest)
+
+    def transport(request):
+        if request.headers.get("Authorization") is None:
+            return httpx.Response(
+                401,
+                headers={
+                    "WWW-Authenticate": 'Digest realm="fixture", nonce="n", '
+                    'qop="auth", opaque="o", algorithm=MD5'
+                },
+                request=request,
+            )
+        return httpx.Response(200, request=request)
+
+    with httpx.Client(
+        auth=host_bound_auth([_entry("digest")]),
+        transport=httpx.MockTransport(transport),
+    ) as client:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            responses = list(
+                pool.map(lambda path: client.get(f"https://example.test/{path}"), ("a", "b"))
+            )
+
+    assert [response.status_code for response in responses] == [200, 200]
+    assert maximum == 1
 
 
 def test_http_auth_refuses_to_send_credentials_over_plain_http(monkeypatch):
