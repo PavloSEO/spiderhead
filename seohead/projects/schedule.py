@@ -9,8 +9,9 @@ The scan itself is injected by the interface layer, so the core never imports MC
 
 from __future__ import annotations
 
+import asyncio
 import os
-import uuid
+import stat
 from collections.abc import Callable
 from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
@@ -30,7 +31,6 @@ STATE_FORMAT = "seohead.schedule-state.v1"
 NAME = "schedule.json"
 STATE_NAME = "schedule-state.json"
 LOCK_NAME = ".schedule.lock"
-LEASE_SECONDS = 6 * 3600
 MODES = ("spider", "sitemap", "list")
 _WEEKDAYS = {"mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6}
 _MAX_URLS = 1_000_000
@@ -461,27 +461,59 @@ def _request(
     return {**base, "urls": urls}
 
 
-def _acquire(root: Path, stamp: datetime) -> str | None:
+def _acquire(root: Path) -> int | None:
+    """Hold a process-scoped OS lock for the complete run, with no expiring lease."""
     lock = root / LOCK_NAME
-    if lock.exists() or lock.is_symlink():
-        try:
-            started = datetime.fromisoformat(lock.read_text(encoding="utf-8").strip().split("|")[1])
-        except (OSError, ValueError, IndexError):
-            started = None
-        if started is not None and (stamp - started).total_seconds() < LEASE_SECONDS:
+    if lock.is_symlink():
+        return None
+    flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        fd = os.open(lock, flags, 0o600)
+    except OSError:
+        return None
+    locked = False
+    try:
+        mode = os.fstat(fd).st_mode
+        if lock.is_symlink() or not stat.S_ISREG(mode) or mode & 0o077:
             return None
-        lock.unlink(missing_ok=True)
-    token = uuid.uuid4().hex
-    fd = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    with os.fdopen(fd, "w", encoding="utf-8") as stream:
-        stream.write(f"{token}|{stamp.isoformat()}")
-    return token
+        if os.name == "nt":
+            import msvcrt
+
+            if os.fstat(fd).st_size == 0:
+                os.write(fd, b"\0")
+            os.lseek(fd, 0, os.SEEK_SET)
+            try:
+                msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+            except OSError:
+                return None
+        else:
+            import fcntl
+
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError:
+                return None
+        locked = True
+        return fd
+    finally:
+        if not locked:
+            os.close(fd)
 
 
-def _release(root: Path, token: str) -> None:
-    lock = root / LOCK_NAME
-    if lock.exists() and lock.read_text(encoding="utf-8").startswith(token + "|"):
-        lock.unlink(missing_ok=True)
+def _release(fd: int) -> None:
+    """Release the OS lock; keep its inode so concurrent openers share one lock object."""
+    try:
+        if os.name == "nt":
+            import msvcrt
+
+            os.lseek(fd, 0, os.SEEK_SET)
+            msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(fd, fcntl.LOCK_UN)
+    finally:
+        os.close(fd)
 
 
 def run_due(
@@ -568,7 +600,7 @@ def run_due(
             "decision": primary_decision,
             "competitors_due": 0,
         }
-    token = _acquire(root, stamp)
+    token = _acquire(root)
     if token is None:
         journal.note(
             directory,
@@ -593,7 +625,7 @@ def run_due(
             decision = target["decision"]
             child_token = None
             if target_root != root:
-                child_token = _acquire(target_root, stamp)
+                child_token = _acquire(target_root)
             if target_root != root and child_token is None:
                 entry = {
                     "role": target["role"],
@@ -612,6 +644,12 @@ def run_due(
                     actor="schedule",
                     text=f"competitor {target['url']} skipped: another scheduled run holds its lock",
                 )
+                journal.note(
+                    target["directory"],
+                    source="scans",
+                    actor="schedule",
+                    text="competitor scan skipped: another scheduled run holds its lock",
+                )
                 continue
             try:
                 try:
@@ -629,7 +667,43 @@ def run_due(
                             text=f"started competitor scan window {decision['window']} mode {target_settings['crawl']['mode']}",
                         )
                     kwargs = _request(target_settings, target, target_state, target_root)
-                    outcome = scan(**kwargs)
+                    try:
+                        outcome = scan(**kwargs)
+                    except (KeyboardInterrupt, SystemExit, asyncio.CancelledError) as exc:
+                        entry = {
+                            "role": target["role"],
+                            "url": target["url"],
+                            "ok": False,
+                            "scan": None,
+                            "partial": False,
+                            "finish_reason": "cancelled",
+                            "error": type(exc).__name__,
+                            "cancelled": True,
+                            "window": decision["window"],
+                        }
+                        target_state["last_window"] = decision["window"]
+                        target_state["last_run_at"] = _now()
+                        target_state["last_result"] = [entry]
+                        previous_revision = target_state.get("revision", 0)
+                        target_state["revision"] = previous_revision + 1
+                        write_document(
+                            target_root,
+                            STATE_NAME,
+                            target_state,
+                            expected_revision=previous_revision,
+                        )
+                        message = f"{target['role']} cancelled: {type(exc).__name__}"
+                        journal.note(
+                            directory, source="scans", actor="schedule", text=message
+                        )
+                        if target_root != root:
+                            journal.note(
+                                target["directory"],
+                                source="scans",
+                                actor="schedule",
+                                text=message,
+                            )
+                        raise
                 except Exception as exc:  # one target's failure must not hide the others
                     message = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
                     outcome = {"ok": False, "error": message}
@@ -676,9 +750,9 @@ def run_due(
                     )
             finally:
                 if child_token is not None:
-                    _release(target_root, child_token)
+                    _release(child_token)
     finally:
-        _release(root, token)
+        _release(token)
     return {
         "ok": all(item["ok"] for item in results),
         "ran": True,

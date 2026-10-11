@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -232,17 +233,66 @@ def test_schedule_show_reports_each_competitors_own_next_run(tmp_path):
     assert shown["competitors"][0]["next_due_at"] == "2026-10-15T01:00:00Z"
 
 
-def test_run_due_refuses_overlap_and_stale_lock_is_reclaimed(tmp_path):
+def test_competitor_overlap_is_recorded_in_both_workspaces(tmp_path):
+    project = _project(tmp_path)
+    competitor = add_competitors(str(project), ["https://rival.example.test/"])[
+        "competitors"
+    ][0]
+    child = project / competitor["directory"]
+    schedule.configure(
+        project, expected_revision=0, enabled=True, time_zone="UTC", include_competitors=True
+    )
+    schedule.configure(child, expected_revision=0, enabled=True, time_zone="UTC")
+    competitor_lock = schedule._acquire(child)
+    assert competitor_lock is not None
+    calls = []
+    try:
+        result = schedule.run_due(
+            project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00")
+        )
+    finally:
+        schedule._release(competitor_lock)
+
+    assert result["runs"][0]["role"] == "primary"
+    assert result["runs"][1]["error"] == "overlap refused"
+    assert len(calls) == 1
+    assert "another scheduled run holds its lock" in (child / "log.md").read_text(
+        encoding="utf-8"
+    )
+
+
+def test_run_due_refuses_overlap_while_another_process_holds_the_lock(tmp_path):
     project = _project(tmp_path)
     schedule.configure(project, expected_revision=0, enabled=True, time_zone="UTC")
-    lock = project / ".schedule.lock"
-    lock.write_text("held|2026-10-12T00:00:00+00:00", encoding="utf-8")
+    owner_lock = schedule._acquire(project)
+    assert owner_lock is not None
     calls = []
-    held = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00"))
+    try:
+        held = schedule.run_due(
+            project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00")
+        )
+    finally:
+        schedule._release(owner_lock)
     assert held == {"ok": True, "ran": False, "reason": "overlap refused"} and not calls
-    assert lock.exists()
     late = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-13T03:00:00"))
-    assert late["ran"] is True and not lock.exists()
+    assert late["ran"] is True and len(calls) == 1
+
+
+@pytest.mark.parametrize("cancellation", [KeyboardInterrupt, SystemExit, asyncio.CancelledError])
+def test_run_due_records_cancellation_before_reraising(tmp_path, cancellation):
+    project = _project(tmp_path)
+    schedule.configure(project, expected_revision=0, enabled=True, time_zone="UTC")
+
+    def cancel(**kwargs):
+        raise cancellation()
+
+    with pytest.raises(cancellation):
+        schedule.run_due(project, scan=cancel, now=_utc("2026-10-12T02:00:00"))
+
+    state = json.loads((project / "schedule-state.json").read_text(encoding="utf-8"))
+    assert state["last_result"][0]["finish_reason"] == "cancelled"
+    assert state["last_result"][0]["error"] == cancellation.__name__
+    assert "cancelled" in (project / "log.md").read_text(encoding="utf-8")
 
 
 def test_slice_mode_resumes_the_previous_partial_artifact(tmp_path):
