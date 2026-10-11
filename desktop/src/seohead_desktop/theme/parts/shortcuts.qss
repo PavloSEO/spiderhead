@@ -1,0 +1,3 @@
+/* Shortcuts sheet (canvas «Shortcuts»): key caps and the search field height */
+QLabel[shortcut_cap="true"] { min-width: 22px; height: 22px; padding: 0 5px; border: 1px solid $outline; border-bottom-width: 2px; border-radius: 5px; background: $base; color: $text; font-size: ${font_meta}px; font-weight: 500; }
+QWidget#sheetHeader { background: $base; border-bottom: 1px solid $divider; }

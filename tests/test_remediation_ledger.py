@@ -175,6 +175,34 @@ def _scan(
     return path
 
 
+@pytest.mark.parametrize("resource_limit", [2 * 1024 * 1024, 12345])
+def test_ingest_binds_effective_asset_policy_without_changing_frozen_scan(tmp_path, resource_limit):
+    from seohead.core.verification import source_identity
+    from seohead.storage.inputs import load_audit_source
+
+    ledger = _ledger(tmp_path)
+    scan = _scan(
+        tmp_path / "scan.sqlite",
+        issues=[_issue("ISSUE-000001", "CHECK_ONE", target=A)],
+        config_overrides={"analysis.asset_thresholds.resource_max_bytes": resource_limit},
+    )
+    before = _file_sha(scan)
+    with open_scan(scan) as con:
+        frozen = con.execute("SELECT config_fingerprint FROM scan").fetchone()[0]
+    identity = source_identity(load_audit_source(scan, "baseline"))
+    assert identity["results_policy_fingerprint"] != frozen
+    ingest_scan(ledger, scan)
+    con = open_ledger(ledger)
+    try:
+        policy = con.execute("SELECT config_fingerprint FROM source_scan").fetchone()[0]
+        assert policy == identity["results_policy_fingerprint"]
+    finally:
+        con.close()
+    ingest_scan(ledger, scan)
+    assert _file_sha(scan) == before
+    assert len(_occurrences(read_cases(ledger))[0]["observations"]) == 1
+
+
 def _legacy_page(url: str) -> dict:
     """One complete pages.jsonl record for a legacy_directory.v1 import."""
     return {

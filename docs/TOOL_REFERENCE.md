@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**183 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 192 in total.
+**192 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 201 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -70,6 +70,8 @@ Reparse retained HTML/DOM and rerun existing checks without network.
 | `input_path` | `str` | `required` |
 | `out` | `str` | `required` |
 | `producer_build` | `str | None` | `None` |
+| `step` | `Literal['all', 'links.position']` | `'all'` |
+| `max_documents` | `int | None` | `None` |
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
@@ -80,6 +82,64 @@ parent UUID and current analyzer provenance. The source is unchanged;
 an existing output is refused. Missing required bodies produce named
 unavailable errors. Missing live-only context remains skipped. No HTTP,
 DNS, browser, provider, or cache-miss fallback is permitted.
+
+### `scan-sitemap-generate`
+
+MCP name: `seo_scan_sitemap_generate`
+
+Write local XML sitemap files from retained indexable, canonical 200 responses.
+
+| Argument | Type | Default |
+|---|---|---|
+| `input_path` | `str` | `required` |
+| `out_dir` | `str` | `required` |
+| `sitemap_base_url` | `str` | `required` |
+| `include_images` | `bool` | `False` |
+| `exclude` | `list[str] | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+Requires a fresh output directory and a same-origin deployment base URL.
+Splits at 50,000 URLs and 50 MiB uncompressed, writes a sitemap index, and
+optionally includes images parsed from complete retained bodies. lastmod
+uses observed modification evidence, never the capture or generation time.
+Exclusion patterns and skipped evidence are reported. No network or deployment.
+
+### `scan-graph`
+
+MCP name: `seo_scan_graph`
+
+Read versioned chunks of a retained internal-link graph without network.
+
+| Argument | Type | Default |
+|---|---|---|
+| `input_path` | `str` | `required` |
+| `positions` | `list[str] | str | None` | `None` |
+| `section` | `str | None` | `None` |
+| `around` | `str | None` | `None` |
+| `depth` | `int` | `2` |
+| `aggregate` | `str` | `'none'` |
+| `representation` | `str` | `'all'` |
+| `node_offset` | `int` | `0` |
+| `edge_offset` | `int` | `0` |
+| `node_limit` | `int` | `1000` |
+| `edge_limit` | `int` | `2000` |
+| `max_nodes` | `int` | `5000` |
+| `max_edges` | `int` | `20000` |
+| `compare_to` | `str | None` | `None` |
+| `timeout_seconds` | `float` | `1.0` |
+| `max_bytes` | `int` | `8388608` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Filter by position or URL section, expand around a URL by depth, aggregate
+sections, or compare two scans. At most 5,000 nodes and 20,000 edges are
+admitted; totals, clipping, coverage and unavailable reasons are explicit.
+Orphan and component counts describe the admitted graph scope.
 
 ### `crawl-site`
 
@@ -425,6 +485,56 @@ Verify backlinks from a list of donor pages: is the link still there, its anchor
 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
+### `backlinks-profile`
+
+MCP name: `seo_backlinks_profile`
+
+Build a bounded backlink profile from explicit CSV/imported evidence or selected sources.
+
+| Argument | Type | Default |
+|---|---|---|
+| `domain` | `str` | `required` |
+| `history_only` | `bool` | `False` |
+| `imports` | `list[dict[str, Any]] | None` | `None` |
+| `evidence` | `list[dict[str, Any]] | None` | `None` |
+| `sources` | `list[dict[str, Any]] | None` | `None` |
+| `db` | `str | None` | `None` |
+| `project` | `str | None` | `None` |
+| `observed_at` | `str | None` | `None` |
+| `state` | `str | None` | `None` |
+| `follow` | `str | None` | `None` |
+| `target_prefix` | `str | None` | `None` |
+| `min_spam_score` | `float | None` | `None` |
+| `max_spam_score` | `float | None` | `None` |
+| `first_seen_from` | `str | None` | `None` |
+| `first_seen_to` | `str | None` | `None` |
+| `one_per_domain` | `bool` | `False` |
+| `target_status` | `dict[str, Any] | None` | `None` |
+| `limit` | `int` | `1000` |
+| `offset` | `int` | `0` |
+
+**Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
+
+**Behavior and failure modes**
+
+Offline by default. Optional project/db stores private SQLite history. Explicit sources
+may call free or paid providers; DataForSEO defaults sandbox, requires confirm_paid and
+account/production approval. No automatic pagination or web-wide completeness claim.
+
+### `backlinks-disavow`
+
+MCP name: `seo_backlinks_disavow`
+
+Generate a reviewed disavow selection locally; never submit or overwrite a file.
+
+| Argument | Type | Default |
+|---|---|---|
+| `domains` | `list[str] | None` | `None` |
+| `urls` | `list[str] | None` | `None` |
+| `output` | `str | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
 ### `schema-check`
 
 MCP name: `seo_schema_check`
@@ -685,14 +795,132 @@ Detect soft-404: whether the site returns an honest 404/410 for non-existent URL
 
 MCP name: `seo_log_analyze`
 
-Analyse a web server access log (Apache/Nginx Common or Combined, IIS W3C). Shows who actually crawls the site and how: hits per bot, bytes, unique IPs, response codes served to bots (they differ from what humans get more often than people expect), which site sections each bot family visits, top paths and a daily trend. Set verify_bots=true to check bot authenticity by forward-confirmed rDNS — a spoofed User-Agent is one line, a forged PTR of google.com is not. That check hits the network, and if reverse DNS is unavailable it says so instead of declaring every bot fake.
+Analyse an access log offline with exact disk-backed IP totals and a bounded IP page.
 
 | Argument | Type | Default |
 |---|---|---|
 | `path` | `str` | `required` |
 | `verify_bots` | `bool` | `False` |
+| `max_lines` | `int` | `5000000` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `100` |
+| `max_dns` | `int` | `20` |
+| `bot` | `str | None` | `None` |
+| `ip` | `str | None` | `None` |
 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Apache/Nginx Common/Combined, IIS and gzip are supported. User-agent labels
+are claims, not verified identities. verify_bots explicitly enables bounded,
+cached forward-confirmed reverse DNS for this page only (max_dns plus one
+canary). Every IP has its own PTR, forward match, verdict, visits and last visit.
+DNS failure/deadline remains unchecked; it never becomes a fake-bot verdict.
+
+### `logs-import`
+
+MCP name: `seo_logs_import`
+
+Stream supplied access logs into a new local project logs.v1 artifact.
+
+| Argument | Type | Default |
+|---|---|---|
+| `path` | `str` | `required` |
+| `project` | `str` | `required` |
+| `max_lines` | `int` | `100000000` |
+| `max_files` | `int` | `1000` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+Reads files/gzip or a bounded directory. Retains exact IP and date/URL/status
+aggregates, coverage and source digests; source files stay unchanged. No DNS,
+site request, provider call or scan mutation occurs. Raw client IPs stay local.
+
+### `logs-summary`
+
+MCP name: `seo_logs_summary`
+
+Read one bounded page of retained log URL, bot IP, bot, date, status or section aggregates.
+
+| Argument | Type | Default |
+|---|---|---|
+| `source` | `str` | `required` |
+| `view` | `str` | `'urls'` |
+| `limit` | `int` | `100` |
+| `offset` | `int` | `0` |
+| `bot` | `str` | `''` |
+| `family` | `str` | `''` |
+| `ip` | `str` | `''` |
+| `date_from` | `str` | `''` |
+| `date_to` | `str` | `''` |
+| `status` | `int | None` | `None` |
+| `section` | `str` | `''` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Totals remain exact for imported rows. UTC date and bot filters are explicit;
+unsupported/missing measurements remain unavailable. No DNS or source reimport.
+
+### `logs-join`
+
+MCP name: `seo_logs_join`
+
+Join retained access-log requests with a validated native scan, offline.
+
+| Argument | Type | Default |
+|---|---|---|
+| `source` | `str` | `required` |
+| `scan` | `str` | `required` |
+| `view` | `str` | `'scan_without_bot_visits'` |
+| `base_url` | `str` | `''` |
+| `family` | `str` | `''` |
+| `bot` | `str` | `''` |
+| `date_from` | `str` | `''` |
+| `date_to` | `str` | `''` |
+| `limit` | `int` | `100` |
+| `offset` | `int` | `0` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Read bounded views for scan URLs without recorded bot visits, bot URLs absent
+from the scan (candidates), response-code waste, nonindexable requests and
+sections. Absence conclusions require complete compatible evidence; missing
+or partial scans remain unavailable. No crawl, DNS or scan schema change.
+
+### `logs-bots`
+
+MCP name: `seo_logs_bots`
+
+Read a bounded per-IP bot page with retained PTR, forward result, visits and last visit.
+
+| Argument | Type | Default |
+|---|---|---|
+| `source` | `str` | `required` |
+| `verify_bots` | `bool` | `False` |
+| `limit` | `int` | `100` |
+| `offset` | `int` | `0` |
+| `bot` | `str` | `''` |
+| `family` | `str` | `''` |
+| `ip` | `str` | `''` |
+| `verdict` | `str` | `''` |
+| `max_dns` | `int` | `20` |
+
+**Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+No DNS runs by default. verify_bots explicitly refreshes only the selected page
+within max_dns (plus one canary), using a one-hour local cache. Requests are
+sequential and rate-limited. DNS failure/deadline is unchecked, not fake.
+Cached verdict filters are read-only; verification with a verdict filter is refused.
+The cache writes only to the supplied local log artifact, never to a scan.
 
 ### `regions-check`
 
@@ -964,6 +1192,31 @@ Yandex search results for one query or a batch. Async only: the synchronous endp
 
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
 
+### `dataforseo-estimate`
+
+MCP name: `seo_dataforseo_estimate`
+
+Calculate a quote offline using a supplied appendix/user_data price snapshot.
+
+| Argument | Type | Default |
+|---|---|---|
+| `operation` | `str` | `required` |
+| `query_count` | `int` | `1` |
+| `row_limit` | `int` | `0` |
+| `cache_hits` | `int` | `0` |
+| `prices` | `dict[str, Any] | None` | `None` |
+| `env` | `str | None` | `None` |
+| `refresh_prices` | `bool` | `False` |
+| `query` | `str | None` | `None` |
+
+**Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Cache hits are caller-declared; this tool never claims to discover cached data.
+Unknown pricing is unavailable. refresh_prices explicitly reads the free account endpoint;
+without it, no provider request or credential access occurs.
+
 ### `google-keywords`
 
 MCP name: `seo_google_keywords`
@@ -979,6 +1232,10 @@ Google demand via DataForSEO: pass `keywords` for search volume and competition 
 | `country` | `str | None` | `None` |
 | `limit` | `int` | `100` |
 | `difficulty` | `bool` | `False` |
+| `confirm_paid` | `bool` | `False` |
+| `env` | `str | None` | `None` |
+| `spend_ceiling_usd` | `float | None` | `None` |
+| `prices` | `dict[str, Any] | None` | `None` |
 
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
 
@@ -1005,6 +1262,10 @@ Google organic results for a query — who actually ranks. Same geo rules as seo
 | `language` | `str` | `'en'` |
 | `depth` | `int` | `10` |
 | `country` | `str | None` | `None` |
+| `confirm_paid` | `bool` | `False` |
+| `env` | `str | None` | `None` |
+| `spend_ceiling_usd` | `float | None` | `None` |
+| `prices` | `dict[str, Any] | None` | `None` |
 
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
 
@@ -3202,8 +3463,11 @@ most 100,000 rows (else reason_code sort_not_indexed). Returns total, filtered_t
 with state capped when the count exceeds count_timeout_seconds) and at most 200 rows of the
 requested columns. facets (a list of group ids, or "all") adds facets: {group: count} over
 the same filters, with facets_state exact or capped. issue_check (1..50 check ids) and
-issue_severity (critical|warning|notice) filter by audit issue; until the per-issue index
-exists they return state unavailable with reason_code issue_index_missing.
+issue_severity (critical|warning|notice) filter by saved audit findings, including grouped
+URLs. Check ids are case-insensitive. Missing saved findings return state unavailable
+with reason_code issue_index_missing. Skipped, disabled or absent saved checks return
+issue_check_unmeasured; a bounded audit read can return issue_selection_timeout.
+No unfiltered result is substituted.
 
 ### `scan-link-inspect`
 
@@ -3399,6 +3663,10 @@ this mode does not require Screaming Frog to be installed. The
 installed, licensed SF CLI. ``input`` is respectively an exports
 directory, .seospider path, start URL, or URL-list file. Returns a compact
 summary and absolute file paths instead of embedding the large reports.
+
+``config`` may explicitly select ``semantic_similarity.adapter`` and
+caller-supplied body/title/H1 vectors. No embedding model or provider
+is selected by default; absent bodies or adapters remain unavailable.
 
 A live crawl can run for a long time; this call runs off the server's
 event loop, so other sf_* calls stay answerable while it is in

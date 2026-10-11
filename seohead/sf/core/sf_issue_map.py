@@ -202,19 +202,26 @@ CATEGORIES: dict[str, list[Entry]] = {
             "never a substring of the whole document, so a page merely mentioning it once "
             "outside the content area is not flagged",
         ),
-        _p(
+        _c(
             "Near Duplicates",
-            'an SF export\'s native "No. Near Duplicates" column is read directly and answers '
-            "this fully; the SimHash-based fallback that answers it without one needs HTML "
-            "stored to disk (input.html_store_dir), which a native `crawl-site` run never "
-            "writes, so that run always skips this one by name instead",
             "NEAR_DUPLICATE",
+            note="SF native columns or bounded SimHash/LSH over content-area text from "
+            "the native scan's selected retained document or input.html_store_dir; "
+            "missing bodies and exhausted analysis budgets are explicit omissions",
         ),
         _g(
             "Semantically Similar",
-            "needs an embedding adapter; the semantic-similarity command and MCP tool take caller-supplied vectors or a local adapter, but no adapter ships and the SF run does not call it yet, so the row stays open. simhash finds near-duplicates by shingles, not by meaning",
+            "SF-run now invokes adapter-measured semantic candidates only when an explicit "
+            "local adapter or declared caller-supplied vectors are selected. No adapter ships; "
+            "the default is explicitly unavailable and the row stays a gap until an adapter "
+            "is chosen and validated. SimHash compares shingles, not meaning",
         ),
-        _g("Low Relevance Content", "needs a query or a topic model to be relevant to"),
+        _g(
+            "Low Relevance Content",
+            "an explicit embedding adapter can compare title and H1 against normalized retained "
+            "body text as review candidates. This does not establish query relevance; no model "
+            "is selected by default, so the row stays a gap pending an adapter decision",
+        ),
         _c("Low Content Pages", "THIN_CONTENT", "LOW_TEXT_RATIO"),
         _c("Readability Difficult", "READABILITY_DIFFICULT", "LONG_SENTENCES"),
         _c("Readability Very Difficult", "READABILITY_DIFFICULT"),
@@ -239,24 +246,20 @@ CATEGORIES: dict[str, list[Entry]] = {
         _c("Alt Text Over 100 Characters", "IMG_ALT_TOO_LONG"),
         _p(
             "Incorrectly Sized Images",
-            "render-check measures intrinsic size against the rendered box (image_sizing: "
-            "oversized, upscaled) on rendered routes only; no SF-analyzer check reads it yet, "
-            "and crawl exports are not checked",
+            "native retained render layout compares intrinsic and displayed width at the recorded "
+            "DPR; raw-only scans skip, and the existing 10 KiB oversized-image floor awaits owner review",
+            "IMG_INTRINSIC_OVERSIZED",
+            "IMG_UPSCALED",
         ),
         _c("Missing Size Attributes", "IMG_MISSING_DIMENSIONS"),
     ],
     "Canonicals": [
         _c("Multiple Conflicting", "CANONICAL_MULTIPLE"),
         _c("Non-Indexable Canonical", "CANONICAL_NON_INDEXABLE"),
-        _g(
+        _c(
             "Invalid Attribute In Annotation",
-            "a matched canonical <link> already has a well-formed 'canonical' token by "
-            "construction (BeautifulSoup only yields whitespace-free tokens, and the match "
-            "itself requires one); every other token a real document could add is either a "
-            "known link-relation keyword or an unrecognised-but-well-formed one, which the "
-            "issue's own acceptance criteria say must stay unknown, not invalid -- leaving no "
-            "reachable case that is actually malformed without a raw-attribute-text signal "
-            "this parser does not keep",
+            "CANONICAL_INVALID_ATTRIBUTE",
+            note="native selected-document annotations preserve raw rel/href and alternate-version attributes; canonical links carrying hreflang/lang/media/type are ignored for canonicalization; malformed separators and hrefs are also observable; unknown well-formed relation keywords remain unknown",
         ),
         _c("Contains Fragment URL", "CANONICAL_FRAGMENT"),
         _c("Outside <head>", "CANONICAL_OUTSIDE_HEAD"),
@@ -272,14 +275,10 @@ CATEGORIES: dict[str, list[Entry]] = {
         _c("Unlinked Pagination URLs", "UNLINKED_PAGINATION_SERIES"),
         _c("Multiple Pagination URLs", "PAGINATION_MULTIPLE"),
         _c("Pagination Loop", "PAGINATION_LOOP"),
-        _p(
+        _c(
             "Sequence Error",
-            "a run that increments by one, or a stride that one step covers most of, is "
-            "judged; an irregular offset scheme, or one whose URLs do not state a page number, "
-            "is left unevaluated rather than reported against a numbering we would have had to "
-            "invent -- and is then named, with the reason true of that series, among the run's "
-            "skipped checks",
             "PAGINATION_SEQUENCE_ERROR",
+            note="numbered runs and dominant strides use observed page-number steps; opaque native rel=next/prev chains are judged only for explicit reciprocal contradictions in selected-document annotations; absent, ambiguous or uncaptured relationships remain unjudged",
         ),
         _c("Non-Indexable", "PAGINATION_NONINDEXABLE"),
     ],
@@ -398,38 +397,86 @@ CATEGORIES: dict[str, list[Entry]] = {
     ],
     "PageSpeed": [
         _c("Document Request Latency", "SLOW_RESPONSE"),
-        _o("LCP Request Discovery", "needs Lighthouse's own trace of the loading sequence"),
-        _t("Render Blocking Requests", "asset-weight-check"),
-        _o("Network Dependency Tree", "needs a full request waterfall from a real navigation"),
-        _t("Use Efficient Cache Lifetimes", "headers-check", "cdn-check"),
-        _o("Layout Shift Culprits", "needs layout instrumentation during a real render"),
-        _t("Improve Image Delivery", "images-optimize", "asset-weight-check"),
-        _o("Forced Reflow", "needs main-thread instrumentation"),
-        _t("Legacy JavaScript", "asset-weight-check"),
-        _t("Duplicated JavaScript", "asset-weight-check", note="by content hash across the page"),
+        _c(
+            "LCP Request Discovery",
+            "LCP_DISCOVERY",
+            note="supplied matching per-URL Lighthouse lab JSON only; no automatic trace collection",
+        ),
+        _c("Render Blocking Requests", "RENDER_BLOCKING"),
+        _c(
+            "Network Dependency Tree",
+            "NETWORK_DEPENDENCY_TREE",
+            note="supplied per-URL Lighthouse lab JSON",
+        ),
+        _c(
+            "Use Efficient Cache Lifetimes",
+            "ASSET_SHORT_CACHE",
+            note="completed native resource headers; static heuristic, not a Lighthouse score",
+        ),
+        _c(
+            "Layout Shift Culprits",
+            "LAYOUT_SHIFT_CULPRITS",
+            note="supplied per-URL Lighthouse lab JSON",
+        ),
+        _c("Improve Image Delivery", "IMAGE_DELIVERY", note="supplied per-URL Lighthouse lab JSON"),
+        _c("Forced Reflow", "FORCED_REFLOW", note="supplied per-URL Lighthouse lab JSON"),
+        _c(
+            "Legacy JavaScript",
+            "LEGACY_JS",
+            note="markers in completed native script source; heuristic",
+        ),
+        _c(
+            "Duplicated JavaScript",
+            "DUPLICATED_JS",
+            note="exact captured bytes at different script URLs on the same page",
+        ),
         _p(
             "Avoid Enormous Network Payloads",
-            "LARGE_HTML/HTML_BLOAT measure only each HTML document's own size (bytes) and "
-            "word count; nothing sums images, fonts, third-party tags or later requests into "
-            "a total page payload (docs/COVERAGE_GAPS.md 1.7 tracks the gap)",
+            "HEAVY_PAGE_WEIGHT uses observed navigation response bodies or an HTML-only lower bound, "
+            "with explicit content-decoded units; not a total page payload across future interactions "
+            "or a compressed transfer measurement. LARGE_HTML/HTML_BLOAT retain HTML-only scope",
+            "HEAVY_PAGE_WEIGHT",
             "LARGE_HTML",
             "HTML_BLOAT",
         ),
-        _t("Minify CSS", "asset-weight-check"),
-        _t("Minify JavaScript", "asset-weight-check"),
-        _o("Reduce Unused CSS", "needs coverage instrumentation from a real render"),
-        _o("Reduce Unused JavaScript", "needs coverage instrumentation from a real render"),
-        _o("Reduce JavaScript Execution Time", "needs a CPU profile"),
+        _c(
+            "Minify CSS",
+            "UNMINIFIED_CSS_JS",
+            note="completed native source; whitespace/line-length heuristic",
+        ),
+        _c(
+            "Minify JavaScript",
+            "UNMINIFIED_CSS_JS",
+            note="completed native source; whitespace/line-length heuristic",
+        ),
+        _c(
+            "Reduce Unused CSS",
+            "UNUSED_CSS_JS",
+            note="bounded Chromium CDP coverage from the recorded navigation window",
+        ),
+        _c(
+            "Reduce Unused JavaScript",
+            "UNUSED_CSS_JS",
+            note="bounded Chromium CDP coverage from the recorded navigation window",
+        ),
+        _c(
+            "Reduce JavaScript Execution Time",
+            "JS_EXECUTION_TIME",
+            note="supplied Lighthouse bootup-time lab result",
+        ),
         _o("Minimize Main-Thread Work", "needs a CPU profile"),
-        _p(
+        _c(
             "Optimize DOM Size",
-            "needs HTML stored to disk (input.html_store_dir) to measure; a Screaming Frog "
-            "export configured to store HTML supplies it, but a native `crawl-site` run never "
-            "writes one, so that run always skips both by name instead",
             "DOM_TOO_MANY_NODES",
             "DOM_TOO_DEEP",
+            note="reads the selected retained native document or SF stored HTML; "
+            "unretained, over-budget and invalid bodies are reported with their true reason",
         ),
-        _t("Font Display", "asset-weight-check"),
+        _c(
+            "Font Display",
+            "FONT_DISPLAY_MISSING",
+            note="font-face blocks in completed native stylesheets",
+        ),
     ],
     "Mobile": [
         _c("Viewport Not Set", "VIEWPORT_MISSING"),
@@ -493,10 +540,10 @@ CATEGORIES: dict[str, list[Entry]] = {
         _c("Missing <body> Tag", "BODY_MISSING"),
         _c("Multiple <body> Tags", "BODY_MULTIPLE"),
         _c("HTML Document Over 2MB", "HTML_OVER_2MB"),
-        _p(
+        _c(
             "Resource Over 2MB",
-            "a body above the configured ceiling is recorded and not parsed; it is a limit, "
-            "not a finding",
+            "RESOURCE_OVER_2MB",
+            note="captured declared-resource bytes; partial captures retain lower-bound status",
         ),
         _c("Invalid HTML Elements In <head>", "INVALID_HEAD_ELEMENT"),
         # Both collapse, after an HTML5 parser recovers from either shape of malformed
@@ -518,14 +565,14 @@ CATEGORIES: dict[str, list[Entry]] = {
 # imply each was considered on its own merits; it was not, and pretending otherwise would make
 # the map look more thorough than it is.
 _ACCESSIBILITY_NOTE = (
-    "A full WCAG/axe-core engine. Real, valuable, and a different product: it needs a rendered "
-    "DOM, computed styles and a rule set larger than this entire registry. Out of scope until "
-    "that is a deliberate decision with its own design, not a checkbox."
+    "First static HTML accessibility checks are available. The remaining WCAG/axe-core "
+    "rules need a rendered DOM or computed styles and are not measured by this subset."
 )
 _AMP_NOTE = (
     "AMP is effectively retired: Google dropped the Top Stories carousel requirement in 2021 "
     "and the format is in maintenance. The AMP validator's document model is a separate "
-    "project, so these ten rules stay declined; only the pairing rules are checked."
+    "project. Structural source checks are available; the complete validator rule set "
+    "remains unavailable pending an owner licence decision."
 )
 
 
@@ -653,11 +700,45 @@ AMP_RULES = [
     "Other Validation Errors",
 ]
 
-CATEGORIES["Accessibility"] = _bulk(ACCESSIBILITY_RULES, _ACCESSIBILITY_NOTE)
+_STATIC_ACCESSIBILITY = {
+    "WCAG 2.0 A - HTML Element Requires Lang Attribute": "A11Y_HTML_LANG_MISSING",
+    "WCAG 2.0 A - Form <input> Elements Require Labels": "A11Y_FORM_LABEL_MISSING",
+    "WCAG 2.0 A - Select Element Requires Accessible Name": "A11Y_FORM_LABEL_MISSING",
+    "WCAG 2.0 A - Images Require Alternate Text": "A11Y_IMAGE_ALT_MISSING",
+}
+CATEGORIES["Accessibility"] = [
+    _p(
+        name,
+        "conservative static HTML subset; computed styles and full axe-core rules are unmeasured",
+        _STATIC_ACCESSIBILITY[name],
+    )
+    if name in _STATIC_ACCESSIBILITY
+    else _o(name, _ACCESSIBILITY_NOTE)
+    for name in ACCESSIBILITY_RULES
+]
+_STATIC_AMP = {
+    "Missing <html amp> Tag": "AMP_MISSING_HTML_ATTRIBUTE",
+    "Missing/Invalid Doctype HTML Tag": "AMP_INVALID_DOCTYPE",
+    "Missing Head Tag": "AMP_MISSING_HEAD",
+    "Missing Body Tag": "AMP_MISSING_BODY",
+    "Missing/Invalid Meta Charset Tag": "AMP_INVALID_CHARSET",
+    "Missing/Invalid Meta Viewport Tag": "AMP_INVALID_VIEWPORT",
+    "Missing/Invalid AMP Script": "AMP_INVALID_RUNTIME",
+    "Missing/Invalid AMP Boilerplate": "AMP_INVALID_BOILERPLATE",
+}
 CATEGORIES["AMP"] = [
     _c(name, code, note="pairing read from the AMP target the crawl captured (#1020)")
     for name, code in AMP_PAIRING_RULES.items()
-] + _bulk(AMP_RULES, _AMP_NOTE)
+] + [
+    _p(
+        name,
+        "source structural check; boilerplate CSS and full validator rules are unmeasured",
+        _STATIC_AMP[name],
+    )
+    if name in _STATIC_AMP
+    else _o(name, _AMP_NOTE)
+    for name in AMP_RULES
+]
 
 
 def entries() -> list[tuple[str, Entry]]:

@@ -909,6 +909,7 @@ class Site:
                     h1=h1,
                     body=body,
                     hreflang=hl,
+                    extra_head=rel,
                     delay=delay,
                     jsonld=self.crumbs_ld(
                         [("Главная", "/"), ("Каталог", "/catalog/"), (name, f"/catalog/{cat}/")]

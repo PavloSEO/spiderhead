@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-11T02:10:14Z
+- **Generated:** 2026-10-11T15:22:50Z
 
 ## Health summary
 
-> **No health score.** only 94 of 202 checks could run (46% coverage); too little evidence to score.
+> **No health score.** only 96 of 248 checks could run (39% coverage); too little evidence to score.
 
-_94 of 202 checks could run; the score is not comparable to a run with full evidence_
+_96 of 248 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 108 skipped, 74 silent, 0 disabled (of 202 total)
+- Checks: **20 fired**, 152 skipped, 76 silent, 0 disabled (of 248 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -236,7 +236,47 @@ Each check below describes more than half the crawled pages. That can be true --
 | Sitemap URL returns a 4xx or 5xx response | missing export: sitemap_non_200 |
 | Sitemap URL returns a 3xx response | missing export: sitemap_redirects |
 | Sitemap contains a non-indexable URL | missing export: sitemap_non_indexable |
+| A link combines nofollow, sponsored or ugc tokens | export input retains no full rel-token/context evidence; native retained links are required |
+| An outbound sponsored link has no recognized local disclosure text | export input retains no full rel-token/context evidence; native retained links are required |
 | Link fragment identifies no element on the destination page | export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan |
+| Internal hyperlink has empty anchor text | this check requires retained native scan evidence |
+| An explicitly checked external destination did not answer | this check requires retained native scan evidence |
+| Sitemap URL declares another canonical URL | this check requires retained native scan evidence |
+| Sitemap URL is blocked by the retained robots policy | this check requires retained native scan evidence |
+| An internally linked URL is blocked by robots.txt | this check requires retained native scan evidence |
+| The supplied Lighthouse LCP discovery audit reports an opportunity | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| The supplied Lighthouse dependency-tree audit reports a request-chain opportunity | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| The supplied Lighthouse layout-shift audit reports culprits | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| The supplied Lighthouse image-delivery audit reports an opportunity | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| The supplied Lighthouse forced-reflow audit reports an opportunity | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| The supplied Lighthouse bootup-time audit reports expensive script execution | not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports |
+| A heavy image has more intrinsic width than its displayed device pixels need | not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages |
+| An image has less intrinsic width than its displayed device pixels need | not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages |
+| CSS or JavaScript source is substantially unused in the captured navigation window | not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages |
+| Observed navigation responses or HTML alone exceed the configured content-decoded byte budget | not fully measured by this native crawl: runtime response weight is absent or bounded; captured HTML alone is a lower bound |
+| A captured resource exceeds the configured individual byte budget | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| A captured resource has no long-lived public cache policy | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| An observed stylesheet font-face lacks an accepted font-display value | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| Captured CSS or JavaScript does not look minified (heuristic) | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| Different script URLs on one page contain identical captured source bytes | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| Captured JavaScript has an unconditional legacy or polyfill marker (heuristic) | not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets |
+| AMP document has a missing or invalid HTML5 doctype | document-bound markup evidence requires a retained native crawl |
+| AMP source document has no explicit head element | document-bound markup evidence requires a retained native crawl |
+| AMP source document has no explicit body element | document-bound markup evidence requires a retained native crawl |
+| AMP head does not start with the required UTF-8 charset declaration | document-bound markup evidence requires a retained native crawl |
+| AMP document lacks the required device-width viewport | document-bound markup evidence requires a retained native crawl |
+| AMP document lacks an async AMP runtime script in the head | document-bound markup evidence requires a retained native crawl |
+| AMP document lacks the structural AMP boilerplate declarations | document-bound markup evidence requires a retained native crawl |
+| AMP target does not declare the html amp or lightning attribute | document-bound markup evidence requires a retained native crawl |
+| Root html element has no nonempty lang declaration | document-bound markup evidence requires a retained native crawl |
+| Form control has no static accessible label | document-bound markup evidence requires a retained native crawl |
+| Image has no alt attribute or static accessible name | document-bound markup evidence requires a retained native crawl |
+| Heading sequence skips a level in the static document | document-bound markup evidence requires a retained native crawl |
+| Document content has no main landmark | document-bound markup evidence requires a retained native crawl |
+| Structured data contains errors under the bundled Schema.org vocabulary | document-bound markup evidence requires a retained native crawl |
+| Structured data contains warnings under the bundled Schema.org vocabulary | document-bound markup evidence requires a retained native crawl |
+| Structured data lacks required properties in the bundled local rich-result rules | document-bound markup evidence requires a retained native crawl |
+| A <head> script or stylesheet blocks first paint (no async/defer, no non-matching media) | no Render Blocking Resources column (needs a native seohead crawl) |
 | More than one <meta name="description"> element is present | no meta description count evidence (native crawl only) |
 | Page has an H1 but no H2 headings | requirements.require_h2 is false; the check was not evaluated |
 | The H1 has no text of its own; its only content is an image's alt attribute | no H1 alt-text evidence (native crawl only) |
@@ -257,9 +297,10 @@ Each check below describes more than half the crawled pages. That can be true --
 | Grammar errors detected | no Grammar Errors column (enable grammar-check in SF) |
 | Redirect is implemented with an HTTP Refresh response header | no Refresh response header evidence (native crawl only) |
 | Page declares multiple canonical URLs | no Canonical Link Element 2 column in Internal:All |
+| Canonical annotation contains unsupported alternate-version attributes or malformed rel/href | raw canonical attributes are unavailable in this export |
 | A rel="next" pagination series loops back on itself | no rel="next" column in Internal:All |
 | A pagination series is reachable only by following rel="next", never by a hyperlink | no rel="next" column in Internal:All |
-| A rel="next" series breaks a page-number run it otherwise follows | no rel="next" column in Internal:All |
+| Pagination breaks an established numbered run or contradicts a reciprocal next/prev declaration | no rel="next" column in Internal:All |
 | Response uses HTTP/1.x rather than HTTP/2 or newer | no HTTP Version column in Internal:All |
 | AMP version is declared | no amphtml Link Element column in Internal:All |
 | The AMP page declared by rel=amphtml does not answer 200 | no amphtml Link Element column in Internal:All |
@@ -320,10 +361,13 @@ Each check below describes more than half the crawled pages. That can be true --
 | Content-shaped page declares no author or byline markup | no Trust Signals column (native crawl or a same-named custom extraction) -- no author markup evidence at all |
 | Content-shaped page declares no publication or update date | no Trust Signals column and no Last Modified column -- no date evidence at all |
 | Content-shaped page has no observable outbound reference in its body content | no External Outlinks column and no all_inlinks export -- nothing to count outbound citations from |
-| DOM nesting is too deep | no stored HTML (input.html_store_dir not set) |
-| DOM contains too many nodes | no stored HTML (input.html_store_dir not set) |
+| DOM nesting is too deep | stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest |
+| DOM contains too many nodes | stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest |
 | Exact duplicate content (identical hash) | SF native Hash column already covers this |
-| Near-duplicate content | no stored HTML (input.html_store_dir not set) |
+| Near-duplicate content | stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) |
+| Pages have adapter-measured topical similarity; review candidate | no semantic embedding adapter is selected |
+| Title has low adapter-measured similarity to the page content; review candidate | no semantic embedding adapter is selected |
+| H1 has low adapter-measured similarity to the page content; review candidate | no semantic embedding adapter is selected |
 | Templated titles share a common prefix or suffix across most pages | too few titles to assess templating |
 | robots.txt does not declare a Sitemap directive | no sitemap URL to check (no export, no --sitemap, and live_recheck disabled) |
 | robots.txt blocks JavaScript or CSS resources required for rendering | no sitemap URL to check (no export, no --sitemap, and live_recheck disabled) |

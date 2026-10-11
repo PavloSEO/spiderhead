@@ -30,8 +30,6 @@ _POST_CAPTURE_INTERRUPT = "post-collection processing interrupted; retained capt
 # so a reanalysis never silently drops them out of the coverage denominator
 # while still reporting a score (#382).
 UNMEASURABLE_OFFLINE_CHECKS = (
-    "SITEMAP_NOT_IN_ROBOTS",
-    "ROBOTS_BLOCKS_RESOURCES",
     "SITEMAP_FETCH_INCOMPLETE",
     "SITEMAP_TOO_MANY_URLS",
     "SITEMAP_TOO_LARGE",
@@ -39,7 +37,7 @@ UNMEASURABLE_OFFLINE_CHECKS = (
     "SITEMAP_STALE_LASTMOD",
 )
 _UNMEASURABLE_REASON = (
-    "scan.v1 retains no robots.txt/sitemap document; re-measuring this check "
+    "retained sitemap membership has no protocol-size or lastmod evidence; re-measuring this check "
     "requires a new crawl, not a reanalysis of stored evidence"
 )
 
@@ -376,6 +374,11 @@ def resume_inputs(scan_path: str) -> dict[str, Any]:
     from seohead.storage import open_scan
 
     with closing(open_scan(scan_path, require_audit=False)) as con:
+        from seohead.storage.native_scan import read_effective_config
+
+        settings.setdefault("analysis", {})["asset_thresholds"] = read_effective_config(con)[
+            "analysis"
+        ]["asset_thresholds"]
         list_mode = is_list_scan(con)
     return {
         "start_url": header["start_url"],
@@ -983,7 +986,9 @@ def reanalyze_scan(
         shutil.copyfile(scan_in, work_copy)
         with NativeScan.open(work_copy) as scan:
             snapshot = scan.resume_snapshot()
-            config = json.loads(snapshot["scan"]["config_json"])
+            from seohead.storage.native_scan import read_effective_config
+
+            config = read_effective_config(scan.con)
             start_url = snapshot["scan"]["start_url"]
             result = _rebuild_page_result(scan)
             result.start_page_evidence = {}

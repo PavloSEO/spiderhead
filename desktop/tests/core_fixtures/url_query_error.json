@@ -1,0 +1,7 @@
+{
+ "ok": false,
+ "state": "invalid",
+ "format": "seohead.scan-url-query.v1",
+ "reason_code": "limit_too_large",
+ "error": "limit must be at most 200"
+}

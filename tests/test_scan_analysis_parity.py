@@ -6,11 +6,14 @@ import copy
 
 import pytest
 
+from seohead.checks.markup import A11Y_CODES, AMP_CODES
 from seohead.crawl import security_headers
 from seohead.crawl.settings import fingerprint, load
 from seohead.crawl.sqlite_adapter import crawl_to_scan
 from seohead.mcp.handlers import _audit_crawl_result
 from seohead.mcp.scan_handlers import _rebuild_page_result
+from seohead.sf.core.asset_checks import RENDER_CHECKS, RESOURCE_CHECKS
+from seohead.sf.core.markup_rules import SCHEMA_CODES
 from seohead.storage.native_scan import NativeScan
 from tests.evidence_contract_assertions import assert_saved_contract, semantic_audit
 from tests.test_scan_artifact_office import frozen_office_clock as frozen_office_clock
@@ -97,19 +100,74 @@ def _audit(result, settings, *, stored_scan=None, stored_sitemap=None, sitemap_s
 def _drop_retained_only_checks(audit: dict) -> dict:
     """Remove checks whose evidence exists only inside the retained artifact.
 
-    ``BROKEN_BOOKMARK`` (#827) resolves link fragments inside retained
-    destination bodies: the SQL path carries them, the legacy graph keeps no
-    bodies at all, so the check can only ever diverge by construction. Dropping
+    Bookmark, DOM and content duplicate checks read retained destination
+    bodies: the SQL path carries them, the legacy graph keeps no bodies at
+    all, so these checks can only diverge by construction. Dropping
     it -- issues, skip declarations, coverage rows and their dependent totals --
     keeps this test measuring the shared-evidence parity it exists for.
     """
     # The security-header checks (#1013, and the repeated-header check) read each page's stored
     # response headers, which the legacy graph never keeps: the same retained-only shape as
     # BROKEN_BOOKMARK.
-    retained_only = {"BROKEN_BOOKMARK", *security_headers.CHECK_IDS}
+    # Asset and raw head-link checks need retained sources, headers, or rendered
+    # adjuncts, which the legacy in-memory link graph does not carry. Their
+    # dedicated fixtures verify replay and unavailable scope separately.
+    retained_only = {
+        "BROKEN_BOOKMARK",
+        "RENDER_BLOCKING",
+        "CANONICAL_INVALID_ATTRIBUTE",
+        "PAGINATION_MULTIPLE",
+        *security_headers.CHECK_IDS,
+        *RESOURCE_CHECKS,
+        *RENDER_CHECKS,
+        "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
+        "BROKEN_INTERNAL_LINK",
+        "INTERNAL_LINK_TO_REDIRECT",
+        "REDIRECT_CHAIN",
+        "REDIRECT_LOOP",
+        "INTERNAL_LINK_NO_ANCHOR",
+        "EXTERNAL_NO_RESPONSE",
+        "BROKEN_EXTERNAL_LINK",
+        "EXTERNAL_LINK_TO_REDIRECT",
+        "SITEMAP_URL_NON_INDEXABLE",
+        "SITEMAP_URL_NON_CANONICAL",
+        "SITEMAP_URL_BLOCKED_ROBOTS",
+        "INTERNALLY_LINKED_ROBOTS_BLOCKED",
+        "ROBOTS_BLOCKS_RESOURCES",
+        "SITEMAP_NOT_IN_ROBOTS",
+        "SITEMAP_FETCH_INCOMPLETE",
+        "SITEMAP_TOO_MANY_URLS",
+        "SITEMAP_TOO_LARGE",
+        "SITEMAP_URL_DUPLICATED",
+        "SITEMAP_STALE_LASTMOD",
+        "SITEMAP_ORPHAN",
+        "URL_NOT_IN_SITEMAP",
+        "SITEMAP_DESYNC",
+        "LINK_TO_5XX",
+        "SITEMAP_URL_3XX",
+        "SITEMAP_URL_4XX_5XX",
+        "DOM_TOO_DEEP",
+        "DOM_TOO_MANY_NODES",
+        "NEAR_DUPLICATE",
+        "DUPLICATE_BY_HASH",
+        *A11Y_CODES,
+        *AMP_CODES,
+        "AMP_MISSING_HTML_ATTRIBUTE",
+        *SCHEMA_CODES,
+    }
     document = copy.deepcopy(audit)
     summary = document.get("summary") if isinstance(document.get("summary"), dict) else {}
     summary.pop("fragment_links", None)
+    if isinstance(summary.get("asset_measurements"), dict):
+        summary["asset_measurements"] = {
+            key: value
+            for key, value in summary["asset_measurements"].items()
+            if key not in retained_only
+        }
+    # Disclosure replays the retained document; token counts use shared graph evidence.
+    if isinstance(summary.get("link_rel"), dict):
+        summary["link_rel"].pop("disclosure", None)
+    summary.pop("sitemap", None)
 
     removed_ids = {
         issue["id"] for issue in document.get("issues", []) if issue.get("check") in retained_only
@@ -128,6 +186,9 @@ def _drop_retained_only_checks(audit: dict) -> dict:
         id_map[issue.get("id")] = new_id
         issue["id"] = new_id
     document["issues"] = issues
+    document["groups"] = [
+        group for group in document.get("groups", []) if group.get("check") not in retained_only
+    ]
     for page in document.get("pages", []):
         page["issue_ids"] = [
             id_map.get(issue_id, issue_id)
@@ -135,6 +196,8 @@ def _drop_retained_only_checks(audit: dict) -> dict:
             if issue_id not in removed_ids
         ]
         page["issues"] = [c for c in page.get("issues", []) if c not in retained_only]
+        for key in ("dom_depth", "dom_nodes"):
+            page.get("metrics", {}).pop(key, None)
 
     run = document.get("run") if isinstance(document.get("run"), dict) else {}
     for key in ("checks_skipped", "checks_disabled"):
@@ -144,6 +207,7 @@ def _drop_retained_only_checks(audit: dict) -> dict:
     totals = summary.get("totals") if isinstance(summary.get("totals"), dict) else None
     if totals is not None:
         totals["issues_total"] = len(issues)
+        totals["groups_total"] = len(document["groups"])
     if isinstance(summary.get("by_check"), dict):
         summary["by_check"] = {
             check: count
@@ -205,6 +269,7 @@ _PATH_WORDED_SKIPS = frozenset(
         "IMG_OVER_KB",
         "MIXED_CONTENT",
         "TITLE_MULTIPLE",
+        "PAGINATION_URL_NOT_IN_ANCHOR",
         "SITEMAP_URL_3XX",
         "SITEMAP_URL_4XX_5XX",
         "SITEMAP_URL_NON_INDEXABLE",
@@ -439,12 +504,20 @@ def test_sql_graph_audit_matches_legacy_without_building_all_inlinks(
                 ).fetchone()
             )
             retained_run["corpus_partial"] = bool(retained_run["corpus_partial"])
-            assert retained_run["config_fingerprint"] == fingerprint(settings)
+            from seohead.storage.native_scan import _frozen_header_config
+
+            assert retained_run["config_fingerprint"] == fingerprint(
+                _frozen_header_config(settings)
+            )
             assert retained_run["source_kind"] == "native"
             assert retained_run["corpus_partial"] is run.corpus_partial
 
     sql_outcome = _outcome(sql_audit, retained_run=retained_run)
     legacy_outcome = _outcome(legacy_audit)
+    legacy_skipped = {row["id"] for row in legacy_audit["run"]["checks_skipped"]}
+    native_silent = set(sql_audit["summary"]["check_coverage"]["checks_silent_ids"])
+    assert {"CANONICAL_INVALID_ATTRIBUTE", "PAGINATION_MULTIPLE"} <= legacy_skipped
+    assert {"CANONICAL_INVALID_ATTRIBUTE", "PAGINATION_MULTIPLE"} <= native_silent
     # A URL-budget stop is labelled stopped_by_budget by the native scan (finished, see
     # stop_by_budget) and url_limit by the legacy spider. Both are the same stop, so the
     # run label is compared as a budget stop; the findings and tasks still compare exactly.

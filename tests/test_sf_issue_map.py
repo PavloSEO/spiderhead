@@ -106,16 +106,12 @@ def test_seo_tool_names_are_not_confused_with_command_names():
 
 
 def test_network_payload_entry_does_not_overclaim_html_only_coverage():
-    """LARGE_HTML/HTML_BLOAT read only each HTML document's own Size (bytes) and word
-    count (see docs/scenarios/speed-delivery-and-weight.md); nothing here sums images,
-    fonts, third-party tags or later requests into a total page payload. Marking this
-    entry `check` would tell a reader we cover what docs/COVERAGE_GAPS.md 1.7 lists as
-    still missing (#270) — an existing check id alone must never upgrade that claim."""
+    """Declared-resource lower bounds do not prove a complete runtime payload."""
     entry = next(
         entry
         for category, entry in entries()
         if category == "PageSpeed" and entry.name == "Avoid Enormous Network Payloads"
     )
     assert entry.status == "partial"
-    assert set(entry.refs) == {"LARGE_HTML", "HTML_BLOAT"}
+    assert set(entry.refs) == {"HEAVY_PAGE_WEIGHT", "LARGE_HTML", "HTML_BLOAT"}
     assert "total page payload" in entry.note

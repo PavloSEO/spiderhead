@@ -24,14 +24,13 @@ def test_reconciliation_covers_every_canonical_gap_row_and_is_current():
 
 def test_reconciliation_uses_the_actual_mode_column_for_every_state():
     assert Counter(status(row) for row in rows()) == {
-        "covered_registry_or_tool": 55,
-        "missing": 29,
-        "out_of_scope": 8,
-        "partial": 8,
+        "covered_registry_or_tool": 57,
+        "missing": 28,
+        "out_of_scope": 6,
+        "partial": 9,
     }
     assert [row.row_id for row in priority_rows()] == [
         "14.6",
-        "13.1",
         "1.1",
         "2.6",
         "4.1",
@@ -40,6 +39,7 @@ def test_reconciliation_uses_the_actual_mode_column_for_every_state():
         "12.1",
         "12.2",
         "12.3",
+        "12.5",
     ]
 
 
@@ -64,8 +64,15 @@ def test_every_covered_row_names_a_real_registry_check_or_shared_public_tool():
 
 def test_reviewed_measurement_rows_keep_their_evidence_limits():
     reviewed = {row.row_id: row for row in rows()}
+    assert status(reviewed["1.5"]) == "covered_registry_or_tool"
+    assert "ASSET_SHORT_CACHE" in evidence_refs(reviewed["1.5"])
+    assert status(reviewed["1.7"]) == "partial"
+    assert "compressed transfer totals" in reviewed["1.7"].mode
     assert status(reviewed["7.12"]) == "covered_registry_or_tool"
     assert "HREFLANG_OUTSIDE_HEAD" in evidence_refs(reviewed["7.12"])
+    for row_id, check_id in (("3.4", "A11Y_FORM_LABEL_MISSING"), ("3.5", "A11Y_HEADING_ORDER")):
+        assert status(reviewed[row_id]) == "partial"
+        assert check_id in evidence_refs(reviewed[row_id])
     for row_id in ("1.2", "1.3", "4.1"):
         assert status(reviewed[row_id]) == "partial"
     assert "field-data coverage" in reviewed["1.2"].mode

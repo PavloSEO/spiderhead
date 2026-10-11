@@ -1,0 +1,52 @@
+/* «Новый скан» and «Настройки скана»: dialog header, side summary, field errors, disk bar */
+QFrame#scanHeader { background: $base; border: 0; border-bottom: 1px solid $divider_inner; }
+QFrame#scanAside { background: $raised; border: 0; border-left: 1px solid $divider_inner; }
+QDialog#newScanDialog, QDialog#scanSettingsDialog { background: $base; }
+QLabel[field_error="true"] { color: $error; background: transparent; }
+QToolButton[card="choice"]:disabled { background: $disabled_bg; border-color: $divider; color: $disabled_fg; }
+QToolButton[card="choice"] QLabel { background: transparent; }
+QFrame[disk_bar="true"] { background: $divider; border: 0; border-radius: 5px; }
+QFrame[disk_fill="true"] { background: $outline_hover; border: 0; border-radius: 5px; }
+QFrame[disk_pause="true"] { background: $data_pause; border: 0; border-radius: 5px; }
+QFrame[disk_legend="used"] { background: $outline_hover; border: 0; border-radius: 4px; }
+QFrame[disk_legend="pause"] { background: $data_pause; border: 0; border-radius: 4px; }
+QFrame[set_row="true"][waiting="true"] QLabel[text_style="control"] { color: $text_2; }
+QPlainTextEdit#scanListText { font-family: "$mono_family"; font-size: ${font_mono}px; }
+QTableView#scanRulesTable { border: 1px solid $divider; border-radius: 10px; }
+
+/* dense layout (ScanDialog sheet): 40 px source buttons, 32 px fields, 28 px summary rows */
+QToolButton[card="choice"][compact="true"] { padding: 0 10px; border-radius: ${radius_control}px; }
+QToolButton[card="choice"][compact="true"]:checked { padding: 0 9px; }
+QPushButton[size="sm"] { height: 28px; min-height: 28px; padding: 0 8px; font-size: ${font_meta}px; }
+QPushButton[size="sm"]:focus { padding: 0 7px; }
+QFrame[segmented="true"][dense="true"] { border: 1px solid $outline; border-radius: ${radius_control}px; background: $base; }
+QFrame[segmented="true"][dense="true"] QToolButton[segment="true"] { height: 28px; min-height: 28px; padding: 0 10px; border-radius: 6px; font-size: ${font_meta}px; }
+QFrame[segmented="true"][dense="true"] QToolButton[segment="true"]:checked { background: $selected; color: $on_selected; border: 0; }
+QFrame[stepper="true"] { border: 1px solid $outline; border-radius: ${radius_control}px; background: $base; }
+QFrame[stepper="true"]:hover { border-color: $outline_hover; }
+QFrame[stepper="true"][invalid="true"] { border: 2px solid $error; }
+QFrame[stepper="true"][off="true"] { background: $disabled_bg; border-color: $disabled_bg; }
+QFrame[stepper="true"] QLineEdit { border: 0; border-left: 1px solid $divider; border-right: 1px solid $divider; border-radius: 0; height: 30px; min-height: 30px; padding: 0 4px; background: $base; font-weight: 500; }
+QFrame[stepper="true"] QLineEdit:focus { border: 0; border-left: 1px solid $ring; border-right: 1px solid $ring; padding: 0 4px; }
+QFrame[stepper="true"] QLineEdit:disabled { background: $disabled_bg; color: $disabled_fg; border-color: $disabled_bg; }
+QFrame[stepper="true"] QToolButton[stepper_button="true"] { width: 30px; min-width: 30px; height: 30px; border-radius: 0; background: $raised; }
+QFrame[stepper="true"] QToolButton[stepper_button="true"]:hover { background: $hover; }
+QFrame[stepper="true"] QToolButton[stepper_button="true"]:disabled { background: $disabled_bg; }
+QFrame[rule="true"] { background: $divider_inner; border: 0; }
+QFrame[kv_row="true"] { border: 0; border-bottom: 1px solid $divider_inner; background: transparent; }
+QFrame[kv_row="true"] QLabel { background: transparent; }
+QLineEdit[mono="true"] { font-family: "$mono_family"; font-size: ${font_mono}px; }
+QFrame#quickScanBar { background: $base; border: 0; border-bottom: 1px solid $divider; }
+QFrame[cmd="true"] { border: 1px solid $outline_hover; border-radius: ${radius_control}px; background: $base; }
+QFrame[cmd="true"][invalid="true"] { border: 2px solid $error; }
+QFrame[cmd="true"] QLineEdit { border: 0; height: 30px; min-height: 30px; padding: 0 4px; background: transparent; font-family: "$mono_family"; font-size: ${font_mono}px; }
+QFrame[cmd="true"] QLineEdit:focus { border: 0; padding: 0 4px; }
+QToolButton[cmd_mode="true"] { height: 30px; padding: 0 8px; border: 0; border-left: 1px solid $divider; border-radius: 0; background: $raised; color: $text; font-weight: 500; font-size: ${font_meta}px; }
+QToolButton[cmd_mode="true"]:hover { background: $hover; }
+QToolButton[quick_chip="true"] { height: 28px; padding: 0 8px; border: 1px solid $outline; border-radius: 6px; background: $base; color: $text; font-weight: 500; font-size: ${font_meta}px; }
+QToolButton[quick_chip="true"]:hover { background: $raised; }
+QProgressBar#quickScanRunBar { background: $divider; border: 0; border-radius: 2px; }
+QProgressBar#quickScanRunBar::chunk { background: $data_progress; border-radius: 2px; }
+
+QToolButton[card="choice"][compact="true"] { height: 38px; min-height: 38px; max-height: 38px; }
+QToolButton[card="choice"][compact="true"]:checked { height: 36px; min-height: 36px; max-height: 36px; }

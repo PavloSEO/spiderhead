@@ -354,13 +354,62 @@ def _seed_resumable_scan(tmp_path: Path, base_url: str, argv: list[str]) -> None
         NativeScan.claim = claim
 
 
-def _seed_reanalysis_input(tmp_path: Path) -> None:
-    # A legacy JSONL import cannot stand in for a retained corpus. This fixture
-    # uses the real native collector with an injected owned HTML response and
-    # saves a complete source audit, without any external request.
+def _seed_reanalysis_input(tmp_path: Path, argv: list[str]) -> None:
     from tests.test_scan_reanalysis_integration import _source
 
-    _source(tmp_path / "old.sqlite")
+    flag = "--scan" if "--scan" in argv else "--source"
+    target = tmp_path / argv[argv.index(flag) + 1]
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists():
+        target.unlink()
+    _source(target)
+
+
+def _seed_native_link_inputs(tmp_path: Path, base_url: str, argv: list[str]) -> None:
+    """Graph and sitemap examples need actual retained links and same-origin bodies."""
+    from seohead.crawl.settings import load
+    from seohead.crawl.sqlite_adapter import crawl_to_scan
+    from tests.test_scan_crawl_parity import _fetcher, _Response, _runtime_versions
+
+    target = tmp_path / argv[argv.index("--scan") + 1]
+    target.parent.mkdir(parents=True, exist_ok=True)
+    around = argv[argv.index("--around") + 1] if "--around" in argv else base_url + "/product/"
+    catalog = base_url + "/catalog/example"
+    responses = {
+        base_url + "/robots.txt": _Response(
+            200, "User-agent: *\nAllow: /\n", {"content-type": "text/plain"}
+        ),
+        base_url + "/": _Response(
+            200,
+            f'<html><head><title>Root</title></head><body><main><a href="{around}">Product guide</a><a href="{catalog}">Catalogue guide</a></main></body></html>',
+        ),
+        around: _Response(
+            200,
+            "<html><head><title>Product</title></head><body><main>Product details</main></body></html>",
+        ),
+        catalog: _Response(
+            200,
+            "<html><head><title>Catalogue</title></head><body><main>Catalogue details</main></body></html>",
+        ),
+    }
+    crawl_to_scan(
+        base_url + "/",
+        scan_out=str(target),
+        settings=load(
+            overrides={
+                "speed.min_delay_seconds": 0,
+                "limits.max_urls": 10,
+                "link_position.classify": True,
+            }
+        ),
+        producer_version="3.0.0",
+        producer_revision="1" * 40,
+        runtime_versions=_runtime_versions(),
+        fetcher=_fetcher(responses),
+        sleeper=lambda _: None,
+    )
+    if "--compare-to" in argv:
+        shutil.copyfile(target, tmp_path / argv[argv.index("--compare-to") + 1])
 
 
 def _private_grant() -> dict:
@@ -463,6 +512,53 @@ def _seed_project_detection(monkeypatch) -> None:
             "by_category": {"cms": [{"name": "WordPress", "evidence": "html: /wp-content/"}]},
         },
     )
+
+
+def _seed_log_inputs(tmp_path: Path, argv: list[str], monkeypatch) -> None:
+    """Materialize each independent server-log walkthrough step without DNS/network."""
+    from collections import OrderedDict
+
+    from seohead.checks import logs
+    from seohead.checks.logstore import import_logs
+    from seohead.projects.workspace import create_project
+    from tests.test_logstore import _scan
+
+    project_path = tmp_path / (argv[argv.index("--project") + 1] if "--project" in argv else "shop")
+    create_project(project_path, "https://example.test/")
+    source_dir = tmp_path / "synthetic-logs"
+    source_dir.mkdir()
+    source = source_dir / "access.log"
+    source.write_text(
+        '192.0.2.1 - - [05/Oct/2026:12:00:00 +0000] "GET /visited HTTP/1.1" 200 10 "-" "Googlebot"\n'
+        '192.0.2.2 - - [05/Oct/2026:13:00:00 +0000] "GET /missing HTTP/1.1" 404 0 "-" "Googlebot"\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(logs, "_DNS_CACHE", OrderedDict())
+    monkeypatch.setattr(logs, "_dns_available", lambda: True)
+    monkeypatch.setattr(
+        logs,
+        "verify_bot_rdns",
+        lambda ip, suffixes: {
+            "verified": ip == "192.0.2.1",
+            "hostname": "synthetic.googlebot.com",
+            "forward_match": ip == "192.0.2.1",
+            "forward_addresses": [ip],
+            "reason": "Mocked DNS",
+        },
+    )
+    if "--source" in argv:
+        imported = import_logs(str(source_dir), str(project_path))
+        assert imported["ok"], imported
+        artifact = tmp_path / argv[argv.index("--source") + 1]
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(imported["source"], artifact)
+    if "--scan" in argv:
+        scan_dir = tmp_path / "log-scan-fixture"
+        scan_dir.mkdir()
+        scan = _scan(scan_dir)
+        target = tmp_path / argv[argv.index("--scan") + 1]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(scan, target)
 
 
 @pytest.fixture(scope="module")
@@ -603,6 +699,13 @@ def test_documented_command_executes_or_at_least_still_parses(
         # writes; each case is isolated, so give it the finished scan that line produces.
         _seed_scan_inputs(tmp_path)
         shutil.copyfile(tmp_path / "scan.sqlite", tmp_path / argv[argv.index("--scan") + 1])
+    elif argv[:1] in (["scan-graph"], ["scan-sitemap-generate"]) or argv[:2] in (
+        ["scan", "graph"],
+        ["scan", "sitemap-generate"],
+    ):
+        _seed_native_link_inputs(
+            tmp_path, fixture_site, to_argv(_substitute(command.raw, fixture_site))
+        )
     elif any(".sqlite" in value for value in argv) and not {"--scan-out", "--resume"} & set(argv):
         _seed_scan_inputs(tmp_path)
     if argv[:1] == ["report-build"] and "--project" in argv:
@@ -631,8 +734,18 @@ def test_documented_command_executes_or_at_least_still_parses(
                 },
                 expected_revision=0,
             )
+    if argv[:1] == ["backlinks-profile"] and "--history" in argv:
+        from seohead.recon.backlink_profile import build_backlink_profile
+
+        database = Path(argv[argv.index("--db") + 1])
+        assert not database.is_absolute(), "documentation history fixtures must stay local"
+        build_backlink_profile(
+            argv[argv.index("--domain") + 1],
+            evidence=[{"source": "generic", "rows": [], "complete": True}],
+            db=str(tmp_path / database),
+        )
     if argv[:2] == ["scan", "reanalyze"] or argv[:1] == ["scan-reanalyze"]:
-        _seed_reanalysis_input(tmp_path)
+        _seed_reanalysis_input(tmp_path, argv)
     if argv[:1] == ["findings-view"] and "--audit" in argv:
         _seed_documented_body_scan(tmp_path, argv[argv.index("--audit") + 1])
     if argv[:1] == ["report-build"] and "--view" in argv and "--audit" in argv:
@@ -689,6 +802,8 @@ def test_documented_command_executes_or_at_least_still_parses(
         # site-level tool in it is a plain HTTP GET the fixture server answers.
         substituted += ["--skip", "domain_profile"]
 
+    if argv[:1] == ["logs"]:
+        _seed_log_inputs(tmp_path, argv, monkeypatch)
     stdout = io.StringIO()
     try:
         with contextlib.redirect_stdout(stdout):

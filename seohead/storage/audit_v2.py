@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import sqlite3
 import stat
 import tempfile
+import time
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from contextlib import closing, suppress
 from importlib.resources import files
@@ -51,6 +53,10 @@ _ENCODER = json.JSONEncoder(ensure_ascii=False, allow_nan=False, separators=(","
 
 class AuditV2Error(ScanError):
     """An audit.v2 companion is invalid, inconsistent, or exceeds an explicit boundary."""
+
+
+class AuditReadTimeout(AuditV2Error):
+    """Integrity validation or streaming exceeded the explicit read budget."""
 
 
 class AuditGroupMembers(Sequence[Any]):
@@ -393,8 +399,22 @@ class AuditV2Reader:
     """Validated, re-iterable access to an audit.v2 companion."""
 
     def __init__(
-        self, scan_path: str | Path, *, verify_binding: bool = True, light_binding: bool = False
+        self,
+        scan_path: str | Path,
+        *,
+        verify_binding: bool = True,
+        light_binding: bool = False,
+        timeout_seconds: float | None = None,
     ) -> None:
+        if timeout_seconds is not None and (
+            type(timeout_seconds) not in {int, float}
+            or not math.isfinite(timeout_seconds)
+            or timeout_seconds <= 0
+        ):
+            raise ValueError("audit.v2 read timeout must be a finite positive number")
+        self._read_deadline = (
+            time.monotonic() + timeout_seconds if timeout_seconds is not None else None
+        )
         self.light_binding = light_binding
         self.scan_path = Path(scan_path).absolute()
         self.path = audit_v2_path(self.scan_path)
@@ -415,15 +435,25 @@ class AuditV2Reader:
                     "PRAGMA temp_store=FILE",
                 ),
             )
+            if self._read_deadline is not None:
+                self.con.set_progress_handler(
+                    lambda: int(time.monotonic() >= self._read_deadline), 1000
+                )
             # Validation and every later read must refer to the same generation.
             self.con.execute("BEGIN")
             self._validate(verify_binding=verify_binding)
         except BaseException:
             if hasattr(self, "con"):
                 self.con.close()
+            self._check_read_budget()
             raise
 
+    def _check_read_budget(self):
+        if self._read_deadline is not None and time.monotonic() >= self._read_deadline:
+            raise AuditReadTimeout("audit.v2 read exceeded its explicit query budget")
+
     def _validate(self, *, verify_binding: bool) -> None:
+        self._check_read_budget()
         self.storage_version = self.con.execute("PRAGMA user_version").fetchone()[0]
         if self.con.execute("PRAGMA application_id").fetchone()[
             0
@@ -492,6 +522,7 @@ class AuditV2Reader:
         for item in self.con.execute(
             "SELECT pointer,ordinal,value_json FROM items ORDER BY pointer,ordinal"
         ):
+            self._check_read_budget()
             try:
                 value = json.loads(item["value_json"])
             except json.JSONDecodeError as exc:
@@ -535,6 +566,7 @@ class AuditV2Reader:
             for member in self.con.execute(
                 "SELECT group_ordinal,ordinal,value_json FROM group_members ORDER BY group_ordinal,ordinal"
             ):
+                self._check_read_budget()
                 try:
                     value = json.loads(member["value_json"])
                 except json.JSONDecodeError as exc:
@@ -559,6 +591,7 @@ class AuditV2Reader:
             raise AuditV2Error("audit.v2 binding disagrees with the native scan")
 
     def count(self, pointer: str) -> int:
+        self._check_read_budget()
         try:
             return self.collections[pointer]
         except KeyError as exc:
@@ -571,6 +604,7 @@ class AuditV2Reader:
             "SELECT value_json FROM items WHERE pointer=? ORDER BY ordinal", (pointer,)
         )
         for row in cursor:
+            self._check_read_budget()
             yield self._decode_item(pointer, row[0])
 
     def _decode_item(self, pointer: str, raw: str) -> Any:
@@ -598,10 +632,12 @@ class AuditV2Reader:
                 "SELECT value_json FROM group_members WHERE group_ordinal=? AND ordinal>=? ORDER BY ordinal LIMIT ?",
                 (group_ordinal, offset, -1 if limit is None else limit),
             ):
+                self._check_read_budget()
                 yield json.loads(row[0])
         elif isinstance(urls, list):
             stop = len(urls) if limit is None else min(len(urls), offset + limit)
             for ordinal in range(offset, stop):
+                self._check_read_budget()
                 yield urls[ordinal]
         else:
             raise AuditV2Error("audit.v2 group has no member array")

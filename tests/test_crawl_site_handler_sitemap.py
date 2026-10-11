@@ -566,3 +566,62 @@ def test_complete_crawl_still_fires_sitemap_desync(monkeypatch, tmp_path):
 
     assert out["partial"] is False
     assert out["summary"]["by_check"].get("SITEMAP_DESYNC") == 1
+
+
+def test_unstored_sitemap_seed_preserves_url_problem_findings(monkeypatch, tmp_path):
+    import json
+
+    declared = [
+        "https://example.com/moved",
+        "https://example.com/gone",
+        "https://example.com/private",
+        "https://example.com/canonicalized",
+        "https://example.com/blocked",
+        "https://example.com/unseen",
+    ]
+    result = SpiderResult(
+        pages=[
+            PageRecord(url=declared[0], status_code=301, content_type="text/html"),
+            PageRecord(url=declared[1], status_code=404, content_type="text/html"),
+            PageRecord(
+                url=declared[2], status_code=200, content_type="text/html", meta_robots="noindex"
+            ),
+            PageRecord(
+                url=declared[3],
+                status_code=200,
+                content_type="text/html",
+                canonical="https://example.com/other",
+            ),
+            PageRecord(url=declared[4], status_code=200, content_type="text/html"),
+        ],
+        robots_blocked=[declared[4]],
+        seed_urls=declared,
+    )
+    monkeypatch.setattr(
+        sitemap_tool,
+        "crawl",
+        lambda *_args, **_kwargs: {"urls": [{"loc": url} for url in declared]},
+    )
+    monkeypatch.setattr("seohead.crawl.spider.crawl_site", lambda *_args, **_kwargs: result)
+    monkeypatch.setattr(
+        "seohead.sf.core.sitemap_coverage.run_sitemap", lambda *_args, **_kwargs: {}
+    )
+
+    handlers.crawl_site(
+        url="https://example.com/", sitemap="https://example.com/sitemap.xml", out_dir=str(tmp_path)
+    )
+    audit = json.loads((tmp_path / "audit.json").read_text(encoding="utf-8"))
+    problems = {
+        (item["check"], item["target_url"]): item["details"]
+        for item in audit["issues"]
+        if item["check"] in {"SITEMAP_URL_3XX", "SITEMAP_URL_4XX_5XX", "SITEMAP_URL_NON_INDEXABLE"}
+    }
+    assert set(problems) == {
+        ("SITEMAP_URL_3XX", declared[0]),
+        ("SITEMAP_URL_4XX_5XX", declared[1]),
+        ("SITEMAP_URL_NON_INDEXABLE", declared[2]),
+        ("SITEMAP_URL_NON_INDEXABLE", declared[3]),
+        ("SITEMAP_URL_NON_INDEXABLE", declared[4]),
+    }
+    assert problems[("SITEMAP_URL_NON_INDEXABLE", declared[3])]["reasons"] == ["non_canonical"]
+    assert problems[("SITEMAP_URL_NON_INDEXABLE", declared[4])]["reasons"] == ["robots_blocked"]

@@ -1,0 +1,179 @@
+{
+ "search": {
+  "ok": true,
+  "status": "complete",
+  "format": "seohead.retained-content-search.v1",
+  "out_dir": "/project/qa/reports/z1",
+  "manifest": "/project/qa/reports/z1/manifest.json",
+  "records": 1330,
+  "source": {
+   "kind": "scan.v1.retained-content-search",
+   "search_id": "a9ac1937-eee2-42a2-b1cc-e45c54c007c4",
+   "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+   "evidence_revision": 1336,
+   "lifecycle": "finished",
+   "active": false,
+   "query_sha256": "f931a5787645e4b34b5d61498dbc0c302ee7dfb75f5274e680a30602ba0ebcae",
+   "writer_revision": "a7dff37a54d410444f430e2164e891bc60087581"
+  },
+  "coverage": {
+   "state": "complete",
+   "url_pages_selected": 1330,
+   "documents_selected": 1330,
+   "documents_measured": 1330,
+   "filter_matching_documents": 0,
+   "present_documents": 0,
+   "absent_documents": 1330,
+   "unavailable_documents": 0,
+   "non_html_documents": 0,
+   "unavailable_reasons": {},
+   "partial_reasons": [],
+   "stream_error": null,
+   "body_byte_limit": 5242880
+  },
+  "absence_confirmed": true,
+  "search_completed": true,
+  "capabilities": {
+   "retained_content_search": true
+  }
+ },
+ "page": {
+  "ok": true,
+  "format": "seohead.retained-content-search.v1",
+  "source": {
+   "active": false,
+   "evidence_revision": 1336,
+   "kind": "scan.v1.retained-content-search",
+   "lifecycle": "finished",
+   "query_sha256": "f931a5787645e4b34b5d61498dbc0c302ee7dfb75f5274e680a30602ba0ebcae",
+   "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+   "search_id": "a9ac1937-eee2-42a2-b1cc-e45c54c007c4",
+   "writer_revision": "a7dff37a54d410444f430e2164e891bc60087581"
+  },
+  "offset": 0,
+  "records": [
+   {
+    "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+    "evidence_revision": 1336,
+    "url": "http://shop.example.test:18431/",
+    "page_ordinal": 0,
+    "document_id": 1,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+    "evidence_revision": 1336,
+    "url": "http://shop.example.test:18431/catalog/kuhni/kuhnya-001/",
+    "page_ordinal": 1,
+    "document_id": 2,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+    "evidence_revision": 1336,
+    "url": "http://shop.example.test:18431/catalog/kuhni/kuhnya-002/",
+    "page_ordinal": 2,
+    "document_id": 3,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+    "evidence_revision": 1336,
+    "url": "http://shop.example.test:18431/catalog/kuhni/kuhnya-003/",
+    "page_ordinal": 3,
+    "document_id": 4,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+    "evidence_revision": 1336,
+    "url": "http://shop.example.test:18431/catalog/kuhni/kuhnya-004/",
+    "page_ordinal": 4,
+    "document_id": 5,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+    "evidence_revision": 1336,
+    "url": "http://shop.example.test:18431/catalog/kuhni/kuhnya-005/",
+    "page_ordinal": 5,
+    "document_id": 6,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+    "evidence_revision": 1336,
+    "url": "http://shop.example.test:18431/catalog/kuhni/kuhnya-006/",
+    "page_ordinal": 6,
+    "document_id": 7,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+    "evidence_revision": 1336,
+    "url": "http://shop.example.test:18431/catalog/kuhni/kuhnya-007/",
+    "page_ordinal": 7,
+    "document_id": 8,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+    "evidence_revision": 1336,
+    "url": "http://shop.example.test:18431/catalog/kuhni/kuhnya-008/",
+    "page_ordinal": 8,
+    "document_id": 9,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+    "evidence_revision": 1336,
+    "url": "http://shop.example.test:18431/catalog/kuhni/kuhnya-009/",
+    "page_ordinal": 9,
+    "document_id": 10,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   }
+  ],
+  "has_more": true,
+  "next_offset": 10
+ }
+}

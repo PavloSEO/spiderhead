@@ -1,0 +1,91 @@
+/* Shared native canvas components; all values come from theme/tokens.json. */
+QToolButton[canvas_component="day"] { min-width: ${canvas_day_size}px; max-width: ${canvas_day_size}px; min-height: ${canvas_day_size}px; max-height: ${canvas_day_size}px; padding: 0; border: 0; background: transparent; font-size: ${canvas_day_font}px; }
+QFrame[canvas_component="panel"] { background: $base; border: 1px solid $divider; border-radius: ${canvas_panel_radius}px; }
+QFrame[canvas_component="mini"] { background: $raised; border: 0; border-radius: ${canvas_field_radius}px; }
+QFrame[canvas_component="code"] { background: $canvas_code_bg; border: 0; border-radius: ${canvas_code_radius}px; }
+QFrame[canvas_component="code"] QLabel { color: $canvas_code_fg; background: transparent; font-family: "$mono_family"; font-size: ${font_mono}px; }
+QFrame[canvas_component="code"] QLabel[code_meta="true"] { color: $canvas_code_muted; }
+QFrame[canvas_component="field"] { background: $base; border: 1px solid $outline_hover; border-radius: ${canvas_field_radius}px; min-height: ${canvas_field_height}px; max-height: ${canvas_field_height}px; }
+QToolButton[canvas_component="preset"] { min-height: ${canvas_preset_height}px; max-height: ${canvas_preset_height}px; padding: 0 12px; border: 1px solid $outline; border-radius: ${canvas_preset_radius}px; background: $base; color: $text; }
+QToolButton[canvas_component="preset"]:checked { background: $selected; color: $on_selected; border-color: transparent; }
+QToolButton[canvas_component="preset"][custom_preset="true"]:!checked { color: $primary; border-style: dashed; }
+QFrame[canvas_component="mode"] { border: 1px solid $outline; border-radius: ${canvas_mode_radius}px; background: $base; }
+QFrame[canvas_component="mode"][selected="true"] { border: 2px solid $primary; }
+QFrame[canvas_component="field"] QLineEdit, QFrame[canvas_component="field"] QComboBox, QFrame[canvas_component="mini"] QSpinBox { background: transparent; border: 0; padding: 0; }
+QSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::up-button, QDoubleSpinBox::down-button { width: 0; border: 0; }
+
+QFrame#navPanel { background: $base; }
+QWidget#tabstrip { min-height: ${canvas_tabstrip}px; max-height: ${canvas_tabstrip}px; background: $canvas_tab_bg; }
+QFrame#projectSettingsHeader { background: $base; border: 0; border-bottom: 1px solid $divider; }
+QTabBar#projectSettingsTabs { background: $base; border: 0; border-bottom: 1px solid $divider; padding-left: 16px; }
+QTabBar#projectSettingsTabs::tab { background: $base; color: $text_2; padding: 0 12px; min-height: ${canvas_subtabs}px; max-height: ${canvas_subtabs}px; border: 0; border-bottom: 2px solid transparent; font-size: 14px; }
+QTabBar#projectSettingsTabs::tab:selected { color: $primary; border-bottom: 2px solid $primary; }
+QFrame[schedule_icon="info"] { background: $canvas_icon_primary; }
+QFrame[schedule_icon="warning"] { background: $canvas_icon_amber; }
+QFrame[schedule_icon="ok"] { background: $canvas_icon_green; }
+QWidget#scheduleTab QLabel[text_style="title"] { font-size: ${canvas_page_title}px; }
+QToolButton[canvas_component="mode"] { min-height: 76px; max-height: 76px; padding: 0; border: 1px solid $outline; border-radius: ${canvas_mode_radius}px; background: $base; }
+QToolButton[canvas_component="mode"]:checked { border: 2px solid $primary; background: $base; }
+QToolButton[canvas_component="mode"] QLabel { background: transparent; }
+QSlider::groove:horizontal { height: 4px; border: 0; border-radius: 2px; background: $divider; }
+QSlider::sub-page:horizontal { background: $primary; border-radius: 2px; }
+QSlider::handle:horizontal { width: 20px; height: 20px; margin: -8px 0; border: 0; border-radius: 10px; background: $primary; }
+
+QFrame[canvas_component="mini"] QSpinBox[canvas_value="true"] { border: 0; background: transparent; padding: 0; min-height: 26px; font-size: 20px; font-weight: 500; }
+QToolButton[canvas_component="mode"][compact="true"] { min-height: 60px; max-height: 60px; }
+QToolButton[canvas_component="mode"][compact="true"] QLabel[text_style="section"] { font-size: 14px; }
+QTimeEdit::up-button, QTimeEdit::down-button { width: 0; border: 0; }
+
+QFrame[schedule_icon][selected="true"] { background: $primary; }
+QLabel[text_style="control"] { font-size: ${font_control}px; font-weight: 500; }
+QFrame[canvas_component="segment"] { background: $base; border: 1px solid $outline_hover; border-radius: 18px; }
+QFrame[canvas_component="segment"] QToolButton[segment="true"] { min-height: 34px; max-height: 34px; padding: 0 14px; border: 0; border-right: 1px solid $outline_hover; border-radius: 0; background: $base; color: $text; font-size: 13px; font-weight: 500; }
+QFrame[canvas_component="segment"] QToolButton[segment="true"]:checked { background: $canvas_segment_bg; color: $canvas_segment_fg; }
+QFrame[canvas_component="segment"] QToolButton[segment="true"][schedule_segment="first"] { border-top-left-radius: 17px; border-bottom-left-radius: 17px; }
+QFrame[canvas_component="segment"] QToolButton[segment="true"][schedule_segment="last"] { border-right: 0; border-top-right-radius: 17px; border-bottom-right-radius: 17px; }
+QFrame[schedule_enabled="true"][compact="true"] { background: transparent; border: 0; }
+QFrame[canvas_component="field"] QComboBox[canvas_editor="true"] { min-height: 0; max-height: 42px; border: 0; border-radius: 0; padding: 0; font-size: 14px; }
+QFrame[canvas_component="field"] QComboBox::drop-down { border: 0; width: 20px; }
+QFrame[canvas_component="mini"] QSpinBox[canvas_value="true"] { min-height: 20px; max-height: 20px; font-size: 14px; }
+QWidget#scheduleTab QPlainTextEdit[mono="true"] { font-family: "$mono_family"; font-size: 13px; border: 1px solid $outline_hover; border-radius: 10px; padding: 10px 12px; }
+QPushButton[canvas_search="true"] { border: 0; background: transparent; padding: 0; }
+QFrame[schedule_enabled="true"] { border-radius: 22px; }
+QFrame[canvas_component="field"] { min-height: 0; max-height: 44px; }
+QListWidget#navView { padding: 0; }
+QLabel#scheduleNextDate { font-size: 18px; font-weight: 500; }
+QToolButton[canvas_component="preset"] { min-height: 30px; max-height: 30px; font-size: 13px; font-weight: 500; }
+QWidget#topbar QPushButton[role="primary"] { font-size: 14px; min-width: 89px; padding: 0 16px; }
+QFrame#projectSettingsHeader QPushButton { font-size: 14px; }
+QFrame[canvas_component="mode"][selected="true"][schedule_icon="warning"] { background: $canvas_icon_amber_solid; }
+QFrame[schedule_icon="warning"][selected="true"] { background: $canvas_icon_amber_solid; }
+QWidget#scheduleTab QLabel[text_style="meta"] { color: $text_2; }
+QWidget#scheduleTab QLabel[canvas_label="true"] { font-size: 12.5px; font-weight: 500; color: $text_2; }
+QWidget#scheduleTab QLabel[canvas_header_meta="true"] { font-size: 14px; font-weight: 400; }
+QFrame[canvas_component="segment"] { padding: 0; }
+QToolButton[canvas_component="mode"] { min-height: 75px; max-height: 75px; }
+QToolButton[canvas_component="mode"]:checked { min-height: 73px; max-height: 73px; }
+QToolButton[canvas_component="mode"][compact="true"] { min-height: 58px; max-height: 58px; }
+QToolButton[canvas_component="mode"][compact="true"]:checked { min-height: 56px; max-height: 56px; }
+QFrame[canvas_component="field"] { min-height: 42px; max-height: 42px; }
+QFrame[canvas_component="mini"] QSpinBox[canvas_value="true"] { height: 20px; min-height: 20px; max-height: 20px; padding: 0; border: 0; }
+QFrame[canvas_component="segment"] QToolButton[segment="true"] { height: 34px; }
+QToolButton[canvas_component="preset"] { height: 30px; }
+QFrame[canvas_component="field"] QComboBox[canvas_editor="true"] { height: 42px; }
+
+QFrame[canvas_component="mini"] QSpinBox[canvas_value="true"][canvas_compact="false"] { height: 32px; min-height: 32px; max-height: 32px; font-size: 20px; }
+QFrame[canvas_component="mini"] QSpinBox[canvas_value="true"][canvas_compact="true"] { height: 20px; min-height: 20px; max-height: 20px; font-size: 14px; }
+
+QFrame#projectSettingsHeader QLabel[text_style="title"][compact="true"] { font-size: 18px; }
+QToolButton[canvas_component="day"] { font-weight: 500; }
+QFrame[canvas_component="code"][code_variant="agent"] { border-radius: 10px; }
+QFrame[canvas_component="code"][code_variant="agent"] QLabel { font-family: "$mono_family"; font-size: 13px; }
+QFrame[canvas_component="code"][code_variant="agent"] QLabel[code_meta="true"] { font-family: "$font_family"; font-size: 11.5px; }
+QFrame[canvas_component="code"][code_variant="cli"] QLabel { font-size: 12.5px; }
+QFrame[canvas_component="code"][code_variant="cli"] QLabel[code_meta="true"] { color: $canvas_cli_comment; }
+QFrame#settingsRevisionNote { border-radius: 10px; }
+QFrame#projectSettingsHeader QLabel[canvas_context="true"] { font-size: 13px; }
+QLabel[canvas_next="true"] { background: $selected; color: $on_selected; border: 0; border-radius: 6px; font-size: 12.5px; font-weight: 500; padding: 2px 10px; }
+QFrame[canvas_notice="true"] { background: $canvas_segment_bg; border: 0; border-radius: 10px; }
+QFrame[canvas_notice="true"] QLabel { color: $text_2; font-size: 14px; font-weight: 400; }
+QFrame[canvas_next="true"] { background: $selected; border: 0; border-radius: 6px; }
+QFrame[canvas_next="true"] QLabel { color: $on_selected; background: transparent; font-size: 12.5px; font-weight: 500; }

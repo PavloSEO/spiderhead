@@ -1,0 +1,3 @@
+/* Settings → О программе: licence list rows and brand title */
+QFrame[li="true"] { border: 0; border-bottom: 1px solid $divider_inner; background: transparent; }
+QLabel[brand="title"] { font-size: ${font_dialog}px; font-weight: 700; }

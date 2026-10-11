@@ -1,0 +1,6 @@
+/* settings → Агент: project / log list rows and the 18 px checkbox */
+QFrame[list_row="true"] { border: 0; border-bottom: 1px solid $divider_inner; background: transparent; }
+QToolButton[cb="true"] { width: 18px; height: 18px; min-width: 18px; min-height: 18px; border: 2px solid $outline_hover; border-radius: 4px; background: $base; }
+QToolButton[cb="true"]:hover { background: $hover; }
+QToolButton[cb="true"]:checked { background: $primary; border-color: $primary; }
+QToolButton[cb="true"]:focus { border: 2px solid $ring; }

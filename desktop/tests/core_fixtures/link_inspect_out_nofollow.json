@@ -1,0 +1,57 @@
+{
+ "ok": true,
+ "view": "links",
+ "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+ "evidence_revision": 1336,
+ "coverage": {
+  "state": "complete",
+  "reasons": [],
+  "internal_links_stored": true,
+  "external_links_stored": true,
+  "retained_attributes": [
+   "rel",
+   "target",
+   "anchor",
+   "position",
+   "raw_href"
+  ],
+  "not_retained_attributes": [
+   "hreflang",
+   "download"
+  ]
+ },
+ "url": "http://shop.example.test:18431/catalog/",
+ "direction": "out",
+ "representation": "all",
+ "filters": {
+  "link_type": "all",
+  "follow": "nofollow",
+  "status_class": "all",
+  "contains": null,
+  "sort": "order"
+ },
+ "offset": 0,
+ "limit": 4,
+ "max_limit": 200,
+ "state": "complete",
+ "reason_code": null,
+ "items": [],
+ "returned": 0,
+ "has_more": false,
+ "next_offset": null,
+ "total": 31,
+ "total_capped": false,
+ "filtered_total": 0,
+ "filtered_total_state": "exact",
+ "page": {
+  "scanned": true,
+  "status": 200
+ },
+ "summary": {
+  "total": 31,
+  "internal": 31,
+  "external": 0,
+  "unknown_locality": 0,
+  "nofollow": 0
+ }
+}

@@ -37,7 +37,7 @@ def _nodes(value: Any) -> list[dict[str, Any]]:
     return result
 
 
-def _validation(html: str | None) -> dict[str, Any]:
+def _validation(html: str | None, base_url: str | None = None) -> dict[str, Any]:
     """Run only bundled, offline graph checks; do not promise Google display."""
     base = {
         "syntax_state": "unavailable",
@@ -52,12 +52,16 @@ def _validation(html: str | None) -> dict[str, Any]:
         return base
     from seohead.checks.schema_org import check_schema
 
-    checked = check_schema(html=html)
+    checked = check_schema(html=html, document_base_url=base_url)
     parse_errors = checked.get("parse_errors") or []
     entities = checked.get("entities") or []
     vocabularies = checked.get("vocabularies") or []
     unsupported = any(
         isinstance(item, dict) and item.get("supported") is False for item in vocabularies
+    )
+    partial_markup = any(
+        isinstance(item, dict) and item.get("status") == "partial"
+        for item in checked.get("markup_coverage") or []
     )
     entity_errors = sum(
         len(item.get("errors") or []) for item in entities if isinstance(item, dict)
@@ -87,6 +91,8 @@ def _validation(html: str | None) -> dict[str, Any]:
         if parse_errors
         else "unsupported_context"
         if unsupported
+        else "unavailable"
+        if partial_markup
         else "structurally_invalid"
         if not entities or entity_errors
         else "valid"
@@ -182,15 +188,37 @@ def structured_payload(
                 "hash": _hash(item),
             }
         )
-    validation = _validation(html)
+    validation = _validation(html, parsed.get("document_base_url"))
     if invalid:
         validation["syntax_state"] = "malformed"
-    state = "malformed" if invalid else "absent" if not valid else validation["structural_state"]
+    # Non-JSON-LD formats are validated by the same bundled vocabulary. They
+    # must not read as absent merely because the JSON-LD block list is empty.
+    non_json_markup = False
+    if isinstance(html, str):
+        soup = BeautifulSoup(html, features="lxml")
+        from seohead.checks.parser import is_inert_template_content
+
+        non_json_markup = any(
+            not is_inert_template_content(tag)
+            for tag in soup.find_all(attrs={"itemscope": True})
+            + soup.find_all(attrs={"typeof": True})
+        )
+    state = (
+        "malformed"
+        if invalid
+        else validation["structural_state"]
+        if validation["structural_state"] in {"unavailable", "unsupported_context"}
+        else "absent"
+        if not valid and not non_json_markup
+        else validation["structural_state"]
+    )
     reasons = {
         "malformed": "JSON-LD syntax failures captured",
         "structurally_invalid": "Schema.org graph validation found structural errors",
         "unsupported_context": "one or more JSON-LD contexts could not be normalized as Schema.org",
-        "unavailable": "captured HTML was unavailable for structural validation",
+        "unavailable": "one or more markup constructs require unsupported structural normalization"
+        if isinstance(html, str)
+        else "captured HTML was unavailable for structural validation",
         "absent": "",
         "valid": "",
     }

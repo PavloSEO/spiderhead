@@ -883,6 +883,7 @@ def aggregate_coverage(
     result["sites"] = [
         {key: value for key, value in site.items() if key != "checklist"}
         | {"counts": site["checklist"].get("counts"), "state": site["checklist"]["state"]}
+        | ({"reason": site["checklist"]["reason"]} if "reason" in site["checklist"] else {})
         for site in sites
     ]
     if any(site["checklist"]["state"] != "initialized" for site in sites):

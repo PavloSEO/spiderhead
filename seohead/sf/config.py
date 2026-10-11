@@ -54,7 +54,23 @@ DEFAULT_CONFIG: dict[str, Any] = {
     },
     "profile": "full",  # lite | full | custom
     "exports": profile_exports(),
-    "input": {"mode": "auto", "exports_dir": "exports", "html_store_dir": None},
+    "input": {
+        "mode": "auto",
+        "exports_dir": "exports",
+        "html_store_dir": None,
+        "lighthouse_reports": {},
+    },
+    # No implicit model or provider: an explicit declaration and supplied
+    # vectors (or a core caller's local adapter) enable semantic review.
+    "semantic_similarity": {
+        "adapter": None,
+        "embeddings": [],
+        "cache_path": None,
+        "threshold": 0.82,
+        "relevance_threshold": 0.35,
+        "max_documents": 1000,
+        "max_candidate_comparisons": 250000,
+    },
     "filters": {
         "content_type_include": ["text/html"],
         "exclude_extensions": [
@@ -96,6 +112,8 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "dom_depth_max": 32,
         "dom_nodes_max": 1500,
         "img_max_kb": 150,
+        "page_weight_max_bytes": 2 * 1024 * 1024,
+        "resource_max_bytes": 2 * 1024 * 1024,
         "sitemap_lastmod_stale_days": 365,
         "sitemap_desync_pct_warn": 20,
         "templated_title_share": 0.6,
@@ -231,6 +249,10 @@ def validate_config(cfg: dict[str, Any]) -> None:
     from seohead.sf.core.registry import CHECKS
 
     errors: list[str] = []
+    for name in ("page_weight_max_bytes", "resource_max_bytes"):
+        value = cfg.get("thresholds", {}).get(name, DEFAULT_CONFIG["thresholds"][name])
+        if type(value) is not int or not 0 < value < 2**63:
+            errors.append(f"thresholds.{name} must be a positive SQLite-sized integer")
 
     def _bad_severity(where: str, check_id: str, severity: Any) -> None:
         errors.append(
@@ -271,6 +293,35 @@ def validate_config(cfg: dict[str, Any]) -> None:
         validate_canonical_policy(cfg.get("canonical_policy", {}))
     except ValueError as exc:
         errors.append(str(exc))
+
+    semantic = cfg.get("semantic_similarity", {})
+    if not isinstance(semantic, dict):
+        errors.append("semantic_similarity must be an object")
+    else:
+        for name in ("threshold", "relevance_threshold"):
+            value = semantic.get(name, DEFAULT_CONFIG["semantic_similarity"][name])
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(value)
+                or not 0 < value <= 1
+            ):
+                errors.append(f"semantic_similarity.{name} must be finite and in (0, 1]")
+        for name, minimum, maximum in (
+            ("max_documents", 1, 10000),
+            ("max_candidate_comparisons", 0, 250000),
+        ):
+            value = semantic.get(name, DEFAULT_CONFIG["semantic_similarity"][name])
+            if type(value) is not int or not minimum <= value <= maximum:
+                errors.append(
+                    f"semantic_similarity.{name} must be an integer in [{minimum}, {maximum}]"
+                )
+        if semantic.get("adapter") is not None and not isinstance(semantic["adapter"], dict):
+            errors.append("semantic_similarity.adapter must be an object or null")
+        if not isinstance(semantic.get("embeddings", []), list):
+            errors.append("semantic_similarity.embeddings must be an array")
+        if semantic.get("cache_path") is not None and not isinstance(semantic["cache_path"], str):
+            errors.append("semantic_similarity.cache_path must be a local path or null")
 
     if errors:
         raise ConfigError("; ".join(errors))

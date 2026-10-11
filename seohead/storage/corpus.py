@@ -399,6 +399,16 @@ def _rendered_provenance(
     # scan.v1 readers already accept extensible renderer settings, while the
     # top-level renderer envelope is closed. Keep rollback readers compatible.
     settings["navigation_evidence"] = navigation
+    # Asset summaries travel with their original renderer settings on offline replay.
+    # Never copy source bodies or an unbounded arbitrary object into this adjunct.
+    assets = raw_settings.get("asset_evidence")
+    if assets is not None:
+        if not isinstance(assets, dict):
+            raise ScanError("rendered asset evidence must be an object")
+        encoded_assets = json.dumps(assets, ensure_ascii=True, allow_nan=False)
+        if len(encoded_assets) > 1024 * 1024:
+            raise ScanError("rendered asset evidence exceeds the retained record budget")
+        settings["asset_evidence"] = assets
     payload = {
         "engine": engine,
         "engine_version": version,

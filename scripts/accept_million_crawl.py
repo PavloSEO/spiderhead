@@ -8,7 +8,7 @@ opens a socket and it never inserts rows directly into a scan database.
 
 This is deliberately a manual capacity gate, not a normal test-suite fixture:
 the 50k, 100k and 1m stages write real retained artifacts and can take material
-time and disk.  Results belong under ``Work/tools/reports/`` and a non-zero
+time and disk. Results belong outside the source tree, and a non-zero
 exit means a requested stage did not prove readiness.
 """
 

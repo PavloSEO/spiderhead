@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seohead-desktop"
+version = "0.1.0"
+description = "Native SEOHEAD project-console preparation skeleton"
+requires-python = ">=3.10"
+license = { text = "GPL-3.0-or-later" }
+dependencies = ["PyQt5==5.15.11", "mcp==1.29.0"]
+
+[project.optional-dependencies]
+build = [
+    "pyinstaller==6.22.3",
+    "tomli>=2,<3; python_version < '3.11'",
+]
+
+[project.scripts]
+seohead-desktop = "seohead_desktop.app:main"
+seohead-desktop-agent = "seohead_desktop.control_cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+seohead_desktop = ["theme/*.json", "theme/*.qss", "theme/parts/*.qss", "assets/icons/*", "assets/fonts/*", "assets/app/*", "assets/brand/*", "assets/brands/*","assets/*.json", "i18n/*.json"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["design", "build", "dist", ".build"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+# Cyrillic UI strings are intentional (RUF001-003); B905/SIM105 are style-only here.
+ignore = ["E501", "RUF001", "RUF002", "RUF003", "B905", "SIM102", "SIM105", "E731", "B007", "RUF012"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/test_packaging.py" = ["E402"]

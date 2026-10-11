@@ -25,7 +25,7 @@ def capture(
     extraction_rules: Any = None,
 ) -> list[dict[str, Any]]:
     """Return atomic context items for corpus, structured, language and rules evidence."""
-    from seohead.storage import content_evidence, structured_evidence
+    from seohead.storage import content_evidence, head_links, markup_evidence, structured_evidence
 
     evidence = settings.get("evidence") if isinstance(settings.get("evidence"), dict) else {}
     content_area = evidence.get("content_area", settings.get("content_area"))
@@ -58,7 +58,20 @@ def capture(
     )
     items = [
         content_evidence.context_item(content),
+        head_links.context_item(
+            page_url_id=page_url_id,
+            source_document_id=source_document_id,
+            representation=representation,
+            parsed=parsed,
+        ),
         *structured_evidence.context_items(structured, language),
+        markup_evidence.context_item(
+            page_url_id=page_url_id,
+            source_document_id=source_document_id,
+            representation=representation,
+            parsed=parsed,
+            unavailable_reason=unavailable_reason,
+        ),
     ]
     if rules_to_apply:
         from seohead.checks.extraction_rules import evaluate

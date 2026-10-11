@@ -59,6 +59,42 @@ CHECKS: dict[str, dict[str, Any]] = {
         "message": "robots.txt blocks JavaScript or CSS resources required for rendering",
         "fix": "Do not block .js, .css, or _next/static resources in robots.txt; otherwise Google may render the page incompletely.",
     },
+    "URL_INTERNAL_SEARCH": {
+        "severity": "notice",
+        "source": "SF-derived",
+        "message": "URL is a recognized internal search route",
+        "fix": "Review whether internal search results should be linked or indexable; apply the intended crawl and indexing policy.",
+    },
+    "INTERNAL_LINK_NO_ANCHOR": {
+        "severity": "warning",
+        "source": "crawl:retained_links",
+        "message": "Internal hyperlink has empty anchor text",
+        "fix": "Add descriptive text to the internal link, or provide an accessible label for an intentional image or icon link.",
+    },
+    "EXTERNAL_NO_RESPONSE": {
+        "severity": "warning",
+        "source": "crawl:external_checks",
+        "message": "An explicitly checked external destination did not answer",
+        "fix": "Review the recorded timeout or connection failure and update or remove the link after confirming the destination is unavailable.",
+    },
+    "SITEMAP_URL_NON_CANONICAL": {
+        "severity": "warning",
+        "source": "crawl:sitemap_membership",
+        "message": "Sitemap URL declares another canonical URL",
+        "fix": "List the canonical destination in the sitemap and remove the non-canonical URL.",
+    },
+    "SITEMAP_URL_BLOCKED_ROBOTS": {
+        "severity": "warning",
+        "source": "crawl:robots_policy",
+        "message": "Sitemap URL is blocked by the retained robots policy",
+        "fix": "Remove the intentionally blocked URL from the sitemap or allow crawling if the URL should be indexed.",
+    },
+    "INTERNALLY_LINKED_ROBOTS_BLOCKED": {
+        "severity": "warning",
+        "source": "crawl:robots_policy",
+        "message": "An internally linked URL is blocked by robots.txt",
+        "fix": "Review the observed internal links and the blocking rule; allow crawling when this page should be discovered and indexed.",
+    },
     # 7.B — links & DOM localization
     "BROKEN_INTERNAL_LINK": {
         "severity": "critical",
@@ -331,6 +367,24 @@ CHECKS: dict[str, dict[str, Any]] = {
         "source": "SF-derived",
         "message": "Near-duplicate content",
         "fix": "Differentiate the pages with substantive content or consolidate them into one canonical page.",
+    },
+    "SEMANTIC_SIMILARITY_CANDIDATE": {
+        "severity": "notice",
+        "source": "heuristic:explicit_embedding_adapter",
+        "message": "Pages have adapter-measured topical similarity; review candidate",
+        "fix": "Review intent and useful internal linking. Semantic similarity alone does not prove duplicate content or cannibalization.",
+    },
+    "TITLE_LOW_SEMANTIC_RELEVANCE": {
+        "severity": "notice",
+        "source": "heuristic:explicit_embedding_adapter",
+        "message": "Title has low adapter-measured similarity to the page content; review candidate",
+        "fix": "Review whether the title describes the page's actual content and intent; the model score alone is not proof of irrelevance.",
+    },
+    "H1_LOW_SEMANTIC_RELEVANCE": {
+        "severity": "notice",
+        "source": "heuristic:explicit_embedding_adapter",
+        "message": "H1 has low adapter-measured similarity to the page content; review candidate",
+        "fix": "Review whether the heading describes the page's actual content and intent; the model score alone is not proof of irrelevance.",
     },
     "LOREM_IPSUM_PLACEHOLDER": {
         "severity": "warning",
@@ -697,6 +751,18 @@ CHECKS: dict[str, dict[str, Any]] = {
         "fix": "Drop the fragment; the server never receives it, so a canonical pointing at one is meaningless.",
     },
     # --- extension: canonical graph (Mode B, built from Internal:All) ---
+    "CANONICAL_INVALID_ATTRIBUTE": {
+        "severity": "warning",
+        "source": "crawl:head_links",
+        "message": "Canonical annotation contains unsupported alternate-version attributes or malformed rel/href",
+        "fix": "Remove hreflang, lang, media and type from the canonical link; declare alternates separately. Use an HTML whitespace-separated canonical relation and a non-empty HTTP(S) href. Raw attributes are included in the evidence.",
+    },
+    "CANONICAL_CROSS_ORIGIN": {
+        "severity": "notice",
+        "source": "SF-derived",
+        "message": "Canonical changes the declaring URL host or protocol",
+        "fix": "Confirm that cross-host or protocol consolidation is intentional and that the target is the preferred URL.",
+    },
     "CANONICAL_CHAIN": {
         "severity": "warning",
         "source": "SF-derived",
@@ -829,7 +895,7 @@ CHECKS: dict[str, dict[str, Any]] = {
     "PAGINATION_SEQUENCE_ERROR": {
         "severity": "warning",
         "source": "SF-derived",
-        "message": 'A rel="next" series breaks a page-number run it otherwise follows',
+        "message": "Pagination breaks an established numbered run or contradicts a reciprocal next/prev declaration",
         "fix": 'Point each rel="next" at the page that actually follows this one. A run that '
         "goes 1, 2, 3, 7 leaves pages 4 to 6 out of the chain entirely, so a crawler "
         "following it never reaches them.",
@@ -1007,6 +1073,12 @@ CHECKS: dict[str, dict[str, Any]] = {
         "fix": "Remove the tag once the page is served as ordinary HTML (server-rendered or "
         "crawlable client-rendered). Nothing requests the _escaped_fragment_ companion URL it "
         "advertises any more, so the declaration is inert -- informational rather than broken.",
+    },
+    "RENDER_BLOCKING": {
+        "severity": "notice",
+        "source": "crawl:render_blocking",
+        "message": "A <head> script or stylesheet blocks first paint (no async/defer, no non-matching media)",
+        "fix": "Add `defer` or `async` to the <script src>, move it out of <head>, or give the stylesheet a `media` value that the first render does not need.",
     },
     "NO_COMPRESSION": {
         "severity": "notice",
@@ -1241,6 +1313,18 @@ CHECKS: dict[str, dict[str, Any]] = {
         "fix": "Remove sponsored and ugc from links to pages of this site. Keep them only on "
         "links that really lead to paid placements or user-submitted content.",
     },
+    "MIXED_LINK_REL": {
+        "severity": "notice",
+        "source": "crawl:link_findings",
+        "message": "A link combines nofollow, sponsored or ugc tokens",
+        "fix": "The combination is valid. Review whether each qualifying token describes the placement; retain intentional combinations and the full rel token set.",
+    },
+    "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE": {
+        "severity": "notice",
+        "source": "crawl:link_findings",
+        "message": "An outbound sponsored link has no recognized local disclosure text",
+        "fix": "Review the retained local text and add a clear reader-facing disclosure when needed. This bounded English/Russian text-marker heuristic does not establish legal compliance; CSS visibility, other languages and remote disclosures require manual review.",
+    },
     "HTTP_LINK_ON_HTTPS": {
         "severity": "notice",
         "source": "crawl:link_findings",
@@ -1371,6 +1455,200 @@ CHECKS: dict[str, dict[str, Any]] = {
         "fix": "Have a specialist confirm whether the page genuinely covers "
         "Your-Money-Your-Life topics; if it does, the attribution and "
         "trust-page evidence above deserves a closer look.",
+    },
+    # Native asset budgets and supplied Lighthouse lab evidence (issue #1303)
+    "ASSET_SHORT_CACHE": {
+        "severity": "notice",
+        "source": "native resource delivery",
+        "message": "A captured resource has no long-lived public cache policy",
+        "fix": "Use an appropriate public max-age for versioned static assets; keep private and no-store policies where required.",
+    },
+    "FONT_DISPLAY_MISSING": {
+        "severity": "notice",
+        "source": "native resource delivery",
+        "message": "An observed stylesheet font-face lacks an accepted font-display value",
+        "fix": "Set font-display to swap, fallback or optional when appropriate for the font.",
+    },
+    "HEAVY_PAGE_WEIGHT": {
+        "severity": "warning",
+        "source": "native render responses / HTML",
+        "message": "Observed navigation responses or HTML alone exceed the configured content-decoded byte budget",
+        "fix": "Reduce the measured document, images, fonts and scripts; keep raw-only and incomplete runtime coverage explicit.",
+    },
+    "RESOURCE_OVER_2MB": {
+        "severity": "warning",
+        "source": "native resource graph",
+        "message": "A captured resource exceeds the configured individual byte budget",
+        "fix": "Reduce or split the identified resource; the default budget is 2 MiB.",
+    },
+    "UNUSED_CSS_JS": {
+        "severity": "notice",
+        "source": "native render coverage",
+        "message": "CSS or JavaScript source is substantially unused in the captured navigation window",
+        "fix": "Split or defer unused code after testing the interactions and routes that need it; lab coverage is not proof code is universally unused.",
+    },
+    "UNMINIFIED_CSS_JS": {
+        "severity": "notice",
+        "source": "native resource delivery",
+        "message": "Captured CSS or JavaScript does not look minified (heuristic)",
+        "fix": "Apply the existing production minifier and verify the result still works.",
+    },
+    "DUPLICATED_JS": {
+        "severity": "notice",
+        "source": "native resource delivery",
+        "message": "Different script URLs on one page contain identical captured source bytes",
+        "fix": "Load the identical script once; review the build and page template.",
+    },
+    "LEGACY_JS": {
+        "severity": "notice",
+        "source": "native resource delivery",
+        "message": "Captured JavaScript has an unconditional legacy or polyfill marker (heuristic)",
+        "fix": "Review target browser support before removing or splitting legacy code.",
+    },
+    "IMG_INTRINSIC_OVERSIZED": {
+        "severity": "notice",
+        "source": "native render layout",
+        "message": "A heavy image has more intrinsic width than its displayed device pixels need",
+        "fix": "Serve a responsive image sized for the observed viewport and device pixel ratio.",
+    },
+    "IMG_UPSCALED": {
+        "severity": "warning",
+        "source": "native render layout",
+        "message": "An image has less intrinsic width than its displayed device pixels need",
+        "fix": "Supply an image with enough intrinsic pixels for the observed viewport and device pixel ratio.",
+    },
+    "LCP_DISCOVERY": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse LCP discovery audit reports an opportunity",
+        "fix": "Review the recorded LCP element and make its image discoverable and appropriately prioritized.",
+    },
+    "NETWORK_DEPENDENCY_TREE": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse dependency-tree audit reports a request-chain opportunity",
+        "fix": "Shorten the measured critical request chain; inspect the supplied lab trace evidence.",
+    },
+    "LAYOUT_SHIFT_CULPRITS": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse layout-shift audit reports culprits",
+        "fix": "Reserve layout space and correct the measured shift sources.",
+    },
+    "IMAGE_DELIVERY": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse image-delivery audit reports an opportunity",
+        "fix": "Optimize the measured image size and encoding while preserving visual quality.",
+    },
+    "FORCED_REFLOW": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse forced-reflow audit reports an opportunity",
+        "fix": "Review the measured script stack and batch layout reads and writes.",
+    },
+    "JS_EXECUTION_TIME": {
+        "severity": "notice",
+        "source": "supplied Lighthouse JSON",
+        "message": "The supplied Lighthouse bootup-time audit reports expensive script execution",
+        "fix": "Reduce or defer the measured JavaScript execution work.",
+    },
+    # Document markup: structural AMP, static accessibility, and Schema.org validation
+    "AMP_MISSING_HTML_ATTRIBUTE": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP target does not declare the html amp or lightning attribute",
+        "fix": "Add the AMP attribute to the root html element, or correct the rel=amphtml target.",
+    },
+    "AMP_INVALID_DOCTYPE": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP document has a missing or invalid HTML5 doctype",
+        "fix": "Start the AMP source document with <!doctype html>.",
+    },
+    "AMP_MISSING_HEAD": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP source document has no explicit head element",
+        "fix": "Include an explicit head element in the AMP source.",
+    },
+    "AMP_MISSING_BODY": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP source document has no explicit body element",
+        "fix": "Include an explicit body element in the AMP source.",
+    },
+    "AMP_INVALID_CHARSET": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP head does not start with the required UTF-8 charset declaration",
+        "fix": 'Place <meta charset="utf-8"> first in the AMP head.',
+    },
+    "AMP_INVALID_VIEWPORT": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP document lacks the required device-width viewport",
+        "fix": "Declare a viewport containing width=device-width in the head.",
+    },
+    "AMP_INVALID_RUNTIME": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP document lacks an async AMP runtime script in the head",
+        "fix": 'Add <script async src="https://cdn.ampproject.org/v0.js"></script> to the AMP head.',
+    },
+    "AMP_INVALID_BOILERPLATE": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "AMP document lacks the structural AMP boilerplate declarations",
+        "fix": "Include the required amp-boilerplate style and noscript fallback; validate their content with the official AMP validator.",
+    },
+    "A11Y_HTML_LANG_MISSING": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "Root html element has no nonempty lang declaration",
+        "fix": "Declare the document language on html and review whether it matches the content.",
+    },
+    "A11Y_FORM_LABEL_MISSING": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "Form control has no static accessible label",
+        "fix": "Associate a label with the control, or provide a valid aria-label or aria-labelledby reference.",
+    },
+    "A11Y_IMAGE_ALT_MISSING": {
+        "severity": "warning",
+        "source": "crawl:markup_evidence",
+        "message": "Image has no alt attribute or static accessible name",
+        "fix": "Provide meaningful alternative text; explicitly mark decorative images with empty alt text.",
+    },
+    "A11Y_HEADING_ORDER": {
+        "severity": "notice",
+        "source": "crawl:markup_evidence",
+        "message": "Heading sequence skips a level in the static document",
+        "fix": "Review the heading outline and use nested heading levels consistently.",
+    },
+    "A11Y_MAIN_LANDMARK_MISSING": {
+        "severity": "notice",
+        "source": "crawl:markup_evidence",
+        "message": "Document content has no main landmark",
+        "fix": "Mark the primary page content with main or role=main and verify navigation with assistive technology.",
+    },
+    "STRUCTURED_DATA_SCHEMA_ERROR": {
+        "severity": "warning",
+        "source": "crawl:structured_evidence",
+        "message": "Structured data contains errors under the bundled Schema.org vocabulary",
+        "fix": "Inspect the URL schema evidence and repair unknown types, properties, invalid values or unresolved references.",
+    },
+    "STRUCTURED_DATA_SCHEMA_WARNING": {
+        "severity": "notice",
+        "source": "crawl:structured_evidence",
+        "message": "Structured data contains warnings under the bundled Schema.org vocabulary",
+        "fix": "Review the URL schema evidence and correct ambiguous values or graph relationships.",
+    },
+    "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING": {
+        "severity": "warning",
+        "source": "crawl:structured_evidence",
+        "message": "Structured data lacks required properties in the bundled local rich-result rules",
+        "fix": "Fill the required properties for the declared type and validate the result; local eligibility does not guarantee Google display.",
     },
 }
 

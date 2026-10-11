@@ -1,0 +1,3 @@
+Source: official sites of each service, downloaded 2026-10-09. Trademarks of their owners; used only to identify integrations.
+Used in the app (ui/brand_logos.py): gsc.png, ga4.svg, metrika.svg, webmaster.svg, bing.png, topvisor.png, arsenkin.png, dataforseo.png, yandexcloud-color.svg (official service marks);
+googletagmanager.svg, pagespeedinsights.svg (Simple Icons, CC0 - SIMPLE-ICONS-LICENSE.md), recoloured in memory to the brand colour; the files stay intact.

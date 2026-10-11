@@ -175,6 +175,11 @@ def run_audit(
     from seohead.sf.core.rules import native_check_ids
 
     ctx.skip_unsupported(set(exports.frames), native=native_check_ids(ctx))
+    for check_id in ("MIXED_LINK_REL", "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE"):
+        ctx.skip(
+            check_id,
+            "export input retains no full rel-token/context evidence; native retained links are required",
+        )
     # Fragment targets are resolved inside the retained destination document
     # (issue #827); an export keeps no destination DOM inventory, so the check
     # must be named unavailable rather than silently land in "ran clean".

@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**202 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**248 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -23,6 +23,12 @@ python scripts/generate_checks_reference.py
 | `NON_INDEXABLE_LINKED` | notice | SF-derived | Internally linked page is non-indexable | Decide whether the page should be indexable; otherwise remove unnecessary internal links and account for crawl-budget impact. |
 | `IMPORTANT_URL_BLOCKED_BY_ROBOTS` | warning | SF-derived | Live page is blocked by robots.txt despite receiving internal links | robots.txt blocks crawling, not indexing, so link discovery is lost. Make the URL crawlable with a more specific Allow rule than the matching Disallow, and control indexing with canonical or noindex. A common case is pagination such as /blog?page=N blocked by Disallow: /*?. |
 | `ROBOTS_BLOCKS_RESOURCES` | notice | sitemap | robots.txt blocks JavaScript or CSS resources required for rendering | Do not block .js, .css, or _next/static resources in robots.txt; otherwise Google may render the page incompletely. |
+| `URL_INTERNAL_SEARCH` | notice | SF-derived | URL is a recognized internal search route | Review whether internal search results should be linked or indexable; apply the intended crawl and indexing policy. |
+| `INTERNAL_LINK_NO_ANCHOR` | warning | crawl:retained_links | Internal hyperlink has empty anchor text | Add descriptive text to the internal link, or provide an accessible label for an intentional image or icon link. |
+| `EXTERNAL_NO_RESPONSE` | warning | crawl:external_checks | An explicitly checked external destination did not answer | Review the recorded timeout or connection failure and update or remove the link after confirming the destination is unavailable. |
+| `SITEMAP_URL_NON_CANONICAL` | warning | crawl:sitemap_membership | Sitemap URL declares another canonical URL | List the canonical destination in the sitemap and remove the non-canonical URL. |
+| `SITEMAP_URL_BLOCKED_ROBOTS` | warning | crawl:robots_policy | Sitemap URL is blocked by the retained robots policy | Remove the intentionally blocked URL from the sitemap or allow crawling if the URL should be indexed. |
+| `INTERNALLY_LINKED_ROBOTS_BLOCKED` | warning | crawl:robots_policy | An internally linked URL is blocked by robots.txt | Review the observed internal links and the blocking rule; allow crawling when this page should be discovered and indexed. |
 
 ## 7.B — links & DOM localization
 
@@ -91,6 +97,9 @@ python scripts/generate_checks_reference.py
 | `LOW_TEXT_RATIO` | notice | SF-derived | Low text-to-HTML ratio | Increase the proportion of meaningful visible content or reduce unnecessary markup. |
 | `DUPLICATE_BY_HASH` | warning | SF-derived | Exact duplicate content (identical hash) | Consolidate duplicates with canonicalization or rewrite them to serve distinct search intent. |
 | `NEAR_DUPLICATE` | warning | SF-derived | Near-duplicate content | Differentiate the pages with substantive content or consolidate them into one canonical page. |
+| `SEMANTIC_SIMILARITY_CANDIDATE` | notice | heuristic:explicit_embedding_adapter | Pages have adapter-measured topical similarity; review candidate | Review intent and useful internal linking. Semantic similarity alone does not prove duplicate content or cannibalization. |
+| `TITLE_LOW_SEMANTIC_RELEVANCE` | notice | heuristic:explicit_embedding_adapter | Title has low adapter-measured similarity to the page content; review candidate | Review whether the title describes the page's actual content and intent; the model score alone is not proof of irrelevance. |
+| `H1_LOW_SEMANTIC_RELEVANCE` | notice | heuristic:explicit_embedding_adapter | H1 has low adapter-measured similarity to the page content; review candidate | Review whether the heading describes the page's actual content and intent; the model score alone is not proof of irrelevance. |
 | `LOREM_IPSUM_PLACEHOLDER` | warning | crawl:lorem_ipsum_count | The Lorem Ipsum placeholder passage appears in the page's own content area | Replace the placeholder passage with real, reviewed copy before the page goes live or stays indexed. |
 
 ## 7.G — images
@@ -201,6 +210,8 @@ python scripts/generate_checks_reference.py
 
 | Check id | Severity | Evidence | Fires on | Fix |
 |---|---|---|---|---|
+| `CANONICAL_INVALID_ATTRIBUTE` | warning | crawl:head_links | Canonical annotation contains unsupported alternate-version attributes or malformed rel/href | Remove hreflang, lang, media and type from the canonical link; declare alternates separately. Use an HTML whitespace-separated canonical relation and a non-empty HTTP(S) href. Raw attributes are included in the evidence. |
+| `CANONICAL_CROSS_ORIGIN` | notice | SF-derived | Canonical changes the declaring URL host or protocol | Confirm that cross-host or protocol consolidation is intentional and that the target is the preferred URL. |
 | `CANONICAL_CHAIN` | warning | SF-derived | Canonical chain: the target canonicalizes to another URL (two or more steps) | Point the canonical directly to the final canonical URL in one step and break any canonical loops. |
 | `CANONICAL_TO_REDIRECT` | warning | SF-derived | Canonical points to a redirecting URL (3xx) | Point the canonical to the final 200-status URL; otherwise search engines must resolve conflicting canonical signals. |
 | `CANONICAL_TARGET_ERROR` | warning | SF-derived | Canonical points to a URL returning 4xx or 5xx | Point the canonical to a fetched, successful URL; restore the target or redirect it to the intended canonical page. |
@@ -226,7 +237,7 @@ python scripts/generate_checks_reference.py
 | `UNLINKED_PAGINATION_SERIES` | warning | SF-derived | A pagination series is reachable only by following rel="next", never by a hyperlink | Add an ordinary internal link to the first page of the series so it does not depend on rel="next" alone for discovery. |
 | `PAGINATION_MULTIPLE` | warning | SF-derived | The page declares more than one rel="next" (or more than one rel="prev") URL | Declare exactly one rel="next" and one rel="prev" URL per page; two different successors leave the series ambiguous, and a crawler picks one of them without telling anybody which. |
 | `PAGINATION_URL_NOT_IN_ANCHOR` | notice | inlinks:All Inlinks | A rel="next"/rel="prev" URL is not also linked from the same page with an anchor | Link the paginated URL from the page itself with an ordinary <a href> as well. Google stopped using rel="next"/rel="prev" for indexing in 2019, so an annotation with no anchor beside it is a route only some crawlers still take. |
-| `PAGINATION_SEQUENCE_ERROR` | warning | SF-derived | A rel="next" series breaks a page-number run it otherwise follows | Point each rel="next" at the page that actually follows this one. A run that goes 1, 2, 3, 7 leaves pages 4 to 6 out of the chain entirely, so a crawler following it never reaches them. |
+| `PAGINATION_SEQUENCE_ERROR` | warning | SF-derived | Pagination breaks an established numbered run or contradicts a reciprocal next/prev declaration | Point each rel="next" at the page that actually follows this one. A run that goes 1, 2, 3, 7 leaves pages 4 to 6 out of the chain entirely, so a crawler following it never reaches them. |
 
 ## --- extension: links ---
 
@@ -272,6 +283,7 @@ python scripts/generate_checks_reference.py
 | `UNSUPPORTED_PLUGIN` | warning | crawl:plugin_elements | Page contains a legacy plugin-dependent element (<object>/<embed>/<applet>) | Replace the plugin-dependent element with a native equivalent (HTML5 <video>/<audio>, an <img>/<svg>, or a JavaScript-driven alternative) -- mobile browsers, and modern desktop ones, do not run plugins, so this content is simply invisible there. |
 | `AJAX_CRAWLING_SCHEME_URL` | notice | crawl:ajax_scheme_outlinks | The deprecated AJAX crawling scheme (#! / _escaped_fragment_) is still used by this page's URL or by URLs it links to | Serve the same content at ordinary URLs and link to those instead. Google deprecated the scheme in 2015 and stopped supporting it in 2018, so an _escaped_fragment_ companion URL is no longer requested by anything -- informational rather than broken, because a site may still keep it for a legacy client of its own. |
 | `AJAX_CRAWLING_SCHEME_META_FRAGMENT` | notice | crawl:meta_fragment | Page declares <meta name="fragment"> -- the page-wide opt-in to the deprecated AJAX crawling scheme | Remove the tag once the page is served as ordinary HTML (server-rendered or crawlable client-rendered). Nothing requests the _escaped_fragment_ companion URL it advertises any more, so the declaration is inert -- informational rather than broken. |
+| `RENDER_BLOCKING` | notice | crawl:render_blocking | A <head> script or stylesheet blocks first paint (no async/defer, no non-matching media) | Add `defer` or `async` to the <script src>, move it out of <head>, or give the stylesheet a `media` value that the first render does not need. |
 | `NO_COMPRESSION` | notice | SF-derived | HTML response is served uncompressed above the size where gzip/br would help | Enable gzip, Brotli, or deflate compression for text responses on the origin server or CDN. |
 
 ## --- extension: element position & document skeleton (issue #123) ---
@@ -331,6 +343,8 @@ python scripts/generate_checks_reference.py
 | `FOLLOW_AND_NOFOLLOW_INLINKS` | notice | crawl:link_findings | The page receives both a followed and a nofollow internal link | Decide deliberately whether the page should be crawl-priority or not, and make every internal link to it agree. |
 | `INTERNAL_NOFOLLOW_OUTLINKS` | notice | crawl:link_findings | The page has internal outlinks marked nofollow | Confirm each internal nofollow link is intentional; links to pages that should be crawled and ranked should be followed. rel=sponsored and rel=ugc are not visible here and stay distinct. |
 | `INTERNAL_LINK_SPONSORED_UGC` | notice | crawl:link_findings | An internal link carries rel=sponsored or rel=ugc | Remove sponsored and ugc from links to pages of this site. Keep them only on links that really lead to paid placements or user-submitted content. |
+| `MIXED_LINK_REL` | notice | crawl:link_findings | A link combines nofollow, sponsored or ugc tokens | The combination is valid. Review whether each qualifying token describes the placement; retain intentional combinations and the full rel token set. |
+| `OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE` | notice | crawl:link_findings | An outbound sponsored link has no recognized local disclosure text | Review the retained local text and add a clear reader-facing disclosure when needed. This bounded English/Russian text-marker heuristic does not establish legal compliance; CSS visibility, other languages and remote disclosures require manual review. |
 | `HTTP_LINK_ON_HTTPS` | notice | crawl:link_findings | HTTPS page contains an ordinary internal http:// anchor | Write the internal anchor as https:// or a relative URL. A fetched HTTP variant that already redirects to HTTPS is reported as converged, not as this finding. |
 | `FORM_URL_INSECURE` | critical | crawl:link_findings | A form submits to an http:// action, so its data leaves the browser unencrypted regardless of the page's own scheme | Point the form's action at an https:// URL. |
 | `FORM_ON_HTTP_URL` | critical | crawl:link_findings | A form with a password field is served from a plain-HTTP page, so the credentials themselves travel unencrypted before the action URL is even reached | Serve the page itself over HTTPS; an HTTPS form action does not protect input typed on an HTTP page. |
@@ -353,3 +367,45 @@ python scripts/generate_checks_reference.py
 | `MISSING_TERMS_PAGE` | notice | SF-derived | No indexable terms-of-use page was found in the crawl's scope | If a terms page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all. |
 | `FEW_CITATIONS` | notice | SF-derived | Content-shaped page has no observable outbound reference in its body content | Review whether the page should cite its sources. An outbound link inside the body copy is the only carrier a crawl can observe as a citation; the finding never asserts that any link is authoritative. |
 | `YMYL_REVIEW_CANDIDATE` | notice | SF-derived | URL path or title matches a YMYL-adjacent keyword — a review candidate only, not a classification | Have a specialist confirm whether the page genuinely covers Your-Money-Your-Life topics; if it does, the attribution and trust-page evidence above deserves a closer look. |
+
+## Native asset budgets and supplied Lighthouse lab evidence (issue #1303)
+
+| Check id | Severity | Evidence | Fires on | Fix |
+|---|---|---|---|---|
+| `ASSET_SHORT_CACHE` | notice | native resource delivery | A captured resource has no long-lived public cache policy | Use an appropriate public max-age for versioned static assets; keep private and no-store policies where required. |
+| `FONT_DISPLAY_MISSING` | notice | native resource delivery | An observed stylesheet font-face lacks an accepted font-display value | Set font-display to swap, fallback or optional when appropriate for the font. |
+| `HEAVY_PAGE_WEIGHT` | warning | native render responses / HTML | Observed navigation responses or HTML alone exceed the configured content-decoded byte budget | Reduce the measured document, images, fonts and scripts; keep raw-only and incomplete runtime coverage explicit. |
+| `RESOURCE_OVER_2MB` | warning | native resource graph | A captured resource exceeds the configured individual byte budget | Reduce or split the identified resource; the default budget is 2 MiB. |
+| `UNUSED_CSS_JS` | notice | native render coverage | CSS or JavaScript source is substantially unused in the captured navigation window | Split or defer unused code after testing the interactions and routes that need it; lab coverage is not proof code is universally unused. |
+| `UNMINIFIED_CSS_JS` | notice | native resource delivery | Captured CSS or JavaScript does not look minified (heuristic) | Apply the existing production minifier and verify the result still works. |
+| `DUPLICATED_JS` | notice | native resource delivery | Different script URLs on one page contain identical captured source bytes | Load the identical script once; review the build and page template. |
+| `LEGACY_JS` | notice | native resource delivery | Captured JavaScript has an unconditional legacy or polyfill marker (heuristic) | Review target browser support before removing or splitting legacy code. |
+| `IMG_INTRINSIC_OVERSIZED` | notice | native render layout | A heavy image has more intrinsic width than its displayed device pixels need | Serve a responsive image sized for the observed viewport and device pixel ratio. |
+| `IMG_UPSCALED` | warning | native render layout | An image has less intrinsic width than its displayed device pixels need | Supply an image with enough intrinsic pixels for the observed viewport and device pixel ratio. |
+| `LCP_DISCOVERY` | notice | supplied Lighthouse JSON | The supplied Lighthouse LCP discovery audit reports an opportunity | Review the recorded LCP element and make its image discoverable and appropriately prioritized. |
+| `NETWORK_DEPENDENCY_TREE` | notice | supplied Lighthouse JSON | The supplied Lighthouse dependency-tree audit reports a request-chain opportunity | Shorten the measured critical request chain; inspect the supplied lab trace evidence. |
+| `LAYOUT_SHIFT_CULPRITS` | notice | supplied Lighthouse JSON | The supplied Lighthouse layout-shift audit reports culprits | Reserve layout space and correct the measured shift sources. |
+| `IMAGE_DELIVERY` | notice | supplied Lighthouse JSON | The supplied Lighthouse image-delivery audit reports an opportunity | Optimize the measured image size and encoding while preserving visual quality. |
+| `FORCED_REFLOW` | notice | supplied Lighthouse JSON | The supplied Lighthouse forced-reflow audit reports an opportunity | Review the measured script stack and batch layout reads and writes. |
+| `JS_EXECUTION_TIME` | notice | supplied Lighthouse JSON | The supplied Lighthouse bootup-time audit reports expensive script execution | Reduce or defer the measured JavaScript execution work. |
+
+## Document markup: structural AMP, static accessibility, and Schema.org validation
+
+| Check id | Severity | Evidence | Fires on | Fix |
+|---|---|---|---|---|
+| `AMP_MISSING_HTML_ATTRIBUTE` | warning | crawl:markup_evidence | AMP target does not declare the html amp or lightning attribute | Add the AMP attribute to the root html element, or correct the rel=amphtml target. |
+| `AMP_INVALID_DOCTYPE` | warning | crawl:markup_evidence | AMP document has a missing or invalid HTML5 doctype | Start the AMP source document with <!doctype html>. |
+| `AMP_MISSING_HEAD` | warning | crawl:markup_evidence | AMP source document has no explicit head element | Include an explicit head element in the AMP source. |
+| `AMP_MISSING_BODY` | warning | crawl:markup_evidence | AMP source document has no explicit body element | Include an explicit body element in the AMP source. |
+| `AMP_INVALID_CHARSET` | warning | crawl:markup_evidence | AMP head does not start with the required UTF-8 charset declaration | Place <meta charset="utf-8"> first in the AMP head. |
+| `AMP_INVALID_VIEWPORT` | warning | crawl:markup_evidence | AMP document lacks the required device-width viewport | Declare a viewport containing width=device-width in the head. |
+| `AMP_INVALID_RUNTIME` | warning | crawl:markup_evidence | AMP document lacks an async AMP runtime script in the head | Add <script async src="https://cdn.ampproject.org/v0.js"></script> to the AMP head. |
+| `AMP_INVALID_BOILERPLATE` | warning | crawl:markup_evidence | AMP document lacks the structural AMP boilerplate declarations | Include the required amp-boilerplate style and noscript fallback; validate their content with the official AMP validator. |
+| `A11Y_HTML_LANG_MISSING` | warning | crawl:markup_evidence | Root html element has no nonempty lang declaration | Declare the document language on html and review whether it matches the content. |
+| `A11Y_FORM_LABEL_MISSING` | warning | crawl:markup_evidence | Form control has no static accessible label | Associate a label with the control, or provide a valid aria-label or aria-labelledby reference. |
+| `A11Y_IMAGE_ALT_MISSING` | warning | crawl:markup_evidence | Image has no alt attribute or static accessible name | Provide meaningful alternative text; explicitly mark decorative images with empty alt text. |
+| `A11Y_HEADING_ORDER` | notice | crawl:markup_evidence | Heading sequence skips a level in the static document | Review the heading outline and use nested heading levels consistently. |
+| `A11Y_MAIN_LANDMARK_MISSING` | notice | crawl:markup_evidence | Document content has no main landmark | Mark the primary page content with main or role=main and verify navigation with assistive technology. |
+| `STRUCTURED_DATA_SCHEMA_ERROR` | warning | crawl:structured_evidence | Structured data contains errors under the bundled Schema.org vocabulary | Inspect the URL schema evidence and repair unknown types, properties, invalid values or unresolved references. |
+| `STRUCTURED_DATA_SCHEMA_WARNING` | notice | crawl:structured_evidence | Structured data contains warnings under the bundled Schema.org vocabulary | Review the URL schema evidence and correct ambiguous values or graph relationships. |
+| `STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING` | warning | crawl:structured_evidence | Structured data lacks required properties in the bundled local rich-result rules | Fill the required properties for the declared type and validate the result; local eligibility does not guarantee Google display. |

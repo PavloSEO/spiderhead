@@ -1,0 +1,1 @@
+- Desktop: fatal states screen per canvas ErrorsCore: missing core, low disk and no write access are shown from real facts; core version and scan integrity show the neutral "unavailable in this core version" pill until the core reports them.

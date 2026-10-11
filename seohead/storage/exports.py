@@ -72,7 +72,11 @@ def _publish(
 
 def _page_rows(con, *, url: str | None = None) -> Iterable[dict[str, Any]]:
     late_columns = {column: name for name, column in _LATE_PAGE_FIELDS.items()}
-    query = "SELECT p.*, u.url FROM pages AS p JOIN urls AS u USING(url_id)"
+    query = (
+        "SELECT p.*, u.url, c.payload_json AS render_blocking_payload "
+        "FROM pages AS p JOIN urls AS u USING(url_id) LEFT JOIN context_items c "
+        "ON c.kind='legacy_render_blocking' AND c.item_key='page:'||p.url_id"
+    )
     if url is not None:
         query += " WHERE u.url=?"
     query += " ORDER BY p.page_ordinal"
@@ -82,7 +86,13 @@ def _page_rows(con, *, url: str | None = None) -> Iterable[dict[str, Any]]:
             if name in _PAGE_SYSTEM_COLUMNS:
                 continue
             value = record[name]
-            if name == "redirect_chain_json":
+            if name == "render_blocking_payload":
+                if value is not None:
+                    resources = json.loads(value)["resources"]
+                    page["render_blocking"] = (
+                        json.dumps(resources) if resources is not None else None
+                    )
+            elif name == "redirect_chain_json":
                 page["redirect_chain"] = json.loads(value)
             elif name == "hreflang_json":
                 if value is not None:

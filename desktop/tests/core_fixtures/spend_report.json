@@ -1,0 +1,179 @@
+{
+  "ok": true,
+  "calls": 13369,
+  "since": null,
+  "by_source": {
+    "yandex_cloud": {
+      "requests": 8164.0
+    },
+    "dataforseo": {
+      "usd": 0.0
+    },
+    "metrika": {
+      "requests": 1990.0
+    },
+    "arsenkin": {
+      "limits": 169857.0
+    }
+  },
+  "by_operation": {
+    "yandex_cloud.wordstat.topRequests": {
+      "requests": 8057.0
+    },
+    "yandex_cloud.web.searchAsync": {
+      "requests": 107.0
+    },
+    "dataforseo.search_volume.sandbox": {
+      "usd": 0.0
+    },
+    "dataforseo.keyword_ideas.sandbox": {
+      "usd": 0.0
+    },
+    "metrika.report.paginated": {
+      "requests": 1511.0
+    },
+    "dataforseo.keyword_difficulty.sandbox": {
+      "usd": 0.0
+    },
+    "dataforseo.serp.sandbox": {
+      "usd": 0.0
+    },
+    "arsenkin.wordstat": {
+      "limits": 163737.0
+    },
+    "arsenkin.set": {
+      "limits": 0.0
+    },
+    "arsenkin.clustering": {
+      "limits": 4936.0
+    },
+    "arsenkin.semantics": {
+      "limits": 1000.0
+    },
+    "metrika.management.counters": {
+      "requests": 7.0
+    },
+    "metrika.report": {
+      "requests": 281.0
+    },
+    "metrika.management.counter": {
+      "requests": 3.0
+    },
+    "metrika.management.goals": {
+      "requests": 6.0
+    },
+    "metrika.report.bytime": {
+      "requests": 182.0
+    },
+    "metrika.report.split": {
+      "requests": 0.0
+    },
+    "arsenkin.check-top": {
+      "limits": 8.0
+    },
+    "arsenkin.copyrighters": {
+      "limits": 172.0
+    },
+    "arsenkin.sp": {
+      "limits": 2.0
+    },
+    "arsenkin.check-h": {
+      "limits": 2.0
+    }
+  },
+  "by_day": {
+    "2026-08-21": {
+      "requests": 78.0
+    },
+    "2026-09-03": {
+      "requests": 138.0
+    },
+    "2026-09-04": {
+      "requests": 7.0
+    },
+    "2026-09-05": {
+      "usd": 0.0
+    },
+    "2026-09-06": {
+      "usd": 0.0,
+      "requests": 3.0
+    },
+    "2026-09-07": {
+      "usd": 0.0
+    },
+    "2026-09-08": {
+      "usd": 0.0
+    },
+    "2026-09-09": {
+      "usd": 0.0
+    },
+    "2026-09-11": {
+      "limits": 80857.0
+    },
+    "2026-09-17": {
+      "requests": 263.0
+    },
+    "2026-09-18": {
+      "requests": 5914.0,
+      "limits": 75770.0
+    },
+    "2026-09-19": {
+      "requests": 1762.0
+    },
+    "2026-09-20": {
+      "requests": 2.0,
+      "limits": 12782.0
+    },
+    "2026-09-22": {
+      "usd": 0.0
+    },
+    "2026-09-23": {
+      "requests": 11.0,
+      "usd": 0.0
+    },
+    "2026-09-24": {
+      "usd": 0.0
+    },
+    "2026-09-26": {
+      "usd": 0.0
+    },
+    "2026-09-30": {
+      "requests": 2.0
+    },
+    "2026-10-01": {
+      "requests": 71.0,
+      "usd": 0.0
+    },
+    "2026-10-02": {
+      "requests": 500.0,
+      "usd": 0.0
+    },
+    "2026-10-03": {
+      "requests": 510.0,
+      "usd": 0.0
+    },
+    "2026-10-04": {
+      "requests": 793.0,
+      "usd": 0.0
+    },
+    "2026-10-06": {
+      "requests": 15.0,
+      "usd": 0.0
+    },
+    "2026-10-07": {
+      "requests": 15.0,
+      "usd": 0.0
+    },
+    "2026-10-08": {
+      "requests": 20.0,
+      "usd": 0.0,
+      "limits": 448.0
+    },
+    "2026-10-09": {
+      "requests": 50.0,
+      "usd": 0.0
+    }
+  },
+  "uncertain": [],
+  "log": "<config>/spend.jsonl"
+}

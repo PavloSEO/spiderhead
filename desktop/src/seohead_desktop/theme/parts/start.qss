@@ -1,0 +1,24 @@
+/* screens Start and Onboarding */
+QWidget#startPage { background: $raised; }
+QWidget[plain="true"] { background: transparent; }
+QListView[project_list="true"] { background: transparent; border: 0; outline: 0; }
+QScrollArea { background: transparent; border: 0; }
+
+QPushButton[opt="true"] { border: 1px solid $divider; border-radius: ${radius_card}px; background: $base; text-align: left; padding: 0; min-height: 96px; }
+QPushButton[opt="true"]:hover { background: $raised; }
+QPushButton[opt="true"]:checked { border: 2px solid $primary; background: $choice_bg; }
+QPushButton[opt="true"]:focus { border: 2px solid $ring; }
+QPushButton[opt="true"] QLabel { background: transparent; }
+
+QFrame[onb_part="rail"] { background: $raised; border: 0; border-right: 1px solid $divider_inner; border-top-left-radius: ${radius_card}px; border-bottom-left-radius: ${radius_card}px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+QFrame[rail_item="true"] { background: transparent; border: 0; border-radius: ${radius_control}px; }
+QFrame[rail_item="true"][step="on"] { background: $base; }
+QFrame[onb_part="footer"] { background: transparent; border: 0; border-top: 1px solid $divider_inner; border-radius: 0; }
+QFrame[onb_field="true"] { background: $base; border: 1px solid $outline; border-radius: ${radius_control}px; }
+QLabel[step="on"] { color: $text; font-weight: 500; }
+QLabel[step="todo"], QLabel[step="done"] { color: $text_3; font-weight: 500; }
+QLabel[step_dot="true"] { border-radius: 11px; font-size: ${font_meta}px; font-weight: 500; }
+QLabel[step_dot="true"][step="on"] { background: $primary; color: $on_primary; }
+QLabel[step_dot="true"][step="done"] { background: $badge_ok_bg; color: $badge_ok_fg; }
+QLabel[step_dot="true"][step="todo"] { background: $badge_mut_bg; color: $badge_mut_fg; }
+QLabel[low="true"] { color: $warning; }

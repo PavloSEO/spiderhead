@@ -65,6 +65,32 @@ def validate_context(
         raise ScanError("native scan context payload is invalid JSON") from exc
     from . import sitemaps
 
+    if item["kind"] == "analysis_asset_thresholds":
+        from seohead.crawl.settings import DEFAULTS
+
+        if (
+            item["item_key"] != "run"
+            or item["completeness"] != "complete"
+            or item["reason"]
+            or not isinstance(payload, dict)
+            or set(payload) != {"schema_version", "thresholds"}
+            or payload["schema_version"] != "analysis_asset_thresholds.v1"
+            or not isinstance(payload["thresholds"], dict)
+            or set(payload["thresholds"]) != set(DEFAULTS["analysis"]["asset_thresholds"])
+            or any(
+                type(value) is not int or not 0 < value < 2**63
+                for value in payload["thresholds"].values()
+            )
+        ):
+            raise ScanError("native analysis asset thresholds context is invalid")
+        return
+
+    if item["kind"] == "links.position":
+        from .link_positions import validate_checkpoint
+
+        validate_checkpoint(con, item, payload)
+        return
+
     if item["kind"] == "list_mode":
         if (
             item["item_key"] != "run"
@@ -183,6 +209,11 @@ def validate_context(
 
         validate_content_evidence(con, item, payload)
         return
+    if item["kind"] == "markup_evidence":
+        from .markup_evidence import validate_context as validate_markup_evidence
+
+        validate_markup_evidence(con, item, payload)
+        return
     if item["kind"] == "browser_artifacts":
         from .browser_artifacts import validate_context as validate_browser_artifacts
 
@@ -195,6 +226,11 @@ def validate_context(
         return
     if item["kind"] == "extraction_rule_evidence":
         _validate_extraction_rule_evidence(con, item, payload)
+        return
+    if item["kind"] == "head_links":
+        from .head_links import validate_context as validate_head_links
+
+        validate_head_links(con, item, payload)
         return
     if item["kind"] == "target_probe":
         from .target_probes import validate_context as validate_target_probe

@@ -13,7 +13,7 @@ describe what a tool *may* do; most writes need an explicit flag such as `--appl
 and paid providers keep their sandbox or preview defaults where one exists.
 
 Grouped CLI forms are aliases: `seohead scan list` is `scan-list` and `seohead project progress`
-is `project-progress`.
+is `project-progress`; `seohead logs bots` is `logs-bots`.
 
 ## Entry points that are not single tools
 
@@ -27,7 +27,7 @@ is `project-progress`.
 | `mcp` | Start the local stdio MCP server; `--profile` selects `full`, `audit`, `infra`, `quick-check` or `router` ([MCP profiles](MCP_PROFILES.md)). |
 | `watch` | Optional Rich terminal observer for one project beside an AI chat ([terminal observer](TERMINAL.md)). Needs the `tui` extra. |
 | `tui` | Interactive terminal shell over the same handlers ([TERMINAL.md](TERMINAL.md)). Needs the `tui` extra. |
-| `scan`, `project`, `skill`, `scenario` | Grouped aliases for the `scan-*`, `project-*`, `skill-*` and `scenario-*` commands below. |
+| `scan`, `project`, `logs`, `skill`, `scenario` | Grouped aliases for the `scan-*`, `project-*`, `logs-*`, `skill-*` and `scenario-*` commands below. |
 
 The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf_audit_tasks`,
 `sf_list_exports`) expose the Screaming Frog analyzer to agents. The `seo_semantics_*` MCP tools
@@ -68,6 +68,8 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `scan-fragment-links` | Evaluate every retained fragment anchor offline and page the results. | offline, read-only |
 | `scan-structured-blocks` | Describe one retained URL's JSON-LD blocks offline: line, state, graph findings and source JSON. | offline, read-only |
 | `scan-body-diff` | Compare compatible retained bodies offline; a change is not an SEO verdict. | offline, read-only |
+| `scan-graph` | Read a bounded retained internal graph by positions, section or local neighbourhood; compare scans. |
+| `scan-sitemap-generate` | Write local split XML and optional image sitemaps from retained canonical, indexable 200 pages. |
 | `scan-reanalyze` | Reparse retained HTML/DOM and rerun existing checks without network. | writes |
 | `scan-export` | Export retained scan data under scan_export.v1 as CSV, XLSX, JSON, or XML. | writes |
 | `scan-snapshot` | Create a consistent new SQLite snapshot without overwriting a destination. | writes |
@@ -106,9 +108,16 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `crtsh-subdomains` | Subdomains discovered from public Certificate Transparency logs (crt.sh). | network |
 | `cloudflare-traffic` | Bot and human traffic for a Cloudflare zone from edge analytics (aggregated, not raw logs), shaped like `log-analyze`. | network |
 | `wayback-history` | Every recorded Wayback Machine snapshot of a URL, oldest first: timestamp, HTTP status, and MIME type at capture time. | network |
-| `log-analyze` | Analyse a web server access log (Apache/Nginx Common or Combined, IIS W3C; gzip-compressed files are read directly). | network |
+| `log-analyze` | Analyse a supplied access log with exact IP totals and bounded per-IP evidence. DNS is explicit. | network |
+| `logs-import` | Retain supplied access-log files or a directory in a fresh local project artifact. | writes |
+| `logs-summary` | Read exact paged URL/IP/bot/date/status/section aggregates. | offline, read-only |
+| `logs-join` | Join log visits with a retained native scan; missing evidence stays unavailable. | offline, read-only |
+| `logs-bots` | Read per-IP DNS evidence or explicitly refresh a bounded local cache. | network, writes |
 | `regions-check` | Audit a site's regional structure: subdomains (msk.site.ru), folders (site.ru/msk/) and satellite domains (site-msk.ru). | network |
 | `backlinks-check` | Verify backlinks from a list of donor pages: is the link still there, its anchor and rel, whether it passes weight (nofollow/ugc/sponsored), and whether the donor… | network |
+| `backlinks-profile` | Merge explicit backlink CSV/provider evidence, retain private history, or read history with --history; source calls are explicit. | network, writes, paid opt-in |
+| `backlinks-disavow` | Export only reviewed donor domains/URLs to a new local file; never submit or overwrite. | writes |
+| `dataforseo-estimate` | Quote supplied provider prices offline; --refresh-prices explicitly reads the free account price endpoint. | network opt-in |
 
 ## AI search readiness (GEO/AEO)
 
@@ -352,3 +361,19 @@ scans or update the project. Notes/goals still require their explicit editor act
 seohead watch --project workspace/site --lang ru --compact
 seohead tui --project workspace/site --lang en --compact
 ```
+
+## Retained link graph and sitemap files
+
+`seohead scan graph` is also available as `seohead scan-graph`. It accepts `--scan`,
+`--section`, `--positions`, `--around`, `--depth`, `--aggregate sections`, independent
+`--node-offset`/`--edge-offset` and row limits, `--max-nodes`, `--max-edges`,
+`--timeout-seconds`, `--max-bytes`, and `--compare-to`. JSON totals and clipping state
+make partial graph pages explicit.
+
+`seohead scan sitemap-generate` (alias `scan-sitemap-generate`) accepts `--scan`,
+`--out-dir`, `--sitemap-base-url`, optional `--include-images` and repeated `--exclude`
+globs. The output directory must be new; the deployment base must be a same-origin
+HTTP(S) directory URL. It performs no requests or deployment.
+
+`scan-reanalyze --step links.position --max-documents N` performs one offline position
+batch into a fresh derived output. Use that output as the next input to continue.

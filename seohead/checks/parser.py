@@ -28,6 +28,7 @@ from typing import Any, Literal, cast
 from urllib.parse import parse_qsl, urljoin, urlparse
 
 from bs4 import BeautifulSoup, Tag
+from bs4.builder import HTMLTreeBuilder
 
 from seohead.checks.content_area import TEXT_EXCLUDED_TAGS, extract_area_text, resolve_content_area
 from seohead.checks.text_normalize import declared_language
@@ -380,6 +381,42 @@ def _canonical_tag(soup: BeautifulSoup) -> Any:
     return None
 
 
+def extract_head_links(soup: BeautifulSoup, base_url: str) -> list[dict[str, str]]:
+    """Raw canonical/pagination attributes beside their resolved targets, bounded per page.
+
+    Unknown relation keywords remain unknown. Only a literal canonical token or
+    one separated by malformed comma/semicolon/non-ASCII whitespace is retained
+    as a canonical annotation candidate; misspellings are never inferred.
+    """
+    declarations = []
+    for tag in soup.find_all("link"):
+        if _has_ancestor(tag, _INERT_LINK_CONTAINERS):
+            continue
+        rel = tag.get("rel") or ""
+        rel = rel if isinstance(rel, str) else " ".join(rel)
+        candidate = re.search(r"(?:^|[\s,;])(?ai:canonical)(?:$|[\s,;])", rel)
+        if not candidate and not any(_rel_has(token)(rel) for token in ("next", "prev")):
+            continue
+        href = tag.get("href") or ""
+        href = href if isinstance(href, str) else str(href)
+        try:
+            target = urljoin(base_url, href.strip()) if href.strip() else ""
+        except ValueError:
+            target = ""
+        declaration = {"rel": rel, "href": href, "target": target}
+        # Google ignores canonicals carrying alternate-version attributes.
+        for name in ("hreflang", "lang", "media", "type"):
+            if name in tag.attrs:
+                value = tag.get(name)
+                declaration[name] = (
+                    value if isinstance(value, str) else "" if value is None else str(value)
+                )
+        declarations.append(declaration)
+        if len(declarations) == 100:
+            break
+    return declarations
+
+
 # A robots directive is addressed to a named crawler; ``robots`` addresses all
 # of them. Google reads the union of the generic tag and the ones naming it, so
 # a page can be noindex without the word appearing in <meta name="robots">.
@@ -468,9 +505,7 @@ def _hreflang_tags(soup: BeautifulSoup) -> list[Any]:
         hreflang = tag.get("hreflang")
         if not hreflang:
             continue
-        rel_attr: str | list[str] = tag.get("rel") or []
-        rel_tokens = rel_attr.split() if isinstance(rel_attr, str) else list(rel_attr)
-        if any(isinstance(t, str) and t.lower() == "alternate" for t in rel_tokens):
+        if _rel_has("alternate")(tag.get("rel")):
             out.append(tag)
     return out
 
@@ -920,6 +955,16 @@ def count_lorem_ipsum(content_text: str) -> int:
 _JSONLD_EXCERPT_CHARS = 200
 
 
+def live_jsonld_tags(soup: BeautifulSoup) -> list[Tag]:
+    """Use the same normalized type and inert-content policy for all JSON-LD readers."""
+    return [
+        tag
+        for tag in soup.find_all("script")
+        if str(tag.get("type") or "").strip().lower() == "application/ld+json"
+        and not _has_ancestor(tag, _INERT_LINK_CONTAINERS)
+    ]
+
+
 def _extract_jsonld(soup: BeautifulSoup) -> tuple[list[Any], list[dict[str, Any]]]:
     """Parse every ``<script type="application/ld+json">`` block.
 
@@ -936,11 +981,7 @@ def _extract_jsonld(soup: BeautifulSoup) -> tuple[list[Any], list[dict[str, Any]
 
     out: list[Any] = []
     invalid: list[dict[str, Any]] = []
-    live_blocks = [
-        tag
-        for tag in soup.find_all("script", attrs={"type": _ci("application/ld+json")})
-        if not _has_ancestor(tag, _INERT_LINK_CONTAINERS)
-    ]
+    live_blocks = live_jsonld_tags(soup)
     for index, tag in enumerate(live_blocks, 1):
         raw = tag.string or tag.get_text()
         text = (raw or "").strip()
@@ -1381,6 +1422,64 @@ def _link_info(
     return entry
 
 
+_DISCLOSURE_MARKER = re.compile(
+    r"\b(?:sponsored|paid\s+(?:partnership|placement|post|content)|advertisement|"
+    r"affiliate\s+links?|реклама|рекламный|партн[её]рский\s+материал)\b",
+    re.IGNORECASE,
+)
+
+
+def sponsorship_disclosure(tag: Tag) -> dict[str, Any]:
+    """Bounded local text markers; a review heuristic, never a legal verdict.
+
+    Inspect the nearest text block and its preceding sibling label. Unrelated
+    footer text, attributes, scripts and explicitly hidden text cannot disclose
+    this placement. CSS visibility and other languages remain outside the test.
+    """
+    block = tag.find_parent(["p", "li", "div", "section", "article", "td", "figure"])
+    block = block if isinstance(block, Tag) else tag
+    previous = block.find_previous_sibling()
+    roots = [previous, block] if isinstance(previous, Tag) else [block]
+    parts: list[str] = []
+    size = 0
+    truncated = False
+    for root in roots:
+        for text in root.strings:
+            parents = list(text.parents)
+            if any(
+                parent.name in TEXT_EXCLUDED_TAGS
+                or parent.has_attr("hidden")
+                or str(parent.get("aria-hidden", "")).lower() == "true"
+                or re.search(
+                    r"(?:display\s*:\s*none|visibility\s*:\s*hidden)",
+                    str(parent.get("style", "")),
+                    re.I,
+                )
+                for parent in parents
+            ):
+                continue
+            part = collapse_whitespace(str(text))
+            if size + len(part) > 500:
+                parts.append(part[: max(0, 500 - size)])
+                truncated = True
+                break
+            parts.append(part)
+            size += len(part) + 1
+        if truncated:
+            break
+    context = " ".join(parts)[:500]
+    marker = _DISCLOSURE_MARKER.search(context)
+    return {
+        "state": "partial" if truncated else "measured",
+        "detected": bool(marker),
+        "marker": marker.group(0) if marker else None,
+        "context": context,
+        "context_truncated": truncated,
+        "basis": "local_text_marker",
+        "heuristic": True,
+    }
+
+
 def _extract_link_observations(
     soup: BeautifulSoup,
     base_url: str,
@@ -1678,7 +1777,9 @@ def extract_resource_declarations(
             attr = "src"
         else:
             rel_values: Any = tag.get("rel") or []
-            rels: list[Any] = [rel_values] if isinstance(rel_values, str) else list(rel_values)
+            rels: list[Any] = (
+                rel_values.split() if isinstance(rel_values, str) else list(rel_values)
+            )
             if not any(str(rel).lower() == "stylesheet" for rel in rels):
                 continue
             kind, attr = "stylesheet", "href"
@@ -2008,12 +2109,19 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
     link_cap = _link_cap(options, "max_link_observations")
     form_cap = _link_cap(options, "max_form_observations")
     resource_cap = _resource_declaration_cap(options, opts["resource_declarations"])
-    soup = BeautifulSoup(html, features="lxml")
+    # Preserve link rel text: default tokenization erases malformed separators.
+    attributes = {
+        key: set(values) for key, values in HTMLTreeBuilder.DEFAULT_CDATA_LIST_ATTRIBUTES.items()
+    }
+    attributes["link"].discard("rel")
+    soup = BeautifulSoup(html, features="lxml", multi_valued_attributes=attributes)
     # Everything that turns markup into absolute URLs resolves against the
     # document base, not the page URL: see document_base_url.
     base_url = document_base_url(soup, final_url)
 
     result: dict[str, Any] = {}
+    result["head_links"] = extract_head_links(soup, base_url)
+    result["document_base_url"] = base_url
 
     if opts["meta"]:
         result["title"] = document_title(soup)
@@ -2050,11 +2158,20 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
         result["meta_refresh"] = ""
         result["html_amp"] = False
 
+    # Resource markup is measured independently of the metadata extraction option.
+    # asset_weight imports parser, so importing here avoids a module cycle.
+    from seohead.checks.asset_weight import find_render_blocking_resources
+
+    result["render_blocking"] = [r["url"] for r in find_render_blocking_resources(soup, base_url)]
+
     if opts["canonical"]:
         canonical_tag = _canonical_tag(soup)
         # "href" is single-valued, so this is always a plain string.
         href = cast("str | None", canonical_tag.get("href")) if canonical_tag else None
-        result["canonical"] = urljoin(base_url, href.strip()) if href else None
+        try:
+            result["canonical"] = urljoin(base_url, href.strip()) if href else None
+        except ValueError:
+            result["canonical"] = None
     else:
         result["canonical"] = None
 
@@ -2111,6 +2228,9 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
     # above -- with the option off there are none to read.
     result["trust_signals"] = extract_trust_signals(soup, result["jsonld"], final_url)
     result["duplicate_ids"] = extract_duplicate_ids(soup)
+    from seohead.checks.markup import markup_facts
+
+    result["markup"] = markup_facts(html, soup)
     if opts["links"]:
         content_config = options.get("content_area") if isinstance(options, dict) else None
         position_rules = options.get("link_position_rules") if isinstance(options, dict) else None
@@ -2244,7 +2364,7 @@ def _rel_has(token: str) -> Callable[[Any], bool]:
     def _matcher(value: Any) -> bool:
         if value is None:
             return False
-        tokens = value.split() if isinstance(value, str) else list(value)
+        tokens = re.split(r"[ \t\r\n\f]+", value) if isinstance(value, str) else list(value)
         return any(isinstance(t, str) and t.lower() == target for t in tokens)
 
     return _matcher

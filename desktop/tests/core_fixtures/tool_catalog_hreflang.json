@@ -1,0 +1,54 @@
+{
+  "ok": true,
+  "total": 2,
+  "items": [
+    {
+      "name": "seo_hreflang_check",
+      "command": "hreflang-check",
+      "summary": "Extract and validate a page's hreflang alternates (x-default, self-reference, duplicates, malformed codes).",
+      "notes": "",
+      "arguments": [
+        {
+          "name": "url",
+          "type": "str",
+          "default": "required"
+        }
+      ],
+      "network": true,
+      "writes": false,
+      "destructive": false,
+      "idempotent": true,
+      "paid": false
+    },
+    {
+      "name": "seo_segment_diff",
+      "command": "segment-diff",
+      "summary": "Cross-segment counterpart diff (#358): which pages in the ``source`` segment (e.g. \"en\") have a counterpart in the ``target`` segment (e.g. \"pl\"), and which do not. Requires a native crawl whose scope.segments were declared and whose pages carry hreflang alternates (#357) — an audit missing either is refused by name. Classifies every eligible page into exactly one of: declared (hreflang names the counterpart and it was crawled), declared_not_crawled (hreflang names one the crawl never reached), inferred (no hreflang, but the mirrored path exists and this site's own mirror rate measured high enough to trust that), absent (no counterpart by either method), or undetermined (naming why neither method could safely answer — e.g. a translated slug on a site whose mirror rate is too low for path inference, or a target segment the crawl only partially reached, where \"absent\" would be an unsupported negative claim).",
+      "notes": "",
+      "arguments": [
+        {
+          "name": "audit",
+          "type": "Any",
+          "default": "required"
+        },
+        {
+          "name": "source",
+          "type": "str",
+          "default": "required"
+        },
+        {
+          "name": "target",
+          "type": "str",
+          "default": "required"
+        }
+      ],
+      "network": false,
+      "writes": false,
+      "destructive": false,
+      "idempotent": true,
+      "paid": false
+    }
+  ],
+  "has_more": false,
+  "access": "Use the matching startup profile or full profile for direct low-level calls; high-level workflows invoke their bounded steps internally."
+}

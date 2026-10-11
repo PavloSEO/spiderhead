@@ -193,6 +193,7 @@ _SCRIPT_STYLE_RE = re.compile(
 )
 _TAG_RE = re.compile(r"<[^>]+>")
 _BROWSER_RESPONSE_BYTES = 5 * 1024 * 1024
+_BROWSER_WEIGHT_RESPONSES = 2_000
 _RENDER_CANCELLED = "browser rendering cancelled"
 
 
@@ -267,11 +268,118 @@ def _guard_browser_route(route) -> None:
     route.abort("blockedbyclient")
 
 
+class _BrowserWeight:
+    """Count delivered responses and bounded image dimensions; retain no bodies."""
+
+    def __init__(self, target: str) -> None:
+        self.host = urlparse(target).hostname
+        self.totals = dict.fromkeys(
+            ("bytes", "html_bytes", "image_bytes", "font_bytes", "third_party_bytes"), 0
+        )
+        self.observed = 0
+        self.unmeasured = 0
+        self.reason = ""
+        self.documents = 0
+        self.pending = 0
+        self.image_dimensions: dict[str, dict[str, int]] = {}
+
+    def started(self, request: Any) -> None:
+        if urlparse(str(getattr(request, "url", ""))).scheme in {"http", "https"}:
+            self.pending += 1
+
+    def omit(self, reason: str, *, completed_request: bool = False) -> None:
+        if completed_request:
+            self.pending = max(0, self.pending - 1)
+        self.unmeasured += 1
+        if not self.reason:
+            self.reason = reason
+
+    def delivered(
+        self,
+        request: Any,
+        mime: str,
+        size: int,
+        body: bytes | bytearray | None = None,
+        status: int | None = None,
+    ) -> None:
+        self.pending = max(0, self.pending - 1)
+        if self.observed >= _BROWSER_WEIGHT_RESPONSES:
+            self.omit("pinned-browser response observation budget exhausted")
+            return
+        self.observed += 1
+        self.totals["bytes"] += size
+        kind = getattr(request, "resource_type", "")
+        mime = mime.partition(";")[0].strip().lower()
+        if kind == "document":
+            self.documents += 1
+            self.totals["html_bytes"] += size
+        if kind == "image" or mime.startswith("image/"):
+            self.totals["image_bytes"] += size
+            url = str(request.url)
+            if body is not None and len(url) <= 2048:
+                from seohead.storage.resource_graph import _image_dimensions
+
+                dimensions: dict[str, int] = {}
+                # Inspect metadata, never a pixel buffer; unsupported or oversized
+                # image declarations must not break delivery or imply a size.
+                with contextlib.suppress(Exception):
+                    width, height = _image_dimensions(body)
+                    if width is not None and height is not None:
+                        dimensions = {
+                            "intrinsic_width": width,
+                            "intrinsic_height": height,
+                        }
+                        if type(status) is int:
+                            dimensions["status_code"] = status
+                previous = self.image_dimensions.get(url)
+                # One URL can answer differently on repeated actual requests.
+                # Conflicting metadata cannot identify the body each element used.
+                self.image_dimensions[url] = (
+                    dimensions if previous is None or previous == dimensions else {}
+                )
+        if (
+            kind == "font"
+            or mime.startswith("font/")
+            or mime
+            in {"application/font-woff", "application/x-font-ttf", "application/vnd.ms-fontobject"}
+        ):
+            self.totals["font_bytes"] += size
+        if urlparse(str(request.url)).hostname != self.host:
+            self.totals["third_party_bytes"] += size
+
+    def finish(self) -> dict[str, Any]:
+        missing_document = not self.documents
+        state = (
+            "unavailable"
+            if not self.observed
+            else "partial"
+            if self.unmeasured or self.pending or missing_document
+            else "complete"
+        )
+        return {
+            "state": state,
+            "reason": self.reason
+            or (
+                "pinned-browser requests were unfinished at capture"
+                if self.pending
+                else "no document response delivered by pinned-browser navigation"
+                if missing_document
+                else ""
+            ),
+            **{key: value if self.observed else None for key, value in self.totals.items()},
+            "responses_observed": self.observed,
+            "responses_unmeasured": self.unmeasured + self.pending,
+            "unit": "content-decoded bytes",
+            "scope": "current pinned-browser navigation window",
+        }
+
+
 def _pinned_browser_route(
     client: Any,
     *,
     request_gate: Callable[[], None] | None = None,
     max_response_bytes: int = _BROWSER_RESPONSE_BYTES,
+    weight_observer: _BrowserWeight | None = None,
 ) -> tuple[Callable[[Any], None], list[str]]:
     """Build a Playwright fulfiller backed by the shared pinned HTTP transport."""
     if type(max_response_bytes) is not int or max_response_bytes < 1:
@@ -280,6 +388,10 @@ def _pinned_browser_route(
     policy = client_network_policy(client)
 
     def abort(route: Any, reason: str) -> None:
+        if weight_observer is not None:
+            weight_observer.omit(
+                "pinned-browser request failed or was aborted", completed_request=True
+            )
         if reason not in limitations:
             limitations.append(reason)
         route.abort("blockedbyclient")
@@ -375,6 +487,14 @@ def _pinned_browser_route(
                 route.fulfill(
                     status=response.status_code, headers=response_headers, body=bytes(body)
                 )
+                if weight_observer is not None:
+                    weight_observer.delivered(
+                        request,
+                        response.headers.get("content-type", ""),
+                        len(body),
+                        body,
+                        response.status_code,
+                    )
         except RenderCancelled:
             abort(route, _RENDER_CANCELLED)
         except Exception as exc:
@@ -383,10 +503,16 @@ def _pinned_browser_route(
     return handler, limitations
 
 
-def _guard_websocket_route(ws_route: Any, limitations: list[str] | None = None) -> None:
+def _guard_websocket_route(
+    ws_route: Any,
+    limitations: list[str] | None = None,
+    weight_observer: _BrowserWeight | None = None,
+) -> None:
     """Fail closed because this renderer has no pinned WebSocket transport."""
     if limitations is not None and _BLOCKED_WEBSOCKET_LIMITATION not in limitations:
         limitations.append(_BLOCKED_WEBSOCKET_LIMITATION)
+    if weight_observer is not None:
+        weight_observer.omit(_BLOCKED_WEBSOCKET_LIMITATION)
     ws_route.close()
 
 
@@ -553,12 +679,24 @@ _BACKGROUND_IMAGES_JS = """() => {
   return Array.from(found);
 }"""
 
-# Intrinsic pixel size against the box each image is drawn in. Only a rendered
-# layout can say this: the HTML carries the file's size, not the CSS box.
+# Browser natural sizes are density-corrected CSS pixels, not file pixels.
+# Physical image dimensions come from the already-delivered pinned body.
 _IMAGE_BOXES_JS = """() => {
-  const images = Array.from(document.querySelectorAll('img')).map((img) => {
+  const all = Array.from(document.querySelectorAll('img'));
+  const images = all.slice(0, 2000).map((img) => {
     const rect = img.getBoundingClientRect();
-    const src = img.currentSrc || img.src || '';
+    const style = getComputedStyle(img);
+    const spacing = ['paddingLeft', 'paddingRight', 'paddingTop', 'paddingBottom',
+      'borderLeftWidth', 'borderRightWidth', 'borderTopWidth', 'borderBottomWidth']
+      .some((key) => parseFloat(style[key]) > 0);
+    const transformed = style.transform !== 'none'
+      || Math.abs(rect.width - img.offsetWidth) > 0.5
+      || Math.abs(rect.height - img.offsetHeight) > 0.5;
+    const geometryReason = style.objectFit !== 'fill' ? 'object-fit image geometry is not measured'
+      : spacing ? 'image padding or border geometry is not measured'
+      : transformed ? 'transformed image geometry is not measured' : '';
+    const candidate = img.currentSrc || img.src || '';
+    const src = candidate.length <= 2048 && !/^(data|blob):/.test(candidate) ? candidate : '';
     const entry = src ? performance.getEntriesByName(src)[0] : null;
     return {
       src: src,
@@ -567,9 +705,12 @@ _IMAGE_BOXES_JS = """() => {
       rendered_width: Math.round(rect.width),
       rendered_height: Math.round(rect.height),
       encoded_bytes: entry ? (entry.encodedBodySize || 0) : 0,
+      geometry_state: geometryReason ? 'unavailable' : 'complete',
+      geometry_reason: geometryReason,
     };
   });
-  return {dpr: window.devicePixelRatio || 1, images: images};
+  return {dpr: window.devicePixelRatio || 1, images: images,
+          images_omitted: Math.max(0, all.length - images.length)};
 }"""
 
 # An image counts as oversized only when it is at least this heavy on the wire;
@@ -586,26 +727,38 @@ def image_sizing_findings(
     ``oversized``: the file has more than ``IMAGE_OVERSIZED_RATIO`` times the pixels
     the box can show, and weighs at least ``IMAGE_OVERSIZED_MIN_BYTES``.
     ``upscaled``: the file is narrower than the box in device pixels, so it blurs.
-    Images that did not load or are not rendered (zero natural or box size) are
-    skipped rather than measured as zero. One entry per source URL.
+    Requires physical ``intrinsic_width``/``intrinsic_height`` from the delivered
+    file. Browser naturalWidth is density-corrected and cannot substitute.
+    Unproved dimensions and zero display boxes are skipped, not measured as zero.
     """
-    seen: set[str] = set()
+    seen: set[tuple] = set()
     oversized: list[dict[str, Any]] = []
     upscaled: list[dict[str, Any]] = []
     for img in images:
         src = str(img.get("src") or "")
-        natural_w = int(img.get("natural_width") or 0)
+        natural_w = int(img.get("intrinsic_width") or 0)
+        natural_h = int(img.get("intrinsic_height") or 0)
         rendered_w = int(img.get("rendered_width") or 0)
         rendered_h = int(img.get("rendered_height") or 0)
-        if not src or src in seen or natural_w <= 0 or rendered_w <= 0 or rendered_h <= 0:
+        key = (src, natural_w, rendered_w, rendered_h)
+        if (
+            not src
+            or img.get("geometry_state") == "unavailable"
+            or key in seen
+            or natural_w <= 0
+            or natural_h <= 0
+            or rendered_w <= 0
+            or rendered_h <= 0
+        ):
             continue
-        seen.add(src)
+        seen.add(key)
         needed_w = rendered_w * dpr
         entry = {
             "src": src,
-            "natural": [natural_w, int(img.get("natural_height") or 0)],
+            "natural": [natural_w, natural_h],
             "rendered": [rendered_w, rendered_h],
             "dpr": dpr,
+            **({"status_code": img["status_code"]} if type(img.get("status_code")) is int else {}),
         }
         if (
             natural_w > IMAGE_OVERSIZED_RATIO * needed_w
@@ -615,6 +768,80 @@ def image_sizing_findings(
         elif natural_w < needed_w:
             upscaled.append(entry)
     return {"oversized": oversized, "upscaled": upscaled}
+
+
+def _render_asset_evidence(page: Any, coverage: Any, weight: _BrowserWeight) -> dict[str, Any]:
+    """Capture bounded layout evidence separately from HTML and field metrics."""
+    try:
+        boxes = page.evaluate(_IMAGE_BOXES_JS)
+        if not isinstance(boxes, dict) or not isinstance(boxes.get("images"), list):
+            raise ValueError("image boxes are unavailable")
+        images = [
+            {
+                **img,
+                **(
+                    weight.image_dimensions.get(img.get("src"), {})
+                    if img.get("natural_width")
+                    and img.get("natural_height")
+                    and img.get("geometry_state") != "unavailable"
+                    else {}
+                ),
+            }
+            for img in boxes["images"]
+        ]
+        sizing = image_sizing_findings(images, float(boxes.get("dpr") or 1))
+        unmeasured = sum(
+            not img.get("src")
+            or not img.get("intrinsic_width")
+            or not img.get("intrinsic_height")
+            or not img.get("rendered_width")
+            or not img.get("rendered_height")
+            or not img.get("encoded_bytes")
+            for img in images
+        )
+        layout = {
+            "state": "unavailable"
+            if images and unmeasured == len(images)
+            else "partial"
+            if boxes.get("images_omitted") or unmeasured
+            else "complete",
+            "reason": "physical image dimensions, delivered body size or visible layout unavailable"
+            if unmeasured
+            else "image observation budget exceeded"
+            if boxes.get("images_omitted")
+            else "",
+            "images_observed": len(images),
+            "images_unmeasured": unmeasured,
+            "images_omitted": boxes.get("images_omitted", 0),
+            "image_sizing": sizing,
+            "min_encoded_bytes": IMAGE_OVERSIZED_MIN_BYTES,
+            "oversized_ratio": IMAGE_OVERSIZED_RATIO,
+        }
+        geometry_reasons = sorted(
+            {img["geometry_reason"] for img in images if img.get("geometry_reason")}
+        )
+        if geometry_reasons:
+            layout["reason"] = "; ".join(geometry_reasons)
+    except Exception:
+        layout = {
+            "state": "unavailable",
+            "reason": "native render did not capture image display sizes",
+        }
+    result = {
+        "source": "native-render",
+        "layout": layout,
+        "coverage": coverage.finish(),
+        "weight": weight.finish(),
+    }
+    if len(json.dumps(result, ensure_ascii=True)) > 512 * 1024:
+        reason = "native render asset summary exceeds the 512 KiB retention bound"
+        return {
+            "source": "native-render",
+            "layout": {"state": "unavailable", "reason": reason},
+            "coverage": {"state": "unavailable", "reason": reason},
+            "weight": weight.finish(),
+        }
+    return result
 
 
 def _visible_text(html: str) -> str:
@@ -1033,6 +1260,10 @@ def render_check(
 
     navigation = NavigationCapture(target, wait, timeout)
     transport_info["navigation"] = navigation.data
+    weight = _BrowserWeight(target)
+    asset_evidence = {"source": "native-render", "weight": weight.finish()}
+    transport_info["asset_evidence"] = asset_evidence
+    coverage = None
     render_completed = False
 
     # Fetch raw HTML with the regular client: this is what a non-rendering crawler receives.
@@ -1127,17 +1358,21 @@ def render_check(
                 context = open_context(browser, endpoint, context_options)
                 context.add_init_script(_CLS_INIT_JS)
                 route_handler, limitations = _pinned_browser_route(
-                    browser_client, request_gate=request_gate
+                    browser_client, request_gate=request_gate, weight_observer=weight
                 )
                 context.route("**/*", route_handler)
                 # WebSockets are not HTTP requests and page.route() never sees
                 # them either; route_web_socket is the separate interception
                 # point that covers them.
                 context.route_web_socket(
-                    "**/*", lambda ws_route: _guard_websocket_route(ws_route, limitations)
+                    "**/*", lambda ws_route: _guard_websocket_route(ws_route, limitations, weight)
                 )
                 page = context.new_page()
+                page.on("request", weight.started)
                 navigation.attach(context, page)
+                from seohead.checks.browser_coverage import BrowserCoverage
+
+                coverage = BrowserCoverage(page, engine)
                 wait_reached = _capture_dom(
                     page, target, wait, timeout, settle_ms, navigation_timeout
                 )
@@ -1146,7 +1381,6 @@ def render_check(
                 navigation.data["final_url"] = rendered_url
                 metrics = page.evaluate(_METRICS_JS)
                 computed_backgrounds = page.evaluate(_BACKGROUND_IMAGES_JS)
-                image_boxes = page.evaluate(_IMAGE_BOXES_JS) or {}
                 if limitations:
                     if _RENDER_CANCELLED in limitations:
                         return {
@@ -1157,8 +1391,12 @@ def render_check(
                             **transport_info,
                         }
                     raise RuntimeError("; ".join(limitations))
+                asset_evidence.update(_render_asset_evidence(page, coverage, weight))
                 render_completed = wait_reached == wait
             finally:
+                asset_evidence["weight"] = weight.finish()
+                if coverage is not None:
+                    coverage.close()
                 if context is not None:
                     try:
                         context.close()
@@ -1285,10 +1523,9 @@ def render_check(
         # Laboratory, not field data: one run from one machine. Field Core Web
         # Vitals come from CrUX and must not be inferred from this measurement.
         "metrics_lab": metrics,
-        # Evidence only, not findings: the SF-style check ids for these do not exist yet
-        # (#1049), so audits must not read them as an incorrectly-sized-images verdict.
-        "image_sizing": image_sizing_findings(
-            image_boxes.get("images") or [], float(image_boxes.get("dpr") or 1.0)
+        "asset_evidence": asset_evidence,
+        "image_sizing": (asset_evidence.get("layout") or {}).get(
+            "image_sizing", {"oversized": [], "upscaled": []}
         ),
         "findings": findings,
         "dual_crawl": dual_crawl,
@@ -1620,12 +1857,15 @@ def render_document(
     if endpoint is not None:
         renderer["transport"] = transport_facts
     browser_limitations: list[str] = []
+    weight = _BrowserWeight(target)
+    renderer["settings"]["asset_evidence"] = {"source": "native-render", "weight": weight.finish()}
+    coverage = None
     navigation = NavigationCapture(target, browser_cfg.get("wait_until", "load"), nav_timeout)
     renderer["navigation"] = navigation.data
     render_completed = False
 
-    # There is deliberately no request hook beside _capture_response. Reading the
-    # browser's own wire headers upgraded credentials_used the moment any request
+    # The weight observer counts request starts without reading wire headers.
+    # Reading those headers upgraded credentials_used the moment any request
     # carried Cookie:, and a browser carries back whatever the site's own
     # Set-Cookie gave it -- so a page that sets a session cookie and then asks for
     # one same-origin subresource, which is the ordinary shape of the web, had its
@@ -1721,15 +1961,19 @@ def render_document(
             renderer["engine_version"] = str(getattr(actual_browser, "version", "unknown"))
             try:
                 route_handler, browser_limitations = _pinned_browser_route(
-                    network_client, request_gate=request_gate
+                    network_client, request_gate=request_gate, weight_observer=weight
                 )
                 context.route("**/*", route_handler)
                 context.route_web_socket(
                     "**/*",
-                    lambda ws_route: _guard_websocket_route(ws_route, browser_limitations),
+                    lambda ws_route: _guard_websocket_route(ws_route, browser_limitations, weight),
                 )
                 page = context.new_page()
+                page.on("request", weight.started)
                 navigation.attach(context, page)
+                from seohead.checks.browser_coverage import BrowserCoverage
+
+                coverage = BrowserCoverage(page, engine)
                 if max_html_bytes is not None:
                     page.on("response", _capture_response)
                 page.on("console", _on_console)
@@ -1786,8 +2030,14 @@ def render_document(
                             "renderer": renderer,
                         }
                     raise RuntimeError("; ".join(browser_limitations))
+                renderer["settings"]["asset_evidence"] = _render_asset_evidence(
+                    page, coverage, weight
+                )
                 render_completed = True
             finally:
+                renderer["settings"]["asset_evidence"]["weight"] = weight.finish()
+                if coverage is not None:
+                    coverage.close()
                 try:
                     context.close()
                 finally:

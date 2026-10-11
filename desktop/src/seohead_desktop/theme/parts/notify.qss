@@ -1,0 +1,4 @@
+/* settings → Уведомления: table header line */
+QFrame[table_head="true"] { border: 0; border-bottom: 1px solid $divider; background: transparent; }
+QFrame[table_head="true"] QLabel { background: transparent; }
+QFrame[table_head="true"] QLabel[badge="mut"] { background: $badge_mut_bg; color: $badge_mut_fg; }

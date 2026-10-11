@@ -41,6 +41,7 @@ Public API:
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import nullcontext
@@ -50,7 +51,7 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from seohead.checks.parser import document_base_url, is_inert_template_content
+from seohead.checks.parser import _rel_has, document_base_url, is_inert_template_content
 from seohead.recon.net import UA, http_client
 
 DEFAULT_TIMEOUT = 15.0
@@ -74,7 +75,7 @@ LONG_CACHE_SECONDS = 7 * 24 * 3600
 MAX_IMPORTS_PER_FILE = 10
 
 _COMPRESSED_ENCODINGS = {"gzip", "br", "deflate", "zstd"}
-_MAX_AGE_RE = re.compile(r"max-age\s*=\s*(\d+)", re.IGNORECASE)
+_MAX_AGE_RE = re.compile(r"(?:^|,)\s*max-age\s*=\s*(\d+)(?=\s*(?:,|$))", re.IGNORECASE)
 _FONT_FACE_RE = re.compile(r"@font-face\s*\{([^}]*)\}", re.IGNORECASE | re.DOTALL)
 _FONT_DISPLAY_OK_RE = re.compile(r"font-display\s*:\s*(swap|fallback|optional)", re.IGNORECASE)
 # core-js/babel helpers are the standard marker a bundler leaves behind when it
@@ -140,6 +141,49 @@ def content_hash(text: str) -> str:
     return hashlib.sha256(normalized.encode("utf-8", "ignore")).hexdigest()
 
 
+def resource_delivery_evidence(body: bytes, kind: str, headers: Any) -> dict[str, Any]:
+    """Summarize a completed native resource fetch without retaining source code."""
+    from seohead.storage.bodies import decode_entity
+    from seohead.storage.resources import media_matches
+
+    kind = {"module": "script", "css_import": "stylesheet"}.get(kind, kind)
+    values: dict[str, str] = {}
+    for k, v in headers:
+        name = str(k).lower()
+        values[name] = ",".join(filter(None, (values.get(name), str(v))))
+    is_source = kind in {"script", "stylesheet"} and media_matches(
+        kind, values.get("content-type", "")
+    )
+    text = decode_entity(body, values.get("content-type", ""))[0] if is_source else ""
+    fonts = find_missing_font_display(text) if is_source and kind == "stylesheet" else []
+    evidence = {
+        "cache": check_cache_lifetime(values.get("cache-control")),
+        "source_state": "complete"
+        if is_source
+        else "unavailable"
+        if kind in {"script", "stylesheet"}
+        else "not_applicable",
+        "font_display": fonts[:20] if is_source else None,
+        "font_display_count": len(fonts) if is_source else None,
+        "font_display_omitted": max(0, len(fonts) - 20) if is_source else None,
+        "unminified": bool(text) and not looks_minified(text) if is_source else None,
+        "legacy_js": looks_legacy_transpiled(text) if is_source and kind == "script" else None,
+        # Exact bytes: stripping whitespace inside string literals can conflate different programs.
+        "sha256": hashlib.sha256(body).hexdigest()
+        if is_source and kind == "script" and body
+        else None,
+    }
+
+    # The retained validator caps the whole ASCII-escaped delivery envelope,
+    # not just the number of excerpts. Unicode escaping can expand short samples.
+    sample = evidence["font_display"]
+    if isinstance(sample, list):
+        while len(json.dumps(evidence, ensure_ascii=True)) > 16 * 1024:
+            sample.pop()
+            evidence["font_display_omitted"] = len(fonts) - len(sample)
+    return evidence
+
+
 def find_duplicate_libraries(resources: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Group fetched resources of the same kind by content hash.
 
@@ -200,12 +244,10 @@ def find_render_blocking_resources(soup: BeautifulSoup, base_url: str) -> list[d
     for tag in head.find_all("link"):
         if is_inert_template_content(tag):
             continue
-        rels = tag.get("rel") or []
-        rels = [rels] if isinstance(rels, str) else rels
         href = tag.get("href")
         if (
             href
-            and "stylesheet" in [r.lower() for r in rels]
+            and _rel_has("stylesheet")(tag.get("rel"))
             and is_render_blocking("link", tag.attrs)
         ):
             out.append({"url": urljoin(base_url, href), "tag": "link"})
@@ -280,6 +322,12 @@ def check_cache_lifetime(cache_control: str | None) -> dict[str, Any]:
     if "no-store" in lowered or "no-cache" in lowered:
         return {"ok": False, "max_age": 0, "reason": "no-store/no-cache on a static asset"}
     match = _MAX_AGE_RE.search(value)
+    if match and len(match.group(1)) > 19:
+        return {
+            "ok": False,
+            "max_age": None,
+            "reason": "Cache-Control max-age exceeds the supported integer bound",
+        }
     max_age = int(match.group(1)) if match else None
     if max_age is None:
         return {"ok": False, "max_age": None, "reason": "no Cache-Control max-age"}

@@ -39,6 +39,12 @@ def validate_audit(con, scan, *, required=False):
     if document["tool"]["version"] != scan["writer_version"]:
         raise ScanError("native audit tool version differs from the producing build")
     effective_config = json.loads(scan["config_json"])
+    if con.execute(
+        "SELECT 1 FROM context_items WHERE kind='analysis_asset_thresholds' LIMIT 1"
+    ).fetchone():
+        from .native_scan import read_effective_config
+
+        effective_config = read_effective_config(con)
     config = manifest(effective_config)
     if _dump(document["run"].get("crawl_config")) != _dump(config):
         raise ScanError("native audit effective configuration disagrees")

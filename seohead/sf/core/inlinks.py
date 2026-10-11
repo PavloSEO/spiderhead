@@ -90,6 +90,14 @@ def _link_from_record(rec: dict[str, Any]) -> Link:
 def _process_export(
     ctx: AuditContext, key: str, internal_check: str, external_check: str, site_host: str
 ) -> None:
+    if ctx.scan_con is not None:
+        # Native internal target statuses are emitted by the retained occurrence pass.
+        # This export aggregate does not classify retained external HTTP outcomes.
+        ctx.skip(
+            external_check,
+            "not measured by this native check: external response status aggregates are not projected",
+        )
+        return
     df = ctx.exports.get(key)
     if df is None or df.empty:
         ctx.skip(internal_check, f"export {key} not available")
@@ -669,16 +677,24 @@ def _check_not_canonical(
     ctx: AuditContext, source: str, entries: list[dict[str, Any]], evidence: dict[str, Any]
 ) -> None:
     offenders = []
+    unmeasured = 0
     for rec in entries:
         dest = rec.get("destination_url")
         # #176 audit: correct by construction. A redirecting twin under this key rarely
         # carries a canonical tag of its own (SF's parser reads canonical off the fetched
         # HTML, and a 3xx has none) — the 2xx variant is the one this check needs.
-        target = ctx.page_by_norm.get(norm_url(dest))
-        if target is None:
-            continue  # external / not crawled — cannot classify
-        canonical = _rec(target).get("canonical")
-        if canonical and norm_url(canonical) != norm_url(target.url):
+        target = ctx.page_by_url.get(dest) or ctx.page_by_norm.get(norm_url(dest))
+        canonical = (
+            _rec(target).get("canonical")
+            if target
+            else ctx.target_probes.get(norm_url(dest), {}).get("canonical")
+        )
+        if (target is None and canonical is None) or (
+            target is not None and _rec(target).get("body_unavailable")
+        ):
+            unmeasured += 1
+            continue
+        if canonical and norm_url(canonical) != norm_url(dest):
             offenders.append(
                 {"hreflang": rec.get("hreflang"), "destination": dest, "canonical": canonical}
             )
@@ -689,6 +705,11 @@ def _check_not_canonical(
             occurrences_count=len(offenders),
             details={"non_canonical_targets": offenders},
             evidence=evidence,
+        )
+    if unmeasured:
+        ctx.skip(
+            "HREFLANG_NOT_CANONICAL",
+            f"{unmeasured} hreflang target(s) lack measured canonical annotations; not measured by this native crawl or export",
         )
 
 
@@ -812,7 +833,7 @@ def check_hreflang_noindex_targets(ctx: AuditContext) -> None:
             target = item["target_observation"]
             return (
                 _active_declaration(item)
-                and target["state"] == "observed"
+                and target["state"] in {"observed", "probed"}
                 and target["indexability"]["reason"] == "noindex directive"
             )
 
@@ -838,7 +859,7 @@ def check_hreflang_noindex_targets(ctx: AuditContext) -> None:
         unmeasured = any(
             _active_declaration(item)
             and (
-                item["target_observation"]["state"] != "observed"
+                item["target_observation"]["state"] not in {"observed", "probed"}
                 or item["target_observation"]["indexability"]["state"] == "unmeasured"
             )
             for item in native["declarations"]
@@ -1836,6 +1857,48 @@ def check_pagination_declarations(ctx: AuditContext) -> None:
     over: no export, no Type column to tell a declaration from an anchor, no
     declarations in it at all.
     """
+    if ctx.scan_con is not None:
+        from seohead.checks.parser import _rel_has
+        from seohead.storage.head_links import active, eligible_count
+
+        measured = 0
+        partial = False
+        for source, annotations in active(ctx.scan_con):
+            page = ctx.page_by_url.get(source)
+            if page is None or not page.is_html or not page.is_2xx:
+                continue
+            if annotations is None:
+                continue
+            measured += 1
+            partial |= len(annotations) >= 100
+            for relation in ("next", "prev"):
+                targets = {
+                    norm_url(row["target"]): row["target"]
+                    for row in annotations
+                    if row["target"] and _rel_has(relation)(row["rel"])
+                }
+                if len(targets) > 1:
+                    ctx.add(
+                        "PAGINATION_MULTIPLE",
+                        target_url=source,
+                        details={"relation": f'rel="{relation}"', "urls": list(targets.values())},
+                    )
+        if not measured:
+            ctx.skip(
+                "PAGINATION_MULTIPLE",
+                "not measured by this native crawl: raw pagination annotations were not retained",
+            )
+        if partial or measured < eligible_count(ctx.scan_con):
+            ctx.skip(
+                "PAGINATION_MULTIPLE",
+                "not measured completely by this native crawl: head annotations were unavailable or reached their limit",
+            )
+        ctx.skip(
+            "PAGINATION_URL_NOT_IN_ANCHOR",
+            "native head annotation and hyperlink comparison is not measured",
+        )
+        return
+
     # PAGINATION_MULTIPLE's light path is independent of every precondition
     # below -- it reads Internal:All's occurrence-2 columns, not All Inlinks --
     # so it runs first and, when it has the columns to answer from, PAGINATION_

@@ -1,0 +1,101 @@
+{
+  "ok": true,
+  "db": "<project>/sources.sqlite",
+  "schema_version": "1",
+  "sources": [
+    {
+      "source": "ga4",
+      "resource": "100200300",
+      "schema_version": "1",
+      "dimensions": [
+        "landing_page",
+        "channel"
+      ],
+      "metrics": [
+        "sessions",
+        "engaged_sessions",
+        "users"
+      ],
+      "non_additive_metrics": [
+        "users"
+      ],
+      "date_timezone": "provider_resource",
+      "lag_cutoff_policy": "conservative_utc_minus_one_day",
+      "rows": 0,
+      "first_date": "2026-09-01",
+      "last_date": "2026-09-05",
+      "requested_days": 5,
+      "synced_days": 0,
+      "empty_days": 0,
+      "incomplete_days": [],
+      "coverage": {
+        "complete": [],
+        "empty": [],
+        "partial": [],
+        "failed": [
+          "2026-09-01",
+          "2026-09-02",
+          "2026-09-03",
+          "2026-09-04",
+          "2026-09-05"
+        ],
+        "pending": [],
+        "lagged": [],
+        "unrequested": []
+      },
+      "gaps": [],
+      "last_fetched_at": null,
+      "last_attempts": {
+        "2026-09-01": "failed",
+        "2026-09-02": "failed",
+        "2026-09-03": "failed",
+        "2026-09-04": "failed",
+        "2026-09-05": "failed"
+      }
+    },
+    {
+      "source": "gsc",
+      "resource": "sc-domain:shop.example.test",
+      "schema_version": "1",
+      "dimensions": [
+        "query",
+        "page"
+      ],
+      "metrics": [
+        "clicks",
+        "impressions",
+        "ctr",
+        "position"
+      ],
+      "non_additive_metrics": [
+        "ctr",
+        "position"
+      ],
+      "date_timezone": "America/Los_Angeles",
+      "lag_cutoff_policy": "resource_pacific_date",
+      "rows": 3,
+      "first_date": "2026-09-01",
+      "last_date": "2026-09-03",
+      "requested_days": 3,
+      "synced_days": 3,
+      "empty_days": 0,
+      "incomplete_days": [],
+      "coverage": {
+        "complete": [
+          "2026-09-01",
+          "2026-09-02",
+          "2026-09-03"
+        ],
+        "empty": [],
+        "partial": [],
+        "failed": [],
+        "pending": [],
+        "lagged": [],
+        "unrequested": []
+      },
+      "gaps": [],
+      "last_fetched_at": "2026-10-09T21:26:05+00:00",
+      "last_attempts": {}
+    }
+  ]
+}

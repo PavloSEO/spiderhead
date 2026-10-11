@@ -1,0 +1,115 @@
+{
+ "ok": true,
+ "revision": 1,
+ "items": [
+  {
+   "id": "check:AJAX_CRAWLING_SCHEME_META_FRAGMENT",
+   "title": "Page declares <meta name=\"fragment\"> -- the page-wide opt-in to the deprecated AJAX crawling scheme",
+   "kind": "check",
+   "scope": {
+    "site": "http://crawl.localhost:54517/",
+    "template": null,
+    "urls": []
+   },
+   "priority": "P1",
+   "priority_origin": "default",
+   "priority_reason": "not applied",
+   "order": 0,
+   "enabled": true,
+   "execution_kind": "automatic",
+   "state": "not_run",
+   "applicability": "applicable",
+   "applicability_reason": null,
+   "exclusion": null,
+   "stale": false,
+   "reason": "not attempted",
+   "attempt_status": "not_run",
+   "measurement": null,
+   "evidence_verification": {
+    "mode": "metadata_only",
+    "state": "not_applicable",
+    "verified_at": null
+   },
+   "blocked_by": [],
+   "complete": false,
+   "definition_versions": 1,
+   "attempts": 0,
+   "display_state": "remaining"
+  },
+  {
+   "id": "check:AJAX_CRAWLING_SCHEME_URL",
+   "title": "The deprecated AJAX crawling scheme (#! / _escaped_fragment_) is still used by this page's URL or by URLs it links to",
+   "kind": "check",
+   "scope": {
+    "site": "http://crawl.localhost:54517/",
+    "template": null,
+    "urls": []
+   },
+   "priority": "P1",
+   "priority_origin": "default",
+   "priority_reason": "not applied",
+   "order": 1,
+   "enabled": true,
+   "execution_kind": "automatic",
+   "state": "not_run",
+   "applicability": "applicable",
+   "applicability_reason": null,
+   "exclusion": null,
+   "stale": false,
+   "reason": "not attempted",
+   "attempt_status": "not_run",
+   "measurement": null,
+   "evidence_verification": {
+    "mode": "metadata_only",
+    "state": "not_applicable",
+    "verified_at": null
+   },
+   "blocked_by": [],
+   "complete": false,
+   "definition_versions": 1,
+   "attempts": 0,
+   "display_state": "remaining"
+  },
+  {
+   "id": "check:AMPHTML_PRESENT",
+   "title": "AMP version is declared",
+   "kind": "check",
+   "scope": {
+    "site": "http://crawl.localhost:54517/",
+    "template": null,
+    "urls": []
+   },
+   "priority": "P1",
+   "priority_origin": "default",
+   "priority_reason": "not applied",
+   "order": 2,
+   "enabled": true,
+   "execution_kind": "automatic",
+   "state": "not_run",
+   "applicability": "applicable",
+   "applicability_reason": null,
+   "exclusion": null,
+   "stale": false,
+   "reason": "not attempted",
+   "attempt_status": "not_run",
+   "measurement": null,
+   "evidence_verification": {
+    "mode": "metadata_only",
+    "state": "not_applicable",
+    "verified_at": null
+   },
+   "blocked_by": [],
+   "complete": false,
+   "definition_versions": 1,
+   "attempts": 0,
+   "display_state": "remaining"
+  }
+ ],
+ "pagination": {
+  "total": 276,
+  "offset": 0,
+  "limit": 3,
+  "next_offset": 3,
+  "previous_offset": null
+ }
+}

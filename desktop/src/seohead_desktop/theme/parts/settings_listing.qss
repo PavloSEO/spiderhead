@@ -1,0 +1,14 @@
+/* Scan / Core / MCP settings sections (ui/settings/listing.py) */
+QFrame[list_item="true"] { background: transparent; border: 0; border-bottom: 1px solid $divider_inner; }
+QFrame[kv_cell="true"] { background: transparent; border: 0; border-bottom: 1px solid $divider_inner; }
+QFrame[terminal="true"] { background: $raised; border: 1px solid $divider; border-radius: ${radius_card}px; }
+QFrame[terminal="true"] QLabel { background: transparent; font-family: "$mono_family"; font-size: ${font_mono}px; }
+/* the generic "set_row QLabel" rule would hide badge fills inside setting rows */
+QFrame[set_row="true"] QLabel[badge="ok"] { background: $badge_ok_bg; }
+QFrame[set_row="true"] QLabel[badge="info"] { background: $badge_info_bg; }
+QFrame[set_row="true"] QLabel[badge="warn"] { background: $badge_warn_bg; }
+QFrame[set_row="true"] QLabel[badge="err"] { background: $badge_err_bg; }
+QFrame[set_row="true"] QLabel[badge="mut"] { background: $badge_mut_bg; }
+QFrame[set_row="true"] QLabel[badge="goal"] { background: $badge_goal_bg; }
+QLineEdit[mono="true"] { font-family: "$mono_family"; font-size: ${font_mono}px; }
+QPushButton[role="tonal"]:disabled { background: $disabled_bg; border-color: $disabled_bg; color: $disabled_fg; }

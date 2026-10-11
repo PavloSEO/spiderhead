@@ -1,0 +1,7 @@
+/* URL screen: right-hand details accordion */
+QPushButton[accordion="true"] { text-align: left; border: 0; border-radius: 0; padding: 0 12px; font-weight: 500; color: $text; background: transparent; height: 40px; }
+QPushButton[accordion="true"]:hover { background: $hover; }
+QFrame[card="section"] { border: 0; border-bottom: 1px solid $divider_inner; background: transparent; }
+QTabBar#cardTabs::tab { padding: 0 9px; }
+QFrame[skeleton="row"] { border: 0; border-bottom: 1px solid $divider_inner; background: transparent; }
+QFrame[skeleton="bar"] { border: 0; border-radius: 4px; background: $divider_inner; }

@@ -61,7 +61,8 @@ def _measure(
         if not isinstance(text, str):
             skipped.append({"url": url, "reason": "coverage payload has no source text"})
             continue
-        total = len(text)
+        # CDP offsets count UTF-16 code units, including both halves of an astral character.
+        total = len(text.encode("utf-16-le", "surrogatepass")) // 2
         if total == 0:
             skipped.append({"url": url, "reason": "resource has no source text"})
             continue

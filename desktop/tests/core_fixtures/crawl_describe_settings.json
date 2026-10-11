@@ -1,0 +1,811 @@
+{
+  "settings": [
+    {
+      "path": "analysis.canonical_policy.filters",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Ordered URL-regex policies for configured filter pages: [{'pattern': ..., 'policy': 'self|landing', 'target': absolute URL}]. Landing policies require an explicit target; the first matching rule wins. Empty means unmeasured, not a finding."
+    },
+    {
+      "path": "analysis.canonical_policy.pagination",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Ordered URL-regex policies for paginated pages: [{'pattern': ..., 'policy': 'self|first_page|landing', 'target': absolute URL}]. Non-self policies require an explicit target; the first matching rule wins. Empty means unmeasured, not a finding."
+    },
+    {
+      "path": "analysis.finding_exclusions",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Post-crawl finding suppressions only; never narrows URLs fetched. Ordered rules use Python regex search on a finding's target_url, optional exact check IDs, and a required reason. First matching rule wins."
+    },
+    {
+      "path": "analysis.segments",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Post-crawl segment rules: [{'name': ..., 'rules': [{'op': 'eq|prefix|contains|regex|in|segment', 'field': ..., 'value': ...}]}]. Rules may use page fields or another segment."
+    },
+    {
+      "path": "cache.invalidate",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Force every cache lookup to miss (a live measurement happens) while still writing the result back to the cache. Does not disable the cache; 'cache.mode=off' does that. Rejected together with cache.mode='replay', which promises the opposite guarantee."
+    },
+    {
+      "path": "cache.mode",
+      "type": "str",
+      "default": "off",
+      "results_affecting": true,
+      "description": "'off' (default: no cache), 'live' (real HTTP freshness: max-age/Expires, ETag/Last-Modified revalidation), or 'replay' (serve any cached entry regardless of age, without revalidating; a URL with no entry yet is still fetched live)."
+    },
+    {
+      "path": "discovery.external.crawl",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "After the internal frontier closes, check each recorded external destination once — opt-in, bounded by external_checks.*, never recursive. Requires discovery.external.store and a site crawl (--url); refused on the native SQLite route and in list mode."
+    },
+    {
+      "path": "discovery.external.store",
+      "type": "bool",
+      "default": true,
+      "results_affecting": true,
+      "description": "Keep discovered external links in the report."
+    },
+    {
+      "path": "discovery.follow_nofollow",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Follow links marked rel=nofollow instead of skipping them."
+    },
+    {
+      "path": "discovery.hyperlinks.crawl",
+      "type": "bool",
+      "default": true,
+      "results_affecting": true,
+      "description": "Request discovered hyperlinks (fetch them)."
+    },
+    {
+      "path": "discovery.hyperlinks.store",
+      "type": "bool",
+      "default": true,
+      "results_affecting": true,
+      "description": "Keep discovered hyperlinks in the report."
+    },
+    {
+      "path": "discovery.redirects.crawl",
+      "type": "bool",
+      "default": true,
+      "results_affecting": true,
+      "description": "Request discovered redirect targets (fetch them)."
+    },
+    {
+      "path": "discovery.resolve_canonical_destination",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "List mode only: follow a fetched page's canonical declaration through a bounded chain, recording every inspected target without adding it to the page population."
+    },
+    {
+      "path": "discovery.resolve_redirect_destination",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "List mode only: follow a fetched redirect past its first hop to where it actually lands, recording every hop. Depth stays 0; this is a per-URL chain walk, not link discovery."
+    },
+    {
+      "path": "evidence.content_area.exclude_selectors",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "CSS selectors excluded from the saved main-content signature."
+    },
+    {
+      "path": "evidence.content_area.exclude_tags",
+      "type": "list",
+      "default": [
+        "nav",
+        "header",
+        "aside",
+        "footer"
+      ],
+      "results_affecting": true,
+      "description": "HTML element names excluded from the saved main-content signature."
+    },
+    {
+      "path": "evidence.content_area.include_selector",
+      "type": "str",
+      "default": "",
+      "results_affecting": true,
+      "description": "Optional CSS selector for included main-content regions."
+    },
+    {
+      "path": "evidence.content_area.root_selector",
+      "type": "str",
+      "default": "",
+      "results_affecting": true,
+      "description": "Optional CSS root within which main content is extracted."
+    },
+    {
+      "path": "evidence.extraction_rules",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Bounded declarative extraction rules; no executable code or arbitrary regular expressions."
+    },
+    {
+      "path": "evidence.retain_no_store_acknowledged",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Allow bounded SQLite body retention for anonymous responses carrying Cache-Control: no-store; off by default and never permits credentialed response retention."
+    },
+    {
+      "path": "external_checks.max_depth",
+      "type": "int",
+      "default": 0,
+      "results_affecting": true,
+      "description": "Hops of same-host links followed on external pages that answered; 0 checks recorded destinations only. Off-host links are never followed."
+    },
+    {
+      "path": "external_checks.max_hosts",
+      "type": "int",
+      "default": 20,
+      "results_affecting": true,
+      "description": "Distinct external origins the opt-in check may contact at most; redirect hops count toward it, since a redirect is a request to another origin."
+    },
+    {
+      "path": "external_checks.max_redirects",
+      "type": "int",
+      "default": 5,
+      "results_affecting": true,
+      "description": "Redirect hops followed per external destination before the chain is recorded unresolved; hard ceiling is 10."
+    },
+    {
+      "path": "external_checks.max_requests",
+      "type": "int",
+      "default": 0,
+      "results_affecting": true,
+      "description": "HTTP attempts the external check may spend, including redirect hops and retries; 0 means no phase-specific cap. Separate from limits.max_requests."
+    },
+    {
+      "path": "external_checks.max_targets",
+      "type": "int",
+      "default": 100,
+      "results_affecting": true,
+      "description": "Distinct external destinations the opt-in check may fetch at most — recorded outlinks plus same-host continuations admitted under max_depth. Destinations past the budget are recorded as skipped, not silently dropped."
+    },
+    {
+      "path": "http.credential_headers",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Host-bound extra headers for authenticated crawling: [{'host': ..., 'headers': {name: 'env:VAR_NAME'}}]."
+    },
+    {
+      "path": "http.credentials_acknowledged",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Must be true for http.credential_headers to take effect."
+    },
+    {
+      "path": "http.headers",
+      "type": "dict",
+      "default": {},
+      "results_affecting": true,
+      "description": "Extra request headers to send with every fetch. With --set, pass a JSON object."
+    },
+    {
+      "path": "http.proxy",
+      "type": "str",
+      "default": "",
+      "results_affecting": true,
+      "description": "Explicit http:// forward proxy with host and port, or env:VARIABLE containing its URL and optional username/password. No ambient proxy variables are used by a native crawl."
+    },
+    {
+      "path": "http.proxy_allow_private",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Explicitly allow only the configured proxy endpoint to resolve privately; target URL private-network guards remain unchanged."
+    },
+    {
+      "path": "http.proxy_authenticated",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Whether the resolved proxy used authentication; managed by the crawler."
+    },
+    {
+      "path": "http.proxy_identity",
+      "type": "str",
+      "default": "",
+      "results_affecting": true,
+      "description": "Resolved nonsecret proxy endpoint; managed by the crawler, not user input."
+    },
+    {
+      "path": "http.retry_on_timeout",
+      "type": "int",
+      "default": 0,
+      "results_affecting": true,
+      "description": "Number of retries after a request times out."
+    },
+    {
+      "path": "http.timeout_seconds",
+      "type": "float",
+      "default": 15.0,
+      "results_affecting": true,
+      "description": "Per-request timeout in seconds."
+    },
+    {
+      "path": "http.user_agent",
+      "type": "str",
+      "default": "",
+      "results_affecting": true,
+      "description": "Request User-Agent string; empty uses the toolkit's identifiable default."
+    },
+    {
+      "path": "limits.max_crawl_seconds",
+      "type": "int",
+      "default": 0,
+      "results_affecting": true,
+      "description": "Wall-clock budget for the whole crawl; 0 means no limit."
+    },
+    {
+      "path": "limits.max_depth",
+      "type": "int",
+      "default": 5,
+      "results_affecting": true,
+      "description": "Maximum link depth from the start URL; -1 disables the depth limit for native SQLite site scans."
+    },
+    {
+      "path": "limits.max_query_variants_per_path",
+      "type": "int",
+      "default": 5,
+      "results_affecting": true,
+      "description": "Maximum distinct query strings kept per URL path."
+    },
+    {
+      "path": "limits.max_requests",
+      "type": "int",
+      "default": 20000,
+      "results_affecting": true,
+      "description": "Total HTTP attempts for the crawl, including bootstrap, redirects and retries; 0 means no total-attempt limit. Explicit values may be at most 2,000,000, allowing robots, sitemaps, redirects and retries above the URL budget."
+    },
+    {
+      "path": "limits.max_response_bytes",
+      "type": "int",
+      "default": 5242880,
+      "results_affecting": true,
+      "description": "Response bodies larger than this are truncated before parsing."
+    },
+    {
+      "path": "limits.max_url_length",
+      "type": "int",
+      "default": 2000,
+      "results_affecting": true,
+      "description": "URLs longer than this are not fetched."
+    },
+    {
+      "path": "limits.max_urls",
+      "type": "int",
+      "default": 200,
+      "results_affecting": true,
+      "description": "Maximum number of URLs the crawl will fetch; 0 disables the URL limit for native SQLite site scans, which collect until their queue is exhausted. Values above 1,000,000 are refused rather than clamped; narrow the scope instead."
+    },
+    {
+      "path": "link_attributes.capture",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Store each link's full rel tokens, target attribute, and raw (pre-resolution) href -- needed for unsafe-cross-origin-link and protocol-relative-link detection, at a real memory cost on a large crawl."
+    },
+    {
+      "path": "link_position.classify",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Classify each link's DOM ancestry (nav/header/sidebar/footer/content) as it is parsed, at no extra requests; off by default because storing a position per link costs memory on a large crawl."
+    },
+    {
+      "path": "link_position.rules",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Ordered [{'position', 'selector'}] overrides for the built-in nav/header/sidebar/footer selectors; empty keeps the built-ins. Only read when classify is true."
+    },
+    {
+      "path": "output.dir",
+      "type": "str",
+      "default": "",
+      "results_affecting": false,
+      "description": "Directory to write pages.jsonl and audit.json into; empty writes nothing to disk."
+    },
+    {
+      "path": "output.write_decisions_jsonl",
+      "type": "bool",
+      "default": true,
+      "results_affecting": false,
+      "description": "Write one JSON line per exclusion decision to decisions.jsonl, naming the URL and the rule that rejected it — see seohead.checks.logscan for what reads it."
+    },
+    {
+      "path": "output.write_pages_jsonl",
+      "type": "bool",
+      "default": true,
+      "results_affecting": false,
+      "description": "Write one JSON line per fetched page to pages.jsonl."
+    },
+    {
+      "path": "output.write_tasks",
+      "type": "bool",
+      "default": true,
+      "results_affecting": false,
+      "description": "Write the prioritized backlog beside audit.json as tasks.json and tasks.md — the same pipeline `sf run --tasks` uses, run over this crawl's own audit."
+    },
+    {
+      "path": "rendering.artifacts.console_errors",
+      "type": "bool",
+      "default": false,
+      "results_affecting": false,
+      "description": "Capture browser console error messages per rendered URL."
+    },
+    {
+      "path": "rendering.artifacts.screenshots",
+      "type": "bool",
+      "default": false,
+      "results_affecting": false,
+      "description": "Save a full-page screenshot per rendered URL."
+    },
+    {
+      "path": "rendering.browser.device_pixel_ratio",
+      "type": "float",
+      "default": 1.0,
+      "results_affecting": true,
+      "description": "Device scale factor used for rendering."
+    },
+    {
+      "path": "rendering.browser.engine",
+      "type": "str",
+      "default": "chromium",
+      "results_affecting": true,
+      "description": "Headless engine Playwright launches: 'chromium', 'firefox' or 'webkit'. An unsupported name fails validation; an uninstalled browser binary reports a distinct install hint. Firefox cannot emulate a mobile viewport (is_mobile)."
+    },
+    {
+      "path": "rendering.browser.flatten_iframes",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Replace same-origin iframes with their own document's body content before capture."
+    },
+    {
+      "path": "rendering.browser.flatten_shadow_dom",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Merge open shadow roots into their host elements before capturing the DOM."
+    },
+    {
+      "path": "rendering.browser.mobile_emulation",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Emulate a mobile device (touch UA, is_mobile)."
+    },
+    {
+      "path": "rendering.browser.page_concurrency",
+      "type": "int",
+      "default": 1,
+      "results_affecting": true,
+      "description": "Maximum browser pages/contexts rendered at once during JS escalation; 1 keeps sequential behaviour. A rendering bound, not HTTP crawl concurrency."
+    },
+    {
+      "path": "rendering.browser.persistent_profile",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Unavailable with the pinned renderer: requested persistent profiles return an explicit unavailable result and are not opened. Off by default."
+    },
+    {
+      "path": "rendering.browser.persistent_profile_dir",
+      "type": "str",
+      "default": "",
+      "results_affecting": false,
+      "description": "Directory for the persistent profile; required when persistent_profile is true, and never a computed default."
+    },
+    {
+      "path": "rendering.browser.remote_endpoint_env",
+      "type": "str",
+      "default": "",
+      "results_affecting": true,
+      "description": "Name of an environment variable containing the remote ws/wss endpoint; never store the endpoint in a scan."
+    },
+    {
+      "path": "rendering.browser.remote_playwright_version",
+      "type": "str",
+      "default": "",
+      "results_affecting": true,
+      "description": "Operator-declared remote Playwright version; its major/minor must match the installed client."
+    },
+    {
+      "path": "rendering.browser.remote_protocol",
+      "type": "str",
+      "default": "playwright",
+      "results_affecting": true,
+      "description": "Remote browser protocol; only Playwright is supported, not CDP."
+    },
+    {
+      "path": "rendering.browser.resize_to_content",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Grow the viewport to the rendered page's own height before capture, capped by resize_to_content_max_height_px."
+    },
+    {
+      "path": "rendering.browser.resize_to_content_max_height_px",
+      "type": "int",
+      "default": 15000,
+      "results_affecting": true,
+      "description": "Deterministic cap on resize_to_content, so an unbounded page is truncated rather than crawled forever."
+    },
+    {
+      "path": "rendering.browser.script_timeout_seconds",
+      "type": "float",
+      "default": 10.0,
+      "results_affecting": true,
+      "description": "How long JavaScript may keep running after the page and its subresources have loaded, before the DOM is captured."
+    },
+    {
+      "path": "rendering.browser.touch_emulation",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Emulate touch input."
+    },
+    {
+      "path": "rendering.browser.transport",
+      "type": "str",
+      "default": "local",
+      "results_affecting": true,
+      "description": "Launch a local browser (default) or connect to an explicitly supplied remote Playwright server."
+    },
+    {
+      "path": "rendering.browser.viewport",
+      "type": "str",
+      "default": "desktop",
+      "results_affecting": true,
+      "description": "Viewport preset used for rendering: 'desktop' or 'mobile'."
+    },
+    {
+      "path": "rendering.browser.viewport_height",
+      "type": "int",
+      "default": 0,
+      "results_affecting": true,
+      "description": "Custom viewport height in CSS pixels (0 = unset). Must be set together with viewport_width; the pair overrides the named preset's dimensions."
+    },
+    {
+      "path": "rendering.browser.viewport_width",
+      "type": "int",
+      "default": 0,
+      "results_affecting": true,
+      "description": "Custom viewport width in CSS pixels (0 = unset). Must be set together with viewport_height; the pair overrides the named preset's dimensions."
+    },
+    {
+      "path": "rendering.browser.wait_until",
+      "type": "str",
+      "default": "load",
+      "results_affecting": true,
+      "description": "Page-load strategy before script_timeout_seconds starts counting down: 'load', 'domcontentloaded', or 'networkidle'."
+    },
+    {
+      "path": "rendering.escalation.max_render_seconds",
+      "type": "int",
+      "default": 0,
+      "results_affecting": true,
+      "description": "Wall-clock budget for the escalation step; 0 means no limit."
+    },
+    {
+      "path": "rendering.escalation.max_render_urls",
+      "type": "int",
+      "default": 30,
+      "results_affecting": true,
+      "description": "Maximum number of pages re-fetched under the fuller representation, across all escalated patterns combined."
+    },
+    {
+      "path": "rendering.escalation.policy",
+      "type": "str",
+      "default": "sampled",
+      "results_affecting": true,
+      "description": "Sample template patterns or render every eligible URL within the independent URL/time budgets."
+    },
+    {
+      "path": "rendering.escalation.sample_per_pattern",
+      "type": "int",
+      "default": 2,
+      "results_affecting": true,
+      "description": "URLs probed raw-versus-fuller per detected template pattern before deciding whether the whole pattern needs escalation."
+    },
+    {
+      "path": "rendering.mode",
+      "type": "str",
+      "default": "raw",
+      "results_affecting": true,
+      "description": "'raw' (static HTML only), 'legacy_fragment' (honour a page's own '_escaped_fragment_' opt-in), or 'js' (execute JavaScript in a headless browser, selectively -- see rendering.escalation)."
+    },
+    {
+      "path": "rendering.rendered_links.crawl",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Admit eligible rendered-link candidates through the normal bounded crawl frontier; independent of rendered route evidence storage."
+    },
+    {
+      "path": "rendering.rendered_links.store",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Store eligible a[href] route observations from static and rendered documents; this records evidence only and never crawls discovered routes."
+    },
+    {
+      "path": "resources.fetch",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "SQLite only: opt in to fetching directly declared same-origin scripts and stylesheets; never follows CSS imports or JavaScript modules."
+    },
+    {
+      "path": "resources.graph.max_bytes",
+      "type": "int",
+      "default": 104857600,
+      "results_affecting": true,
+      "description": "scan.v2 only: total bytes accepted by the declared-resource graph."
+    },
+    {
+      "path": "resources.graph.max_bytes_per_resource",
+      "type": "int",
+      "default": 5242880,
+      "results_affecting": true,
+      "description": "scan.v2 only: maximum bytes accepted from one declared resource."
+    },
+    {
+      "path": "resources.graph.max_nesting",
+      "type": "int",
+      "default": 2,
+      "results_affecting": true,
+      "description": "scan.v2 only: CSS import/url nesting depth."
+    },
+    {
+      "path": "resources.graph.max_origins",
+      "type": "int",
+      "default": 1,
+      "results_affecting": true,
+      "description": "scan.v2 only: maximum admitted resource origins."
+    },
+    {
+      "path": "resources.graph.max_redirects",
+      "type": "int",
+      "default": 0,
+      "results_affecting": true,
+      "description": "scan.v2 only: maximum redirects per declared resource."
+    },
+    {
+      "path": "resources.graph.max_requests",
+      "type": "int",
+      "default": 2000,
+      "results_affecting": true,
+      "description": "scan.v2 only: bounded deduplicated declared-resource fetch count."
+    },
+    {
+      "path": "resources.graph.max_seconds",
+      "type": "int",
+      "default": 0,
+      "results_affecting": true,
+      "description": "scan.v2 only: resource graph wall-clock budget; 0 means no graph-specific limit."
+    },
+    {
+      "path": "resources.max_requests",
+      "type": "int",
+      "default": 20000,
+      "results_affecting": true,
+      "description": "SQLite only: maximum resource HTTP attempts, including redirects and retries; independent of the page URL limit."
+    },
+    {
+      "path": "resources.max_response_bytes",
+      "type": "int",
+      "default": 5242880,
+      "results_affecting": true,
+      "description": "SQLite only: maximum content-decoded bytes per resource response; total crawl time and body-store limits still apply."
+    },
+    {
+      "path": "robots.policy",
+      "type": "str",
+      "default": "respect",
+      "results_affecting": true,
+      "description": "'respect' (obey), 'report_only' (fetch, report what would be blocked, crawl anyway), or 'ignore' (do not fetch robots.txt)."
+    },
+    {
+      "path": "robots.unavailable_means_stop",
+      "type": "bool",
+      "default": true,
+      "results_affecting": true,
+      "description": "Stop the crawl if robots.txt cannot be fetched at all."
+    },
+    {
+      "path": "robots.user_agent_token",
+      "type": "str",
+      "default": "SEOHEAD-Tools",
+      "results_affecting": true,
+      "description": "The User-Agent token matched against robots.txt rules."
+    },
+    {
+      "path": "scope.exclude_extensions",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Filename suffix denylist for discovered routes; matches the final URL-path suffix, without query or fragment. Exclusions take precedence over the extension allowlist."
+    },
+    {
+      "path": "scope.exclude_hosts",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Hosts never fetched regardless of what links to them."
+    },
+    {
+      "path": "scope.exclude_media_types",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Response Content-Type denylist checked after fetch and before parsing or body retention; supports exact types and type wildcards such as image/*. Exclusions take precedence."
+    },
+    {
+      "path": "scope.exclude_patterns",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Regexes; a discovered link matching any of these is not followed."
+    },
+    {
+      "path": "scope.include_extensions",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Optional filename suffix allowlist for discovered routes (for example ['html', 'pdf']); matches the final URL-path suffix, without query or fragment. If set, extensionless routes are not included. Exclusions take precedence."
+    },
+    {
+      "path": "scope.include_media_types",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Optional response Content-Type allowlist checked after fetch and before parsing or body retention; supports exact types and type wildcards such as image/*. A missing or malformed type is recorded as unavailable when this list is set."
+    },
+    {
+      "path": "scope.include_patterns",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Regexes; a discovered link must match at least one to be followed."
+    },
+    {
+      "path": "scope.internal",
+      "type": "str",
+      "default": "host",
+      "results_affecting": true,
+      "description": "Which discovered URLs count as internal: 'host' (conservative) or 'registrable_domain' (also accepts subdomains -- on a shared hosting suffix such as github.io or vercel.app, only the audited tenant's own subdomain, never another tenant's, per seohead.recon.net.registrable_domain)."
+    },
+    {
+      "path": "scope.segments",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Ordered, first-match-wins named segments for a multilingual or multi-regional site: [{'name': ..., 'prefix': '/en/', 'host': 'en.example.com', 'pattern': '...'}, ...] -- at least one of prefix/host/pattern per entry. A URL matching none of them is the built-in 'default' segment, so every URL belongs to exactly one segment, always."
+    },
+    {
+      "path": "scope.segments_only",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Fetch only these segment names (plus 'default' when named); empty means every segment is in scope. Subsumes a subfolder-only or single-subdomain crawl without an ad-hoc scope.include_patterns regex."
+    },
+    {
+      "path": "sitemaps.auto_discover",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Seed the crawl from the sitemap declared in robots.txt when no explicit sitemap URL is given."
+    },
+    {
+      "path": "speed.adaptive",
+      "type": "bool",
+      "default": true,
+      "results_affecting": true,
+      "description": "Increase the delay automatically when the target slows down or times out."
+    },
+    {
+      "path": "speed.concurrency",
+      "type": "int",
+      "default": 1,
+      "results_affecting": false,
+      "description": "Per-origin ceiling on requests in flight at once. The adaptive throttle starts well below it and only grows toward it on sustained success; 1 is sequential."
+    },
+    {
+      "path": "speed.max_delay_seconds",
+      "type": "float",
+      "default": 60.0,
+      "results_affecting": false,
+      "description": "Maximum delay adaptive back-off may reach."
+    },
+    {
+      "path": "speed.min_delay_seconds",
+      "type": "float",
+      "default": 0.5,
+      "results_affecting": true,
+      "description": "Minimum delay between requests; the floor beneath adaptive back-off."
+    },
+    {
+      "path": "speed.stop_after_consecutive_timeouts",
+      "type": "int",
+      "default": 5,
+      "results_affecting": true,
+      "description": "Stop the crawl after this many timeouts in a row."
+    },
+    {
+      "path": "storage.body_mode",
+      "type": "str",
+      "default": "captured_entity_bytes",
+      "results_affecting": true,
+      "description": "SQLite only: captured_entity_bytes retains fetched HTML/DOM; off retains metadata only."
+    },
+    {
+      "path": "storage.capacity_profile",
+      "type": "str",
+      "default": "stable",
+      "results_affecting": true,
+      "description": "'stable' (default) admits explicit URL limits up to 1,000,000; native SQLite max_urls=0 disables the URL limit while retaining independent resource guards. 'experimental_synthetic' is the compatible direct-storage fixture marker; live collectors refuse that marker. Neither setting certifies measured capacity."
+    },
+    {
+      "path": "storage.format_version",
+      "type": "str",
+      "default": "scan.v1",
+      "results_affecting": true,
+      "description": "Explicit scan storage format: scan.v1 (default) or scan.v2 for optional graph/event extensions."
+    },
+    {
+      "path": "storage.history_warning_bytes",
+      "type": "int",
+      "default": 21474836480,
+      "results_affecting": true,
+      "description": "SQLite only: history-size warning threshold; never enables automatic deletion."
+    },
+    {
+      "path": "storage.max_body_bytes",
+      "type": "int",
+      "default": 5242880,
+      "results_affecting": true,
+      "description": "SQLite only: maximum decoded bytes retained for one complete body."
+    },
+    {
+      "path": "storage.max_body_store_bytes",
+      "type": "int",
+      "default": 10737418240,
+      "results_affecting": true,
+      "description": "SQLite only: total unique encoded body bytes retained per scan."
+    },
+    {
+      "path": "storage.min_free_bytes",
+      "type": "int",
+      "default": 1073741824,
+      "results_affecting": true,
+      "description": "SQLite only: filesystem reserve; low space interrupts collection with a checkpoint."
+    }
+  ],
+  "capabilities": {
+    "sitemap_only_retained": true,
+    "full_site_native_sqlite": true
+  }
+}

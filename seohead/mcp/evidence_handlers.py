@@ -223,6 +223,7 @@ def scan_structured_blocks(
     from seohead.checks.structured_blocks import structured_blocks
     from seohead.storage import ScanError, open_scan
     from seohead.storage.bodies import read_document
+    from seohead.storage.fragment_links import _document_final_url
 
     if not isinstance(url, str) or not url or len(url) > 8192:
         raise ValueError("url must be nonempty exact retained URL text of at most 8192 characters")
@@ -231,8 +232,8 @@ def scan_structured_blocks(
     con = open_scan(input_path, require_audit=False)
     try:
         row = con.execute(
-            "SELECT d.document_id FROM documents d JOIN urls u USING(url_id) "
-            "WHERE u.url=? AND d.representation=? ORDER BY d.document_id LIMIT 1",
+            "SELECT d.* FROM documents d JOIN urls u USING(url_id) "
+            "WHERE u.url=? AND d.representation=? ORDER BY d.document_id DESC LIMIT 1",
             (url, representation),
         ).fetchone()
         if row is None:
@@ -252,7 +253,7 @@ def scan_structured_blocks(
                 "representation": representation,
                 "document_id": row["document_id"],
             }
-        result = structured_blocks(html)
+        result = structured_blocks(html, base_url=_document_final_url(con, dict(row), url))
         result.update(
             ok=True,
             representation=representation,

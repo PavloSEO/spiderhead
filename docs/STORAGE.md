@@ -539,6 +539,22 @@ whenever this reads empty.
 
 ### Per-occurrence link context
 
+Native captures also retain `markup_evidence.v1` in the existing `context_items` table,
+bound to a page, document and representation. It stores structural AMP observations and
+five conservative static accessibility checks with full occurrence counts and at most
+20 examples per code. Unparsed documents are unavailable with a reason. AMP source
+checks read static source; accessibility and schema findings read the active document.
+The SQL `scan.v1` schema and `PageRecord` columns are unchanged. Full AMP validator
+rules, rendered axe-core and computed contrast remain explicitly unmeasured.
+
+`scan-structured-blocks` reads the latest retained complete body for the requested exact
+URL and representation. Each live JSON-LD block includes line/column, syntax error,
+types, validation messages, a property tree, source JSON and `parsed_json`. Source output
+is capped at 20,000 characters; oversized blocks return `parsed_json: null` and a
+truncation flag. Property trees stop at 500 entries and expose `property_limit_reached`.
+This read-only projection makes no request and never writes source JSON into body-free
+context evidence or changes the scan's retention policy.
+
 `seohead.storage.link_context.context_for_link(scan, link_id)` and
 `contexts_for_document(scan, document_id, offset=0, limit=100)` derive the
 versioned `link_occurrence_context.v1` result **on demand** from one complete
@@ -1158,3 +1174,32 @@ For streamed PDF output, explicitly pass `pdf_policy="overview-v1"` (CLI
 `--pdf-policy overview-v1`). It creates a bounded PDF view with complete JSON/CSV
 companions and a hashed manifest; no policy is selected by default. See
 [PDF_OVERVIEW.md](PDF_OVERVIEW.md) for counts, limits and publication guarantees.
+
+## Offline link positions, graph and sitemap output
+
+```bash
+seohead scan-graph --scan scan.sqlite --section /catalog/ --positions content,breadcrumbs
+seohead scan-graph --scan scan.sqlite --around https://example.com/product/ --depth 2
+seohead scan-graph --scan after.sqlite --compare-to before.sqlite --aggregate sections
+seohead scan-reanalyze --scan old.sqlite --out batch-1.sqlite --step links.position --max-documents 100
+seohead scan-reanalyze --scan batch-1.sqlite --out batch-2.sqlite --step links.position --max-documents 100
+seohead scan-sitemap-generate --scan scan.sqlite --out-dir generated-sitemaps \
+  --sitemap-base-url https://example.com/ --include-images --exclude '*[?]*'
+```
+
+Graph results are versioned JSON chunks with explicit totals, node/edge budgets and clipping.
+`not_classified` is a retained position state, not evidence that a link belongs to body content.
+Position backfill only updates the new derived scan; complete batches can be resumed by using
+the previous output as the next source. A process interruption before atomic publication requires
+restarting that unpublished batch. The frozen `scan.v1` schema is unchanged.
+
+Sitemap generation writes local files into a new directory and refuses existing destinations.
+Deployment URL scope determines eligible page URLs; the sitemap index contains absolute URLs
+for the generated files. Unknown modification dates are omitted, and optional image coverage
+reports unavailable/truncated bodies and unmeasured image responses. Known non-200
+resource responses are excluded even when no crawled page row exists.
+
+Graph comparison applies section, position and representation filters across both scans.
+The `around` option limits the displayed current graph; it does not narrow comparison scope.
+
+Graph diff additions and new orphans belong to the input scan relative to `--compare-to`.

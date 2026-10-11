@@ -58,6 +58,9 @@ def test_original_bytes_fields_occurrences_and_producer_survive(legacy_run, arti
             # records that as an explicit unmeasured null rather than
             # pretending the document had no repeated ids.
             page.setdefault("duplicate_ids", None)
+            # The additive JSONL measurement is retained in a typed context,
+            # while the frozen page columns stay unchanged.
+            page.pop("render_blocking", None)
         actual = []
         for record in con.execute(
             "SELECT p.*, u.url FROM pages p JOIN urls u USING(url_id) ORDER BY page_ordinal"
@@ -85,6 +88,15 @@ def test_original_bytes_fields_occurrences_and_producer_survive(legacy_run, arti
                     page[key] = None if page[key] is None else bool(page[key])
             actual.append(page)
         assert actual == expected
+        from seohead.storage.exports import _page_rows
+
+        restored = list(_page_rows(con))
+        original = [
+            json.loads(line) for line in (legacy_run / "pages.jsonl").read_text().splitlines()
+        ]
+        assert [page.get("render_blocking") for page in restored] == [
+            page.get("render_blocking") for page in original
+        ]
         expected_links = [
             json.loads(line) for line in (legacy_run / "links.jsonl").read_text().splitlines()
         ]
@@ -294,7 +306,11 @@ def test_provenance_hashes_the_consumed_stream_not_a_later_replacement(
     import_run(legacy_run, out, producer_build=BUILD)
     con = open_scan(out)
     try:
-        data = json.loads(con.execute("SELECT payload_json FROM context_items").fetchone()[0])
+        data = json.loads(
+            con.execute(
+                "SELECT payload_json FROM context_items WHERE kind='legacy_import_provenance'"
+            ).fetchone()[0]
+        )
         assert data["inputs"][0]["sha256"] == hashlib.sha256(consumed).hexdigest()
         assert data["inputs"][0]["bytes"] == len(consumed)
     finally:
@@ -389,13 +405,21 @@ def test_schema_maps_all_current_page_and_link_fields():
         "trust_signals": "trust_signals_json",
         "duplicate_ids": "duplicate_ids_json",
     }
-    assert {mapped.get(field.name, field.name) for field in fields(PageRecord)} == page_columns - {
+    # Transient measurements use a validated context adjunct, not frozen page columns.
+    transient = {"render_blocking"}
+    assert transient <= {field.name for field in fields(PageRecord)}
+    assert transient.isdisjoint(page_columns)
+    assert {
+        mapped.get(field.name, field.name)
+        for field in fields(PageRecord)
+        if field.name not in transient
+    } == page_columns - {
         "page_ordinal",
         "document_id",
     }
     page_record_fields = {field.name for field in fields(PageRecord)}
     assert set(_LATE_PAGE_FIELDS) <= page_record_fields
-    assert len(page_record_fields - set(_LATE_PAGE_FIELDS)) == 45
+    assert len(page_record_fields - set(_LATE_PAGE_FIELDS) - transient) == 45
     assert {
         name
         for name, annotation in get_type_hints(PageRecord).items()
@@ -562,4 +586,84 @@ def test_reader_rejects_mutated_negative_page_counts(artifact, field):
     with sqlite3.connect(artifact) as con:
         con.execute(f"UPDATE pages SET {field}=-1 WHERE page_ordinal=0")
     with pytest.raises(ScanError, match="invalid negative PageRecord count"):
+        open_scan(artifact)
+
+
+@pytest.mark.parametrize(
+    "value", [None, "[]", '["https://example.com/app.js"]', "", "https://example.com/app.js\n"]
+)
+def test_legacy_render_blocking_states_survive_import_and_export(legacy_run, tmp_path, value):
+    from seohead.storage.exports import _page_rows, export_run
+
+    source = legacy_run / "pages.jsonl"
+    records = [json.loads(line) for line in source.read_text().splitlines()]
+    for record in records:
+        record.pop("render_blocking", None)
+    records[0]["render_blocking"] = value
+    source.write_text("".join(json.dumps(record) + "\n" for record in records))
+    audit_bytes = (legacy_run / "audit.json").read_bytes()
+    path = tmp_path / "measurements.sqlite"
+    import_run(legacy_run, path, producer_build=BUILD)
+    con = open_scan(path)
+    try:
+        assert "render_blocking" not in {row[1] for row in con.execute("PRAGMA table_info(pages)")}
+        rows = list(_page_rows(con))
+        expected = (
+            None
+            if value is None
+            else json.loads(value)
+            if value.startswith("[")
+            else value.splitlines()
+        )
+        if expected is None:
+            assert rows[0]["render_blocking"] is None
+        else:
+            assert json.loads(rows[0]["render_blocking"]) == expected
+        assert "render_blocking" not in rows[1]
+        context = con.execute(
+            "SELECT * FROM context_items WHERE kind='legacy_render_blocking'"
+        ).fetchone()
+        assert context["completeness"] == ("unavailable" if value is None else "complete")
+    finally:
+        con.close()
+    directory = tmp_path / "exported"
+    export_run(str(path), str(directory))
+    restored = [json.loads(line) for line in (directory / "pages.jsonl").read_text().splitlines()]
+    assert restored[0]["render_blocking"] == rows[0]["render_blocking"]
+    assert "render_blocking" not in restored[1]
+    assert (directory / "audit.json").read_bytes() == audit_bytes
+
+
+@pytest.mark.parametrize("value", [False, 0, [], "[1]", '{"resources":[]}'])
+def test_legacy_import_rejects_invalid_render_blocking_measurement(legacy_run, tmp_path, value):
+    source = legacy_run / "pages.jsonl"
+    records = [json.loads(line) for line in source.read_text().splitlines()]
+    records[0]["render_blocking"] = value
+    source.write_text("".join(json.dumps(record) + "\n" for record in records))
+    with pytest.raises(ScanError, match="render_blocking"):
+        import_run(legacy_run, tmp_path / "invalid.sqlite", producer_build=BUILD)
+
+
+def test_legacy_render_tolerance_keeps_unknown_field_rejection(legacy_run, tmp_path):
+    source = legacy_run / "pages.jsonl"
+    records = [json.loads(line) for line in source.read_text().splitlines()]
+    records[0].update(render_blocking=None, unknown_measurement=None)
+    source.write_text("".join(json.dumps(record) + "\n" for record in records))
+    with pytest.raises(ScanError, match="fields differ"):
+        import_run(legacy_run, tmp_path / "unknown.sqlite", producer_build=BUILD)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "UPDATE context_items SET item_key='page:999999999' WHERE kind='legacy_render_blocking' "
+        "AND item_key=(SELECT MIN(item_key) FROM context_items WHERE kind='legacy_render_blocking')",
+        "UPDATE context_items SET payload_version='scan_context.v0' WHERE kind='legacy_render_blocking'",
+        "UPDATE context_items SET kind='unknown_measurement' WHERE kind='legacy_render_blocking'",
+    ],
+)
+def test_legacy_render_context_keeps_page_version_and_kind_guards(artifact, mutation):
+    with sqlite3.connect(artifact) as con:
+        con.execute(mutation)
+    with pytest.raises(ScanError, match=r"render-blocking|legacy_import_provenance"):
         open_scan(artifact)

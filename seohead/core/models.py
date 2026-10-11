@@ -277,6 +277,8 @@ class ParsedPage(_ParsedPageOptional):
     # this, not robots_meta, so a Bingbot/Yandex-only directive keeps its scope.
     robots_meta_scoped: list[str]
     canonical: str | None
+    # Raw canonical and pagination link attributes; resolved targets are separate.
+    head_links: list[dict[str, str]]
     position: DocumentPosition
     # Static Lighthouse audits (issue #59) — see seohead.sf.core.rules and
     # seohead.sf.core.lighthouse for the correspondence and doc links.
@@ -285,8 +287,12 @@ class ParsedPage(_ParsedPageOptional):
     viewport: str | None
     # <html amp> / <html ⚡> presence, data only (#1021 slice 1).
     html_amp: bool
+    render_blocking: list[str]
     # The document's <html lang> claim: {"declared", "declared_primary"}, both "" when absent.
     html_lang: dict[str, str]
+    # Static AMP/accessibility observations; independent of meta extraction flags.
+    markup: dict[str, Any]
+    document_base_url: str
     # The <meta http-equiv="refresh"> content attribute exactly as written,
     # "" when the page declares none -- the same fact SF's Meta Refresh 1
     # column carries, so one check reads it whichever source produced it.

@@ -125,7 +125,14 @@ def test_silent_checks_are_named_so_the_gap_is_visible(tmp_path):
     # 67 = 66 (batch-4) + 1 (HTML_OVER_2MB); +1 INTERNAL_LINK_SPONSORED_UGC; +1 URL_HAS_PARAMETERS;
     # +4 per-URL security-header checks (#1013) that stay named silent without a stored crawl.
     # +1 DUPLICATE_SECURITY_HEADER: the same per-URL evidence, silent without a stored crawl.
-    assert coverage["checks_silent"] <= 74
+    # +1 CANONICAL_CROSS_ORIGIN (#1305): all fixture canonical authorities match.
+    # Raw annotation attributes are absent from exports and must remain unmeasured.
+    assert "CANONICAL_CROSS_ORIGIN" in silent
+    assert "CANONICAL_INVALID_ATTRIBUTE" in skipped
+    # URL_INTERNAL_SEARCH reads the retained URL column on this export fixture;
+    # its ordinary non-search URLs prove one additional clean, invoked check.
+    assert "URL_INTERNAL_SEARCH" in silent
+    assert coverage["checks_silent"] <= 76
 
 
 def test_a_disabled_check_is_its_own_bucket_never_silent_or_clean(tmp_path):

@@ -1,0 +1,354 @@
+{
+ "uuid": "d49c2811-695d-4174-92d4-e1714a0ef566",
+ "path": "/project/qa/scans/20261009T082104Z_crawl.localhost_0609ac70.sqlite",
+ "inode": {
+  "device": 16777230,
+  "inode": 102516260
+ },
+ "mtime_ns": 1791536178517814891,
+ "bytes": 258048,
+ "disk_bytes": 827392,
+ "audit_bytes": 569344,
+ "audit_inode": {
+  "device": 16777230,
+  "inode": 102516265
+ },
+ "lifecycle": "finished",
+ "finish_reason": "finished",
+ "pinned": false,
+ "crawl_partial": false,
+ "corpus_partial": true,
+ "start_url": "http://crawl.localhost:54517/",
+ "host": "crawl.localhost",
+ "config_fingerprint": "6d02e4b29c259e3d",
+ "created_at": "2026-10-09T08:21:04.077110Z",
+ "finished_at": "2026-10-09T08:21:14.244456Z",
+ "writer_version": "3.0.0",
+ "writer_revision": "ace8c595621532851313f119980fd1cf74e9e634",
+ "source_kind": "native",
+ "parent_scan_uuid": null,
+ "evidence_revision": 20,
+ "capabilities": {
+  "html_bodies": {
+   "reason": "",
+   "state": "complete"
+  },
+  "links": {
+   "reason": "committed native crawl observations",
+   "state": "complete"
+  },
+  "offline_reanalysis": {
+   "reason": "",
+   "state": "complete"
+  },
+  "pages": {
+   "reason": "committed native crawl observations",
+   "state": "complete"
+  },
+  "rendered_bodies": {
+   "reason": "no captured rendered documents",
+   "state": "unavailable"
+  },
+  "resource_bodies": {
+   "reason": "resources.fetch disabled",
+   "state": "unavailable"
+  },
+  "resource_refs": {
+   "reason": "",
+   "state": "complete"
+  },
+  "responses": {
+   "reason": "",
+   "state": "complete"
+  },
+  "resume": {
+   "reason": "native frontier and runtime state retained",
+   "state": "complete"
+  }
+ },
+ "history_warning_bytes": 21474836480,
+ "evidence": {
+  "state": "available",
+  "frontier": {
+   "state": "available",
+   "reason": "",
+   "counts": {
+    "queued": 0,
+    "inflight": 0,
+    "done": 20,
+    "excluded": 0
+   }
+  },
+  "committed_page_outcomes": {
+   "2xx": 16,
+   "3xx": 4,
+   "4xx": 0,
+   "5xx": 0,
+   "other": 0,
+   "no_response": 0
+  },
+  "sitemaps": {
+   "fetch_summaries": {}
+  },
+  "findings": {
+   "state": "available",
+   "reason": null,
+   "total": 116,
+   "by_severity": {
+    "notice": 46,
+    "warning": 70
+   },
+   "items": [
+    {
+     "ordinal": 0,
+     "id": "ISSUE-000001",
+     "check": "DESC_MISSING",
+     "severity": "warning",
+     "target_url": "http://crawl.localhost:54517/broken/hreflang",
+     "message": "Meta description is missing",
+     "fingerprint": "82d1f5b939d5"
+    },
+    {
+     "ordinal": 1,
+     "id": "ISSUE-000002",
+     "check": "DESC_MISSING",
+     "severity": "warning",
+     "target_url": "http://crawl.localhost:54517/broken/images",
+     "message": "Meta description is missing",
+     "fingerprint": "270d0e3e02ce"
+    }
+   ],
+   "truncated": true
+  },
+  "skipped_checks": [
+   {
+    "id": "IMG_MISSING_ALT",
+    "reason": "missing export: images_missing_alt"
+   },
+   {
+    "id": "IMG_OVER_KB",
+    "reason": "missing export: images_over_kb"
+   },
+   {
+    "id": "IMG_MISSING_DIMENSIONS",
+    "reason": "missing export: images_missing_size"
+   },
+   {
+    "id": "MIXED_CONTENT",
+    "reason": "missing export: security_mixed"
+   },
+   {
+    "id": "MISSING_HSTS",
+    "reason": "missing export: security_hsts"
+   },
+   {
+    "id": "STRUCTURED_DATA_MISSING",
+    "reason": "missing export: structured_data_missing"
+   },
+   {
+    "id": "HREFLANG_ERROR",
+    "reason": "missing export: hreflang"
+   },
+   {
+    "id": "SITEMAP_URL_4XX_5XX",
+    "reason": "missing export: sitemap_non_200"
+   },
+   {
+    "id": "SITEMAP_URL_3XX",
+    "reason": "missing export: sitemap_redirects"
+   },
+   {
+    "id": "SITEMAP_URL_NON_INDEXABLE",
+    "reason": "missing export: sitemap_non_indexable"
+   },
+   {
+    "id": "H2_MISSING",
+    "reason": "requirements.require_h2 is false; the check was not evaluated"
+   },
+   {
+    "id": "META_KEYWORDS_PRESENT",
+    "reason": "no Meta Keywords 1 column in Internal:All"
+   },
+   {
+    "id": "PAGINATION_CANONICAL_POLICY",
+    "reason": "no pagination canonical policy configured"
+   },
+   {
+    "id": "FILTER_CANONICAL_POLICY",
+    "reason": "no filters canonical policy configured"
+   },
+   {
+    "id": "SCHEMA_VALIDATION_ERROR",
+    "reason": "no Structured Data validation columns in Internal:All"
+   },
+   {
+    "id": "DUPLICATE_BY_HASH",
+    "reason": "no Hash/Page Hash column in Internal:All"
+   },
+   {
+    "id": "READABILITY_DIFFICULT",
+    "reason": "no Readability/Flesch column"
+   },
+   {
+    "id": "LONG_SENTENCES",
+    "reason": "no Average Words Per Sentence column"
+   },
+   {
+    "id": "SPELLING_ERRORS",
+    "reason": "no Spelling Errors column (enable spell-check in SF)"
+   },
+   {
+    "id": "GRAMMAR_ERRORS",
+    "reason": "no Grammar Errors column (enable grammar-check in SF)"
+   },
+   {
+    "id": "CANONICAL_MULTIPLE",
+    "reason": "no Canonical Link Element 2 column in Internal:All"
+   },
+   {
+    "id": "PAGINATION_LOOP",
+    "reason": "no rel=\"next\" column in Internal:All"
+   },
+   {
+    "id": "UNLINKED_PAGINATION_SERIES",
+    "reason": "no rel=\"next\" column in Internal:All"
+   },
+   {
+    "id": "PAGINATION_SEQUENCE_ERROR",
+    "reason": "no rel=\"next\" column in Internal:All"
+   },
+   {
+    "id": "HTTP1_ONLY",
+    "reason": "no HTTP Version column in Internal:All"
+   },
+   {
+    "id": "AMPHTML_PRESENT",
+    "reason": "no amphtml Link Element column in Internal:All"
+   },
+   {
+    "id": "DECLARED_MIME_MISMATCH",
+    "reason": "no URL with a recognized extension and Content-Type"
+   },
+   {
+    "id": "OG_MISSING",
+    "reason": "no Open Graph columns in Internal:All (enable OG extraction in SF)"
+   },
+   {
+    "id": "TITLE_MULTIPLE",
+    "reason": "no titles_multiple export (export this SF filter to enable)"
+   },
+   {
+    "id": "BROKEN_INTERNAL_LINK",
+    "reason": "export inlinks_4xx not available"
+   },
+   {
+    "id": "BROKEN_EXTERNAL_LINK",
+    "reason": "export inlinks_4xx not available"
+   },
+   {
+    "id": "LINK_TO_5XX",
+    "reason": "export inlinks_5xx not available"
+   },
+   {
+    "id": "INTERNAL_LINK_TO_REDIRECT",
+    "reason": "export inlinks_3xx not available"
+   },
+   {
+    "id": "EXTERNAL_LINK_TO_REDIRECT",
+    "reason": "export inlinks_3xx not available"
+   },
+   {
+    "id": "HREFLANG_BROKEN_TARGET",
+    "reason": "one or more hreflang targets or the retained population were unmeasured"
+   },
+   {
+    "id": "HREFLANG_NOINDEX_TARGET",
+    "reason": "one or more hreflang targets or the retained population were unmeasured"
+   },
+   {
+    "id": "HREFLANG_MISSING_RETURN_LINK",
+    "reason": "retained hreflang relationship coverage is incomplete: crawl or corpus is partial"
+   },
+   {
+    "id": "INSECURE_SUBRESOURCE",
+    "reason": "all_inlinks export has no Type column (needed to tell a resource from a hyperlink)"
+   },
+   {
+    "id": "PAGINATION_MULTIPLE",
+    "reason": "the link inventory carries no link type (needed to tell a rel=\"next\" declaration from an anchor)"
+   },
+   {
+    "id": "PAGINATION_URL_NOT_IN_ANCHOR",
+    "reason": "the link inventory carries no link type (needed to tell a rel=\"next\" declaration from an anchor)"
+   },
+   {
+    "id": "NO_AUTHOR_BYLINE",
+    "reason": "no article-scope pages (no declared article markers and no content-path URL) -- the check did not apply"
+   },
+   {
+    "id": "NO_CONTENT_DATES",
+    "reason": "no article-scope pages (no declared article markers and no content-path URL) -- the check did not apply"
+   },
+   {
+    "id": "FEW_CITATIONS",
+    "reason": "no article-scope pages (no declared article markers and no content-path URL) -- the check did not apply"
+   },
+   {
+    "id": "DOM_TOO_DEEP",
+    "reason": "no stored HTML (input.html_store_dir not set)"
+   },
+   {
+    "id": "DOM_TOO_MANY_NODES",
+    "reason": "no stored HTML (input.html_store_dir not set)"
+   },
+   {
+    "id": "NEAR_DUPLICATE",
+    "reason": "no stored HTML (input.html_store_dir not set)"
+   },
+   {
+    "id": "SITEMAP_NOT_IN_ROBOTS",
+    "reason": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)"
+   },
+   {
+    "id": "ROBOTS_BLOCKS_RESOURCES",
+    "reason": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)"
+   },
+   {
+    "id": "SITEMAP_FETCH_INCOMPLETE",
+    "reason": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)"
+   },
+   {
+    "id": "SITEMAP_TOO_MANY_URLS",
+    "reason": "no sitemap document was fetched to measure"
+   },
+   {
+    "id": "SITEMAP_TOO_LARGE",
+    "reason": "no sitemap document was fetched to measure"
+   },
+   {
+    "id": "SITEMAP_URL_DUPLICATED",
+    "reason": "no sitemap entries were fetched to compare"
+   },
+   {
+    "id": "SITEMAP_STALE_LASTMOD",
+    "reason": "no sitemap entries were fetched to compare"
+   },
+   {
+    "id": "SITEMAP_DESYNC",
+    "reason": "no sitemap URL set (no export and network disabled)"
+   },
+   {
+    "id": "SITEMAP_ORPHAN",
+    "reason": "no saved sitemap declarations"
+   },
+   {
+    "id": "URL_NOT_IN_SITEMAP",
+    "reason": "no saved sitemap declarations"
+   },
+   {
+    "id": "HTTP_LINK_ON_HTTPS",
+    "reason": "link_attributes.capture is false; original href schemes were not retained"
+   }
+  ]
+ }
+}

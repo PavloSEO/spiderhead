@@ -1,0 +1,1 @@
+- Desktop: the "Export and reports" screen follows the ProjExport design canvas (dataset and format choice, folder card, recent exports). Datasets and formats the core cannot export yet (compare, tasks, PDF) are shown as unavailable; the run button stays disabled until the export is wired (#1191).

@@ -326,6 +326,82 @@ class StoredGraph:
         for edge in self.iter_links():
             yield from link_findings.internal_sponsored_ugc_links([edge], host)
 
+    def iter_mixed_rel(self) -> Iterator[dict[str, Any]]:
+        yield from link_findings.mixed_rel_links(self.iter_links())
+
+    def rel_summary(self) -> dict[str, Any]:
+        return link_findings.rel_summary(self.iter_links())
+
+    def sponsored_disclosures(self, host: str) -> dict[str, Any]:
+        """Replay only donor documents that contain a selected sponsored edge.
+
+        Per-document context is bounded by the existing replay contract. Missing,
+        partial or mismatched bodies are unavailable, never evidence of absence.
+        The frozen scan.v1 schema and the stored rel tokens remain untouched.
+        """
+        from seohead.storage.link_context import _derive, _links
+
+        findings = []
+        coverage = {"candidates": 0, "measured": 0, "disclosed": 0, "unavailable": 0}
+        reasons: dict[str, int] = {}
+        cursor = self.con.execute(
+            selected_links_cte("l") + "SELECT l.*,src.url AS source,dst.url AS destination FROM l "
+            "JOIN urls src ON src.url_id=l.source_url_id "
+            "JOIN urls dst ON dst.url_id=l.destination_url_id "
+            "ORDER BY l.source_url_id,l.source_document_id,l.link_id"
+        )
+        current = None
+        contexts: dict[int, dict[str, Any]] = {}
+        for row in cursor:
+            tokens = {token.lower() for token in json.loads(row["rel_json"])}
+            if (
+                "sponsored" not in tokens
+                or (urlsplit(row["destination"]).hostname or "").lower() == host.lower()
+            ):
+                continue
+            coverage["candidates"] += 1
+            document_id = row["source_document_id"]
+            reason = "source document was not retained"
+            if document_id is not None:
+                if document_id != current:
+                    items, _ = _derive(
+                        self.con, document_id, _links(self.con, document_id), 8 * 1024 * 1024
+                    )
+                    contexts = {item["link_id"]: item for item in items}
+                    current = document_id
+                item = contexts.get(row["link_id"], {})
+                disclosure = item.get("disclosure")
+                if item.get("state") == "measured" and disclosure:
+                    if disclosure["detected"]:
+                        coverage["disclosed"] += 1
+                        coverage["measured"] += 1
+                        continue
+                    if disclosure["state"] == "measured":
+                        coverage["measured"] += 1
+                        findings.append(
+                            {
+                                "target_url": row["source"],
+                                "destination": row["destination"],
+                                "link_id": row["link_id"],
+                                "source_document_id": document_id,
+                                "rel": sorted(tokens),
+                                "disclosure": disclosure,
+                            }
+                        )
+                        continue
+                    reason = "local disclosure context exceeded the text budget"
+                else:
+                    reason = item.get("reason") or "sponsored context was not replayed"
+            coverage["unavailable"] += 1
+            reasons[reason] = reasons.get(reason, 0) + 1
+        return {
+            "findings": findings,
+            "coverage": coverage,
+            "state": "partial" if coverage["unavailable"] else "complete",
+            "unavailable_reasons": reasons,
+            "heuristic": True,
+        }
+
     def iter_insecure_forms(self) -> Iterator[dict[str, Any]]:
         for form in self.iter_forms():
             yield from link_findings.form_url_insecure([form])

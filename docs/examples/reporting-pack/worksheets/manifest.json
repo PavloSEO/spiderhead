@@ -195,7 +195,7 @@
           "bytes": 21954,
           "path": "cohorts-0001.csv",
           "rows": 30,
-          "sha256": "c01d6dc39ae97543074cd36e93cb3e6e40686c6d36250862a5ffc17280e12ba1"
+          "sha256": "24241c22e692f68822f1ebfae347669d99d189678f4ea6c87f40a3ed67e8a3bb"
         }
       ],
       "primary_key": [
@@ -209,7 +209,7 @@
       "state": "available"
     },
     "coverage": {
-      "bytes": 42577,
+      "bytes": 58295,
       "coverage": {},
       "fields": [
         {
@@ -278,10 +278,10 @@
       "partition_count": 1,
       "partitions": [
         {
-          "bytes": 42577,
+          "bytes": 58295,
           "path": "coverage-0001.csv",
-          "rows": 201,
-          "sha256": "e2244232111492641f88abdffb06951f2f9e8e65ffbb5e200a884eeecb0228c9"
+          "rows": 247,
+          "sha256": "04fc07d6b43f866efb3263b42112dbcc0084e03108a5c97a07bc77c5d1bc2173"
         }
       ],
       "primary_key": [
@@ -291,7 +291,7 @@
         "population"
       ],
       "reason": null,
-      "row_count": 201,
+      "row_count": 247,
       "schema_version": "seohead.bi.coverage.v1",
       "source_population": "input artifact and declared check coverage",
       "state": "available"
@@ -557,7 +557,7 @@
           "bytes": 29360,
           "path": "findings-0001.csv",
           "rows": 25,
-          "sha256": "519d688ad62a8e5cf37394c438483a3bd572a4e9126a1463ddd4d4440acfc365"
+          "sha256": "9b969477bc39486e8e66358b0941d493656d2cbda3657f89aa81c0fed6000494"
         }
       ],
       "primary_key": [
@@ -1147,7 +1147,7 @@
           "bytes": 40469,
           "path": "metrics-0001.csv",
           "rows": 16,
-          "sha256": "7547c39e70c72650bba5b449300c32ead0d17cb7a08591f737a210c3141a4f0e"
+          "sha256": "4d3cc2a2affc75e0f7c111c7e249f1026f5252955bfa1ab2c655f2c1bbda5a33"
         }
       ],
       "primary_key": [
@@ -1590,7 +1590,7 @@
           "bytes": 12289,
           "path": "pages-0001.csv",
           "rows": 6,
-          "sha256": "4be4722075d177292ff20325f3bfd92185420229d8177cadaed220db88c9ca2b"
+          "sha256": "6de4c4d3183cf5ef95eaab63032656ec828287a09fb08d73927df01759e224cc"
         }
       ],
       "primary_key": [
@@ -1660,7 +1660,7 @@
           "bytes": 834,
           "path": "group-groups-0001.csv",
           "rows": 3,
-          "sha256": "bd60943f59968d63cc8343b4ec804581bc6dba51da555c9633e71358d97378ab"
+          "sha256": "d04a9b4dace79ccc098742d921509bec721bab80ad2991bd0f60ee7273d4abfc"
         }
       ],
       "row_count": 3
@@ -1702,22 +1702,22 @@
           "bytes": 589,
           "path": "group-members-0001.csv",
           "rows": 7,
-          "sha256": "26f503403c357d83fa3d2333df1f383b48d4f905fe182bbcf1cc21e7b55b39c5"
+          "sha256": "e5f0765d357d320e1577f36621fd43fe74314a98b4cf62d83a657dbc956026f3"
         }
       ],
       "row_count": 7
     },
     "publication": "local companion; not included in the six published datasets",
-    "run_id": "audit:40172cfbc8b563f6e09467df",
-    "sha256": "2b02ee53c84c26a84cc045f1c0ca3cd0533d8d6dace865b04b9a0f33e6cb9930",
-    "source_audit_sha256": "40172cfbc8b563f6e09467df00964d9d4654c43412a453c0cda64c51195785dd"
+    "run_id": "audit:c44b448d78f55a892b467976",
+    "sha256": "c2da2cd2c4376d41bef0e7e59c5dfb6f4ae85f17fe818d060f514505d9fd1769",
+    "source_audit_sha256": "c44b448d78f55a892b4679767e681fcc26c2b6ff625162b8827a3672db0bd6a8"
   },
   "input": {
-    "bytes": 45691,
+    "bytes": 60624,
     "kind": "sf-audit",
     "name": "audit.json",
     "schema": "2.0",
-    "sha256": "40172cfbc8b563f6e09467df00964d9d4654c43412a453c0cda64c51195785dd"
+    "sha256": "c44b448d78f55a892b4679767e681fcc26c2b6ff625162b8827a3672db0bd6a8"
   },
   "metrics_dimension_columns": {},
   "provider_sources": [
@@ -1913,20 +1913,35 @@
     "projection_index_cache_bytes": 2097152
   },
   "run": {
-    "audit_sha256": "40172cfbc8b563f6e09467df00964d9d4654c43412a453c0cda64c51195785dd",
+    "audit_sha256": "c44b448d78f55a892b4679767e681fcc26c2b6ff625162b8827a3672db0bd6a8",
     "check_skips": {
+      "A11Y_FORM_LABEL_MISSING": "document-bound markup evidence requires a retained native crawl",
+      "A11Y_HEADING_ORDER": "document-bound markup evidence requires a retained native crawl",
+      "A11Y_HTML_LANG_MISSING": "document-bound markup evidence requires a retained native crawl",
+      "A11Y_IMAGE_ALT_MISSING": "document-bound markup evidence requires a retained native crawl",
+      "A11Y_MAIN_LANDMARK_MISSING": "document-bound markup evidence requires a retained native crawl",
       "AJAX_CRAWLING_SCHEME_META_FRAGMENT": "no <meta name=\"fragment\"> evidence (native crawl only)",
       "AJAX_CRAWLING_SCHEME_URL": "no AJAX-scheme URL evidence (native crawl only)",
       "AMPHTML_PRESENT": "no amphtml Link Element column in Internal:All",
       "AMP_INDEXABLE": "no amphtml Link Element column in Internal:All",
+      "AMP_INVALID_BOILERPLATE": "document-bound markup evidence requires a retained native crawl",
+      "AMP_INVALID_CHARSET": "document-bound markup evidence requires a retained native crawl",
+      "AMP_INVALID_DOCTYPE": "document-bound markup evidence requires a retained native crawl",
+      "AMP_INVALID_RUNTIME": "document-bound markup evidence requires a retained native crawl",
+      "AMP_INVALID_VIEWPORT": "document-bound markup evidence requires a retained native crawl",
+      "AMP_MISSING_BODY": "document-bound markup evidence requires a retained native crawl",
       "AMP_MISSING_CANONICAL": "no amphtml Link Element column in Internal:All",
+      "AMP_MISSING_HEAD": "document-bound markup evidence requires a retained native crawl",
+      "AMP_MISSING_HTML_ATTRIBUTE": "document-bound markup evidence requires a retained native crawl",
       "AMP_MISSING_RETURN_LINK": "no amphtml Link Element column in Internal:All",
       "AMP_NON_200": "no amphtml Link Element column in Internal:All",
       "AMP_NON_INDEXABLE_CANONICAL": "no amphtml Link Element column in Internal:All",
+      "ASSET_SHORT_CACHE": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
       "BODY_MISSING": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "BODY_MULTIPLE": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "BROKEN_BOOKMARK": "export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan",
       "BROKEN_EXTERNAL_LINK": "export inlinks_5xx not available",
+      "CANONICAL_INVALID_ATTRIBUTE": "raw canonical attributes are unavailable in this export",
       "CANONICAL_MULTIPLE": "no Canonical Link Element 2 column in Internal:All",
       "CANONICAL_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "CONTENT_IN_IFRAME": "no iframe inventory in this evidence",
@@ -1935,16 +1950,21 @@
       "DESC_MULTIPLE": "no meta description count evidence (native crawl only)",
       "DESC_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "DIRECTIVES_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
-      "DOM_TOO_DEEP": "no stored HTML (input.html_store_dir not set)",
-      "DOM_TOO_MANY_NODES": "no stored HTML (input.html_store_dir not set)",
+      "DOM_TOO_DEEP": "stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest",
+      "DOM_TOO_MANY_NODES": "stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest",
+      "DUPLICATED_JS": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
       "DUPLICATE_BY_HASH": "SF native Hash column already covers this",
       "DUPLICATE_ID": "no duplicate-id evidence (native crawl only)",
       "DUPLICATE_INTERNAL_LINK": "no all_inlinks export (needed for the complete internal edge list)",
       "EXTERNAL_LINK_TO_REDIRECT": "export inlinks_3xx not available",
+      "EXTERNAL_NO_RESPONSE": "this check requires retained native scan evidence",
       "FEW_CITATIONS": "no External Outlinks column and no all_inlinks export -- nothing to count outbound citations from",
       "FILTER_CANONICAL_POLICY": "no filters canonical policy configured",
+      "FONT_DISPLAY_MISSING": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+      "FORCED_REFLOW": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
       "GRAMMAR_ERRORS": "no Grammar Errors column (enable grammar-check in SF)",
       "H1_ALT_TEXT_ONLY": "no H1 alt-text evidence (native crawl only)",
+      "H1_LOW_SEMANTIC_RELEVANCE": "no semantic embedding adapter is selected",
       "H2_MISSING": "requirements.require_h2 is false; the check was not evaluated",
       "HEADING_BEFORE_H1": "no heading outline evidence (native crawl only)",
       "HEADING_IN_PAGE_CHROME": "no heading outline evidence (native crawl only)",
@@ -1952,6 +1972,7 @@
       "HEAD_MISSING": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "HEAD_MULTIPLE": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "HEAD_NOT_FIRST": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
+      "HEAVY_PAGE_WEIGHT": "not fully measured by this native crawl: runtime response weight is absent or bounded; captured HTML alone is a lower bound",
       "HREFLANG_BROKEN_TARGET": "missing export: all_hreflang",
       "HREFLANG_ERROR": "missing export: hreflang",
       "HREFLANG_INCONSISTENT_CONFIRMATION": "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
@@ -1966,16 +1987,25 @@
       "HREFLANG_UNLINKED_TARGET": "no all_hreflang export (export Bulk Export → Links → All Hreflang to enable)",
       "HTTP1_ONLY": "no HTTP Version column in Internal:All",
       "HTTP_REFRESH_REDIRECT": "no Refresh response header evidence (native crawl only)",
+      "IMAGE_DELIVERY": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
       "IMAGE_LINK_WITHOUT_TEXT": "no link-placement evidence (native crawl only)",
       "IMG_ALT_TOO_LONG": "no per-image evidence (native crawl only)",
       "IMG_BROKEN": "no resource evidence (native crawl with resource capture only)",
+      "IMG_INTRINSIC_OVERSIZED": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
       "IMG_MISSING_ALT": "missing export: images_missing_alt",
       "IMG_MISSING_ALT_ATTRIBUTE": "no per-image evidence (native crawl only)",
       "IMG_MISSING_DIMENSIONS": "missing export: images_missing_size",
       "IMG_OVER_KB": "missing export: images_over_kb",
+      "IMG_UPSCALED": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
       "INSECURE_SUBRESOURCE": "no all_inlinks export (needed for the resource inventory)",
+      "INTERNALLY_LINKED_ROBOTS_BLOCKED": "this check requires retained native scan evidence",
+      "INTERNAL_LINK_NO_ANCHOR": "this check requires retained native scan evidence",
       "INTERNAL_LINK_TO_REDIRECT": "export inlinks_3xx not available",
       "INVALID_HEAD_ELEMENT": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
+      "JS_EXECUTION_TIME": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "LAYOUT_SHIFT_CULPRITS": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "LCP_DISCOVERY": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "LEGACY_JS": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
       "LINK_INSIDE_HEADING": "no link-placement evidence (native crawl only)",
       "LINK_TO_5XX": "export inlinks_5xx not available",
       "LONG_SENTENCES": "no Average Words Per Sentence column",
@@ -1986,14 +2016,17 @@
       "MISSING_DOCTYPE": "no Doctype column (needs a native seohead crawl or Custom Extraction in SF)",
       "MISSING_HSTS": "missing export: security_hsts",
       "MIXED_CONTENT": "missing export: security_mixed",
+      "MIXED_LINK_REL": "export input retains no full rel-token/context evidence; native retained links are required",
       "MOBILE_ALTERNATE_LINK": "no rel=alternate media evidence (native crawl only)",
-      "NEAR_DUPLICATE": "no stored HTML (input.html_store_dir not set)",
+      "NEAR_DUPLICATE": "stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4)",
+      "NETWORK_DEPENDENCY_TREE": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
       "NO_AUTHOR_BYLINE": "no Trust Signals column (native crawl or a same-named custom extraction) -- no author markup evidence at all",
       "NO_COMPRESSION": "no Content-Encoding column (needs a native seohead crawl or Custom Extraction in SF)",
       "NO_CONTENT_DATES": "no Trust Signals column and no Last Modified column -- no date evidence at all",
       "OG_MISSING": "no Open Graph columns in Internal:All (enable OG extraction in SF)",
       "ONLY_NOFOLLOW_INLINKS": "no all_inlinks export (needed for the complete inlink list)",
       "ONLY_NONINDEXABLE_SOURCE_INLINKS": "no all_inlinks export (needed for the complete inlink list)",
+      "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE": "export input retains no full rel-token/context evidence; native retained links are required",
       "PAGINATION_CANONICAL_POLICY": "no pagination canonical policy configured",
       "PAGINATION_LOOP": "no rel=\"next\" column in Internal:All",
       "PAGINATION_MULTIPLE": "no all_inlinks export (needed for every rel=\"next\"/rel=\"prev\" declaration and the anchors beside them)",
@@ -2002,8 +2035,11 @@
       "READABILITY_DIFFICULT": "no Readability/Flesch column",
       "REDIRECT_CHAIN": "no redirect data (Internal:All has no Redirect URL column)",
       "REDIRECT_LOOP": "no redirect data (Internal:All has no Redirect URL column)",
+      "RENDER_BLOCKING": "no Render Blocking Resources column (needs a native seohead crawl)",
+      "RESOURCE_OVER_2MB": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
       "ROBOTS_BLOCKS_RESOURCES": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)",
       "SCHEMA_VALIDATION_ERROR": "no Structured Data validation columns in Internal:All",
+      "SEMANTIC_SIMILARITY_CANDIDATE": "no semantic embedding adapter is selected",
       "SITEMAP_DESYNC": "no sitemap URL set (no export and network disabled)",
       "SITEMAP_FETCH_INCOMPLETE": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)",
       "SITEMAP_NOT_IN_ROBOTS": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)",
@@ -2012,31 +2048,194 @@
       "SITEMAP_TOO_MANY_URLS": "no sitemap document was fetched to measure",
       "SITEMAP_URL_3XX": "missing export: sitemap_redirects",
       "SITEMAP_URL_4XX_5XX": "missing export: sitemap_non_200",
+      "SITEMAP_URL_BLOCKED_ROBOTS": "this check requires retained native scan evidence",
       "SITEMAP_URL_DUPLICATED": "no sitemap entries were fetched to compare",
+      "SITEMAP_URL_NON_CANONICAL": "this check requires retained native scan evidence",
       "SITEMAP_URL_NON_INDEXABLE": "missing export: sitemap_non_indexable",
       "SPELLING_ERRORS": "no Spelling Errors column (enable spell-check in SF)",
       "STRUCTURED_DATA_MISSING": "missing export: structured_data_missing",
       "STRUCTURED_DATA_PARSE_ERROR": "no JSON-LD found/parsed block counts (native crawl only)",
+      "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING": "document-bound markup evidence requires a retained native crawl",
+      "STRUCTURED_DATA_SCHEMA_ERROR": "document-bound markup evidence requires a retained native crawl",
+      "STRUCTURED_DATA_SCHEMA_WARNING": "document-bound markup evidence requires a retained native crawl",
+      "TITLE_LOW_SEMANTIC_RELEVANCE": "no semantic embedding adapter is selected",
       "TITLE_MULTIPLE": "no titles_multiple export (export this SF filter to enable)",
       "TITLE_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "TITLE_TEMPLATED": "too few titles to assess templating",
       "UNLINKED_PAGINATION_SERIES": "no rel=\"next\" column in Internal:All",
+      "UNMINIFIED_CSS_JS": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
       "UNSUPPORTED_PLUGIN": "no plugin-element evidence (native crawl only)",
+      "UNUSED_CSS_JS": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
       "VIEWPORT_MISSING": "no Viewport column (needs a native seohead crawl or Custom Extraction in SF)"
     },
     "crawl_reason": "audit source does not establish a completed native crawl",
     "crawl_settings": null,
     "crawl_state": "unknown",
-    "finished_at": "2026-10-11T02:10:14Z",
+    "finished_at": "2026-10-11T15:22:50Z",
     "input_mode": "parse-exports",
-    "run_id": "audit:40172cfbc8b563f6e09467df",
-    "source_bytes": 45691,
+    "run_id": "audit:c44b448d78f55a892b467976",
+    "source_bytes": 60624,
     "source_kind": "sf-audit",
     "source_name": "audit.json",
     "source_schema": "2.0",
-    "source_sha256": "40172cfbc8b563f6e09467df00964d9d4654c43412a453c0cda64c51195785dd",
+    "source_sha256": "c44b448d78f55a892b4679767e681fcc26c2b6ff625162b8827a3672db0bd6a8",
     "started_at": null,
     "summary": {
+      "asset_measurements": {
+        "ASSET_SHORT_CACHE": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "DUPLICATED_JS": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "FONT_DISPLAY_MISSING": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "FORCED_REFLOW": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "HEAVY_PAGE_WEIGHT": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: runtime response weight is absent or bounded; captured HTML alone is a lower bound",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "IMAGE_DELIVERY": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "IMG_INTRINSIC_OVERSIZED": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "IMG_UPSCALED": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "JS_EXECUTION_TIME": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "LAYOUT_SHIFT_CULPRITS": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "LCP_DISCOVERY": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "LEGACY_JS": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "NETWORK_DEPENDENCY_TREE": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "RENDER_BLOCKING": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "no Render Blocking Resources column (needs a native seohead crawl)",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "RESOURCE_OVER_2MB": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "UNMINIFIED_CSS_JS": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "UNUSED_CSS_JS": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        }
+      },
       "by_check": {
         "BROKEN_INTERNAL_LINK": 1,
         "BROKEN_PAGE_4XX": 1,
@@ -2068,12 +2267,13 @@
         "checks_disabled": 0,
         "checks_disabled_ids": [],
         "checks_fired": 20,
-        "checks_silent": 74,
+        "checks_silent": 76,
         "checks_silent_ids": [
           "BAD_REDIRECT_TYPE",
           "BLOCKED_BY_ROBOTS",
           "CANONICALISED",
           "CANONICAL_CHAIN",
+          "CANONICAL_CROSS_ORIGIN",
           "CANONICAL_FRAGMENT",
           "CANONICAL_HOMEPAGE_GROUP",
           "CANONICAL_NON_INDEXABLE",
@@ -2133,6 +2333,7 @@
           "URL_CONTAINS_SPACE",
           "URL_HAS_PARAMETERS",
           "URL_HAS_PARAMS",
+          "URL_INTERNAL_SEARCH",
           "URL_MULTIPLE_SLASHES",
           "URL_NON_ASCII",
           "URL_NOT_IN_SITEMAP",
@@ -2145,13 +2346,13 @@
           "URL_UPPERCASE",
           "YMYL_REVIEW_CANDIDATE"
         ],
-        "checks_skipped": 108,
-        "checks_total": 202,
-        "coverage": 0.465
+        "checks_skipped": 152,
+        "checks_total": 248,
+        "coverage": 0.387
       },
       "health_score": null,
-      "health_score_basis": "94 of 202 checks could run; the score is not comparable to a run with full evidence",
-      "health_score_reason": "only 94 of 202 checks could run (46% coverage); too little evidence to score",
+      "health_score_basis": "96 of 248 checks could run; the score is not comparable to a run with full evidence",
+      "health_score_reason": "only 96 of 248 checks could run (39% coverage); too little evidence to score",
       "implausible_checks": [
         {
           "check": "H2_DUPLICATE",
@@ -2162,6 +2363,16 @@
       "internal_linking": {
         "measured": false,
         "reason": "no all_inlinks export (needed for the complete internal edge list)"
+      },
+      "semantic_similarity": {
+        "coverage": {
+          "analyzed_documents": 0,
+          "eligible_documents": 0,
+          "omission_reasons": {},
+          "omitted_documents": 0,
+          "state": "unavailable"
+        },
+        "reason": "no semantic embedding adapter is selected"
       },
       "sitemap": {
         "declared_in_robots": null,

@@ -333,4 +333,4 @@ def test_committed_worksheets_are_reproducible_from_sources(tmp_path):
         "committed worksheets are stale; run python scripts/generate_reporting_pack_worksheets.py"
     )
     assert result["network"] is False
-    assert result["run_id"] == "audit:40172cfbc8b563f6e09467df"
+    assert result["run_id"] == "audit:c44b448d78f55a892b467976"

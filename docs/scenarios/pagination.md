@@ -26,33 +26,29 @@ answers 200 with a `noindex` are both pages a crawler will not keep. A series wh
 indexable and pages 2..n are not is the most common shape, and it is usually a plugin default
 nobody chose.
 
-**2. Notice which pagination checks the crawl declares it cannot run.**
+**2. Read retained head annotations and target evidence.**
 
-`run.checks_skipped` will contain all three of these:
+Native scans preserve raw `rel`/`href` declarations in versioned document context. The SQL scan
+schema stays unchanged. `PAGINATION_LOOP` walks the `rel="next"` graph; native numbered and
+stride series use the same rules as SF exports. `UNLINKED_PAGINATION_SERIES` still requires a
+complete hyperlink population before absence can be proven.
 
-```json
-[
-  {"id": "PAGINATION_LOOP", "reason": "no rel=\"next\" column in Internal:All"},
-  {"id": "UNLINKED_PAGINATION_SERIES", "reason": "no rel=\"next\" column in Internal:All"},
-  {"id": "PAGINATION_SEQUENCE_ERROR", "reason": "no rel=\"next\" column in Internal:All"}
-]
-```
+Same-host uncaptured canonical, hreflang and pagination targets receive at most one bounded
+probe, within the crawl request budget and the shared 5,000-target cap. Probes retain HTTP
+status, redirect, measured noindex state and the target's canonical. A target past a budget,
+an external target or an older status-only probe remains unmeasured for HTML directives.
 
-The native spider records hyperlinks; it does not extract `rel="next"` / `rel="prev"` into a
-column of its own. Rather than reporting a clean series it never examined, all three checks
-declare themselves absent by name.
-
-**3. Run the audit over a Screaming Frog export to close that half.**
+**3. Use existing Screaming Frog exports when that is the chosen input.**
 
 ```bash
 seohead sf run --exports-dir ./exports --out report --tasks
 ```
 
-`PAGINATION_LOOP` walks the `rel="next"` graph and flags a series that cycles instead of
-terminating — page 5 pointing back to page 2 is a crawler walking in circles for as long as it
-has budget. `UNLINKED_PAGINATION_SERIES` flags a series reachable *only* by following
-`rel="next"`, never by an ordinary hyperlink: a discovery path that depends entirely on an
-annotation search engines have said they no longer use for indexing.
+Both inputs feed the same findings. Raw malformed canonical attributes require native parsed
+annotation evidence; an ordinary SF Internal:All canonical cell cannot reconstruct raw markup.
+Canonical annotations carrying `hreflang`, `lang`, `media` or `type` are reported by
+`CANONICAL_INVALID_ATTRIBUTE`: those alternate-version attributes belong on separate link
+annotations. See [Google's canonical link guidance](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls).
 
 **4. Export All Inlinks too, because the anchor check needs a page's own link inventory.**
 
@@ -89,26 +85,22 @@ number, from a `page`/`paged`/`pg` token and nothing else — a bare number in a
 or a product id as often as a page index. It reports a break in a run that increments by one
 somewhere and then does not: 1, 2, 3, 7 leaves pages 4 to 6 in nobody's chain.
 
-What it deliberately does not report: a series that does not step by one at all, such as a
-stride `?page=0,10,20` (an offset scheme looks exactly like that); a series of only two pages; a series that cycles
-(`PAGINATION_LOOP` owns that one); and any series where one URL does not state its number at all. Each of those is left unevaluated rather than reported
-against a numbering that would have had to be invented.
+A dominant stride is judged against its own step: `?page=1,3,5,8,10` reports 5 → 8,
+while `0,10,20` stays silent. An irregular run with no dominant step remains unjudged.
 
-Each is also counted and named separately, per series rather than per run, because those causes
-are not interchangeable — a stride and a two-page series both state every number they have, and
-telling their operator that some URL states no page number would send them to rewrite a
-numbering scheme that was never the problem:
+For opaque URLs, the check never invents page numbers. It reports an explicit contradiction:
+A declares `next=B`, while B declares `prev=C` instead of A (and the mirror direction).
+Correct reciprocal pairs stay silent. Missing reverse declarations, uncaptured targets,
+ambiguous successors and old scans without retained annotations remain unjudged with a reason.
+Cycles are reported by `PAGINATION_LOOP` alone. Native graph identities preserve distinct slash
+paths and uncertain fragment-route documents remain unmeasured. Reciprocal contradictions also
+cover numbered neighbors in a chain whose first URL is unnumbered; duplicate forward/reverse
+reports of one broken successor are collapsed. Raw declarations and document identity accompany
+the contradiction finding.
 
-```json
-[
-  {"id": "PAGINATION_SEQUENCE_ERROR", "reason": "1 of 2 rel=\"next\" series could not be judged: 1 where 1 of its 3 URLs states no page number, and a missing number is not evidence of a gap (e.g. https://example.com/blog/)"}
-]
-```
-
-That per-series count matters on ordinary sites: the WordPress shape — page one at an unnumbered
-`/blog/`, pages 2..n at `/blog/page/N/` — is always of the unjudgeable kind, so a run-wide "did
-anything get judged?" guard would let it vanish behind one judgeable series elsewhere on the
-same crawl and read as clean.
+Findings are retained in the audit and can be selected with `scan-url-query --issue-check
+PAGINATION_SEQUENCE_ERROR`. The same saved issue stream feeds Desktop Problems; no desktop
+specific check or second calculation is needed.
 
 **6. Confirm the links themselves resolve.**
 
@@ -152,8 +144,8 @@ for non-indexable pagination. A site with 39 unreachable pages of products does 
 
 - **The order of a series whose URLs do not number themselves.** `/catalog/2/` states nothing a
   page-number token can be read from, and guessing produces sequence "errors" on ordered series.
-- **Whether a stride is intentional.** `?page=0,10,20` is an offset scheme to one site and a
-  broken run to another, and nothing here can tell which; it is left unevaluated.
+- **Whether an unestablished order has a gap.** Opaque URLs with no reciprocal declaration
+  evidence and numeric runs with no dominant step cannot establish a missing page.
 - **Infinite scroll.** A series assembled by JavaScript has no `rel` annotations to read and no
   hyperlinks to follow; the [rendering scenario](rendering.md) comes first.
 - **Whether the products on page 2 are indexed.** Reachability is not indexation, and nothing

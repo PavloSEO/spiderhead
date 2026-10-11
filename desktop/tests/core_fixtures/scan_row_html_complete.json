@@ -1,0 +1,70 @@
+{
+ "uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+ "path": "/project/qa/scans/scan-v3.sqlite",
+ "inode": {
+  "device": 16777230,
+  "inode": 104209288
+ },
+ "mtime_ns": 1791551669336477343,
+ "bytes": 18644992,
+ "disk_bytes": 38387712,
+ "audit_bytes": 19742720,
+ "audit_inode": {
+  "device": 16777230,
+  "inode": 104209281
+ },
+ "lifecycle": "finished",
+ "finish_reason": "finished",
+ "pinned": false,
+ "crawl_partial": false,
+ "corpus_partial": false,
+ "start_url": "http://shop.example.test:18431/",
+ "host": "shop.example.test",
+ "config_fingerprint": "4c27e1bbb42e729b",
+ "created_at": "2026-10-09T09:33:43.868159Z",
+ "finished_at": "2026-10-09T09:34:31.542665Z",
+ "writer_version": "3.0.0",
+ "writer_revision": "a7dff37a54d410444f430e2164e891bc60087581",
+ "source_kind": "native",
+ "parent_scan_uuid": null,
+ "evidence_revision": 1336,
+ "capabilities": {
+  "html_bodies": {
+   "reason": "",
+   "state": "complete"
+  },
+  "links": {
+   "reason": "committed native crawl observations",
+   "state": "complete"
+  },
+  "offline_reanalysis": {
+   "reason": "",
+   "state": "complete"
+  },
+  "pages": {
+   "reason": "committed native crawl observations",
+   "state": "complete"
+  },
+  "rendered_bodies": {
+   "reason": "no captured rendered documents",
+   "state": "unavailable"
+  },
+  "resource_bodies": {
+   "reason": "",
+   "state": "complete"
+  },
+  "resource_refs": {
+   "reason": "",
+   "state": "complete"
+  },
+  "responses": {
+   "reason": "",
+   "state": "complete"
+  },
+  "resume": {
+   "reason": "native frontier and runtime state retained",
+   "state": "complete"
+  }
+ },
+ "history_warning_bytes": 21474836480
+}

@@ -1,15 +1,17 @@
 # AGENTS.md — public repository contract
 
-SEOHEAD Tools is a headless, local-first evidence and audit-automation layer for SEO specialists
+SpiderHead is a headless, local-first evidence and audit-automation layer for SEO specialists
 and tool-calling agents. The `seohead` CLI and one local stdio MCP server remain the default
 interfaces. An optional, authenticated remote scan API may reuse the same core only with an
 explicit job backend and target/egress policy; it must never expose anonymous submission or
-silently enable a listener. A planned SEOHEAD Desktop (PyQt5) is a native presentation adapter over the same core; its specification is in `desktop/docs/spec/`, and this repository does not yet ship it. A hosted account, web dashboard and remote MCP endpoint
+silently enable a listener. SpiderHead Desktop (PyQt5) is a native presentation adapter over the
+same core, maintained in `desktop/` with its own tests and packaging instructions in
+`desktop/README.md`. A hosted account, web dashboard and remote MCP endpoint
 remain outside this repository's current delivery boundary.
 
 ## Product model
 
-Present SEOHEAD as a native Python SEO crawler and scan-analysis toolkit, with a complete
+Present SpiderHead as a native Python SEO crawler and scan-analysis toolkit, with a complete
 headless crawl -> retain -> analyze -> reanalyze -> compare -> report workflow. The native
 crawler is a first-class collector, not merely a fallback when Screaming Frog is unavailable.
 
@@ -47,7 +49,7 @@ seohead/
   integrations/remote_api/  optional authenticated scan API (ASGI app, no listener)
   recon/          domain and infrastructure reconnaissance
   crawl/          native site collector (crawl-site) — no Screaming Frog required
-  sf/             Screaming Frog export runner and 202-check analyzer, shared with crawl/'s output
+  sf/             Screaming Frog export runner and 248-check analyzer, shared with crawl/'s output
   audit/          bounded sitemap-based evidence orchestration
   core/           shared models, job contracts, and run logs
   reports/        XLSX, DOCX, CSV, Markdown, and JSON formatting

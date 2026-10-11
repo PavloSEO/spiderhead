@@ -1,7 +1,7 @@
 """Offline re-analysis of a saved scan.v1 (#382).
 
 ``reanalyze_scan`` must make zero network attempts, never mutate the source
-file, and name the seven checks scan.v1 cannot re-measure rather than either
+file, and name the protocol and lastmod checks retained membership cannot re-measure rather than either
 silently dropping them from coverage or fabricating an answer.
 """
 
@@ -70,13 +70,15 @@ def test_reanalyze_never_mutates_source_file(tmp_path):
     assert reanalyze_scan(scan_path, producer_build="b" * 40)["source_sha256"] == before
 
 
-def test_reanalyze_names_the_seven_unmeasurable_checks(tmp_path):
+def test_reanalyze_names_unmeasurable_protocol_and_lastmod_checks(tmp_path):
     scan_path = _build_scan(tmp_path)
 
     result = reanalyze_scan(scan_path, producer_build="b" * 40)
 
     skipped_ids = {s["id"] for s in result["audit"]["run"]["checks_skipped"]}
     assert set(UNMEASURABLE_OFFLINE_CHECKS) <= skipped_ids
+    assert "SITEMAP_NOT_IN_ROBOTS" not in skipped_ids
+    assert "ROBOTS_BLOCKS_RESOURCES" not in skipped_ids
     reasons = {s["id"]: s["reason"] for s in result["audit"]["run"]["checks_skipped"]}
     for check_id in UNMEASURABLE_OFFLINE_CHECKS:
         assert reasons[check_id], f"{check_id} has no stated reason"

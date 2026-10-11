@@ -1,0 +1,43 @@
+{
+ "ok": true,
+ "revision": 4,
+ "entries": [
+  {
+   "id": "inbox:ee029d9c-0487-41a5-88e1-ab121307ed5b",
+   "kind": "note",
+   "text": "Проверь robots.txt после релиза",
+   "references": [],
+   "author_role": "specialist",
+   "created_at": "2026-10-09T08:56:38.199452Z",
+   "goal_state": null,
+   "triage": [
+    {
+     "actor": "agent/local",
+     "kind": "rejected",
+     "reason": "Не относится к целям проекта",
+     "recorded_at": "2026-10-09T09:09:19.840014Z"
+    }
+   ],
+   "read_at": null,
+   "acknowledged_at": null
+  },
+  {
+   "id": "inbox:8bd73606-681f-43d3-98b5-4aaf95ecc189",
+   "kind": "proposed_goal",
+   "text": "Убрать технические ошибки каталога",
+   "references": [],
+   "author_role": "specialist",
+   "created_at": "2026-10-09T08:56:39.281735Z",
+   "goal_state": "accepted",
+   "triage": [],
+   "read_at": null,
+   "acknowledged_at": null
+  }
+ ],
+ "pagination": {
+  "offset": 0,
+  "limit": 20,
+  "total": 2,
+  "next_offset": null
+ }
+}

@@ -48,7 +48,7 @@ Grouped by area (file names under `tests/`):
   `test_rules.py`, `test_check_coverage.py`, `test_inlinks.py`,
   `test_heuristics.py`, `test_normalize.py`, `test_context.py`,
   `test_aggregate.py`, `test_sitemap_coverage.py`, `test_sitemap_txt.py` —
-  the 202 checks over the synthetic crawl in `tests/fixtures/`.
+  the 248 checks over the synthetic crawl in `tests/fixtures/`.
 - **Audit outputs**: `test_reporters.py` (audit.json validates against
   `sf/schema/audit.schema.json` — the contract test), `test_sf_config.py`
   (threshold/profile resolution), `test_tasks.py` (backlog building).

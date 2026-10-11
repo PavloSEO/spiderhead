@@ -1,0 +1,178 @@
+{
+ "ok": true,
+ "view": "links",
+ "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+ "evidence_revision": 1336,
+ "coverage": {
+  "state": "complete",
+  "reasons": [],
+  "internal_links_stored": true,
+  "external_links_stored": true,
+  "retained_attributes": [
+   "rel",
+   "target",
+   "anchor",
+   "position",
+   "raw_href"
+  ],
+  "not_retained_attributes": [
+   "hreflang",
+   "download"
+  ]
+ },
+ "url": "http://shop.example.test:18431/catalog/",
+ "direction": "out",
+ "representation": "all",
+ "filters": {
+  "link_type": "all",
+  "follow": "all",
+  "status_class": "all",
+  "contains": null,
+  "sort": "order"
+ },
+ "offset": 0,
+ "limit": 6,
+ "max_limit": 200,
+ "state": "complete",
+ "reason_code": null,
+ "items": [
+  {
+   "index": 1,
+   "link_id": 31439,
+   "ordinal": 0,
+   "representation": "static",
+   "target_url": "http://shop.example.test:18431/",
+   "anchor": "",
+   "rel": null,
+   "nofollow": false,
+   "sponsored": false,
+   "ugc": false,
+   "internal": true,
+   "target_scanned": true,
+   "target_status": 200,
+   "position": null,
+   "attributes": {
+    "target": null
+   },
+   "raw_href": null
+  },
+  {
+   "index": 2,
+   "link_id": 31440,
+   "ordinal": 1,
+   "representation": "static",
+   "target_url": "http://shop.example.test:18431/catalog/",
+   "anchor": "Каталог",
+   "rel": null,
+   "nofollow": false,
+   "sponsored": false,
+   "ugc": false,
+   "internal": true,
+   "target_scanned": true,
+   "target_status": 200,
+   "position": null,
+   "attributes": {
+    "target": null
+   },
+   "raw_href": null
+  },
+  {
+   "index": 3,
+   "link_id": 31441,
+   "ordinal": 2,
+   "representation": "static",
+   "target_url": "http://shop.example.test:18431/catalog/kuhni/",
+   "anchor": "Кухни",
+   "rel": null,
+   "nofollow": false,
+   "sponsored": false,
+   "ugc": false,
+   "internal": true,
+   "target_scanned": true,
+   "target_status": 200,
+   "position": null,
+   "attributes": {
+    "target": null
+   },
+   "raw_href": null
+  },
+  {
+   "index": 4,
+   "link_id": 31442,
+   "ordinal": 3,
+   "representation": "static",
+   "target_url": "http://shop.example.test:18431/catalog/gostinye/",
+   "anchor": "Гостиные",
+   "rel": null,
+   "nofollow": false,
+   "sponsored": false,
+   "ugc": false,
+   "internal": true,
+   "target_scanned": true,
+   "target_status": 200,
+   "position": null,
+   "attributes": {
+    "target": null
+   },
+   "raw_href": null
+  },
+  {
+   "index": 5,
+   "link_id": 31443,
+   "ordinal": 4,
+   "representation": "static",
+   "target_url": "http://shop.example.test:18431/catalog/spalni/",
+   "anchor": "Спальни",
+   "rel": null,
+   "nofollow": false,
+   "sponsored": false,
+   "ugc": false,
+   "internal": true,
+   "target_scanned": true,
+   "target_status": 200,
+   "position": null,
+   "attributes": {
+    "target": null
+   },
+   "raw_href": null
+  },
+  {
+   "index": 6,
+   "link_id": 31444,
+   "ordinal": 5,
+   "representation": "static",
+   "target_url": "http://shop.example.test:18431/catalog/shkafy/",
+   "anchor": "Шкафы",
+   "rel": null,
+   "nofollow": false,
+   "sponsored": false,
+   "ugc": false,
+   "internal": true,
+   "target_scanned": true,
+   "target_status": 200,
+   "position": null,
+   "attributes": {
+    "target": null
+   },
+   "raw_href": null
+  }
+ ],
+ "returned": 6,
+ "has_more": true,
+ "next_offset": 6,
+ "total": 31,
+ "total_capped": false,
+ "filtered_total": 31,
+ "filtered_total_state": "exact",
+ "page": {
+  "scanned": true,
+  "status": 200
+ },
+ "summary": {
+  "total": 31,
+  "internal": 31,
+  "external": 0,
+  "unknown_locality": 0,
+  "nofollow": 0
+ }
+}

@@ -1,0 +1,1 @@
+- Desktop: the URL row menu and column-header menu, the menu-bar groups Edit, Scan and Window, and the finding and task context menus follow the canvas Menus board. Entries the core does not provide yet stay visible, disabled, with the reason in the tooltip.

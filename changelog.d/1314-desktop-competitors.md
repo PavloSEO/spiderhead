@@ -1,0 +1,1 @@
+- Desktop adds competitor sites from the clipboard or one by one through the core, sets a per-site URL cap, and starts their scans in parallel; a competitor shows as scanned only after a finished retained scan.

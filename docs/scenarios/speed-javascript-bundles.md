@@ -9,7 +9,7 @@ without a browser, a build system or access to the repository.
 
 ## Covers
 
-- **PageSpeed** — Legacy JavaScript · Duplicated JavaScript · Minify CSS · Minify JavaScript
+- **PageSpeed** — Legacy JavaScript · Duplicated JavaScript · Minify CSS · Minify JavaScript · Reduce Unused CSS · Reduce Unused JavaScript · Forced Reflow · Reduce JavaScript Execution Time
 
 ## The chain
 
@@ -60,6 +60,15 @@ seohead report-build --audit ./run/audit.json --format docx --out ./assets-task.
 
 ## What comes out
 
+Native scan.v2 resource capture exposes `LEGACY_JS`, `DUPLICATED_JS` and
+`UNMINIFIED_CSS_JS` in saved audits. Native duplicate detection hashes exact captured bytes,
+so whitespace inside string literals cannot create false duplicates. Incomplete responses,
+HTTP 206 fragments and missing source MIME evidence remain unavailable for source heuristics.
+Requested Chromium renders also retain bounded JS/CSS coverage for `UNUSED_CSS_JS`, measured
+in UTF-16 code units during that navigation. Reopening the scan needs no additional request.
+Supplied matching per-URL Lighthouse JSON can provide `FORCED_REFLOW` and
+`JS_EXECUTION_TIME`; neither is inferred from source size or coverage.
+
 The finding lines, each backed by its own rows:
 
 ```json
@@ -87,11 +96,11 @@ Nothing is paid and nothing is executed — the bodies are read as text.
 
 ## What it cannot answer
 
-- **How much of any of it is unused.** Reducing unused CSS and JavaScript needs coverage
-  instrumentation from a real render, which this toolkit does not do; the report names it under
-  `skipped` instead of leaving a clean-looking silence, and
-  `docs/COVERAGE_SF_ISSUES.md` records it as out of scope.
-- **Execution time or main-thread work.** Those need a CPU profile.
+- **Code used by later interactions, workers or unmeasured frames.** Chromium coverage concerns
+  the recorded navigation window and preserves omitted sources and ranges. Other engines or
+  scans without retained coverage report why this native measurement is unavailable.
+- **Execution time without lab input, or general main-thread work.** Supplied Lighthouse results
+  support the named execution/reflow checks; no CPU profile is collected automatically.
 - **Duplicates across the site.** Hashing compares the resources of one page. Two templates
   bundling the same library separately need two runs and a comparison you make yourself.
 - **Whether the legacy code is deliberate.** A site with a genuine obligation to old browsers is

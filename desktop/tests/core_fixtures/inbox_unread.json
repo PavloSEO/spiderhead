@@ -1,0 +1,16 @@
+{
+ "count": 2,
+ "entries": [
+  {
+   "id": "inbox:ee029d9c-0487-41a5-88e1-ab121307ed5b",
+   "kind": "note",
+   "references": []
+  },
+  {
+   "id": "inbox:8bd73606-681f-43d3-98b5-4aaf95ecc189",
+   "kind": "proposed_goal",
+   "references": []
+  }
+ ],
+ "truncated": false
+}

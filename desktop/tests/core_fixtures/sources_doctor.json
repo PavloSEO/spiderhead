@@ -1,0 +1,1536 @@
+{
+  "ok": true,
+  "sources": {
+    "arsenkin": {
+      "ready": true,
+      "file": "<config>/arsenkin/token",
+      "env": "ARSENKIN_TOKEN"
+    },
+    "yandex_cloud_api_key": {
+      "ready": true,
+      "file": "<config>/yandex-wordstat/api_key",
+      "env": "YANDEX_CLOUD_API_KEY"
+    },
+    "yandex_cloud_folder": {
+      "ready": true,
+      "file": "<config>/yandex-wordstat/folder_id",
+      "env": "YANDEX_CLOUD_FOLDER_ID"
+    },
+    "yandex_metrika": {
+      "ready": true,
+      "file": "<config>/yandex-metrika/token",
+      "env": "YANDEX_METRIKA_TOKEN"
+    },
+    "dataforseo": {
+      "ready": false,
+      "file": "<config>/dataforseo/login",
+      "env": "DATAFORSEO_LOGIN",
+      "components": {
+        "login": false,
+        "password": false
+      }
+    },
+    "gsc": {
+      "ready": true,
+      "file": "<config>/gsc/access_token",
+      "env": "GSC_ACCESS_TOKEN",
+      "components": {
+        "oauth_bearer": false,
+        "service_account": true,
+        "durable_oauth": false
+      },
+      "service_account_status": "configured_unverified"
+    },
+    "crux": {
+      "ready": false,
+      "file": "<config>/crux/api_key",
+      "env": "CRUX_API_KEY"
+    },
+    "indexnow": {
+      "ready": false,
+      "file": "<config>/indexnow/key",
+      "env": "INDEXNOW_KEY"
+    },
+    "miratext": {
+      "ready": false,
+      "file": "<config>/miratext/api_key",
+      "env": "MIRATEXT_API_KEY"
+    }
+  },
+  "provider_status": {
+    "arsenkin": {
+      "state": "credential_present",
+      "credential_components": {
+        "api_token": true
+      },
+      "credential_sources": {
+        "api_token": {
+          "state": "configured_unverified",
+          "source_reference": "config:arsenkin/token",
+          "accepted_source_references": [
+            "env:ARSENKIN_TOKEN",
+            "config:arsenkin/token"
+          ]
+        }
+      },
+      "readiness_state": "configured_unverified",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "keyword_frequency",
+          "state": "dedicated",
+          "surface": "keywords-exact"
+        },
+        {
+          "name": "serp_clustering",
+          "state": "unsupported",
+          "surface": null
+        }
+      ],
+      "quota_mode": "paid limit credits",
+      "privacy_class": "aggregate"
+    },
+    "yandex_cloud": {
+      "state": "credential_present",
+      "credential_components": {
+        "api_key": true,
+        "folder_id": true
+      },
+      "credential_sources": {
+        "api_key": {
+          "state": "configured_unverified",
+          "source_reference": "config:yandex-wordstat/api_key",
+          "accepted_source_references": [
+            "env:YANDEX_CLOUD_API_KEY",
+            "config:yandex-wordstat/api_key"
+          ]
+        },
+        "folder_id": {
+          "state": "configured_unverified",
+          "source_reference": "config:yandex-wordstat/folder_id",
+          "accepted_source_references": [
+            "env:YANDEX_CLOUD_FOLDER_ID",
+            "config:yandex-wordstat/folder_id"
+          ]
+        }
+      },
+      "readiness_state": "configured_unverified",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "wordstat",
+          "state": "dedicated",
+          "surface": "keywords-expand / keywords-seasonality"
+        },
+        {
+          "name": "web_search",
+          "state": "dedicated",
+          "surface": "serp-fetch"
+        }
+      ],
+      "quota_mode": "provider quota and recorded spend",
+      "privacy_class": "aggregate"
+    },
+    "gsc": {
+      "state": "credential_present",
+      "credential_components": {
+        "oauth_bearer": false,
+        "service_account": true,
+        "durable_oauth": false
+      },
+      "credential_sources": {
+        "oauth_bearer": {
+          "state": "missing",
+          "source_reference": null,
+          "accepted_source_references": [
+            "env:GSC_ACCESS_TOKEN",
+            "config:gsc/access_token"
+          ]
+        },
+        "service_account": {
+          "state": "configured_unverified",
+          "source_reference": "config:gsc/service-account.json",
+          "accepted_source_references": [
+            "env:GSC_SERVICE_ACCOUNT_FILE",
+            "config:gsc/service-account.json"
+          ]
+        },
+        "durable_oauth": {
+          "state": "missing",
+          "source_reference": null,
+          "accepted_source_references": [
+            "local-grant:gsc"
+          ]
+        }
+      },
+      "readiness_state": "configured_unverified",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "verify",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "gsc"
+              },
+              "operation": {
+                "type": "string",
+                "const": "verify"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "properties",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "gsc"
+              },
+              "operation": {
+                "type": "string",
+                "const": "properties"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "search_analytics",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "gsc"
+              },
+              "operation": {
+                "type": "string",
+                "const": "search_analytics"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "inspection",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "gsc"
+              },
+              "operation": {
+                "type": "string",
+                "const": "inspection"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "sitemaps",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "gsc"
+              },
+              "operation": {
+                "type": "string",
+                "const": "sitemaps"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        }
+      ],
+      "quota_mode": "Google Search Console row and request limits",
+      "privacy_class": "restricted",
+      "service_account_status": "configured_unverified"
+    },
+    "crux": {
+      "state": "not_configured",
+      "credential_components": {
+        "api_key": false
+      },
+      "credential_sources": {
+        "api_key": {
+          "state": "missing",
+          "source_reference": null,
+          "accepted_source_references": [
+            "env:CRUX_API_KEY",
+            "config:crux/api_key"
+          ]
+        }
+      },
+      "readiness_state": "missing",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "current",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "crux"
+              },
+              "operation": {
+                "type": "string",
+                "const": "current"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "history",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "crux"
+              },
+              "operation": {
+                "type": "string",
+                "const": "history"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        }
+      ],
+      "quota_mode": "Google Cloud API quota",
+      "privacy_class": "aggregate",
+      "unavailable_reason": "one or more required credential components are missing"
+    },
+    "pagespeed": {
+      "state": "credential_present",
+      "credential_components": {
+        "api_key": true
+      },
+      "credential_sources": {
+        "api_key": {
+          "state": "configured_unverified",
+          "source_reference": "env:PAGESPEED_API_KEY",
+          "accepted_source_references": [
+            "env:PAGESPEED_API_KEY",
+            "config:pagespeed/api_key"
+          ]
+        }
+      },
+      "readiness_state": "configured_unverified",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "mobile_samples",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "pagespeed"
+              },
+              "operation": {
+                "type": "string",
+                "const": "mobile_samples"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "desktop_samples",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "pagespeed"
+              },
+              "operation": {
+                "type": "string",
+                "const": "desktop_samples"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        }
+      ],
+      "quota_mode": "Google API quota",
+      "privacy_class": "aggregate"
+    },
+    "ga4": {
+      "state": "credential_present",
+      "credential_components": {
+        "oauth_bearer": false,
+        "service_account": true
+      },
+      "credential_sources": {
+        "oauth_bearer": {
+          "state": "missing",
+          "source_reference": null,
+          "accepted_source_references": [
+            "env:GA4_ACCESS_TOKEN",
+            "config:ga4/access_token"
+          ]
+        },
+        "service_account": {
+          "state": "configured_unverified",
+          "source_reference": "config:gsc/service-account.json",
+          "accepted_source_references": [
+            "env:GSC_SERVICE_ACCOUNT_FILE",
+            "config:gsc/service-account.json"
+          ]
+        }
+      },
+      "readiness_state": "configured_unverified",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "landing_pages",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "ga4"
+              },
+              "operation": {
+                "type": "string",
+                "const": "landing_pages"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "page_views",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "ga4"
+              },
+              "operation": {
+                "type": "string",
+                "const": "page_views"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        }
+      ],
+      "quota_mode": "GA4 Data API quota",
+      "privacy_class": "restricted",
+      "service_account_status": "configured_unverified"
+    },
+    "metrika": {
+      "state": "credential_present",
+      "credential_components": {
+        "oauth_bearer": true
+      },
+      "credential_sources": {
+        "oauth_bearer": {
+          "state": "configured_unverified",
+          "source_reference": "config:yandex-metrika/token",
+          "accepted_source_references": [
+            "env:YANDEX_METRIKA_TOKEN",
+            "config:yandex-metrika/token"
+          ]
+        }
+      },
+      "readiness_state": "configured_unverified",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "counters",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "metrika"
+              },
+              "operation": {
+                "type": "string",
+                "const": "counters"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "aggregate_report",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "metrika"
+              },
+              "operation": {
+                "type": "string",
+                "const": "aggregate_report"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        }
+      ],
+      "quota_mode": "Yandex Metrika API quota",
+      "privacy_class": "restricted"
+    },
+    "yandex_webmaster": {
+      "state": "credential_present",
+      "credential_components": {
+        "oauth_bearer": true
+      },
+      "credential_sources": {
+        "oauth_bearer": {
+          "state": "configured_unverified",
+          "source_reference": "config:yandex-webmaster/access_token",
+          "accepted_source_references": [
+            "env:YANDEX_WEBMASTER_TOKEN",
+            "config:yandex-webmaster/access_token"
+          ]
+        }
+      },
+      "readiness_state": "configured_unverified",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "hosts",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "hosts"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "indexing",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "indexing"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "crawl",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "crawl"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "sitemaps",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "sitemaps"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "search_performance",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "search_performance"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "summary",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "summary"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "diagnostics",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "diagnostics"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "sqi_history",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "sqi_history"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "search_history",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "search_history"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "query_history",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "query_history"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "in_search_history",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "in_search_history"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "events_history",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "events_history"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "indexing_history",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "indexing_history"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "important_urls",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "important_urls"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "broken_links_samples",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "broken_links_samples"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "broken_links_history",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "broken_links_history"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "external_links_history",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "yandex_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "external_links_history"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        }
+      ],
+      "quota_mode": "Yandex Webmaster application quota",
+      "privacy_class": "restricted"
+    },
+    "miratext": {
+      "state": "not_configured",
+      "credential_components": {
+        "api_key": false
+      },
+      "credential_sources": {
+        "api_key": {
+          "state": "missing",
+          "source_reference": null,
+          "accepted_source_references": [
+            "env:MIRATEXT_API_KEY",
+            "config:miratext/api_key"
+          ]
+        }
+      },
+      "readiness_state": "missing",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "seo_analysis",
+          "state": "dedicated",
+          "surface": "miratext-analyze"
+        }
+      ],
+      "quota_mode": "free queue or explicitly confirmed paid provider task",
+      "privacy_class": "restricted",
+      "unavailable_reason": "one or more required credential components are missing"
+    },
+    "bing_webmaster": {
+      "state": "not_configured",
+      "credential_components": {
+        "api_key": false
+      },
+      "credential_sources": {
+        "api_key": {
+          "state": "missing",
+          "source_reference": null,
+          "accepted_source_references": [
+            "env:BING_WEBMASTER_API_KEY",
+            "config:bing-webmaster/api_key"
+          ]
+        }
+      },
+      "readiness_state": "missing",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "sites",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "bing_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "sites"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "crawl",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "bing_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "crawl"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "links",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "bing_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "links"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "keywords",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "bing_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "keywords"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        },
+        {
+          "name": "search_performance",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "bing_webmaster"
+              },
+              "operation": {
+                "type": "string",
+                "const": "search_performance"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        }
+      ],
+      "quota_mode": "Bing Webmaster API quota",
+      "privacy_class": "restricted",
+      "unavailable_reason": "one or more required credential components are missing"
+    },
+    "dataforseo_backlinks": {
+      "state": "not_configured",
+      "credential_components": {
+        "login": false,
+        "password": false
+      },
+      "credential_sources": {
+        "login": {
+          "state": "missing",
+          "source_reference": null,
+          "accepted_source_references": [
+            "env:DATAFORSEO_LOGIN",
+            "config:dataforseo/login"
+          ]
+        },
+        "password": {
+          "state": "missing",
+          "source_reference": null,
+          "accepted_source_references": [
+            "env:DATAFORSEO_PASSWORD",
+            "config:dataforseo/password"
+          ]
+        }
+      },
+      "readiness_state": "missing",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "backlinks_summary",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "dataforseo_backlinks"
+              },
+              "operation": {
+                "type": "string",
+                "const": "backlinks_summary"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        }
+      ],
+      "quota_mode": "paid per provider response",
+      "privacy_class": "restricted",
+      "unavailable_reason": "one or more required credential components are missing"
+    },
+    "indexnow": {
+      "state": "not_configured",
+      "credential_components": {
+        "submission_key": false
+      },
+      "credential_sources": {
+        "submission_key": {
+          "state": "missing",
+          "source_reference": null,
+          "accepted_source_references": [
+            "env:INDEXNOW_KEY",
+            "config:indexnow/key"
+          ]
+        }
+      },
+      "readiness_state": "missing",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "submit",
+          "state": "dedicated_write",
+          "surface": "indexnow-submit"
+        }
+      ],
+      "quota_mode": "provider submission quota",
+      "privacy_class": "public_url_list",
+      "unavailable_reason": "one or more required credential components are missing"
+    },
+    "wayback": {
+      "state": "not_required",
+      "credential_components": {},
+      "credential_sources": {},
+      "readiness_state": "not_required",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "history",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "wayback"
+              },
+              "operation": {
+                "type": "string",
+                "const": "history"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        }
+      ],
+      "quota_mode": "public service pacing",
+      "privacy_class": "public"
+    },
+    "crtsh": {
+      "state": "not_required",
+      "credential_components": {},
+      "credential_sources": {},
+      "readiness_state": "not_required",
+      "permission_state": "not_verified",
+      "target_access": "not_requested",
+      "verified": false,
+      "note": "run explicit provider-verify; configured credentials are not verified access",
+      "operations": [
+        {
+          "name": "subdomains",
+          "state": "supported",
+          "surface": "provider-collect",
+          "input_schema": {
+            "type": "object",
+            "required": [
+              "provider",
+              "operation",
+              "request"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "const": "crtsh"
+              },
+              "operation": {
+                "type": "string",
+                "const": "subdomains"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Provider-specific fields are validated by the selected operation adapter."
+              }
+            }
+          }
+        }
+      ],
+      "quota_mode": "public service availability",
+      "privacy_class": "public"
+    }
+  },
+  "spend_log": "<config>/spend.jsonl"
+}

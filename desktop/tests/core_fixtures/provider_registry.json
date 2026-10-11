@@ -1,0 +1,195 @@
+{
+  "format": "seohead.provider-registry.v1",
+  "providers": {
+    "arsenkin": {
+      "credential_components": [
+        "api_token"
+      ],
+      "access": "read_only_paid",
+      "operations": [
+        "keyword_frequency",
+        "serp_clustering"
+      ],
+      "quota_mode": "paid limit credits",
+      "privacy_class": "aggregate"
+    },
+    "yandex_cloud": {
+      "credential_components": [
+        "api_key",
+        "folder_id"
+      ],
+      "access": "read_only_paid",
+      "operations": [
+        "wordstat",
+        "web_search"
+      ],
+      "quota_mode": "provider quota and recorded spend",
+      "privacy_class": "aggregate"
+    },
+    "gsc": {
+      "credential_components": [
+        "oauth_bearer",
+        "service_account"
+      ],
+      "access": "read_only",
+      "operations": [
+        "verify",
+        "properties",
+        "search_analytics",
+        "inspection",
+        "sitemaps"
+      ],
+      "quota_mode": "Google Search Console row and request limits",
+      "privacy_class": "restricted"
+    },
+    "crux": {
+      "credential_components": [
+        "api_key"
+      ],
+      "access": "read_only",
+      "operations": [
+        "current",
+        "history"
+      ],
+      "cost_mode": "free_within_quota",
+      "quota_mode": "Google Cloud API quota",
+      "privacy_class": "aggregate"
+    },
+    "pagespeed": {
+      "credential_components": [
+        "api_key"
+      ],
+      "access": "read_only",
+      "operations": [
+        "mobile_samples",
+        "desktop_samples"
+      ],
+      "quota_mode": "Google API quota",
+      "privacy_class": "aggregate"
+    },
+    "ga4": {
+      "credential_components": [
+        "oauth_bearer",
+        "service_account"
+      ],
+      "access": "read_only",
+      "operations": [
+        "landing_pages",
+        "page_views"
+      ],
+      "quota_mode": "GA4 Data API quota",
+      "privacy_class": "restricted"
+    },
+    "metrika": {
+      "credential_components": [
+        "oauth_bearer"
+      ],
+      "access": "read_only",
+      "operations": [
+        "counters",
+        "aggregate_report"
+      ],
+      "quota_mode": "Yandex Metrika API quota",
+      "privacy_class": "restricted",
+      "excluded_operations": [
+        "raw_logs"
+      ]
+    },
+    "yandex_webmaster": {
+      "credential_components": [
+        "oauth_bearer"
+      ],
+      "access": "read_only",
+      "operations": [
+        "hosts",
+        "indexing",
+        "crawl",
+        "sitemaps",
+        "search_performance",
+        "summary",
+        "diagnostics",
+        "sqi_history",
+        "search_history",
+        "query_history",
+        "in_search_history",
+        "events_history",
+        "indexing_history",
+        "important_urls",
+        "broken_links_samples",
+        "broken_links_history",
+        "external_links_history"
+      ],
+      "quota_mode": "Yandex Webmaster application quota",
+      "privacy_class": "restricted"
+    },
+    "miratext": {
+      "credential_components": [
+        "api_key"
+      ],
+      "access": "read_only_optional_paid",
+      "operations": [
+        "seo_analysis"
+      ],
+      "quota_mode": "free queue or explicitly confirmed paid provider task",
+      "privacy_class": "restricted"
+    },
+    "bing_webmaster": {
+      "credential_components": [
+        "api_key"
+      ],
+      "access": "read_only",
+      "operations": [
+        "sites",
+        "crawl",
+        "links",
+        "keywords",
+        "search_performance"
+      ],
+      "quota_mode": "Bing Webmaster API quota",
+      "privacy_class": "restricted"
+    },
+    "dataforseo_backlinks": {
+      "credential_components": [
+        "login",
+        "password"
+      ],
+      "access": "read_only_optional_paid",
+      "operations": [
+        "backlinks_summary"
+      ],
+      "quota_mode": "paid per provider response",
+      "privacy_class": "restricted",
+      "default_enabled": false
+    },
+    "indexnow": {
+      "credential_components": [
+        "submission_key"
+      ],
+      "access": "confirmed_write",
+      "operations": [
+        "submit"
+      ],
+      "quota_mode": "provider submission quota",
+      "privacy_class": "public_url_list",
+      "default_enabled": false
+    },
+    "wayback": {
+      "credential_components": [],
+      "access": "read_only",
+      "operations": [
+        "history"
+      ],
+      "quota_mode": "public service pacing",
+      "privacy_class": "public"
+    },
+    "crtsh": {
+      "credential_components": [],
+      "access": "read_only",
+      "operations": [
+        "subdomains"
+      ],
+      "quota_mode": "public service availability",
+      "privacy_class": "public"
+    }
+  }
+}

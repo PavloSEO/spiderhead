@@ -1,0 +1,1 @@
+- Desktop Work list reads every checklist page (100 per request) instead of the first 50 rows; Issues names every core check from the registry instead of showing "Other check".

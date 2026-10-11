@@ -1,0 +1,41 @@
+{
+  "schema": "seohead.desktop.bundle-spec.v1",
+  "distribution": "SEOHEAD Desktop",
+  "source_install_contract": "packaging/source-install.json",
+  "core": {
+    "distribution": "seohead-seotools",
+    "delivery": "same-artifact",
+    "interfaces": ["cli", "mcp-stdio"],
+    "manifest": "core-manifest.json"
+  },
+  "platforms": {
+    "macos": {
+      "bundle": "SEOHEAD Desktop.app",
+      "resources": "Contents/Resources",
+      "core_cli": "core/seohead/seohead",
+      "icon_source": "src/seohead_desktop/assets/app/seohead.icns"
+    },
+    "linux": {
+      "bundle": "SEOHEAD Desktop",
+      "resources": "resources",
+      "core_cli": "core/seohead/seohead",
+      "icon_source": "src/seohead_desktop/assets/app/seohead.svg"
+    },
+    "windows": {
+      "bundle": "SEOHEAD Desktop",
+      "resources": "resources",
+      "core_cli": "core/seohead/seohead.exe",
+      "icon_source": "src/seohead_desktop/assets/app/seohead.ico"
+    }
+  },
+  "release_gates": [
+    "clean source checkout",
+    "recorded Desktop commit and exact source inventory",
+    "source identity unchanged throughout the build",
+    "recorded core commit and Git archive digest",
+    "core executable digest",
+    "same-artifact CLI --version smoke test",
+    "license notices included",
+    "native platform acceptance"
+  ]
+}

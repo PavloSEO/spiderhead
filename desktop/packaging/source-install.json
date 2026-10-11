@@ -1,0 +1,6 @@
+{
+  "schema": "seohead.desktop.source-install.v1",
+  "core_repository": "https://github.com/PavloSEO/seohead-tools.git",
+  "core_commit": "5a293c5b0688499971b76665f4d2010cfc27d3a7",
+  "core_extras": "all"
+}

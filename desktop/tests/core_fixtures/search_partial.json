@@ -1,0 +1,136 @@
+{
+ "search": {
+  "ok": true,
+  "status": "partial",
+  "format": "seohead.retained-content-search.v1",
+  "out_dir": "/project/qa/reports/c1",
+  "manifest": "/project/qa/reports/c1/manifest.json",
+  "records": 6,
+  "source": {
+   "kind": "scan.v1.retained-content-search",
+   "search_id": "ce657df1-48b2-4c3b-ab94-8fbc4a0c5c20",
+   "scan_uuid": "0c2a2c3b-8921-4de6-a54e-8f3be86e41ee",
+   "evidence_revision": 6,
+   "lifecycle": "finished",
+   "active": false,
+   "query_sha256": "5e48a4ecc1c42b058c86983911aaea4a9ef90120be00a8dde20d801c238ac817",
+   "writer_revision": "1b07799ccc0f0e10476b42da62d26d05837d26d2"
+  },
+  "coverage": {
+   "state": "partial",
+   "url_pages_selected": 6,
+   "documents_selected": 6,
+   "documents_measured": 5,
+   "filter_matching_documents": 1,
+   "present_documents": 1,
+   "absent_documents": 4,
+   "unavailable_documents": 1,
+   "non_html_documents": 0,
+   "unavailable_reasons": {
+    "body_absent/omitted/cache_control_no_store": 1
+   },
+   "partial_reasons": [
+    "HTML body lane is partial: some HTML documents are missing or not retained"
+   ],
+   "stream_error": null,
+   "body_byte_limit": 5242880
+  },
+  "absence_confirmed": false,
+  "search_completed": true,
+  "capabilities": {
+   "retained_content_search": true
+  }
+ },
+ "page": {
+  "ok": true,
+  "format": "seohead.retained-content-search.v1",
+  "source": {
+   "active": false,
+   "evidence_revision": 6,
+   "kind": "scan.v1.retained-content-search",
+   "lifecycle": "finished",
+   "query_sha256": "5e48a4ecc1c42b058c86983911aaea4a9ef90120be00a8dde20d801c238ac817",
+   "scan_uuid": "0c2a2c3b-8921-4de6-a54e-8f3be86e41ee",
+   "search_id": "ce657df1-48b2-4c3b-ab94-8fbc4a0c5c20",
+   "writer_revision": "1b07799ccc0f0e10476b42da62d26d05837d26d2"
+  },
+  "offset": 0,
+  "records": [
+   {
+    "scan_uuid": "0c2a2c3b-8921-4de6-a54e-8f3be86e41ee",
+    "evidence_revision": 6,
+    "url": "http://crawl.localhost:49775/",
+    "page_ordinal": 0,
+    "document_id": 1,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "0c2a2c3b-8921-4de6-a54e-8f3be86e41ee",
+    "evidence_revision": 6,
+    "url": "http://crawl.localhost:49775/tracking/static-head",
+    "page_ordinal": 1,
+    "document_id": 2,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": true,
+    "status": "matched",
+    "reason": "",
+    "snippet": "<head><meta charset=\"utf-8\"/><title>Static tracking marker | QA</title><script data-qa-tracking=\"GTM-QADEMO\" type=\"application/json\">{\"gtm_container\":\"GTM-QADEMO\",\"ga4_measurement_id\":\"G-QADEMO123\",\"metrika_counter_id\":98765432}</script><link href=\"/tracking/static-head\" rel=\"canonical\"/></head>"
+   },
+   {
+    "scan_uuid": "0c2a2c3b-8921-4de6-a54e-8f3be86e41ee",
+    "evidence_revision": 6,
+    "url": "http://crawl.localhost:49775/tracking/body-only",
+    "page_ordinal": 2,
+    "document_id": 3,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "0c2a2c3b-8921-4de6-a54e-8f3be86e41ee",
+    "evidence_revision": 6,
+    "url": "http://crawl.localhost:49775/tracking/absent",
+    "page_ordinal": 3,
+    "document_id": 4,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "0c2a2c3b-8921-4de6-a54e-8f3be86e41ee",
+    "evidence_revision": 6,
+    "url": "http://crawl.localhost:49775/tracking/raw-rendered",
+    "page_ordinal": 4,
+    "document_id": 5,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": false,
+    "status": "not_matched",
+    "reason": ""
+   },
+   {
+    "scan_uuid": "0c2a2c3b-8921-4de6-a54e-8f3be86e41ee",
+    "evidence_revision": 6,
+    "url": "http://crawl.localhost:49775/tracking/no-store",
+    "page_ordinal": 5,
+    "document_id": 6,
+    "capture_mode": "static",
+    "status_code": 200,
+    "presence": null,
+    "status": "unavailable",
+    "reason": "body_absent/omitted/cache_control_no_store"
+   }
+  ],
+  "has_more": false,
+  "next_offset": 6
+ }
+}

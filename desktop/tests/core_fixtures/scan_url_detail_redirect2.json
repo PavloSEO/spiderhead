@@ -1,0 +1,196 @@
+{
+ "ok": true,
+ "state": "available",
+ "validation": "light",
+ "source": {
+  "scan_uuid": "e134b532-d315-4957-8f48-fdaf4f1f70c4",
+  "format_version": "scan.v1",
+  "source_kind": "native",
+  "evidence_revision": 1336,
+  "lifecycle": "finished",
+  "finish_reason": "finished",
+  "crawl_partial": false,
+  "corpus_partial": false
+ },
+ "url": "http://shop.example.test:18431/tovar/stol-007/",
+ "url_id": 1333,
+ "page": {
+  "url_id": 1333,
+  "page_ordinal": 1329,
+  "document_id": 1330,
+  "status_code": 301,
+  "content_type": "text/html; charset=utf-8",
+  "size_bytes": 0,
+  "response_time": 0.004,
+  "redirect_url": "http://shop.example.test:18431/catalog/stoly/",
+  "title": "",
+  "meta_description": "",
+  "h1": "",
+  "h1_2": "",
+  "h2": "",
+  "canonical": "",
+  "meta_robots": "",
+  "x_robots": "",
+  "og_title": "",
+  "og_description": "",
+  "og_image": "",
+  "og_url": "",
+  "word_count": 0,
+  "text_ratio": null,
+  "content_frames": 0,
+  "content_frames_same_origin": 0,
+  "crawl_depth": 2,
+  "content_encoding": "",
+  "charset": "",
+  "doctype": "",
+  "viewport": "",
+  "meta_refresh": "",
+  "http_refresh": "",
+  "meta_description_count": 0,
+  "h1_alt_text": "",
+  "lorem_ipsum_count": 0,
+  "images_total": 0,
+  "images_missing_alt_attr": 0,
+  "images_max_alt_length": 0,
+  "plugin_elements": 0,
+  "meta_fragment": "",
+  "ajax_scheme_outlinks": 0,
+  "title_outside_head": null,
+  "meta_description_outside_head": null,
+  "canonical_outside_head": null,
+  "directives_outside_head": null,
+  "hreflang_outside_head": null,
+  "hreflang_json": [],
+  "heading_outline_json": [],
+  "link_placement_json": {
+   "image_no_text": [],
+   "image_no_text_total": 0,
+   "in_heading": [],
+   "in_heading_total": 0
+  },
+  "trust_signals_json": null,
+  "duplicate_ids_json": null,
+  "canonical_chain_json": [],
+  "final_canonical": "",
+  "head_count": 0,
+  "body_count": 0,
+  "head_not_first": 0,
+  "invalid_head_elements": "",
+  "outlinks": 0,
+  "external_outlinks": 0,
+  "jsonld_blocks_found": 0,
+  "jsonld_blocks_parsed": 0,
+  "error": "",
+  "error_kind": "",
+  "cache_status": "",
+  "body_unavailable": "",
+  "representation": "static",
+  "final_url": "",
+  "url": "http://shop.example.test:18431/tovar/stol-007/",
+  "redirect_chain": []
+ },
+ "responses": {
+  "offset": 0,
+  "limit": 1,
+  "items": [
+   {
+    "response_id": 1330,
+    "request_ordinal": 1329,
+    "request_url_id": 1333,
+    "effective_url_id": 1333,
+    "request_url": "http://shop.example.test:18431/tovar/stol-007/",
+    "effective_url": "http://shop.example.test:18431/tovar/stol-007/",
+    "method": "GET",
+    "purpose": "page",
+    "requested_at": "2026-10-09T09:34:20.685008Z",
+    "received_at": "2026-10-09T09:34:20.689187Z",
+    "credentials_used": 0,
+    "variant_key": "38a17223ffd60e33e579e6f27efd36ab97094999720af881f1e4090120ff39dd",
+    "status_code": 301,
+    "effective_status_code": 301,
+    "content_type": "text/html; charset=utf-8",
+    "charset": "utf-8",
+    "content_encoding": "",
+    "reported_size_bytes": 0,
+    "response_time": 0.004,
+    "transport_source": "network",
+    "cache_status": "",
+    "source_response_id": null,
+    "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "body_fidelity": "entity_bytes",
+    "body_state": "complete",
+    "body_reason": "none",
+    "error": "",
+    "error_kind": "",
+    "redirect_chain": [],
+    "request_headers": [
+     [
+      "accept",
+      "*/*"
+     ],
+     [
+      "user-agent",
+      "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+     ],
+     [
+      "host",
+      "shop.example.test:18431"
+     ],
+     [
+      "accept-encoding",
+      "gzip, deflate"
+     ]
+    ],
+    "response_headers": [
+     [
+      "date",
+      "Fri, 09 Oct 2026 09:34:20 GMT"
+     ],
+     [
+      "content-type",
+      "text/html; charset=utf-8"
+     ],
+     [
+      "content-length",
+      "0"
+     ],
+     [
+      "location",
+      "http://shop.example.test:18431/catalog/stoly/"
+     ]
+    ],
+    "effective_headers": [
+     [
+      "date",
+      "Fri, 09 Oct 2026 09:34:20 GMT"
+     ],
+     [
+      "content-type",
+      "text/html; charset=utf-8"
+     ],
+     [
+      "content-length",
+      "0"
+     ],
+     [
+      "location",
+      "http://shop.example.test:18431/catalog/stoly/"
+     ]
+    ]
+   }
+  ],
+  "has_more": false,
+  "next_offset": 1,
+  "redirect_target_lookup": {
+   "state": "complete"
+  }
+ },
+ "forms": {
+  "offset": 0,
+  "limit": 20,
+  "items": [],
+  "has_more": false,
+  "next_offset": 0
+ },
+ "scope": "retained native metadata only; no HTML body, network request, or artifact mutation"
+}

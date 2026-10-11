@@ -5,6 +5,8 @@ from __future__ import annotations
 import socket
 from datetime import timezone
 
+import pytest
+
 from seohead.checks.logs import (
     GOOGLE,
     _findings,
@@ -197,53 +199,101 @@ def _row(ip: str, n: int) -> str:
     )
 
 
-def test_unique_ips_stays_exact_at_the_cap(tmp_path, monkeypatch):
-    """#330 boundary control: exactly MAX_TRACKED_IPS distinct addresses is still a fully
-    tracked, exact count -- it must not be flagged as truncated."""
-    from seohead.checks import logs
-
-    monkeypatch.setattr(logs, "MAX_TRACKED_IPS", 3)
-    lines = "".join(_row(f"192.0.2.{i}", i) for i in range(3))
-    r = analyze_log(_write(tmp_path, lines))
-    bot = next(b for b in r["bots"] if b["name"] == "Googlebot")
-    assert bot["unique_ips"] == 3
-    assert bot["unique_ips_truncated"] is False
+def test_unique_ips_are_exact_beyond_the_old_cap(tmp_path):
+    lines = "".join(_row(f"192.0.{i // 256}.{i % 256}", i) for i in range(2100))
+    r = analyze_log(_write(tmp_path, lines), offset=2098, limit=2)
+    assert r["bots"][0]["unique_ips"] == 2100
+    assert r["unique_bot_ips"] == 2100
+    assert r["bot_ips"]["total"] == 2100
+    assert len(r["bot_ips"]["rows"]) == 2
     assert r["ips_truncated"] == []
+    assert not r["bot_ips"]["has_more"]
 
 
-def test_unique_ips_is_flagged_as_a_lower_bound_past_the_cap(tmp_path, monkeypatch):
-    """#330: a bot with one more distinct address than the memory cap allows must report
-    a visible truncation signal, not the same bare number as an exact count would use."""
-    from seohead.checks import logs
-
-    monkeypatch.setattr(logs, "MAX_TRACKED_IPS", 3)
-    lines = "".join(_row(f"192.0.2.{i}", i) for i in range(4))
-    r = analyze_log(_write(tmp_path, lines))
-    bot = next(b for b in r["bots"] if b["name"] == "Googlebot")
-    assert bot["unique_ips"] == 3  # bounded sample, unchanged
-    assert bot["unique_ips_truncated"] is True
-    assert r["ips_truncated"] == ["Googlebot"]
-
-
-def test_unique_ips_keeps_counting_repeats_after_the_ip_cap_fills(tmp_path, monkeypatch):
-    """A repeat of an already-tracked address must not be mistaken for a new one once the
-    cap is full -- only a brand-new address should ever be refused."""
-    from seohead.checks import logs
-
-    monkeypatch.setattr(logs, "MAX_TRACKED_IPS", 2)
-    lines = "".join(
-        [
-            _row("192.0.2.1", 0),
-            _row("192.0.2.2", 1),
-            _row("192.0.2.3", 2),  # refused: cap already full of .1 and .2
-            _row("192.0.2.1", 3),  # repeat of an already-tracked address
-        ]
+def test_ip_page_counts_repeats_last_visit_and_subnet(tmp_path):
+    r = analyze_log(
+        _write(tmp_path, _row("192.0.2.1", 1) + _row("192.0.2.2", 2) + _row("192.0.2.1", 3)),
+        ip="192.0.2.1/32",
     )
-    r = analyze_log(_write(tmp_path, lines))
-    bot = next(b for b in r["bots"] if b["name"] == "Googlebot")
-    assert bot["hits"] == 4
-    assert bot["unique_ips"] == 2
-    assert bot["unique_ips_truncated"] is True
+    assert r["bot_ips"]["total"] == 1
+    row = r["bot_ips"]["rows"][0]
+    assert row["visits"] == 2
+    assert row["last_visit"].endswith("00:00:03+00:00")
+    assert row["verdict"] == "unchecked"
+
+
+def test_per_ip_verification_does_not_extrapolate_family(tmp_path, monkeypatch):
+    from seohead.checks import logs
+
+    calls = []
+
+    def verify(ip, suffixes):
+        calls.append(ip)
+        return {
+            "verified": ip.endswith("1"),
+            "hostname": "crawl.googlebot.com",
+            "forward_match": ip.endswith("1"),
+            "forward_addresses": [ip],
+            "reason": "synthetic",
+        }
+
+    monkeypatch.setattr(logs, "_dns_available", lambda: True)
+    monkeypatch.setattr(logs, "verify_bot_rdns", verify)
+    monkeypatch.setattr(logs, "_DNS_CACHE", logs.OrderedDict())
+    path = _write(tmp_path, _row("192.0.2.1", 1) + _row("192.0.2.2", 2))
+    r = analyze_log(path, verify_bots=True, max_dns=1)
+    assert calls == ["192.0.2.1"]
+    assert [row["verdict"] for row in r["bot_ips"]["rows"]] == ["verified", "unchecked"]
+    r = analyze_log(path, verify_bots=True, max_dns=2)
+    assert calls == ["192.0.2.1", "192.0.2.2"]
+    assert [row["verdict"] for row in r["bot_ips"]["rows"]] == ["verified", "fake"]
+    assert r["bot_ips"]["rows"][0]["cached"]
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"limit": 0},
+        {"max_lines": True},
+        {"offset": -1},
+        {"max_dns": 101},
+        {"verify_bots": "yes"},
+        {"ip": "not-an-ip"},
+    ],
+)
+def test_log_analysis_validates_bounds(kwargs):
+    with pytest.raises(ValueError):
+        analyze_log("synthetic.log", **kwargs)
+
+
+def test_dns_deadline_does_not_change_global_socket_timeout(monkeypatch):
+    import threading
+
+    event = threading.Event()
+
+    def blocked(ip):
+        event.wait(1)
+        return ("outside.example.test", [], [ip])
+
+    monkeypatch.setattr(socket, "gethostbyaddr", blocked)
+    old = socket.getdefaulttimeout()
+    try:
+        result = verify_bot_rdns("192.0.2.99", GOOGLE, timeout=0.01)
+        assert result["verified"] is None
+        assert "deadline" in result["reason"]
+        assert socket.getdefaulttimeout() == old
+    finally:
+        event.set()
+
+
+def test_ipv6_forward_confirmation_and_suffix_boundary(monkeypatch):
+    monkeypatch.setattr(socket, "gethostbyaddr", lambda ip: ("crawl.googlebot.com.", [], [ip]))
+    monkeypatch.setattr(
+        socket, "getaddrinfo", lambda *args: [(None, None, None, None, ("2001:db8::1", 0, 0, 0))]
+    )
+    assert verify_bot_rdns("2001:db8::1", GOOGLE)["forward_match"] is True
+    monkeypatch.setattr(socket, "gethostbyaddr", lambda ip: ("evilgooglebot.com", [], [ip]))
+    assert verify_bot_rdns("2001:db8::1", GOOGLE)["verified"] is False
 
 
 def test_max_lines_does_not_consume_the_rest_of_the_file():
@@ -379,3 +429,46 @@ def test_truncated_gzip_is_an_error_not_a_partial_result(tmp_path):
     r = analyze_log(str(path))
     assert r["ok"] is False
     assert "Cannot read log" in r["error"]
+
+
+def test_common_log_does_not_claim_absent_bots_from_missing_user_agents(tmp_path):
+    result = analyze_log(_write(tmp_path, COMMON))
+    assert result["bot_detection"]["available"] is False
+    assert any("unavailable" in message for message in result["findings"])
+    assert not any("Googlebot does not appear" in message for message in result["findings"])
+
+
+def test_stalled_dns_workers_are_bounded_across_calls(monkeypatch):
+    import threading
+
+    from seohead.checks import logs
+
+    event = threading.Event()
+    monkeypatch.setattr(logs, "_DNS_WORKERS", threading.BoundedSemaphore(1))
+
+    def blocked(ip):
+        event.wait(1)
+        return ("outside.example.test", [], [ip])
+
+    monkeypatch.setattr(socket, "gethostbyaddr", blocked)
+    try:
+        first = verify_bot_rdns("192.0.2.1", GOOGLE, timeout=0.01)
+        assert first["verified"] is None and "deadline" in first["reason"]
+        second = verify_bot_rdns("192.0.2.2", GOOGLE, timeout=0.01)
+        assert second["verified"] is None and "capacity" in second["reason"]
+    finally:
+        event.set()
+
+
+def test_temporary_ip_index_failure_is_result_data(tmp_path, monkeypatch):
+    import sqlite3
+
+    from seohead.checks import logs
+
+    def unavailable(*args):
+        raise sqlite3.OperationalError("synthetic disk unavailable")
+
+    monkeypatch.setattr(logs.sqlite3, "connect", unavailable)
+    result = analyze_log(_write(tmp_path, COMBINED))
+    assert result["ok"] is False
+    assert "synthetic disk unavailable" in result["error"]

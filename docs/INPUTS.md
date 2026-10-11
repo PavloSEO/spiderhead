@@ -34,6 +34,8 @@ and this decision makes no backend migration.
 | `crawl-site` | Live URL (`url`)<br>URL list (`urls`)<br>Local file (`urls_file`)<br>Scan artifact (`resume`)<br>Local configuration (`config`)<br>Project directory (`project`) | TXT, CSV, XLSX, or XML URL input; Resumes retained crawl evidence and continues network collection.; Defaults the target and scans/ path; explicit paths, legacy output and resume keep their route. |
 | `crawl-describe-settings` | No direct input | — |
 | `scan-reanalyze` | Scan artifact (`scan`) | — |
+| `scan-graph` | Scan artifact (`scan`)<br>Scan artifact (`compare_to`)<br>Selector (`positions, section, around, depth, aggregate, representation, node_offset, edge_offset, node_limit, edge_limit, max_nodes, max_edges, timeout_seconds, max_bytes`) | Reads a bounded retained graph offline; missing evidence and clipping stay explicit.; Optional retained comparison source. |
+| `scan-sitemap-generate` | Scan artifact (`scan`); requires `out_dir, sitemap_base_url`<br>Local directory (`out_dir`)<br>Selector (`sitemap_base_url, include_images, exclude`) | Deployment base URL sets output scope; it is never fetched.; Fresh exclusive output directory; never deploys. |
 | `log-scan` | Local directory (`run`)<br>Scan artifact (`run`) | — |
 | `crawl-diagnose` | Scan artifact (`scan`)<br>Local directory (`run`) | Choose one retained source; diagnosis is offline and read-only. |
 | `crawl-diagnose-export` | Scan artifact (`scan`); requires `export`<br>Local directory (`run`); requires `export`<br>Local file (`export`) | Choose one retained source and a new redacted export destination; refuses overwrite. |
@@ -73,7 +75,11 @@ and this decision makes no backend migration.
 | `ai-column` | Inline corpus (`items`)<br>Scan artifact (`scan`)<br>Inline text (`prompt`)<br>Inline JSON (`urls, rows`)<br>Local file (`csv_path`)<br>Selector (`column, max_pages`) | Dry-run needs only supplied normalized page text.; Uses retained normalized page content offline.; Required instruction, at most 2000 characters.; Optional URL selection and caller-supplied values; no provider call.; Formula-safe CSV of the column values. |
 | `social-meta-check` | Live URL (`url`)<br>Inline JSON (`og, twitter`) | — |
 | `soft404-check` | Live URL (`url`) | — |
-| `log-analyze` | Local log (`path`) | — |
+| `log-analyze` | Local log (`path`)<br>Selector (`verify_bots, max_lines, offset, limit, max_dns, bot, ip`) | — |
+| `logs-import` | Local log (`path`)<br>Project directory (`project`)<br>Selector (`max_lines, max_files`) | — |
+| `logs-summary` | Local file (`source`)<br>Selector (`view, limit, offset, bot, family, ip, date_from, date_to, status, section`) | — |
+| `logs-join` | Local file (`source`)<br>Scan artifact (`scan`)<br>Selector (`view, base_url, family, bot, date_from, date_to, limit, offset`) | — |
+| `logs-bots` | Local file (`source`)<br>Selector (`verify_bots, limit, offset, bot, family, ip, verdict, max_dns`) | — |
 | `regions-check` | Live URL (`url`) | — |
 | `render-check` | Live URL (`url`)<br>Inline JSON (`transport_config`) | Optional local/remote Playwright transport selection; endpoint is named by environment variable. |
 | `site-audit` | Live URL (`url`)<br>URL list (`urls`) | — |
@@ -96,6 +102,9 @@ and this decision makes no backend migration.
 | `metrika-report` | Provider query (`counter_id`) | — |
 | `metrika-traffic-pdf` | Provider query (`counter_id`); requires `date1, date2, out_dir`<br>Local file (`document`); requires `out_dir`<br>Local configuration (`brand`)<br>Inline JSON (`gsc_rows`) | Renders an existing traffic document offline; no Metrika request.; Optional brand JSON file or inline object.; Optional Search Console query rows. |
 | `google-keywords` | Provider query (`keywords`)<br>Provider query (`seed`) | — |
+| `dataforseo-estimate` | Inline JSON (`operation, query_count, row_limit, cache_hits, prices, env, query`) | — |
+| `backlinks-profile` | Provider query (`domain`)<br>Inline JSON (`imports, evidence, sources`)<br>Local file (`db`)<br>Project directory (`project`) | — |
+| `backlinks-disavow` | URL list (`urls, domains`)<br>Local file (`output`) | — |
 | `google-serp` | Provider query (`query`) | — |
 | `wayback-history` | Live URL (`url`) | — |
 | `cloudflare-traffic` | Provider query (`zone`) | — |
@@ -205,7 +214,7 @@ and this decision makes no backend migration.
 | `scan-fragment-links` | Scan artifact (`input_path`)<br>Selector (`state`)<br>Selector (`representation`) | Optional resolved, missing, or skipped occurrence filter.; Optional static, rendered, or legacy_fragment source filter. |
 | `scan-requeue` | Scan artifact (`input_path`)<br>Selector (`where`)<br>Local file (`backup_path`)<br>Scan artifact (`from_scan`) | Restricted saved URL/page predicate.; Mandatory new verified backup destination.; Optional alternate saved selection source. |
 | `scan-import-urls` | Scan artifact (`input_path`)<br>Local file (`urls_file`)<br>Local file (`backup_path`) | Explicit TXT, CSV, XLSX, or XML URL source.; Mandatory new verified backup destination. |
-| `sf run` | Live URL (`crawl`)<br>Local file (`load_crawl`)<br>Local file (`crawl_list`)<br>Local directory (`exports_dir`)<br>Local configuration (`config`)<br>Local file (`auth_config`)<br>Inline text (`auth`)<br>Local file (`sf_cli`)<br>Live URL (`sitemap`)<br>Local directory (`out`) | Saved .seospider crawl; requires licensed SF CLI; URL-list file for licensed SF live traversal; Optional SF authentication profile.; Optional HTTP Basic credentials; do not persist or log them.; Optional explicit licensed SF CLI path.; Optional explicit sitemap URL for live rechecks.; Local audit and optional task output directory. |
+| `sf run` | Live URL (`crawl`)<br>Local file (`load_crawl`)<br>Local file (`crawl_list`)<br>Local directory (`exports_dir`)<br>Local configuration (`config`)<br>Local file (`auth_config`)<br>Inline text (`auth`)<br>Local file (`sf_cli`)<br>Live URL (`sitemap`)<br>Local directory (`out`) | Saved .seospider crawl; requires licensed SF CLI; URL-list file for licensed SF live traversal; SF audit configuration; semantic_similarity requires an explicit adapter declaration and supplied vectors. No model is selected by default.; Optional SF authentication profile.; Optional HTTP Basic credentials; do not persist or log them.; Optional explicit licensed SF CLI path.; Optional explicit sitemap URL for live rechecks.; Local audit and optional task output directory. |
 | `sf tasks` | Audit document (`audit_json`)<br>Local configuration (`config`)<br>Local directory (`out`) | Audit JSON or a retained scan.v1 artifact.; Local task output directory. |
 | `sf doctor` | Local configuration (`config`)<br>Local file (`sf_cli`) | Optional explicit licensed SF CLI path. |
 | `sf save-config` | Local file (`out`) | — |

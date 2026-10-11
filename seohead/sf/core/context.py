@@ -709,6 +709,7 @@ class AuditContext:
         # which pages entered the authorship scope, and the per-kind state
         # of each conventional trust page. Empty until that pass has run.
         self.trust_evidence: dict[str, Any] = {}
+        self.asset_measurements: dict[str, dict[str, Any]] = {}
         self.thresholds: dict[str, Any] = config.get("thresholds", {})
         self.requirements: dict[str, Any] = config.get("requirements", {})
         self.issues: Any = _DiskIssues() if disk_backed_pages else []
@@ -737,6 +738,11 @@ class AuditContext:
         # need crawl-only evidence, such as resource_graph_fetches, read it and
         # skip honestly when it is absent (export audits leave it None).
         self.scan_con: Any = None
+        # Embedding models are selected explicitly by a core caller; export
+        # configuration can instead supply a declared adapter and vectors.
+        self.semantic_adapter: Any = None
+        self.semantic_cache: Any = None
+        self.semantic_evidence: dict[str, Any] = {}
         self._html_pages: list[Page] | None = None
         self._indexable_html_pages: list[Page] | None = None
         self._build_pages(disk_backed_pages=disk_backed_pages)

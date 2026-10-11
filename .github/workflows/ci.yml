@@ -34,7 +34,8 @@ jobs:
           # imports OUTSIDE these targets) and pull in modules not annotated yet.
           # Extend this list only as a module is brought fully under the checker.
           mypy seohead/core/models.py seohead/checks/parser.py seohead/checks/robots.py
-      - run: pytest --cov=seohead --cov-report=term-missing
+      - name: Run the full suite in four file groups with combined coverage
+        run: python scripts/run_pytest_groups.py --out-dir "$RUNNER_TEMP/pytest-groups"
 
   windows:
     name: Windows native workflows

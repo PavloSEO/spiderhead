@@ -1,0 +1,6 @@
+/* screen Fatal states: one card per blocking condition (DESIGN-SYSTEM §4, canvas ErrorsCore) */
+QFrame[fatal_card="true"] { background: $base; border: 1px solid $divider; border-radius: ${radius_card}px; }
+QFrame[fatal_icon="error"] { background: $badge_err_bg; border: 0; border-radius: ${radius_control}px; }
+QFrame[fatal_icon="warning"] { background: $badge_warn_bg; border: 0; border-radius: ${radius_control}px; }
+QFrame[fatal_icon="waiting"] { background: $badge_mut_bg; border: 0; border-radius: ${radius_control}px; }
+QLabel[fatal_mono="true"] { font-family: "$mono_family"; font-size: ${font_mono}px; color: $text_2; background: $raised; border: 1px solid $divider_inner; border-radius: ${radius_control}px; padding: 6px 8px; }

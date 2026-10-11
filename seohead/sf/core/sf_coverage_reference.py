@@ -18,8 +18,6 @@ _STATUS_LABEL = {
     "out_of_scope": "out of scope",
 }
 
-_BULK_CATEGORIES = ("Accessibility", "AMP")
-
 
 def _refs(refs: tuple[str, ...]) -> str:
     return " ".join(f"`{r}`" for r in refs) if refs else "—"
@@ -28,8 +26,6 @@ def _refs(refs: tuple[str, ...]) -> str:
 def _header() -> list[str]:
     counts = coverage_counts()
     total = sum(counts.values())
-    bulk = sum(len(CATEGORIES[name]) for name in _BULK_CATEGORIES)
-    in_scope = total - bulk
     covered = counts["check"] + counts["tool"]
     return [
         "# Coverage against the published issue catalogue",
@@ -56,11 +52,11 @@ def _header() -> list[str]:
         f"| out of scope | {counts['out_of_scope']} | a decision, with its reason |",
         f"| **total** | **{total}** | |",
         "",
-        f"{bulk} of the out-of-scope entries are two whole categories declined as single",
-        "decisions — accessibility and AMP, each explained in its own section below. Of the",
-        f"remaining {in_scope} issues, **{covered} are found today**, {counts['partial']} are",
+        "Accessibility and AMP include measured subsets; their remaining limits are stated",
+        "per issue below. Across the catalogue,",
+        f"**{covered} issues are found today**, {counts['partial']} are",
         f"found in part, {counts['gap']} are gaps worth closing, and",
-        f"{counts['out_of_scope'] - bulk} need something we have decided not to build.",
+        f"{counts['out_of_scope']} need something we have decided not to build.",
         "",
         "A gap is not a defect. It is a named, deliberate absence — which is the only kind worth",
         "having, because the alternative is an absence nobody has noticed.",
@@ -71,8 +67,6 @@ def _header() -> list[str]:
 def render() -> str:
     lines = _header()
     for category, items in CATEGORIES.items():
-        if category in _BULK_CATEGORIES:
-            continue
         lines.append(f"## {category}")
         lines.append("")
         lines.append("| Issue | Status | Found by | Note |")
@@ -82,20 +76,6 @@ def render() -> str:
             lines.append(
                 f"| {entry.name} | {_STATUS_LABEL[entry.status]} | {_refs(entry.refs)} | {note} |"
             )
-        lines.append("")
-
-    for category in _BULK_CATEGORIES:
-        items = CATEGORIES[category]
-        lines.append(f"## {category}")
-        lines.append("")
-        lines.append(f"**{len(items)} issues, declined as one decision.** {items[0].note}")
-        lines.append("")
-        lines.append("<details><summary>The full list, so the decision is auditable</summary>")
-        lines.append("")
-        for entry in items:
-            lines.append(f"- {entry.name}")
-        lines.append("")
-        lines.append("</details>")
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"

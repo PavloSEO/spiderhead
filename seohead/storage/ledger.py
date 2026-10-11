@@ -1507,6 +1507,18 @@ def _ingest_scan(ledger, scan_path, resources: contextlib.ExitStack) -> dict[str
         if scan_row is None:
             raise LedgerError("source scan has no header to ingest")
         scan = dict(scan_row)
+        if (
+            scan["source_kind"] in {"native", "reanalysis"}
+            and scan_con.execute(
+                "SELECT 1 FROM context_items WHERE kind='analysis_asset_thresholds' AND item_key='run'"
+            ).fetchone()
+        ):
+            from seohead.crawl.settings import fingerprint
+            from seohead.storage.native_scan import read_effective_config
+
+            # Bind the measured results policy, including the validated adjunct,
+            # while the source artifact keeps its frozen header and bytes.
+            scan["config_fingerprint"] = fingerprint(read_effective_config(scan_con))
         from seohead.sf.core.evidence_contract import attach_contract
 
         if audit is not None:

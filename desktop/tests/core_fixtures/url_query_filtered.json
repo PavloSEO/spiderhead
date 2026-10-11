@@ -1,0 +1,167 @@
+{
+ "ok": true,
+ "state": "available",
+ "format": "seohead.scan-url-query.v1",
+ "source": {
+  "scan_uuid": "268ec05a-7276-4a95-a74e-7b26e481c5ee",
+  "format_version": "scan.v1",
+  "source_kind": "native",
+  "evidence_revision": 1321,
+  "lifecycle": "finished",
+  "finish_reason": "finished",
+  "crawl_partial": false,
+  "corpus_partial": true,
+  "pages_coverage": {
+   "reason": "committed native crawl observations",
+   "state": "complete"
+  }
+ },
+ "columns": [
+  "url_id",
+  "url",
+  "status_code",
+  "content_type",
+  "crawl_depth",
+  "title",
+  "h1",
+  "word_count",
+  "size_bytes",
+  "response_time",
+  "indexable"
+ ],
+ "rows": [
+  {
+   "url_id": 1154,
+   "url": "http://shop.example.test:18431/catalog/stulya/stul-020/",
+   "status_code": 404,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 0,
+   "title": "Страница не найдена — 404",
+   "h1": "404",
+   "word_count": 6,
+   "size_bytes": 236,
+   "response_time": 0.003,
+   "indexable": false
+  },
+  {
+   "url_id": 1153,
+   "url": "http://shop.example.test:18431/catalog/stoly/stol-012/",
+   "status_code": 404,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 0,
+   "title": "Страница не найдена — 404",
+   "h1": "404",
+   "word_count": 6,
+   "size_bytes": 236,
+   "response_time": 0.002,
+   "indexable": false
+  },
+  {
+   "url_id": 1152,
+   "url": "http://shop.example.test:18431/catalog/stoly/stol-007/",
+   "status_code": 404,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 0,
+   "title": "Страница не найдена — 404",
+   "h1": "404",
+   "word_count": 6,
+   "size_bytes": 236,
+   "response_time": 0.003,
+   "indexable": false
+  },
+  {
+   "url_id": 1240,
+   "url": "http://shop.example.test:18431/aktsii/",
+   "status_code": 500,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "title": "500",
+   "h1": "Internal Server Error",
+   "word_count": 3,
+   "size_bytes": 63,
+   "response_time": 0.003,
+   "indexable": false
+  },
+  {
+   "url_id": 1241,
+   "url": "http://shop.example.test:18431/dostavka-i-oplata/",
+   "status_code": 302,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "title": "",
+   "h1": "",
+   "word_count": 0,
+   "size_bytes": 0,
+   "response_time": 0.004,
+   "indexable": false
+  },
+  {
+   "url_id": 1157,
+   "url": "http://shop.example.test:18431/catalog/kuhni/kuhnya-030/",
+   "status_code": 301,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 0,
+   "title": "",
+   "h1": "",
+   "word_count": 0,
+   "size_bytes": 0,
+   "response_time": 0.003,
+   "indexable": false
+  },
+  {
+   "url_id": 1156,
+   "url": "http://shop.example.test:18431/catalog/divany/divan-009/",
+   "status_code": 301,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 0,
+   "title": "",
+   "h1": "",
+   "word_count": 0,
+   "size_bytes": 0,
+   "response_time": 0.004,
+   "indexable": false
+  },
+  {
+   "url_id": 1155,
+   "url": "http://shop.example.test:18431/catalog/divany/divan-003/",
+   "status_code": 301,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 0,
+   "title": "",
+   "h1": "",
+   "word_count": 0,
+   "size_bytes": 0,
+   "response_time": 0.004,
+   "indexable": false
+  }
+ ],
+ "offset": 0,
+ "limit": 25,
+ "returned": 8,
+ "has_more": false,
+ "next_offset": 8,
+ "truncated": false,
+ "bytes": 2270,
+ "total": 1314,
+ "filtered_total": 8,
+ "filtered_total_state": "exact",
+ "sort": {
+  "column": "word_count",
+  "direction": "desc",
+  "tie_breaker": "url_id",
+  "mode": "materialized"
+ },
+ "filters": [
+  {
+   "column": "status_class",
+   "op": "ne",
+   "value": "2xx"
+  }
+ ],
+ "coverage": {
+  "rows": "committed page records; queued or excluded URLs without a page are not rows",
+  "scan_complete": false,
+  "scan_lifecycle": "finished"
+ },
+ "elapsed_ms": 25
+}

@@ -1,0 +1,9 @@
+# Desktop packager dependencies. Install the local project separately with `.[build]`.
+altgraph==0.17.5
+macholib==1.16.4; sys_platform == "darwin"
+packaging==26.3
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.8
+PyQt5==5.15.11
+PyQt5_sip==12.20.0
+tomli==2.3.0; python_version < "3.11"

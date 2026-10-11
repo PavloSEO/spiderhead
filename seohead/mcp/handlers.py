@@ -980,6 +980,7 @@ def crawl_site(
     audit_config = load_audit_config(None)
     audit_config["finding_exclusions"] = settings["analysis"]["finding_exclusions"]
     audit_config["canonical_policy"] = settings["analysis"]["canonical_policy"]
+    audit_config["thresholds"].update(settings["analysis"].get("asset_thresholds", {}))
     validate_audit_config(audit_config)
     proxy_route = crawl_config.resolve_proxy(settings)
     if project_root is not None:
@@ -1521,6 +1522,8 @@ def _audit_crawl_result(
 
     audit_config = load_config(None)
     audit_config["finding_exclusions"] = settings.get("analysis", {}).get("finding_exclusions", [])
+    audit_config["thresholds"].update(settings.get("analysis", {}).get("asset_thresholds", {}))
+    audit_config["content_area"] = settings.get("evidence", {}).get("content_area", {})
     validate_config(audit_config)
     from seohead.sf.core.aggregate import aggregate
     from seohead.sf.core.context import AuditContext
@@ -1755,14 +1758,10 @@ def _audit_crawl_result(
     else:
         run_inlinks(ctx)
         run_eeat(ctx)
-    # Same gap, two more modules (issue #165): DOM size, HTML weight, templated
-    # titles and the near-duplicate/exact-duplicate heuristic fallback all live in
-    # heuristics.py and were never reached from a crawl either. DOM depth/nodes and
-    # the near-duplicate fallback need HTML stored to disk (``input.html_store_dir``),
-    # which a native crawl never writes -- they land on their own existing "no
-    # stored HTML" skip branch rather than gaining new evidence here. HTML weight
-    # and templated-title detection need only Size (bytes), Word Count and Title,
-    # which build_evidence already puts on every page, so those genuinely fire.
+    # Native DOM and content comparisons read each page's selected retained
+    # document through ctx.scan_con. The legacy non-stored route has no bodies
+    # and reports its real unavailable reason. Weight/title checks use the
+    # scalar evidence already supplied by build_evidence.
     run_heuristics(ctx)
 
     # ``run_sitemap`` covers the sitemap-protocol and robots.txt checks that need a
@@ -1775,7 +1774,11 @@ def _audit_crawl_result(
     # (SITEMAP_DESYNC and the "in_sitemap_and_linked"-shaped summary keys) is cruder
     # than the dedicated reconciliation below, so those three summary keys are
     # overwritten by it further down rather than the other way around.
-    if offline:
+    if stored_scan is not None:
+        from seohead.sf.core.native_sitemap import run_retained_sitemap
+
+        measured = run_retained_sitemap(ctx, stored_sitemap, start_url=url or "")
+    elif offline:
         reason = "offline reanalysis has no retained sitemap XML, robots.txt, or lastmod evidence"
         for check in (
             "SITEMAP_NOT_IN_ROBOTS",
@@ -1819,14 +1822,9 @@ def _audit_crawl_result(
         if (measured.get("sitemaps") or measured.get("declared_in_robots") is not None)
         else {}
     )
-    if stored_scan is not None and (stored_sitemap is None or not stored_sitemap.available):
-        reason = (
-            stored_sitemap.reason if stored_sitemap is not None else "no saved sitemap declarations"
-        )
-        for check in ("SITEMAP_ORPHAN", "URL_NOT_IN_SITEMAP", "SITEMAP_DESYNC"):
-            ctx.skip(check, reason)
-        sitemap_summary.update(reconciliation_available=False, reconciliation_reason=reason)
-    if sitemap_seed["declared"] or (stored_sitemap is not None and stored_sitemap.available):
+    if stored_scan is not None:
+        sitemap_summary = measured
+    if stored_scan is None and sitemap_seed["declared"]:
         # "Reached by following links" — not merely fetched, since a seeded
         # URL is fetched regardless of whether anything links to it. Three
         # disjoint facts, reported under the check ids the Screaming Frog
@@ -1848,6 +1846,27 @@ def _audit_crawl_result(
             ctx.add("SITEMAP_ORPHAN", target_url=orphan_url, details={"in_sitemap": True})
         for extra_url in reconciled["linked_not_in_sitemap"]:
             ctx.add("URL_NOT_IN_SITEMAP", target_url=extra_url)
+        # Legacy unstored crawls retain the sitemap seed and fetched page records;
+        # saved scans use the dedicated retained sitemap taxonomy above.
+        from urllib.parse import urlsplit as _sitemap_split
+
+        from seohead.crawl.sitemap_findings import sitemap_url_problems
+
+        sitemap_host = _sitemap_split(start_norm).hostname or "" if url else ""
+        for item in sitemap_url_problems(
+            sitemap_seed["declared"],
+            getattr(result, "pages", []) or [],
+            getattr(result, "robots_blocked", None) or [],
+            sitemap_host,
+        ):
+            ctx.add(
+                item["check"],
+                target_url=item["target_url"],
+                details={
+                    "status_code": item["status_code"],
+                    "reasons": item["reasons"],
+                },
+            )
         # The site-level verdict belongs to whichever module did the comparison,
         # and here that is this one -- run_sitemap was told to skip it by name
         # (compare_with_crawl above) precisely so the two never answer the same
@@ -1960,6 +1979,10 @@ def _audit_crawl_result(
     forms = getattr(result, "forms", None)
     has_link_evidence = not stored_list and (stored_scan is not None or links is not None)
     has_form_evidence = not stored_list and (stored_scan is not None or forms is not None)
+    link_rel_summary: dict[str, Any] = {
+        "measured": False,
+        "reason": "full link attributes were not retained",
+    }
     with StoredGraph(stored_scan.con) if stored_scan else nullcontext(None) as graph:
         if has_link_evidence:
             for item in (
@@ -2063,6 +2086,60 @@ def _audit_crawl_result(
                 else link_findings.internal_sponsored_ugc_links(links, site_host)
             ):
                 ctx.add("INTERNAL_LINK_SPONSORED_UGC", target_url=item["target_url"], details=item)
+            for item in graph.iter_mixed_rel() if graph else link_findings.mixed_rel_links(links):
+                ctx.add("MIXED_LINK_REL", target_url=item["target_url"], details=item)
+            link_rel_summary = graph.rel_summary() if graph else link_findings.rel_summary(links)
+            from seohead.sf.core.rules import _body_unavailable
+
+            html_total = html_unavailable = 0
+            for page in ctx.html_pages():
+                html_total += 1
+                html_unavailable += int(_body_unavailable(page.metrics.get("_record", {})))
+            link_rel_summary["coverage"] = {
+                "html_pages": html_total,
+                "html_pages_unavailable": html_unavailable,
+                "scope": "captured link occurrences; unparsed pages are excluded",
+            }
+            link_rel_summary["state"] = "partial" if html_unavailable else "complete"
+            if html_unavailable:
+                link_rel_summary["reason"] = (
+                    f"{html_unavailable} HTML page(s) were not parsed; their rel and disclosure evidence was not measured"
+                )
+            if html_total == html_unavailable and not link_rel_summary["by_rel"]["total"]:
+                reason = "no parsed HTML page or captured link occurrence provides rel evidence"
+                link_rel_summary.update(measured=False, state="unavailable", reason=reason)
+                link_rel_summary["by_rel"] = {key: None for key in link_rel_summary["by_rel"]}
+                ctx.skip("MIXED_LINK_REL", reason)
+                ctx.skip("OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE", reason)
+            if graph:
+                disclosure = graph.sponsored_disclosures(site_host)
+                link_rel_summary["disclosure"] = {
+                    key: value for key, value in disclosure.items() if key != "findings"
+                }
+                for item in disclosure["findings"]:
+                    ctx.add(
+                        "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
+                        target_url=item["target_url"],
+                        details=item,
+                    )
+                if disclosure["coverage"]["unavailable"]:
+                    ctx.skip(
+                        "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
+                        "some sponsored-link contexts are unavailable; see summary.link_rel.disclosure",
+                    )
+            else:
+                reason = "crawl has no retained complete source documents for disclosure replay"
+                link_rel_summary["disclosure"] = {"state": "unavailable", "reason": reason}
+                ctx.skip("OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE", reason)
+        else:
+            reason = (
+                "link_attributes.capture is false; full rel tokens were not retained"
+                if not settings["link_attributes"]["capture"]
+                else "link evidence or crawl site host is unavailable"
+            )
+            link_rel_summary["reason"] = reason
+            ctx.skip("MIXED_LINK_REL", reason)
+            ctx.skip("OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE", reason)
 
     # Pages With JavaScript Errors (#1015): read from the retained render console sidecars,
     # never re-rendered here. Unreadable evidence is a stated skip, not a clean page.
@@ -2117,6 +2194,36 @@ def _audit_crawl_result(
     else:
         for check_id in security_headers.CHECK_IDS:
             ctx.skip(check_id, "crawl was not stored; per-URL response headers are not retained")
+
+    if stored_scan is not None:
+        from seohead.storage.retained_link_findings import RetainedLinkFindings
+
+        with RetainedLinkFindings(
+            stored_scan.con,
+            max_locations=audit_config.get("output", {}).get("max_locations_per_issue", 200),
+            hop_cap=ctx.thresholds.get("redirect_hop_cap", 20),
+        ) as retained_links:
+            for item in retained_links.findings():
+                ctx.add(item.pop("check"), **item)
+            if stored_scan.con.execute("SELECT 1 FROM links LIMIT 1").fetchone() is None:
+                for check in (
+                    "BROKEN_INTERNAL_LINK",
+                    "LINK_TO_5XX",
+                    "INTERNAL_LINK_TO_REDIRECT",
+                    "INTERNAL_LINK_NO_ANCHOR",
+                ):
+                    ctx.skip(check, "native scan retains no hyperlink occurrences")
+            external_summary = getattr(result, "external_summary", None)
+            if not external_summary:
+                ctx.skip(
+                    "EXTERNAL_NO_RESPONSE",
+                    "native external destination checks were not captured; enable discovery.external.crawl",
+                )
+            elif not sum(int(external_summary.get(key) or 0) for key in ("fetched", "failed")):
+                ctx.skip(
+                    "EXTERNAL_NO_RESPONSE",
+                    "captured external phase attempted no measurable destinations; its summary records skipped or blocked targets",
+                )
 
     # A broken bookmark is not a link-status problem: the fragment resolves
     # inside the retained destination document, which only a native scan keeps
@@ -2230,6 +2337,7 @@ def _audit_crawl_result(
     )
     if streaming:
         header, collections = audit_result.audit_v2_parts()
+        header["summary"]["link_rel"] = link_rel_summary
         analysis_segments = settings["analysis"]["segments"]
         header["segments"] = (
             _segment_counts(
@@ -2271,6 +2379,7 @@ def _audit_crawl_result(
             "render_escalation": render_summary,
         }, (header, collections)
     audit = audit_result.to_json()
+    audit["summary"]["link_rel"] = link_rel_summary
     # Page and issue counts per named segment (#358) -- only when the operator
     # actually declared segments, so a plain crawl's audit.json is unchanged.
     analysis_segments = settings["analysis"]["segments"]
@@ -2483,12 +2592,122 @@ def schema_build(
     return builder.build_schema(url=url, html=html, override_type=override_type)
 
 
-def log_analyze(path: str | None = None, verify_bots: bool = False) -> dict[str, Any]:
+def log_analyze(
+    path: str | None = None,
+    verify_bots: bool = False,
+    max_lines: int = 5_000_000,
+    offset: int = 0,
+    limit: int = 100,
+    max_dns: int = 20,
+    bot: str | None = None,
+    ip: str | None = None,
+) -> dict[str, Any]:
     if not path:
         raise ValueError("path required (web server access-log file)")
     from seohead.checks import logs as logs_core
 
-    return logs_core.analyze_log(path, verify_bots=bool(verify_bots))
+    return logs_core.analyze_log(
+        path,
+        verify_bots=verify_bots,
+        max_lines=max_lines,
+        offset=offset,
+        limit=limit,
+        max_dns=max_dns,
+        bot=bot,
+        ip=ip,
+    )
+
+
+def logs_import(
+    path: str, project: str, max_lines: int = 100_000_000, max_files: int = 1000
+) -> dict[str, Any]:
+    from seohead.checks.logstore import import_logs
+
+    return import_logs(path, project, max_lines=max_lines, max_files=max_files)
+
+
+def logs_summary(
+    source: str,
+    view: str = "urls",
+    limit: int = 100,
+    offset: int = 0,
+    bot: str = "",
+    family: str = "",
+    ip: str = "",
+    date_from: str = "",
+    date_to: str = "",
+    status: int | None = None,
+    section: str = "",
+) -> dict[str, Any]:
+    from seohead.checks.logstore import log_summary
+
+    return log_summary(
+        source,
+        view=view,
+        limit=limit,
+        offset=offset,
+        bot=bot,
+        family=family,
+        ip=ip,
+        date_from=date_from,
+        date_to=date_to,
+        status=status,
+        section=section,
+    )
+
+
+def logs_join(
+    source: str,
+    scan: str,
+    view: str = "scan_without_bot_visits",
+    base_url: str = "",
+    family: str = "",
+    bot: str = "",
+    date_from: str = "",
+    date_to: str = "",
+    limit: int = 100,
+    offset: int = 0,
+) -> dict[str, Any]:
+    from seohead.checks.logstore import join_log_scan
+
+    return join_log_scan(
+        source,
+        scan,
+        view=view,
+        base_url=base_url,
+        family=family,
+        bot=bot,
+        date_from=date_from,
+        date_to=date_to,
+        limit=limit,
+        offset=offset,
+    )
+
+
+def logs_bots(
+    source: str,
+    verify_bots: bool = False,
+    limit: int = 100,
+    offset: int = 0,
+    bot: str = "",
+    family: str = "",
+    ip: str = "",
+    verdict: str = "",
+    max_dns: int = 20,
+) -> dict[str, Any]:
+    from seohead.checks.logbots import bot_verification
+
+    return bot_verification(
+        source,
+        verify_bots=verify_bots,
+        limit=limit,
+        offset=offset,
+        bot=bot,
+        family=family,
+        ip=ip,
+        verdict=verdict,
+        max_dns=max_dns,
+    )
 
 
 def regions_check(
@@ -2991,6 +3210,120 @@ def render_check(
     return render_core.render_check(
         url, viewport=viewport, wait=wait, user_agent=user_agent, **kwargs
     )
+
+
+def backlinks_profile(
+    domain: str,
+    history_only: bool = False,
+    imports: list[dict[str, Any]] | None = None,
+    evidence: list[dict[str, Any]] | None = None,
+    sources: list[dict[str, Any]] | None = None,
+    db: str | None = None,
+    project: str | None = None,
+    observed_at: str | None = None,
+    state: str | None = None,
+    follow: str | None = None,
+    target_prefix: str | None = None,
+    min_spam_score: float | None = None,
+    max_spam_score: float | None = None,
+    first_seen_from: str | None = None,
+    first_seen_to: str | None = None,
+    one_per_domain: bool = False,
+    target_status: dict[str, Any] | None = None,
+    limit: int = 1000,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """Merge explicit backlink evidence and optionally retain a private history snapshot.
+
+    Each sources entry selects one bounded provider operation with its own request/gates.
+    No sources means offline analysis only; absence never proves a link was lost.
+    """
+    from seohead.recon.backlink_profile import build_backlink_profile, fetch_backlink_source
+    from seohead.recon.net import normalize_domain
+
+    normalized_domain = normalize_domain(domain)
+    if not normalized_domain:
+        raise ValueError("domain must be a valid hostname or HTTP(S) URL")
+    if history_only:
+        from seohead.data_sources.backlink_history import snapshot_history
+
+        return snapshot_history(
+            db=db, project=project, domain=normalized_domain, limit=limit, offset=offset
+        )
+    if db and project:
+        raise ValueError("pass db or project, not both")
+    for item in sources or []:
+        if (
+            not isinstance(item, dict)
+            or item.get("source")
+            not in {"dataforseo", "yandex_webmaster", "bing_webmaster", "ahrefs", "majestic", "moz"}
+            or not isinstance(item.get("request", {}), dict)
+        ):
+            raise ValueError("sources entries require a supported source and an object request")
+    collected = list(evidence or [])
+    for item in sources or []:
+        if not isinstance(item, dict) or not isinstance(item.get("request", {}), dict):
+            raise ValueError("sources entries require source and an object request")
+        source = item.get("source")
+        request = dict(item.get("request") or {})
+        if source == "dataforseo":
+            from seohead.data_sources.dataforseo import backlink_call
+
+            operation = item.get("operation", "backlinks")
+            result = backlink_call(operation, normalized_domain, **request)
+            collected.append(
+                {
+                    "source": source,
+                    "result": result,
+                    "complete": False,
+                    "scope": "bounded index response",
+                    "operation": operation,
+                }
+            )
+        elif source in {"yandex_webmaster", "bing_webmaster"}:
+            collected.append(fetch_backlink_source(source, domain, request))
+        elif source in {"ahrefs", "majestic", "moz"}:
+            from seohead.data_sources.backlink_indexes import collect
+
+            collected.append(
+                {
+                    "source": source,
+                    "result": collect(source, normalized_domain, **request),
+                    "complete": False,
+                }
+            )
+        else:
+            raise ValueError("unsupported backlink source")
+    return build_backlink_profile(
+        domain,
+        imports=imports,
+        evidence=collected,
+        db=db,
+        project=project,
+        observed_at=observed_at,
+        state=state,
+        follow=follow,
+        target_prefix=target_prefix,
+        min_spam_score=min_spam_score,
+        max_spam_score=max_spam_score,
+        first_seen_from=first_seen_from,
+        first_seen_to=first_seen_to,
+        one_per_domain=one_per_domain,
+        target_status=target_status,
+        limit=limit,
+        offset=offset,
+    )
+
+
+def backlinks_disavow(
+    domains: list[str] | None = None,
+    urls: list[str] | None = None,
+    output: str | None = None,
+) -> dict[str, Any]:
+    """Export only the specialist's explicit selection; never submit to search engines."""
+    from seohead.recon.backlink_profile import export_disavow
+
+    return export_disavow(domains=domains, urls=urls, output=output)
 
 
 def backlinks_check(
@@ -3726,6 +4059,48 @@ def keywords_exact(
         return error
 
 
+def dataforseo_estimate(
+    operation: str,
+    query_count: int = 1,
+    row_limit: int = 0,
+    cache_hits: int = 0,
+    prices: dict[str, Any] | None = None,
+    env: str | None = None,
+    refresh_prices: bool = False,
+    query: str | None = None,
+) -> dict[str, Any]:
+    """Quote supplied prices offline; refresh_prices explicitly reads free account prices."""
+    from seohead.data_sources.dataforseo import estimate
+
+    if refresh_prices:
+        from seohead.data_sources.dataforseo import (
+            DataForSEOClient,
+            DataForSEOError,
+            MissingCredential,
+        )
+
+        try:
+            prices = DataForSEOClient(env=env).balance().get("prices")
+        except (MissingCredential, DataForSEOError, OSError, ValueError) as exc:
+            return {
+                "ok": False,
+                "state": "unavailable",
+                "reason": "free account price lookup failed",
+                "error": str(exc),
+            }
+
+    quote = estimate(
+        operation,
+        query_count=query_count,
+        row_limit=row_limit,
+        cache_hits=cache_hits,
+        prices=prices,
+        env=env,
+        query=query,
+    )
+    return {"ok": quote["state"] == "complete", **quote}
+
+
 def google_keywords(
     keywords: list[str] | None = None,
     seed: str | None = None,
@@ -3734,6 +4109,10 @@ def google_keywords(
     country: str | None = None,
     limit: int = 100,
     difficulty: bool = False,
+    confirm_paid: bool = False,
+    env: str | None = None,
+    spend_ceiling_usd: float | None = None,
+    prices: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Query Google demand through DataForSEO by keyword list or seed phrase.
 
@@ -3748,9 +4127,36 @@ def google_keywords(
     """
     from seohead.data_sources import dataforseo as core
 
+    if seed and difficulty and spend_ceiling_usd is not None:
+        quotes = [
+            core.estimate(operation, row_limit=limit, prices=prices, env=env)
+            for operation in ("keyword_ideas", "keyword_difficulty")
+        ]
+        if any(quote["cost_usd"] is None for quote in quotes):
+            return {
+                "ok": False,
+                "state": "unavailable",
+                "reason": "both operation prices are required to enforce the combined ceiling",
+                "estimate": quotes,
+            }
+        if sum(quote["cost_usd"] for quote in quotes) > spend_ceiling_usd:
+            return {
+                "ok": False,
+                "state": "spend_limit_exceeded",
+                "reason": "combined expansion and difficulty estimate exceeds ceiling before request",
+                "estimate": quotes,
+            }
     if seed:
         ideas = core.keyword_ideas(
-            seed, location_code=location_code, language=language, limit=limit, country=country
+            seed,
+            location_code=location_code,
+            language=language,
+            limit=limit,
+            country=country,
+            confirm_paid=confirm_paid,
+            env=env,
+            spend_ceiling_usd=spend_ceiling_usd,
+            prices=prices,
         )
         if not difficulty or not ideas.get("ok"):
             return ideas
@@ -3759,8 +4165,26 @@ def google_keywords(
         expanded = [k.get("phrase") for k in ideas.get("keywords") or [] if k.get("phrase")]
         if not expanded:
             return ideas
+        remaining_ceiling = spend_ceiling_usd
+        if spend_ceiling_usd is not None:
+            actual = ideas.get("cost_usd")
+            if actual is None:
+                return {
+                    **ideas,
+                    "ok": False,
+                    "state": "partial",
+                    "reason": "expansion cost is unknown; cannot enforce remaining ceiling for difficulty",
+                }
+            remaining_ceiling = max(0.0, spend_ceiling_usd - actual)
         scored = core.keyword_difficulty(
-            expanded, location_code=location_code, language=language, country=country
+            expanded,
+            location_code=location_code,
+            language=language,
+            country=country,
+            confirm_paid=confirm_paid,
+            env=env,
+            spend_ceiling_usd=remaining_ceiling,
+            prices=prices,
         )
         ideas["difficulty"] = scored
         if scored.get("ok") is False:
@@ -3770,10 +4194,24 @@ def google_keywords(
         raise ValueError("keywords or seed required")
     if difficulty:
         return core.keyword_difficulty(
-            keywords, location_code=location_code, language=language, country=country
+            keywords,
+            location_code=location_code,
+            language=language,
+            country=country,
+            confirm_paid=confirm_paid,
+            env=env,
+            spend_ceiling_usd=spend_ceiling_usd,
+            prices=prices,
         )
     return core.search_volume(
-        keywords, location_code=location_code, language=language, country=country
+        keywords,
+        location_code=location_code,
+        language=language,
+        country=country,
+        confirm_paid=confirm_paid,
+        env=env,
+        spend_ceiling_usd=spend_ceiling_usd,
+        prices=prices,
     )
 
 
@@ -3783,6 +4221,10 @@ def google_serp(
     language: str = "en",
     depth: int = 10,
     country: str | None = None,
+    confirm_paid: bool = False,
+    env: str | None = None,
+    spend_ceiling_usd: float | None = None,
+    prices: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return the Google organic results that actually rank for a query in the selected market."""
     if not query:
@@ -3790,7 +4232,15 @@ def google_serp(
     from seohead.data_sources import dataforseo as core
 
     return core.serp(
-        query, location_code=location_code, language=language, depth=depth, country=country
+        query,
+        location_code=location_code,
+        language=language,
+        depth=depth,
+        country=country,
+        confirm_paid=confirm_paid,
+        env=env,
+        spend_ceiling_usd=spend_ceiling_usd,
+        prices=prices,
     )
 
 
@@ -4490,11 +4940,83 @@ def sources_export(
     )
 
 
-def scan_reanalyze(input_path: str, out: str, producer_build: str | None = None) -> dict[str, Any]:
+def scan_reanalyze(
+    input_path: str,
+    out: str,
+    producer_build: str | None = None,
+    step: str = "all",
+    max_documents: int | None = None,
+) -> dict[str, Any]:
     """Derive a fresh SQLite scan by parsing retained evidence without network access."""
     from seohead.mcp.reanalysis_handlers import reanalyze_scan
 
-    return reanalyze_scan(input_path=input_path, out=out, producer_build=producer_build)
+    return reanalyze_scan(
+        input_path=input_path,
+        out=out,
+        producer_build=producer_build,
+        step=step,
+        max_documents=max_documents,
+    )
+
+
+def scan_sitemap_generate(
+    input_path: str,
+    out_dir: str,
+    sitemap_base_url: str,
+    include_images: bool = False,
+    exclude: list[str] | None = None,
+) -> dict[str, Any]:
+    """Write XML sitemaps from retained canonical/indexable 200 responses; no network."""
+    from seohead.mcp.scan_sitemaps import generate_scan_sitemaps
+
+    return generate_scan_sitemaps(
+        input_path=input_path,
+        out_dir=out_dir,
+        sitemap_base_url=sitemap_base_url,
+        include_images=include_images,
+        exclude=exclude,
+    )
+
+
+def scan_graph(
+    input_path: str,
+    positions: list[str] | str | None = None,
+    section: str | None = None,
+    around: str | None = None,
+    depth: int = 2,
+    aggregate: str = "none",
+    representation: str = "all",
+    node_offset: int = 0,
+    edge_offset: int = 0,
+    node_limit: int = 1000,
+    edge_limit: int = 2000,
+    max_nodes: int = 5000,
+    max_edges: int = 20000,
+    compare_to: str | None = None,
+    timeout_seconds: float = 1.0,
+    max_bytes: int = 8388608,
+) -> dict[str, Any]:
+    """Read a bounded retained internal graph, its sections and scan-to-scan changes."""
+    from seohead.mcp.history_handlers import scan_graph as core
+
+    return core(
+        input_path=input_path,
+        positions=positions,
+        section=section,
+        around=around,
+        depth=depth,
+        aggregate=aggregate,
+        representation=representation,
+        node_offset=node_offset,
+        edge_offset=edge_offset,
+        node_limit=node_limit,
+        edge_limit=edge_limit,
+        max_nodes=max_nodes,
+        max_edges=max_edges,
+        compare_to=compare_to,
+        timeout_seconds=timeout_seconds,
+        max_bytes=max_bytes,
+    )
 
 
 def scan_list(
@@ -6612,6 +7134,8 @@ _RAW_HANDLERS = {
     "tech_detect": tech_detect,
     "security_check": security_check,
     "backlinks_check": backlinks_check,
+    "backlinks_profile": backlinks_profile,
+    "backlinks_disavow": backlinks_disavow,
     "schema_check": schema_check,
     "schema_build": schema_build,
     "duplicate_check": duplicate_check,
@@ -6631,6 +7155,10 @@ _RAW_HANDLERS = {
     "social_meta_check": social_meta_check,
     "soft404_check": soft404_check,
     "log_analyze": log_analyze,
+    "logs_import": logs_import,
+    "logs_summary": logs_summary,
+    "logs_join": logs_join,
+    "logs_bots": logs_bots,
     "regions_check": regions_check,
     "render_check": render_check,
     "site_audit": site_audit,
@@ -6656,6 +7184,7 @@ _RAW_HANDLERS = {
     "metrika_report": metrika_report,
     "metrika_traffic_pdf": metrika_traffic_pdf,
     "google_keywords": google_keywords,
+    "dataforseo_estimate": dataforseo_estimate,
     "google_serp": google_serp,
     "wayback_history": wayback_history,
     "crtsh_subdomains": crtsh_subdomains,
@@ -6667,6 +7196,8 @@ _RAW_HANDLERS = {
     "crux_report": crux_report,
     "indexnow_submit": indexnow_submit,
     "scan_reanalyze": scan_reanalyze,
+    "scan_graph": scan_graph,
+    "scan_sitemap_generate": scan_sitemap_generate,
     "scan_list": scan_list,
     "scan_inspect": scan_inspect,
     "scan_url_detail": scan_url_detail,
