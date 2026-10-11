@@ -72,7 +72,52 @@ def _empty(project_uuid: str) -> dict[str, Any]:
 def _process_identity(pid: int) -> str | None:
     """Return a platform process-start identity when the host exposes one."""
     if os.name == "nt":
-        return None
+        import ctypes
+        from ctypes import wintypes
+
+        class _FileTime(ctypes.Structure):
+            _fields_ = [("low", wintypes.DWORD), ("high", wintypes.DWORD)]
+
+        try:
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            open_process = kernel32.OpenProcess
+            open_process.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+            open_process.restype = wintypes.HANDLE
+            get_times = kernel32.GetProcessTimes
+            get_times.argtypes = (
+                wintypes.HANDLE,
+                ctypes.POINTER(_FileTime),
+                ctypes.POINTER(_FileTime),
+                ctypes.POINTER(_FileTime),
+                ctypes.POINTER(_FileTime),
+            )
+            get_times.restype = wintypes.BOOL
+            close_handle = kernel32.CloseHandle
+            close_handle.argtypes = (wintypes.HANDLE,)
+            close_handle.restype = wintypes.BOOL
+            handle = open_process(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+            if not handle:
+                return None
+            created = _FileTime()
+            exited = _FileTime()
+            kernel = _FileTime()
+            user = _FileTime()
+            try:
+                measured = get_times(
+                    handle,
+                    ctypes.byref(created),
+                    ctypes.byref(exited),
+                    ctypes.byref(kernel),
+                    ctypes.byref(user),
+                )
+                if not measured:
+                    return None
+                value = (created.high << 32) | created.low
+                return f"windows:{value}"
+            finally:
+                close_handle(handle)
+        except (AttributeError, OSError, ValueError):
+            return None
     try:
         result = subprocess.run(
             ["ps", "-o", "lstart=", "-p", str(pid)],

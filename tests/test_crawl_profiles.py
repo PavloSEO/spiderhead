@@ -33,6 +33,8 @@ def test_save_then_select_round_trips_the_validated_file(store, tmp_path):
         "speed": {"concurrency": 2}
     }
     assert profiles.path_for("catalog") == stored
+    assert profiles.name_for_path(stored) == "catalog"
+    assert profiles.name_for_path(str(tmp_path / "other.json")) is None
 
 
 def test_selecting_an_unknown_profile_names_the_saved_ones(store, tmp_path):
@@ -67,7 +69,7 @@ def test_show_refuses_credentials_in_a_manually_edited_profile(store, tmp_path):
         ),
         encoding="utf-8",
     )
-    with pytest.raises(profiles.ProfileError, match="cannot contain http.credential_headers"):
+    with pytest.raises(profiles.ProfileError, match="cannot contain HTTP authentication"):
         profiles.show("private")
 
 
@@ -107,7 +109,7 @@ def test_a_profile_cannot_store_credential_headers(store, tmp_path, monkeypatch)
             }
         },
     )
-    with pytest.raises(profiles.ProfileError, match=r"cannot store http\.credential_headers"):
+    with pytest.raises(profiles.ProfileError, match="cannot store HTTP authentication"):
         profiles.save("login", secret)
     assert not (store / "login.json").exists()
 

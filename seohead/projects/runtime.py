@@ -26,6 +26,7 @@ DEFAULT_POLICY = {
     "evidence_hash": {"max_bytes": 1024 * 1024 * 1024, "max_seconds": 5},
     "approval_thresholds": {"pages": 1000, "requests": 3000, "seconds": 600},
     "quick_crawl": {"pages": 50, "requests": 150, "seconds": 60},
+    "crawl_profile": None,
     "crawl_overrides": {},
     "competitor_limit": 5,
 }
@@ -88,12 +89,15 @@ def _positive(value: Any, label: str) -> int:
 def validate_policy(policy: Any) -> dict:
     from seohead.crawl.settings import load
 
+    legacy_fields = set(DEFAULT_POLICY) - {"crawl_profile"}
     if not isinstance(policy, dict) or set(policy) not in (
         set(DEFAULT_POLICY),
-        set(DEFAULT_POLICY) - {"evidence_hash"},
+        legacy_fields,
+        legacy_fields - {"evidence_hash"},
     ):
         raise ValueError("crawl policy has unsupported fields")
-    result = copy.deepcopy(policy)
+    result = copy.deepcopy(DEFAULT_POLICY)
+    result.update(copy.deepcopy(policy))
     result.setdefault("evidence_hash", copy.deepcopy(DEFAULT_POLICY["evidence_hash"]))
     hashing = result["evidence_hash"]
     if not isinstance(hashing, dict) or set(hashing) != {"max_bytes", "max_seconds"}:
@@ -112,6 +116,14 @@ def validate_policy(policy: Any) -> dict:
             _positive(value, f"{section}.{key}")
     if not isinstance(result["crawl_overrides"], dict):
         raise ValueError("crawl_overrides must be a configuration object")
+    profile = result["crawl_profile"]
+    if profile is not None:
+        if not isinstance(profile, str) or not profile:
+            raise ValueError("crawl_profile must be a saved profile name or null")
+        from seohead.crawl.profiles import NAME_RE
+
+        if not NAME_RE.fullmatch(profile):
+            raise ValueError("crawl_profile is not a valid saved profile name")
     # Validate with the collector's actual settings; policy never executes its text.
     load(overrides=result["crawl_overrides"])
     if _positive(result["competitor_limit"], "competitor_limit") > 20:

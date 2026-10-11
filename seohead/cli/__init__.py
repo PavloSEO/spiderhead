@@ -33,6 +33,7 @@ MAX_CRUX_EVIDENCE_BYTES = 2 * 1024 * 1024
 COMMANDS = (
     "parse",
     "crawl-site",
+    "crawl-control",
     "crawl-describe-settings",
     "scan-reanalyze",
     "scan-graph",
@@ -632,6 +633,11 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             overrides[path] = value
         if overrides:
             kw["overrides"] = overrides
+    elif cmd == "crawl-control":
+        for name in ("project", "run_id", "action"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "sitemap-crawl":
         if args.project is not None:
             kw["project"] = args.project
@@ -1595,6 +1601,34 @@ def _project_crawl_defaults(kwargs: dict[str, Any]) -> dict | None:
     return project_policy(kwargs["project"])["policy"]["crawl_overrides"]
 
 
+def _resolved_crawl_settings(kwargs: dict[str, Any]):
+    """Resolve the same named profile, project defaults and explicit overrides as the handler."""
+    from seohead.crawl import settings as crawl_config
+
+    config = kwargs.get("config")
+    profile = kwargs.get("profile")
+    base_overrides = _project_crawl_defaults(kwargs)
+    if config and not profile:
+        from seohead.crawl.profiles import name_for_path
+
+        profile = name_for_path(config)
+        if profile:
+            config = None
+    if not config and not profile and kwargs.get("project"):
+        from seohead.projects.runtime import project_policy
+
+        profile = project_policy(kwargs["project"])["policy"].get("crawl_profile")
+    overrides = _crawl_overrides(kwargs)
+    if profile:
+        from seohead.crawl.profiles import path_for
+
+        config = path_for(profile)
+        if base_overrides:
+            overrides = {**base_overrides, **overrides}
+            base_overrides = None
+    return crawl_config.load(config, overrides=overrides, base_overrides=base_overrides)
+
+
 def _print_effective_rate(kwargs: dict[str, Any]) -> None:
     """Print the worst-case requests/second a crawl-site run permits, before it runs.
 
@@ -1611,11 +1645,7 @@ def _print_effective_rate(kwargs: dict[str, Any]) -> None:
         # The same overrides the handler will resolve, in the same precedence, or
         # the printed rate describes a run that is not the one about to happen --
         # which is worse than printing nothing, because it is believed.
-        resolved = crawl_config.load(
-            kwargs.get("config"),
-            overrides=_crawl_overrides(kwargs),
-            base_overrides=_project_crawl_defaults(kwargs),
-        )
+        resolved = _resolved_crawl_settings(kwargs)
     except crawl_config.ConfigError:
         return  # the handler call below reports the same error to the user
     rate = crawl_config.effective_request_rate(resolved)
@@ -1735,11 +1765,7 @@ def _crawl_progress(kwargs: dict[str, Any]) -> CrawlProgress | None:
 
             resolved = resume_inputs(resume)["settings"]
         else:
-            resolved = crawl_config.load(
-                kwargs.get("config"),
-                overrides=_crawl_overrides(kwargs),
-                base_overrides=_project_crawl_defaults(kwargs),
-            )
+            resolved = _resolved_crawl_settings(kwargs)
     except (crawl_config.ConfigError, OSError, ValueError, sqlite3.Error):
         return None
     stream = sys.stderr
@@ -2071,6 +2097,10 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         # every setting, and a setting added tomorrow is reachable with no CLI change at all.
         sub.add_argument("--max-depth", type=int, help=argparse.SUPPRESS)
         sub.add_argument("--min-delay", type=float, help=argparse.SUPPRESS)
+    if cmd == "crawl-control":
+        _source_flag(sub, "--project", help="project containing the active crawl")
+        _source_flag(sub, "--run-id", dest="run_id", help="active project run ID")
+        sub.add_argument("--action", choices=("pause", "stop"), required=True)
     if cmd == "compare-crawls":
         sub.add_argument(
             "--compression",

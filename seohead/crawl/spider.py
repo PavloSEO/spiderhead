@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 from itertools import zip_longest
 from pathlib import PurePosixPath
 from typing import Any
-from urllib.parse import urldefrag, urljoin, urlsplit, urlunsplit
+from urllib.parse import unquote_plus, urldefrag, urljoin, urlsplit, urlunsplit
 
 from seohead.checks.robots import is_allowed, match_path, parse_robots, politeness_delay
 from seohead.core.models import ParsedRobots
@@ -48,7 +48,7 @@ from seohead.crawl.settings import (
     checked_url_budget,
     resolve_credential_headers,
 )
-from seohead.crawl.throttle import MAX_DELAY_S, DispatchGate, Throttle
+from seohead.crawl.throttle import MAX_DELAY_S, DispatchGate, RequestBudgetExhausted, Throttle
 from seohead.recon.net import UA, http_client, normalize_url, registrable_domain
 
 _MEDIA_TYPE_TOKEN = re.compile(r"[a-z0-9!#$%&'+\-.^_`|~]+\Z")
@@ -180,6 +180,20 @@ def _canonical_key(url: str) -> str:
     """Identity for de-duplication: fragment dropped, nothing else rewritten."""
     parts = urlsplit(url)
     return urlunsplit((parts.scheme, parts.netloc, parts.path or "/", parts.query, ""))
+
+
+def normalize_get_parameters(url: str) -> str:
+    """Drop utm_* and fbclid fields without rewriting any other raw query text."""
+    parts = urlsplit(url)
+    if not parts.query:
+        return url
+    kept = []
+    for field in parts.query.split("&"):
+        name = unquote_plus(field.split("=", 1)[0]).lower()
+        if name.startswith("utm_") or name == "fbclid":
+            continue
+        kept.append(field)
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, "&".join(kept), parts.fragment))
 
 
 def _strip_fragment(url: str) -> str:
@@ -404,6 +418,7 @@ def apply_document_links(
     record_edge: Callable[[LinkEdge], None],
     reject: Callable[[str, str | None], None],
     mark_link_partial: Callable[[int], None],
+    normalize_target: Callable[[str], str] | None = None,
 ) -> None:
     """Apply one parsed document's link observations in crawler order.
 
@@ -423,13 +438,17 @@ def apply_document_links(
         if not href:
             continue
         target = _strip_fragment(href)
+        destination = href
+        if normalize_target is not None:
+            target = normalize_target(target)
+            destination = normalize_target(href)
         nofollow = bool(link.get("nofollow"))
         scope_reason = rejection(target, host)
         is_external = scope_reason == "outside_host"
         if store_external_links if is_external else store_hyperlinks:
             edge = LinkEdge(
                 source=source_url,
-                destination=href,
+                destination=destination,
                 anchor=(link.get("text") or "")[:200],
                 nofollow=nofollow,
                 position=link.get("position") or "",
@@ -669,6 +688,8 @@ def _fetch_robots(
             if wait is not None:
                 wait()
             response = fetcher(url) if fetcher else client.get(url)
+        except RequestBudgetExhausted:
+            raise
         except Exception as exc:
             return dict(EMPTY_ROBOTS), f"robots.txt unreachable: {exc}", True
         code = getattr(response, "status_code", None)
@@ -736,6 +757,7 @@ def crawl_site(
     fetcher: Callable[[str], Any] | None = None,
     sleeper: Callable[[float], None] = time.sleep,
     credential_headers: list[dict[str, Any]] | None = None,
+    http_auth: list[dict[str, Any]] | None = None,
     clock: Callable[[], float] = time.monotonic,
     concurrency: int = 1,
     max_response_bytes: int = MAX_RESPONSE_BYTES,
@@ -766,6 +788,7 @@ def crawl_site(
     progress: Callable[[int, int], None] | None = None,
     spool_evidence: bool = False,
     proxy_route: Any = None,
+    normalize_tracking_parameters: bool = True,
 ) -> SpiderResult:
     """Crawl one host breadth-first from ``start_url``, within ``scope``.
 
@@ -857,7 +880,11 @@ def crawl_site(
     the loop, not a timer: a crawl blocked on one slow response reports nothing
     new until that response lands, which is what is actually true of it.
     """
+    if type(normalize_tracking_parameters) is not bool:
+        raise ValueError("normalize_tracking_parameters must be boolean")
     start = normalize_url(start_url)
+    if normalize_tracking_parameters:
+        start = normalize_get_parameters(start)
     host = (urlsplit(start).hostname or "").lower() if start else ""
     # normalize_url is lenient — it turns "not a url" into "https://not a url" —
     # so the host is checked here rather than trusted.
@@ -949,11 +976,12 @@ def crawl_site(
             # target's title and body, the Location is never seen, and redirect
             # auditing is impossible — the old and new URL become duplicates.
             from seohead.recon.net import crawl_transport_options
-
+            from seohead.crawl.auth import host_bound_auth
             client, _ = http_client(
                 timeout,
                 follow_redirects=False,
-                headers={"User-Agent": user_agent or UA},
+                headers={"User-Agent": user_agent or UA, **(extra_request_headers or {})},
+                auth=host_bound_auth(http_auth or [], dispatch_gate.wait_turn),
                 **crawl_transport_options(proxy_route),
             )
             stack.callback(client.close)
@@ -964,9 +992,15 @@ def crawl_site(
             robots = dict(EMPTY_ROBOTS)
             note, unavailable = "robots.txt not fetched (policy: ignore)", False
         else:
-            robots, note, unavailable = _fetch_robots(
-                start, fetcher, client, wait=dispatch_gate.wait_turn
-            )
+            try:
+                robots, note, unavailable = _fetch_robots(
+                    start, fetcher, client, wait=dispatch_gate.wait_turn
+                )
+            except RequestBudgetExhausted:
+                result.partial = True
+                result.stopped_reason = "total HTTP request budget exhausted"
+                result.finish_reason = "request_limit"
+                return result
         result.robots_note = note
         if enforce and unavailable and unavailable_means_stop:
             result.partial = True
@@ -1094,6 +1128,8 @@ def crawl_site(
             seed = (seed or "").strip()
             if not seed:
                 continue
+            if normalize_tracking_parameters:
+                seed = normalize_get_parameters(seed)
             # Checked against ``seen`` before the rejection rules run, and
             # added to ``seen`` either way (issue #348): a rejected seed is a
             # decision this run made about that URL, exactly like an accepted
@@ -1149,6 +1185,8 @@ def crawl_site(
             if not record.redirect_url:
                 return
             target = _strip_fragment(record.redirect_url)
+            if normalize_tracking_parameters:
+                target = normalize_get_parameters(target)
             if depth >= depth_limit:
                 exclude("depth_limit", target)
                 return
@@ -1196,6 +1234,9 @@ def crawl_site(
                 record_edge=record_edge,
                 reject=exclude,
                 mark_link_partial=lambda omitted: exclude("link_observations_limit"),
+                normalize_target=(
+                    normalize_get_parameters if normalize_tracking_parameters else None
+                ),
             )
 
         def handle_forms(parsed: dict[str, Any] | None, url: str) -> None:
@@ -1340,6 +1381,12 @@ def crawl_site(
                     result.stopped_reason = "interrupted"
                     result.finish_reason = "interrupted"
                     break
+                except RequestBudgetExhausted:
+                    queue.appendleft((url, depth))
+                    result.partial = True
+                    result.stopped_reason = "total HTTP request budget exhausted"
+                    result.finish_reason = "request_limit"
+                    break
                 stopped = after_fetch(url, depth, record, parsed)
                 report_progress()
         else:
@@ -1427,6 +1474,7 @@ def crawl_site(
                     futures = [pool.submit(dispatch, item) for item in to_fetch]
                     processed = 0
                     interrupted = False
+                    request_budget_exhausted = False
                     try:
                         for future in futures:
                             url, depth, record, parsed = future.result()
@@ -1444,6 +1492,9 @@ def crawl_site(
                         # requeued rather than risked on a `.done()` check
                         # that could race the interrupt itself.
                         interrupted = True
+                    except RequestBudgetExhausted:
+                        stopped = True
+                        request_budget_exhausted = True
 
                     if stopped and not interrupted:
                         # The breaker fired on an earlier, ordered result, but
@@ -1467,11 +1518,15 @@ def crawl_site(
                             to_fetch[processed:], futures[processed:], strict=True
                         ):
                             if future.done():
-                                url, depth, record, parsed = future.result()
-                                if _continues_failure_streak(record):
+                                try:
+                                    url, depth, record, parsed = future.result()
+                                except RequestBudgetExhausted:
                                     requeue.append(item)
                                 else:
-                                    record_evidence(url, depth, record, parsed)
+                                    if _continues_failure_streak(record):
+                                        requeue.append(item)
+                                    else:
+                                        record_evidence(url, depth, record, parsed)
                             else:
                                 requeue.append(item)
                         for item in reversed(requeue):
@@ -1479,7 +1534,12 @@ def crawl_site(
                     elif interrupted:
                         for item in reversed(to_fetch[processed:]):
                             queue.appendleft(item)
-                    if interrupted:
+                    if request_budget_exhausted:
+                        result.partial = True
+                        result.stopped_reason = "total HTTP request budget exhausted"
+                        result.finish_reason = "request_limit"
+                        stopped = True
+                    elif interrupted:
                         result.partial = True
                         result.stopped_reason = "interrupted"
                         result.finish_reason = "interrupted"

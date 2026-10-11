@@ -5,6 +5,7 @@ from __future__ import annotations
 import zlib
 from collections.abc import Iterable
 from dataclasses import dataclass
+from io import BytesIO
 from typing import Any
 
 from seohead.core.common import utc_iso_z as now_utc
@@ -145,6 +146,47 @@ def bounded_entity_chunks(chunks: Iterable[bytes], content_encoding: str, limit:
                 raise EntityLimitError("entity exceeds capture limit")
             out.extend(chunk)
         return bytes(out)
+    if encoding == "zstd":
+        try:
+            from compression import zstd
+
+            standard_library = True
+        except ImportError as exc:
+            try:
+                import zstandard as zstd
+
+                standard_library = False
+            except ImportError:
+                raise EntityDecodeError(
+                    "zstd response requires Python 3.14+ or the optional zstandard package"
+                ) from exc
+        encoded = bytearray()
+        for chunk in chunks:
+            if len(chunk) > limit + 64 * 1024 - len(encoded):
+                raise EntityLimitError("encoded response exceeds capture limit")
+            encoded.extend(chunk)
+        try:
+            if standard_library:
+                options = {
+                    zstd.DecompressionParameter.window_log_max: max(10, (limit + 1).bit_length())
+                }
+                reader_context = zstd.open(BytesIO(encoded), options=options)
+            else:
+                window_kib = max(1, (limit + 1023) // 1024)
+                reader_context = zstd.ZstdDecompressor(
+                    max_window_size=window_kib
+                ).stream_reader(BytesIO(encoded), read_across_frames=True)
+            with reader_context as reader:
+                out = bytearray()
+                while chunk := reader.read(64 * 1024):
+                    if len(chunk) > limit - len(out):
+                        raise EntityLimitError("compressed entity exceeds capture limit")
+                    out.extend(chunk)
+            return bytes(out)
+        except EntityLimitError:
+            raise
+        except (zstd.ZstdError, EOFError, ValueError) as exc:
+            raise EntityDecodeError("compressed entity is invalid") from exc
     wbits = (
         16 + zlib.MAX_WBITS
         if encoding == "gzip"
