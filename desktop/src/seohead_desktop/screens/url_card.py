@@ -1220,19 +1220,25 @@ class SchemaPage(QWidget):
                 + (f" · {evidence['reason']}" if evidence.get("reason") else "")
             )
         source_state = payload.get("source_state")
+        analysis_state = detail.get("analysis_state", "unavailable")
         root_count = payload.get("block_count")
         root_suffix = (
             f" · source {source_state}" if source_state else ""
         ) + (f" · {root_count} JSON-LD blocks" if type(root_count) is int else "")
         if payload.get("blocks_truncated"):
             root_suffix += " · block output truncated"
-        self.blocks.title.setText(f"Retained structured data: {state}{root_suffix}")
+        self.blocks.title.setText(
+            f"Schema analysis: {analysis_state} · JSON-LD: {state}{root_suffix}"
+        )
         notes = format_lines[:]
         partial_reasons = detail.get("partial_reasons")
         if isinstance(partial_reasons, list):
             notes.extend(str(note) for note in partial_reasons)
         if reason:
             notes.append(reason)
+        detail_reason = detail.get("reason")
+        if detail_reason and detail_reason != reason:
+            notes.append(str(detail_reason))
         self.blocks.text.setText("\n".join(str(note) for note in notes))
 
         jsonld = formats.get("jsonld")
@@ -1256,6 +1262,8 @@ class SchemaPage(QWidget):
             "syntax_state": validation.get("syntax_state"),
             "structural_state": validation.get("structural_state"),
             "feature_eligibility_state": validation.get("feature_eligibility_state"),
+            "feature_checks": validation.get("feature_checks"),
+            "unsupported_context_normalization": validation.get("unsupported_context_normalization"),
             "entity_errors": validation.get("entity_errors"),
             "entity_warnings": validation.get("entity_warnings"),
             "markup_coverage": detail.get("markup_coverage"),
