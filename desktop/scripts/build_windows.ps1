@@ -21,8 +21,8 @@ $env:PYINSTALLER_CONFIG_DIR = "$ProjectRoot\.build\pyinstaller-cache"
 try {
     Invoke-Python "$ProjectRoot\scripts\bundle_manifest.py" create --core-source $CoreSource --desktop-source $ProjectRoot --platform windows --output "$Scratch\core-manifest.json" --verify-imports
     Invoke-Python -m PyInstaller --clean --noconfirm --onedir --console --name seohead --paths $CoreSource --collect-all seohead --distpath "$Scratch\core-dist" --workpath "$Scratch\core-work" --specpath $Scratch "$CoreSource\seohead\__main__.py"
-    Invoke-Python -m PyInstaller --clean --noconfirm --onedir --console --name seohead-desktop-agent --paths "$ProjectRoot\src" --collect-data seohead_desktop --collect-data mcp --distpath "$Scratch\agent-dist" --workpath "$Scratch\agent-work" --specpath $Scratch "$ProjectRoot\scripts\control_entrypoint.py"
-    Invoke-Python -m PyInstaller --clean --noconfirm --onedir --windowed --name "SpiderHead" --paths "$ProjectRoot\src" --icon "$ProjectRoot\src\seohead_desktop\assets\app\seohead.ico" --collect-data seohead_desktop --distpath "$Scratch\app-dist" --workpath "$Scratch\app-work" --specpath $Scratch "$ProjectRoot\scripts\entrypoint.py"
+    Invoke-Python -m PyInstaller --clean --noconfirm --onedir --console --name seohead-desktop-agent --paths "$ProjectRoot\src" --collect-submodules seohead_desktop --collect-data seohead_desktop --collect-data mcp --distpath "$Scratch\agent-dist" --workpath "$Scratch\agent-work" --specpath $Scratch "$ProjectRoot\scripts\control_entrypoint.py"
+    Invoke-Python -m PyInstaller --clean --noconfirm --onedir --windowed --name "SpiderHead" --paths "$ProjectRoot\src" --icon "$ProjectRoot\src\seohead_desktop\assets\app\seohead.ico" --collect-submodules seohead_desktop --collect-data seohead_desktop --distpath "$Scratch\app-dist" --workpath "$Scratch\app-work" --specpath $Scratch "$ProjectRoot\scripts\entrypoint.py"
     $Bundle = "$Scratch\app-dist\SpiderHead"
     $Resources = "$Bundle\resources"
     New-Item -ItemType Directory -Force -Path "$Resources\agent" | Out-Null

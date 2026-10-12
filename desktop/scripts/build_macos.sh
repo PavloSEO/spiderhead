@@ -73,7 +73,7 @@ mkdir -p "$core_build" "$agent_build" "$app_build"
 "$python_bin" -m PyInstaller \
     $clean_flag --noconfirm --onedir --console --name seohead-desktop-agent \
     --paths "$project_dir/src" \
-    --collect-data seohead_desktop --collect-data mcp \
+    --collect-submodules seohead_desktop --collect-data seohead_desktop --collect-data mcp \
     --distpath "$agent_build/dist" --workpath "$agent_build/work" --specpath "$agent_build" \
     "$project_dir/scripts/control_entrypoint.py"
 
@@ -82,7 +82,7 @@ mkdir -p "$core_build" "$agent_build" "$app_build"
     --paths "$project_dir/src" \
     --osx-bundle-identifier tech.seohead.desktop \
     --icon "$project_dir/src/seohead_desktop/assets/app/seohead.icns" \
-    --collect-data seohead_desktop --collect-submodules seohead_desktop \
+    --collect-submodules seohead_desktop --collect-data seohead_desktop --collect-submodules seohead_desktop \
     --distpath "$app_build/dist" --workpath "$app_build/work" --specpath "$app_build" \
     "$project_dir/scripts/entrypoint.py"
 
