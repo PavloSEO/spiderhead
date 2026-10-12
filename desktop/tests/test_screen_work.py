@@ -1,6 +1,7 @@
 import os
 import unittest
 from unittest.mock import patch
+from uuid import UUID
 
 from tests._qt import ui
 
@@ -15,8 +16,6 @@ from seohead_desktop.local_owner_actions import LocalOwnerActions, manual_signof
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.work import (
     TASK_STATES,
-    ManualTaskSignoffDialog,
-    TaskAttemptDialog,
     TaskEditDialog,
     WorkScreen,
     goal_entry,
@@ -246,8 +245,8 @@ class WorkScreenTests(unittest.TestCase):
         self.assertEqual(dialog.result_item["competitors"], [])
 
     def test_owner_can_create_a_manual_task_with_the_current_checklist_revision(self):
-        open_qa(self.window)
         self.window.core_executable = "seohead"
+        open_qa(self.window)
         sent = []
         with (
             patch("seohead_desktop.screens.work.TaskEditDialog") as editor,
@@ -274,17 +273,11 @@ class WorkScreenTests(unittest.TestCase):
         self.window.task_detail_result = fixture("task_detail.json")
         sent = []
         with (
-            patch.object(
-                TaskAttemptDialog,
-                "exec_",
-                autospec=True,
-                side_effect=lambda dialog: (
-                    setattr(dialog, "reason", "Started review"),
-                    QDialog.Accepted,
-                )[1],
-            ),
+            patch("seohead_desktop.screens.work.TaskAttemptDialog") as dialog_class,
             patch.object(self.window, "start_command", side_effect=lambda *args: sent.append(args)),
         ):
+            dialog_class.return_value.exec_.return_value = QDialog.Accepted
+            dialog_class.return_value.reason = "Started review"
             self.screen._record_task(self.screen.tasks.rows[0], "running")
         request_id, tool, arguments, _handler = sent[0]
         self.assertEqual((request_id, tool), ("task-record", "seo_project_checklist_record"))
@@ -317,18 +310,12 @@ class WorkScreenTests(unittest.TestCase):
             sent.append((executable, arguments, stdin_data))
 
         with (
-            patch.object(
-                ManualTaskSignoffDialog,
-                "exec_",
-                autospec=True,
-                side_effect=lambda dialog: (
-                    setattr(dialog, "reason_text", "Owner checked the criteria"),
-                    QDialog.Accepted,
-                )[1],
-            ),
+            patch("seohead_desktop.screens.work.ManualTaskSignoffDialog") as dialog_class,
             patch.object(LocalOwnerActions, "submit", autospec=True, side_effect=submit),
             patch.object(self.window, "start_command") as mcp_call,
         ):
+            dialog_class.return_value.exec_.return_value = QDialog.Accepted
+            dialog_class.return_value.reason_text = "Owner checked the criteria"
             self.screen.detail._approve_manual_task()
         self.assertEqual(
             sent,
@@ -349,27 +336,59 @@ class WorkScreenTests(unittest.TestCase):
     def test_task_competitor_scan_requires_confirmation_and_revision(self):
         open_qa(self.window)
         self.window.core_executable = "seohead"
-        row = self.window.task_model.rows[0]
-        row["task"] = {
-            "competitors": [{"url": "https://competitor.example.test/", "max_urls": 300}]
+        task_id = "custom:competitor-review"
+        row = {
+            "id": task_id,
+            "title": "Review competitor pages",
+            "kind": "custom",
+            "state": "remaining",
+            "execution_kind": "manual",
+            "task": {"competitors": [{"url": "https://competitor.example.test/", "max_urls": 300}]},
         }
         result = fixture("task_detail.json")
-        result["item"]["task"] = row["task"]
+        result["revision"] = self.window.task_revision
+        result["item"].update(
+            {
+                "id": task_id,
+                "item_id": task_id,
+                "kind": "custom",
+                "execution_kind": "manual",
+                "definition": {
+                    "id": task_id,
+                    "kind": "custom",
+                    "execution_kind": "manual",
+                    "title": row["title"],
+                },
+                "task": row["task"],
+            }
+        )
         self.window.task_detail_result = result
-        self.window.data_changed.emit("tasks")
-        sent = []
+        self.screen.detail.show_item(row, result)
+        submitted = []
         with (
             patch.object(ModalDialog, "exec_", return_value=QDialog.Accepted),
-            patch.object(self.window, "start_command", side_effect=lambda *args: sent.append(args)),
+            patch.object(
+                self.screen.detail.competitor_jobs,
+                "submit",
+                side_effect=lambda *args: submitted.append(args),
+            ),
+            patch("seohead_desktop.screens.work.run_competitor_scan_command") as run_command,
         ):
             self.screen.detail._scan_task_competitors()
-        request_id, tool, arguments, _handler = sent[0]
-        self.assertEqual((request_id, tool), ("competitors-scan", "seo_project_competitors_scan"))
-        self.assertEqual(arguments["task_id"], row["id"])
-        self.assertEqual(arguments["expected_revision"], result["revision"])
-        self.assertTrue(arguments["confirm"])
-        self.assertEqual(arguments["concurrency"], 3)
-        self.assertFalse(arguments["approve_large_crawl"])
+            self.assertGreaterEqual(len(submitted), 1)
+            submitted[-1][0]()
+        self.assertEqual(run_command.call_args.args[0], "seohead")
+        arguments = run_command.call_args.args[1]
+        self.assertEqual(arguments[0], "project-competitors-scan")
+        self.assertEqual(arguments[arguments.index("--task-id") + 1], task_id)
+        self.assertEqual(
+            arguments[arguments.index("--expected-revision") + 1],
+            str(result["revision"]),
+        )
+        self.assertIn("--confirm", arguments)
+        self.assertEqual(arguments[arguments.index("--concurrency") + 1], "3")
+        self.assertEqual(UUID(arguments[arguments.index("--run-id") + 1]).version, 4)
+        self.assertNotIn("--approve-large-crawl", arguments)
 
     def test_the_first_row_is_selected_without_a_second_detail_request(self):
         with patch.object(self.window, "start_command") as command:

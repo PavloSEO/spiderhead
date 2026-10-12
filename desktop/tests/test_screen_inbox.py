@@ -212,6 +212,7 @@ class InboxScreenTests(unittest.TestCase):
         self.window.inbox_revision = 4
         self.window.core_executable = "seohead"
         self.screen.selected_id = goal["id"]
+        self.screen.all_rows = list(self.window.inbox_model.rows)
         self.screen._fill_rows()
         return goal
 

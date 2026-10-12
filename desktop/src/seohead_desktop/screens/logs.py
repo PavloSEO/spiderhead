@@ -121,10 +121,10 @@ class LogRowsModel(QAbstractTableModel):
         self.rows = []
 
     def rowCount(self, parent=None):
-        return 0 if parent.isValid() else len(self.rows)
+        return 0 if parent is not None and parent.isValid() else len(self.rows)
 
     def columnCount(self, parent=None):
-        return 0 if parent.isValid() else len(self.columns)
+        return 0 if parent is not None and parent.isValid() else len(self.columns)
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid() or role != Qt.DisplayRole:

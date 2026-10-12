@@ -1,8 +1,8 @@
-"""Проблемы (canvas Issues.dc.html, StatesIssues.dc.html): findings of the selected saved scan.
+"""Findings for the selected saved scan, with whole-scan counters from core evidence.
 
-The core gives per scan the totals by severity, the first 20 findings and the list of checks it skipped (the scan row of
-``project-scans``). Per-check counters for the whole scan and the filter by check wait for #981, the paged findings for #980; the path
-«found → task → fixed → confirmed» waits for the remediation ledger (#926) and tasks (#922). Nothing is counted here from the 20-row sample.
+The scan row supplies severity totals, a bounded findings sample, and skipped checks. A separate
+core query supplies exact per-check totals; URL examples remain limited to the saved sample. The
+remediation path still depends on the task ledger and confirmation workflow.
 """
 
 from __future__ import annotations
@@ -599,12 +599,6 @@ class IssuesScreen(Screen):
         self.list_note.setProperty("text_style", "meta")
         self.list_note.setWordWrap(True)
         layout.addWidget(self.list_note)
-        self.list_waiting = QLabel(
-            "Whole-scan counts come from the core; URL examples come from its bounded findings sample."
-        )
-        self.list_waiting.setProperty("text_style", "meta")
-        self.list_waiting.setWordWrap(True)
-        layout.addWidget(self.list_waiting)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.NoFrame)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 from functools import partial
 from pathlib import Path
@@ -333,4 +334,5 @@ def test_committed_worksheets_are_reproducible_from_sources(tmp_path):
         "committed worksheets are stale; run python scripts/generate_reporting_pack_worksheets.py"
     )
     assert result["network"] is False
-    assert result["run_id"] == "audit:c44b448d78f55a892b467976"
+    audit_sha256 = hashlib.sha256(Path("docs/examples/audit.json").read_bytes()).hexdigest()
+    assert result["run_id"] == f"audit:{audit_sha256[:24]}"

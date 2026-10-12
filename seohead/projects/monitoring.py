@@ -949,7 +949,7 @@ def local_deliver(directory: str | Path, *, scan_id: str, expected_revision: int
     if not receipt_path.parent.resolve().is_relative_to(reports.resolve()) or (
         os.path.lexists(receipt_path) and (receipt_path.is_symlink() or not receipt_path.is_file())
     ):
-        raise ValueError("monitor delivery receipt store is unsafe")
+        raise ValueError("monitor report target is unsafe: delivery receipt store")
     service = MonitorServiceDelivery(
         project_uuid=project["project_uuid"],
         allowed_destinations={"local:receipt"},

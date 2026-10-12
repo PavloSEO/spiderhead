@@ -44,6 +44,7 @@ class LogsBotsScreen(Screen):
         self.back.clicked.connect(lambda: host.show_screen("logs"))
         bar.addWidget(self.back)
         self.verify_button = QPushButton("Verify this page with DNS…")
+        self.verify_button.setEnabled(bool(self._source()))
         self.verify_button.clicked.connect(self.verify)
         bar.addWidget(self.verify_button)
         self.previous = QPushButton("Previous")
@@ -120,7 +121,11 @@ class LogsBotsScreen(Screen):
         self.job.start(bot_arguments(source, verify=True, offset=self.offset), token)
 
     def _source(self):
-        entry = getattr(self.host, "log_imports", {}).get(self.host.project_directory)
+        project = getattr(self.host, "project_directory", None)
+        if not project:
+            return None
+        imports = getattr(self.host, "log_imports", {})
+        entry = imports.get(project) if isinstance(imports, dict) else None
         return entry.get("source") if isinstance(entry, dict) else None
 
     def _done(self, token, payload):

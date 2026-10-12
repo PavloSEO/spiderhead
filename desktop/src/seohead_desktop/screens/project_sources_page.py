@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QMenu,
     QPushButton,
     QScrollArea,
     QStackedWidget,
@@ -366,6 +367,17 @@ class ProjectSettingsPage(QWidget):
         self.nav.setDrawBase(False)
         self.nav.setIconSize(QSize(20, 20))
         self.nav.setFixedHeight(45)
+        self._overflow_index = 4
+        self._vitals_index = 5
+        self._syncing_nav = False
+        self._overflow_menu_selection = False
+        self._overflow_previous_page = 0
+        self.overflow_menu = QMenu(self.nav)
+        self.export_action = self.overflow_menu.addAction("Export")
+        self.vitals_action = self.overflow_menu.addAction("Core Web Vitals")
+        self.export_action.triggered.connect(lambda: self._select_page(self._overflow_index))
+        self.vitals_action.triggered.connect(lambda: self._select_page(self._vitals_index))
+        self.overflow_menu.aboutToHide.connect(self._overflow_menu_hidden)
         self.pages = QStackedWidget()
         self.pages.setObjectName("projectSettingsPages")
         tabs = (
@@ -389,19 +401,98 @@ class ProjectSettingsPage(QWidget):
                 widget.revert.hide()
                 widget.save_button.hide()
                 widget.availabilityChanged.connect(lambda _available: self._sync_actions())
-        self.nav.currentChanged.connect(self.pages.setCurrentIndex)
-        self.nav.currentChanged.connect(self._sync_actions)
-        self.nav.currentChanged.connect(
-            lambda index: self.header_icon.setPixmap(
-                material_icon(self.nav.names[index], "role:primary").pixmap(20, 20)
-            )
-        )
+        self.nav.currentChanged.connect(self._nav_changed)
+        self.nav.tabBarClicked.connect(self._nav_clicked)
         self.nav.setCurrentIndex(0)
         root.addWidget(self.nav)
         self.pages.setContentsMargins(24, 20, 24, 20)
         root.addWidget(self.pages, 1)
         i18n.retranslate(self)
+        self._fit_tabs()
         self._sync_actions()
+
+    def _nav_changed(self, index):
+        if self._syncing_nav:
+            return
+        if self.width() < 1000 and index == self._overflow_index:
+            self._show_overflow_menu()
+            return
+        self.pages.setCurrentIndex(index)
+        self._sync_actions()
+        self._sync_header_icon()
+
+    def _nav_clicked(self, index):
+        if self.width() < 1000 and index == self._overflow_index:
+            self._show_overflow_menu()
+
+    def _show_overflow_menu(self):
+        if self.overflow_menu.isVisible():
+            return
+        self._overflow_previous_page = self.pages.currentIndex()
+        self._overflow_menu_selection = False
+        self.export_action.setCheckable(True)
+        self.vitals_action.setCheckable(True)
+        self.export_action.setChecked(self.pages.currentIndex() == self._overflow_index)
+        self.vitals_action.setChecked(self.pages.currentIndex() == self._vitals_index)
+        self.overflow_menu.popup(
+            self.nav.mapToGlobal(self.nav.tabRect(self._overflow_index).bottomLeft())
+        )
+
+    def _overflow_menu_hidden(self):
+        if not self._overflow_menu_selection:
+            page = self._overflow_previous_page
+            self._syncing_nav = True
+            self.nav.setCurrentIndex(
+                self._overflow_index
+                if self.width() < 1000 and page in {self._overflow_index, self._vitals_index}
+                else page
+            )
+            self._syncing_nav = False
+            self._sync_actions()
+            self._sync_header_icon()
+        self._overflow_menu_selection = False
+
+    def _select_page(self, index):
+        if self.overflow_menu.isVisible():
+            self._overflow_menu_selection = True
+        self.pages.setCurrentIndex(index)
+        self._syncing_nav = True
+        self.nav.setCurrentIndex(
+            self._overflow_index
+            if self.width() < 1000 and index in {self._overflow_index, self._vitals_index}
+            else index
+        )
+        self._syncing_nav = False
+        self.export_action.setChecked(index == self._overflow_index)
+        self.vitals_action.setChecked(index == self._vitals_index)
+        self._sync_actions()
+        self._sync_header_icon()
+
+    def _fit_tabs(self):
+        compact = self.width() < 1000
+        current_page = self.pages.currentIndex()
+        self._syncing_nav = True
+        self.nav.setTabVisible(self._vitals_index, not compact)
+        self.nav.setTabVisible(self._overflow_index, True)
+        self.nav.setTabText(self._overflow_index, "" if compact else "Export")
+        self.nav.names[self._overflow_index] = "more_horiz" if compact else "ios_share"
+        self.nav.setTabToolTip(self._overflow_index, "More settings" if compact else "Export")
+        target_tab = (
+            self._overflow_index
+            if compact and current_page in {self._overflow_index, self._vitals_index}
+            else current_page
+        )
+        self.nav.setCurrentIndex(target_tab)
+        self._syncing_nav = False
+        self.export_action.setChecked(current_page == self._overflow_index)
+        self.vitals_action.setChecked(current_page == self._vitals_index)
+        self._sync_header_icon()
+
+    def _sync_header_icon(self):
+        index = self.pages.currentIndex()
+        self.header_icon.setPixmap(
+            material_icon(self.nav.names[index], "role:primary").pixmap(20, 20)
+        )
 
     def refresh(self):
         label, host_name = project_names(self.host)
@@ -507,13 +598,8 @@ class ProjectSettingsPage(QWidget):
         )
         self.pages.setContentsMargins(margin, 16 if compact else 20, margin, 16 if compact else 20)
         self.nav.setTabText(3, "Crawl" if compact else "Crawl & User-Agent")
-        self.nav.setTabText(4, "" if compact else "Export")
-        self.nav.names[4] = "more_horiz" if compact else "ios_share"
-        self.nav.setTabToolTip(4, "Export")
         self.header_icon.setVisible(not compact)
-        self.header_icon.setPixmap(
-            material_icon(self.nav.names[self.nav.currentIndex()], "role:primary").pixmap(20, 20)
-        )
+        self._fit_tabs()
         self._sync_actions()
 
     def _main_page(self):

@@ -302,14 +302,16 @@ class SchedulePage(_SettingsPage):
         from .work import project_names
 
         _, host_name = project_names(self.host)
-        target_row = QHBoxLayout()
+        self.target_row = QWidget()
+        target_row = QHBoxLayout(self.target_row)
+        target_row.setContentsMargins(0, 0, 0, 0)
         target_row.addWidget(field_label(tr("Schedule for")))
         self.target_selector = QComboBox()
         self.target_selector.addItem(tr("Your site"), None)
         self.target_selector.setAccessibleName(tr("Schedule for"))
         self.target_selector.currentIndexChanged.connect(self._target_changed)
         target_row.addWidget(CanvasField(self.target_selector, "public"), 1)
-        layout.addLayout(target_row)
+        layout.addWidget(self.target_row)
         primary = QWidget()
         primary.setObjectName("scheduleColumn")
         left = QVBoxLayout(primary)
@@ -587,6 +589,12 @@ class SchedulePage(_SettingsPage):
             self._target_key = "owner"
         self.target_selector.setCurrentIndex(index)
         self._loading_targets = False
+        self._sync_target_row()
+
+    def _sync_target_row(self):
+        if not hasattr(self, "target_selector"):
+            return
+        self.target_row.setVisible(self.width() < 1000 or self.target_selector.count() > 1)
 
     def _safe_child_directory(self, relative):
         if not isinstance(relative, str) or not relative.strip():
@@ -611,6 +619,7 @@ class SchedulePage(_SettingsPage):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         compact = self.width() < 1000
+        self._sync_target_row()
         self.time_row.setDirection(QBoxLayout.TopToBottom if compact else QBoxLayout.LeftToRight)
         self.time_row.setSpacing(6 if compact else 16)
         self.zone_note.setVisible(not compact)
@@ -986,7 +995,8 @@ class CrawlPage(_SettingsPage):
         self.custom.setAccessibleName("Custom User-Agent")
         self.custom.textChanged.connect(self._update_preview)
         box.addWidget(self.custom)
-        code = CodeCard("", "User-Agent preset", variant="agent")
+        code = CodeCard("", "Custom User-Agent preview", variant="agent")
+        self.identity_preview_card = code
         self.identity_preview = code.text
         box.addWidget(code)
         self.identity_note = meta(
@@ -1092,9 +1102,12 @@ class CrawlPage(_SettingsPage):
 
     def _update_preview(self):
         key = self.preset.currentData()
+        self.identity_preview_card.setVisible(key == CUSTOM)
+        if key != CUSTOM:
+            return
         agent = {
-            "preset": DEFAULT_PRESET if key == CUSTOM else key,
-            "custom": self.custom.text() if key == CUSTOM else None,
+            "preset": DEFAULT_PRESET,
+            "custom": self.custom.text(),
         }
         self.identity_preview.setText(tr(user_agent_text(agent)))
 

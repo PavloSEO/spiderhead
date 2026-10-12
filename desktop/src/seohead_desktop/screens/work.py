@@ -758,11 +758,7 @@ class TaskDetail(QFrame):
             self._competitor_task_id = None
             return
 
-        if (
-            type(run.get("coverage_revision")) is not int
-            or run.get("coverage_revision") != (result or {}).get("revision")
-            or not has_competitors
-        ):
+        if not has_competitors:
             self.competitor_run_status.setText(
                 tr("Незавершённый скан несовместим с текущей задачей; запуск заблокирован.")
             )
@@ -1904,6 +1900,7 @@ class WorkScreen(Screen):
             )
         )
         self.tabs.setTabToolTip(2, tr("Недоступно в этой версии ядра"))
+        self._sync_task_actions()
 
     def _fill_header(self):
         host = self.host

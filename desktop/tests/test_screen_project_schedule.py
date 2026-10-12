@@ -96,8 +96,13 @@ class ScheduleTabTests(unittest.TestCase):
         i18n.set_language("en")
         with patch(f"{MODULE}.read_schedule", return_value=core_state()):
             dialog = self.dialog()
-        names = [dialog.nav.tabText(i) for i in range(dialog.nav.count())]
+        names = [
+            dialog.nav.tabText(i) for i in range(dialog.nav.count()) if dialog.nav.isTabVisible(i)
+        ]
         self.assertEqual(names, ["Main", "Sources", "Schedule", "Crawl", ""])
+        self.assertEqual(dialog.nav.count(), 6)
+        self.assertEqual(dialog.nav.tabText(5), "Core Web Vitals")
+        self.assertFalse(dialog.nav.isTabVisible(5))
         dialog.nav.setCurrentIndex(2)
         self.assertIsInstance(dialog.pages.currentWidget(), SchedulePage)
         dialog.nav.setCurrentIndex(3)
@@ -204,6 +209,41 @@ class ScheduleTabTests(unittest.TestCase):
             self.assertEqual(saves[0], page._directory())
             page.close()
 
+    def test_schedule_target_row_stays_compact_until_child_targets_exist(self):
+        with patch(f"{MODULE}.read_schedule", return_value=core_state(competitors=[])):
+            dialog = ProjectSettingsDialog(self.host)
+            dialog.resize(1440, 900)
+            dialog.show()
+            dialog.nav.setCurrentIndex(2)
+            page = dialog.pages.currentWidget()
+            self.wait(lambda: page.state is not None)
+        self.assertTrue(page.target_row.isHidden())
+        dialog.resize(800, 900)
+        self.app.processEvents()
+        self.assertLess(page.width(), 1000)
+        self.assertFalse(page.target_row.isHidden())
+        dialog.close()
+        dialog.deleteLater()
+
+        competitors = [
+            {"directory": f"competitors/site-{index}", "url": f"https://site-{index}.test/"}
+            for index in (1, 2)
+        ]
+        with patch(
+            f"{MODULE}.read_schedule",
+            return_value=core_state(competitors=competitors),
+        ):
+            dialog = ProjectSettingsDialog(self.host)
+            dialog.resize(1440, 900)
+            dialog.show()
+            dialog.nav.setCurrentIndex(2)
+            page = dialog.pages.currentWidget()
+            self.wait(lambda: page.state is not None)
+        self.assertFalse(page.target_row.isHidden())
+        dialog.close()
+        dialog.deleteLater()
+        self.app.processEvents()
+
     def test_save_sends_the_form_with_the_revision_that_was_read(self):
         sent = []
 
@@ -274,6 +314,23 @@ class ScheduleTabTests(unittest.TestCase):
             page.save()
             self.wait(lambda: sent)
         self.assertEqual(sent[0]["user_agent"], {"preset": "spiderhead", "custom": "MyAudit/1.0"})
+        page.close()
+
+    def test_only_a_custom_user_agent_shows_a_labeled_value_preview(self):
+        with patch(f"{MODULE}.read_schedule", return_value=core_state()):
+            page = CrawlPage(self.host)
+            self.wait(lambda: page.state is not None)
+        self.assertTrue(page.identity_preview_card.isHidden())
+        page.preset.setCurrentIndex(page.preset.findData("custom"))
+        page.custom.setText("MyAudit/1.0")
+        self.assertFalse(page.identity_preview_card.isHidden())
+        self.assertEqual(page.identity_preview.text(), "MyAudit/1.0")
+        self.assertEqual(
+            page.identity_preview_card.findChild(QLabel).text(),
+            "Custom User-Agent preview",
+        )
+        page.preset.setCurrentIndex(page.preset.findData("bingbot"))
+        self.assertTrue(page.identity_preview_card.isHidden())
         page.close()
 
     def test_empty_custom_user_agent_is_refused_locally(self):

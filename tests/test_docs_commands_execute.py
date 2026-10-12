@@ -72,10 +72,22 @@ NEEDS_LIVE_INFRASTRUCTURE = {
     # Needs a Cloudflare API token and a zone on the account; the API is mocked in
     # tests/test_cloudflare.py.
     "cloudflare-traffic",
+    # Starts bounded live work against registered competitor projects. Examples are
+    # syntax-checked here; execution would contact external sites.
+    "project-competitors-scan",
     # Verification is an explicit provider read; documentation examples are
     # syntax-checked here, never run against an account.
     "provider-verify",
     "mcp",
+}
+
+# These commands require a live project run ID from a prior, independent action.
+# Parse the documented lifecycle examples without inventing an active run or
+# applying a pause/cancel to mutable state in this isolated command gate.
+NEEDS_EXISTING_RUN_STATE = {
+    "crawl-control",
+    "project-competitors-scan-status",
+    "project-competitors-scan-cancel",
 }
 
 
@@ -159,6 +171,11 @@ def _seed_workdir(tmp_path: Path, base_url: str) -> None:
     shutil.copy(ROOT / "docs" / "examples" / "audit.json", tmp_path / "report" / "audit.json")
     (tmp_path / "crawl.json").write_text(json.dumps({"limits": {"max_urls": 5}}), encoding="utf-8")
     (tmp_path / "donors.txt").write_text(f"{base_url}/page\n", encoding="utf-8")
+    # The independent Screaming Frog snippet examples each need their own import
+    # input; the URL matches the synthetic retained scan seeded below.
+    (tmp_path / "proposed.csv").write_text(
+        "url,title,description\nhttps://example.test/,Example title,\n", encoding="utf-8"
+    )
     images_dir = tmp_path / "images"
     images_dir.mkdir()
     shutil.copy(ROOT / "tests" / "doc_fixtures" / "site" / "image.png", images_dir / "image.png")
@@ -587,6 +604,7 @@ def test_documented_command_executes_or_at_least_still_parses(
         spellings.add(f"{argv[0]}-{argv[1]}")
     if (
         spellings & NEEDS_LIVE_INFRASTRUCTURE
+        or spellings & NEEDS_EXISTING_RUN_STATE
         or _needs_interactive_terminal(argv)
         or _is_licensed_sf_mode(argv)
         or _needs_pdf_runtime(argv)
@@ -608,6 +626,24 @@ def test_documented_command_executes_or_at_least_still_parses(
     from seohead.cli import main as cli_main
 
     _seed_workdir(tmp_path, fixture_site)
+    if argv[:2] in (["project", "export"], ["project", "archive"]):
+        from seohead.projects.workspace import create_project
+
+        flag = "--directory" if argv[1] == "export" else "--project"
+        project = tmp_path / argv[argv.index(flag) + 1]
+        create_project(project, "https://example.test/")
+        if argv[1] == "export":
+            from seohead.projects.coverage import initialize_coverage
+
+            initialize_coverage(project)
+    if argv[:1] == ["scan-findings-page"]:
+        from seohead.projects.workspace import create_project
+
+        project = tmp_path / argv[argv.index("--project") + 1]
+        create_project(project, "https://example.test/")
+        _seed_documented_body_scan(
+            tmp_path, str((project / "scans" / "documented.sqlite").relative_to(tmp_path))
+        )
     if argv[:1] == ["project"] and argv[1] in {
         "open",
         "status",
@@ -663,7 +699,7 @@ def test_documented_command_executes_or_at_least_still_parses(
             ["scan-content-search"],
         )
         and "--scan" in argv
-    ):
+    ) or (argv[:2] == ["sf", "snippet-edits"] and "--scan" in argv):
         # Body consumers need a native retained corpus, including when they use
         # the same filename that report examples use for a saved audit.
         _seed_documented_body_scan(tmp_path, argv[argv.index("--scan") + 1])
@@ -794,6 +830,13 @@ def test_documented_command_executes_or_at_least_still_parses(
     if substituted[:1] == ["provider-replay"]:
         _seed_provider_replay(tmp_path, substituted)
     if "--resume" in substituted:
+        # A project-scoped resume reads an artifact below that project's scans/ and
+        # requires the project directories/manifest as well as the interrupted scan.
+        if "--project" in substituted:
+            from seohead.projects.workspace import create_project
+
+            project = tmp_path / substituted[substituted.index("--project") + 1]
+            create_project(project, "https://example.test/")
         # After the loopback authorization above, and after substitution: seeding this
         # one runs a real crawl, under the artifact path and build SHA the line names.
         _seed_resumable_scan(tmp_path, fixture_site, substituted)

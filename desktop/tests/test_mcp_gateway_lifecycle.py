@@ -258,6 +258,7 @@ class McpGatewayLifecycleTests(unittest.TestCase):
     def test_task_writes_are_scoped_to_the_open_project(self):
         project = self.root / "project"
         project.mkdir()
+        (project / "project.json").write_text("{}")
         gateway = PersistentMcpGateway("/not-dispatched")
         gateway.set_project_scope(str(project))
         update = {

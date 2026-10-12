@@ -31,8 +31,12 @@ class LogsCompareTests(unittest.TestCase):
         self.app.processEvents()
 
     def test_join_waits_for_a_retained_log_and_selected_scan(self):
+        self.screen.refresh()
         self.assertEqual(self.screen.model.rowCount(), 0)
-        self.assertIn("Import a log", self.screen.state.text.text())
+        self.assertEqual(self.screen.state.title.text(), "Choose retained logs and a scan")
+        self.assertEqual(
+            self.screen.state.text.text(), "Import a log from the Logs screen before comparing."
+        )
         self.assertEqual(self.host.calls, [])
 
     def test_scan_change_does_not_create_local_evidence(self):
