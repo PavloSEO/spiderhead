@@ -312,6 +312,7 @@ class SchedulePage(_SettingsPage):
         self.target_selector.currentIndexChanged.connect(self._target_changed)
         target_row.addWidget(CanvasField(self.target_selector, "public"), 1)
         layout.addWidget(self.target_row)
+        self.target_row.hide()
         primary = QWidget()
         primary.setObjectName("scheduleColumn")
         left = QVBoxLayout(primary)
@@ -594,7 +595,7 @@ class SchedulePage(_SettingsPage):
     def _sync_target_row(self):
         if not hasattr(self, "target_selector"):
             return
-        self.target_row.setVisible(self.width() < 1000 or self.target_selector.count() > 1)
+        self.target_row.setVisible(self.target_selector.count() > 1)
 
     def _safe_child_directory(self, relative):
         if not isinstance(relative, str) or not relative.strip():
@@ -619,7 +620,6 @@ class SchedulePage(_SettingsPage):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         compact = self.width() < 1000
-        self._sync_target_row()
         self.time_row.setDirection(QBoxLayout.TopToBottom if compact else QBoxLayout.LeftToRight)
         self.time_row.setSpacing(6 if compact else 16)
         self.zone_note.setVisible(not compact)

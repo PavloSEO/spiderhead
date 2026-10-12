@@ -221,7 +221,7 @@ class ScheduleTabTests(unittest.TestCase):
         dialog.resize(800, 900)
         self.app.processEvents()
         self.assertLess(page.width(), 1000)
-        self.assertFalse(page.target_row.isHidden())
+        self.assertTrue(page.target_row.isHidden())
         dialog.close()
         dialog.deleteLater()
 

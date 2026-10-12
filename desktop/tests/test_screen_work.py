@@ -126,7 +126,7 @@ class WorkScreenTests(unittest.TestCase):
         run["state"] = "running"
         self.window.observed_runs = [run]
         self.window.data_changed.emit("observer")
-        self.assertTrue(self.kpi(3).number.text().startswith(ui("Идёт")))
+        self.assertEqual(self.kpi(3).number.text(), ui("Идёт {id}").format(id=run["id"][:10]))
         self.assertIn("20", self.kpi(3).sub.text())
 
     def test_task_table_rows_badges_and_filter(self):
