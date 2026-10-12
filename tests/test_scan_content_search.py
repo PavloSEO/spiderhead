@@ -341,7 +341,7 @@ def test_regex_search_without_main_thread_deadline_is_unavailable_not_unbounded(
             records = []
             result = search_scan(
                 scan,
-                query=r"(a+)+$",
+                query=r"safe$",
                 kind="regex",
                 on_record=records.append,
             )
@@ -758,7 +758,7 @@ def test_regex_budget_exceeded_is_unavailable_never_absence(tmp_path, monkeypatc
 
     scan = _scan(tmp_path / "budget", [("https://example.test/a", "<body>plain</body>")])
     monkeypatch.setattr(content_search, "_run_with_budget", lambda *_a, **_k: (None, True))
-    result = search_scan(scan, query=r"(a+)+$", scope="body_text", kind="regex")
+    result = search_scan(scan, query=r"plain$", scope="body_text", kind="regex")
 
     assert result["coverage"]["unavailable_reasons"] == {"regex_budget_exceeded": 1}
     assert result["coverage"]["absent_documents"] == 0

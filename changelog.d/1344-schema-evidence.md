@@ -1,0 +1,1 @@
+Fix retained RDFa detection so relative property IRIs and unrelated hosts do not establish Schema.org markup. Preserve absolute vocabulary IRIs and recognized prefixes, and keep search deadline tests bounded with inexpensive fixture patterns.

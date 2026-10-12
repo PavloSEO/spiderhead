@@ -57,12 +57,7 @@ def _has_schema_rdfa(soup: BeautifulSoup) -> bool:
         for attribute in ("property", "rel", "rev"):
             value = tag.get(attribute) or []
             terms.extend(value if isinstance(value, list) else str(value).split())
-        if any(
-            term.startswith("schema:")
-            or schema_namespace(term)
-            or term.lower().startswith("schema.org/")
-            for term in terms
-        ):
+        if any(term.startswith("schema:") or schema_namespace(term) for term in terms):
             return True
         ancestors = [tag, *tag.parents]
         if any(

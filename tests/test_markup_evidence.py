@@ -170,6 +170,40 @@ def test_html_schema_formats_are_retained_as_validation_not_absent(tmp_path, for
         con.close()
 
 
+@pytest.mark.parametrize(
+    "property_iri",
+    [
+        "schema.org/name",
+        "https://schema.org.example.test/name",
+        "https://example.test/schema.org/name",
+        "https://schema.org@example.test/name",
+    ],
+)
+def test_unrelated_property_iri_does_not_establish_schema_rdfa(property_iri):
+    html = f'<span property="{property_iri}">Example</span>'
+    payload = structured_payload(
+        page_url_id=1,
+        source_document_id=1,
+        representation="static",
+        parsed=parse_html(html, URL),
+        html=html,
+    )
+    assert payload["state"] == "absent"
+
+
+@pytest.mark.parametrize("property_iri", ["https://schema.org/name", "schema:name"])
+def test_schema_property_without_a_subject_is_invalid_not_absent(property_iri):
+    html = f'<span property="{property_iri}">Example</span>'
+    payload = structured_payload(
+        page_url_id=1,
+        source_document_id=1,
+        representation="static",
+        parsed=parse_html(html, URL),
+        html=html,
+    )
+    assert payload["state"] == "structurally_invalid"
+
+
 def test_rdfa_graph_is_retained_as_native_validation():
     html = """
     <div vocab="https://schema.org/" typeof="Product" about="#product">

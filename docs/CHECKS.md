@@ -406,6 +406,8 @@ python scripts/generate_checks_reference.py
 
 ## Document markup: structural AMP, static accessibility, and Schema.org validation
 
+Schema.org RDFa properties require an absolute Schema.org vocabulary IRI or a recognized prefix. A schemeless `schema.org/name` token or a different host containing `schema.org` does not establish Schema.org markup.
+
 | Check id | Severity | Evidence | Fires on | Fix |
 |---|---|---|---|---|
 | `AMP_MISSING_HTML_ATTRIBUTE` | warning | crawl:markup_evidence | AMP target does not declare the html amp or lightning attribute | Add the AMP attribute to the root html element, or correct the rel=amphtml target. |
