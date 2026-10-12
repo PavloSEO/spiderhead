@@ -74,6 +74,18 @@ _OPTIONAL_BROWSER_SETTINGS = (
     "viewport_height",
     "page_concurrency",
 )
+_CONFIG_EXTENSION_DEFAULTS = {
+    # Before these options existed, native crawls retained analytics query
+    # parameters. A legacy header with no extension must keep that behavior.
+    "scope.normalize_tracking_parameters": False,
+    "http.auth": [],
+    "http.auth_acknowledged": False,
+    "http.zstd": False,
+    "rendering.actions": [],
+    "rendering.presets": [],
+    "rendering.artifacts.screenshot_mode": "full_page",
+}
+_CONFIG_EXTENSION_SCHEMA = "native_config_extension.v1"
 _BODY_TABLES = ("bodies", "responses", "documents", "resource_refs")
 _NATIVE_CONTEXT = {"native_commit", "robots_blocked_url"}
 _LINK_KEYS = {
@@ -229,15 +241,93 @@ def _native_config(value: Any, *, recorded: bool = False) -> dict[str, Any]:
 
 
 def _frozen_header_config(config: dict[str, Any]) -> dict[str, Any]:
-    """Keep scan.v1's original config shape; additive analysis lives in a run context."""
+    """Keep the older reader's config shape; additive settings live in a run context."""
     header = copy.deepcopy(config)
     header.get("analysis", {}).pop("asset_thresholds", None)
+    for path in _CONFIG_EXTENSION_DEFAULTS:
+        node = header
+        parts = path.split(".")
+        for part in parts[:-1]:
+            node = node.get(part, {})
+            if not isinstance(node, dict):
+                break
+        else:
+            node.pop(parts[-1], None)
     return header
 
 
+def _config_extension_context(config: dict[str, Any]) -> dict[str, Any]:
+    """Version and fingerprint settings omitted from the rollback-compatible header."""
+    fields = _config_extension_values(config)
+    return {
+        "kind": "native_config_extension",
+        "item_key": "run",
+        "payload_version": "scan_context.v1",
+        "payload_json": _dump(
+            {
+                "schema_version": _CONFIG_EXTENSION_SCHEMA,
+                "settings": fields,
+                "effective_fingerprint": _effective_config_fingerprint(config),
+            }
+        ),
+        "completeness": "complete",
+        "reason": "",
+    }
+
+
+def _config_extension_values(config: dict[str, Any]) -> dict[str, Any]:
+    fields: dict[str, Any] = {}
+    for path in _CONFIG_EXTENSION_DEFAULTS:
+        node: Any = config
+        for part in path.split("."):
+            node = node[part]
+        fields[path] = node
+    return fields
+
+
+def _effective_config_fingerprint(config: dict[str, Any]) -> str:
+    """Bind all redacted effective values, including operational settings omitted by crawl identity."""
+    return hashlib.sha256(_dump(config).encode("utf-8")).hexdigest()
+
+
 def read_effective_config(con: sqlite3.Connection) -> dict[str, Any]:
-    """Restore validated analysis thresholds without changing the frozen header."""
+    """Restore additive settings from typed contexts without changing the frozen header."""
     config = json.loads(con.execute("SELECT config_json FROM scan WHERE singleton=1").fetchone()[0])
+    if not isinstance(config, dict):
+        raise ScanError("native scan config header is not an object")
+    extensions = list(
+        con.execute("SELECT * FROM context_items WHERE kind='native_config_extension' LIMIT 2")
+    )
+    if len(extensions) > 1:
+        raise ScanError("native config extension context is duplicated")
+    extension = extensions[0] if extensions else None
+    if extension is not None:
+        from .native_context import validate_context
+
+        validate_context(con, dict(extension))
+        payload = json.loads(extension["payload_json"])
+        for path, value in payload["settings"].items():
+            node = config
+            parts = path.split(".")
+            for part in parts[:-1]:
+                node = node.setdefault(part, {})
+                if not isinstance(node, dict):
+                    raise ScanError("native config extension disagrees with its header")
+            if parts[-1] in node:
+                raise ScanError("native config extension setting is duplicated in the header")
+            node[parts[-1]] = value
+    else:
+        # Older artifacts have no extension item. Restore the semantics that
+        # existed when their frozen header was written; in particular tracking
+        # parameters were not normalized by the legacy crawler.
+        for path, value in _CONFIG_EXTENSION_DEFAULTS.items():
+            node = config
+            parts = path.split(".")
+            for part in parts[:-1]:
+                node = node.setdefault(part, {})
+                if not isinstance(node, dict):
+                    raise ScanError("native config header is invalid")
+            node.setdefault(parts[-1], copy.deepcopy(value))
     items = list(
         con.execute("SELECT * FROM context_items WHERE kind='analysis_asset_thresholds' LIMIT 2")
     )
@@ -256,6 +346,10 @@ def read_effective_config(con: sqlite3.Connection) -> dict[str, Any]:
         config.setdefault("analysis", {}).setdefault(
             "asset_thresholds", copy.deepcopy(DEFAULTS["analysis"]["asset_thresholds"])
         )
+    if extension is not None:
+        payload = json.loads(extension["payload_json"])
+        if _effective_config_fingerprint(config) != payload["effective_fingerprint"]:
+            raise ScanError("native effective config extension fingerprint disagrees")
     return config
 
 
@@ -841,6 +935,7 @@ class NativeScan:
                     "reason": "",
                 },
             )
+            _insert(con, "context_items", _config_extension_context(effective))
             if "storage" in effective:
                 _insert(
                     con,
@@ -961,20 +1056,11 @@ class NativeScan:
 
                 with contextlib.closing(open_scan(path, require_audit=False)) as reader:
                     effective = read_effective_config(reader)
-                    expected_header = copy.deepcopy(expected_config)
                     if (
-                        "asset_thresholds"
-                        not in json.loads(scan["config_json"]).get("analysis", {})
-                        and reader.execute(
-                            "SELECT 1 FROM context_items WHERE kind='analysis_asset_thresholds' AND item_key='run'"
-                        ).fetchone()
-                    ):
-                        expected_header["analysis"]["asset_thresholds"] = copy.deepcopy(
-                            DEFAULTS["analysis"]["asset_thresholds"]
-                        )
-                    if (
-                        scan["config_fingerprint"]
-                        != _resume_fingerprint(expected_header, json.loads(scan["config_json"]))
+                        _resume_fingerprint(expected_config, effective)
+                        != crawl_config_fingerprint(effective)
+                        or _config_extension_values(expected_config)
+                        != _config_extension_values(effective)
                         or expected_config["analysis"]["asset_thresholds"]
                         != effective["analysis"]["asset_thresholds"]
                     ):
@@ -1198,13 +1284,15 @@ class NativeScan:
             raise ScanError("native evidence version or pin metadata is unsupported")
         try:
             uuid.UUID(scan["scan_uuid"])
-            config = _native_config(json.loads(scan["config_json"]), recorded=True)
-            fingerprint = crawl_config_fingerprint(config)
+            header_config = json.loads(scan["config_json"])
+            _native_config(read_effective_config(con), recorded=True)
+            fingerprint = crawl_config_fingerprint(header_config)
             for name in ("capabilities_json", "retention_json", "limitations_json"):
                 json.loads(scan[name])
+        except ScanError:
+            raise
         except (TypeError, ValueError, KeyError) as exc:
             raise ScanError("native scan header metadata is invalid") from exc
-        read_effective_config(con)
         if scan["config_fingerprint"] != fingerprint:
             raise ScanError("native scan configuration fingerprint disagrees with effective config")
         if con.execute("SELECT COUNT(*) FROM resume_state").fetchone()[0] != 1:
@@ -1260,8 +1348,9 @@ class NativeScan:
         if con.execute("SELECT COUNT(*) FROM resume_state").fetchone()[0] != 1:
             raise ScanError("native scan requires one resume_state")
         try:
-            config = _native_config(json.loads(scan["config_json"]), recorded=True)
-            stored_fingerprint = crawl_config_fingerprint(config)
+            header_config = json.loads(scan["config_json"])
+            config = _native_config(read_effective_config(con), recorded=True)
+            stored_fingerprint = crawl_config_fingerprint(header_config)
         except (TypeError, ValueError, KeyError) as exc:
             raise ScanError("native scan has invalid effective configuration") from exc
         if scan["config_fingerprint"] != stored_fingerprint:

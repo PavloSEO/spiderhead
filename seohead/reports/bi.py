@@ -1056,7 +1056,12 @@ def _scan_source(
             audit = json.loads(audit_row[0]) if audit_row else None
         capabilities = json.loads(scan["capabilities_json"])
         limitations = json.loads(scan["limitations_json"])
-        settings_json = json.loads(scan["config_json"])
+        if scan["source_kind"] in {"native", "reanalysis"}:
+            from seohead.storage.native_scan import read_effective_config
+
+            settings_json = read_effective_config(con)
+        else:
+            settings_json = json.loads(scan["config_json"])
         retention = json.loads(scan["retention_json"])
     except (TypeError, ValueError, json.JSONDecodeError) as exc:
         raise BIExportError(f"validated scan metadata could not be decoded: {exc}") from exc

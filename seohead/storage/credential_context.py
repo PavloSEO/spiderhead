@@ -69,10 +69,41 @@ def validate_recorded_credentials(snapshot: dict[str, Any]) -> dict[str, Any]:
     profile_dir = browser.get("persistent_profile_dir")
     if profile_dir not in {"", _REDACTED}:
         raise ScanError("recorded persistent profile path is not redacted")
+    auth_entries = http.get("auth", [])
+    if not isinstance(auth_entries, list):
+        raise ScanError("recorded HTTP auth must be a list")
+    auth_acknowledged = http.get("auth_acknowledged", False)
+    if type(auth_acknowledged) is not bool:
+        raise ScanError("recorded HTTP auth acknowledgement must be boolean")
+    if auth_entries and not auth_acknowledged:
+        raise ScanError("recorded HTTP auth lacks its required acknowledgement")
+    seen_auth_hosts: set[str] = set()
+    credential_hosts = {str(entry.get("host", "")).lower() for entry in entries}
+    for entry in auth_entries:
+        if (
+            not isinstance(entry, dict)
+            or set(entry) != {"host", "scheme", "username_env", "password_env"}
+            or type(entry["host"]) is not str
+            or not entry["host"]
+            or entry["host"] != entry["host"].lower()
+            or "/" in entry["host"]
+            or entry["host"] in seen_auth_hosts
+            or entry["host"] in credential_hosts
+            or type(entry["scheme"]) is not str
+            or entry["scheme"] not in {"basic", "digest"}
+            or any(
+                not isinstance(entry[name], str) or _ENV.fullmatch(entry[name]) is None
+                for name in ("username_env", "password_env")
+            )
+        ):
+            raise ScanError("recorded HTTP auth environment references are invalid")
+        seen_auth_hosts.add(entry["host"])
     # This copy is only for structural settings validation; it never represents
     # an authenticated or persistent-profile crawl at runtime.
     http["credential_headers"] = []
     http["credentials_acknowledged"] = False
+    http["auth"] = []
+    http["auth_acknowledged"] = False
     browser["persistent_profile"] = False
     browser["persistent_profile_dir"] = ""
     return checked
@@ -90,7 +121,10 @@ def credential_verifier(live_settings: dict[str, Any], scan_uuid: str) -> str | 
     entries = http.get("credential_headers") if isinstance(http, dict) else None
     if not isinstance(entries, list):
         raise ScanError("live credential headers must be a list")
-    if not entries:
+    auth_entries = http.get("auth", []) if isinstance(http, dict) else None
+    if not isinstance(auth_entries, list):
+        raise ScanError("live HTTP auth must be a list")
+    if not entries and not auth_entries:
         return None
     canonical: list[tuple[str, tuple[tuple[str, str], ...]]] = []
     for entry in entries:
@@ -110,7 +144,37 @@ def credential_verifier(live_settings: dict[str, Any], scan_uuid: str) -> str | 
                 raise ScanError("credential verifier requires each configured environment value")
             values.append((name.lower(), os.environ[match.group(1)]))
         canonical.append((entry["host"].lower(), tuple(sorted(values))))
-    payload = json.dumps(sorted(canonical), ensure_ascii=False, separators=(",", ":")).encode(
-        "utf-8"
-    )
+    if auth_entries:
+        auth_canonical: list[tuple[str, ...]] = []
+        for entry in auth_entries:
+            if (
+                not isinstance(entry, dict)
+                or set(entry) != {"host", "scheme", "username_env", "password_env"}
+                or any(type(entry[name]) is not str for name in entry)
+            ):
+                raise ScanError("live HTTP auth entry is malformed")
+            values = []
+            for name in ("username_env", "password_env"):
+                match = _ENV.fullmatch(entry[name])
+                if match is None or match.group(1) not in os.environ:
+                    raise ScanError("HTTP auth verifier requires configured environment values")
+                values.append(os.environ[match.group(1)])
+            auth_canonical.append(
+                (
+                    entry["host"].lower(),
+                    entry["scheme"],
+                    entry["username_env"],
+                    entry["password_env"],
+                    values[0],
+                    values[1],
+                )
+            )
+        value = {
+            "credential_headers": sorted(canonical),
+            "http_auth": sorted(auth_canonical),
+        }
+    else:
+        # Preserve the verifier format for existing credential-header artifacts.
+        value = sorted(canonical)
+    payload = json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     return hashlib.pbkdf2_hmac("sha256", payload, salt, 100_000).hex()

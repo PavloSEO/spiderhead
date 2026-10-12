@@ -337,7 +337,16 @@ def resume_inputs(scan_path: str) -> dict[str, Any]:
             f"{scan_path} is already {header['lifecycle']} "
             f"(finish reason: {header['finish_reason']}); there is nothing left to resume"
         )
-    settings = json.loads(header["config_json"])
+    from contextlib import closing
+
+    from seohead.crawl.list_scan import is_list_scan
+    from seohead.crawl.settings import fingerprint as config_fingerprint
+    from seohead.storage import open_scan
+    from seohead.storage.native_scan import read_effective_config
+
+    with closing(open_scan(scan_path, require_audit=False)) as con:
+        settings = read_effective_config(con)
+        list_mode = is_list_scan(con)
     if settings.get("http", {}).get("proxy"):
         raise ValueError(
             "proxied scans cannot be resumed from redacted route settings; start a new scan "
@@ -368,23 +377,11 @@ def resume_inputs(scan_path: str) -> dict[str, Any]:
             "form; a resume cannot restore it. Continue it with the original --config and "
             "--scan-out instead of --resume"
         )
-    from contextlib import closing
-
-    from seohead.crawl.list_scan import is_list_scan
-    from seohead.storage import open_scan
-
-    with closing(open_scan(scan_path, require_audit=False)) as con:
-        from seohead.storage.native_scan import read_effective_config
-
-        settings.setdefault("analysis", {})["asset_thresholds"] = read_effective_config(con)[
-            "analysis"
-        ]["asset_thresholds"]
-        list_mode = is_list_scan(con)
     return {
         "start_url": header["start_url"],
         "settings": settings,
         "writer_revision": header["writer_revision"],
-        "config_fingerprint": header["config_fingerprint"],
+        "config_fingerprint": config_fingerprint(settings),
         "list_mode": list_mode,
     }
 

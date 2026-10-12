@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import sqlite3
 
 import pytest
 
-from seohead.storage import ScanError
-from seohead.storage.native_scan import NativeScan
+from seohead.crawl.settings import fingerprint
+from seohead.storage import ScanError, open_scan
+from seohead.storage.native_scan import NativeScan, read_effective_config
 from tests.test_scan_native import _link, _metadata, _record, _runtime
 
 
@@ -54,6 +57,146 @@ def test_create_requires_non_result_config_fields_too(tmp_path):
     with pytest.raises(ScanError, match="complete resolved"):
         NativeScan.create(tmp_path / "invalid.sqlite", **metadata)
     assert not (tmp_path / "invalid.sqlite").exists()
+
+
+def test_new_config_fields_round_trip_outside_the_frozen_header(tmp_path):
+    metadata = _metadata(
+        **{
+            "scope.normalize_tracking_parameters": False,
+            "rendering.artifacts.screenshot_mode": "first_screen",
+        }
+    )
+    path = tmp_path / "config-extension.sqlite"
+    with NativeScan.create(path, **metadata) as scan:
+        assert scan.finish_without_audit("config extension fixture")
+
+    with open_scan(path, require_audit=False) as con:
+        header = con.execute("SELECT config_json,config_fingerprint FROM scan").fetchone()
+        stored = json.loads(header[0])
+        effective = read_effective_config(con)
+        extension = con.execute(
+            "SELECT payload_json FROM context_items "
+            "WHERE kind='native_config_extension' AND item_key='run'"
+        ).fetchone()
+
+    assert "normalize_tracking_parameters" not in stored["scope"]
+    assert "auth" not in stored["http"]
+    assert "actions" not in stored["rendering"]
+    assert "screenshot_mode" not in stored["rendering"]["artifacts"]
+    assert header[1] == fingerprint(stored)
+    assert effective["scope"]["normalize_tracking_parameters"] is False
+    assert effective["rendering"]["artifacts"]["screenshot_mode"] == "first_screen"
+    payload = json.loads(extension[0])
+    assert payload["schema_version"] == "native_config_extension.v1"
+    assert (
+        payload["effective_fingerprint"]
+        == hashlib.sha256(
+            json.dumps(effective, ensure_ascii=False, sort_keys=True).encode()
+        ).hexdigest()
+    )
+
+
+def test_legacy_config_defaults_keep_tracking_parameters_and_refuse_semantic_resume(tmp_path):
+    metadata = _metadata(**{"scope.normalize_tracking_parameters": False})
+    path = tmp_path / "legacy-header.sqlite"
+    with NativeScan.create(path, **metadata):
+        pass
+    with sqlite3.connect(path) as con:
+        con.execute(
+            "DELETE FROM context_items WHERE kind='native_config_extension' AND item_key='run'"
+        )
+    before = hashlib.sha256(path.read_bytes()).hexdigest()
+
+    with open_scan(path, require_audit=False) as con:
+        effective = read_effective_config(con)
+        header_fingerprint = con.execute(
+            "SELECT config_fingerprint FROM scan WHERE singleton=1"
+        ).fetchone()[0]
+    assert effective["scope"]["normalize_tracking_parameters"] is False
+    with open_scan(path, require_audit=False) as con:
+        stored_header = json.loads(
+            con.execute("SELECT config_json FROM scan WHERE singleton=1").fetchone()[0]
+        )
+    assert header_fingerprint == fingerprint(stored_header)
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == before
+
+    changed = _metadata()
+    with pytest.raises(ScanError, match="configuration differs"):
+        NativeScan.open(path, expected_config=changed["config"])
+
+
+def test_config_extension_validates_operational_screenshot_mode(tmp_path):
+    path = tmp_path / "bad-config-extension.sqlite"
+    with NativeScan.create(path, **_metadata()):
+        pass
+    with open_scan(path, require_audit=False) as con:
+        effective = read_effective_config(con)
+    effective["rendering"]["artifacts"]["screenshot_mode"] = "unchecked-value"
+    with sqlite3.connect(path) as con:
+        payload = json.loads(
+            con.execute(
+                "SELECT payload_json FROM context_items WHERE kind='native_config_extension'"
+            ).fetchone()[0]
+        )
+    payload["settings"]["rendering.artifacts.screenshot_mode"] = "unchecked-value"
+    from seohead.storage.native_scan import _effective_config_fingerprint
+
+    payload["effective_fingerprint"] = _effective_config_fingerprint(effective)
+    with sqlite3.connect(path) as con:
+        con.execute(
+            "UPDATE context_items SET payload_json=? WHERE kind='native_config_extension'",
+            (json.dumps(payload, sort_keys=True, separators=(",", ":")),),
+        )
+
+    with pytest.raises(ScanError):
+        NativeScan.inspect(path)
+
+
+def test_config_extension_auth_is_redacted_and_bound_to_live_credentials(tmp_path, monkeypatch):
+    monkeypatch.setenv("SCAN_USER", "crawl-user")
+    monkeypatch.setenv("SCAN_PASSWORD", "first-password")
+    metadata = _metadata(
+        **{
+            "cache.mode": "off",
+            "http.auth_acknowledged": True,
+            "http.auth": [
+                {
+                    "host": "example.test",
+                    "scheme": "basic",
+                    "username_env": "env:SCAN_USER",
+                    "password_env": "env:SCAN_PASSWORD",
+                }
+            ],
+        }
+    )
+    path = tmp_path / "auth-config-extension.sqlite"
+    with NativeScan.create(path, **metadata):
+        pass
+    with sqlite3.connect(path) as con:
+        stored = (
+            " ".join(row[0] for row in con.execute("SELECT config_json FROM scan"))
+            + " "
+            + " ".join(
+                row[0]
+                for row in con.execute(
+                    "SELECT payload_json FROM context_items WHERE kind IN "
+                    "('native_config_extension','credential_context')"
+                )
+            )
+        )
+    assert "first-password" not in stored
+
+    monkeypatch.delenv("SCAN_USER")
+    monkeypatch.delenv("SCAN_PASSWORD")
+    NativeScan.inspect(path)  # Read-only validation never needs credential values.
+
+    monkeypatch.setenv("SCAN_USER", "crawl-user")
+    monkeypatch.setenv("SCAN_PASSWORD", "first-password")
+    with NativeScan.open(path, expected_config=metadata["config"]):
+        pass
+    monkeypatch.setenv("SCAN_PASSWORD", "changed-password")
+    with pytest.raises(ScanError, match="credential context differs"):
+        NativeScan.open(path, expected_config=metadata["config"])
 
 
 def test_unsupported_writer_platform_publishes_no_file(tmp_path, monkeypatch):

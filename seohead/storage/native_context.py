@@ -65,6 +65,33 @@ def validate_context(
         raise ScanError("native scan context payload is invalid JSON") from exc
     from . import sitemaps
 
+    if item["kind"] == "native_config_extension":
+        fields = {
+            "scope.normalize_tracking_parameters",
+            "http.auth",
+            "http.auth_acknowledged",
+            "http.zstd",
+            "rendering.actions",
+            "rendering.presets",
+            "rendering.artifacts.screenshot_mode",
+        }
+        fingerprint = payload.get("effective_fingerprint") if isinstance(payload, dict) else None
+        if (
+            item["item_key"] != "run"
+            or item["completeness"] != "complete"
+            or item["reason"]
+            or not isinstance(payload, dict)
+            or set(payload) != {"schema_version", "settings", "effective_fingerprint"}
+            or payload["schema_version"] != "native_config_extension.v1"
+            or not isinstance(payload["settings"], dict)
+            or set(payload["settings"]) != fields
+            or not isinstance(fingerprint, str)
+            or len(fingerprint) != 64
+            or any(char not in "0123456789abcdef" for char in fingerprint)
+        ):
+            raise ScanError("native config extension context is invalid")
+        return
+
     if item["kind"] == "analysis_asset_thresholds":
         from seohead.crawl.settings import DEFAULTS
 

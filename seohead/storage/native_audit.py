@@ -39,12 +39,25 @@ def validate_audit(con, scan, *, required=False):
     if document["tool"]["version"] != scan["writer_version"]:
         raise ScanError("native audit tool version differs from the producing build")
     effective_config = json.loads(scan["config_json"])
-    if con.execute(
+    has_config_extension = con.execute(
+        "SELECT 1 FROM context_items WHERE kind='native_config_extension' AND item_key='run'"
+    ).fetchone()
+    has_asset_thresholds = con.execute(
         "SELECT 1 FROM context_items WHERE kind='analysis_asset_thresholds' LIMIT 1"
-    ).fetchone():
+    ).fetchone()
+    if has_config_extension:
         from .native_scan import read_effective_config
 
         effective_config = read_effective_config(con)
+    elif has_asset_thresholds:
+        # Legacy audits were emitted from the frozen header plus the existing
+        # threshold adjunct. Do not inject newer default settings into that
+        # historical manifest when validating the saved document.
+        from .native_scan import read_effective_config
+
+        effective_config.setdefault("analysis", {})["asset_thresholds"] = read_effective_config(
+            con
+        )["analysis"]["asset_thresholds"]
     config = manifest(effective_config)
     if _dump(document["run"].get("crawl_config")) != _dump(config):
         raise ScanError("native audit effective configuration disagrees")
