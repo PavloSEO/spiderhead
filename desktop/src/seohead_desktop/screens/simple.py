@@ -373,6 +373,7 @@ class SimpleScreen(Screen):
             return
         self._columns = columns
         for widget in (*self.kpis, *self.tiles):
+            widget.hide()
             widget.setParent(None)
         for layout, widgets in ((self.kpi_layout, self.kpis), (self.actions_layout, self.tiles)):
             clear_layout(layout)

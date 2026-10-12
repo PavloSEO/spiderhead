@@ -1834,6 +1834,7 @@ class WorkScreen(Screen):
             return
         self._kpi_columns = columns
         for kpi in self.kpis:
+            kpi.hide()
             kpi.setParent(None)
         clear_layout(self.kpi_grid)
         for start in range(0, 4, columns):

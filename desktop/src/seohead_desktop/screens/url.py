@@ -183,6 +183,7 @@ class FitTable(QTableView):
 def drop(widget):
     """Remove a widget from its layout at once (deleteLater alone leaves it painted until the loop spins)."""
     widget.hide()
+    widget.hide()
     widget.setParent(None)
     widget.deleteLater()
 

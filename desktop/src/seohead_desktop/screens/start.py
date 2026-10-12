@@ -678,6 +678,7 @@ class StartScreen(Screen):
         while self.banners.count():
             widget = self.banners.takeAt(0).widget()
             if widget is not None:
+                widget.hide()
                 widget.setParent(None)
                 widget.deleteLater()
         bad = [row for row in self.model.rows if row["status"] in ("missing", "not_project")]

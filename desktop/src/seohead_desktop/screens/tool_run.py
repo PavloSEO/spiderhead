@@ -116,6 +116,7 @@ class ToolRunScreen(Screen):
         while self.body.count() > 1:
             widget = self.body.takeAt(1).widget()
             if widget is not None:
+                widget.hide()
                 widget.setParent(None)
                 widget.deleteLater()
 

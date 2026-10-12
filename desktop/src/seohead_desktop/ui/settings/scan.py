@@ -144,6 +144,7 @@ def _profiles(store):
         while layout.count():
             item = layout.takeAt(0)
             widget = item.widget()
+            widget.hide()
             widget.setParent(None)
             widget.deleteLater()
         current = store.get("scan.default_profile")
