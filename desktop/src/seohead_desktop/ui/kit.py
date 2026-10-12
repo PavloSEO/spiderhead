@@ -109,7 +109,9 @@ class StatePanel(QFrame):
         self.text.setProperty("text_style", "meta")
         self.text.setAlignment(Qt.AlignCenter)
         self.text.setWordWrap(True)
-        self.text.setVisible(bool(text))
+        # Only hide: setVisible(True) on a widget that has no parent yet shows it as its own window.
+        if not text:
+            self.text.hide()
         layout.addWidget(self.text)
         self.issue_label = None
         if issue is not None:
@@ -272,7 +274,8 @@ class PageHeader(QWidget):
         self.title.setProperty("text_style", "title")
         self.meta = QLabel(meta)
         self.meta.setProperty("text_style", "meta")
-        self.meta.setVisible(bool(meta))
+        if not meta:
+            self.meta.hide()
         texts.addWidget(self.title)
         texts.addWidget(self.meta)
         layout.addLayout(texts, 1)

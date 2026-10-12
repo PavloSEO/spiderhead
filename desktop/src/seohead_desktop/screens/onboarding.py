@@ -233,7 +233,8 @@ class OnboardingScreen(Screen):
         layout.addWidget(heading)
         lead = QLabel(tr(text))
         lead.setWordWrap(True)
-        lead.setVisible(bool(text))
+        if not text:
+            lead.hide()
         layout.addWidget(lead)
         layout.addStretch(1)
         return page, layout, heading, lead
