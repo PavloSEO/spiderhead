@@ -547,6 +547,8 @@ checks read static source; accessibility and schema findings read the active doc
 The SQL `scan.v1` schema and `PageRecord` columns are unchanged. Full AMP validator
 rules, rendered axe-core and computed contrast remain explicitly unmeasured.
 
+Schema.org RDFa properties require an absolute Schema.org vocabulary IRI or a recognized prefix. A schemeless `schema.org/name` token or a different host containing `schema.org` does not establish Schema.org markup.
+
 `scan-structured-blocks` reads the latest retained complete body for the requested exact
 URL and representation. Each live JSON-LD block includes line/column, syntax error,
 types, validation messages, a property tree, source JSON and `parsed_json`. Source output
