@@ -3469,6 +3469,12 @@ class NativeScan:
                 from .click_depth import persist as persist_click_depth
 
                 persist_click_depth(self.con)
+                try:
+                    from .url_query_projection import persist as persist_url_query_projection
+
+                    persist_url_query_projection(self.con)
+                except Exception:
+                    pass
             self.con.commit()
             return ready
         except BaseException:
@@ -3516,6 +3522,12 @@ class NativeScan:
                 from .click_depth import persist as persist_click_depth
 
                 persist_click_depth(self.con)
+                try:
+                    from .url_query_projection import persist as persist_url_query_projection
+
+                    persist_url_query_projection(self.con)
+                except Exception:
+                    pass
                 self.con.commit()
                 return True
             except BaseException:
@@ -3558,6 +3570,12 @@ class NativeScan:
             from .click_depth import persist as persist_click_depth
 
             persist_click_depth(self.con)
+            try:
+                from .url_query_projection import persist as persist_url_query_projection
+
+                persist_url_query_projection(self.con)
+            except Exception:
+                pass
             self.con.commit()
             return True
         except BaseException:

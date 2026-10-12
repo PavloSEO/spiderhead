@@ -553,6 +553,7 @@ def capture(
     """Fetch deduplicated v2 declarations under resource-graph-specific budgets."""
     if scan.con.execute("PRAGMA user_version").fetchone()[0] != 2:
         return {"stored": 0, "fetched": 0, "excluded": 0, "failed": 0, "budget": 0}
+    scan._assert_mutable()
     ensure_schema(scan.con)
     graph = settings["resources"]["graph"]
     if not settings["resources"]["fetch"]:

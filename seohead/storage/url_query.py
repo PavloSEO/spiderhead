@@ -401,7 +401,12 @@ def _class_clause(values: list[str], negate: bool) -> tuple[str, list[Any]]:
     return ("NOT COALESCE(" + sql + ",0)" if negate else sql), params
 
 
-def _filter_clause(item: Any) -> tuple[str, list[Any], bool]:
+def _filter_clause(
+    item: Any,
+    *,
+    projected_resource_kinds: bool = False,
+    projected_columns: dict[str, Column] | None = None,
+) -> tuple[str, list[Any], bool]:
     """Return SQL, parameters and whether the clause reads the urls table."""
     if not isinstance(item, dict):
         raise QueryError("invalid_filter", "each filter must be an object")
@@ -413,10 +418,35 @@ def _filter_clause(item: Any) -> tuple[str, list[Any], bool]:
     if type(sensitive) is not bool:
         raise QueryError("invalid_filter", "case_sensitive must be a boolean")
     if isinstance(name, str) and name in {"resource_url", "resource_kind"}:
+        if name == "resource_kind" and projected_resource_kinds:
+            if op not in {"eq", "in"}:
+                raise QueryError("invalid_filter", "resource_kind supports eq and in")
+            values = [value] if op == "eq" else value
+            if type(values) is not list or not 1 <= len(values) <= MAX_IN_VALUES:
+                raise QueryError("invalid_filter", "resource_kind in needs a list of 1..100 values")
+            if any(type(item) is not str or item not in _RESOURCE_KINDS for item in values):
+                raise QueryError("invalid_filter", "resource_kind names an unknown resource kind")
+            expressions = {
+                "image": "q.resource_images>0",
+                "stylesheet": "q.resource_stylesheets>0",
+                "script": "q.kind_script>0",
+                "module": "q.kind_module>0",
+                "media": "q.kind_media>0",
+                "document": "q.kind_document>0",
+                "manifest": "q.kind_manifest>0",
+                "css_import": "q.kind_css_import>0",
+                "css_url": "q.kind_css_url>0",
+                "font": "q.kind_font>0",
+            }
+            return (
+                "(" + " OR ".join(expressions[item] for item in dict.fromkeys(values)) + ")",
+                [],
+                False,
+            )
         return _resource_filter_clause(name, op, value, sensitive)
     if not isinstance(name, str) or name not in COLUMNS:
         raise QueryError("unknown_column", "filter column is not an allowed column name")
-    col = COLUMNS[name]
+    col = (projected_columns or {}).get(name, COLUMNS[name])
     if op not in _OPS[col.kind]:
         raise QueryError("invalid_filter", f"operator {op!r} is not valid for column {name}")
     uses_url = "u." in col.expr
@@ -541,11 +571,20 @@ def _preset_filters(preset: str) -> list[dict[str, Any]]:
     return [dict(item) for item in PRESETS[preset][1]]
 
 
-def _where(filters: list[dict[str, Any]]) -> tuple[str, list[Any], bool]:
+def _where(
+    filters: list[dict[str, Any]],
+    *,
+    projected_resource_kinds: bool = False,
+    projected_columns: dict[str, Column] | None = None,
+) -> tuple[str, list[Any], bool]:
     """AND-combined SQL condition (without WHERE), its parameters and whether urls is read."""
     clauses, params, needs_url = [], [], False
     for item in filters:
-        sql, p, uses_url = _filter_clause(item)
+        sql, p, uses_url = _filter_clause(
+            item,
+            projected_resource_kinds=projected_resource_kinds,
+            projected_columns=projected_columns,
+        )
         clauses.append(sql)
         params += p
         needs_url = needs_url or uses_url
@@ -683,6 +722,7 @@ def _facet_counts(
     params: list[Any],
     timeout: float,
     resource_graph_state: str | None = None,
+    facet_groups: dict[str, str] | None = None,
 ) -> tuple[dict[str, int | None], dict[str, str]]:
     """Count requested groups in one pass and retain an explicit state per group."""
     unavailable = set()
@@ -706,9 +746,8 @@ def _facet_counts(
     states.update({group: "capped" for group in capped_groups})
     if not active:
         return counts, states
-    exprs = ",".join(
-        f"COALESCE(SUM(CASE WHEN ({FACET_GROUPS[g]}) THEN 1 ELSE 0 END),0)" for g in active
-    )
+    groups = facet_groups or FACET_GROUPS
+    exprs = ",".join(f"COALESCE(SUM(CASE WHEN ({groups[g]}) THEN 1 ELSE 0 END),0)" for g in active)
     budget.start(timeout)
     try:
         source_join = join or " JOIN urls u ON u.url_id=p.url_id"
@@ -973,6 +1012,62 @@ def _query(
         return result
     con, source, status_index = _open(input_path)
     budget = _Budget(con)
+    from . import url_query_projection
+
+    projection_columns = {
+        "title_duplicate",
+        "resource_count",
+        "resource_images",
+        "resource_scripts",
+        "resource_stylesheets",
+        "resource_bytes",
+        "resource_bytes_state",
+        "resource_url",
+        "resource_kind",
+    }
+    projection_requested = bool(facet_ids) or bool(
+        projection_columns & {*columns, *_filter_names(filters), *([sort] if sort else [])}
+    )
+    if projection_requested:
+        budget.start(PAGE_BUDGET_SECONDS)
+        query_projection = url_query_projection.load(con)
+    else:
+        query_projection = None
+    if projection_requested:
+        # `load` may have hit its bounded integrity count; start a fresh read budget
+        # before other preflight queries on this connection.
+        budget.start(PAGE_BUDGET_SECONDS)
+    projection_join = (
+        f" LEFT JOIN main.{url_query_projection._PAGES} q ON q.url_id=p.url_id"
+        if query_projection is not None
+        else ""
+    )
+    query_columns = COLUMNS
+    query_facets = FACET_GROUPS
+    if query_projection is not None:
+        query_columns = {
+            **COLUMNS,
+            "title_duplicate": Column("q.title_duplicate", "bool"),
+            "resource_count": Column("q.resource_count", "int"),
+            "resource_images": Column("q.resource_images", "int"),
+            "resource_scripts": Column("q.resource_scripts", "int"),
+            "resource_stylesheets": Column("q.resource_stylesheets", "int"),
+        }
+        query_facets = {
+            **FACET_GROUPS,
+            "title_duplicate": "q.title_duplicate=1",
+            "with_resources": "q.resource_count>0",
+            "with_images": "q.resource_images>0",
+            "with_scripts": "q.resource_scripts>0",
+            "with_stylesheets": "q.resource_stylesheets>0",
+        }
+        conditions, params, needs_url = _where(
+            filters,
+            projected_resource_kinds=True,
+            projected_columns=query_columns,
+        )
+        where = (" WHERE " + conditions) if conditions else ""
+        join = " JOIN urls u ON u.url_id=p.url_id" if needs_url else ""
     issue_summary: dict[str, Any] | None = None
     try:
         if include_check_counts:
@@ -1048,7 +1143,13 @@ def _query(
         needs_resource_state = bool(
             requested_names & resource_names or set(facet_ids) & resource_facets
         )
-        resource_graph_state = _resource_graph_state(con, budget) if needs_resource_state else None
+        resource_graph_state = (
+            query_projection["resource_coverage_state"]
+            if needs_resource_state and query_projection is not None
+            else _resource_graph_state(con, budget)
+            if needs_resource_state
+            else None
+        )
         if requested_names & resource_names and resource_graph_state != "complete":
             capped = resource_graph_state == "capped"
             raise QueryError(
@@ -1082,7 +1183,7 @@ def _query(
             budget.start(float(count_timeout))
             try:
                 filtered = con.execute(
-                    "SELECT COUNT(*) FROM pages p" + join + where, params
+                    "SELECT COUNT(*) FROM pages p" + join + projection_join + where, params
                 ).fetchone()[0]
             except sqlite3.OperationalError as exc:
                 if "interrupt" not in str(exc).lower():
@@ -1090,16 +1191,22 @@ def _query(
                 filtered = None
         facet_counts, facets_state = None, None
         if facet_ids:
-            facet_counts, facet_states = _facet_counts(
-                con,
-                budget,
-                facet_ids,
-                join,
-                where,
-                params,
-                float(count_timeout),
-                resource_graph_state,
-            )
+            if query_projection is not None and not conditions and not issue_filtered:
+                facet_counts = {name: query_projection["facets"][name] for name in facet_ids}
+                facet_states = {name: query_projection["facet_states"][name] for name in facet_ids}
+            else:
+                facet_join = " JOIN urls u ON u.url_id=p.url_id" + projection_join
+                facet_counts, facet_states = _facet_counts(
+                    con,
+                    budget,
+                    facet_ids,
+                    facet_join,
+                    where,
+                    params,
+                    float(count_timeout),
+                    resource_graph_state,
+                    query_facets,
+                )
             distinct_facet_states = set(facet_states.values())
             facets_state = (
                 next(iter(distinct_facet_states)) if len(distinct_facet_states) == 1 else "partial"
@@ -1113,7 +1220,7 @@ def _query(
                 f"(or a counted result); indexed sorts: {', '.join(sorted(indexed))}",
             )
         sense = "DESC" if direction == "desc" else "ASC"
-        key = COLUMNS[order_col].expr
+        key = query_columns[order_col].expr
         budget.start(PAGE_BUDGET_SECONDS)
         if small:
             # Filter first, then order the (bounded) result: independent of which index is cheapest.
@@ -1121,6 +1228,7 @@ def _query(
                 "WITH f AS MATERIALIZED (SELECT p.url_id AS i, "
                 + key
                 + " AS k FROM pages p JOIN urls u ON u.url_id=p.url_id"
+                + projection_join
                 + where
                 + ") SELECT i FROM f ORDER BY k "
                 + sense
@@ -1138,6 +1246,7 @@ def _query(
                 "JOIN urls u ON u.url_id=p.url_id"
             else:
                 src = "pages p JOIN urls u ON u.url_id=p.url_id"
+            src += projection_join
             tie = "" if order_col in ("url", "url_id", "page_ordinal") else f", p.url_id {sense}"
             sort_key = "cd.depth" if order_col == "click_depth" else key
             sql = (
@@ -1161,11 +1270,12 @@ def _query(
         ids = ids[:limit]
         rows: list[dict[str, Any]] = []
         if ids:
-            select = ",".join(f"{COLUMNS[n].expr} AS c{i}" for i, n in enumerate(columns))
+            select = ",".join(f"{query_columns[n].expr} AS c{i}" for i, n in enumerate(columns))
             found = {
                 r[0]: r
                 for r in con.execute(
-                    f"SELECT p.url_id,{select} FROM pages p JOIN urls u ON u.url_id=p.url_id "
+                    f"SELECT p.url_id,{select} FROM pages p JOIN urls u ON u.url_id=p.url_id"
+                    f"{projection_join} "
                     f"WHERE p.url_id IN ({','.join('?' * len(ids))})",
                     ids,
                 )
