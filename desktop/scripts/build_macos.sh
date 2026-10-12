@@ -68,7 +68,7 @@ mkdir -p "$core_build" "$agent_build" "$app_build"
     $clean_flag --noconfirm --onedir --console --name seohead \
     --paths "$core_source" --collect-all seohead \
     --distpath "$core_build/dist" --workpath "$core_build/work" --specpath "$core_build" \
-    "$core_source/seohead/cli.py"
+    "$core_source/seohead/__main__.py"
 
 "$python_bin" -m PyInstaller \
     $clean_flag --noconfirm --onedir --console --name seohead-desktop-agent \
