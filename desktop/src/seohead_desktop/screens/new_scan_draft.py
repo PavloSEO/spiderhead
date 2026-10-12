@@ -444,10 +444,6 @@ class ScanDraft(QObject):
         if "rps" not in found and rate is not None:
             if rate > RPS_MAX:
                 found["rps"] = trf("Не больше {max} запросов/с", max=int(RPS_MAX))
-            elif rate > RPS_SAFE and not self.local:
-                found["rps"] = tr(
-                    "Для боевого сайта не больше 2 запросов/с; выше — только для своего стенда (localhost, *.localhost)"
-                )
         if (
             not self.limit_enabled
             and self.capabilities.get("full_site_native_sqlite") is not True
