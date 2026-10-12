@@ -257,11 +257,14 @@ def bounded_entity_chunks(chunks: Iterable[bytes], content_encoding: str, limit:
         try:
             if standard_library:
                 options = {
-                    zstd.DecompressionParameter.window_log_max: max(10, (limit + 1).bit_length())
+                    # Small entities can be encoded in frames with Zstd's
+                    # default 2 MiB window. Keep that valid default while
+                    # scaling the decoder's memory ceiling with larger limits.
+                    zstd.DecompressionParameter.window_log_max: max(21, (limit - 1).bit_length())
                 }
                 reader_context = zstd.open(BytesIO(encoded), options=options)
             else:
-                window_kib = max(1, (limit + 1023) // 1024)
+                window_kib = max(2048, (limit + 1023) // 1024)
                 reader_context = zstd.ZstdDecompressor(max_window_size=window_kib).stream_reader(
                     BytesIO(encoded), read_across_frames=True
                 )

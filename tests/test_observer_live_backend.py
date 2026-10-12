@@ -6,6 +6,7 @@ import json
 import os
 import sys
 import time
+from types import SimpleNamespace
 
 import pytest
 
@@ -104,7 +105,7 @@ def test_reporter_measures_window_keeps_unknowns_and_hides_stale_current_speed(
     run = _run(root)
     reporter = run_observation.NativeRunReporter(root, run["id"])
     clock = iter([10.0, 10.1, 11.0])
-    monkeypatch.setattr(run_observation.time, "monotonic", lambda: next(clock))
+    monkeypatch.setattr(run_observation, "time", SimpleNamespace(monotonic=lambda: next(clock)))
     reporter(1, 8)
     reporter(2, 7)
     reporter(3, 6)

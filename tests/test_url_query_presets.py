@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import os
+import sqlite3
 
 import pytest
 
@@ -16,7 +17,13 @@ from tests.test_scan_url_query import _rows, _scan
 
 @pytest.fixture(scope="module")
 def scan_path(tmp_path_factory):
-    return _scan(tmp_path_factory.mktemp("presets"))
+    path = _scan(tmp_path_factory.mktemp("presets"))
+    # Model a valid older scan row whose nullable field was never retained.
+    with sqlite3.connect(path) as con:
+        con.execute(
+            "UPDATE pages SET hreflang_json=NULL WHERE url_id=(SELECT MIN(url_id) FROM pages)"
+        )
+    return path
 
 
 def _urls(result):
@@ -87,6 +94,15 @@ def test_added_presets_are_closed_filters(scan_path, preset):
     else:
         assert got["ok"] is True
         assert got["preset"] == preset
+
+
+def test_hreflang_empty_list_is_measured_not_unavailable(tmp_path):
+    path = _scan(tmp_path)
+    got = handlers.scan_url_query(input_path=str(path), preset="hreflang")
+
+    assert got["ok"] is True
+    assert got["filtered_total"] == 0
+    assert got["filtered_total_state"] == "exact"
 
 
 def test_preset_does_not_exceed_the_filter_limit(scan_path):

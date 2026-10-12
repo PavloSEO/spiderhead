@@ -412,9 +412,25 @@ def _truth(path):
 
 def test_facets_match_independent_counts(scan_path):
     got = _q(scan_path, facets="all")
-    assert got["ok"] is True and got["facets_state"] == "exact"
-    assert got["facets"] == _truth(scan_path)
+    assert got["ok"] is True and got["facets_state"] == "partial"
+    truth = _truth(scan_path)
+    assert {name: got["facets"][name] for name in truth} == truth
+    assert all(got["facet_states"][name] == "exact" for name in truth)
     assert got["facets"]["all"] == got["total"]
+    unavailable = {
+        "in_sitemap",
+        "with_inlinks",
+        "with_resources",
+        "with_images",
+        "with_scripts",
+        "with_stylesheets",
+    }
+    assert all(got["facet_states"][name] == "unavailable" for name in unavailable)
+    assert all(got["facets"][name] is None for name in unavailable)
+    assert all(
+        count is None or got["facet_states"][name] == "exact"
+        for name, count in got["facets"].items()
+    )
     listed = _q(scan_path, facets=["status_4xx", "title_missing"])
     assert listed["facets"] == {
         "status_4xx": got["facets"]["status_4xx"],

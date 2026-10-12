@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import os
 import sqlite3
 from contextlib import closing
@@ -186,7 +187,8 @@ def test_native_index_size_is_independent_of_payload_size(tmp_path, monkeypatch)
 
     def inspect_index(root, *args, **kwargs):
         if not measurements or measurements[-1][0] != root:
-            with closing(sqlite3.connect(root / "index.sqlite")) as con:
+            index_path = root.parent / "index.sqlite"
+            with closing(sqlite3.connect(index_path)) as con:
                 for table in ("pages", "issues"):
                     assert (
                         con.execute(
@@ -200,8 +202,9 @@ def test_native_index_size_is_independent_of_payload_size(tmp_path, monkeypatch)
                     "check_key",
                     "url",
                     "issue_rowid",
+                    "segment",
                 ]
-                measurements.append((root, (root / "index.sqlite").stat().st_size))
+                measurements.append((root, index_path.stat().st_size))
         return export(root, *args, **kwargs)
 
     monkeypatch.setattr(store, "_export", inspect_index)
@@ -253,25 +256,26 @@ def test_legacy_fallback_freezes_payload_before_export(tmp_path, monkeypatch):
     assert row["after"]["details"]["value"] == "original"
 
 
-@pytest.mark.parametrize("failure_at", range(1, 8))
-def test_late_publication_failure_rolls_back_owned_package(tmp_path, monkeypatch, failure_at):
+def test_atomic_publication_failure_keeps_checkpoint_resumable(tmp_path, monkeypatch):
     import seohead.sf.core.compare_store as store
 
-    link = store.os.link
-    calls = 0
+    rename = store._rename_directory_noreplace
 
-    def fail_after_link(*args, **kwargs):
-        nonlocal calls
-        calls += 1
-        link(*args, **kwargs)
-        if calls == failure_at:
-            raise OSError("synthetic disk full")
+    def fail_before_rename(_source, _destination):
+        raise OSError("synthetic publish failure")
 
-    monkeypatch.setattr(store.os, "link", fail_after_link)
-    with pytest.raises(OSError, match="disk full"):
-        compare(_audit(), _audit(), out_dir=tmp_path / "failed", compression="gzip")
-    assert not (tmp_path / "failed").exists()
-    assert not list(tmp_path.glob(".compare-*"))
+    monkeypatch.setattr(store, "_rename_directory_noreplace", fail_before_rename)
+    destination = tmp_path / "failed"
+    with pytest.raises(OSError, match="publish failure"):
+        compare(_audit(), _audit(), out_dir=destination, compression="gzip")
+    assert not destination.exists()
+    assert not list(tmp_path.glob(".*.compare-publish-*"))
+    from seohead.mcp.handlers import compare_status
+
+    assert compare_status(str(destination))["resumable"] is True
+    monkeypatch.setattr(store, "_rename_directory_noreplace", rename)
+    resumed = compare(_audit(), _audit(), out_dir=destination, compression="gzip", resume=True)
+    assert resumed["job"]["state"] == "finished"
 
 
 @pytest.mark.parametrize("failure_at", [1, 2])
@@ -294,45 +298,38 @@ def test_directory_fsync_failure_rolls_back_manifest_and_members(tmp_path, monke
     assert not (tmp_path / "failed").exists()
 
 
-def test_rollback_preserves_replaced_member_and_foreign_file(tmp_path, monkeypatch):
+def test_post_rename_interruption_leaves_complete_atomic_package(tmp_path, monkeypatch):
     import seohead.sf.core.compare_store as store
 
-    destination = tmp_path / "foreign"
-    link = store.os.link
-    calls = 0
-    linked = []
+    rename = store._rename_directory_noreplace
+    destination = tmp_path / "published"
 
-    def replace_owned(*args, **kwargs):
-        nonlocal calls
-        calls += 1
-        if calls == 2:
-            first = linked[0]
-            first.unlink()
-            first.write_text("foreign replacement")
-            (destination / "foreign.txt").write_text("foreign file")
-            raise KeyboardInterrupt
-        link(*args, **kwargs)
-        linked.append(args[1])
+    def interrupt_after_rename(source, target):
+        rename(source, target)
+        raise KeyboardInterrupt
 
-    monkeypatch.setattr(store.os, "link", replace_owned)
+    monkeypatch.setattr(store, "_rename_directory_noreplace", interrupt_after_rename)
     with pytest.raises(KeyboardInterrupt):
         compare(_audit(), _audit(), out_dir=destination)
-    assert linked[0].read_text() == "foreign replacement"
-    assert (destination / "foreign.txt").read_text() == "foreign file"
-    assert not (destination / "compare.json").exists()
+    manifest = destination / "compare.json"
+    assert manifest.is_file()
+    file_names = set(json.loads(manifest.read_text(encoding="utf-8"))["files"])
+    assert file_names >= {"entered", "left", "appeared", "disappeared", "unchanged"}
+    for name in file_names:
+        list(iter_compare_rows(manifest, name))
 
 
 def test_native_unexported_page_still_requires_strict_json(tmp_path, monkeypatch):
     with _source(tmp_path, "invalid", _audit()) as source:
-        iterate = source.iter_collection
+        get_item = source.get_item
 
-        def invalid_pages(pointer):
-            for row in iterate(pointer):
-                if pointer == "/pages":
-                    row["unexported"] = float("nan")
-                yield row
+        def invalid_page(pointer, ordinal):
+            row = get_item(pointer, ordinal)
+            if pointer == "/pages":
+                row["unexported"] = float("nan")
+            return row
 
-        monkeypatch.setattr(source, "iter_collection", invalid_pages)
+        monkeypatch.setattr(source, "get_item", invalid_page)
         with pytest.raises(ValueError, match="JSON"):
             compare(source, source, out_dir=tmp_path / "invalid-output")
     assert not (tmp_path / "invalid-output").exists()
@@ -358,26 +355,19 @@ def test_publication_refuses_raced_in_member_without_clobbering(tmp_path, monkey
     assert not (destination / "compare.json").exists()
 
 
-def test_rollback_does_not_follow_replaced_destination(tmp_path, monkeypatch):
+def test_atomic_publish_refuses_destination_raced_in_at_rename(tmp_path, monkeypatch):
     import seohead.sf.core.compare_store as store
 
     destination = tmp_path / "replaced"
-    moved = tmp_path / "moved-owned"
-    link = store.os.link
-    calls = 0
+    rename = store._rename_directory_noreplace
 
-    def replace_directory(*args, **kwargs):
-        nonlocal calls
-        calls += 1
-        if calls == 2:
-            destination.rename(moved)
-            destination.mkdir()
-            (destination / "foreign.txt").write_text("concurrent directory")
-            raise OSError("directory replaced")
-        link(*args, **kwargs)
+    def race(source, target):
+        target.mkdir()
+        (target / "foreign.txt").write_text("concurrent directory")
+        rename(source, target)
 
-    monkeypatch.setattr(store.os, "link", replace_directory)
-    with pytest.raises(OSError, match="directory replaced"):
+    monkeypatch.setattr(store, "_rename_directory_noreplace", race)
+    with pytest.raises(FileExistsError):
         compare(_audit(), _audit(), out_dir=destination)
     assert (destination / "foreign.txt").read_text() == "concurrent directory"
-    assert list(moved.iterdir())
+    assert not (destination / "compare.json").exists()

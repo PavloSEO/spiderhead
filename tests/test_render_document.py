@@ -7,6 +7,7 @@ behaviour.
 from __future__ import annotations
 
 import os
+import socket
 import sys
 import types
 
@@ -16,6 +17,17 @@ from seohead.checks import render
 from seohead.checks.render import render_document
 from seohead.crawl import settings as crawl_config
 from seohead.crawl import sqlite_render
+
+
+def _fixture_dns(host, port, *args, **kwargs):
+    """Resolve only synthetic public test hosts while retaining URL policy checks."""
+    if host == "127.0.0.1":
+        address = host
+    elif host in {"example.com", "example.test"}:
+        address = "93.184.216.34"
+    else:
+        raise socket.gaierror("fixture has no DNS record for this host")
+    return [(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", (address, port))]
 
 
 class _ConsoleMsg:
@@ -171,7 +183,6 @@ class _FakeEnginePlaywright:
 
 @pytest.fixture
 def fake_stack(monkeypatch):
-    monkeypatch.delenv("SEOHEAD_CHROME", raising=False)
     """Stand in for the real ``playwright`` package via ``sys.modules``.
 
     render_document() does ``from playwright.sync_api import sync_playwright``
@@ -183,6 +194,10 @@ def fake_stack(monkeypatch):
     fake module registered directly in ``sys.modules`` is what actually
     keeps this test file independent of whether playwright is installed.
     """
+    monkeypatch.delenv("SEOHEAD_CHROME", raising=False)
+    # Resolve synthetic fixture names to a public IP; keep validate_url's actual
+    # safety policy active without DNS or network access.
+    monkeypatch.setattr(socket, "getaddrinfo", _fixture_dns)
     page = _FakePage()
     context = _FakeContext(page)
     browser = _FakeBrowser(context)
@@ -201,7 +216,6 @@ def fake_stack(monkeypatch):
 
 @pytest.fixture
 def fake_engines(monkeypatch):
-    monkeypatch.delenv("SEOHEAD_CHROME", raising=False)
     """The same stub ``playwright``, but with a launcher for every engine.
 
     Each supported engine name must reach its own Playwright browser type --
@@ -209,6 +223,8 @@ def fake_engines(monkeypatch):
     the silent fallback #744 forbids, so the fixture records launches per
     engine rather than on one shared attribute.
     """
+    monkeypatch.delenv("SEOHEAD_CHROME", raising=False)
+    monkeypatch.setattr(socket, "getaddrinfo", _fixture_dns)
     page = _FakePage()
     context = _FakeContext(page)
     browser = _FakeBrowser(context)
@@ -530,8 +546,13 @@ def test_screenshot_is_saved_when_enabled(fake_stack, tmp_path):
 
 
 def test_first_screen_screenshot_is_configurable(fake_stack, tmp_path):
-    config = _rendering_config()
-    config["artifacts"].update(screenshots=True, screenshot_mode="first_screen")
+    config = crawl_config.load(
+        overrides={
+            "rendering.mode": "js",
+            "rendering.artifacts.screenshots": True,
+            "rendering.artifacts.screenshot_mode": "first_screen",
+        }
+    )["rendering"]
     result = render_document(
         "https://example.com/",
         config,
@@ -539,6 +560,36 @@ def test_first_screen_screenshot_is_configurable(fake_stack, tmp_path):
     )
     assert result["screenshot_state"] == "staged"
     assert fake_stack["page"].screenshot_calls[0]["full_page"] is False
+
+
+def test_rendering_action_and_preset_settings_reach_page_actions(fake_stack, monkeypatch):
+    from seohead.checks import page_actions
+
+    observed = {}
+
+    def capture(page, actions, presets, *, evaluate):
+        observed.update(actions=actions, presets=presets)
+        return {"schema": "page_actions.v1", "state": "complete"}
+
+    monkeypatch.setattr(page_actions, "run_actions", capture)
+    monkeypatch.setattr(
+        render,
+        "_bounded_action_evaluator",
+        lambda *_args: (lambda *_args, **_kwargs: None, None),
+    )
+    config = crawl_config.load(
+        overrides={
+            "rendering.mode": "js",
+            "rendering.actions": [{"action": "wait_ms", "ms": 25}],
+            "rendering.presets": ["expand_tabs"],
+        }
+    )["rendering"]
+
+    result = render_document("https://example.com/", config)
+
+    assert result["renderer"]["page_actions"]["state"] == "complete"
+    assert observed["actions"] == [{"action": "wait_ms", "ms": 25}]
+    assert observed["presets"] == ["expand_tabs"]
 
 
 def test_no_screenshot_without_an_artifacts_dir(fake_stack):
@@ -612,6 +663,7 @@ def test_missing_playwright_is_reported_as_data(monkeypatch):
         return real_import(name, *a, **kw)
 
     monkeypatch.setattr(builtins, "__import__", fake)
+    monkeypatch.setattr(socket, "getaddrinfo", _fixture_dns)
     result = render_document("https://example.com/", _rendering_config())
     assert result["ok"] is False
     assert "playwright install chromium" in result["install"]
@@ -695,6 +747,7 @@ def test_a_varying_server_returns_the_crawls_own_body(monkeypatch):
     fake_playwright.sync_api = fake_sync_api
     monkeypatch.setitem(sys.modules, "playwright", fake_playwright)
     monkeypatch.setitem(sys.modules, "playwright.sync_api", fake_sync_api)
+    monkeypatch.setattr(socket, "getaddrinfo", _fixture_dns)
 
     result = render_document("https://example.com/", _rendering_config(), user_agent=UA)
 
@@ -925,6 +978,7 @@ def test_missing_playwright_names_the_selected_engine(monkeypatch):
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr(builtins, "__import__", _no_playwright)
+    monkeypatch.setattr(socket, "getaddrinfo", _fixture_dns)
     result = render_document("https://example.com/", _rendering_config(engine="webkit"))
 
     assert result["ok"] is False

@@ -21,9 +21,9 @@ PAGES = (ROOT, CAT, SUB, DEEP, SIDE, ORPHAN)
 
 def _scan(tmp_path, *, links_retained=True, format_version="scan.v1"):
     path = tmp_path / "click.sqlite"
-    with NativeScan.create(path, format_version=format_version, **_metadata()) as scan:
-        if not links_retained:
-            scan.begin_collection(links_available=False)
+    metadata = _metadata(**{"storage.format_version": format_version})
+    with NativeScan.create(path, format_version=format_version, **metadata) as scan:
+        scan.begin_collection(links_available=links_retained)
         # Every page is seeded at depth 0, the way a sitemap seeds them.
         scan.enqueue([(url, 0) for url in PAGES])
         edges = {

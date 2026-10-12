@@ -42,9 +42,9 @@ arbitrary plugin runtime or autonomous code rewriting.
 
 ### One local interface for an agent
 
-The CLI and MCP server share the same 230 handlers, and five additional MCP tools cover the
-Screaming Frog audit workflow. A registration test prevents a command from existing in only one
-interface.
+The CLI and MCP server share the same 230 handlers, and six additional Screaming Frog-specific
+MCP tools cover crawl audits and bounded snippet review. A registration test prevents a command
+from existing in only one interface.
 
 ### Release review across a declared URL migration
 

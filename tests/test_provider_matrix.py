@@ -211,6 +211,7 @@ def test_registry_backlinks_route_is_separate_from_demand_paths(monkeypatch):
     row = _row("link-evidence")
     assert [(ref.kind, ref.name) for ref in row.providers] == [
         ("registry", "dataforseo_backlinks"),
+        ("registry", "moz"),
         ("registry", "yandex_webmaster"),
         ("registry", "bing_webmaster"),
         ("dedicated", "backlink_indexes"),

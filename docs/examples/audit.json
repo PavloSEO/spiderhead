@@ -11,7 +11,7 @@
     "source": null,
     "exports_dir": "docs/examples/exports",
     "sf_version_detected": null,
-    "generated_at": "2026-10-11T15:22:50Z",
+    "generated_at": "2026-10-12T00:00:43Z",
     "profile": "full",
     "exports_used": [
       "internal_all",
@@ -259,6 +259,10 @@
         "reason": "document-bound markup evidence requires a retained native crawl"
       },
       {
+        "id": "BODY_MIME_MISMATCH",
+        "reason": "export-only analysis retains no per-URL response bodies; a native retained scan is required"
+      },
+      {
         "id": "RENDER_BLOCKING",
         "reason": "no Render Blocking Resources column (needs a native seohead crawl)"
       },
@@ -405,6 +409,62 @@
       {
         "id": "IMG_BROKEN",
         "reason": "no resource evidence (native crawl with resource capture only)"
+      },
+      {
+        "id": "MOBILE_CONTENT_OVERFLOW",
+        "reason": "requires retained native rendered mobile layout evidence"
+      },
+      {
+        "id": "MOBILE_TEXT_TOO_SMALL",
+        "reason": "requires retained native rendered mobile layout evidence"
+      },
+      {
+        "id": "MOBILE_TARGET_TOO_SMALL",
+        "reason": "requires retained native rendered mobile layout evidence"
+      },
+      {
+        "id": "NOINDEX_ONLY_IN_RAW_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "NOFOLLOW_ONLY_IN_RAW_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "CANONICAL_MISMATCH",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "CANONICAL_ONLY_IN_RENDERED_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "H1_ONLY_IN_RENDERED_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "H1_UPDATED_BY_JAVASCRIPT",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "RENDER_RESOURCE_BLOCKED",
+        "reason": "requires retained native rendered evidence"
       },
       {
         "id": "AJAX_CRAWLING_SCHEME_URL",
@@ -661,6 +721,74 @@
       {
         "id": "SITEMAP_DESYNC",
         "reason": "no sitemap URL set (no export and network disabled)"
+      },
+      {
+        "id": "GSC_ORPHAN",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "NO_SEARCH_DATA",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "NON_INDEXABLE_WITH_SEARCH_DATA",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "GSC_INDEXED_WITH_ISSUES",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "GSC_AMP_INVALID",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "GSC_RICH_RESULTS_INVALID",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "GSC_INDEXABLE_NOT_INDEXED",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "GSC_USER_CANONICAL_NOT_SELECTED",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "GSC_URL_NOT_ON_GOOGLE",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "GA_ORPHAN_URL",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "NO_GA_DATA",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "NON_INDEXABLE_WITH_GA_DATA",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "BOUNCE_RATE_ABOVE_70",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "METRIKA_ORPHAN_URL",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "NO_METRIKA_DATA",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "NON_INDEXABLE_WITH_METRIKA_DATA",
+        "reason": "no validated project selected for provider bindings and retained history"
+      },
+      {
+        "id": "METRIKA_BOUNCE_RATE_ABOVE_70",
+        "reason": "no validated project selected for provider bindings and retained history"
       }
     ],
     "checks_disabled": []
@@ -712,9 +840,9 @@
     ],
     "health_score": null,
     "check_coverage": {
-      "checks_total": 248,
+      "checks_total": 280,
       "checks_fired": 20,
-      "checks_skipped": 152,
+      "checks_skipped": 184,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
       "checks_silent": 76,
@@ -796,10 +924,10 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.387
+      "coverage": 0.343
     },
-    "health_score_reason": "only 96 of 248 checks could run (39% coverage); too little evidence to score",
-    "health_score_basis": "96 of 248 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_reason": "only 96 of 280 checks could run (34% coverage); too little evidence to score",
+    "health_score_basis": "96 of 280 checks could run; the score is not comparable to a run with full evidence",
     "internal_linking": {
       "measured": false,
       "reason": "no all_inlinks export (needed for the complete internal edge list)"
@@ -1032,6 +1160,12 @@
       "in_crawl_not_in_sitemap": 0,
       "non_200_in_sitemap": 0,
       "non_indexable_in_sitemap": 0
+    },
+    "provider_findings": {
+      "schema_version": "provider_findings.v1",
+      "state": "unavailable",
+      "reason": "no validated project selected for provider bindings and retained history",
+      "sources": {}
     }
   },
   "issues": [

@@ -320,21 +320,49 @@ def test_a_crawl_delay_above_max_delay_seconds_is_never_clamped_back_below_it():
 # ── pinned transport ────────────────────────────────────────────────────────
 
 
-def test_a_request_is_pinned_to_the_address_that_was_vetted():
+def test_a_request_is_pinned_to_the_address_that_was_vetted(monkeypatch):
     """Resolving twice leaves a window between the check and the connection."""
-    from seohead.recon.net import pinned_target
+    from seohead.recon import net
 
-    url, headers, extensions = pinned_target("https://example.com/path?a=1")
+    monkeypatch.setattr(
+        net.socket,
+        "getaddrinfo",
+        lambda _host, port, **_kwargs: [
+            (
+                net.socket.AF_INET,
+                net.socket.SOCK_STREAM,
+                net.socket.IPPROTO_TCP,
+                "",
+                ("8.8.8.8", port),
+            )
+        ],
+    )
+
+    url, headers, extensions = net.pinned_target("https://example.com/path?a=1")
     assert headers["Host"] == "example.com"
     assert extensions["sni_hostname"] == "example.com"
     assert "example.com" not in url  # the connection goes to an address
     assert url.endswith("/path?a=1")
 
 
-def test_pinning_preserves_a_non_default_port():
-    from seohead.recon.net import pinned_target
+def test_pinning_preserves_a_non_default_port(monkeypatch):
+    from seohead.recon import net
 
-    url, headers, _ = pinned_target("https://example.com:8443/")
+    monkeypatch.setattr(
+        net.socket,
+        "getaddrinfo",
+        lambda _host, port, **_kwargs: [
+            (
+                net.socket.AF_INET,
+                net.socket.SOCK_STREAM,
+                net.socket.IPPROTO_TCP,
+                "",
+                ("8.8.8.8", port),
+            )
+        ],
+    )
+
+    url, headers, _ = net.pinned_target("https://example.com:8443/")
     assert headers["Host"] == "example.com:8443"
     assert url.endswith(":8443/")
 

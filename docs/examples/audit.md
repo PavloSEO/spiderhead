@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-11T15:22:50Z
+- **Generated:** 2026-10-12T00:00:43Z
 
 ## Health summary
 
-> **No health score.** only 96 of 280 checks could run (39% coverage); too little evidence to score.
+> **No health score.** only 96 of 280 checks could run (34% coverage); too little evidence to score.
 
 _96 of 280 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 152 skipped, 76 silent, 0 disabled (of 248 total)
+- Checks: **20 fired**, 184 skipped, 76 silent, 0 disabled (of 280 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -221,13 +221,20 @@ Each check below describes more than half the crawled pages. That can be true --
 - In sitemap but not in crawl: **0**  ·  in crawl but not in sitemap: **0**
 - Non-200 URLs in sitemap: **0**  ·  non-indexable URLs in sitemap: **0**
 
+## Search, analytics, and Cloudflare evidence
+
+These measurements come from retained, project-bound provider history. Registered per-URL findings also appear in the ordinary audit issue list; this section preserves source periods, coverage, and sample scope.
+
+- Evidence state: **unavailable**
+- Provider history only; no URL Inspection request was made
+
 ## Appendix: skipped checks
 
 | Issue | Reason |
 |---|---|
 | Image is missing alt text | missing export: images_missing_alt |
 | Image exceeds the configured file-size threshold | missing export: images_over_kb |
-| Image is missing width and height attributes | missing export: images_missing_size |
+| Image does not declare positive width and height attributes | missing export: images_missing_size |
 | Mixed content: HTTPS page loads resources over HTTP | missing export: security_mixed |
 | HSTS header is missing | missing export: security_hsts |
 | Structured data is missing | missing export: structured_data_missing |
@@ -276,6 +283,7 @@ Each check below describes more than half the crawled pages. That can be true --
 | Structured data contains errors under the bundled Schema.org vocabulary | document-bound markup evidence requires a retained native crawl |
 | Structured data contains warnings under the bundled Schema.org vocabulary | document-bound markup evidence requires a retained native crawl |
 | Structured data lacks required properties in the bundled local rich-result rules | document-bound markup evidence requires a retained native crawl |
+| Retained response body does not match its declared Content-Type | export-only analysis retains no per-URL response bodies; a native retained scan is required |
 | A <head> script or stylesheet blocks first paint (no async/defer, no non-matching media) | no Render Blocking Resources column (needs a native seohead crawl) |
 | More than one <meta name="description"> element is present | no meta description count evidence (native crawl only) |
 | Page has an H1 but no H2 headings | requirements.require_h2 is false; the check was not evaluated |
@@ -313,6 +321,20 @@ Each check below describes more than half the crawled pages. That can be true --
 | An <img> has no alt attribute at all (not even alt="") | no per-image evidence (native crawl only) |
 | An image's alt text exceeds the configured length threshold | no per-image evidence (native crawl only) |
 | Image URL answered with an HTTP error, so the browser shows nothing | no resource evidence (native crawl with resource capture only) |
+| Rendered content extends beyond the mobile viewport width | requires retained native rendered mobile layout evidence |
+| Rendered text uses a computed font size below 12 CSS pixels | requires retained native rendered mobile layout evidence |
+| Rendered interactive target is smaller than 48 CSS pixels in at least one dimension | requires retained native rendered mobile layout evidence |
+| Noindex appears in the original HTML but not in the rendered DOM | requires retained native rendered evidence |
+| Nofollow appears in the original HTML but not in the rendered DOM | requires retained native rendered evidence |
+| Canonical URL changes after JavaScript rendering | requires retained native rendered evidence |
+| Canonical URL is present only after JavaScript rendering | requires retained native rendered evidence |
+| Page title is present only after JavaScript rendering | requires retained native rendered evidence |
+| Page title changes after JavaScript rendering | requires retained native rendered evidence |
+| Meta description is present only after JavaScript rendering | requires retained native rendered evidence |
+| Meta description changes after JavaScript rendering | requires retained native rendered evidence |
+| H1 is present only after JavaScript rendering | requires retained native rendered evidence |
+| H1 changes after JavaScript rendering | requires retained native rendered evidence |
+| A rendered page resource was refused or returned an HTTP error | requires retained native rendered evidence |
 | The deprecated AJAX crawling scheme (#! / _escaped_fragment_) is still used by this page's URL or by URLs it links to | no AJAX-scheme URL evidence (native crawl only) |
 | Page declares <meta name="fragment"> -- the page-wide opt-in to the deprecated AJAX crawling scheme | no <meta name="fragment"> evidence (native crawl only) |
 | No character encoding declared via Content-Type or an early <meta> tag | no Meta Charset column, so a page without a header charset cannot be distinguished from one declaring <meta charset> (needs a native seohead crawl or Custom Extraction in SF) |
@@ -377,4 +399,21 @@ Each check below describes more than half the crawled pages. That can be true --
 | URL is declared in more than one sitemap | no sitemap entries were fetched to compare |
 | Sitemap contains stale or boilerplate lastmod values | no sitemap entries were fetched to compare |
 | Sitemap and crawl URL sets are out of sync | no sitemap URL set (no export and network disabled) |
+| Search Console reports impressions for a same-origin URL absent from the crawl | no validated project selected for provider bindings and retained history |
+| Indexable crawled URL has no retained Search Console impressions | no validated project selected for provider bindings and retained history |
+| Non-indexable crawled URL has Search Console impressions | no validated project selected for provider bindings and retained history |
+| Search Console reports an indexed URL with AMP or rich-result issues | no validated project selected for provider bindings and retained history |
+| Search Console reports an invalid AMP result | no validated project selected for provider bindings and retained history |
+| Search Console reports invalid structured data for a rich result | no validated project selected for provider bindings and retained history |
+| Crawl reports an indexable URL that Search Console does not index | no validated project selected for provider bindings and retained history |
+| Google selected a different canonical URL than the declared canonical | no validated project selected for provider bindings and retained history |
+| Search Console reports that the inspected URL is not on Google | no validated project selected for provider bindings and retained history |
+| GA4 reports a landing URL absent from the crawl | no validated project selected for provider bindings and retained history |
+| Indexable crawled URL has no retained GA4 sessions | no validated project selected for provider bindings and retained history |
+| Non-indexable crawled URL has GA4 sessions | no validated project selected for provider bindings and retained history |
+| Yandex Metrika reports a bounce rate above 70 percent | no validated project selected for provider bindings and retained history |
+| Yandex Metrika reports a landing URL absent from the crawl | no validated project selected for provider bindings and retained history |
+| Indexable crawled URL has no retained Yandex Metrika visits | no validated project selected for provider bindings and retained history |
+| Non-indexable crawled URL has Yandex Metrika visits | no validated project selected for provider bindings and retained history |
+| Yandex Metrika reports a bounce rate above 70 percent | no validated project selected for provider bindings and retained history |
 

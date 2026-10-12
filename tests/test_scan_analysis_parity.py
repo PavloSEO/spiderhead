@@ -256,6 +256,79 @@ def _drop_retained_only_checks(audit: dict) -> dict:
     return document
 
 
+_RETAINED_ONLY_MEASUREMENTS = {
+    "BODY_MIME_MISMATCH",
+    "IMG_ALT_TOO_LONG",
+    "IMG_MISSING_ALT",
+    "IMG_MISSING_ALT_ATTRIBUTE",
+    "IMG_MISSING_DIMENSIONS",
+}
+_SOURCE_CONDITIONAL_CHECKS = {"BODY_MIME_MISMATCH"}
+_EMPTY_IMAGE_CHECKS = {"IMG_MISSING_ALT", "IMG_MISSING_DIMENSIONS"}
+
+
+def _normalize_source_conditional_evidence(audit: dict, *, empty_image_population: bool) -> dict:
+    """Compare shared findings while accounting for retained-only measures in this fixture.
+
+    The native path has page/body measurement envelopes the legacy graph cannot emit. The
+    controlled fixture has no img elements; its two SF-export image checks therefore have a
+    proven empty population, which is equivalent to the native zero-finding result. Findings
+    themselves remain untouched and strict.
+    """
+    document = copy.deepcopy(audit)
+    run = document.get("run") if isinstance(document.get("run"), dict) else {}
+    summary = document.get("summary") if isinstance(document.get("summary"), dict) else {}
+    if isinstance(summary.get("asset_measurements"), dict):
+        for check_id in _RETAINED_ONLY_MEASUREMENTS:
+            summary["asset_measurements"].pop(check_id, None)
+
+    coverage = summary.get("check_coverage")
+    if not isinstance(coverage, dict):
+        return document
+
+    skipped = list(run.get("checks_skipped") or [])
+    skipped_ids = {item.get("id") for item in skipped if isinstance(item, dict)}
+    disabled_ids = set(coverage.get("checks_disabled_ids") or [])
+    silent_ids = set(coverage.get("checks_silent_ids") or [])
+    fired_ids = {item.get("check") for item in document.get("issues", [])}
+
+    for check_id in _SOURCE_CONDITIONAL_CHECKS:
+        if check_id in fired_ids:
+            continue  # Preserve findings and fail parity if only one source found one.
+        coverage["checks_total"] -= 1
+        coverage["checks_fired"] -= int(check_id in fired_ids)
+        coverage["checks_skipped"] -= int(check_id in skipped_ids)
+        coverage["checks_disabled"] -= int(check_id in disabled_ids)
+        coverage["checks_silent"] -= int(check_id in silent_ids)
+        skipped = [item for item in skipped if item.get("id") != check_id]
+        skipped_ids.discard(check_id)
+        disabled_ids.discard(check_id)
+        silent_ids.discard(check_id)
+
+    if empty_image_population:
+        if fired_ids & _EMPTY_IMAGE_CHECKS:
+            raise AssertionError("empty-image fixture unexpectedly fired an image-export check")
+        for check_id in _EMPTY_IMAGE_CHECKS:
+            if check_id in skipped_ids and check_id not in disabled_ids:
+                skipped = [item for item in skipped if item.get("id") != check_id]
+                skipped_ids.discard(check_id)
+                coverage["checks_skipped"] -= 1
+                silent_ids.add(check_id)
+            elif check_id not in disabled_ids:
+                silent_ids.add(check_id)
+
+    run["checks_skipped"] = skipped
+    coverage["checks_silent_ids"] = sorted(silent_ids)
+    coverage["checks_disabled_ids"] = sorted(disabled_ids)
+    coverage["checks_silent"] = len(silent_ids)
+    coverage["checks_disabled"] = len(disabled_ids)
+    available = coverage["checks_total"] - coverage["checks_skipped"] - coverage["checks_disabled"]
+    coverage["coverage"] = (
+        round(available / coverage["checks_total"], 3) if coverage["checks_total"] else None
+    )
+    return document
+
+
 _RETAINED_RUN_FIELDS = {"scan_uuid", "config_fingerprint", "corpus_partial", "source_kind"}
 
 
@@ -273,6 +346,20 @@ _PATH_WORDED_SKIPS = frozenset(
         "SITEMAP_URL_3XX",
         "SITEMAP_URL_4XX_5XX",
         "SITEMAP_URL_NON_INDEXABLE",
+        "CANONICAL_MISMATCH",
+        "CANONICAL_ONLY_IN_RENDERED_HTML",
+        "H1_ONLY_IN_RENDERED_HTML",
+        "H1_UPDATED_BY_JAVASCRIPT",
+        "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+        "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+        "NOFOLLOW_ONLY_IN_RAW_HTML",
+        "NOINDEX_ONLY_IN_RAW_HTML",
+        "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+        "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+        "RENDER_RESOURCE_BLOCKED",
+        "MOBILE_CONTENT_OVERFLOW",
+        "MOBILE_TARGET_TOO_SMALL",
+        "MOBILE_TEXT_TOO_SMALL",
     }
     | {
         "HREFLANG_BROKEN_TARGET",
@@ -298,7 +385,7 @@ def _label_budget_stop(audit):
         run["crawl_stopped_reason"] = "budget_stop"
 
 
-def _outcome(audit, *, retained_run=None):
+def _outcome(audit, *, retained_run=None, empty_image_population=False):
     """The whole audit contract except the report clock and measured response durations.
 
     ``generated_at`` is a report wall clock.  Every ``response_time`` in this
@@ -332,7 +419,10 @@ def _outcome(audit, *, retained_run=None):
             return [normalize(item) for item in value]
         return value
 
-    result = _drop_retained_only_checks(semantic_audit(audit))
+    result = _normalize_source_conditional_evidence(
+        _drop_retained_only_checks(semantic_audit(audit)),
+        empty_image_population=empty_image_population,
+    )
     # Skip records are a set of (check, reason): the two paths reach the same skips in a
     # different order, and the order of skip calls is not part of the audit contract.
     if "checks_skipped" in result["run"]:
@@ -512,8 +602,29 @@ def test_sql_graph_audit_matches_legacy_without_building_all_inlinks(
             assert retained_run["source_kind"] == "native"
             assert retained_run["corpus_partial"] is run.corpus_partial
 
-    sql_outcome = _outcome(sql_audit, retained_run=retained_run)
-    legacy_outcome = _outcome(legacy_audit)
+    from bs4 import BeautifulSoup
+
+    empty_image_population = not any(
+        BeautifulSoup(response.text, "lxml").find("img") is not None
+        for response in responses.values()
+        if "html" in response.headers.get("content-type", "").lower()
+    )
+    assert empty_image_population
+    body_measurement = sql_audit["summary"]["asset_measurements"]["BODY_MIME_MISMATCH"]
+    assert body_measurement["state"] == "measured"
+    assert body_measurement["measured"] == body_measurement["eligible"]
+    assert not any(issue["check"] == "BODY_MIME_MISMATCH" for issue in sql_audit["issues"])
+    assert any(
+        item["id"] == "BODY_MIME_MISMATCH"
+        and "retains no per-URL response bodies" in item["reason"]
+        for item in legacy_audit["run"]["checks_skipped"]
+    )
+    sql_outcome = _outcome(
+        sql_audit,
+        retained_run=retained_run,
+        empty_image_population=empty_image_population,
+    )
+    legacy_outcome = _outcome(legacy_audit, empty_image_population=empty_image_population)
     legacy_skipped = {row["id"] for row in legacy_audit["run"]["checks_skipped"]}
     native_silent = set(sql_audit["summary"]["check_coverage"]["checks_silent_ids"])
     assert {"CANONICAL_INVALID_ATTRIBUTE", "PAGINATION_MULTIPLE"} <= legacy_skipped
@@ -536,8 +647,12 @@ def test_sql_graph_audit_matches_legacy_without_building_all_inlinks(
     # Report writers receive the same semantic audit input. The saved-reference
     # contracts were independently validated above, and are deliberately local
     # to the scan rather than a renderer-parity dimension.
-    legacy_render_audit = _outcome(legacy_audit)
-    sql_render_audit = _outcome(sql_audit, retained_run=retained_run)
+    legacy_render_audit = _outcome(legacy_audit, empty_image_population=empty_image_population)
+    sql_render_audit = _outcome(
+        sql_audit,
+        retained_run=retained_run,
+        empty_image_population=empty_image_population,
+    )
     for audit in (legacy_render_audit, sql_render_audit):
         audit["run"]["generated_at"] = legacy_audit["run"]["generated_at"]
         _label_budget_stop(audit)

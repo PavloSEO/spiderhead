@@ -41,9 +41,10 @@ def test_every_setting_is_classified_as_results_affecting_or_not():
         # add a file but never a finding.
         "output.write_tasks",
         # Optional artefacts (off by default): they add files on disk, never
-        # change a finding.
+        # change a finding. Screenshot mode only changes the saved image framing.
         "rendering.artifacts.screenshots",
         "rendering.artifacts.console_errors",
+        "rendering.artifacts.screenshot_mode",
         # The profile's identity, not whether one is used (that part is
         # rendering.browser.persistent_profile, which is results-affecting):
         # same rationale as excluding a credential's value from the manifest.

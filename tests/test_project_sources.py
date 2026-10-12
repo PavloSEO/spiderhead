@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 import pytest
 
@@ -53,8 +53,8 @@ def test_cloudflare_zone_id_can_be_bound_without_provider_discovery(tmp_path):
 
 def test_list_bindings_reports_local_28_day_coverage_and_unselected_resources(tmp_path):
     project = _project(tmp_path)
-    today = date.today()
-    end = today - timedelta(days=sources_db.SOURCES["ga4"].lag_days)
+    today = datetime.now(timezone.utc).date()
+    end = sources_db.available_end("ga4", as_of=today)
     start = end - timedelta(days=27)
 
     def fetcher(resource, first, last):

@@ -123,13 +123,11 @@ def _view(binding: dict[str, Any]) -> dict[str, Any]:
     return {**binding, "status": "selected"}
 
 
-def _source_readiness(entry: dict[str, Any], as_of: date) -> dict[str, Any]:
-    from seohead.data_sources.sources_db import SOURCES
+def _source_readiness(entry: dict[str, Any], as_of: date | None) -> dict[str, Any]:
+    from seohead.data_sources.sources_db import available_end
 
     source = entry["source"]
-    spec = SOURCES[source]
-    lag = spec.lag_days
-    end = as_of - timedelta(days=lag)
+    end = available_end(source, as_of=as_of)
     start = end - timedelta(days=27)
     expected = {(start + timedelta(days=offset)).isoformat() for offset in range(28)}
     coverage = entry.get("coverage", {})
@@ -166,7 +164,9 @@ def _source_readiness(entry: dict[str, Any], as_of: date) -> dict[str, Any]:
     }
 
 
-def _history_resources(root: Path, as_of: date) -> tuple[list[dict[str, Any]], bool]:
+def _history_resources(
+    root: Path, as_of: date, *, source_as_of: date | None
+) -> tuple[list[dict[str, Any]], bool]:
     path = root / "sources.sqlite"
     if not os.path.lexists(path):
         output: list[dict[str, Any]] = []
@@ -183,7 +183,7 @@ def _history_resources(root: Path, as_of: date) -> tuple[list[dict[str, Any]], b
                 grouped.setdefault((service, entry["resource"]), []).append(entry)
         output = []
         for (service, resource), entries in grouped.items():
-            summaries = [_source_readiness(entry, as_of) for entry in entries]
+            summaries = [_source_readiness(entry, source_as_of) for entry in entries]
             failures = [item for item in summaries if item["state"] == "no_access"]
             data_sources = [item for item in summaries if item["data_28d"]]
             best = (
@@ -286,8 +286,9 @@ def list_bindings(directory: str | Path, *, as_of: str | date | None = None) -> 
             raise ValueError("as_of must be an ISO calendar date") from exc
     if as_of is not None and not isinstance(as_of, date):
         raise ValueError("as_of must be an ISO calendar date")
+    source_as_of = as_of
     as_of = as_of or datetime.now(UTC).date()
-    known, resources_truncated = _history_resources(root, as_of)
+    known, resources_truncated = _history_resources(root, as_of, source_as_of=source_as_of)
     by_pair = {(item["service"], item["resource"]): item for item in known}
     selected = [_view(item) for item in _read(root)]
     for item in selected:

@@ -71,6 +71,56 @@ def test_project_gsc_history_is_joined_to_audit_pages_without_a_provider_call(mo
     assert "project.test" not in str(result)
 
 
+def test_metrika_findings_fire_on_defects_and_stay_silent_on_clean_pages(monkeypatch):
+    from seohead.projects import bindings
+
+    monkeypatch.setattr(
+        bindings,
+        "list_bindings",
+        lambda project: {
+            "bindings": [{"service": "metrika", "resource": "counter-1", "status": "available"}]
+        },
+    )
+    monkeypatch.setattr(provider_findings, "_origin", lambda project: "https://example.test")
+    pages = [
+        {"url": "https://example.test/seen", "indexability": "Indexable"},
+        {"url": "https://example.test/hidden", "indexability": "Non-Indexable"},
+        {"url": "https://example.test/quiet", "indexability": "Indexable"},
+    ]
+
+    def evaluate(rows):
+        history = _coverage()
+        history.update(rows=rows, row_count=len(rows))
+        monkeypatch.setattr(provider_findings, "_history", lambda *_: history)
+        return provider_findings.project_provider_findings(
+            pages, project_dir="project.test", crawl_partial=False
+        )["sources"]["metrika"]["findings"]
+
+    measured = evaluate(
+        [
+            {"landing_page": "/seen", "visits": 4, "bounce_rate": 0.85},
+            {"landing_page": "/hidden", "visits": 3, "bounce_rate": 0.2},
+            {"landing_page": "/gone", "visits": 2, "bounce_rate": 0.1},
+        ]
+    )
+    clean = evaluate(
+        [
+            {"landing_page": "/seen", "visits": 4, "bounce_rate": 0.4},
+            {"landing_page": "/hidden", "visits": 0, "bounce_rate": 0.2},
+            {"landing_page": "/quiet", "visits": 2, "bounce_rate": 0.1},
+        ]
+    )
+
+    assert measured["METRIKA_ORPHAN_URL"]["urls"] == ["https://example.test/gone"]
+    assert clean["METRIKA_ORPHAN_URL"]["urls"] == []
+    assert measured["NO_METRIKA_DATA"]["urls"] == ["https://example.test/quiet"]
+    assert clean["NO_METRIKA_DATA"]["urls"] == []
+    assert measured["NON_INDEXABLE_WITH_METRIKA_DATA"]["urls"] == ["https://example.test/hidden"]
+    assert clean["NON_INDEXABLE_WITH_METRIKA_DATA"]["urls"] == []
+    assert measured["METRIKA_BOUNCE_RATE_ABOVE_70"]["urls"] == ["https://example.test/seen"]
+    assert clean["METRIKA_BOUNCE_RATE_ABOVE_70"]["urls"] == []
+
+
 def test_incomplete_analytics_history_withholds_absence_findings(monkeypatch):
     from seohead.projects import bindings
 

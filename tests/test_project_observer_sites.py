@@ -79,10 +79,12 @@ def test_observer_projects_scans_coverage_and_methods_per_declared_site(tmp_path
         "policy": {
             "approval_thresholds": {"pages": 1000, "requests": 3000, "seconds": 600},
             "quick_crawl": {"pages": 50, "requests": 150, "seconds": 60},
+            "crawl_profile": None,
             "crawl_overrides": {},
             "competitor_limit": 5,
             "evidence_hash": {"max_bytes": 1073741824, "max_seconds": 5},
         },
+        "operation_id": None,
     }
     assert snapshot["sites"]["total"] == 3
     assert snapshot["sites"]["scan_limit_per_site"] == 1

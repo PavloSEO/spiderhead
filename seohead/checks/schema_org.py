@@ -407,6 +407,13 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
     triple_count = 0
     typed_count = 0
 
+    def safe_join(document_base: str, reference: str) -> str:
+        try:
+            return urljoin(document_base, reference)
+        except ValueError:
+            reasons.add("RDFa IRI is malformed and could not be resolved")
+            return reference
+
     def iri(value: str, document_base: str, vocab: str, prefixes: dict[str, str]) -> str:
         value = value.strip()
         if value.startswith("[") and value.endswith("]"):
@@ -416,8 +423,8 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
         if ":" in value and not value.startswith(("http://", "https://")):
             prefix, local = value.split(":", 1)
             if prefix in prefixes:
-                return urljoin(document_base, prefixes[prefix] + local)
-        return urljoin(document_base, value)
+                return safe_join(document_base, prefixes[prefix] + local)
+        return safe_join(document_base, value)
 
     def entity(subject: str, vocab: str, supported: bool) -> dict[str, Any]:
         item = entities.get(subject)
@@ -566,20 +573,20 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
             reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TOKENS}-token limit")
             break
 
-        doc_base = urljoin(doc_base, str(tag.get("xml:base") or ""))
+        doc_base = safe_join(doc_base, str(tag.get("xml:base") or ""))
         if str(tag.get("profile") or "").strip():
             reasons.add("RDFa remote profile processing is disabled for offline validation")
         if tag.has_attr("vocab"):
             declared_vocab = str(tag.get("vocab") or "")
-            vocab = urljoin(doc_base, declared_vocab) if declared_vocab else ""
+            vocab = safe_join(doc_base, declared_vocab) if declared_vocab else ""
         else:
             vocab = inherited_vocab
         local_prefixes = dict(prefixes)
         for prefix, namespace in re.findall(r"(\w[\w-]*):\s+(\S+)", str(tag.get("prefix") or "")):
-            local_prefixes[prefix.lower()] = urljoin(doc_base, namespace)
+            local_prefixes[prefix.lower()] = safe_join(doc_base, namespace)
         for attr, namespace in tag.attrs.items():
             if attr.startswith("xmlns:"):
-                local_prefixes[attr[6:].lower()] = urljoin(doc_base, str(namespace))
+                local_prefixes[attr[6:].lower()] = safe_join(doc_base, str(namespace))
         if tag.has_attr("xml:lang"):
             language = str(tag.get("xml:lang") or "") or None
         elif tag.has_attr("lang"):
@@ -596,6 +603,7 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
         props = [item for item in raw_props if item[1]]
         rels = [item for item in raw_rels if item[1]]
         revs = [item for item in raw_revs if item[1]]
+        copy_predicates = [predicate for predicate, _ in raw_props if predicate == _RDFA_COPY]
         token_count += len(raw_types) + len(raw_props) + len(raw_rels) + len(raw_revs)
         if token_count > MAX_RDFA_TOKENS:
             reasons.add(f"RDFa processing stopped at the {MAX_RDFA_TOKENS}-token limit")
@@ -608,7 +616,9 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
         )
         resource = next((tag[a] for a in ("resource", "href", "src") if tag.has_attr(a)), None)
         object_subject = (
-            iri(str(resource), doc_base, vocab, local_prefixes) if resource is not None else None
+            iri(str(resource), doc_base, vocab, local_prefixes)
+            if resource is not None and (types or props or rels or revs or copy_predicates)
+            else None
         )
         if types and not tag.has_attr("about"):
             if waiting:
@@ -658,7 +668,6 @@ def _extract_rdfa(soup: BeautifulSoup, base: str) -> tuple[list[dict[str, Any]],
 
         # A typed child reached through a property is the property's resource
         # object, while its own descendant properties remain on that subject.
-        copy_predicates = [predicate for predicate, _ in raw_props if predicate == _RDFA_COPY]
         if props or copy_predicates:
             literal_property = tag.has_attr("content") or tag.has_attr("datatype")
             owner_subject = (

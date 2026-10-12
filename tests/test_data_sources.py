@@ -2514,7 +2514,7 @@ def test_dataforseo_network_error_does_not_retry_and_logs_the_lost_attempt(monke
     rows = spend.read_all()
     assert len(rows) == 1  # The lost attempt is recorded, not silently dropped.
     assert rows[0]["source"] == "dataforseo"
-    assert rows[0]["cost"] == 0.0
+    assert rows[0]["cost"] is None
     assert rows[0]["extra"]["attempt_failed"] == "network_error"
     # A lost response proves nothing about the charge: it must not count as a measured zero.
     assert rows[0]["extra"]["cost_unknown"] is True

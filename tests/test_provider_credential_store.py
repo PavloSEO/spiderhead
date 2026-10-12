@@ -180,6 +180,21 @@ def test_cloudflare_custom_token_file_is_reported_without_exposing_path_or_value
     assert str(custom) not in encoded
     assert SECRET not in encoded
 
+    override = "synthetic-cloudflare-env-token"
+    monkeypatch.setenv("CLOUDFLARE_API_TOKEN", override)
+    overridden = providers.manage_credential("cloudflare", "api_token")
+
+    assert overridden["source_reference"] == "env:CLOUDFLARE_API_TOKEN"
+    assert overridden["accepted_source_references"] == [
+        "env:CLOUDFLARE_API_TOKEN",
+        "config:cloudflare/api-token",
+        "env-path:SEOHEAD_CLOUDFLARE_TOKEN_FILE",
+    ]
+    encoded_override = json.dumps(overridden)
+    assert str(custom) not in encoded_override
+    assert SECRET not in encoded_override
+    assert override not in encoded_override
+
 
 def test_cli_credential_write_reads_stdin_without_echoing_value(config_root, monkeypatch, capsys):
     from io import StringIO

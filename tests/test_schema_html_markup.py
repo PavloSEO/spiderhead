@@ -341,6 +341,26 @@ def test_rdfa_resource_reference_is_connected_to_its_typed_subject():
     assert result["graph"]["islands"] == []
 
 
+def test_rdfa_malformed_resource_is_preserved_and_marks_coverage_partial():
+    base = "https://example.test/article/"
+    html = """
+    <div vocab="https://schema.org/" typeof="Person" about="#ada">
+      <a property="knows" href="http://[">Broken reference</a>
+    </div>"""
+    result = schema.check_schema(html=html, document_base_url=base)
+    nodes, _, reasons = schema._extract_rdfa(schema.BeautifulSoup(html, "lxml"), base)
+
+    assert result["markup_coverage"][1]["status"] == "partial"
+    assert result["markup_coverage"][1]["reasons"] == [
+        "RDFa IRI is malformed and could not be resolved"
+    ]
+    ada = next(node for node in nodes if node.get("@id") == base + "#ada")
+    assert ada["knows"] == {"@id": "http://["}
+    assert len(nodes) == 1
+    assert reasons == ["RDFa IRI is malformed and could not be resolved"]
+    assert any("http://[" in error for entity in result["entities"] for error in entity["errors"])
+
+
 @pytest.mark.parametrize("format", ["microdata", "rdfa"])
 def test_literal_number_and_date_ranges_are_validated(format):
     scope = (

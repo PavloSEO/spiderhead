@@ -103,8 +103,13 @@ configured, a target was not granted, or a result was truncated.
 
 ## Covers
 
-Provider enrichment is an external-evidence workflow; it does not add a
-separate SF issue-catalogue finding.
+- **Search Console** — Orphan URLs · URL is on Google, But Has Issues · AMP URL is Invalid · Rich Result is Invalid · Indexable URL Not Indexed · User-Declared Canonical Not Selected · No Search Analytics Data · Non-Indexable with Search Analytics Data · URL Is Not on Google
+- **Analytics** — Orphan URLs · Bounce Rate Above 70% · No GA Data · Non-Indexable with GA Data
+
+Retained provider evidence can add these page-level findings to the normal SF issue catalogue.
+Absence findings require complete retained coverage and a complete crawl; bounded URL Inspection
+findings describe only the inspected sample. GA4 does not provide the per-URL bounce metric in
+the project-history join, while Metrika does.
 
 ## What it cannot answer
 

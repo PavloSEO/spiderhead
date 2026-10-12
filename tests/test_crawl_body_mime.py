@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import sqlite3
 
-from seohead.crawl import body_mime
+from seohead.checks import body_mime
 
 
 def _scan(
@@ -86,6 +86,16 @@ def _scan(
     return con, requested_url
 
 
+def _audit_context(scan_con):
+    from seohead.sf.config import load_config
+    from seohead.sf.core.context import AuditContext
+    from seohead.sf.core.loader import LoadedExports
+
+    ctx = AuditContext(LoadedExports(), load_config(None))
+    ctx.scan_con = scan_con
+    return ctx
+
+
 def test_selected_document_wins_over_competing_response_and_redirect_target():
     con, requested_url = _scan(
         b"%PDF-1.7\n",
@@ -93,19 +103,46 @@ def test_selected_document_wins_over_competing_response_and_redirect_target():
         final_url="https://example.test/final",
         competing=("application/json", b'{"wrong":"response"}'),
     )
-    findings = []
+    from seohead.sf.core.rules import run_rules
+
+    ctx = _audit_context(con)
     try:
-        result = body_mime.evaluate(con, on_finding=findings.append)
+        run_rules(ctx)
     finally:
         con.close()
 
-    assert result["pages_measured"] == 1
-    assert result["findings_count"] == 1
-    assert findings[0]["target_url"] == requested_url
-    assert findings[0]["source_response_id"] == 1
-    assert findings[0]["body_sha256"] == hashlib.sha256(b"%PDF-1.7\n").hexdigest()
-    assert findings[0]["declared_content_type"] == "text/html"
-    assert findings[0]["observed_body_family"] == "pdf"
+    findings = [item for item in ctx.issues if item.check == "BODY_MIME_MISMATCH"]
+    assert "BODY_MIME_MISMATCH" in {item.check for item in findings}
+    assert findings[0].target_url == requested_url
+    assert findings[0].details["source_response_id"] == 1
+    assert findings[0].details["body_sha256"] == hashlib.sha256(b"%PDF-1.7\n").hexdigest()
+    assert findings[0].details["declared_content_type"] == "text/html"
+    assert findings[0].details["observed_body_family"] == "pdf"
+
+
+def test_clean_supported_body_emits_no_body_mime_verdict():
+    con, _url = _scan(b"<!doctype html><html><body>ok</body></html>", "text/html")
+    from seohead.sf.core.rules import run_rules
+
+    ctx = _audit_context(con)
+    try:
+        run_rules(ctx)
+    finally:
+        con.close()
+
+    assert "BODY_MIME_MISMATCH" not in {item.check for item in ctx.issues}
+    assert "BODY_MIME_MISMATCH" not in {item.id for item in ctx.skipped}
+
+
+def test_export_only_body_mime_is_explicitly_unavailable():
+    from seohead.sf.core.rules import run_rules
+
+    ctx = _audit_context(None)
+    run_rules(ctx)
+
+    skipped = {item.id: item.reason for item in ctx.skipped}
+    assert "BODY_MIME_MISMATCH" in skipped
+    assert "retains no per-URL response bodies" in skipped["BODY_MIME_MISMATCH"]
 
 
 def test_redirected_effective_url_does_not_hide_selected_response():

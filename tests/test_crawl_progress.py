@@ -202,7 +202,7 @@ def test_the_percentage_is_of_the_known_set_not_of_a_total():
 def test_the_header_says_the_frontier_is_still_growing():
     header = _reporter(budget=40000)._header()
     assert "40000-URL budget" in header
-    assert "grows" in header and "not of the site" in header
+    assert "grows" in header and "not the whole site" in header
     assert "cover only the current known frontier" in header
     assert "total crawl duration" in header
 
@@ -210,7 +210,7 @@ def test_the_header_says_the_frontier_is_still_growing():
 def test_unlimited_progress_reports_the_discovered_population_without_a_zero_cap():
     reporter = _reporter(budget=0)
     assert "without a URL limit" in reporter._header()
-    assert "not of the site" in reporter._header()
+    assert "not the whole site" in reporter._header()
     assert "300 known (66%)" in reporter.line(200, 100, elapsed=1, rate=1.0)
 
 

@@ -73,6 +73,30 @@ def test_show_refuses_credentials_in_a_manually_edited_profile(store, tmp_path):
         profiles.show("private")
 
 
+def test_show_refuses_basic_digest_auth_before_resolving_environment(store):
+    store.mkdir()
+    (store / "auth.json").write_text(
+        json.dumps(
+            {
+                "http": {
+                    "auth_acknowledged": True,
+                    "auth": [
+                        {
+                            "host": "example.com",
+                            "scheme": "digest",
+                            "username_env": "env:SEOHEAD_MISSING_USER",
+                            "password_env": "env:SEOHEAD_MISSING_PASSWORD",
+                        }
+                    ],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(profiles.ProfileError, match="cannot contain HTTP authentication"):
+        profiles.show("auth")
+
+
 def test_show_and_select_refuse_profile_symlinks(store, tmp_path):
     source = _write(tmp_path / "outside.json", {})
     store.mkdir()

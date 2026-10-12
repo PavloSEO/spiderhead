@@ -408,7 +408,10 @@ def test_handler_threads_every_newly_wired_setting_into_the_spider(monkeypatch, 
     )
 
     handlers.crawl_site(
-        url="https://example.com/", config=str(config), out_dir=str(tmp_path / "legacy")
+        url="https://example.com/",
+        config=str(config),
+        out_dir=str(tmp_path / "legacy"),
+        overrides={"scope.normalize_tracking_parameters": False},
     )
 
     assert captured["max_response_bytes"] == 999
@@ -421,6 +424,7 @@ def test_handler_threads_every_newly_wired_setting_into_the_spider(monkeypatch, 
     assert captured["stop_after_consecutive_timeouts"] == 7
     assert captured["max_delay_seconds"] == 12.0
     assert captured["follow_nofollow"] is True
+    assert captured["normalize_tracking_parameters"] is False
 
 
 def test_handler_threads_every_newly_wired_setting_into_collect_urls(monkeypatch, tmp_path):

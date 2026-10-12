@@ -321,8 +321,11 @@ CATEGORIES: dict[str, list[Entry]] = {
             "Uses Old AJAX Crawling Scheme Meta Fragment Tag",
             "AJAX_CRAWLING_SCHEME_META_FRAGMENT",
         ),
-        _c("Pages with Blocked Resources", "ROBOTS_BLOCKS_RESOURCES"),
-        _c("Rendered Resources Blocked", "RENDER_RESOURCE_BLOCKED"),
+        _c(
+            "Pages with Blocked Resources",
+            "ROBOTS_BLOCKS_RESOURCES",
+            "RENDER_RESOURCE_BLOCKED",
+        ),
         _t("Contains JavaScript Links", "render-check"),
         _t("Contains JavaScript Content", "render-check"),
         _c("Page Title Only in Rendered HTML", "PAGE_TITLE_ONLY_IN_RENDERED_HTML"),

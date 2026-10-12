@@ -23,7 +23,7 @@ is `project-progress`; `seohead logs bots` is `logs-bots`.
 | `sf tasks` | Build `tasks.json`/`tasks.md` from an existing `audit.json` or scan artifact. |
 | `sf doctor` | Diagnose SF CLI discovery and optional dependencies. |
 | `doctor` | Inspect local Python, Playwright, Chromium, SF CLI, MCP, SQLite locking and optional project-directory access without writing a probe file. Use `--json` for the versioned diagnostic payload; SF license validity remains unknown until an authoritative status source is available. |
-| `version --json` | Read the core handshake: package/build identity, supported project/scan/ledger contracts and CLI/MCP tools. Add `--required-core-revision SHA` to compare against a Desktop bundle's pinned core revision. |
+| `version --json` | Return the machine-readable core-info contract: verified build provenance, supported formats/tools, and exact-revision Desktop compatibility. `seohead --version` prints only the installed package version. |
 | `update-check --consent` | Read a bounded stable GitHub release feed and persist the last result. `--automatic` reuses a fresh result; no scheduler is started. |
 | `update-download --consent --tag TAG --asset NAME --out FILE` | Download one checksummed wheel or source archive from the last checked release, with bounded progress and Ctrl+C cancellation. It never installs the asset. |
 | `sf save-config` | Copy the most recent SF crawl configuration into a reusable base config file. |
@@ -36,7 +36,7 @@ is `project-progress`; `seohead logs bots` is `logs-bots`.
 | `scan`, `project`, `logs`, `skill`, `scenario` | Grouped aliases for the `scan-*`, `project-*`, `logs-*`, `skill-*` and `scenario-*` commands below. |
 
 The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf_audit_tasks`,
-`sf_list_exports`) expose the Screaming Frog analyzer to agents. The `seo_semantics_*` MCP tools
+`sf_list_exports`, `sf_snippet_edits`) cover crawl audits and bounded snippet review. The `seo_semantics_*` MCP tools
 (`seo_semantics_status`, `seo_semantics_run`, `seo_semantics_mine`, `seo_semantics_paid`,
 `seo_semantics_clusters`, `seo_semantics_cluster_show`, `seo_semantics_cluster_queries`,
 `seo_semantics_set_landing`, `seo_semantics_insights`, `seo_semantics_insights_tasks`) expose
@@ -138,6 +138,9 @@ recorded process identity is no longer live.
 | `security-check` | Security headers with a score and grade (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy), software version disclosure, cookie… | network |
 | `crtsh-subdomains` | Subdomains discovered from public Certificate Transparency logs (crt.sh). | network |
 | `cloudflare-traffic` | Bot and human traffic for a Cloudflare zone from edge analytics (aggregated, not raw logs), shaped like `log-analyze`. | network |
+| `cloudflare-history` | Read bounded retained Cloudflare aggregate snapshots from a local project; optional URL/day facts remain paged. | offline, read-only |
+| `cloudflare-logpush-import` | Import a supplied bounded JSONL Logpush file into a project's local logstore; no provider request. | writes |
+| `cloudflare-instant-logs` | Explicitly open a short, bounded live log session for a configured Enterprise zone; active sessions are left untouched. | network, writes |
 | `wayback-history` | Every recorded Wayback Machine snapshot of a URL, oldest first: timestamp, HTTP status, and MIME type at capture time. | network |
 | `log-analyze` | Analyse a supplied access log with exact IP totals and bounded per-IP evidence. DNS is explicit. | network |
 | `logs-import` | Retain supplied access-log files or a directory in a fresh local project artifact. | writes |
@@ -169,6 +172,7 @@ recorded process identity is no longer live.
 | `meta-description-drafts` | Prepare or validate a resumable, page-grounded meta-description batch. | writes |
 | `ai-column` | Plan or validate a per-URL AI custom column over retained page evidence; no model call. | writes |
 | `marketing-inventory` | Inventory supplied CTA/form DOM occurrences without fetching or submitting forms. | writes |
+| `custom-extract-sample` | Preview declared extractors against caller-supplied HTML without fetching a URL. | offline, read-only |
 | `keywords-cluster` | Cluster keywords into topic groups (K-Means, DBSCAN, Agglomerative). | offline, read-only |
 | `images-download` | Download images from a URL list, setting the correct extension by content-type and skipping already-downloaded files. | network, writes |
 | `images-optimize` | Compress, convert, or resize raster images and conservatively minify SVG; `--quality auto` uses an SSIM threshold; optionally optimize up to 50 distinct images declared by a retained scan under a 100 MiB total download cap. | writes; scan mode also fetches images |
@@ -179,6 +183,10 @@ recorded process identity is no longer live.
 | Command | What it does | Effects |
 |---|---|---|
 | `compare-crawls` | Diff two audit documents (dict, JSON path, or scan.v1 SQLite path) into four disjoint sets per finding: entered (new problem on a page that existed before), left (the… | writes |
+| `compare-read` | Read a bounded sorted page from one integrity-checked compare.v2 file. | offline, read-only |
+| `compare-status` | Read checkpoint or completed-cache state for a compare.v2 output directory. | offline, read-only |
+| `compare-report` | Write a new bounded Markdown summary from a compare.v2 manifest. | writes |
+| `compare-url` | Show exact-URL before/after facts, finding deltas and a bounded retained-body diff. | offline, read-only |
 | `segment-diff` | Cross-segment counterpart diff: which pages in a source segment (for example `en`) have a counterpart in a target segment (for example `pl`), and which do not. | offline, read-only |
 | `verify-fixes` | Recheck selected baseline findings in an explicit, bounded URL subset. | network, writes |
 | `remediation-create` | Create one new empty remediation ledger bound to a validated local project; an existing path is refused. | writes |
@@ -298,6 +306,7 @@ recorded process identity is no longer live.
 | `provider-discover` | List Google Search Console, Yandex Webmaster, or Topvisor resources visible to the configured account; output is an unselected preview. | provider read |
 | `provider-verify` | Explicitly verify bounded read-only account/target access; present credentials are not verification. | network |
 | `provider-collect` | Collect a declared provider operation with versioned redacted evidence. | network, writes, paid |
+| `provider-artifact-read` | Read a bounded sanitized sample from an existing provider artifact; no provider call. | offline, read-only |
 | `provider-replay` | Join a saved private provider collection to a saved scan with no network; retain raw rows locally and return counts. | writes |
 | `provider-join` | Join supplied URL evidence exactly and preserve unmatched populations and technical severity. | offline, read-only |
 | `evidence-normalize` | Normalize a supplied CSV/XLSX/JSON or saved provider envelope, fully offline. | writes |

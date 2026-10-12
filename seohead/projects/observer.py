@@ -754,9 +754,10 @@ def _v2_findings_page(row, *, offset, limit, query, url, sort, descending):
         matched = reader.con.execute(
             "SELECT COUNT(*) FROM items WHERE " + predicate, parameters
         ).fetchone()[0]
-        value = f"json_extract(value_json,'$.{sort}')"
+        raw_value = f"json_extract(value_json,'$.{sort}')"
         if sort == "target_url":
-            value = "COALESCE(NULLIF(" + value + ",''),json_extract(value_json,'$.url'))"
+            raw_value = "COALESCE(NULLIF(" + raw_value + ",''),json_extract(value_json,'$.url'))"
+        value = raw_value
         if sort == "severity":
             value = (
                 "CASE casefold("
@@ -765,13 +766,10 @@ def _v2_findings_page(row, *, offset, limit, query, url, sort, descending):
                 + " ".join(f"WHEN '{name}' THEN {rank}" for name, rank in _SEVERITY_RANK.items())
                 + " ELSE 99 END"
             )
-            order = value
         else:
-            order = f"({value} IS NULL OR {value}=''),casefold({value})"
+            value = f"casefold({raw_value})"
         direction = " DESC" if descending else " ASC"
-        order = (
-            order.replace(",casefold", direction + ",casefold") + direction + ",ordinal" + direction
-        )
+        order = f"({raw_value} IS NULL OR {raw_value}='') ASC,{value}{direction},ordinal{direction}"
         selected = reader.con.execute(
             "SELECT ordinal,value_json FROM items WHERE "
             + predicate
@@ -849,12 +847,14 @@ def findings_page(
         value = issue.get(sort)
         if sort == "target_url":
             value = value or issue.get("url")
+        missing = value in (None, "")
         if sort == "severity":
             rank = _SEVERITY_RANK.get(str(value).casefold())
-            return rank is None, rank if rank is not None else 99, ordinal
-        return value in (None, ""), str(value or "").casefold(), ordinal
+            return missing, rank if rank is not None else 99, ordinal
+        return missing, str(value or "").casefold(), ordinal
 
     indexed.sort(key=sort_key, reverse=descending)
+    indexed.sort(key=lambda item: sort_key(item)[0])
     selected = indexed[offset : offset + limit]
     return _finding_page_result(
         row, query, sort, descending, len(issues), len(indexed), selected, offset, limit
@@ -1158,6 +1158,9 @@ def checklist_page(
         if kind not in {None, "method", "schema"} and item.get("kind") != kind:
             continue
         display = _item_state(item)
+        task_state = (
+            "remaining" if item.get("kind") == "custom" and display == "not_run" else display
+        )
         if needle not in text or (state is not None and state != display):
             continue
         if states is not None and display not in states:
@@ -1184,7 +1187,7 @@ def checklist_page(
                 display_state=display,
                 updated=max(stamps, default="") or None,
                 task={
-                    "state": display,
+                    "state": task_state,
                     "executor": definition.get("assignee"),
                     "actor": actor,
                     "next_step": None,
@@ -1251,6 +1254,11 @@ def task_detail(directory: str | Path, *, item_id: str) -> dict:
         catalogue=load_catalogue().get(local_id),
     )
     definition = saved.get("definition") or {}
+    task_state = (
+        "remaining"
+        if definition.get("kind") == "custom" and item.get("display_state") == "not_run"
+        else item.get("display_state")
+    )
     comments = saved.get("comments", [])
     actor = next(
         (
@@ -1263,7 +1271,7 @@ def task_detail(directory: str | Path, *, item_id: str) -> dict:
     item.update(
         {
             "task": {
-                "state": item.get("display_state"),
+                "state": task_state,
                 "executor": definition.get("assignee"),
                 "actor": actor,
                 "next_step": None,

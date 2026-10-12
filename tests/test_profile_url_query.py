@@ -34,6 +34,8 @@ def test_acceptance_reports_every_case_and_keeps_scan_bytes(monkeypatch, capsys,
     assert report["scan_unchanged"] is True
     assert report["urls"] > 0
     assert report["budget_ms"] == profile.BUDGET_MS
+    assert report["cases"]["all_facets"]["facet_states_valid"] is True
+    assert report["cases"]["all_facets"]["result_state"] in {"exact", "partial"}
     for case in report["cases"].values():
         assert case["ok"] is True
         assert case["rows"] <= profile.PAGE_ROWS

@@ -3366,17 +3366,22 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         confirm=true and the current checklist revision are required. This is a one-shot scan,
         independent of the schedule engine; no competitor cadence is started or changed.
         """
-        result = handlers.project_competitors_scan(
-            directory=directory,
-            task_id=task_id,
-            expected_revision=expected_revision,
-            confirm=confirm,
-            concurrency=concurrency,
-            approve_large_crawl=approve_large_crawl,
-            producer_build=producer_build,
-            run_id=run_id,
+        return _checked(
+            with_project_notice(
+                handlers.project_competitors_scan(
+                    directory=directory,
+                    task_id=task_id,
+                    expected_revision=expected_revision,
+                    confirm=confirm,
+                    concurrency=concurrency,
+                    approve_large_crawl=approve_large_crawl,
+                    producer_build=producer_build,
+                    run_id=run_id,
+                ),
+                directory,
+                consumer,
+            )
         )
-        return _checked(with_project_notice(result, directory, consumer))
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_project_competitors_scan_status(directory: str, run_id: str) -> dict[str, Any]:

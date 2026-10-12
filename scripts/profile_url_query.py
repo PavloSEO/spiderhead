@@ -3,7 +3,8 @@
 
 Runs fixed page reads of 100 rows, all facets and whole-scan issue counters against an existing
 scan of at least one million URLs. Page reads and issue counters have a 200 ms target; facets
-have a 300 ms target. The scan remains read-only and is hashed before and after.
+have a 300 ms target. Facets are reported per group: exact counts include measured zeroes, while
+unsupported groups remain explicitly unavailable. The scan is read-only and hashed before/after.
 """
 
 from __future__ import annotations
@@ -30,6 +31,14 @@ BUDGET_MS = 200.0
 FACET_BUDGET_MS = 300.0
 MIN_URLS = 1_000_000
 COLUMNS = ["url", "status_code", "title", "word_count"]
+REQUIRED_EXACT_FACETS = {
+    "all",
+    "status_2xx",
+    "status_3xx",
+    "status_4xx",
+    "status_5xx",
+    "title_missing",
+}
 
 # Each case: name, filters, sort, offset. Sort by url is the indexed path; status filter
 # plus url sort covers a filtered page; the deep offset shows the cost of skipping rows.
@@ -89,6 +98,25 @@ def _measure(
         )
         times_ms.append((time.perf_counter() - started) * 1000)
     median = statistics.median(times_ms)
+    facet_states = last.get("facet_states") if facets is not None else None
+    facet_values = last.get("facets") if facets is not None else None
+    facet_states_valid = None
+    if facets is not None:
+        facet_states_valid = (
+            isinstance(facet_states, dict)
+            and isinstance(facet_values, dict)
+            and set(facet_states) == set(facet_values)
+            and set(facet_states) >= REQUIRED_EXACT_FACETS
+            and all(
+                facet_states[name] == "exact" and type(facet_values[name]) is int
+                for name in REQUIRED_EXACT_FACETS
+            )
+            and all(
+                (state == "exact" and type(facet_values[name]) is int)
+                or (state == "unavailable" and facet_values[name] is None)
+                for name, state in facet_states.items()
+            )
+        )
     return {
         "ok": bool(last.get("ok")),
         "reason_code": last.get("reason_code"),
@@ -98,6 +126,11 @@ def _measure(
         "max_ms": round(max(times_ms), 2),
         "within_budget": bool(last.get("ok")) and median <= budget_ms,
         "budget_ms": budget_ms,
+        **(
+            {"facet_states": facet_states, "facet_states_valid": facet_states_valid}
+            if facets is not None
+            else {}
+        ),
         "result_state": (last.get("issue_summary") or {}).get(
             "state", last.get("facets_state", "exact")
         ),
@@ -154,7 +187,7 @@ def main() -> int:
         and report["urls"] >= args.min_urls
         and report["python_matches"]
         and all(case["within_budget"] for case in cases.values())
-        and cases["all_facets"]["result_state"] == "exact"
+        and cases["all_facets"]["facet_states_valid"] is True
         and cases["whole_scan_issue_counters"]["result_state"] == "exact"
     )
     return 0 if ok else 3

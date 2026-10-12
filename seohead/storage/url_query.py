@@ -282,6 +282,27 @@ _RESOURCE_KINDS = frozenset(
         "font",
     }
 )
+
+
+def _origin_expression(value: str) -> str:
+    """Return a fixed SQL expression for a scheme-and-authority URL prefix."""
+    scheme = f"instr({value},'://')"
+    remainder = f"substr({value},{scheme}+3)"
+    slash = f"instr({remainder},'/')"
+    query = f"instr({remainder},'?')"
+    fragment = f"instr({remainder},'#')"
+    authority_end = (
+        f"CASE WHEN {slash}>0 THEN {scheme}+1+{slash} "
+        f"WHEN {query}>0 THEN {scheme}+1+{query} "
+        f"WHEN {fragment}>0 THEN {scheme}+1+{fragment} "
+        f"ELSE length({value}) END"
+    )
+    return f"lower(substr({value},1,{authority_end}))"
+
+
+_PAGE_ORIGIN = _origin_expression("u.url")
+_START_URL = "(SELECT start_url FROM scan WHERE singleton=1)"
+_START_ORIGIN = _origin_expression(_START_URL)
 # Facet expressions are fixed SQL; no caller-provided text reaches the query.
 FACET_GROUPS: dict[str, str] = {
     "all": "1",
@@ -294,10 +315,8 @@ FACET_GROUPS: dict[str, str] = {
     "directives_noindex": "instr(lower(p.meta_robots||','||p.x_robots),'noindex')>0",
     "directives_nofollow": "instr(lower(p.meta_robots||','||p.x_robots),'nofollow')>0",
     "with_outlinks": "p.outlinks>0",
-    "internal": "lower(substr(u.url,1,instr(u.url,'/',instr(u.url,'://')+3)-1)) = "
-    "lower(substr((SELECT start_url FROM scan WHERE singleton=1),1,instr((SELECT start_url FROM scan WHERE singleton=1),'/',instr((SELECT start_url FROM scan WHERE singleton=1),'://')+3)-1))",
-    "external": "lower(substr(u.url,1,instr(u.url,'/',instr(u.url,'://')+3)-1)) <> "
-    "lower(substr((SELECT start_url FROM scan WHERE singleton=1),1,instr((SELECT start_url FROM scan WHERE singleton=1),'/',instr((SELECT start_url FROM scan WHERE singleton=1),'://')+3)-1))",
+    "internal": f"{_PAGE_ORIGIN}={_START_ORIGIN}",
+    "external": f"{_PAGE_ORIGIN}<>{_START_ORIGIN}",
     "title_duplicate": "EXISTS (SELECT 1 FROM pages t WHERE t.url_id<>p.url_id AND trim(t.title)<>'' AND lower(t.title)=lower(p.title))",
     "title_long": "length(p.title)>60",
     "title_short": "(p.title<>'' AND length(p.title)<30)",
@@ -767,7 +786,7 @@ def _prepare_transport_phase_projection(con: sqlite3.Connection) -> None:
             con.execute(
                 "CREATE TEMP VIEW response_transport_meta AS SELECT NULL AS response_id,"
                 "NULL AS protocol,NULL AS protocol_state,NULL AS total_seconds,"
-                ",".join(
+                + ",".join(
                     f"NULL AS {phase}_seconds,'unavailable' AS {phase}_state,"
                     f"'transport phase was not retained in this scan' AS {phase}_reason"
                     for phase in ("dns", "connect", "tls", "ttfb", "download")
@@ -777,7 +796,7 @@ def _prepare_transport_phase_projection(con: sqlite3.Connection) -> None:
         finally:
             con.execute("PRAGMA query_only=ON")
         return
-    columns = {row[1] for row in con.execute("PRAGMA table_info(main.response_transport_meta)")}
+    columns = {row[1] for row in con.execute("PRAGMA main.table_info(response_transport_meta)")}
     expected = {
         f"{phase}_{suffix}"
         for phase in ("dns", "connect", "tls", "ttfb", "download")

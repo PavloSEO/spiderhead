@@ -38,7 +38,9 @@ def test_all_mcp_tools_have_structured_schemas_and_safety_annotations():
     optimizer = tools["seo_images_optimize"].annotations
     assert optimizer.destructiveHint is True
     assert optimizer.readOnlyHint is False
-    assert optimizer.openWorldHint is False
+    # Scan-backed optimization downloads the selected page images before writing;
+    # the annotation covers that supported network-capable mode too.
+    assert optimizer.openWorldHint is True
 
     # The only tool that writes to somebody else's service (#97). A caller decides
     # whether to ask a person first from these hints, so "submits URLs to four search
@@ -304,16 +306,31 @@ def test_compare_crawls_mcp_forwards_declared_correspondence(monkeypatch):
         )
     )
 
-    assert received == [
-        {
-            "before": {"pages": [], "issues": []},
-            "after": {"pages": [], "issues": []},
-            "force": False,
-            "correspondence": correspondence,
-            "out_dir": "compare-output",
-            "compression": "gzip",
-        }
-    ]
+    assert len(received) == 1
+    forwarded = received[0]
+    assert {
+        key: forwarded[key]
+        for key in (
+            "before",
+            "after",
+            "force",
+            "correspondence",
+            "out_dir",
+            "compression",
+            "resume",
+        )
+    } == {
+        "before": {"pages": [], "issues": []},
+        "after": {"pages": [], "issues": []},
+        "force": False,
+        "correspondence": correspondence,
+        "out_dir": "compare-output",
+        "compression": "gzip",
+        "resume": False,
+    }
+    assert callable(forwarded["progress"])
+    assert hasattr(forwarded["cancel_event"], "set")
+    assert hasattr(forwarded["cancel_event"], "is_set")
 
 
 def test_crawl_site_forwards_the_rendering_browser_overrides(monkeypatch):

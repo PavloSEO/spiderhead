@@ -86,12 +86,13 @@ def show(name: str) -> dict[str, object]:
         raise ProfileError(f"crawl profile {name!r} is not valid JSON: {exc}") from exc
     if not isinstance(body, dict):
         raise ProfileError(f"crawl profile {name!r} must contain an object")
+    http = body.get("http")
+    if isinstance(http, dict) and (http.get("credential_headers") or http.get("auth")):
+        raise ProfileError("a crawl profile cannot contain HTTP authentication settings")
     try:
-        validated = crawl_settings.load(str(target))
+        crawl_settings.load(str(target))
     except crawl_settings.ConfigError as exc:
         raise ProfileError(str(exc)) from exc
-    if validated["http"]["credential_headers"] or validated["http"]["auth"]:
-        raise ProfileError("a crawl profile cannot contain HTTP authentication settings")
     return body
 
 

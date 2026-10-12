@@ -49,7 +49,7 @@ def _image_con(images):
     )
     con.execute(
         "CREATE TABLE resource_graph_fetches (resolved_url TEXT PRIMARY KEY, "
-        "state TEXT NOT NULL, bytes_received INTEGER NOT NULL)"
+        "state TEXT NOT NULL, bytes_received INTEGER NOT NULL, status_code INTEGER)"
     )
     page_ids: dict[str, int] = {}
     for page_url, image_url, state, size in images:
@@ -62,8 +62,9 @@ def _image_con(images):
             (page_ids[page_url], image_url),
         )
         con.execute(
-            "INSERT OR IGNORE INTO resource_graph_fetches VALUES (?,?,?)",
-            (image_url, state, size),
+            "INSERT OR IGNORE INTO resource_graph_fetches "
+            "(resolved_url,state,bytes_received,status_code) VALUES (?,?,?,?)",
+            (image_url, state, size, 200),
         )
     return con
 
@@ -86,8 +87,15 @@ def test_native_image_over_limit_fires_per_image_file_with_its_source_page():
     ctx = _ctx([_page("https://e.test/"), _page("https://e.test/a")], scan_con=con)
     rules.check_native_image_size(ctx)
     fired = [(i.target_url, i.details) for i in ctx.issues if i.check == "IMG_OVER_KB"]
-    assert [url for url, _ in fired] == ["https://e.test/big.jpg"]
-    assert fired[0][1]["pages"] == 2
+    assert [url for url, _ in fired] == [
+        "https://e.test/big.jpg",
+        "https://e.test/big.jpg",
+    ]
+    assert [details["source_page"] for _, details in fired] == [
+        "https://e.test/",
+        "https://e.test/a",
+    ]
+    assert all(details["pages"] == 1 for _, details in fired)
     assert fired[0][1]["source_page"] == "https://e.test/"
     assert fired[0][1]["limit_kb"] == 150
 
@@ -133,12 +141,19 @@ def test_native_aggregates_name_no_sf_filter_and_no_missing_export():
     ctx = _ctx([_page("https://e.test/")], scan_con=sqlite3.connect(":memory:"))
     rules.check_native_export_aggregates(ctx)
     reasons = _skips(ctx)
-    assert set(reasons) == {"IMG_MISSING_ALT", "IMG_MISSING_DIMENSIONS", "HREFLANG_ERROR"}
+    assert set(reasons) == {
+        "IMG_MISSING_ALT",
+        "IMG_MISSING_ALT_ATTRIBUTE",
+        "IMG_MISSING_DIMENSIONS",
+        "IMG_ALT_TOO_LONG",
+        "HREFLANG_ERROR",
+    }
     for reason in reasons.values():
         assert "export" not in reason
         assert "Screaming Frog" not in reason
         assert "SF" not in reason.split()
-    assert "IMG_MISSING_ALT_ATTRIBUTE" in reasons["IMG_MISSING_ALT"]
+    assert "not fully measured" in reasons["IMG_MISSING_ALT_ATTRIBUTE"]
+    assert "not fully measured" in reasons["IMG_ALT_TOO_LONG"]
 
 
 def test_native_scan_declares_no_missing_export_for_the_resolved_checks():

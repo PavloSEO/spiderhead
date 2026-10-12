@@ -467,7 +467,12 @@ def _synthetic_transport(origin: SyntheticOrigin) -> Iterator[None]:
     from seohead.sf.core import sitemap_coverage
 
     @contextmanager
-    def client_context(_settings: dict[str, Any], _fetcher: Any, _proxy_route: Any = None):
+    def client_context(
+        _settings: dict[str, Any],
+        _fetcher: Any,
+        _proxy_route: Any = None,
+        _request_gate: Any = None,
+    ):
         client = httpx.Client(transport=httpx.MockTransport(origin.handle), follow_redirects=False)
         try:
             yield client

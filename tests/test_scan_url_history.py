@@ -122,11 +122,17 @@ def test_history_reports_only_retained_external_link_response_codes(tmp_path):
     path = directory / "external.sqlite"
     with NativeScan.create(path, **_scan_metadata()) as scan:
         scan.begin_collection()
-        scan.enqueue([(URL, 0)])
+        # External response evidence is retained on the destination's own frontier lease.
+        scan.enqueue([(URL, 0), (external, 1)])
         scan.commit_page(
             scan.claim(1)[0],
             _record(URL) | {"crawl_depth": 0},
             links=[_link(URL, external)],
+            runtime=_runtime() | {"max_depth_reached": 1},
+        )
+        scan.commit_page(
+            scan.claim(1)[0],
+            _record(external) | {"crawl_depth": 1, "status_code": 404},
             captures=[_event(external, status_code=404, effective_status_code=404)],
             runtime=_runtime() | {"max_depth_reached": 1},
         )

@@ -2356,17 +2356,17 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument(
             "--profile",
             metavar="NAME",
-            help="crawl with a saved profile instead of --config; --set still applies",
+            help="use a saved profile; --set still applies",
         )
         sub.add_argument(
             "--save-profile",
             metavar="NAME",
-            help="store the --config file as profile NAME after validating it; does not crawl",
+            help="validate and save --config as NAME; does not crawl",
         )
         sub.add_argument(
             "--robots",
             choices=["respect", "report_only", "ignore"],
-            help="obey, report-only, or skip robots.txt",
+            help="robots.txt policy",
         )
         sub.add_argument(
             "--sitemap",
@@ -2392,14 +2392,14 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             "--max-urls-per-second",
             type=float,
             metavar="N",
-            help="requests/second per host (sets speed.min_delay_seconds)",
+            help="maximum request rate per host",
         )
         sub.add_argument(
             "--set",
             action="append",
             dest="set_settings",
             metavar="PATH=VALUE",
-            help="set PATH=VALUE after --config; repeatable; paths: --config-help",
+            help="set dotted PATH=VALUE; repeatable (--config-help)",
         )
         # Keep these compatibility controls discoverable while config remains the preferred route.
         sub.add_argument(
@@ -3375,10 +3375,10 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "project-view-rename",
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
-        if cmd == "project-activity":
-            sub.add_argument(
-                "--since-revision", help="opaque activity revision from the previous response"
-            )
+    if cmd == "project-activity":
+        sub.add_argument(
+            "--since-revision", help="opaque activity revision from the previous response"
+        )
     if cmd in {"project-view-show", "project-view-delete", "project-view-rename"}:
         sub.add_argument("--name", help="saved finding view name")
     if cmd == "project-view-rename":
@@ -3848,7 +3848,6 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
 # crawl-site keeps only its most-used settings as direct flags; everything the crawler build-out
 # (#13 onward) has added or will add lives in --config instead, so --help stays short as the
 # surface grows. This note is the pointer from one to the other.
-CRAWL_SITE_HELP_NOTE = "More crawler settings: seohead crawl-site --config-help."
 SCAN_FRAGMENT_LINKS_HELP_NOTE = (
     "Measures only retained complete HTML/DOM from the saved scan; missing, "
     "truncated or otherwise incomplete evidence stays skipped/unavailable and "
@@ -3921,13 +3920,7 @@ def build_parser() -> argparse.ArgumentParser:
     for cmd in COMMANDS:
         if cmd in {"doctor", "update-check", "update-download"}:
             continue  # these commands have dedicated options above
-        epilog = (
-            CRAWL_SITE_HELP_NOTE
-            if cmd == "crawl-site"
-            else SCAN_FRAGMENT_LINKS_HELP_NOTE
-            if cmd == "scan-fragment-links"
-            else None
-        )
+        epilog = SCAN_FRAGMENT_LINKS_HELP_NOTE if cmd == "scan-fragment-links" else None
         if cmd == "workflow-start":
             epilog = WORKFLOW_START_HELP_NOTE
         sp = subs.add_parser(

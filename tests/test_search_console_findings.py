@@ -74,7 +74,7 @@ def test_gsc_issue_url_identity_is_preserved_alongside_safe_display_url():
             }
         ]
     )
-    result = _eval([_page("https://example.com/seen")], doc)
+    result = _eval([_page("/seen")], doc)
     exact_url = result[GSC_ORPHAN][0]["url"]
     assert exact_url == "https://example.com/gone?token=private"
     assert search_console_findings._public_url(exact_url) == "https://example.com/gone"
@@ -152,8 +152,8 @@ def test_missing_indexability_skips_checks_that_need_it():
 
 def test_bounded_inspection_maps_six_positive_findings_without_census_claims():
     pages = [
-        _page("https://example.com/one"),
-        _page("https://example.com/two"),
+        _page("/one"),
+        _page("/two"),
     ]
     result = evaluate_inspections(
         pages,
@@ -192,6 +192,99 @@ def test_bounded_inspection_maps_six_positive_findings_without_census_claims():
     )
     assert findings["GSC_URL_NOT_ON_GOOGLE"][0]["url"] == "https://example.com/two"
     assert "not a site-wide census" in result["scope"]
+
+
+def test_registered_search_console_findings_fire_and_stay_silent_on_clean_input():
+    pages = [
+        _page("/seen"),
+        _page("/hidden", indexable=False),
+        _page("/quiet"),
+    ]
+    measured = _doc(
+        [
+            _row("/seen", 5),
+            _row("/hidden", 7),
+            _row("/gone", 12),
+        ]
+    )
+    clean = _doc([_row("/seen", 5), _row("/hidden", 0), _row("/quiet", 2)])
+    findings = _eval(pages, measured)
+    clean_findings = _eval(pages, clean)
+
+    assert findings["GSC_ORPHAN"] == [
+        {"url": "https://example.com/gone", "details": {"impressions": 12.0}}
+    ]
+    assert clean_findings["GSC_ORPHAN"] == []
+    assert findings["NO_SEARCH_DATA"] == [
+        {"url": "https://example.com/quiet", "details": {"impressions": 0}}
+    ]
+    assert clean_findings["NO_SEARCH_DATA"] == []
+    assert findings["NON_INDEXABLE_WITH_SEARCH_DATA"] == [
+        {
+            "url": "https://example.com/hidden",
+            "details": {"impressions": 7.0, "crawl_partial": False},
+        }
+    ]
+    assert clean_findings["NON_INDEXABLE_WITH_SEARCH_DATA"] == []
+
+
+def test_registered_inspection_findings_fire_and_stay_silent_on_clean_input():
+    pages = [_page("/indexed"), _page("/not-indexed")]
+    findings = evaluate_inspections(
+        pages,
+        [
+            {
+                "url": "https://example.com/indexed",
+                "state": "complete",
+                "index_status": {
+                    "verdict": "PASS",
+                    "userCanonical": "https://example.com/indexed",
+                    "googleCanonical": "https://example.com/canonical",
+                },
+                "amp_result": {"verdict": "FAIL"},
+                "rich_results_result": {"verdict": "FAIL"},
+            },
+            {
+                "url": "https://example.com/not-indexed",
+                "state": "complete",
+                "index_status": {
+                    "verdict": "NEUTRAL",
+                    "coverageState": "Crawled - currently not indexed",
+                },
+            },
+        ],
+        requested=2,
+    )["findings"]
+    clean = evaluate_inspections(
+        [_page("/indexed")],
+        [
+            {
+                "url": "https://example.com/indexed",
+                "state": "complete",
+                "index_status": {
+                    "verdict": "PASS",
+                    "userCanonical": "https://example.com/indexed",
+                    "googleCanonical": "https://example.com/indexed",
+                },
+                "amp_result": {"verdict": "PASS"},
+                "rich_results_result": {"verdict": "PASS"},
+            }
+        ],
+        requested=1,
+    )["findings"]
+
+    assert findings["GSC_INDEXED_WITH_ISSUES"] != []
+    assert clean["GSC_INDEXED_WITH_ISSUES"] == []
+    assert findings["GSC_AMP_INVALID"] != []
+    assert clean["GSC_AMP_INVALID"] == []
+    assert findings["GSC_RICH_RESULTS_INVALID"] != []
+    assert clean["GSC_RICH_RESULTS_INVALID"] == []
+    assert findings["GSC_INDEXABLE_NOT_INDEXED"] != []
+    assert clean["GSC_INDEXABLE_NOT_INDEXED"] == []
+    assert findings["GSC_USER_CANONICAL_NOT_SELECTED"] != []
+    assert clean["GSC_USER_CANONICAL_NOT_SELECTED"] == []
+    assert findings["GSC_URL_NOT_ON_GOOGLE"] != []
+    assert clean["GSC_URL_NOT_ON_GOOGLE"] == []
 
 
 def test_empty_cached_index_status_is_not_a_complete_inspection():

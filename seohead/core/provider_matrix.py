@@ -306,6 +306,7 @@ WORKFLOWS: tuple[WorkflowRow, ...] = (
         use_case="Merge explicit backlink evidence, classify full rel tokens and retain history",
         providers=(
             _reg("dataforseo_backlinks"),
+            _reg("moz"),
             _reg("yandex_webmaster"),
             _reg("bing_webmaster"),
             _ded("backlink_indexes"),
@@ -317,15 +318,17 @@ WORKFLOWS: tuple[WorkflowRow, ...] = (
             "dataforseo-estimate",
         ),
         status="partial",
-        auth="Login + password",
-        cost_quota="Paid per provider response; provider is off by default",
+        auth="Provider-specific credentials; Moz API token for its dedicated backlink route",
+        cost_quota="Paid reads are opt-in; Moz per-call currency cost is unknown",
         privacy="restricted",
         limitations=(
             "DataForSEO has bounded summary, backlinks, referring domains, history and "
             "domain-page summary routes with confirmation; free property samples and CSV/WAT "
             "imports are merged locally. No source proves whole-web completeness; "
-            "Ahrefs/Majestic index reads are explicit; Moz is legacy V2 metrics only, "
-            "not a backlink enumerator. Project/month currency limits await an owner decision"
+            "Ahrefs/Majestic and modern Moz backlink reads are explicit and bounded; Moz's "
+            "modern route is available only through backlinks-profile with operation='backlinks', "
+            "while its omitted operation keeps legacy v2 URL metrics. Moz's account-dependent "
+            "price remains unknown, and project/month currency limits await an owner decision"
         ),
         csv_fallback="GSC, Ahrefs, Majestic, Moz, Semrush, DataForSEO CSV and Common Crawl WAT/domain-edge extracts",
     ),

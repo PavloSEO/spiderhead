@@ -59,5 +59,5 @@ def test_cli_observer_flags_map_the_revision_token(tmp_path):
         ["project-activity", "--directory", str(project), "--since-revision", token]
     )
 
-    assert cli._build_kwargs(observe_args)[1]["since_revision"] == token
-    assert cli._build_kwargs(activity_args)[1]["since_revision"] == token
+    assert cli._build_kwargs(observe_args.command, observe_args)[1]["since_revision"] == token
+    assert cli._build_kwargs(activity_args.command, activity_args)[1]["since_revision"] == token

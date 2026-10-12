@@ -3,7 +3,9 @@
 import pytest
 
 from seohead.checks.page_actions import (
+    CLICK_BUDGET_MS,
     MAX_STEPS,
+    SCROLL_BUDGET_MS,
     preset_actions,
     run_actions,
     validate_actions,
@@ -21,7 +23,7 @@ def test_closed_set_is_canonicalized_and_budgeted():
     )
     assert steps[0] == {"action": "click", "selector": "button.more"}
     assert steps[3] == {"action": "wait_ms", "ms": 500}
-    assert budget == 5000 + 2000 + 500
+    assert budget == CLICK_BUDGET_MS + SCROLL_BUDGET_MS + 2000 + 500
 
 
 @pytest.mark.parametrize(

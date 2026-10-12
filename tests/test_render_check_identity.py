@@ -399,6 +399,9 @@ def test_rendered_html_fulfils_its_registered_pinned_route(monkeypatch, fake_sta
         "ok": True,
         "url": "https://example.com/",
         "html": expected_html,
+        "representation": "rendered",
+        "dom_bytes": len(expected_html.encode("utf-8")),
+        "line_count": 1,
     }
     assert route.fulfilled[0]["body"] == expected_html.encode()
     assert route.aborted == []

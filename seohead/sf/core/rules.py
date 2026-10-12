@@ -3664,7 +3664,7 @@ def _retained_image_count_fallback(ctx, document, *, sampled_missing=0, sampled_
         )
 
 
-def check_retained_image_declarations(ctx: AuditContext) -> None:
+def _measure_retained_image_declarations(ctx: AuditContext) -> None:
     """Measure bounded active image markup without a fetch or schema extension."""
     from bs4 import BeautifulSoup
 
@@ -3802,12 +3802,75 @@ def check_native_export_aggregates(ctx: AuditContext) -> None:
     """
     if ctx.scan_con is None:
         return
-    check_retained_image_declarations(ctx)
+    _measure_retained_image_declarations(ctx)
     ctx.skip(
         "HREFLANG_ERROR",
         "not measured by this native crawl as one aggregate; the native hreflang checks "
         "report each error kind on its own",
     )
+
+
+def check_body_mime(ctx: AuditContext) -> None:
+    """Judge declared Content-Type against the selected native response body.
+
+    Export-only inputs have no retained per-URL bodies, so they get an explicit
+    unavailable verdict. Native scans use the same retained-body evaluator for
+    crawl, reanalysis and direct rule-runner callers.
+    """
+    from seohead.checks import body_mime
+
+    if ctx.scan_con is None:
+        ctx.skip(
+            body_mime.CHECK_ID,
+            "export-only analysis retains no per-URL response bodies; a native retained scan is required",
+        )
+        return
+
+    body_evidence = body_mime.evaluate(
+        ctx.scan_con,
+        on_finding=lambda item: ctx.add(
+            body_mime.CHECK_ID, target_url=item["target_url"], details=item
+        ),
+    )
+    eligible = body_evidence["pages_eligible"]
+    measured = body_evidence["pages_measured"]
+    unavailable = body_evidence["pages_unavailable"]
+    measurement_reason = (
+        "no eligible page response with a supported Content-Type"
+        if not eligible
+        else "some supported response bodies were unavailable or ambiguous"
+        if unavailable
+        else ""
+    )
+    ctx.asset_measurements[body_mime.CHECK_ID] = {
+        "unit": "pages",
+        "eligible": eligible,
+        "measured": measured,
+        "partial": 0,
+        "unavailable": unavailable,
+        "state": (
+            "unavailable"
+            if not eligible or not measured
+            else "partial"
+            if unavailable
+            else "measured"
+        ),
+        "reason": measurement_reason,
+        "unavailable_reasons": body_evidence["unavailable_reasons"],
+        "body_retention_states": body_evidence["body_retention_states"],
+    }
+    if not body_evidence["findings_count"]:
+        if unavailable:
+            reason_counts = ", ".join(
+                f"{name}={count}"
+                for name, count in sorted(body_evidence["unavailable_reasons"].items())
+            )
+            ctx.skip(body_mime.CHECK_ID, f"page body evidence was incomplete: {reason_counts}")
+        elif not measured:
+            ctx.skip(
+                body_mime.CHECK_ID,
+                "no page response had a supported Content-Type and recognizable body signature",
+            )
 
 
 _NATIVE_NO_RESOURCES = "no resource evidence (native crawl with resource capture only)"
@@ -3816,6 +3879,7 @@ _NATIVE_NO_RESOURCES = "no resource evidence (native crawl with resource capture
 # or say honestly that the crawl could not measure them. Absence of an SF export says nothing
 # about them, so neither skip_unsupported nor the export fallback declares them missing.
 NATIVE_RESOLVED_CHECKS = (
+    "BODY_MIME_MISMATCH",
     "IMG_OVER_KB",
     "IMG_MISSING_ALT",
     "IMG_MISSING_DIMENSIONS",
@@ -4089,6 +4153,7 @@ ALL_CHECKS = [
     check_render_assets,
     check_resource_assets,
     check_document_markup,
+    check_body_mime,
     check_native_structured_and_mixed,
     check_response_codes,
     check_render_blocking,
@@ -4149,6 +4214,7 @@ def run_rules(ctx: AuditContext) -> None:
     """Run every Internal:All-derived check against the context."""
     if ctx.internal_df is None:
         ctx.skip("INTERNAL_ALL", "Internal:All export not loaded")
+        check_body_mime(ctx)
         return
     _declare_unparsed_body_skips(ctx)
     if ctx.scan_con is None:

@@ -150,6 +150,7 @@ def validate_policy(policy: Any) -> dict:
         set(DEFAULT_POLICY),
         legacy_fields,
         legacy_fields - {"evidence_hash"},
+        set(DEFAULT_POLICY) - {"evidence_hash"},
     ):
         raise ValueError("crawl policy has unsupported fields")
     result = copy.deepcopy(DEFAULT_POLICY)
@@ -187,6 +188,31 @@ def validate_policy(policy: Any) -> dict:
     return result
 
 
+def _read_project_policy(root: Path, project_uuid: str) -> dict | None:
+    current = read_document(root, "crawl-policy.json")
+    if current is not None and (
+        set(current)
+        not in (
+            {"format", "project_uuid", "revision", "policy"},
+            {"format", "project_uuid", "revision", "policy", "operation_id"},
+        )
+        or current["format"] != POLICY_FORMAT
+        or current["project_uuid"] != project_uuid
+        or type(current["revision"]) is not int
+        or (
+            current.get("operation_id") is not None
+            and (
+                type(current["operation_id"]) is not str
+                or not re.fullmatch(r"[0-9a-f]{32}", current["operation_id"])
+            )
+        )
+    ):
+        raise ValueError("unsupported or mismatched project crawl policy")
+    if current is not None and "operation_id" not in current:
+        current = {**current, "operation_id": None}
+    return current
+
+
 def project_policy(
     directory: str,
     policy: dict | None = None,
@@ -194,61 +220,51 @@ def project_policy(
     expected_revision: int | None = None,
     operation_id: str | None = None,
 ) -> dict:
+    if type(apply) is not bool:
+        raise ValueError("apply must be a boolean")
+    if operation_id is not None and (
+        type(operation_id) is not str or not re.fullmatch(r"[0-9a-f]{32}", operation_id)
+    ):
+        raise ValueError("operation_id must be a UUID hex value or null")
     root, project = _load(directory)
+    if not apply:
+        current = _read_project_policy(root, project["project_uuid"])
+        selected = validate_policy(
+            policy if policy is not None else current["policy"] if current else DEFAULT_POLICY
+        )
+        return {
+            "ok": True,
+            "applied": False,
+            "revision": current["revision"] if current else 0,
+            "policy": selected,
+            "operation_id": current.get("operation_id") if current else None,
+        }
+
+    if type(expected_revision) is not int:
+        raise ValueError("expected_revision is required to change project policy")
     with project_write_lock(root):
-        current = read_document(root, "crawl-policy.json")
-        if current and (
-            set(current)
-            not in (
-                {"format", "project_uuid", "revision", "policy"},
-                {"format", "project_uuid", "revision", "policy", "operation_id"},
-            )
-            or current["format"] != POLICY_FORMAT
-            or current["project_uuid"] != project["project_uuid"]
-            or type(current["revision"]) is not int
-            or (
-                current.get("operation_id") is not None
-                and (
-                    type(current["operation_id"]) is not str
-                    or not re.fullmatch(r"[0-9a-f]{32}", current["operation_id"])
-                )
-            )
-        ):
-            raise ValueError("unsupported or mismatched project crawl policy")
-        if current is not None and "operation_id" not in current:
-            current = {**current, "operation_id": None}
+        current_root, current_project = _load(directory)
+        if current_root != root or current_project["project_uuid"] != project["project_uuid"]:
+            raise ValueError("project changed before policy update")
+        current = _read_project_policy(root, project["project_uuid"])
         selected = validate_policy(
             policy if policy is not None else current["policy"] if current else DEFAULT_POLICY
         )
         revision = current["revision"] if current else 0
-        if type(apply) is not bool:
-            raise ValueError("apply must be a boolean")
-        if operation_id is not None and (
-            type(operation_id) is not str or not re.fullmatch(r"[0-9a-f]{32}", operation_id)
-        ):
-            raise ValueError("operation_id must be a UUID hex value or null")
-        if apply:
-            if type(expected_revision) is not int:
-                raise ValueError("expected_revision is required to change project policy")
-            document = {
-                "format": POLICY_FORMAT,
-                "project_uuid": project["project_uuid"],
-                "revision": revision + 1,
-                "policy": selected,
-                "operation_id": operation_id,
-            }
-            write_document(root, "crawl-policy.json", document, expected_revision=expected_revision)
-            revision += 1
+        document = {
+            "format": POLICY_FORMAT,
+            "project_uuid": project["project_uuid"],
+            "revision": revision + 1,
+            "policy": selected,
+            "operation_id": operation_id,
+        }
+        write_document(root, "crawl-policy.json", document, expected_revision=expected_revision)
         return {
             "ok": True,
-            "applied": apply,
-            "revision": revision,
+            "applied": True,
+            "revision": revision + 1,
             "policy": selected,
-            "operation_id": operation_id
-            if apply
-            else current.get("operation_id")
-            if current
-            else None,
+            "operation_id": operation_id,
         }
 
 

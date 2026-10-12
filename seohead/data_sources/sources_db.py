@@ -352,28 +352,41 @@ def _gaps(days: list[str]) -> list[list[str]]:
     return gaps
 
 
+def available_end(source: str, *, as_of: date | None = None) -> date:
+    """Return the latest safely finalized date used by both sync and readiness.
+
+    ``as_of`` is the source calendar date to treat as today: the provider-local
+    date for a known timezone, otherwise the UTC date. Unknown resource timezones
+    conservatively defer one extra day.
+    """
+    from zoneinfo import ZoneInfo
+
+    spec = _source(source)
+    if as_of is None:
+        today = (
+            datetime.now(ZoneInfo(spec.date_timezone)).date()
+            if spec.date_timezone == "America/Los_Angeles"
+            else datetime.now(timezone.utc).date()
+        )
+    else:
+        today = as_of
+    if spec.date_timezone != "America/Los_Angeles":
+        today -= timedelta(days=1)
+    return today - timedelta(days=spec.lag_days)
+
+
 def _requested_period(
     source: str, start_date: str | None, end_date: str | None
 ) -> tuple[str, str, str]:
     """Keep the requested window intact while identifying the provider's lag boundary."""
-    from zoneinfo import ZoneInfo
-
-    spec = SOURCES[source]
-    # A provider resource's reporting timezone is not always known locally. Defer one extra
-    # UTC day rather than marking a still-open property/counter day as final.
-    today = (
-        datetime.now(ZoneInfo(spec.date_timezone)).date()
-        if spec.date_timezone == "America/Los_Angeles"
-        else datetime.now(timezone.utc).date() - timedelta(days=1)
-    )
-    available_end = today - timedelta(days=spec.lag_days)
-    end = date.fromisoformat(end_date) if end_date else available_end
+    available = available_end(source)
+    end = date.fromisoformat(end_date) if end_date else available
     start = date.fromisoformat(start_date) if start_date else end - timedelta(days=27)
     if start > end:
         raise ValueError("start_date must not be after end_date")
     if (end - start).days + 1 > MAX_DAYS:
         raise ValueError(f"a sync period is limited to {MAX_DAYS} days")
-    return start.isoformat(), end.isoformat(), available_end.isoformat()
+    return start.isoformat(), end.isoformat(), available.isoformat()
 
 
 # --- provider fetchers ----------------------------------------------------------

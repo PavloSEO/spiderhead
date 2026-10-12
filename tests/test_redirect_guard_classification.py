@@ -36,7 +36,24 @@ from seohead.recon.net import BlockedRedirectError, network_event_hooks
 PRIVATE_TARGET = "http://169.254.169.254/"  # cloud metadata endpoint — never publicly routable
 
 
-def test_guard_refusal_stops_before_the_second_hop():
+def test_guard_refusal_stops_before_the_second_hop(monkeypatch):
+    from seohead.recon import net
+
+    def mocked_dns(host, port, **_kwargs):
+        # Model a public resolution for the first hop while preserving the
+        # literal private redirect so the real guard still rejects it.
+        address = host if host == "169.254.169.254" else "8.8.8.8"
+        return [
+            (
+                net.socket.AF_INET,
+                net.socket.SOCK_STREAM,
+                net.socket.IPPROTO_TCP,
+                "",
+                (address, port),
+            )
+        ]
+
+    monkeypatch.setattr(net.socket, "getaddrinfo", mocked_dns)
     calls: list[str] = []
 
     def handler(request: httpx.Request) -> httpx.Response:

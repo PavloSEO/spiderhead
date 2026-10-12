@@ -77,12 +77,13 @@ See [Server logs](SERVER_LOGS.md) for import, join and DNS evidence contracts.
 
 ## Core identity, diagnosis and updates
 
-`seohead version --json` reports the versioned core handshake, supported project/scan/ledger
-formats, the CLI and MCP tool names, verified package revision/build time and the exact-revision
-Desktop compatibility policy. Pass `--required-core-revision` with the revision pinned by a Desktop
-bundle to receive a `compatible` boolean; it remains null when either revision is unavailable.
-Older package manifests without a build timestamp retain a verified revision and report the
-timestamp as unavailable.
+`seohead --version` prints the installed package version. The machine-readable core-info contract
+is exposed by `seohead.core.core_info.core_info()`; it reports supported project/scan/ledger
+formats, CLI and MCP tool names, verified package revision/build time and exact-revision Desktop
+compatibility. Python callers can pass `required_core_revision` from a Desktop bundle to receive a
+`compatible` boolean; it remains unknown when either revision is unavailable. Older package
+manifests without a build timestamp retain a verified revision and report the timestamp as
+unavailable.
 
 `doctor` / `seo_doctor` inspect local Python, Playwright, Chromium-on-PATH, Screaming Frog CLI,
 MCP, SQLite locking and optional project-directory permission flags. They do not write a probe,
@@ -567,7 +568,7 @@ without deleting its scan. The exact arguments and defaults are in the generated
 | `scan-requeue` | Requeues a restricted saved URL/page selection only after creating a mandatory verified backup. | writes artifact and backup |
 | `scan-import-urls` | Imports an explicit local URL list into a saved scan only after creating a mandatory verified backup. | writes artifact and backup |
 
-The final-only million-URL URL-query acceptance script is `python scripts/profile_url_query.py --scan <finished-synthetic-scan.sqlite>` under Python 3.15.0. It requires at least 1,000,000 page rows, checks 100-row pages and issue counters against 200 ms and all facets against 300 ms, and fails if the scan bytes change. It reads an existing synthetic artifact; it does not build or migrate the scan.
+The final-only million-URL URL-query acceptance script is `python scripts/profile_url_query.py --scan <finished-synthetic-scan.sqlite>` under Python 3.15.0. It requires at least 1,000,000 page rows, checks 100-row pages and issue counters against 200 ms and all facets against 300 ms, and fails if the scan bytes change. Each facet reports an exact count (including measured zero) or an explicit unavailable state; the gate requires the core page/status facets to be exact and rejects capped or inconsistent states. It reads an existing synthetic artifact; it does not build or migrate the scan.
 
 For a saved route, use `scan-link-inspect --scan FILE --view path --seed URL --target URL`.
 For the links of one page by URL use `--view links --url URL --direction out|in`

@@ -282,6 +282,10 @@ def manage_credential(
             "provider": provider,
             "component": component,
             **slot,
+            "source_reference": state.get("source_reference") or slot["source_reference"],
+            "accepted_source_references": state.get(
+                "accepted_source_references", slot.get("accepted_source_references", [])
+            ),
             "state": state["state"],
             "updated_at": None,
         }

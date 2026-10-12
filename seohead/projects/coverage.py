@@ -1118,7 +1118,7 @@ def initialize_coverage(
     with _transaction(directory, expected_revision) as (_, project, document):
         items = document["items"]
         _reconcile_builtins(items, catalogue, project["site"]["target"])
-        if document.get("format") == FORMAT_V4:
+        if document.get("format") == FORMAT_V4 or template is not None:
             _promote_v4(document)
         seen = set()
         for value in (template or {}).get("items", []):

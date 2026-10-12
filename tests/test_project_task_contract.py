@@ -43,15 +43,18 @@ def test_custom_task_metadata_comments_and_unknown_affected_urls(tmp_path):
         if item["id"] == task_id
     )
     assert row["task"]["executor"] == "web-team"
+    assert row["display_state"] == "not_run"
+    assert row["attempt_status"] == "not_run"
     assert row["task"]["state"] == "remaining"
     assert row["task"]["competitors"] == [
         {"url": "https://competitor.example.test/", "max_urls": 250}
     ]
-    assert row["affected_urls"] == {
-        "count": None,
-        "state": "not_measured",
-        "reason": "the retained task measurement does not enumerate affected URLs",
-    }
+    affected = row["affected_urls"]
+    assert affected["count"] is None
+    assert affected["state"] == "not_measured"
+    assert affected["scope_state"] == "unknown"
+    assert affected["source"] == "finding_ref"
+    assert affected["reason"] == "referenced scan is not retained in this project"
 
     append_task_comment(
         root,
@@ -66,6 +69,8 @@ def test_custom_task_metadata_comments_and_unknown_affected_urls(tmp_path):
         },
     )
     detail = task_detail(root, item_id=task_id)
+    assert detail["item"]["display_state"] == "not_run"
+    assert detail["item"]["task"]["state"] == "remaining"
     assert detail["item"]["task"]["comments_total"] == 1
     assert detail["item"]["task"]["comments"][0]["actor"] == "agent/review-session"
     assert detail["item"]["task"]["comments"][0]["reference"]["kind"] == "finding"
