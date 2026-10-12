@@ -2,6 +2,7 @@ import copy
 import os
 import time
 import unittest
+from pathlib import Path
 from threading import Event
 from unittest.mock import patch
 
@@ -95,8 +96,13 @@ class ScheduleTabTests(unittest.TestCase):
         i18n.set_language("en")
         with patch(f"{MODULE}.read_schedule", return_value=core_state()):
             dialog = self.dialog()
-        names = [dialog.nav.tabText(i) for i in range(dialog.nav.count())]
+        names = [
+            dialog.nav.tabText(i) for i in range(dialog.nav.count()) if dialog.nav.isTabVisible(i)
+        ]
         self.assertEqual(names, ["Main", "Sources", "Schedule", "Crawl", ""])
+        self.assertEqual(dialog.nav.count(), 6)
+        self.assertEqual(dialog.nav.tabText(5), "Core Web Vitals")
+        self.assertFalse(dialog.nav.isTabVisible(5))
         dialog.nav.setCurrentIndex(2)
         self.assertIsInstance(dialog.pages.currentWidget(), SchedulePage)
         dialog.nav.setCurrentIndex(3)
@@ -161,6 +167,82 @@ class ScheduleTabTests(unittest.TestCase):
         self.assertIn("Europe/Minsk", page.zone_note.text())
         self.assertTrue(page.save_button.isEnabled())
         page.close()
+
+    def test_competitor_schedule_reads_and_saves_the_child_project_settings(self):
+        owner = core_state(
+            competitors=[
+                {
+                    "directory": "competitors/example",
+                    "url": "https://example.test/",
+                    "schedule_configured": False,
+                },
+                {"directory": "../outside", "url": "https://unsafe.example.test/"},
+            ]
+        )
+        owner["settings"]["month_days"] = []
+        child = core_state(revision=3, competitors=[])
+        child["settings"]["month_days"] = []
+        saves = []
+        with (
+            patch(f"{MODULE}.read_schedule", side_effect=[owner, child]),
+            patch(
+                f"{MODULE}.save_schedule",
+                side_effect=lambda _exe, directory, _revision, _settings: (
+                    saves.append(directory),
+                    child,
+                )[1],
+            ),
+        ):
+            page = SchedulePage(self.host)
+            self.wait(lambda: page.state is not None and page.state["revision"] == 7)
+            self.assertGreaterEqual(page.target_selector.findData("competitors/example"), 0)
+            self.assertEqual(page.target_selector.findData("../outside"), -1)
+            page.target_selector.setCurrentIndex(
+                page.target_selector.findData("competitors/example")
+            )
+            self.wait(lambda: page.state is not None and page.state["revision"] == 3)
+            self.assertEqual(
+                page._directory(), str(Path("/project/qa/competitors/example").resolve())
+            )
+            page.save()
+            self.wait(lambda: bool(saves))
+            self.assertEqual(saves[0], page._directory())
+            page.close()
+
+    def test_schedule_target_row_stays_compact_until_child_targets_exist(self):
+        with patch(f"{MODULE}.read_schedule", return_value=core_state(competitors=[])):
+            dialog = ProjectSettingsDialog(self.host)
+            dialog.resize(1440, 900)
+            dialog.show()
+            dialog.nav.setCurrentIndex(2)
+            page = dialog.pages.currentWidget()
+            self.wait(lambda: page.state is not None)
+        self.assertTrue(page.target_row.isHidden())
+        dialog.resize(800, 900)
+        self.app.processEvents()
+        self.assertLess(page.width(), 1000)
+        self.assertTrue(page.target_row.isHidden())
+        dialog.close()
+        dialog.deleteLater()
+
+        competitors = [
+            {"directory": f"competitors/site-{index}", "url": f"https://site-{index}.test/"}
+            for index in (1, 2)
+        ]
+        with patch(
+            f"{MODULE}.read_schedule",
+            return_value=core_state(competitors=competitors),
+        ):
+            dialog = ProjectSettingsDialog(self.host)
+            dialog.resize(1440, 900)
+            dialog.show()
+            dialog.nav.setCurrentIndex(2)
+            page = dialog.pages.currentWidget()
+            self.wait(lambda: page.state is not None)
+        self.assertFalse(page.target_row.isHidden())
+        dialog.close()
+        dialog.deleteLater()
+        self.app.processEvents()
 
     def test_save_sends_the_form_with_the_revision_that_was_read(self):
         sent = []
@@ -232,6 +314,23 @@ class ScheduleTabTests(unittest.TestCase):
             page.save()
             self.wait(lambda: sent)
         self.assertEqual(sent[0]["user_agent"], {"preset": "spiderhead", "custom": "MyAudit/1.0"})
+        page.close()
+
+    def test_only_a_custom_user_agent_shows_a_labeled_value_preview(self):
+        with patch(f"{MODULE}.read_schedule", return_value=core_state()):
+            page = CrawlPage(self.host)
+            self.wait(lambda: page.state is not None)
+        self.assertTrue(page.identity_preview_card.isHidden())
+        page.preset.setCurrentIndex(page.preset.findData("custom"))
+        page.custom.setText("MyAudit/1.0")
+        self.assertFalse(page.identity_preview_card.isHidden())
+        self.assertEqual(page.identity_preview.text(), "MyAudit/1.0")
+        self.assertEqual(
+            page.identity_preview_card.findChild(QLabel).text(),
+            "Custom User-Agent preview",
+        )
+        page.preset.setCurrentIndex(page.preset.findData("bingbot"))
+        self.assertTrue(page.identity_preview_card.isHidden())
         page.close()
 
     def test_empty_custom_user_agent_is_refused_locally(self):

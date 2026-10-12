@@ -1,8 +1,8 @@
 {
   "schema": "seohead.headless-capabilities.v1",
   "inventory_source": "seohead.crawl.settings.describe_settings",
-  "inventory_sha256": "09fc75eea3f4a991ca0f6e4021a725b8ec61f1d300af83390f66582775a473bd",
-  "settings_count": 116,
+  "inventory_sha256": "b0d5c5b16e2002e00154728422e25c17b14c1902df5ff5c3dbf1f0845debf477",
+  "settings_count": 123,
   "settings": [
     {
       "path": "analysis.asset_thresholds.page_weight_max_bytes",
@@ -483,6 +483,42 @@
       ]
     },
     {
+      "path": "http.auth",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Host-bound HTTP Basic/Digest entries: [{'host': 'example.test', 'scheme': 'basic|digest', 'username_env': 'env:USER_VAR', 'password_env': 'env:PASS_VAR'}].",
+      "family": "http",
+      "implementation": "seohead/recon/net.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_crawl_proxy.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/709",
+        "https://github.com/PavloSEO/seohead-tools/issues/745"
+      ]
+    },
+    {
+      "path": "http.auth_acknowledged",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Must be true when http.auth is non-empty; authenticated crawls follow site links.",
+      "family": "http",
+      "implementation": "seohead/recon/net.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_crawl_proxy.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/709",
+        "https://github.com/PavloSEO/seohead-tools/issues/745"
+      ]
+    },
+    {
       "path": "http.credential_headers",
       "type": "list",
       "default": [],
@@ -650,6 +686,24 @@
       "default": "",
       "results_affecting": true,
       "description": "Request User-Agent string; empty uses the toolkit's identifiable default.",
+      "family": "http",
+      "implementation": "seohead/recon/net.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_crawl_proxy.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/709",
+        "https://github.com/PavloSEO/seohead-tools/issues/745"
+      ]
+    },
+    {
+      "path": "http.zstd",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Request zstd-compressed HTTP response bodies when Python's stdlib or the optional zstandard decoder is available.",
       "family": "http",
       "implementation": "seohead/recon/net.py",
       "cli": "crawl-site --set path=value or --config; inventory: --config-help",
@@ -901,6 +955,26 @@
       ]
     },
     {
+      "path": "rendering.actions",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Bounded declarative page actions (click, scroll, wait_for_selector, wait_ms, extract); extract reads selector-based text or href/value fields; no user-supplied JavaScript.",
+      "family": "rendering",
+      "implementation": "seohead/crawl/sqlite_render.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_render_document.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/744",
+        "https://github.com/PavloSEO/seohead-tools/issues/767",
+        "https://github.com/PavloSEO/seohead-tools/issues/817",
+        "https://github.com/PavloSEO/seohead-tools/issues/826"
+      ]
+    },
+    {
       "path": "rendering.artifacts.console_errors",
       "type": "bool",
       "default": false,
@@ -921,11 +995,31 @@
       ]
     },
     {
+      "path": "rendering.artifacts.screenshot_mode",
+      "type": "str",
+      "default": "full_page",
+      "results_affecting": false,
+      "description": "Capture the full page or only the initial viewport when screenshots are enabled.",
+      "family": "rendering",
+      "implementation": "seohead/crawl/sqlite_render.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_render_document.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/744",
+        "https://github.com/PavloSEO/seohead-tools/issues/767",
+        "https://github.com/PavloSEO/seohead-tools/issues/817",
+        "https://github.com/PavloSEO/seohead-tools/issues/826"
+      ]
+    },
+    {
       "path": "rendering.artifacts.screenshots",
       "type": "bool",
       "default": false,
       "results_affecting": false,
-      "description": "Save a full-page screenshot per rendered URL.",
+      "description": "Save one screenshot per rendered URL.",
       "family": "rendering",
       "implementation": "seohead/crawl/sqlite_render.py",
       "cli": "crawl-site --set path=value or --config; inventory: --config-help",
@@ -1441,6 +1535,26 @@
       ]
     },
     {
+      "path": "rendering.presets",
+      "type": "list",
+      "default": [],
+      "results_affecting": true,
+      "description": "Opt-in named page-action presets: expand_tabs, load_more, read_datalayer.",
+      "family": "rendering",
+      "implementation": "seohead/crawl/sqlite_render.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_render_document.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/744",
+        "https://github.com/PavloSEO/seohead-tools/issues/767",
+        "https://github.com/PavloSEO/seohead-tools/issues/817",
+        "https://github.com/PavloSEO/seohead-tools/issues/826"
+      ]
+    },
+    {
       "path": "rendering.rendered_links.crawl",
       "type": "bool",
       "default": false,
@@ -1826,6 +1940,23 @@
       "default": "host",
       "results_affecting": true,
       "description": "Which discovered URLs count as internal: 'host' (conservative) or 'registrable_domain' (also accepts subdomains -- on a shared hosting suffix such as github.io or vercel.app, only the audited tenant's own subdomain, never another tenant's, per seohead.recon.net.registrable_domain).",
+      "family": "scope",
+      "implementation": "seohead/crawl/spider.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_crawl_settings_wired.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/749"
+      ]
+    },
+    {
+      "path": "scope.normalize_tracking_parameters",
+      "type": "bool",
+      "default": true,
+      "results_affecting": true,
+      "description": "Remove utm_* and fbclid GET parameters from native crawl targets; other query parameters stay intact.",
       "family": "scope",
       "implementation": "seohead/crawl/spider.py",
       "cli": "crawl-site --set path=value or --config; inventory: --config-help",

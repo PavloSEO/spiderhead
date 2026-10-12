@@ -53,7 +53,7 @@ class TrayMode(QObject):
         self.timer.timeout.connect(self.check)
         self.icon = QSystemTrayIcon(window.style().standardIcon(QStyle.SP_ComputerIcon), self)
         menu = QMenu()
-        show = QAction(tr("Открыть SEOHEAD"), menu)
+        show = QAction(tr("Открыть SpiderHead"), menu)
         show.triggered.connect(self.show_window)
         now = QAction(tr("Проверить расписание сейчас"), menu)
         now.triggered.connect(self.check)
@@ -65,7 +65,7 @@ class TrayMode(QObject):
         menu.addAction(quit_action)
         self.icon.setContextMenu(menu)
         self.icon.activated.connect(self._activated)
-        self.icon.setToolTip(tr("SEOHEAD · расписание"))
+        self.icon.setToolTip(tr("SpiderHead · расписание"))
 
     def start(self):
         self.icon.show()

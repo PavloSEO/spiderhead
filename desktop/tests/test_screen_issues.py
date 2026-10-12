@@ -16,6 +16,7 @@ from seohead_desktop.screens.base import SLOTS
 from seohead_desktop.screens.issues import (
     IssuesScreen,
     check_name,
+    issue_summary_arguments,
     message_ru,
     sample_checks,
     skip_reason,
@@ -69,7 +70,29 @@ class IssuesTests(IssuesBase):
         self.assertIn(
             "4 272", self.screen.pills["all"][0].text().replace("\u202f", " ").replace("\xa0", " ")
         )
-        self.assertEqual(self.screen.list_waiting.property("waiting_issue"), 981)
+        token = object()
+        key = self.screen._scan_key(self.scan)
+        self.screen._issue_summary_pending = (token, key)
+        self.screen._issue_summary_done(
+            token,
+            {
+                "ok": True,
+                "issue_summary": {
+                    "state": "exact",
+                    "by_check": {"BROKEN_PAGE_4XX": 981},
+                    "checks": [
+                        {
+                            "id": "BROKEN_PAGE_4XX",
+                            "state": "fired",
+                            "severity": "critical",
+                            "findings": 981,
+                        }
+                    ],
+                },
+            },
+        )
+        self.assertEqual(self.screen.check_counts["BROKEN_PAGE_4XX"], 981)
+        self.assertIn("981", self.screen.row_buttons["BROKEN_PAGE_4XX"].text())
 
     def test_list_holds_only_checks_of_the_sample_and_filters_by_severity(self):
         checks = sample_checks(self.scan["evidence"]["findings"])
@@ -110,7 +133,26 @@ class IssuesTests(IssuesBase):
 
     def test_unknown_reason_and_check_are_not_shown_raw(self):
         self.assertEqual(skip_reason("something unexpected"), "причина не указана ядром")
-        self.assertEqual(check_name("BRAND_NEW_CHECK"), "Другая проверка")
+        self.assertEqual(check_name("BRAND_NEW_CHECK"), "Brand New Check")
+
+    def test_issue_summary_read_is_bounded_and_does_not_use_sample_rows_for_counts(self):
+        self.assertEqual(
+            issue_summary_arguments("scan.sqlite"),
+            [
+                "scan-url-query",
+                "--scan",
+                "scan.sqlite",
+                "--columns",
+                "url",
+                "--limit",
+                "1",
+                "--offset",
+                "0",
+                "--include-check-counts",
+            ],
+        )
+        with self.assertRaises(ValueError):
+            issue_summary_arguments("")
 
     def test_every_check_of_the_core_registry_has_a_name(self):
         registry = Path(__file__).resolve().parents[2] / "seohead" / "sf" / "core" / "registry.py"
@@ -120,9 +162,7 @@ class IssuesTests(IssuesBase):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         self.assertGreater(len(module.CHECKS), 100)
-        self.assertEqual(
-            [code for code in module.CHECKS if check_name(code) == "Другая проверка"], []
-        )
+        self.assertEqual([code for code in module.CHECKS if not check_name(code)], [])
 
     def test_no_issue_numbers_and_no_service_footer_on_screen(self):
         self.screen.row_buttons[next(iter(self.screen.row_buttons))].click()
@@ -192,9 +232,8 @@ class IssuesTests(IssuesBase):
         badges = [
             label.text() for label in panel.findChildren(QLabel) if label.property("badge") == "mut"
         ]
-        self.assertEqual(
-            badges, [f"{skipped} не измерялось"]
-        )  # measured count of checks that did not run, never «0 проблем»
+        self.assertEqual(badges, [f"{skipped} проверок не измерялось"])
+        self.assertNotIn("0 проблем", " ".join(badges))
 
     def test_no_project_and_no_scan(self):
         self.host.project_directory = None

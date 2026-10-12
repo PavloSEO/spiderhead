@@ -10,7 +10,9 @@ from pathlib import Path
 import pytest
 
 from seohead.core.verification import classify, compact_after_source, select_source
+from seohead.sf.core import compare_store
 from seohead.sf.core.compare import CompareError, compare
+from seohead.sf.core.compare_store import compare_markdown, read_compare_page
 from seohead.storage.audit_v2 import AuditV2Reader, write_audit_v2
 from tests.test_scan_audit_v2 import _scan
 from tests.test_verify_fixes import A, B, _audit, _issue
@@ -74,6 +76,7 @@ def test_file_compare_conserves_every_row_and_matches_legacy(tmp_path):
         "after_accounted": 3,
         "state": "complete",
     }
+    assert result["segment_breakdown"]["state"] == "unavailable"
     by_check = {row.pop("check"): row for row in _read(result, "by_check")}
     assert by_check == legacy["summary"]["by_check"]
     assert len(json.dumps(result)) < 20000
@@ -84,19 +87,109 @@ def test_file_compare_conserves_every_row_and_matches_legacy(tmp_path):
         "disappeared.ndjson",
         "entered.ndjson",
         "left.ndjson",
+        "segment_changes.ndjson",
         "unchanged.ndjson",
     ]
+
+
+def test_compare_v2_reports_segment_changes_and_markdown(tmp_path):
+    before = _audit(urls=(A,), issues=[_issue("a", "TITLE_MISSING", A)])
+    after = _audit(urls=(A,), issues=[])
+    config = {"scope.segments": [{"name": "Blog", "prefix": "/"}]}
+    before["run"]["crawl_config"].update(config)
+    after["run"]["crawl_config"].update(config)
+    result = compare(before, after, out_dir=tmp_path / "segmented")
+    segment = result["segment_breakdown"]["segments"]["Blog"]
+    assert segment["before"] == {"pages": 1, "issues": 1}
+    assert segment["after"] == {"pages": 1, "issues": 0}
+    assert segment["changes"]["left"] == 1
+    rows = _read(result, "segment_changes")
+    assert rows == [{"segment": "Blog", "change": "left", "issue": before["issues"][0]}]
+    page = read_compare_page(
+        result["manifest"], "segment_changes", segment="Blog", change="left", limit=10
+    )
+    assert page["total"] == 1 and page["rows"] == rows
+    report = compare_markdown(result["manifest"])
+    assert "# Saved scan comparison" in report
+    assert "Blog: pages 1 → 1 (+0); findings 1 → 0 (-1)." in report
 
 
 def test_file_compare_is_deterministic_and_never_replaces_output(tmp_path):
     before = _audit(issues=[_issue("b", "TITLE_MISSING", B), _issue("a", "TITLE_MISSING", A)])
     after = _audit()
     first = compare(before, after, out_dir=tmp_path / "first")
+    cached = compare(before, after, out_dir=tmp_path / "first")
+    assert cached["cache_hit"] is True
+    from seohead.mcp.handlers import compare_status
+
+    assert compare_status(str(tmp_path / "first"))["state"] == "finished"
     before["issues"].reverse()
     second = compare(before, after, out_dir=tmp_path / "second")
     assert first["files"] == second["files"]
     with pytest.raises(FileExistsError):
         compare(before, after, out_dir=tmp_path / "first")
+
+
+def test_compare_resume_uses_committed_collection_checkpoint(tmp_path, monkeypatch):
+    before = _audit(urls=(A, B))
+    after = _audit(urls=(A, B))
+    monkeypatch.setattr(compare_store, "_INDEX_BATCH", 1)
+    original = compare_store._primary_segment
+
+    def interrupt_on_second_page(page, definitions):
+        if page["url"] == B:
+            raise RuntimeError("simulated interruption")
+        return original(page, definitions)
+
+    monkeypatch.setattr(compare_store, "_primary_segment", interrupt_on_second_page)
+    output = tmp_path / "resumable"
+    with pytest.raises(RuntimeError, match="simulated interruption"):
+        compare(before, after, out_dir=output)
+    from seohead.mcp.handlers import compare_status
+
+    status = compare_status(str(output))
+    assert status["state"] == "failed" and status["resumable"] is True
+    monkeypatch.setattr(compare_store, "_primary_segment", original)
+    resumed = compare(before, after, out_dir=output, resume=True)
+    assert resumed["job"]["state"] == "finished"
+    assert resumed["conservation"]["state"] == "complete"
+
+
+def test_compare_v2_reader_sorts_filters_and_reuses_process_index(tmp_path, monkeypatch):
+    before = _audit(issues=[_issue("b", "TITLE_MISSING", B), _issue("a", "DESC_MISSING", A)])
+    result = compare(before, _audit(), out_dir=tmp_path / "comparison")
+    original = compare_store.iter_compare_rows
+    calls = 0
+
+    def counted(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        yield from original(*args, **kwargs)
+
+    monkeypatch.setattr(compare_store, "iter_compare_rows", counted)
+    page = read_compare_page(result["manifest"], "left", limit=1, sort="url", direction="asc")
+    assert page["total"] == 2 and page["returned"] == 1 and page["has_more"] is True
+    assert page["rows"][0]["target_url"] == A
+    assert calls == 1
+
+    def no_rescan(*_args, **_kwargs):
+        raise AssertionError("the process-local page index should serve subsequent pages")
+
+    monkeypatch.setattr(compare_store, "iter_compare_rows", no_rescan)
+    filtered = read_compare_page(result["manifest"], "left", contains="example.test/b", limit=10)
+    assert filtered["total"] == 1
+    assert filtered["rows"][0]["target_url"] == B
+
+
+def test_compare_url_never_calls_missing_url_a_fix():
+    from seohead.mcp.handlers import compare_url
+
+    before = _audit(urls=(A,), issues=[_issue("a", "TITLE_MISSING", A)])
+    after = _audit(urls=(), issues=[])
+    result = compare_url(before, after, A)
+    assert result["state"] == "not_rechecked"
+    assert result["findings"]["state"] == "not_rechecked"
+    assert result["findings"]["left"] == []
 
 
 @pytest.mark.parametrize("kind", ["page", "finding"])

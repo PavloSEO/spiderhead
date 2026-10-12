@@ -22,19 +22,46 @@ is `project-progress`; `seohead logs bots` is `logs-bots`.
 | `sf run` | Audit existing Screaming Frog CSV/XLSX exports offline (`--exports-dir`), or run a separately installed, licensed SF CLI first (`--crawl`). Writes `audit.json`/`audit.md`; `--tasks` adds the prioritized backlog. |
 | `sf tasks` | Build `tasks.json`/`tasks.md` from an existing `audit.json` or scan artifact. |
 | `sf doctor` | Diagnose SF CLI discovery and optional dependencies. |
+| `doctor` | Inspect local Python, Playwright, Chromium, SF CLI, MCP, SQLite locking and optional project-directory access without writing a probe file. Use `--json` for the versioned diagnostic payload; SF license validity remains unknown until an authoritative status source is available. |
+| `version --json` | Return the machine-readable core-info contract: verified build provenance, supported formats/tools, and exact-revision Desktop compatibility. `seohead --version` prints only the installed package version. |
+| `update-check --consent` | Read a bounded stable GitHub release feed and persist the last result. `--automatic` reuses a fresh result; no scheduler is started. |
+| `update-download --consent --tag TAG --asset NAME --out FILE` | Download one checksummed wheel or source archive from the last checked release, with bounded progress and Ctrl+C cancellation. It never installs the asset. |
 | `sf save-config` | Copy the most recent SF crawl configuration into a reusable base config file. |
-| `semantics <stage>` | Accumulating semantic core in its own SQLite database: `init`, `import`, `collect`, `clean`, `graph`, `exact`, `cluster`, `competitors`, `synonyms`, `report`, `excel`, `mine`, `sitematch`, `relevance`, `status`, `export`, each with `--project DIR`. `collect`, `synonyms`, `cluster` and `exact` are paid; see [SEMANTICS.md](SEMANTICS.md). |
+| `semantics <stage>` | Accumulating semantic core with `status`, mapped CSV/XLSX import previews, scoped exports, paged cluster/landing reads, weekly source insights and selected insight-to-checklist tasks. Paid stages show an offline request estimate and require `--confirm-paid`; see [SEMANTICS.md](SEMANTICS.md). |
 | `mcp` | Start the local stdio MCP server; `--profile` selects `full`, `audit`, `infra`, `quick-check` or `router` ([MCP profiles](MCP_PROFILES.md)). |
+| `crawl-profile` | List, inspect or delete named crawler profiles saved with `crawl-site --save-profile`. |
+| `crawl-control` | Request a durable native project crawl to pause or stop by its active run ID. |
 | `watch` | Optional Rich terminal observer for one project beside an AI chat ([terminal observer](TERMINAL.md)). Needs the `tui` extra. |
 | `tui` | Interactive terminal shell over the same handlers ([TERMINAL.md](TERMINAL.md)). Needs the `tui` extra. |
 | `scan`, `project`, `logs`, `skill`, `scenario` | Grouped aliases for the `scan-*`, `project-*`, `logs-*`, `skill-*` and `scenario-*` commands below. |
 
 The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf_audit_tasks`,
-`sf_list_exports`) expose the Screaming Frog analyzer to agents. The `seo_semantics_*` MCP tools
-(`seo_semantics_status`, `seo_semantics_run`, `seo_semantics_mine`, `seo_semantics_paid`) expose
-`seohead semantics`; the paid one refuses to run without `confirm_paid=true`.
+`sf_list_exports`, `sf_snippet_edits`) cover crawl audits and bounded snippet review. The `seo_semantics_*` MCP tools
+(`seo_semantics_status`, `seo_semantics_run`, `seo_semantics_mine`, `seo_semantics_paid`,
+`seo_semantics_clusters`, `seo_semantics_cluster_show`, `seo_semantics_cluster_queries`,
+`seo_semantics_set_landing`, `seo_semantics_insights`, `seo_semantics_insights_tasks`) expose
+`seohead semantics`; paid calls return an offline estimate and require `confirm_paid=true`.
 
 ## Collect a site
+
+Named crawl profiles are credential-free saved crawler configurations. Inspect or
+remove one with `seohead crawl-profile show NAME` or `seohead crawl-profile delete NAME`;
+list available names with `seohead crawl-profile list`. `crawl-site --profile NAME`
+and MCP `seo_crawl_site(profile=NAME)` select the same local profile. A profile and
+an explicit config file cannot be selected together; explicit crawl overrides still apply.
+
+To pause or stop a native project crawl started by another process, pass its active
+run ID from `project-status` or `project-activity`:
+
+```bash
+seohead crawl-control --project ./shop --run-id RUN_ID --action pause
+seohead crawl-site --resume ./shop/scans/scan.sqlite --project ./shop
+```
+
+The request is consumed at the next crawl progress boundary and the scan writer saves
+its frontier before returning. `stop` also leaves that checkpoint available for an
+explicit resume. The command refuses stale IDs, non-native runs, and a controller whose
+recorded process identity is no longer live.
 
 | Command | What it does | Effects |
 |---|---|---|
@@ -53,12 +80,16 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | Command | What it does | Effects |
 |---|---|---|
 | `scan-list` | List saved SQLite scan metadata without loading retained bodies. | offline, read-only |
-| `scan-status` | Summarize frontier work and committed page outcomes from one saved scan offline. | offline, read-only |
+| `scan-status` | Summarize frontier work and committed page outcomes; expose integrity state, damage scope, and checkpoint availability. | offline, read-only |
 | `scan-inspect` | Read a bounded, paginated table view from one saved scan. | offline, read-only |
 | `scan-url-query` | Filter, sort and paginate the whole page table of one saved scan with total and filtered total. `--preset` applies a ready-made view; `--export PATH` writes all matching rows to a new CSV or XLSX file. | offline, read-only |
-| `scan-url-detail` | Read one exact native URL's retained headers, redirects, page fields, and forms. | offline, read-only |
+| `scan-directory-tree` | Read a SQLite-backed bounded directory tree from retained page URLs; excess children fold into exact totals. | offline, read-only |
+| `headers-analyze` | Analyze redacted saved response headers and captured transport phases for one URL or a page of URLs; no live request. | offline, read-only |
+| `scan-url-detail` | Read one exact native URL's bounded source HTML window, redacted headers, redirects, page fields, and forms. | offline, read-only |
+| `scan-body-read` | Read a bounded retained static or rendered HTML window with raw and decoded hashes. | offline, read-only |
+| `scan-findings-page` | Read a sorted, filtered page of retained findings, optionally for one exact URL. | offline, read-only |
 | `scan-url-history` | Read one exact URL's state across the newest saved scans of a project (`--limit` 1..500, default 50). | offline, read-only |
-| `scan-link-inspect` | Inspect saved shortest paths, reverse inlinks, per-link DOM context, or one URL's paged links offline. | offline, read-only |
+| `scan-link-inspect` | Inspect saved shortest paths, reverse inlinks, per-link DOM context, or one URL's paged links offline. `--preset inlinks` and `--preset broken_links` apply named incoming/broken-link views. | offline, read-only |
 | `scan-navigation` | Read bounded observed navigation evidence from a retained local scan. | offline, read-only |
 | `scan-rendered-routes` | Read stored static/rendered route evidence without fetching routes. | offline, read-only |
 | `scan-evidence` | Read captured evidence, resource windows or the event timeline without fetching or migration. | offline, read-only |
@@ -67,7 +98,7 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `scan-extract` | Run bounded data-only extraction rules on retained complete bodies, without network or writes. | offline, read-only |
 | `scan-fragment-links` | Evaluate every retained fragment anchor offline and page the results. | offline, read-only |
 | `scan-structured-blocks` | Describe one retained URL's JSON-LD blocks offline: line, state, graph findings and source JSON. | offline, read-only |
-| `scan-body-diff` | Compare compatible retained bodies offline; a change is not an SEO verdict. | offline, read-only |
+| `scan-body-diff` | Compare retained bodies across scans, or static versus rendered bodies within one scan; text output is bounded. | offline, read-only |
 | `scan-graph` | Read a bounded retained internal graph by positions, section or local neighbourhood; compare scans. |
 | `scan-sitemap-generate` | Write local split XML and optional image sitemaps from retained canonical, indexable 200 pages. |
 | `scan-reanalyze` | Reparse retained HTML/DOM and rerun existing checks without network. | writes |
@@ -84,8 +115,8 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 |---|---|---|
 | `parse` | Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6, JSON-LD, links, visible text, word count) from one URL or a list of URLs. | network |
 | `robots-check` | Fetch and analyze a site's robots.txt: user-agent groups, declared sitemaps, and whether given paths are crawlable. | network |
-| `headers-check` | Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link, Cache-Control, HSTS, ...), HTTP version, TTFB, and body size. | network |
-| `redirects-check` | Follow a live redirect chain for a URL and report each hop (status, location). | network |
+| `headers-check` | Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link, Cache-Control, HSTS, ...), HTTP version, TTFB, and body size using GET or HEAD. | network, read-only |
+| `redirects-check` | Follow a live redirect chain for a URL and report each hop (status, location) using GET or HEAD. | network, read-only |
 | `links-check` | Check a page's outbound links for broken (4xx/5xx) targets and links that point at redirects (wasted crawl hops). | network |
 | `hreflang-check` | Extract and validate a page's hreflang alternates (x-default, self-reference, duplicates, malformed codes). | network |
 | `render-check` | Compare the raw server HTML with the DOM after JavaScript runs — the gap between them is what a non-rendering crawler loses. | network |
@@ -107,6 +138,9 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `security-check` | Security headers with a score and grade (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy), software version disclosure, cookie… | network |
 | `crtsh-subdomains` | Subdomains discovered from public Certificate Transparency logs (crt.sh). | network |
 | `cloudflare-traffic` | Bot and human traffic for a Cloudflare zone from edge analytics (aggregated, not raw logs), shaped like `log-analyze`. | network |
+| `cloudflare-history` | Read bounded retained Cloudflare aggregate snapshots from a local project; optional URL/day facts remain paged. | offline, read-only |
+| `cloudflare-logpush-import` | Import a supplied bounded JSONL Logpush file into a project's local logstore; no provider request. | writes |
+| `cloudflare-instant-logs` | Explicitly open a short, bounded live log session for a configured Enterprise zone; active sessions are left untouched. | network, writes |
 | `wayback-history` | Every recorded Wayback Machine snapshot of a URL, oldest first: timestamp, HTTP status, and MIME type at capture time. | network |
 | `log-analyze` | Analyse a supplied access log with exact IP totals and bounded per-IP evidence. DNS is explicit. | network |
 | `logs-import` | Retain supplied access-log files or a directory in a fresh local project artifact. | writes |
@@ -138,16 +172,21 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `meta-description-drafts` | Prepare or validate a resumable, page-grounded meta-description batch. | writes |
 | `ai-column` | Plan or validate a per-URL AI custom column over retained page evidence; no model call. | writes |
 | `marketing-inventory` | Inventory supplied CTA/form DOM occurrences without fetching or submitting forms. | writes |
+| `custom-extract-sample` | Preview declared extractors against caller-supplied HTML without fetching a URL. | offline, read-only |
 | `keywords-cluster` | Cluster keywords into topic groups (K-Means, DBSCAN, Agglomerative). | offline, read-only |
 | `images-download` | Download images from a URL list, setting the correct extension by content-type and skipping already-downloaded files. | network, writes |
-| `images-optimize` | Compress, convert, or resize raster images and conservatively minify SVG. | writes |
-| `redirects-generate` | Generate redirect rules (Apache mod_rewrite/Redirect, Nginx, or a custom template) from a list of {old_url, new_url} pairs. | offline, read-only |
+| `images-optimize` | Compress, convert, or resize raster images and conservatively minify SVG; `--quality auto` uses an SSIM threshold; optionally optimize up to 50 distinct images declared by a retained scan under a 100 MiB total download cap. | writes; scan mode also fetches images |
+| `redirects-generate` | Generate redirect rules (Apache mod_rewrite/Redirect, Nginx, WordPress Redirection CSV, or a custom template) and report local chains/loops. | offline, read-only |
 
 ## Compare, verify and remediate
 
 | Command | What it does | Effects |
 |---|---|---|
 | `compare-crawls` | Diff two audit documents (dict, JSON path, or scan.v1 SQLite path) into four disjoint sets per finding: entered (new problem on a page that existed before), left (the… | writes |
+| `compare-read` | Read a bounded sorted page from one integrity-checked compare.v2 file. | offline, read-only |
+| `compare-status` | Read checkpoint or completed-cache state for a compare.v2 output directory. | offline, read-only |
+| `compare-report` | Write a new bounded Markdown summary from a compare.v2 manifest. | writes |
+| `compare-url` | Show exact-URL before/after facts, finding deltas and a bounded retained-body diff. | offline, read-only |
 | `segment-diff` | Cross-segment counterpart diff: which pages in a source segment (for example `en`) have a counterpart in a target segment (for example `pl`), and which do not. | offline, read-only |
 | `verify-fixes` | Recheck selected baseline findings in an explicit, bounded URL subset. | network, writes |
 | `remediation-create` | Create one new empty remediation ledger bound to a validated local project; an existing path is refused. | writes |
@@ -185,22 +224,40 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-competitors-list` | Read the recorded competitor candidates and their workspaces. | — |
 | `project-competitors-remove` | Drop one recorded competitor from the shortlist; its workspace stays on disk. | writes |
 | `project-open` | Open a local project workspace without executing template references. | offline, read-only |
+| `project-archive` | Write a portable project archive, with optional body-age and newest-scan retention. | writes a new archive |
+| `project-restore` | Verify and restore an archive into a new project directory. | writes a new directory |
+| `project-update` | Update the project label with an expected settings revision. | writes |
+| `project-delete` | Move a project with its scans and exports into a sibling `Trash/` directory; active runs are refused. | writes |
+| `project-settings` | Read project settings and their revision. | offline, read-only |
+| `project-settings-proposals` | Read a bounded page of pending and decided setting proposals. | offline, read-only |
+| `project-settings-propose` | Submit a label or crawl-policy proposal with the current proposal revision; it is not applied. | writes |
+| `project-settings-review` | Apply or deny a setting proposal against its stored revision. | writes |
+| `project-action-log` | Read bounded action history with interface, outcome and text filters. | offline, read-only |
+| `project-agent-heartbeat` | Record a timestamped report from this CLI process; it does not prove a client remains connected. | writes |
 | `project-status` | Show project scan history and named pending checklist/preparation states. | offline, read-only |
-| `project-sources-link` | Bind a provider resource ID to a project in `sources.json`; no provider call. | writes |
+| `project-sources-link` | Bind a provider resource ID (including a Cloudflare zone ID) to a project in `sources.json`; no provider call. | writes |
 | `project-sources-unlink` | Remove one resource binding from `sources.json`; no provider call. | writes |
 | `project-sources-list` | List resource bindings of a project. | offline, read-only |
 | `project-progress` | Show a compact, paginated project checklist view and its next actions. | offline, read-only |
-| `project-observe` | Read the bounded project observer snapshot: tasks, methods, competitors, retained scan state and the execution-log tail. | offline, read-only |
-| `project-activity` | Read lightweight current activity for a local project and its sites. | offline, read-only |
+| `project-observe` | Read the bounded project observer snapshot: tasks, methods, competitors, retained scan state and the execution-log tail. Pass `--since-revision` to return a compact `not_modified` response for an unchanged snapshot. | offline, read-only |
+| `project-activity` | Read lightweight current activity for a local project and its sites. Pass `--since-revision` to return a compact `not_modified` response for an unchanged snapshot. | offline, read-only |
 | `project-scans` | Read a bounded page of retained project scans with evidence metadata. | offline, read-only |
 | `project-task-detail` | Read one project task definition, evidence and bounded history. | offline, read-only |
+| `project-task-comment` | Append an attributed comment to a custom task with an optional retained scan/finding reference. | writes |
+| `project-competitors-scan` | Start bounded one-shot scans for the registered competitors and URL caps on one current task. | network, writes |
+| `project-competitors-scan-status` | Read durable progress and per-site results for a competitor scan run. | offline, read-only |
+| `project-competitors-scan-cancel` | Request stop at the next per-site crawl checkpoint. | writes |
+| `project-export` | Export the complete task, task-comments, task-history or compare.v2 dataset as JSON, CSV or XLSX. | writes |
+| `project-export-status` | Read a project export job's progress and recovery state. | offline, read-only |
+| `project-export-cancel` | Request cancellation at a project export checkpoint. | writes |
+| `project-exports-page` | Read a bounded page of export receipts and artifact hashes. | offline, read-only |
 | `project-checklist-init` | Initialize or reconcile a local checklist without executing a check, skill, or scenario. | writes |
 | `project-checklist-update` | Add or update one local checklist definition without executing it. | writes |
 | `project-checklist-record` | Record supplied evidence for one checklist item without executing its operation. | writes |
 | `project-checklist-page` | Read a bounded searchable page of project checklist evidence. | offline, read-only |
 | `project-facts` | Preview or record project stack facts that stack-aware priorities then read. | network, writes |
 | `project-priorities` | Preview stack-aware project priorities from saved facts without network requests. | writes |
-| `project-policy` | Read or explicitly update operator crawl defaults and project admission thresholds. | writes |
+| `project-policy` | Read or update crawl defaults and admission thresholds; MCP agents must submit proposals for owner review. | writes |
 | `project-view-list` | List saved declarative finding views and the current project view-config revision. | offline, read-only |
 | `project-view-show` | Read one saved finding view with its stable identity, schema version and revision. | offline, read-only |
 | `project-view-save` | Create or revise a bounded declarative finding view using an expected config revision. | writes |
@@ -214,7 +271,7 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 | `project-inbox-triage` | Append an explicit task, goal, competitor, blocked, or rejected note outcome. | writes |
 | `project-inbox-unread` | Return a bounded unread reference summary without changing delivery state. | offline, read-only |
 | `project-event-append` | Append one structured event (source, actor, text) to the project journal `events.jsonl`; earlier events are never edited. | writes |
-| `project-event-page` | Read a newest-first bounded page of project events, with optional source and text filters. | offline, read-only |
+| `project-event-page` | Read a bounded newest-first project-event page, optionally after a revision; `--follow` waits up to 30 seconds. | offline, read-only |
 | `audit-workflow` | Use a closed project workflow: status, bounded start/prepare, or an evidence-backed report. | network, writes |
 | `workflow-start` | Start a local registered workflow; it performs no scan or provider call. | writes |
 | `workflow-checkpoint` | Persist one registered-step result before the next step or agent handoff. | writes |
@@ -228,9 +285,9 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 |---|---|---|
 | `monitor-configure` | Configure a disabled local incremental monitor; this starts no schedule or message delivery. | writes |
 | `monitor-schedule` | Claim or recover a local run; no timer, crawl, or delivery starts here. | writes |
-| `schedule-show` | Read scheduled-scan settings, last run, and the next due window. | offline, read-only |
-| `schedule-set` | Merge a partial update into the project schedule with an expected revision; starts nothing. | writes |
-| `schedule-run-due` | Run the project scheduled scans if due; refuses overlap and runs outside the window. | network, writes |
+| `schedule-show` | Read scheduled-scan settings, last run, next due window, and linked competitors' independent schedules. | offline, read-only |
+| `schedule-set` | Merge a partial update into this project's schedule with an expected revision; starts nothing. Use the competitor workspace directory to configure its cadence. | writes |
+| `schedule-run-due` | Run this project's and enabled competitors' independently due scans; refuses overlap and respects each site's window and budgets. | network, writes |
 | `schedule-install` | Write a launchd plist, cron line, or Task Scheduler command for run-due; never loads it. | writes |
 | `schedule-uninstall` | Remove a trigger file written by schedule-install; does not unload it. | writes |
 | `monitor-collect` | Preview or explicitly collect one previously claimed bounded monitor plan. | network, writes |
@@ -244,9 +301,12 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 |---|---|---|
 | `provider-registry` | List provider operations, credential components, quota and privacy boundaries. | offline, read-only |
 | `provider-readiness` | Inspect configured credential sources and declared operation routes offline. | offline, read-only |
-| `provider-auth` | Manage GSC read-only OAuth grants: import private file, refresh, cancel a pending flow, or explicitly revoke. | network, writes |
+| `provider-auth` | Start GSC read-only consent, accept callback JSON from stdin, inspect/cancel a pending flow, refresh, disconnect, or revoke. | network, writes |
+| `provider-credential` | Inspect or revoke a registry credential; set or replace it from stdin only with `--value-stdin`. | writes |
+| `provider-discover` | List Google Search Console, Yandex Webmaster, or Topvisor resources visible to the configured account; output is an unselected preview. | provider read |
 | `provider-verify` | Explicitly verify bounded read-only account/target access; present credentials are not verification. | network |
 | `provider-collect` | Collect a declared provider operation with versioned redacted evidence. | network, writes, paid |
+| `provider-artifact-read` | Read a bounded sanitized sample from an existing provider artifact; no provider call. | offline, read-only |
 | `provider-replay` | Join a saved private provider collection to a saved scan with no network; retain raw rows locally and return counts. | writes |
 | `provider-join` | Join supplied URL evidence exactly and preserve unmatched populations and technical severity. | offline, read-only |
 | `evidence-normalize` | Normalize a supplied CSV/XLSX/JSON or saved provider envelope, fully offline. | writes |
@@ -279,7 +339,11 @@ The `sf_*` MCP tools (`sf_audit_run`, `sf_audit_summary`, `sf_audit_issues`, `sf
 
 | Command | What it does | Effects |
 |---|---|---|
-| `tool-catalog` | Search complete source-derived tool metadata and load argument details only on request. | offline, read-only |
+| `tool-catalog` | Search source-derived tool metadata with category, project-awareness, and offset paging; load argument details only on request. | offline, read-only |
+| `doctor` | Inspect local prerequisites and optional project-directory access. Permission flags are advisory; no write probe, browser launch or crawl is performed. | offline, read-only |
+| `update-check` | Read a bounded stable release feed only with explicit consent; store the result for a consented daily caller. | network, writes |
+| `update-download` | Download a checksum-verified wheel or source archive to a new file with progress and cancellation; does not install it. | network, writes |
+| `url-check-batch` | Run up to 50 URL/check pairs from the supported single-URL checks over a URL list or retained scan page. | network, bounded |
 | `skill-list` | List the packaged, source-derived method playbooks without executing them. | offline, read-only |
 | `skill-show` | Return a packaged skill's exact text and definition identity. | offline, read-only |
 | `scenario-list` | List the packaged workflow scenarios with their ordered steps, without running them. | offline, read-only |

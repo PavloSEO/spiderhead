@@ -22,15 +22,15 @@ try {
     Invoke-Python "$ProjectRoot\scripts\bundle_manifest.py" create --core-source $CoreSource --desktop-source $ProjectRoot --platform windows --output "$Scratch\core-manifest.json" --verify-imports
     Invoke-Python -m PyInstaller --clean --noconfirm --onedir --console --name seohead --paths $CoreSource --collect-all seohead --distpath "$Scratch\core-dist" --workpath "$Scratch\core-work" --specpath $Scratch "$CoreSource\seohead\cli.py"
     Invoke-Python -m PyInstaller --clean --noconfirm --onedir --console --name seohead-desktop-agent --paths "$ProjectRoot\src" --collect-data seohead_desktop --collect-data mcp --distpath "$Scratch\agent-dist" --workpath "$Scratch\agent-work" --specpath $Scratch "$ProjectRoot\scripts\control_entrypoint.py"
-    Invoke-Python -m PyInstaller --clean --noconfirm --onedir --windowed --name "SEOHEAD Desktop" --paths "$ProjectRoot\src" --icon "$ProjectRoot\src\seohead_desktop\assets\app\seohead.ico" --collect-data seohead_desktop --distpath "$Scratch\app-dist" --workpath "$Scratch\app-work" --specpath $Scratch "$ProjectRoot\scripts\entrypoint.py"
-    $Bundle = "$Scratch\app-dist\SEOHEAD Desktop"
+    Invoke-Python -m PyInstaller --clean --noconfirm --onedir --windowed --name "SpiderHead" --paths "$ProjectRoot\src" --icon "$ProjectRoot\src\seohead_desktop\assets\app\seohead.ico" --collect-data seohead_desktop --distpath "$Scratch\app-dist" --workpath "$Scratch\app-work" --specpath $Scratch "$ProjectRoot\scripts\entrypoint.py"
+    $Bundle = "$Scratch\app-dist\SpiderHead"
     $Resources = "$Bundle\resources"
     New-Item -ItemType Directory -Force -Path "$Resources\agent" | Out-Null
     New-Item -ItemType Directory -Force -Path "$Resources\core" | Out-Null
     Copy-Item -Recurse "$Scratch\core-dist\seohead" "$Resources\core\seohead"
     Copy-Item -Recurse "$Scratch\agent-dist\seohead-desktop-agent" "$Resources\agent\seohead-desktop-agent"
     New-Item -ItemType Directory -Force -Path "$Resources\licenses" | Out-Null
-    Copy-Item "$ProjectRoot\LICENSE" "$Resources\licenses\SEOHEAD-Desktop-GPL-3.0-or-later.txt"
+    Copy-Item "$ProjectRoot\LICENSE" "$Resources\licenses\SpiderHead-Desktop-GPL-3.0-or-later.txt"
     Copy-Item "$ProjectRoot\THIRD_PARTY_NOTICES.md" "$Resources\licenses\THIRD_PARTY_NOTICES.md"
     Copy-Item "$CoreSource\LICENSE" "$Resources\licenses\SEOHEAD-Tools-MIT.txt"
     Copy-Item "$CoreSource\THIRD_PARTY_NOTICES.md" "$Resources\licenses\SEOHEAD-Tools-THIRD_PARTY_NOTICES.md"

@@ -11,8 +11,8 @@ used as Search-in-HTML markers.
 
 | Version | Crawled URLs (`urls_crawled`) | Products | Blog posts | Active planted defects |
 |---|---|---|---|---|
-| v1 | 1 248 | 1 110 | 36 | 44 |
-| v2 | 1 314 | 1 149 | 60 | 26 |
+| v1 | 1 248 | 1 110 | 36 | 46 |
+| v2 | 1 314 | 1 149 | 60 | 28 |
 | v3 | 1 330 | 1 163 | 70 | 8 |
 
 The counts are what the native crawler records with the configuration below (HTML pages,
@@ -22,7 +22,7 @@ redirects and errors; images are not fetched as URLs; robots-blocked URLs are ex
 
 ## What evolves
 
-- **v1** — baseline with 44 planted defects across statuses, redirects, canonicals,
+- **v1** — baseline with 46 planted defects across statuses, redirects, canonicals,
   indexability, titles/meta/headings, content, links, hreflang, images, structured data,
   speed and robots/sitemaps. Blog posts are thin (~150 words).
 - **v2** — about 55 % of v1 defects fixed; new «Дизайн интерьера» blog section (24 posts) and
@@ -44,6 +44,13 @@ The full list with ids, expected check ids, URLs and per-version state lives in
 
 Regenerate after any change: `python shop_site.py ground-truth`.
 Showcase URLs per app screen: [COVERAGE.ru.md](COVERAGE.ru.md).
+
+Image acceptance keeps the original cases and adds informative empty alt (`D56`)
+and missing declared dimensions (`D57`) on existing non-showcase bedroom products.
+Frontier counts and all 15 showcase definitions stay unchanged. `D47` keeps its original
+legacy expectations and adds the native `IMG_BROKEN` mapping. Some showcase URLs are absent
+from a version's discovery population: request them explicitly before claiming all 15
+controls were observed. An observed 404 or redirect is not a clean 2xx image-declaration result.
 
 ## Serve
 

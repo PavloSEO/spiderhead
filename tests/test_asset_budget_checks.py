@@ -1152,11 +1152,18 @@ def test_native_asset_thresholds_keep_frozen_header_and_roundtrip(tmp_path, reso
     metadata = _metadata(**{"analysis.asset_thresholds.resource_max_bytes": resource_limit})
     expected = copy.deepcopy(metadata["config"])
     thresholds = expected["analysis"].pop("asset_thresholds")
+    header_expected = copy.deepcopy(expected)
+    header_expected["scope"].pop("normalize_tracking_parameters")
+    for name in ("auth", "auth_acknowledged", "zstd"):
+        header_expected["http"].pop(name)
+    header_expected["rendering"].pop("actions")
+    header_expected["rendering"].pop("presets")
+    header_expected["rendering"]["artifacts"].pop("screenshot_mode")
     path = tmp_path / "scan.sqlite"
     with NativeScan.create(path, **metadata) as scan:
         header = dict(scan.con.execute("SELECT * FROM scan").fetchone())
-        assert json.loads(header["config_json"]) == expected
-        assert header["config_fingerprint"] == fingerprint(expected)
+        assert json.loads(header["config_json"]) == header_expected
+        assert header["config_fingerprint"] == fingerprint(header_expected)
         assert read_effective_config(scan.con)["analysis"]["asset_thresholds"] == thresholds
     assert resume_inputs(str(path))["settings"]["analysis"]["asset_thresholds"] == thresholds
     with NativeScan.open(path, expected_config=metadata["config"]):
@@ -1247,6 +1254,7 @@ def test_native_audit_validates_asset_adjunct_or_original_manifest(
         con.row_factory = sqlite3.Row
         if legacy_manifest:
             con.execute("DELETE FROM context_items WHERE kind='analysis_asset_thresholds'")
+            con.execute("DELETE FROM context_items WHERE kind='native_config_extension'")
             effective = json.loads(con.execute("SELECT config_json FROM scan").fetchone()[0])
             assert "asset_thresholds" not in effective["analysis"]
         else:

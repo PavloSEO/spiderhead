@@ -170,8 +170,17 @@ def test_html_schema_formats_are_retained_as_validation_not_absent(tmp_path, for
         con.close()
 
 
-def test_partial_rdfa_is_unavailable_not_valid():
-    html = '<div vocab="https://schema.org/" typeof="Thing"><a rel="url" href="/x">X</a></div>'
+@pytest.mark.parametrize(
+    "property_iri",
+    [
+        "schema.org/name",
+        "https://schema.org.example.test/name",
+        "https://example.test/schema.org/name",
+        "https://schema.org@example.test/name",
+    ],
+)
+def test_unrelated_property_iri_does_not_establish_schema_rdfa(property_iri):
+    html = f'<span property="{property_iri}">Example</span>'
     payload = structured_payload(
         page_url_id=1,
         source_document_id=1,
@@ -179,8 +188,77 @@ def test_partial_rdfa_is_unavailable_not_valid():
         parsed=parse_html(html, URL),
         html=html,
     )
-    assert payload["state"] == "unavailable"
-    assert payload["validation"]["structural_state"] == "unavailable"
+    assert payload["state"] == "absent"
+
+
+@pytest.mark.parametrize("property_iri", ["https://schema.org/name", "schema:name"])
+def test_schema_property_without_a_subject_is_invalid_not_absent(property_iri):
+    html = f'<span property="{property_iri}">Example</span>'
+    payload = structured_payload(
+        page_url_id=1,
+        source_document_id=1,
+        representation="static",
+        parsed=parse_html(html, URL),
+        html=html,
+    )
+    assert payload["state"] == "structurally_invalid"
+
+
+def test_rdfa_graph_is_retained_as_native_validation():
+    html = """
+    <div vocab="https://schema.org/" typeof="Product" about="#product">
+      <span property="name">Widget</span>
+      <a rel="offers" href="#offer">Offer</a>
+      <div about="#offer" typeof="Offer">
+        <meta property="price" content="19.99">
+        <meta property="priceCurrency" content="USD">
+      </div>
+    </div>"""
+    payload = structured_payload(
+        page_url_id=1,
+        source_document_id=1,
+        representation="static",
+        parsed=parse_html(html, URL),
+        html=html,
+    )
+    assert payload["state"] == "valid"
+    assert payload["validation"]["structural_state"] == "valid"
+    assert payload["validation"]["feature_eligibility_state"] == "locally_checked"
+    assert payload["validation"]["feature_checks"][0]["rules_version"]
+    assert set(payload["validation"]) == {
+        "syntax_state",
+        "structural_state",
+        "feature_eligibility_state",
+        "unsupported_context_normalization",
+        "entity_errors",
+        "entity_warnings",
+        "feature_checks",
+    }
+
+
+def test_retained_rdfa_property_copy_keeps_the_v2_validation_shape():
+    from pathlib import Path
+
+    html = (Path(__file__).parent / "fixtures" / "rdfa_copy_graph.html").read_text("utf-8")
+    payload = structured_payload(
+        page_url_id=1,
+        source_document_id=1,
+        representation="static",
+        parsed=parse_html(html, URL),
+        html=html,
+    )
+    assert payload["state"] == "valid"
+    assert payload["validation"]["structural_state"] == "valid"
+    assert payload["validation"]["feature_checks"] == []
+    assert set(payload["validation"]) == {
+        "syntax_state",
+        "structural_state",
+        "feature_eligibility_state",
+        "unsupported_context_normalization",
+        "entity_errors",
+        "entity_warnings",
+        "feature_checks",
+    }
 
 
 def test_schema_warning_is_a_native_finding(tmp_path):
@@ -331,7 +409,7 @@ def test_native_healthy_markup_stays_silent_for_all_implemented_checks(tmp_path)
         '<div vocab="https://schema.org/" typeof="Article"><span property="bogus">bad</span><a rel="author" href="#ada">Ada</a></div>',
     ],
 )
-def test_partial_rdfa_never_becomes_absent_and_proven_errors_survive(tmp_path, html):
+def test_invalid_rdfa_never_becomes_absent_and_proven_errors_survive(tmp_path, html):
     path = _scan(tmp_path, [(URL, html)])
     con = open_scan(path, require_audit=False)
     try:
@@ -340,7 +418,10 @@ def test_partial_rdfa_never_becomes_absent_and_proven_errors_survive(tmp_path, h
                 "SELECT payload_json FROM context_items WHERE kind='structured_evidence'"
             ).fetchone()[0]
         )
-        assert payload["state"] == "unavailable"
+        assert payload["state"] == "structurally_invalid"
+        assert payload["reason"] == "Schema.org graph validation found structural errors"
+        assert payload["validation"]["structural_state"] == "structurally_invalid"
+        assert payload["validation"]["entity_errors"] > 0
         ctx = _ctx(con)
         check_document_markup(ctx)
         fired = {issue.check for issue in ctx.issues}

@@ -100,11 +100,7 @@ CATEGORIES: dict[str, list[Entry]] = {
         _c("Missing X-Content-Type-Options Header", "MISSING_X_CONTENT_TYPE_OPTIONS"),
         _c("Missing X-Frames-Options Header", "MISSING_X_FRAME_OPTIONS"),
         _c("Missing Secure Referrer-Policy Header", "MISSING_REFERRER_POLICY"),
-        _p(
-            "Bad Content Type",
-            "content type is recorded and drives HTML detection, but a mismatch between the "
-            "declared type and the body is not asserted",
-        ),
+        _c("Bad Content Type", "BODY_MIME_MISMATCH", "DECLARED_MIME_MISMATCH"),
     ],
     "URL": [
         _c("Multiple Slashes", "URL_MULTIPLE_SLASHES"),
@@ -232,9 +228,9 @@ CATEGORIES: dict[str, list[Entry]] = {
             "Missing Alt Attribute",
             "IMG_MISSING_ALT_ATTRIBUTE",
             note="a native crawl's own per-image inventory distinguishes the attribute being "
-            'absent from a decorative alt="" -- only the former fires; IMG_MISSING_ALT (an '
-            "SF export column) still reports the two together, since that export's own shape "
-            "has not changed",
+            'absent from a decorative alt=""; native IMG_MISSING_ALT separately reports '
+            "whitespace-only or explicitly informative/unnamed-interactive empty alt. "
+            "The SF export keeps its original filter semantics",
         ),
         _t(
             "Background Images",
@@ -317,24 +313,28 @@ CATEGORIES: dict[str, list[Entry]] = {
         _c("Missing X-Default", "HREFLANG_MISSING_XDEFAULT"),
     ],
     "JavaScript": [
-        _t("Noindex Only in Original HTML", "render-check"),
-        _t("Nofollow Only in Original HTML", "render-check"),
-        _t("Canonical Mismatch", "render-check"),
+        _c("Noindex Only in Original HTML", "NOINDEX_ONLY_IN_RAW_HTML"),
+        _c("Nofollow Only in Original HTML", "NOFOLLOW_ONLY_IN_RAW_HTML"),
+        _c("Canonical Mismatch", "CANONICAL_MISMATCH"),
         _c("Uses Old AJAX Crawling Scheme URLs", "AJAX_CRAWLING_SCHEME_URL"),
         _c(
             "Uses Old AJAX Crawling Scheme Meta Fragment Tag",
             "AJAX_CRAWLING_SCHEME_META_FRAGMENT",
         ),
-        _c("Pages with Blocked Resources", "ROBOTS_BLOCKS_RESOURCES"),
+        _c(
+            "Pages with Blocked Resources",
+            "ROBOTS_BLOCKS_RESOURCES",
+            "RENDER_RESOURCE_BLOCKED",
+        ),
         _t("Contains JavaScript Links", "render-check"),
         _t("Contains JavaScript Content", "render-check"),
-        _t("Page Title Only in Rendered HTML", "render-check"),
-        _t("Page Title Updated by JavaScript", "render-check"),
-        _t("Meta Description Only in Rendered HTML", "render-check"),
-        _t("Meta Description Updated by JavaScript", "render-check"),
-        _t("H1 Only in Rendered HTML", "render-check"),
-        _t("H1 Updated by JavaScript", "render-check"),
-        _t("Canonical Only in Rendered HTML", "render-check"),
+        _c("Page Title Only in Rendered HTML", "PAGE_TITLE_ONLY_IN_RENDERED_HTML"),
+        _c("Page Title Updated by JavaScript", "PAGE_TITLE_UPDATED_BY_JAVASCRIPT"),
+        _c("Meta Description Only in Rendered HTML", "META_DESCRIPTION_ONLY_IN_RENDERED_HTML"),
+        _c("Meta Description Updated by JavaScript", "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT"),
+        _c("H1 Only in Rendered HTML", "H1_ONLY_IN_RENDERED_HTML"),
+        _c("H1 Updated by JavaScript", "H1_UPDATED_BY_JAVASCRIPT"),
+        _c("Canonical Only in Rendered HTML", "CANONICAL_ONLY_IN_RENDERED_HTML"),
         _c("Pages With JavaScript Errors", "JS_CONSOLE_ERRORS"),
     ],
     "Links": [
@@ -480,15 +480,15 @@ CATEGORIES: dict[str, list[Entry]] = {
     ],
     "Mobile": [
         _c("Viewport Not Set", "VIEWPORT_MISSING"),
-        _o("Content Not Sized Correctly", "needs a rendered mobile layout to measure overflow"),
-        _o("Illegible Font Size", "needs computed styles from a rendered page"),
+        _c("Content Not Sized Correctly", "MOBILE_CONTENT_OVERFLOW"),
+        _c("Illegible Font Size", "MOBILE_TEXT_TOO_SMALL"),
         _c(
             "Contains Unsupported Plugins",
             "UNSUPPORTED_PLUGIN",
             note="<object>/<embed>/<applet> are counted, excluding an <object> whose type "
             "declares an image (an SVG or raster fallback, not plugin content)",
         ),
-        _o("Target Size", "needs rendered hit-box geometry"),
+        _c("Target Size", "MOBILE_TARGET_TOO_SMALL"),
         _c(
             "Mobile Alternate Link",
             "MOBILE_ALTERNATE_LINK",
@@ -498,41 +498,53 @@ CATEGORIES: dict[str, list[Entry]] = {
     ],
     "Accessibility": [],  # filled below: one decision, 92 entries
     "Analytics": [
-        _t(
+        _c(
             "Orphan URLs",
-            "crawl-enrich",
-            note="found from an offline analytics CSV joined to the crawl, not by sf run; "
-            "a withheld result on a partial crawl; live per-URL sourcing needs #990",
+            "GA_ORPHAN_URL",
+            "METRIKA_ORPHAN_URL",
+            note="joined from complete project-bound GA4 or Metrika URL history; absence claims "
+            "are withheld for incomplete source coverage or partial crawls",
         ),
-        _t(
+        _c(
             "Bounce Rate Above 70%",
-            "crawl-enrich",
-            note="found from an offline per-URL bounce column (--bounce-column), not by sf run; "
-            "live per-URL sourcing needs #990 and #984",
+            "BOUNCE_RATE_ABOVE_70",
+            "METRIKA_BOUNCE_RATE_ABOVE_70",
+            note="measured from retained per-URL Metrika bounce rates; GA4 does not provide this "
+            "metric in the project join",
         ),
-        _t(
+        _c(
             "No GA Data",
-            "crawl-enrich",
-            note="found from an offline analytics CSV joined to the crawl, not by sf run; "
-            "skipped for an empty analytics file",
+            "NO_GA_DATA",
+            "NO_METRIKA_DATA",
+            note="absence is reported only for an explicitly bound property with complete retained "
+            "coverage and a complete crawl",
         ),
-        _t(
+        _c(
             "Non-Indexable with GA Data",
-            "crawl-enrich",
-            note="found from an offline visits column (--visits-column), not by sf run",
+            "NON_INDEXABLE_WITH_GA_DATA",
+            "NON_INDEXABLE_WITH_METRIKA_DATA",
+            note="joined from retained GA4 sessions or Metrika visits",
         ),
     ],
     "Search Console": [
         _o("Page is Not Mobile Friendly", "needs Search Console; see #97"),
-        _o("Orphan URLs", "needs Search Console"),
-        _o("URL is on Google, But Has Issues", "needs Search Console"),
-        _o("AMP URL is Invalid", "needs Search Console, and AMP is retired"),
-        _o("Rich Result is Invalid", "needs Search Console"),
-        _o("Indexable URL Not Indexed", "needs Search Console"),
-        _o("User-Declared Canonical Not Selected", "needs Search Console"),
-        _o("No Search Analytics Data", "needs Search Console"),
-        _o("Non-Indexable with Search Analytics Data", "needs Search Console"),
-        _o("URL Is Not on Google", "needs Search Console"),
+        _c(
+            "Orphan URLs",
+            "GSC_ORPHAN",
+            note="requires complete retained Search Analytics coverage and crawl",
+        ),
+        _c("URL is on Google, But Has Issues", "GSC_INDEXED_WITH_ISSUES"),
+        _c("AMP URL is Invalid", "GSC_AMP_INVALID"),
+        _c("Rich Result is Invalid", "GSC_RICH_RESULTS_INVALID"),
+        _c("Indexable URL Not Indexed", "GSC_INDEXABLE_NOT_INDEXED"),
+        _c("User-Declared Canonical Not Selected", "GSC_USER_CANONICAL_NOT_SELECTED"),
+        _c(
+            "No Search Analytics Data",
+            "NO_SEARCH_DATA",
+            note="requires complete retained Search Analytics coverage and crawl",
+        ),
+        _c("Non-Indexable with Search Analytics Data", "NON_INDEXABLE_WITH_SEARCH_DATA"),
+        _c("URL Is Not on Google", "GSC_URL_NOT_ON_GOOGLE"),
     ],
     "Validation": [
         _c("Missing <head> Tag", "HEAD_MISSING"),

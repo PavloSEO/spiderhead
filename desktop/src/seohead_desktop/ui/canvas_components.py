@@ -504,6 +504,8 @@ class CanvasTabs(QTabBar):
         font.setPixelSize(14)
         painter.setFont(font)
         for index, name in enumerate(self.names):
+            if not self.isTabVisible(index):
+                continue
             rect = self.tabRect(index)
             if index == 0:
                 rect = rect.adjusted(16, 0, 0, 0)

@@ -49,7 +49,21 @@ def main() -> int:
     counts = Counter(node.split("::", 1)[0] for node in nodes)
     groups: list[list[str]] = [[] for _ in range(4)]
     sizes = [0] * 4
+    # CI timing showed these integration fixtures dominate wall time. Keep them
+    # in separate processes before balancing the remaining collection by size.
+    slow_files = (
+        "tests/test_retained_shop_duplicates.py",
+        "tests/test_project_prepare_reuse.py",
+        "tests/test_project_crawl_evidence.py",
+        "tests/test_context.py",
+    )
+    for index, path in enumerate(slow_files):
+        if path in counts:
+            groups[index].append(path)
+            sizes[index] = counts[path]
     for path in sorted(counts, key=lambda path: (-counts[path], path)):
+        if path in slow_files:
+            continue
         index = min(range(4), key=lambda index: sizes[index])
         groups[index].append(path)
         sizes[index] += counts[path]
@@ -79,6 +93,7 @@ def main() -> int:
                 "-q",
                 "--cov=seohead",
                 "--cov-report=",
+                "--durations=10",
                 f"--junitxml={out / f'group-{index}.xml'}",
                 f"--basetemp={out / f'group-{index}-temp'}",
                 *sorted(group),

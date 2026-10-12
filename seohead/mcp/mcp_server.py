@@ -10,6 +10,7 @@ Requires the optional ``mcp`` dependency: ``pip install "seohead-seotools[mcp]"`
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import sys
@@ -53,14 +54,32 @@ def _checked(result: Any) -> Any:
     return result
 
 
+def _refuse_owner_action(directory: str, action: str) -> None:
+    """Log and reject an owner-only call when this MCP server has no trusted principal."""
+    from seohead.projects.action_log import record as record_action
+    from seohead.projects.permissions import require_mcp_allowed
+
+    record_action(
+        directory,
+        client="mcp",
+        action=action,
+        outcome="refused",
+        detail="Owner-only action is unavailable without a trusted MCP principal",
+    )
+    require_mcp_allowed(action)
+
+
 def build_server(profile: str = "full", progress_notifications: bool = False):  # -> FastMCP
     runlog.set_interface("mcp")
-    from mcp.server.fastmcp import FastMCP
+    from mcp.server.fastmcp import Context, FastMCP
     from mcp.server.fastmcp.exceptions import ToolError
     from mcp.types import ToolAnnotations
 
     from seohead.mcp import mcp_control
     from seohead.mcp.mcp_profiles import profile_tools
+
+    # FastMCP resolves injected Context annotations from this module's globals.
+    globals()["Context"] = Context
 
     class ControlledMCP(FastMCP):
         async def call_tool(self, name, arguments):
@@ -276,6 +295,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         sitemap: str | None = None,
         sitemap_only: bool = False,
         config: str | None = None,
+        profile: str | None = None,
         max_urls: int | None = None,
         max_depth: int | None = None,
         min_delay: float | None = None,
@@ -312,8 +332,9 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         grows into, not a fixed thread count. ``sitemap`` seeds the crawl from a
         sitemap's declared URLs in addition to following links from ``url``, and
         reconciles the two sources (declared vs. observed). ``config`` is a path
-        to a crawler config file (JSON) on this machine, the same file
-        ``crawl-site --config`` reads. ``max_urls``, ``max_depth``, ``min_delay``,
+        to a crawler config file (JSON) on this machine; ``profile`` selects a
+        saved local crawl profile by name. They are mutually exclusive.
+        ``max_urls``, ``max_depth``, ``min_delay``,
         ``robots`` and ``concurrency`` are left unset by default: an omitted
         override preserves whatever ``config`` (or its own defaults) already
         says, exactly like the CLI's flags -- pass one explicitly only to
@@ -366,6 +387,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 sitemap=sitemap,
                 sitemap_only=sitemap_only or None,
                 config=config,
+                profile=profile,
                 max_urls=max_urls,
                 max_depth=max_depth,
                 min_delay=min_delay,
@@ -388,6 +410,13 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         if project is not None:
             result = with_project_notice(result, project, None)
         return _checked(result)
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_crawl_control(
+        project: str, run_id: str, action: Literal["pause", "stop"]
+    ) -> dict[str, Any]:
+        """Request a native project crawl to checkpoint and pause or stop by its run ID."""
+        return _checked(handlers.crawl_control(project=project, run_id=run_id, action=action))
 
     @mcp.tool(annotations=pure, structured_output=True)
     def seo_crawl_describe_settings() -> dict[str, Any]:
@@ -465,17 +494,27 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         content-type and skipping already-downloaded files."""
         return _checked(handlers.images_download(urls=urls, output_dir=output_dir, options=options))
 
-    @mcp.tool(annotations=rewrite_files, structured_output=True)
+    @mcp.tool(annotations=rewrite_files_from_web, structured_output=True)
     def seo_images_optimize(
-        files: list[str], settings: dict[str, Any] | None = None
+        files: list[str] | None = None,
+        settings: dict[str, Any] | None = None,
+        scan: str | None = None,
+        max_images: int = 50,
     ) -> dict[str, Any]:
         """Compress, convert, or resize raster images and conservatively minify SVG.
 
-        Safe default: settings.out_dir is required. Source mutation needs
+        settings.quality="auto" uses bounded search and reports measured SSIM plus whether the target was met on an aligned 1024 px RGB thumbnail (0.98 by default).
+        settings.strip_exif=true removes EXIF. Safe default: settings.out_dir is required. Source mutation needs
         settings.in_place=true and creates a backup by default. Existing destinations
-        require settings.overwrite=true. Animated and multipage images are rejected.
+        require settings.overwrite=true. Animated and multipage images are rejected. A retained
+        scan may supply up to max_images declared image URLs; those images are downloaded through
+        the bounded network client, optimized into out_dir, and mapped back to source occurrences.
         """
-        return _checked(handlers.images_optimize(files=files, settings=settings))
+        return _checked(
+            handlers.images_optimize(
+                files=files, settings=settings, scan=scan, max_images=max_images
+            )
+        )
 
     @mcp.tool(annotations=pure, structured_output=True)
     def seo_keywords_cluster(
@@ -496,7 +535,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         return _checked(handlers.robots_check(url=url, user_agent=user_agent, paths=paths))
 
     @mcp.tool(annotations=fetch, structured_output=True)
-    def seo_headers_check(url: str, method: str = "GET") -> dict[str, Any]:
+    def seo_headers_check(url: str, method: Literal["GET", "HEAD"] = "GET") -> dict[str, Any]:
         """Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link,
         Cache-Control, HSTS, ...), HTTP version, TTFB, and body size."""
         return _checked(handlers.headers_check(url=url, method=method))
@@ -1230,13 +1269,14 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         return _checked(handlers.facts_export(sites=sites))
 
     @mcp.tool(annotations=create_files, structured_output=True)
-    def seo_compare_crawls(
+    async def seo_compare_crawls(
         before: Any,
         after: Any,
         force: bool = False,
         correspondence: Any = None,
         out_dir: str | None = None,
         compression: Literal["none", "gzip"] = "none",
+        resume: bool = False,
     ) -> dict[str, Any]:
         """Diff two audit documents (dict, JSON path, or scan.v1 SQLite path) into four disjoint
         sets per finding: entered (new problem on a page that existed before),
@@ -1258,16 +1298,146 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         a package and never collects evidence or calls the network. Explicit
         compression='gzip' requires out_dir and preserves every row in deterministic
         .ndjson.gz files; manifests record compressed checksums and both byte counts.
-        Default compression='none' keeps uncompressed output.
+        Default compression='none' keeps uncompressed output. Exact-input results are
+        reusable from the same out_dir. A matching interrupted job requires resume=True;
+        its source identities and options are verified before any checkpoint is read.
+        """
+        import asyncio
+        import queue
+        import threading
+
+        from seohead.mcp.mcp_progress import ProgressReporter
+
+        try:
+            context = mcp.get_context()
+        except Exception:
+            context = None
+        reporter = ProgressReporter(context, "compare-crawls")
+        updates = queue.SimpleQueue()
+
+        def collect(update: Any) -> None:
+            if reporter.enabled:
+                updates.put(update)
+
+        cancel_event = threading.Event()
+        async with reporter:
+            task = asyncio.create_task(
+                asyncio.to_thread(
+                    handlers.compare_crawls,
+                    before=before,
+                    after=after,
+                    force=force,
+                    correspondence=correspondence,
+                    out_dir=out_dir,
+                    compression=compression,
+                    resume=resume,
+                    progress=collect,
+                    cancel_event=cancel_event,
+                )
+            )
+            try:
+                while not task.done():
+                    await asyncio.sleep(0.5)
+                    while not updates.empty():
+                        update = updates.get()
+                        detail = (
+                            f"{update.stage}: {update.completed} / {update.total}"
+                            if update.total is not None
+                            else f"{update.stage}: {update.completed} completed; total unknown"
+                        )
+                        with contextlib.suppress(Exception):
+                            await reporter.elapsed(detail)
+                while not updates.empty():
+                    update = updates.get()
+                    detail = (
+                        f"{update.stage}: {update.completed} / {update.total}"
+                        if update.total is not None
+                        else f"{update.stage}: {update.completed} completed; total unknown"
+                    )
+                    with contextlib.suppress(Exception):
+                        await reporter.elapsed(detail)
+                return _checked(await task)
+            except asyncio.CancelledError:
+                cancel_event.set()
+                # The worker checks this token at every indexing/classification/export batch
+                # and immediately before entering the publish step.
+                with contextlib.suppress(Exception):
+                    await asyncio.shield(task)
+                raise
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_read(
+        manifest_path: str,
+        file: str,
+        offset: int = 0,
+        limit: int = 200,
+        sort: Literal["url", "check", "severity"] = "url",
+        direction: Literal["asc", "desc"] = "asc",
+        contains: str | None = None,
+        segment: str | None = None,
+        change: Literal["entered", "left", "appeared", "disappeared", "unchanged"] | None = None,
+        max_bytes: int = 1_048_576,
+    ) -> dict[str, Any]:
+        """Read a bounded, sorted page from one integrity-checked compare.v2 file."""
+        return _checked(
+            handlers.compare_read(
+                manifest_path=manifest_path,
+                file=file,
+                offset=offset,
+                limit=limit,
+                sort=sort,
+                direction=direction,
+                contains=contains,
+                segment=segment,
+                change=change,
+                max_bytes=max_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_status(out_dir: str) -> dict[str, Any]:
+        """Read the checkpoint or completed cache state for one compare.v2 output path."""
+        return _checked(handlers.compare_status(out_dir=out_dir))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_compare_report(
+        manifest_path: str,
+        out_file: str,
+        max_bytes: int = 65_536,
+    ) -> dict[str, Any]:
+        """Write a new, bounded Markdown summary from a compare.v2 manifest."""
+        return _checked(
+            handlers.compare_report(
+                manifest_path=manifest_path,
+                out_file=out_file,
+                max_bytes=max_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_compare_url(
+        before: Any,
+        after: Any,
+        url: str,
+        max_bytes: int = 65_536,
+        max_lines: int = 200,
+        left_representation: Literal["static", "rendered", "legacy_fragment"] = "static",
+        right_representation: Literal["static", "rendered", "legacy_fragment"] = "static",
+    ) -> dict[str, Any]:
+        """Show exact-URL before/after facts, finding deltas and a bounded body diff.
+
+        A URL absent from either scan is not classified as a fixed finding. Text is read only
+        from compatible retained native bodies; this call never fetches the URL.
         """
         return _checked(
-            handlers.compare_crawls(
+            handlers.compare_url(
                 before=before,
                 after=after,
-                force=force,
-                correspondence=correspondence,
-                out_dir=out_dir,
-                compression=compression,
+                url=url,
+                max_bytes=max_bytes,
+                max_lines=max_lines,
+                left_representation=left_representation,
+                right_representation=right_representation,
             )
         )
 
@@ -1755,6 +1925,96 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         """
         return _checked(handlers.sources_doctor())
 
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_doctor(
+        projects_directory: str | None = None,
+        config_path: str | None = None,
+        sf_cli: str | None = None,
+    ) -> dict[str, Any]:
+        """Inspect Python, browser, SF, MCP, SQLite and optional project-directory readiness.
+
+        This is a local read-only diagnostic. It does not write a probe file, launch a browser,
+        crawl a site, or establish Screaming Frog licence validity.
+        """
+        return _checked(
+            handlers.doctor(
+                projects_directory=projects_directory,
+                config_path=config_path,
+                sf_cli=sf_cli,
+            )
+        )
+
+    @mcp.tool(annotations=create_files_from_web, structured_output=True)
+    def seo_update_check(
+        consent: bool, automatic: bool = False, max_releases: int = 5
+    ) -> dict[str, Any]:
+        """Check bounded stable core releases after explicit consent and retain the check result.
+
+        The daily mode only reuses a result checked within 24 hours; it never starts a scheduler.
+        No request is made when consent is false. Changelog text and asset lists are capped.
+        """
+        return _checked(
+            handlers.update_check(
+                consent=consent,
+                automatic=automatic,
+                max_releases=max_releases,
+            )
+        )
+
+    @mcp.tool(annotations=create_files_from_web, structured_output=True)
+    async def seo_update_download(
+        ctx: Context,
+        consent: bool,
+        tag: str,
+        asset_name: str,
+        out: str,
+        max_bytes: int = 262144000,
+    ) -> dict[str, Any]:
+        """Download a checksummed wheel or source archive from a previously checked release.
+
+        The destination must be a new local file. The core reports progress, honors MCP request
+        cancellation, and never installs or executes the downloaded package.
+        """
+        import asyncio
+        import threading
+
+        cancel = threading.Event()
+        loop = asyncio.get_running_loop()
+        last_reported = 0
+
+        def report_progress(received: int, total: int | None) -> None:
+            nonlocal last_reported
+            if received - last_reported < 1024 * 1024 and (total is None or received < total):
+                return
+            last_reported = received
+            try:
+                future = asyncio.run_coroutine_threadsafe(
+                    ctx.report_progress(received, total), loop
+                )
+                future.add_done_callback(lambda completed: completed.exception())
+            except (AttributeError, RuntimeError):
+                return
+
+        worker = asyncio.create_task(
+            asyncio.to_thread(
+                handlers.update_download,
+                consent=consent,
+                tag=tag,
+                asset_name=asset_name,
+                out=out,
+                max_bytes=max_bytes,
+                progress=report_progress,
+                cancelled=cancel.is_set,
+            )
+        )
+        try:
+            return _checked(await asyncio.shield(worker))
+        except asyncio.CancelledError:
+            cancel.set()
+            with contextlib.suppress(Exception):
+                await asyncio.shield(worker)
+            raise
+
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_wayback_history(
         url: str,
@@ -1772,15 +2032,107 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_cloudflare_traffic(
-        zone: str, since: str | None = None, until: str | None = None
+        zone: str | None = None,
+        since: str | None = None,
+        until: str | None = None,
+        project: str | None = None,
+        include_configuration: bool = False,
     ) -> dict[str, Any]:
-        """Bot and human traffic for a Cloudflare zone from edge GraphQL analytics (read-only,
-        free): bots x URLs x status codes x cache status per day, in the same shape as
-        seo_log_analyze. Use it when origin logs are absent. It is aggregated data
-        (source=cloudflare-aggregated), not raw logs: no client IPs, so bots cannot be verified
-        by reverse DNS. Dates are UTC YYYY-MM-DD; the Free plan keeps 32 days. The token is read
-        from CLOUDFLARE_API_TOKEN or SEOHEAD_CLOUDFLARE_TOKEN_FILE."""
-        return _checked(handlers.cloudflare_traffic(zone=zone, since=since, until=until))
+        """Read Cloudflare edge GraphQL analytics by zone name or project binding. Pass exactly
+        one of zone or project; project requires one selected Cloudflare zone ID binding. Returns
+        aggregated bot/human summaries and bounded URL/day edge/origin status, cache, redirect
+        status and Cloudflare verified-bot category facts. Set include_configuration=true for
+        extra bounded AI zone settings, redirect/custom-WAF rules, and destination-redacted Logpush
+        job summaries. These are configured rules, not proof of per-request matches. It is not a raw log: it has no client
+        IPs, sub-day timestamps or rule IDs, so reverse-DNS verification is unavailable. Dates are
+        UTC YYYY-MM-DD; the Free plan keeps 32 days. A read-only token needs Zone Read and Account
+        Analytics Read. Token is read from CLOUDFLARE_API_TOKEN or SEOHEAD_CLOUDFLARE_TOKEN_FILE."""
+        return _checked(
+            handlers.cloudflare_traffic(
+                zone=zone,
+                since=since,
+                until=until,
+                project=project,
+                include_configuration=include_configuration,
+            )
+        )
+
+    @mcp.tool(annotations=pure, structured_output=True)
+    def seo_cloudflare_history(
+        project: str,
+        zone_id: str | None = None,
+        snapshot_id: int | None = None,
+        limit: int = 20,
+        offset: int = 0,
+        include_facts: bool = False,
+        facts_offset: int = 0,
+        facts_limit: int = 100,
+    ) -> dict[str, Any]:
+        """Read retained, bounded Cloudflare aggregate snapshots from a local project. History
+        defaults to metadata-only; set include_facts for a bounded page of URL/day counts and
+        cache/status/bot dimensions. It contains no client IP logs and makes no provider request."""
+        return _checked(
+            handlers.cloudflare_history(
+                project=project,
+                zone_id=zone_id,
+                snapshot_id=snapshot_id,
+                limit=limit,
+                offset=offset,
+                include_facts=include_facts,
+                facts_offset=facts_offset,
+                facts_limit=facts_limit,
+            )
+        )
+
+    @mcp.tool(annotations=fetch, structured_output=True)
+    def seo_cloudflare_logpush_import(
+        input_path: str, project: str, max_events: int = 10_000
+    ) -> dict[str, Any]:
+        """Import a caller-supplied UTF-8 Logpush JSON Lines file into the selected project's
+        local logstore. This operation reads only the supplied local file and makes no provider
+        request; input is capped at 16 MiB and 10,000 records."""
+        return _checked(
+            handlers.cloudflare_logpush_import(
+                input_path=input_path, project=project, max_events=max_events
+            )
+        )
+
+    @mcp.tool(annotations=fetch, structured_output=True)
+    async def seo_cloudflare_instant_logs(
+        project: str,
+        confirm_live_capture: bool = False,
+        max_seconds: int = 10,
+        max_events: int = 100,
+        max_bytes: int = 1_048_576,
+        sample: int = 10,
+    ) -> dict[str, Any]:
+        """Explicitly create one short, bounded Instant Logs session for a Business/Enterprise
+        project zone. Requires confirm_live_capture=true. A session already active for the zone is
+        left untouched. Only an allowlisted sample is imported locally; canceling closes this
+        client's socket and Cloudflare automatically expires idle sessions."""
+        import asyncio
+        import threading
+
+        cancelled = threading.Event()
+        task = asyncio.create_task(
+            asyncio.to_thread(
+                handlers.cloudflare_instant_logs,
+                project=project,
+                confirm_live_capture=confirm_live_capture,
+                max_seconds=max_seconds,
+                max_events=max_events,
+                max_bytes=max_bytes,
+                sample=sample,
+                cancel_event=cancelled,
+            )
+        )
+        try:
+            return _checked(await asyncio.shield(task))
+        except asyncio.CancelledError:
+            cancelled.set()
+            with contextlib.suppress(Exception):
+                await asyncio.shield(task)
+            raise
 
     @mcp.tool(annotations=fetch, structured_output=True)
     def seo_crtsh_subdomains(domain: str) -> dict[str, Any]:
@@ -1984,6 +2336,32 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         )
 
     @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_archive(
+        project: str,
+        out: str,
+        dry_run: bool = False,
+        exclude_bodies: bool = False,
+        exclude_bodies_older_than_days: int | None = None,
+        keep_newest_scans: int | None = None,
+    ) -> dict[str, Any]:
+        """Write a portable archive to a new path, optionally omitting bodies or older scans."""
+        return _checked(
+            handlers.project_archive(
+                project=project,
+                out=out,
+                dry_run=dry_run,
+                exclude_bodies=exclude_bodies,
+                exclude_bodies_older_than_days=exclude_bodies_older_than_days,
+                keep_newest_scans=keep_newest_scans,
+            )
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_restore(archive: str, to: str) -> dict[str, Any]:
+        """Restore a verified portable archive into a new project directory."""
+        return _checked(handlers.project_restore(archive=archive, to=to))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
     def seo_project_sources_link(
         directory: str, service: str, resource: str, label: str | None = None
     ) -> dict[str, Any]:
@@ -2043,6 +2421,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         scan_limit: int = 20,
         run_offset: StrictInt = 0,
         run_limit: StrictInt = 20,
+        since_revision: str | None = None,
     ) -> dict[str, Any]:
         """Read the bounded project observer snapshot: tasks, methods, competitors,
         retained scan state and the execution-log tail.  It never starts work or
@@ -2054,7 +2433,9 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         plus one terminal page, newest admitted first. run_offset must be nonnegative
         and run_limit 1..100. Totals cover at most 100 retained records per site,
         not lifetime history; earlier evictions were not counted. A changed runs
-        revision requires the caller to restart terminal pagination.
+        revision requires the caller to restart terminal pagination. Pass the
+        returned opaque revision as since_revision to receive a small
+        not_modified response when the snapshot has not changed.
         """
         return _checked(
             handlers.project_observe(
@@ -2063,6 +2444,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 scan_limit=scan_limit,
                 run_offset=run_offset,
                 run_limit=run_limit,
+                since_revision=since_revision,
             )
         )
 
@@ -2121,6 +2503,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         expected_revision: int | None = None,
     ) -> dict[str, Any]:
         """Explicitly accept or complete a stored proposed goal; no executor is launched."""
+        if state == "accepted":
+            _refuse_owner_action(directory, "project.goal.accept")
         return _checked(handlers.project_inbox_goal(directory, entry_id, state, expected_revision))
 
     @mcp.tool(annotations=create_files, structured_output=True)
@@ -2180,11 +2564,21 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         limit: int = 50,
         source: Literal["agent", "user", "scans", "app"] | None = None,
         query: str = "",
+        since_revision: int | None = None,
+        follow: bool = False,
+        wait_seconds: int = 0,
     ) -> dict[str, Any]:
-        """Read a newest-first bounded page of project events, optionally filtered."""
+        """Read project events after a revision; optionally wait up to 30 seconds for an update."""
         return _checked(
             handlers.project_event_page(
-                directory=directory, offset=offset, limit=limit, source=source, query=query
+                directory=directory,
+                offset=offset,
+                limit=limit,
+                source=source,
+                query=query,
+                since_revision=since_revision,
+                follow=follow,
+                wait_seconds=wait_seconds,
             )
         )
 
@@ -2672,6 +3066,15 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         "reviewer", "artifact" or "evidence"}``, which otherwise stays ``pending_exclusion``
         inside the denominator. This never makes a network request.
         """
+        if isinstance(record, dict) and (
+            record.get("signoff") is True or record.get("review") == "approved"
+        ):
+            action = (
+                "project.checklist.signoff"
+                if record.get("signoff") is True
+                else "project.checklist.review"
+            )
+            _refuse_owner_action(directory, action)
         return _checked(
             with_project_notice(
                 handlers.project_checklist_record(
@@ -2820,6 +3223,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         consumer: str | None = None,
     ) -> dict[str, Any]:
         """Read or explicitly update operator crawl defaults and project admission thresholds."""
+        if apply:
+            _refuse_owner_action(directory, "project.policy.apply")
         return _checked(
             with_project_notice(
                 handlers.project_policy(
@@ -2829,6 +3234,88 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 consumer,
             )
         )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_settings(directory: str) -> dict[str, Any]:
+        """Read current project settings and their optimistic-concurrency revision."""
+        return _checked(handlers.project_settings(directory))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_update(directory: str, label: str, expected_revision: int) -> dict[str, Any]:
+        """Update the project label; owner-only changes are unavailable through this MCP server."""
+        _refuse_owner_action(directory, "project.settings.update")
+        return _checked(handlers.project_update(directory, label, expected_revision))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_delete(directory: str) -> dict[str, Any]:
+        """Move a project to Trash; owner-only deletion is unavailable through this MCP server."""
+        _refuse_owner_action(directory, "project.delete")
+        return _checked(handlers.project_delete(directory))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_settings_propose(
+        directory: str,
+        changes: dict[str, Any],
+        expected_revision: int,
+    ) -> dict[str, Any]:
+        """Submit a label or crawl-policy proposal for explicit owner review; it is not applied."""
+        return _checked(
+            handlers.project_settings_propose(
+                directory, changes=changes, expected_revision=expected_revision
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_settings_proposals(
+        directory: str, offset: int = 0, limit: int = 50
+    ) -> dict[str, Any]:
+        """Read a bounded newest-first page of project setting proposals."""
+        return _checked(handlers.project_settings_proposals(directory, offset=offset, limit=limit))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_settings_review(
+        directory: str,
+        proposal_id: str,
+        decision: Literal["approve", "deny"],
+        expected_revision: int,
+    ) -> dict[str, Any]:
+        """Review a setting proposal; owner approval is unavailable through this MCP server."""
+        _refuse_owner_action(directory, "project.settings.review")
+        return _checked(
+            handlers.project_settings_review(
+                directory,
+                proposal_id=proposal_id,
+                decision=decision,
+                expected_revision=expected_revision,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_action_log(
+        directory: str,
+        offset: int = 0,
+        limit: int = 50,
+        client: Literal["cli", "mcp", "system"] | None = None,
+        outcome: Literal["pending", "applied", "approved", "denied", "stale", "refused", "deleted"]
+        | None = None,
+        query: str = "",
+    ) -> dict[str, Any]:
+        """Read a bounded project action log, filtering by interface, outcome or text."""
+        return _checked(
+            handlers.project_action_log(
+                directory=directory,
+                offset=offset,
+                limit=limit,
+                client=client,
+                outcome=outcome,
+                query=query,
+            )
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_agent_heartbeat(directory: str) -> dict[str, Any]:
+        """Record a bounded MCP activity timestamp; it does not establish connectivity or identity."""
+        return _checked(handlers.project_agent_heartbeat(directory))
 
     @mcp.tool(annotations=create_files, structured_output=True)
     def seo_project_competitors_add(
@@ -2858,6 +3345,53 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         """Drop one recorded competitor from the shortlist. Its local workspace and scans stay
         on disk, untouched; no crawl runs."""
         return _checked(handlers.project_competitors_remove(directory, url=url))
+
+    @mcp.tool(annotations=create_files_from_web, structured_output=True)
+    def seo_project_competitors_scan(
+        directory: str,
+        task_id: str,
+        expected_revision: int,
+        confirm: bool,
+        concurrency: int = 3,
+        approve_large_crawl: bool = False,
+        producer_build: str | None = None,
+        run_id: str | None = None,
+        consumer: str | None = None,
+    ) -> dict[str, Any]:
+        """Run a task's structured competitor scans with per-site URL caps.
+
+        This contacts only the registered competitor workspaces listed on the current custom
+        task. Each task entry supplies its own max_urls cap. Concurrency is limited to three
+        sites, and each crawl also has bounded request and one-hour time budgets. A fresh
+        confirm=true and the current checklist revision are required. This is a one-shot scan,
+        independent of the schedule engine; no competitor cadence is started or changed.
+        """
+        return _checked(
+            with_project_notice(
+                handlers.project_competitors_scan(
+                    directory=directory,
+                    task_id=task_id,
+                    expected_revision=expected_revision,
+                    confirm=confirm,
+                    concurrency=concurrency,
+                    approve_large_crawl=approve_large_crawl,
+                    producer_build=producer_build,
+                    run_id=run_id,
+                ),
+                directory,
+                consumer,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_competitors_scan_status(directory: str, run_id: str) -> dict[str, Any]:
+        """Read durable per-site progress for one explicitly started competitor scan run."""
+        return _checked(handlers.project_competitors_scan_status(directory, run_id))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_competitors_scan_cancel(directory: str, run_id: str) -> dict[str, Any]:
+        """Request a durable stop for one active competitor scan at its next crawl checkpoint."""
+        return _checked(handlers.project_competitors_scan_cancel(directory, run_id))
 
     @mcp.tool(annotations=create_files_from_web, structured_output=True)
     def seo_project_prepare(
@@ -2962,12 +3496,16 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
     def seo_provider_auth(
         provider: str,
         action: Literal[
-            "status", "connect", "refresh", "cancel", "disconnect", "revoke"
+            "status", "start", "connect", "refresh", "cancel", "disconnect", "revoke"
         ] = "status",
         grant_file: str | None = None,
         confirm: bool = False,
     ) -> dict[str, Any]:
-        """Manage GSC read-only OAuth grants: import private file, refresh, cancel a pending flow, or explicitly revoke. Never returns secrets."""
+        """Manage GSC read-only OAuth: start consent, inspect/cancel flows, import grants, refresh or confirm revocation. Never returns tokens."""
+        from seohead.projects.permissions import require_mcp_allowed
+
+        if action != "status":
+            require_mcp_allowed(f"provider.auth.{action}")
         return _checked(
             handlers.provider_auth(
                 provider=provider, action=action, grant_file=grant_file, confirm=confirm
@@ -2995,6 +3533,34 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         """Explicitly verify bounded read-only account/target access; present credentials are not verification."""
         return _checked(handlers.provider_verify(provider, request))
 
+    @mcp.tool(annotations=submit, structured_output=True)
+    def seo_provider_credential(
+        provider: str,
+        component: str,
+        action: Literal["status", "revoke"] = "status",
+        confirm: bool = False,
+    ) -> dict[str, Any]:
+        """Inspect or explicitly revoke a provider credential; secret writes stay on the local CLI."""
+        from seohead.projects.permissions import require_mcp_allowed
+
+        if action != "status":
+            require_mcp_allowed(f"provider.credential.{action}")
+        return _checked(
+            handlers.provider_credential(
+                provider=provider,
+                component=component,
+                action=action,
+                confirm=confirm,
+            )
+        )
+
+    @mcp.tool(annotations=fetch, structured_output=True)
+    def seo_provider_discover(
+        provider: Literal["google", "yandex", "topvisor"], domain: str | None = None
+    ) -> dict[str, Any]:
+        """List account-visible provider resources; discovery does not bind or select them."""
+        return _checked(handlers.provider_discover(provider=provider, domain=domain))
+
     @mcp.tool(annotations=paid, structured_output=True)
     def seo_provider_collect(
         provider: str, operation: str, request: dict[str, Any], artifact_dir: str | None = None
@@ -3007,6 +3573,22 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         """
         return _checked(
             handlers.provider_collect(provider, operation, request, artifact_dir=artifact_dir)
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_provider_artifact_read(
+        artifact_ref: str, artifact_dir: str, offset: int = 0, limit: int = 25
+    ) -> dict[str, Any]:
+        """Read a bounded PageSpeed summary from an existing provider artifact. The reader
+        validates the local artifact reference and returns an allowlisted, sanitized sample page;
+        it never returns the raw saved envelope or makes a provider request."""
+        return _checked(
+            handlers.provider_artifact_read(
+                artifact_ref=artifact_ref,
+                artifact_dir=artifact_dir,
+                offset=offset,
+                limit=limit,
+            )
         )
 
     @mcp.tool(annotations=pure, structured_output=True)
@@ -3151,12 +3733,15 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         )
 
     @mcp.tool(annotations=read_files, structured_output=True)
-    def seo_project_activity(directory: str) -> dict[str, Any]:
+    def seo_project_activity(directory: str, since_revision: str | None = None) -> dict[str, Any]:
         """Read lightweight current activity for a local project and its sites.
 
-        Reads saved local evidence only; does not collect, fetch or modify it.
+        Reads saved local evidence only; does not collect, fetch or modify it. Pass the returned
+        opaque revision as since_revision to receive a small not_modified response.
         """
-        return _checked(handlers.project_activity(directory=directory))
+        return _checked(
+            handlers.project_activity(directory=directory, since_revision=since_revision)
+        )
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_project_checklist_page(
@@ -3201,6 +3786,81 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         Does not collect, fetch or modify evidence.
         """
         return _checked(handlers.project_task_detail(directory=directory, item_id=item_id))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_task_comment(
+        directory: str,
+        item_id: str,
+        text: str,
+        actor: str,
+        expected_revision: int,
+        reference: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Append a comment to a custom project task with an optional scan/finding link.
+
+        The comment records its actor and timestamp. expected_revision prevents overwriting a
+        newer checklist update. This writes local project metadata and makes no network request.
+        """
+        return _checked(
+            with_project_notice(
+                handlers.project_task_comment(
+                    directory=directory,
+                    item_id=item_id,
+                    text=text,
+                    actor=actor,
+                    expected_revision=expected_revision,
+                    reference=reference,
+                ),
+                directory,
+                None,
+            )
+        )
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_export(
+        directory: str,
+        dataset: Literal["tasks", "task_comments", "task_history", "compare"],
+        fmt: str,
+        output: str,
+        compare_manifest: str | None = None,
+        job_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Start a complete task, task-comments, task-history or compare.v2 export under reports/.
+
+        The job returns immediately with an ID; use project_export_status to read bounded
+        progress and project_export_cancel to request cancellation. Successful outputs are
+        recorded in project export history. No network request is made.
+        """
+        return _checked(
+            handlers.project_export(
+                directory=directory,
+                dataset=dataset,
+                fmt=fmt,
+                output=output,
+                compare_manifest=compare_manifest,
+                job_id=job_id,
+                wait=False,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_export_status(directory: str, job_id: str) -> dict[str, Any]:
+        """Read progress and completion state for one local project export job."""
+        return _checked(handlers.project_export_status(directory=directory, job_id=job_id))
+
+    @mcp.tool(annotations=create_files, structured_output=True)
+    def seo_project_export_cancel(directory: str, job_id: str) -> dict[str, Any]:
+        """Request cancellation of a running local project export job."""
+        return _checked(handlers.project_export_cancel(directory=directory, job_id=job_id))
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_project_exports_page(
+        directory: str, offset: int = 0, limit: int = 50
+    ) -> dict[str, Any]:
+        """Read the bounded newest-first project export history."""
+        return _checked(
+            handlers.project_exports_page(directory=directory, offset=offset, limit=limit)
+        )
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_project_scans(directory: str, offset: int = 0, limit: int = 20) -> dict[str, Any]:
@@ -3345,11 +4005,34 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_tool_catalog(
-        query: str = "", limit: int = 10, include_arguments: bool = False
+        query: str = "", limit: int = 10, offset: int = 0, include_arguments: bool = False
     ) -> dict[str, Any]:
-        """Search complete source-derived tool metadata and load argument details only on request."""
+        """Search source-derived tool metadata with categories, project awareness, and bounded offset paging."""
         return _checked(
-            handlers.tool_catalog(query=query, limit=limit, include_arguments=include_arguments)
+            handlers.tool_catalog(
+                query=query, limit=limit, offset=offset, include_arguments=include_arguments
+            )
+        )
+
+    @mcp.tool(annotations=fetch, structured_output=True)
+    def seo_url_check_batch(
+        urls: list[str] | None = None,
+        checks: list[str] | None = None,
+        options: dict[str, Any] | None = None,
+        scan: str | None = None,
+        offset: int = 0,
+        max_urls: int = 50,
+    ) -> dict[str, Any]:
+        """Run up to 50 URL/check pairs from the supported single-URL checks over a URL list or a page of retained scan URLs. Per-pair network errors remain attached to their input URL."""
+        return _checked(
+            handlers.url_check_batch(
+                urls=urls,
+                checks=checks,
+                options=options,
+                scan=scan,
+                offset=offset,
+                max_urls=max_urls,
+            )
         )
 
     @mcp.tool(annotations=read_files, structured_output=True)
@@ -3388,15 +4071,19 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         case_sensitive: bool = False,
         include_snippets: bool = False,
         kind: Literal["literal", "regex"] = "literal",
+        url: str | None = None,
     ) -> dict[str, Any]:
         """Search one closed retained scan offline and create an indexed local NDJSON package.
 
         The tool never fetches or reconstructs a body. Static and rendered are
         separate requests; a missing body remains unavailable rather than an
-        absence. It returns only source identity, counts and output paths.
+        absence. Each serialized record is limited to 64 KiB and each package
+        to 512 MiB; hitting the package limit returns an explicitly incomplete
+        package. It returns source identity, counts and output paths.
         ``include_snippets`` is opt-in and redacts common credential-shaped values.
         ``kind="regex"`` treats ``query`` as a regular expression; a document
-        that exceeds the per-document regex budget is unavailable, not absent.
+        that exceeds the per-document regex budget, or runs where that deadline
+        cannot be enforced, is unavailable, not absent.
         """
         return _checked(
             handlers.scan_content_search(
@@ -3410,8 +4097,20 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 case_sensitive=case_sensitive,
                 include_snippets=include_snippets,
                 kind=kind,
+                url=url,
             )
         )
+
+    @mcp.tool(annotations=pure, structured_output=True)
+    def seo_custom_extract_sample(
+        html: str, extractors: list[dict], url: str = ""
+    ) -> dict[str, Any]:
+        """Preview declared extractors against supplied HTML without fetching a URL.
+
+        ``url`` is an output label only. Pass the HTML already held locally and
+        an explicit extractor list; this tool has no network path.
+        """
+        return _checked(handlers.custom_extract_sample(html, extractors, url=url))
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_scan_content_search_page(
@@ -3456,12 +4155,18 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_scan_structured_blocks(
-        input_path: str, url: str, representation: str = "static"
+        input_path: str,
+        url: str,
+        representation: str = "static",
+        variant_key: str | None = None,
     ) -> dict[str, Any]:
-        """Describe one retained page's JSON-LD blocks: line, state, graph findings and source JSON, offline."""
+        """Read bounded retained structured data and offline Schema.org validation for one exact URL."""
         return _checked(
             handlers.scan_structured_blocks(
-                input_path=input_path, url=url, representation=representation
+                input_path=input_path,
+                url=url,
+                representation=representation,
+                variant_key=variant_key,
             )
         )
 
@@ -3582,12 +4287,15 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         form_offset: int = 0,
         form_limit: int = 20,
         max_bytes: int = 1_048_576,
+        body_offset: int = 0,
+        body_length: int = 4096,
+        max_body_bytes: int = 8 * 1024 * 1024,
     ) -> dict[str, Any]:
-        """Read one exact native URL's retained headers, redirects, page fields, and forms.
+        """Read one exact native URL's bounded retained HTML and transport evidence.
 
         The query is offline and read-only. Header and query values stay redacted,
-        body bytes remain unavailable here, and legacy/Screaming Frog sources
-        return named unavailable evidence instead of an empty detail record.
+        source HTML is returned as one bounded window with raw and decoded hashes,
+        and legacy/Screaming Frog sources return named unavailable evidence.
         """
         return _checked(
             handlers.scan_url_detail(
@@ -3598,6 +4306,57 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 form_offset=form_offset,
                 form_limit=form_limit,
                 max_bytes=max_bytes,
+                body_offset=body_offset,
+                body_length=body_length,
+                max_body_bytes=max_body_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_body_read(
+        input_path: str,
+        url: str,
+        representation: str = "static",
+        variant_key: str | None = None,
+        offset: int = 0,
+        length: int = 4096,
+        max_decoded_bytes: int = 8 * 1024 * 1024,
+    ) -> dict[str, Any]:
+        """Read a bounded static or rendered HTML window from one saved scan offline."""
+        return _checked(
+            handlers.scan_body_read(
+                input_path=input_path,
+                url=url,
+                representation=representation,
+                variant_key=variant_key,
+                offset=offset,
+                length=length,
+                max_decoded_bytes=max_decoded_bytes,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_findings_page(
+        project: str,
+        scan_uuid: str | None = None,
+        offset: int = 0,
+        limit: int = 100,
+        query: str = "",
+        url: str | None = None,
+        sort: str = "severity",
+        descending: bool = False,
+    ) -> dict[str, Any]:
+        """Read one bounded page of saved findings, optionally for one exact URL."""
+        return _checked(
+            handlers.scan_findings_page(
+                project=project,
+                scan_uuid=scan_uuid,
+                offset=offset,
+                limit=limit,
+                query=query,
+                url=url,
+                sort=sort,
+                descending=descending,
             )
         )
 
@@ -3627,6 +4386,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         facets: list[str] | str | None = None,
         issue_check: str | list[str] | None = None,
         issue_severity: str | None = None,
+        include_check_counts: bool = False,
     ) -> dict[str, Any]:
         """Filter, sort and paginate the page table of one saved scan across the whole scan.
 
@@ -3641,6 +4401,9 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         URLs. Check ids are case-insensitive. Missing saved findings return state unavailable
         with reason_code issue_index_missing. Skipped, disabled or absent saved checks return
         issue_check_unmeasured; a bounded audit read can return issue_selection_timeout.
+        Set include_check_counts to include exact saved whole-scan severity/check totals and
+        registry-wide fired, silent, skipped, disabled or unavailable states. Missing summary
+        data returns issue_summary.state=unavailable, never zero counters.
         No unfiltered result is substituted.
         """
         return _checked(
@@ -3658,6 +4421,58 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 preset=preset,
                 issue_check=issue_check,
                 issue_severity=issue_severity,
+                include_check_counts=include_check_counts,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_directory_tree(
+        input_path: str,
+        max_depth: int = 3,
+        max_children: int = 50,
+        max_nodes: int = 10_000,
+        max_bytes: int = 1_048_576,
+        timeout_seconds: float = 15.0,
+    ) -> dict[str, Any]:
+        """Read a bounded directory tree from retained page URLs using local SQLite only.
+
+        The tree counts pages at each path ancestor and folds omitted children into exact
+        `other_children`/`other_pages` totals. A temporary SQLite aggregation bounds Python memory.
+        It never fetches, replays, or mutates the scan.
+        """
+        return _checked(
+            handlers.scan_directory_tree(
+                input_path=input_path,
+                max_depth=max_depth,
+                max_children=max_children,
+                max_nodes=max_nodes,
+                max_bytes=max_bytes,
+                timeout_seconds=timeout_seconds,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_headers_analyze(
+        input_path: str,
+        url: str | None = None,
+        offset: int = 0,
+        limit: int = 100,
+        max_bytes: int = 1_048_576,
+        timeout_seconds: float = 15.0,
+    ) -> dict[str, Any]:
+        """Analyze redacted response headers and captured transport phases from a saved scan.
+
+        Reads retained local evidence only. Missing response headers or phases stay unavailable;
+        the command never probes the site or infers a measurement from total response time.
+        """
+        return _checked(
+            handlers.headers_analyze(
+                input_path=input_path,
+                url=url,
+                offset=offset,
+                limit=limit,
+                max_bytes=max_bytes,
+                timeout_seconds=timeout_seconds,
             )
         )
 
@@ -3686,6 +4501,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         status_class: str = "all",
         contains: str | None = None,
         sort: str = "order",
+        preset: str | None = None,
     ) -> dict[str, Any]:
         """Inspect saved shortest paths, reverse inlinks, per-link DOM context, or one URL's links.
 
@@ -3695,6 +4511,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         target (outgoing) or source (incoming); the status is null when that page was not
         scanned. Filters: link_type, follow, status_class (2xx..5xx, broken, error, unscanned),
         contains; sort (out only): order, url, status. At most 200 rows per page with offset;
+        preset=inlinks selects internal incoming links; preset=broken_links selects internal
+        outgoing links whose saved targets are broken.
         `total` and `filtered_total` are exact or flagged capped/null. The scan is opened
         read-only without full validation; failures carry a machine `reason_code`
         (url_not_found, scan_not_available, url_not_scanned, links_not_retained).
@@ -3736,6 +4554,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 status_class=status_class,
                 contains=contains,
                 sort=sort,
+                preset=preset,
             )
         )
 
@@ -3794,6 +4613,12 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         project: str | None = None,
     ) -> dict[str, Any]:
         """Preview candidates by default; deletion requires apply plus the reviewed plan."""
+        if apply:
+            if project:
+                _refuse_owner_action(project, "scan.delete")
+            from seohead.projects.permissions import require_mcp_allowed
+
+            require_mcp_allowed("scan.delete")
         return _checked(
             handlers.scan_prune(
                 directory=directory,
@@ -3815,8 +4640,10 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         text: bool = False,
         max_bytes: int = 5 * 1024 * 1024,
         max_lines: int = 10_000,
+        left_representation: str | None = None,
+        right_representation: str | None = None,
     ) -> dict[str, Any]:
-        """Compare compatible retained bodies offline; a change is not an SEO verdict."""
+        """Compare retained bodies across scans or static/rendered bodies in one scan offline."""
         return _checked(
             handlers.scan_body_diff(
                 left=left,
@@ -3827,6 +4654,8 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
                 text=text,
                 max_bytes=max_bytes,
                 max_lines=max_lines,
+                left_representation=left_representation,
+                right_representation=right_representation,
             )
         )
 

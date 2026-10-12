@@ -312,6 +312,7 @@ def _metadata_workbook(document: dict[str, Any]):
         _append(ws, ["Checklist state", neutralize_formula(checklist.get("state", ""))])
         _append(ws, ["Revision", checklist.get("revision", "")])
         _append(ws, ["Counts", neutralize_formula(value_text(checklist.get("counts")))])
+        _append(ws, ["Task KPIs", neutralize_formula(value_text(checklist.get("task_kpis")))])
         _append(ws, [])
         _append(
             ws,
@@ -331,10 +332,15 @@ def _metadata_workbook(document: dict[str, Any]):
                 "Stale",
                 "Scope",
                 "Measurement",
+                "Task assignee",
+                "Task description",
+                "Acceptance criterion",
+                "Affected URLs",
+                "Affected URL state",
                 "Reason",
             ],
         )
-        _style_header(ws, 7)
+        _style_header(ws, 8)
         for item in checklist.get("items") or []:
             if not isinstance(item, dict):
                 continue
@@ -356,12 +362,21 @@ def _metadata_workbook(document: dict[str, Any]):
                     item.get("stale", ""),
                     neutralize_formula(value_text(item.get("scope"))),
                     neutralize_formula(value_text(item.get("measurement"))),
+                    neutralize_formula(value_text((item.get("task") or {}).get("assignee"))),
+                    neutralize_formula(value_text((item.get("task") or {}).get("description"))),
+                    neutralize_formula(
+                        value_text((item.get("task") or {}).get("acceptance_criterion"))
+                    ),
+                    (item.get("affected_urls") or {}).get("count"),
+                    neutralize_formula(
+                        (item.get("affected_urls") or {}).get("state", "unavailable")
+                    ),
                     neutralize_formula(item.get("reason", checklist.get("reason", ""))),
                 ],
             )
-        if ws.max_row > 7:
-            ws.auto_filter.ref = f"A7:P{ws.max_row}"
-        _autofit(ws, {2: 45, 7: 60, 14: 70, 15: 70, 16: 70})
+        if ws.max_row > 8:
+            ws.auto_filter.ref = f"A8:U{ws.max_row}"
+        _autofit(ws, {2: 45, 7: 60, 14: 70, 15: 70, 16: 45, 17: 60, 18: 60, 19: 60, 21: 70})
 
     from seohead.reports.evidence_summary import rows as evidence_rows
 

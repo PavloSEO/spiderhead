@@ -28,7 +28,7 @@ from seohead.storage.history import (
     recommended_name,
     snapshot_scan,
 )
-from seohead.storage.native_scan import NativeScan
+from seohead.storage.native_scan import NativeScan, read_effective_config
 from tests.test_scan_artifact import BUILD
 from tests.test_scan_artifact import legacy_run as legacy_run
 from tests.test_scan_native import _runtime
@@ -134,6 +134,42 @@ def _finished(path: Path, *, age_days: int = 31, captured: bool = True) -> None:
     finished_at = (datetime.now(UTC) - timedelta(days=age_days)).isoformat()
     with sqlite3.connect(path) as con:
         con.execute("UPDATE scan SET finished_at=?", (finished_at,))
+
+
+def test_legacy_header_with_saved_audit_keeps_its_historical_manifest(tmp_path):
+    metadata = _metadata()
+    metadata["config"]["scope"]["normalize_tracking_parameters"] = False
+    metadata["config_fingerprint"] = fingerprint(metadata["config"])
+    path = tmp_path / "legacy-audited.sqlite"
+    with NativeScan.create(path, **metadata) as scan:
+        scan.enqueue([("https://example.test/", 0)])
+        lease = scan.claim(1)[0]
+        scan.commit_page(
+            lease,
+            _record(lease.url),
+            captures=[_event(lease.url, b"<html><body>legacy audit</body></html>")],
+            runtime=_runtime(),
+        )
+        scan.con.execute(
+            "DELETE FROM context_items WHERE kind='native_config_extension' AND item_key='run'"
+        )
+        legacy_settings = json.loads(
+            scan.con.execute("SELECT config_json FROM scan WHERE singleton=1").fetchone()[0]
+        )
+        thresholds = json.loads(
+            scan.con.execute(
+                "SELECT payload_json FROM context_items WHERE kind='analysis_asset_thresholds'"
+            ).fetchone()[0]
+        )["thresholds"]
+        legacy_settings.setdefault("analysis", {})["asset_thresholds"] = thresholds
+        _save_audit(scan, legacy_settings)
+        assert scan.finish_capture("legacy audit fixture")
+
+    before = hashlib.sha256(path.read_bytes()).hexdigest()
+    with open_scan(path, require_audit=True) as con:
+        effective = read_effective_config(con)
+        assert effective["scope"]["normalize_tracking_parameters"] is False
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == before
 
 
 def test_history_ignores_unpublished_staging_but_preserves_other_hidden_scans(tmp_path):

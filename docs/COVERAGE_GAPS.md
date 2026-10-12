@@ -1,7 +1,7 @@
 # Audit coverage — the gap map
 
 **Purpose.** The list of SEO checks our SF audit
-(`seohead/sf/core/registry.py`, 248 checks) still **lacks**. For every gap:
+(`seohead/sf/core/registry.py`, 280 checks) still **lacks**. For every gap:
 value, implementation mode, likely home in the code. This is a filling plan,
 not a bug report. Items implemented since this map was written are marked
 **DONE**.
@@ -224,7 +224,7 @@ graph checks land in `inlinks.py` with almost no new math.
 
 | # | Name | Checks | Value | Mode | Home |
 |---|---|---|---|---|---|
-| 9.1 | "no alt" vs "empty alt" | Attribute missing vs `alt=""` (the latter often deliberate for decorative images) | medium | **DONE** — `IMG_MISSING_ALT_ATTRIBUTE` | `tools/parser.py`, `crawl/collect.py`, `sf/core/rules.py` |
+| 9.1 | "no alt" vs "empty alt" | Literal missing attribute; decorative empty alt stays valid, informative/whitespace-only empty names are separate | medium | **DONE** — `IMG_MISSING_ALT_ATTRIBUTE`, native `IMG_MISSING_ALT` | `checks/parser.py`, `sf/core/rules.py` |
 | 9.2 | Long alt (>100 chars) | Overly long alt text | low | **DONE** — `IMG_ALT_TOO_LONG` | `tools/parser.py`, `crawl/collect.py`, `sf/core/rules.py` |
 | 9.3 | `<picture>` without `<img>` | Lost fallback inside picture | low | A (HTML) | id `PICTURE_NO_IMG` |
 | 9.4 | Modern format (WebP/AVIF) | Legacy formats where WebP/AVIF fits | medium | B+ / A | id `IMG_LEGACY_FORMAT` |

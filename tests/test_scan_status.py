@@ -11,7 +11,7 @@ import httpx
 import pytest
 
 from seohead import cli
-from seohead.storage import ScanError, import_run
+from seohead.storage import import_run
 from seohead.storage.native_scan import NativeScan
 from seohead.storage.status import scan_status
 from tests.test_scan_artifact import BUILD
@@ -97,6 +97,9 @@ def test_native_status_counts_disjoint_frontier_and_http_outcomes_without_networ
         "other": 0,
         "no_response": 1,
     }
+    assert result["integrity"]["state"] == "not_checked"
+    assert result["integrity"]["checked_at"] is None
+    assert result["checkpoint_available"] is True
     assert hashlib.sha256(path.read_bytes()).hexdigest() == before
 
 
@@ -150,12 +153,23 @@ def test_status_refuses_unknown_or_unsupported_artifacts_without_rewriting(
             con.execute(statement)
     before = hashlib.sha256(path.read_bytes()).hexdigest()
 
-    with pytest.raises(ScanError, match=message):
-        scan_status(str(path))
+    result = scan_status(str(path), full_validation=True)
+    assert result["integrity"]["state"] == "damaged"
+    assert result["integrity"]["checked_at"]
+    assert result["integrity"]["affected_scan_ids"]
+    assert message in result["integrity"]["reason"]
+    assert result["ok"] is False
 
     assert hashlib.sha256(path.read_bytes()).hexdigest() == before
 
 
 def test_status_rejects_missing_artifact(tmp_path):
-    with pytest.raises(ScanError):
-        scan_status(str(tmp_path / "missing.sqlite"))
+    result = scan_status(str(tmp_path / "missing.sqlite"))
+    assert result["integrity"] == {
+        "state": "not_checked",
+        "checked_at": None,
+        "damaged_pages": None,
+        "affected_scan_ids": [],
+        "reason": "missing_file",
+    }
+    assert result["checkpoint_available"] is None

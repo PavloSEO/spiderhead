@@ -3,13 +3,9 @@ import unittest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PyQt5.QtWidgets import QLabel
-
-from seohead_desktop import i18n
 from seohead_desktop.app import load_theme
 from seohead_desktop.qt import app as qt_app
-from seohead_desktop.screens.logs_bots import KPIS, LogsBotsScreen
-from seohead_desktop.ui.kit import StatePanel
+from seohead_desktop.screens.logs_bots import LogsBotsScreen
 from tests._qt import sweep_widgets
 from tests._screens_host import FakeHost
 
@@ -22,47 +18,38 @@ class LogsBotsScreenTests(unittest.TestCase):
 
     def setUp(self):
         sweep_widgets()
-        i18n.set_language("ru")
-        self.addCleanup(i18n.set_language, "ru")
 
     def make(self, project):
         host = FakeHost(project=project)
+        host.log_imports = {}
         screen = LogsBotsScreen(host)
         screen.resize(1240, 800)
         screen.show()
         self.addCleanup(screen.close)
         self.addCleanup(screen.deleteLater)
         self.app.processEvents()
-        return screen
+        return host, screen
 
-    def test_no_project_offers_open_or_create(self):
-        screen = self.make(None)
-        self.assertIsNotNone(screen.panel)
-        self.assertEqual(screen.panel.action.text(), "Открыть проект…")
+    def test_without_retained_import_the_dns_action_is_disabled(self):
+        host, screen = self.make("/project/qa")
+        self.assertFalse(screen.verify_button.isEnabled())
+        self.assertEqual(screen.model.rowCount(), 0)
+        self.assertEqual(host.calls, [])
 
-    def test_project_open_shows_waiting_state_without_rows(self):
-        screen = self.make("/project/qa")
-        self.assertIsInstance(screen.panel, StatePanel)
-        self.assertEqual(screen.panel.kind, "waiting")
+    def test_no_project_keeps_the_screen_empty_without_dns(self):
+        host, screen = self.make(None)
+        self.assertFalse(screen.verify_button.isEnabled())
+        self.assertEqual(screen.model.rowCount(), 0)
+        self.assertEqual(host.calls, [])
 
-    def test_kpis_show_dashes_not_numbers(self):
-        screen = self.make("/project/qa")
-        self.assertEqual(len(screen.kpis), len(KPIS))
-        for pill in screen.kpis:
-            self.assertTrue(pill.text().startswith("— "))
-            self.assertFalse(pill.isEnabled())
-
-    def test_filters_are_disabled_with_reason(self):
-        screen = self.make("/project/qa")
-        self.assertEqual(len(screen.filters), 8)
-        for pill in screen.filters:
-            self.assertFalse(pill.isEnabled())
-            self.assertTrue(pill.toolTip())
-
-    def test_no_issue_number_is_visible(self):
-        screen = self.make("/project/qa")
-        texts = [w.text() for w in screen.findChildren(QLabel)] + [screen.foot_text.text()]
-        self.assertFalse(any("999" in t for t in texts))
+    def test_retained_import_enables_explicit_verification_without_starting_it(self):
+        host = FakeHost(project="/project/qa")
+        host.log_imports = {"/project/qa": {"source": "/project/qa/logs/retained.sqlite"}}
+        screen = LogsBotsScreen(host)
+        self.addCleanup(screen.close)
+        self.addCleanup(screen.deleteLater)
+        self.assertTrue(screen.verify_button.isEnabled())
+        self.assertEqual(host.calls, [])
 
 
 if __name__ == "__main__":

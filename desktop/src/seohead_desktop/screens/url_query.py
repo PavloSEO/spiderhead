@@ -221,9 +221,14 @@ class CoreJob(QObject):
     def busy(self):
         return self._job is not None
 
-    def start(self, arguments, token):
+    def start(self, arguments, token, *, timeout_ms=TIMEOUT_MS, text_result=False):
         executable = getattr(self.host, "core_executable", None)
         if self._closing:
+            return
+        if type(timeout_ms) is not int or not 1_000 <= timeout_ms <= 1_800_000:
+            self.failed.emit(
+                token, tr("Бюджет времени команды должен быть от 1 секунды до 30 минут")
+            )
             return
         if not isinstance(executable, str) or not executable or "\x00" in executable:
             self.failed.emit(token, tr("Исполняемый файл локального ядра не указан"))
@@ -237,13 +242,14 @@ class CoreJob(QObject):
             "stderr": bytearray(),
             "failure": None,
             "dead": False,
+            "text_result": bool(text_result),
         }
         self._job = job
         process.readyReadStandardOutput.connect(lambda: self._read(job))
         process.readyReadStandardError.connect(lambda: self._read(job))
         process.errorOccurred.connect(lambda error: self._error(job, error))
-        process.finished.connect(lambda code, status: self._finished(job))
-        self._timer.start(TIMEOUT_MS)
+        process.finished.connect(lambda code, status: self._finished(job, code))
+        self._timer.start(timeout_ms)
         process.start(executable, list(arguments))
 
     def cancel(self):
@@ -284,7 +290,7 @@ class CoreJob(QObject):
     def _timeout(self):
         job = self._job
         if job is not None:
-            job["failure"] = tr("Ядро не ответило за минуту")
+            job["failure"] = tr("Команда ядра превысила бюджет времени")
             job["process"].kill()
 
     def _error(self, job, error):
@@ -292,15 +298,15 @@ class CoreJob(QObject):
             return
         if error == QProcess.FailedToStart:
             job["failure"] = tr("Не удалось запустить локальное ядро")
-            self._finished(job)
+            self._finished(job, -1)
 
-    def _finished(self, job):
+    def _finished(self, job, exit_code=0):
         try:
-            self._finish(job)
+            self._finish(job, exit_code)
         except RuntimeError:  # Qt objects are already deleted at exit
             pass
 
-    def _finish(self, job):
+    def _finish(self, job, exit_code):
         if job["dead"] or self._job is not job:
             return
         self._read(job)
@@ -313,6 +319,15 @@ class CoreJob(QObject):
             self.failed.emit(token, failure)
             return
         text = bytes(job["stdout"]).decode("utf-8", "replace")
+        if job["text_result"]:
+            if exit_code != 0:
+                tail = bytes(job["stderr"]).decode("utf-8", "replace").strip().splitlines()
+                self.failed.emit(
+                    token, (tail[-1] if tail else tr("Команда завершилась с ошибкой"))[:300]
+                )
+                return
+            self.done.emit(token, {"ok": True, "text": text})
+            return
         start = text.find("{")
         try:
             payload = json.loads(text[start:]) if start >= 0 else None

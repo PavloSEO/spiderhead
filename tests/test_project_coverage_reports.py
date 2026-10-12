@@ -184,7 +184,8 @@ def test_dependency_blocker_is_visible_when_a_completed_parent_becomes_stale(
     elif fmt == "xlsx":
         rows = list(load_workbook(target, data_only=False)["Project Coverage"].values)
         values = next(row for row in rows if row[0] == "custom:child")
-        child_row = dict(zip(rows[6], values, strict=True))
+        header = next(row for row in rows if row and row[0] == "Item ID")
+        child_row = dict(zip(header, values, strict=True))
         assert child_row["Complete"] is False and child_row["Blocked by"] == '["custom:parent"]'
     else:
         text = "\n".join(paragraph.text for paragraph in Document(str(target)).paragraphs)

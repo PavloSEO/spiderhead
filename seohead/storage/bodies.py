@@ -16,6 +16,15 @@ from . import ScanError
 
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _DECODER_VERSION = "scan_decoder.v1"
+_LINE_BOUNDARIES = re.compile(r"\r\n|[\n\r\v\f\x1c-\x1e\x85\u2028\u2029]")
+
+
+def _line_count(text: str) -> int:
+    """Count splitlines() records without materializing a list of substrings."""
+    if not text:
+        return 0
+    boundaries = sum(1 for _match in _LINE_BOUNDARIES.finditer(text))
+    return boundaries + (text[-1] not in "\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029")
 
 
 def _navigation_evidence(renderer: dict):
@@ -231,8 +240,20 @@ def decode_entity(raw: bytes, content_type: str) -> tuple[str, dict[str, str]]:
 
 def read_document(con: sqlite3.Connection, document_id: int, *, max_decoded_bytes: int) -> str:
     """Read one stored document only when its state and response lineage are complete."""
-    text, _decoder = _read_document(con, document_id, max_decoded_bytes=max_decoded_bytes)
+    text, _decoder, _raw = _read_document_parts(
+        con, document_id, max_decoded_bytes=max_decoded_bytes
+    )
     return text
+
+
+def read_document_body(
+    con: sqlite3.Connection, document_id: int, *, max_decoded_bytes: int
+) -> bytes:
+    """Read exact response bytes through the selected document's verified lineage."""
+    _text, _decoder, raw = _read_document_parts(
+        con, document_id, max_decoded_bytes=max_decoded_bytes
+    )
+    return raw
 
 
 def read_page_document(con: sqlite3.Connection, url: str, *, max_decoded_bytes: int) -> str:
@@ -251,6 +272,17 @@ def read_page_document(con: sqlite3.Connection, url: str, *, max_decoded_bytes: 
 
 
 MAX_WINDOW_CHARS = 64 * 1024
+MAX_DOCUMENT_BYTES = 64 * 1024 * 1024
+_DOCUMENT_CANDIDATE = (
+    "(p.document_id=d.document_id OR i.item_key IS NOT NULL OR ("
+    "NOT EXISTS(SELECT 1 FROM pages selected_page JOIN documents selected_doc "
+    "ON selected_doc.document_id=selected_page.document_id "
+    "WHERE selected_doc.url_id=d.url_id AND selected_doc.representation=d.representation) "
+    "AND NOT EXISTS(SELECT 1 FROM context_items active JOIN documents selected_doc "
+    "ON active.item_key='document:'||selected_doc.document_id "
+    "WHERE active.kind='resource_inventory' AND selected_doc.url_id=d.url_id "
+    "AND selected_doc.representation=d.representation)))"
+)
 
 
 def read_document_window(
@@ -270,7 +302,9 @@ def read_document_window(
         raise ScanError("window offset must be a nonnegative integer")
     if type(length) is not int or not 1 <= length <= MAX_WINDOW_CHARS:
         raise ScanError(f"window length must be an integer from 1 to {MAX_WINDOW_CHARS}")
-    text, decoder = _read_document(con, document_id, max_decoded_bytes=max_decoded_bytes)
+    text, decoder, _raw = _read_document_parts(
+        con, document_id, max_decoded_bytes=max_decoded_bytes
+    )
     window = text[offset : offset + length]
     return {
         "document_id": document_id,
@@ -278,17 +312,131 @@ def read_document_window(
         "length": len(window),
         "total_chars": len(text),
         "truncated": offset + len(window) < len(text),
-        "lines": len(text.splitlines()),
+        "lines": _line_count(text),
         "encoding": decoder["decoder_charset"],
         "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "raw_body_sha256": con.execute(
+            "SELECT body_sha256 FROM documents WHERE document_id=?", (document_id,)
+        ).fetchone()[0],
         "text": window,
     }
 
 
-def _read_document(
+def read_document_content(
+    con: sqlite3.Connection,
+    document_id: int,
+    *,
+    max_decoded_bytes: int,
+) -> dict[str, object]:
+    """Read one complete retained document under an explicit decoded-byte cap."""
+    if type(max_decoded_bytes) is not int or not 1 <= max_decoded_bytes <= MAX_DOCUMENT_BYTES:
+        raise ScanError(f"document byte limit must be 1..{MAX_DOCUMENT_BYTES}")
+    text, decoder, _raw = _read_document_parts(
+        con, document_id, max_decoded_bytes=max_decoded_bytes
+    )
+    row = con.execute(
+        "SELECT d.representation,d.body_sha256,r.content_type FROM documents d "
+        "LEFT JOIN responses r ON r.response_id=d.source_response_id WHERE d.document_id=?",
+        (document_id,),
+    ).fetchone()
+    if row is None or row[1] is None:
+        raise ScanError("document body disappeared during read")
+    scan = con.execute("SELECT scan_uuid,evidence_revision FROM scan WHERE singleton=1").fetchone()
+    return {
+        "scan_uuid": scan[0] if scan is not None else None,
+        "evidence_revision": scan[1] if scan is not None else None,
+        "document_id": document_id,
+        "representation": row[0],
+        "content_type": row[2],
+        "raw_body_sha256": row[1],
+        "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "encoding": decoder["decoder_charset"],
+        "decoder": decoder,
+        "total_chars": len(text),
+        "lines": _line_count(text),
+        "text": text,
+    }
+
+
+def read_page_document_content(
+    con: sqlite3.Connection,
+    url: str,
+    *,
+    representation: str = "static",
+    variant_key: str | None = None,
+    max_decoded_bytes: int,
+) -> dict[str, object]:
+    """Resolve one exact retained page document and return its content with identity."""
+    if type(url) is not str or not url or len(url) > 8192:
+        raise ScanError("document URL must be exact nonempty text of at most 8192 characters")
+    if representation not in {"static", "rendered", "legacy_fragment"}:
+        raise ScanError("representation must be static, rendered, or legacy_fragment")
+    if variant_key is not None and type(variant_key) is not str:
+        raise ScanError("variant_key must be a string or null")
+    variants = [
+        row[0]
+        for row in con.execute(
+            "SELECT DISTINCT r.variant_key FROM documents d JOIN urls u USING(url_id) "
+            "LEFT JOIN responses r ON r.response_id=d.source_response_id "
+            "LEFT JOIN pages p ON p.url_id=d.url_id "
+            "LEFT JOIN context_items i ON i.kind='resource_inventory' "
+            "AND i.item_key='document:'||d.document_id "
+            "WHERE u.url=? AND d.representation=? AND " + _DOCUMENT_CANDIDATE + " "
+            "ORDER BY r.variant_key LIMIT 2",
+            (url, representation),
+        )
+    ]
+    if not variants:
+        return {"state": "unavailable", "reason": "document_not_in_corpus", "url": url}
+    if variant_key is None and len(variants) > 1:
+        return {
+            "state": "unavailable",
+            "reason": "multiple_http_variants_require_variant_key",
+            "url": url,
+            "representation": representation,
+        }
+    selected_variant = variant_key if variant_key is not None else variants[0]
+    row = con.execute(
+        "SELECT d.document_id,d.body_state,d.body_reason FROM documents d "
+        "JOIN urls u USING(url_id) LEFT JOIN responses r ON r.response_id=d.source_response_id "
+        "LEFT JOIN pages p ON p.url_id=d.url_id "
+        "LEFT JOIN context_items i ON i.kind='resource_inventory' "
+        "AND i.item_key='document:'||d.document_id "
+        "WHERE u.url=? AND d.representation=? AND " + _DOCUMENT_CANDIDATE + " "
+        "AND COALESCE(r.variant_key,'')=COALESCE(?,'') "
+        "ORDER BY (p.document_id=d.document_id) DESC,(i.item_key IS NOT NULL) DESC,"
+        "d.document_id DESC LIMIT 1",
+        (url, representation, selected_variant),
+    ).fetchone()
+    if row is None:
+        return {
+            "state": "unavailable",
+            "reason": "requested_http_variant_not_in_corpus",
+            "url": url,
+            "representation": representation,
+            "variant_key": variant_key,
+        }
+    if row[1] != "complete":
+        return {
+            "state": "unavailable",
+            "reason": f"{row[1]}/{row[2]}",
+            "url": url,
+            "document_id": row[0],
+            "representation": representation,
+            "variant_key": selected_variant,
+        }
+    return {
+        "state": "available",
+        "url": url,
+        "variant_key": selected_variant,
+        **read_document_content(con, row[0], max_decoded_bytes=max_decoded_bytes),
+    }
+
+
+def _read_document_parts(
     con: sqlite3.Connection, document_id: int, *, max_decoded_bytes: int
-) -> tuple[str, dict[str, str]]:
-    """Read one stored document and return its text with the verified decoder metadata."""
+) -> tuple[str, dict[str, str], bytes]:
+    """Read one document and verify both its exact body bytes and decoder metadata."""
     if type(document_id) is not int or document_id < 1:
         raise ScanError("document ID must be a positive integer")
     cursor = con.execute(
@@ -352,6 +500,16 @@ def _read_document(
         raise ScanError("document fidelity is unavailable or unsupported")
     if any(document[key] != value for key, value in decoder.items()):
         raise ScanError("document decoder metadata disagrees with stored bytes")
+    return text, decoder, raw
+
+
+def _read_document(
+    con: sqlite3.Connection, document_id: int, *, max_decoded_bytes: int
+) -> tuple[str, dict[str, str]]:
+    """Keep the original private reader shape for storage extensions during integration."""
+    text, decoder, _raw = _read_document_parts(
+        con, document_id, max_decoded_bytes=max_decoded_bytes
+    )
     return text, decoder
 
 

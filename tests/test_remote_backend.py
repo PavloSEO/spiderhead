@@ -23,7 +23,7 @@ from seohead.integrations.remote_api.contracts import (
     ScanSubmission,
 )
 from seohead.recon import net
-from seohead.storage.native_scan import read_effective_config
+from seohead.storage.native_scan import _frozen_header_config, read_effective_config
 
 TOKEN_A = "synthetic-remote-token-alpha-strong-1"
 TOKEN_B = "synthetic-remote-token-beta-strong-2"
@@ -299,8 +299,7 @@ def test_synthetic_api_queue_worker_result_and_private_artifacts(monkeypatch, tm
         )
     frozen_config = json.loads(stored_config)
     assert "asset_thresholds" not in frozen_config["analysis"]
-    effective_config["analysis"].pop("asset_thresholds")
-    assert frozen_config == effective_config
+    assert frozen_config == _frozen_header_config(effective_config)
     download = api.get(
         f"{SCANS_A}/{job_id}/artifacts/{scan_ref['artifact_id']}", headers=_headers()
     )

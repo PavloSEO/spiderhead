@@ -195,7 +195,7 @@
           "bytes": 21954,
           "path": "cohorts-0001.csv",
           "rows": 30,
-          "sha256": "24241c22e692f68822f1ebfae347669d99d189678f4ea6c87f40a3ed67e8a3bb"
+          "sha256": "a6c11e393be8e341caf0bf8b7388c5c5b7606b65ad0b00075edc767bf660be8e"
         }
       ],
       "primary_key": [
@@ -209,7 +209,7 @@
       "state": "available"
     },
     "coverage": {
-      "bytes": 58295,
+      "bytes": 66625,
       "coverage": {},
       "fields": [
         {
@@ -278,10 +278,10 @@
       "partition_count": 1,
       "partitions": [
         {
-          "bytes": 58295,
+          "bytes": 66625,
           "path": "coverage-0001.csv",
-          "rows": 247,
-          "sha256": "04fc07d6b43f866efb3263b42112dbcc0084e03108a5c97a07bc77c5d1bc2173"
+          "rows": 279,
+          "sha256": "23dacda1f45550d7c4a1e29c7655ab8e5fac877c15e6f5b2e729fcf79ebe95e3"
         }
       ],
       "primary_key": [
@@ -291,7 +291,7 @@
         "population"
       ],
       "reason": null,
-      "row_count": 247,
+      "row_count": 279,
       "schema_version": "seohead.bi.coverage.v1",
       "source_population": "input artifact and declared check coverage",
       "state": "available"
@@ -557,7 +557,7 @@
           "bytes": 29360,
           "path": "findings-0001.csv",
           "rows": 25,
-          "sha256": "9b969477bc39486e8e66358b0941d493656d2cbda3657f89aa81c0fed6000494"
+          "sha256": "c447101f74581c2f2303e4c4caae11ede830fd6f00e478b0be4c13cb4edf872f"
         }
       ],
       "primary_key": [
@@ -1147,7 +1147,7 @@
           "bytes": 40469,
           "path": "metrics-0001.csv",
           "rows": 16,
-          "sha256": "4d3cc2a2affc75e0f7c111c7e249f1026f5252955bfa1ab2c655f2c1bbda5a33"
+          "sha256": "d24f2c377c1333c490b4c01b6e3597f718424c23114adbcea3c9008c2ef56c13"
         }
       ],
       "primary_key": [
@@ -1590,7 +1590,7 @@
           "bytes": 12289,
           "path": "pages-0001.csv",
           "rows": 6,
-          "sha256": "6de4c4d3183cf5ef95eaab63032656ec828287a09fb08d73927df01759e224cc"
+          "sha256": "5e972b7c955503a881aa0cdde73096bfb564051807275393fd4417924d292bc9"
         }
       ],
       "primary_key": [
@@ -1660,7 +1660,7 @@
           "bytes": 834,
           "path": "group-groups-0001.csv",
           "rows": 3,
-          "sha256": "d04a9b4dace79ccc098742d921509bec721bab80ad2991bd0f60ee7273d4abfc"
+          "sha256": "5a79bd31240520006bb8736f5098f414f096d5419de9015e8fffe829b2a7f99e"
         }
       ],
       "row_count": 3
@@ -1702,22 +1702,22 @@
           "bytes": 589,
           "path": "group-members-0001.csv",
           "rows": 7,
-          "sha256": "e5f0765d357d320e1577f36621fd43fe74314a98b4cf62d83a657dbc956026f3"
+          "sha256": "862b38b53b98a859d8aee6fb6d4011ec40d775abb520cce01ba3a9d53a822bee"
         }
       ],
       "row_count": 7
     },
     "publication": "local companion; not included in the six published datasets",
-    "run_id": "audit:c44b448d78f55a892b467976",
-    "sha256": "c2da2cd2c4376d41bef0e7e59c5dfb6f4ae85f17fe818d060f514505d9fd1769",
-    "source_audit_sha256": "c44b448d78f55a892b4679767e681fcc26c2b6ff625162b8827a3672db0bd6a8"
+    "run_id": "audit:480cd5ead5fa3f0f68183594",
+    "sha256": "975f05f4c383ccf508adcd67a3c14620ff8a02e99626e6007fb54b391660c15f",
+    "source_audit_sha256": "480cd5ead5fa3f0f68183594cd9688febfff137f4c2e225cfc31cc93ddf82d87"
   },
   "input": {
-    "bytes": 60624,
+    "bytes": 65333,
     "kind": "sf-audit",
     "name": "audit.json",
     "schema": "2.0",
-    "sha256": "c44b448d78f55a892b4679767e681fcc26c2b6ff625162b8827a3672db0bd6a8"
+    "sha256": "480cd5ead5fa3f0f68183594cd9688febfff137f4c2e225cfc31cc93ddf82d87"
   },
   "metrics_dimension_columns": {},
   "provider_sources": [
@@ -1913,7 +1913,7 @@
     "projection_index_cache_bytes": 2097152
   },
   "run": {
-    "audit_sha256": "c44b448d78f55a892b4679767e681fcc26c2b6ff625162b8827a3672db0bd6a8",
+    "audit_sha256": "480cd5ead5fa3f0f68183594cd9688febfff137f4c2e225cfc31cc93ddf82d87",
     "check_skips": {
       "A11Y_FORM_LABEL_MISSING": "document-bound markup evidence requires a retained native crawl",
       "A11Y_HEADING_ORDER": "document-bound markup evidence requires a retained native crawl",
@@ -1937,12 +1937,16 @@
       "AMP_NON_200": "no amphtml Link Element column in Internal:All",
       "AMP_NON_INDEXABLE_CANONICAL": "no amphtml Link Element column in Internal:All",
       "ASSET_SHORT_CACHE": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+      "BODY_MIME_MISMATCH": "export-only analysis retains no per-URL response bodies; a native retained scan is required",
       "BODY_MISSING": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "BODY_MULTIPLE": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
+      "BOUNCE_RATE_ABOVE_70": "no validated project selected for provider bindings and retained history",
       "BROKEN_BOOKMARK": "export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan",
       "BROKEN_EXTERNAL_LINK": "export inlinks_5xx not available",
       "CANONICAL_INVALID_ATTRIBUTE": "raw canonical attributes are unavailable in this export",
+      "CANONICAL_MISMATCH": "requires retained native rendered evidence",
       "CANONICAL_MULTIPLE": "no Canonical Link Element 2 column in Internal:All",
+      "CANONICAL_ONLY_IN_RENDERED_HTML": "requires retained native rendered evidence",
       "CANONICAL_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
       "CONTENT_IN_IFRAME": "no iframe inventory in this evidence",
       "DEEP_CLICK_DEPTH": "no all_inlinks export (needed for the complete internal edge list)",
@@ -1962,9 +1966,19 @@
       "FILTER_CANONICAL_POLICY": "no filters canonical policy configured",
       "FONT_DISPLAY_MISSING": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
       "FORCED_REFLOW": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "GA_ORPHAN_URL": "no validated project selected for provider bindings and retained history",
       "GRAMMAR_ERRORS": "no Grammar Errors column (enable grammar-check in SF)",
+      "GSC_AMP_INVALID": "no validated project selected for provider bindings and retained history",
+      "GSC_INDEXABLE_NOT_INDEXED": "no validated project selected for provider bindings and retained history",
+      "GSC_INDEXED_WITH_ISSUES": "no validated project selected for provider bindings and retained history",
+      "GSC_ORPHAN": "no validated project selected for provider bindings and retained history",
+      "GSC_RICH_RESULTS_INVALID": "no validated project selected for provider bindings and retained history",
+      "GSC_URL_NOT_ON_GOOGLE": "no validated project selected for provider bindings and retained history",
+      "GSC_USER_CANONICAL_NOT_SELECTED": "no validated project selected for provider bindings and retained history",
       "H1_ALT_TEXT_ONLY": "no H1 alt-text evidence (native crawl only)",
       "H1_LOW_SEMANTIC_RELEVANCE": "no semantic embedding adapter is selected",
+      "H1_ONLY_IN_RENDERED_HTML": "requires retained native rendered evidence",
+      "H1_UPDATED_BY_JAVASCRIPT": "requires retained native rendered evidence",
       "H2_MISSING": "requirements.require_h2 is false; the check was not evaluated",
       "HEADING_BEFORE_H1": "no heading outline evidence (native crawl only)",
       "HEADING_IN_PAGE_CHROME": "no heading outline evidence (native crawl only)",
@@ -2011,22 +2025,39 @@
       "LONG_SENTENCES": "no Average Words Per Sentence column",
       "LOREM_IPSUM_PLACEHOLDER": "no Lorem Ipsum evidence (native crawl only)",
       "LOW_LINK_SCORE": "no all_inlinks export (needed for the complete internal edge list)",
+      "META_DESCRIPTION_ONLY_IN_RENDERED_HTML": "requires retained native rendered evidence",
+      "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT": "requires retained native rendered evidence",
       "META_KEYWORDS_PRESENT": "no Meta Keywords 1 column in Internal:All",
+      "METRIKA_BOUNCE_RATE_ABOVE_70": "no validated project selected for provider bindings and retained history",
+      "METRIKA_ORPHAN_URL": "no validated project selected for provider bindings and retained history",
       "MISSING_CHARSET": "no Meta Charset column, so a page without a header charset cannot be distinguished from one declaring <meta charset> (needs a native seohead crawl or Custom Extraction in SF)",
       "MISSING_DOCTYPE": "no Doctype column (needs a native seohead crawl or Custom Extraction in SF)",
       "MISSING_HSTS": "missing export: security_hsts",
       "MIXED_CONTENT": "missing export: security_mixed",
       "MIXED_LINK_REL": "export input retains no full rel-token/context evidence; native retained links are required",
       "MOBILE_ALTERNATE_LINK": "no rel=alternate media evidence (native crawl only)",
+      "MOBILE_CONTENT_OVERFLOW": "requires retained native rendered mobile layout evidence",
+      "MOBILE_TARGET_TOO_SMALL": "requires retained native rendered mobile layout evidence",
+      "MOBILE_TEXT_TOO_SMALL": "requires retained native rendered mobile layout evidence",
       "NEAR_DUPLICATE": "stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4)",
       "NETWORK_DEPENDENCY_TREE": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "NOFOLLOW_ONLY_IN_RAW_HTML": "requires retained native rendered evidence",
+      "NOINDEX_ONLY_IN_RAW_HTML": "requires retained native rendered evidence",
+      "NON_INDEXABLE_WITH_GA_DATA": "no validated project selected for provider bindings and retained history",
+      "NON_INDEXABLE_WITH_METRIKA_DATA": "no validated project selected for provider bindings and retained history",
+      "NON_INDEXABLE_WITH_SEARCH_DATA": "no validated project selected for provider bindings and retained history",
       "NO_AUTHOR_BYLINE": "no Trust Signals column (native crawl or a same-named custom extraction) -- no author markup evidence at all",
       "NO_COMPRESSION": "no Content-Encoding column (needs a native seohead crawl or Custom Extraction in SF)",
       "NO_CONTENT_DATES": "no Trust Signals column and no Last Modified column -- no date evidence at all",
+      "NO_GA_DATA": "no validated project selected for provider bindings and retained history",
+      "NO_METRIKA_DATA": "no validated project selected for provider bindings and retained history",
+      "NO_SEARCH_DATA": "no validated project selected for provider bindings and retained history",
       "OG_MISSING": "no Open Graph columns in Internal:All (enable OG extraction in SF)",
       "ONLY_NOFOLLOW_INLINKS": "no all_inlinks export (needed for the complete inlink list)",
       "ONLY_NONINDEXABLE_SOURCE_INLINKS": "no all_inlinks export (needed for the complete inlink list)",
       "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE": "export input retains no full rel-token/context evidence; native retained links are required",
+      "PAGE_TITLE_ONLY_IN_RENDERED_HTML": "requires retained native rendered evidence",
+      "PAGE_TITLE_UPDATED_BY_JAVASCRIPT": "requires retained native rendered evidence",
       "PAGINATION_CANONICAL_POLICY": "no pagination canonical policy configured",
       "PAGINATION_LOOP": "no rel=\"next\" column in Internal:All",
       "PAGINATION_MULTIPLE": "no all_inlinks export (needed for every rel=\"next\"/rel=\"prev\" declaration and the anchors beside them)",
@@ -2036,6 +2067,7 @@
       "REDIRECT_CHAIN": "no redirect data (Internal:All has no Redirect URL column)",
       "REDIRECT_LOOP": "no redirect data (Internal:All has no Redirect URL column)",
       "RENDER_BLOCKING": "no Render Blocking Resources column (needs a native seohead crawl)",
+      "RENDER_RESOURCE_BLOCKED": "requires retained native rendered evidence",
       "RESOURCE_OVER_2MB": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
       "ROBOTS_BLOCKS_RESOURCES": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)",
       "SCHEMA_VALIDATION_ERROR": "no Structured Data validation columns in Internal:All",
@@ -2071,14 +2103,14 @@
     "crawl_reason": "audit source does not establish a completed native crawl",
     "crawl_settings": null,
     "crawl_state": "unknown",
-    "finished_at": "2026-10-11T15:22:50Z",
+    "finished_at": "2026-10-12T00:00:43Z",
     "input_mode": "parse-exports",
-    "run_id": "audit:c44b448d78f55a892b467976",
-    "source_bytes": 60624,
+    "run_id": "audit:480cd5ead5fa3f0f68183594",
+    "source_bytes": 65333,
     "source_kind": "sf-audit",
     "source_name": "audit.json",
     "source_schema": "2.0",
-    "source_sha256": "c44b448d78f55a892b4679767e681fcc26c2b6ff625162b8827a3672db0bd6a8",
+    "source_sha256": "480cd5ead5fa3f0f68183594cd9688febfff137f4c2e225cfc31cc93ddf82d87",
     "started_at": null,
     "summary": {
       "asset_measurements": {
@@ -2346,13 +2378,13 @@
           "URL_UPPERCASE",
           "YMYL_REVIEW_CANDIDATE"
         ],
-        "checks_skipped": 152,
-        "checks_total": 248,
-        "coverage": 0.387
+        "checks_skipped": 184,
+        "checks_total": 280,
+        "coverage": 0.343
       },
       "health_score": null,
-      "health_score_basis": "96 of 248 checks could run; the score is not comparable to a run with full evidence",
-      "health_score_reason": "only 96 of 248 checks could run (39% coverage); too little evidence to score",
+      "health_score_basis": "96 of 280 checks could run; the score is not comparable to a run with full evidence",
+      "health_score_reason": "only 96 of 280 checks could run (34% coverage); too little evidence to score",
       "implausible_checks": [
         {
           "check": "H2_DUPLICATE",
@@ -2363,6 +2395,12 @@
       "internal_linking": {
         "measured": false,
         "reason": "no all_inlinks export (needed for the complete internal edge list)"
+      },
+      "provider_findings": {
+        "reason": "no validated project selected for provider bindings and retained history",
+        "schema_version": "provider_findings.v1",
+        "sources": {},
+        "state": "unavailable"
       },
       "semantic_similarity": {
         "coverage": {

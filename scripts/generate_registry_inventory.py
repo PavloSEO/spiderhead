@@ -87,9 +87,8 @@ def _tools_content() -> str:
     )
     text = _replace(
         text,
-        r"\(\d+ \+ \d+(?: \+ \d+)?\):\n\n```bash\nseohead mcp",
-        f"({len(load_seo_tools())} + {len(load_sf_tools())} + {len(load_semantics_tools())}):"
-        "\n\n```bash\nseohead mcp",
+        r"(`seo_semantics_\*` semantic-core tools)(?: \(\d+ \+ \d+(?: \+ \d+)?\))?([.:])",
+        rf"\g<1> ({len(load_seo_tools())} + {len(load_sf_tools())} + {len(load_semantics_tools())})\g<2>",
         path,
     )
     inventory = "\n".join(

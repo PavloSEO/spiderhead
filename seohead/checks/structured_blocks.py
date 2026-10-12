@@ -9,6 +9,7 @@ way the parser and the Schema.org graph check see it, without changing either.
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from typing import Any
 
 from bs4 import BeautifulSoup
@@ -20,7 +21,9 @@ from seohead.checks.parser import document_base_url, live_jsonld_tags
 SOURCE_CHARS = 20_000
 EXCERPT_CHARS = 200
 VALUE_CHARS = 200
-MAX_PROPERTIES = 500
+MAX_PROPERTIES = 100
+MAX_BLOCKS = 25
+MAX_MESSAGES = 100
 
 
 def _preview(value: Any) -> str:
@@ -63,7 +66,12 @@ def _unique_types(nodes: list[dict[str, Any]]) -> list[str]:
     return found
 
 
-def structured_blocks(html: str | None, *, base_url: str = "") -> dict[str, Any]:
+def structured_blocks(
+    html: str | None,
+    *,
+    base_url: str = "",
+    checked_page: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
     """Describe every live JSON-LD block of one document, in source order.
 
     ``state`` is ``absent`` when there are no blocks, ``malformed`` when any block
@@ -77,11 +85,9 @@ def structured_blocks(html: str | None, *, base_url: str = "") -> dict[str, Any]
     # script and template handling used here is the same in both builders.
     soup = BeautifulSoup(html, features="html.parser")
     resolved_base = document_base_url(soup, base_url)
-    vocab = schema_org.load_vocab()
-
     parsed: list[dict[str, Any]] = []
-    nodes_by_block: list[list[dict[str, Any]]] = []
-    for ordinal, tag in enumerate(live_jsonld_tags(soup)):
+    tags = live_jsonld_tags(soup)
+    for ordinal, tag in enumerate(tags[:MAX_BLOCKS]):
         raw = (tag.string or tag.get_text() or "").strip()
         entry: dict[str, Any] = {
             "ordinal": ordinal,
@@ -93,6 +99,8 @@ def structured_blocks(html: str | None, *, base_url: str = "") -> dict[str, Any]
             "warnings": 0,
             "error": None,
             "messages": [],
+            "message_count": 0,
+            "messages_truncated": False,
             "properties": [],
             "property_limit_reached": False,
             "source_json": None,
@@ -135,41 +143,46 @@ def structured_blocks(html: str | None, *, base_url: str = "") -> dict[str, Any]
                         }
                     ]
         parsed.append(entry)
-        nodes_by_block.append(nodes)
 
-    # Cross-block @id references are legal, so the known-id set spans the page.
-    known_ids = {
-        node["@id"]
-        for nodes in nodes_by_block
-        for node in nodes
-        if isinstance(node.get("@id"), str)
-    }
-    # A JSON-LD entity can legally reference a subject declared in Microdata or
-    # RDFa on this same page. Use the shared graph's normalized identities.
-    checked_page = schema_org.check_schema(html=html, document_base_url=resolved_base)
-    known_ids.update(
-        entity["id"]
-        for entity in checked_page.get("entities", [])
-        if isinstance(entity.get("id"), str)
+    # The caller may supply the one page-wide Schema.org result used by a
+    # retained-detail endpoint. Standalone callers still get the same offline check.
+    checked_page = (
+        checked_page
+        if isinstance(checked_page, Mapping)
+        else schema_org.check_schema(html=html, document_base_url=resolved_base)
     )
-    for entry, nodes in zip(parsed, nodes_by_block, strict=True):
-        for node in nodes:
-            checked = schema_org._check_node(node, vocab, known_ids)
-            entry["errors"] += len(checked["errors"])
-            entry["warnings"] += len(checked["warnings"])
+    checked_entities = checked_page.get("entities") or []
+    for entry in parsed:
+        prefix = f"jsonld[{entry['ordinal'] + 1}]"
+        for checked in checked_entities:
+            if (
+                not isinstance(checked, Mapping)
+                or checked.get("format") != "jsonld"
+                or not isinstance(checked.get("path"), str)
+            ):
+                continue
+            path = checked["path"]
+            if not (path == prefix or path.startswith((prefix + ".", prefix + "@", prefix + "["))):
+                continue
+            errors = checked.get("errors") or []
+            warnings = checked.get("warnings") or []
+            entry["errors"] += len(errors)
+            entry["warnings"] += len(warnings)
+            entry["message_count"] += len(errors) + len(warnings)
             entry["messages"] += [
-                {"path": checked["path"], "level": "error", "text": text}
-                for text in checked["errors"]
+                {"path": path[:512], "level": "error", "text": str(text)[:500]} for text in errors
             ] + [
-                {"path": checked["path"], "level": "warning", "text": text}
-                for text in checked["warnings"]
+                {"path": path[:512], "level": "warning", "text": str(text)[:500]}
+                for text in warnings
             ]
+            entry["messages_truncated"] = entry["message_count"] > MAX_MESSAGES
+            entry["messages"] = entry["messages"][:MAX_MESSAGES]
         if entry["state"] == "valid" and entry["errors"]:
             entry["state"] = "errors"
         elif entry["state"] == "valid" and entry["warnings"]:
             entry["state"] = "warnings"
 
-    if not parsed:
+    if not parsed and not tags:
         state = "absent"
     elif any(entry["state"] == "parse_error" for entry in parsed):
         state = "malformed"
@@ -179,10 +192,13 @@ def structured_blocks(html: str | None, *, base_url: str = "") -> dict[str, Any]
         state = "warnings"
     else:
         state = "valid"
+    truncated = len(tags) > MAX_BLOCKS
+    reason = f"Showing the first {MAX_BLOCKS} of {len(tags)} JSON-LD blocks." if truncated else ""
     return {
         "state": state,
-        "reason": "",
-        "block_count": len(parsed),
+        "reason": reason,
+        "block_count": len(tags),
+        "blocks_truncated": truncated,
         "parse_error_count": sum(entry["state"] == "parse_error" for entry in parsed),
         "rules_version": schema_org.RICH_RESULTS_RULES_VERSION,
         "blocks": parsed,

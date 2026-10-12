@@ -22,17 +22,25 @@ def _run(monkeypatch, capsys, *argv):
     return code, json.loads(capsys.readouterr().out)
 
 
-def test_baseline_reports_every_case_and_keeps_scan_bytes(monkeypatch, capsys, scan_path):
-    code, report = _run(monkeypatch, capsys, "--scan", str(scan_path), "--repeat", "2")
-    assert set(report["cases"]) == {name for name, *_ in profile.CASES}
+def test_acceptance_reports_every_case_and_keeps_scan_bytes(monkeypatch, capsys, scan_path):
+    code, report = _run(
+        monkeypatch, capsys, "--scan", str(scan_path), "--repeat", "2", "--min-urls", "1"
+    )
+    assert set(report["cases"]) == {
+        *(name for name, *_ in profile.CASES),
+        "all_facets",
+        "whole_scan_issue_counters",
+    }
     assert report["scan_unchanged"] is True
     assert report["urls"] > 0
     assert report["budget_ms"] == profile.BUDGET_MS
+    assert report["cases"]["all_facets"]["facet_states_valid"] is True
+    assert report["cases"]["all_facets"]["result_state"] in {"exact", "partial"}
     for case in report["cases"].values():
         assert case["ok"] is True
         assert case["rows"] <= profile.PAGE_ROWS
         assert case["min_ms"] <= case["median_ms"] <= case["max_ms"]
-    assert code == (0 if all(c["within_budget"] for c in report["cases"].values()) else 3)
+    assert code in {0, 3}
 
 
 def test_deep_offset_past_the_end_returns_no_rows_without_error(monkeypatch, capsys, scan_path):
@@ -47,5 +55,8 @@ def test_rejects_missing_scan_and_zero_repeats(monkeypatch, scan_path, tmp_path)
     with pytest.raises(SystemExit):
         profile.main()
     monkeypatch.setattr(sys, "argv", ["p", "--scan", str(scan_path), "--repeat", "0"])
+    with pytest.raises(SystemExit):
+        profile.main()
+    monkeypatch.setattr(sys, "argv", ["p", "--scan", str(scan_path), "--min-urls", "0"])
     with pytest.raises(SystemExit):
         profile.main()

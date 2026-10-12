@@ -10,10 +10,14 @@ import math
 import os
 import re
 import sqlite3
+import threading
+import time
 import uuid
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
+from seohead.core import filesystem
 from seohead.core.filesystem import atomic_write_bytes
 
 from .catalogue import load_catalogue
@@ -22,10 +26,12 @@ from .workspace import _load, _target
 
 POLICY_FORMAT = "seohead.project-crawl-policy.v1"
 PREPARATION_FORMAT = "seohead.project-preparation.v1"
+_PROJECT_LOCKS = threading.local()
 DEFAULT_POLICY = {
     "evidence_hash": {"max_bytes": 1024 * 1024 * 1024, "max_seconds": 5},
     "approval_thresholds": {"pages": 1000, "requests": 3000, "seconds": 600},
     "quick_crawl": {"pages": 50, "requests": 150, "seconds": 60},
+    "crawl_profile": None,
     "crawl_overrides": {},
     "competitor_limit": 5,
 }
@@ -43,10 +49,61 @@ def read_document(root: Path, name: str) -> dict | None:
     return data
 
 
+@contextmanager
+def project_write_lock(root: str | Path, *, timeout_seconds: float = 5.0):
+    """Serialize project-file mutations with a bounded, portable OS lock.
+
+    Reentrant within one thread so compound operations can call write_document
+    while retaining the same project boundary. Other processes either acquire
+    the lock within the timeout or receive a clear busy error.
+    """
+    root = Path(root)
+    key = str(root.resolve())
+    held = getattr(_PROJECT_LOCKS, "held", None)
+    if held is None:
+        held = _PROJECT_LOCKS.held = {}
+    if key in held:
+        held[key] += 1
+        try:
+            yield
+        finally:
+            held[key] -= 1
+        return
+
+    filesystem.require_locking()
+    descriptor = filesystem.open_lock(root / ".project-write.lock")
+    try:
+        deadline = time.monotonic() + timeout_seconds
+        while True:
+            try:
+                filesystem.lock_exclusive(descriptor)
+                break
+            except OSError as exc:
+                if time.monotonic() >= deadline:
+                    raise ValueError("project workspace is busy; another writer owns it") from exc
+                time.sleep(min(0.01, max(0.0, deadline - time.monotonic())))
+        held[key] = 1
+        try:
+            yield
+        finally:
+            held.pop(key, None)
+            filesystem.unlock(descriptor)
+    finally:
+        os.close(descriptor)
+
+
 def write_document(
     root: Path, name: str, data: dict, *, expected_revision: int | None = None
 ) -> None:
     """Publish one bounded project document with a retained previous revision."""
+    with project_write_lock(root):
+        _write_document_locked(root, name, data, expected_revision=expected_revision)
+
+
+def _write_document_locked(
+    root: Path, name: str, data: dict, *, expected_revision: int | None = None
+) -> None:
+    """Publish a project document while the caller owns project_write_lock."""
     content = json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False) + "\n"
     if len(content.encode()) > 16 * 1024 * 1024:
         raise ValueError("project document exceeds its byte budget")
@@ -88,12 +145,16 @@ def _positive(value: Any, label: str) -> int:
 def validate_policy(policy: Any) -> dict:
     from seohead.crawl.settings import load
 
+    legacy_fields = set(DEFAULT_POLICY) - {"crawl_profile"}
     if not isinstance(policy, dict) or set(policy) not in (
         set(DEFAULT_POLICY),
+        legacy_fields,
+        legacy_fields - {"evidence_hash"},
         set(DEFAULT_POLICY) - {"evidence_hash"},
     ):
         raise ValueError("crawl policy has unsupported fields")
-    result = copy.deepcopy(policy)
+    result = copy.deepcopy(DEFAULT_POLICY)
+    result.update(copy.deepcopy(policy))
     result.setdefault("evidence_hash", copy.deepcopy(DEFAULT_POLICY["evidence_hash"]))
     hashing = result["evidence_hash"]
     if not isinstance(hashing, dict) or set(hashing) != {"max_bytes", "max_seconds"}:
@@ -112,6 +173,14 @@ def validate_policy(policy: Any) -> dict:
             _positive(value, f"{section}.{key}")
     if not isinstance(result["crawl_overrides"], dict):
         raise ValueError("crawl_overrides must be a configuration object")
+    profile = result["crawl_profile"]
+    if profile is not None:
+        if not isinstance(profile, str) or not profile:
+            raise ValueError("crawl_profile must be a saved profile name or null")
+        from seohead.crawl.profiles import NAME_RE
+
+        if not NAME_RE.fullmatch(profile):
+            raise ValueError("crawl_profile is not a valid saved profile name")
     # Validate with the collector's actual settings; policy never executes its text.
     load(overrides=result["crawl_overrides"])
     if _positive(result["competitor_limit"], "competitor_limit") > 20:
@@ -119,39 +188,84 @@ def validate_policy(policy: Any) -> dict:
     return result
 
 
+def _read_project_policy(root: Path, project_uuid: str) -> dict | None:
+    current = read_document(root, "crawl-policy.json")
+    if current is not None and (
+        set(current)
+        not in (
+            {"format", "project_uuid", "revision", "policy"},
+            {"format", "project_uuid", "revision", "policy", "operation_id"},
+        )
+        or current["format"] != POLICY_FORMAT
+        or current["project_uuid"] != project_uuid
+        or type(current["revision"]) is not int
+        or (
+            current.get("operation_id") is not None
+            and (
+                type(current["operation_id"]) is not str
+                or not re.fullmatch(r"[0-9a-f]{32}", current["operation_id"])
+            )
+        )
+    ):
+        raise ValueError("unsupported or mismatched project crawl policy")
+    if current is not None and "operation_id" not in current:
+        current = {**current, "operation_id": None}
+    return current
+
+
 def project_policy(
     directory: str,
     policy: dict | None = None,
     apply: bool = False,
     expected_revision: int | None = None,
+    operation_id: str | None = None,
 ) -> dict:
-    root, project = _load(directory)
-    current = read_document(root, "crawl-policy.json")
-    if current and (
-        set(current) != {"format", "project_uuid", "revision", "policy"}
-        or current["format"] != POLICY_FORMAT
-        or current["project_uuid"] != project["project_uuid"]
-        or type(current["revision"]) is not int
-    ):
-        raise ValueError("unsupported or mismatched project crawl policy")
-    selected = validate_policy(
-        policy if policy is not None else current["policy"] if current else DEFAULT_POLICY
-    )
-    revision = current["revision"] if current else 0
     if type(apply) is not bool:
         raise ValueError("apply must be a boolean")
-    if apply:
-        if type(expected_revision) is not int:
-            raise ValueError("expected_revision is required to change project policy")
+    if operation_id is not None and (
+        type(operation_id) is not str or not re.fullmatch(r"[0-9a-f]{32}", operation_id)
+    ):
+        raise ValueError("operation_id must be a UUID hex value or null")
+    root, project = _load(directory)
+    if not apply:
+        current = _read_project_policy(root, project["project_uuid"])
+        selected = validate_policy(
+            policy if policy is not None else current["policy"] if current else DEFAULT_POLICY
+        )
+        return {
+            "ok": True,
+            "applied": False,
+            "revision": current["revision"] if current else 0,
+            "policy": selected,
+            "operation_id": current.get("operation_id") if current else None,
+        }
+
+    if type(expected_revision) is not int:
+        raise ValueError("expected_revision is required to change project policy")
+    with project_write_lock(root):
+        current_root, current_project = _load(directory)
+        if current_root != root or current_project["project_uuid"] != project["project_uuid"]:
+            raise ValueError("project changed before policy update")
+        current = _read_project_policy(root, project["project_uuid"])
+        selected = validate_policy(
+            policy if policy is not None else current["policy"] if current else DEFAULT_POLICY
+        )
+        revision = current["revision"] if current else 0
         document = {
             "format": POLICY_FORMAT,
             "project_uuid": project["project_uuid"],
             "revision": revision + 1,
             "policy": selected,
+            "operation_id": operation_id,
         }
         write_document(root, "crawl-policy.json", document, expected_revision=expected_revision)
-        revision += 1
-    return {"ok": True, "applied": apply, "revision": revision, "policy": selected}
+        return {
+            "ok": True,
+            "applied": True,
+            "revision": revision + 1,
+            "policy": selected,
+            "operation_id": operation_id,
+        }
 
 
 def admission(directory: str, settings: dict, *, approved: bool = False) -> dict:
@@ -206,6 +320,48 @@ def admission(directory: str, settings: dict, *, approved: bool = False) -> dict
 
 _HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
 _STEP = re.compile(r"^(?:#{2,6}\s+|\*\*)(\d+)\.\s+(.+?)\.?\*{0,2}\s*$")
+_FRONTMATTER_FIELD = re.compile(r"^([A-Za-z][A-Za-z0-9_-]*):(?:\s+(.*))?$")
+
+
+def _playbook_metadata(content: str) -> dict[str, str | None]:
+    """Read explicitly declared scalar front-matter fields without a YAML dependency."""
+    fields: dict[str, str | None] = {
+        "description": None,
+        "when": None,
+        "requires": None,
+        "version": None,
+    }
+    lines = content.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return fields
+    active: str | None = None
+    block_indent: int | None = None
+    for line in lines[1:]:
+        if line.strip() == "---":
+            break
+        match = _FRONTMATTER_FIELD.match(line)
+        if match:
+            key, value = match.groups()
+            active = key if key in fields else None
+            block_indent = None
+            if active:
+                value = (value or "").strip()
+                if value in {">", ">-", "|", "|-"}:
+                    fields[active] = ""
+                    block_indent = None
+                elif value:
+                    fields[active] = value.strip("'\"")
+                else:
+                    fields[active] = None
+            continue
+        if active and line.strip():
+            indent = len(line) - len(line.lstrip())
+            if block_indent is None:
+                block_indent = indent
+            if indent >= block_indent:
+                prior = fields[active] or ""
+                fields[active] = (prior + " " + line.strip()).strip()
+    return fields
 
 
 def playbook_outline(content: str) -> dict:
@@ -240,6 +396,10 @@ def playbook_list(kind: str | None = None) -> dict:
             continue
         entry = {key: value for key, value in row.items() if key != "content"}
         entry["steps"] = playbook_outline(row["content"])["steps"]
+        entry.update(_playbook_metadata(row["content"]))
+        entry["metadata_unavailable"] = [
+            field for field in ("when", "requires", "version") if entry[field] is None
+        ]
         entries.append(entry)
     return {"ok": True, "items": entries}
 
@@ -255,7 +415,17 @@ def playbook_show(name: str, kind: str = "skill") -> dict:
     ]
     if len(matches) != 1:
         raise ValueError("playbook name is missing or ambiguous; use its full catalogue ID")
-    return {"ok": True, **matches[0], **playbook_outline(matches[0]["content"])}
+    content = matches[0]["content"]
+    metadata = _playbook_metadata(content)
+    return {
+        "ok": True,
+        **matches[0],
+        **playbook_outline(content),
+        **metadata,
+        "metadata_unavailable": [
+            field for field in ("when", "requires", "version") if metadata[field] is None
+        ],
+    }
 
 
 def preparation_status(directory: str) -> dict:

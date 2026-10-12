@@ -12,6 +12,7 @@ from pathlib import Path
 
 from PyQt5.QtWidgets import (
     QApplication,
+    QDialog,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -34,6 +35,7 @@ from ..competitors import (
 from ..crawl_configuration import preview_configuration
 from ..i18n import tr, trf
 from ..ui.kit import StatePanel, no_project_panel, show_empty
+from ..ui.modal import ModalDialog
 from .base import Screen
 from .work import RowsModel, build_table, number, project_state
 
@@ -48,7 +50,7 @@ COLUMNS = (
 
 class CompetitorsScreen(Screen):
     slot = ""
-    watches = ("project", "competitors", "scans")
+    watches = ("project", "competitors", "scans", "mcp")
 
     def __init__(self, host):
         super().__init__(host)
@@ -68,13 +70,13 @@ class CompetitorsScreen(Screen):
         self.entry = QLineEdit()
         self.entry.setPlaceholderText(tr("Адрес сайта или домен, например example.com"))
         self.entry.returnPressed.connect(self.add_typed)
-        add = QPushButton(tr("Добавить"))
-        add.clicked.connect(self.add_typed)
-        paste = QPushButton(tr("Вставить из буфера"))
-        paste.clicked.connect(self.add_from_clipboard)
+        self.add_button = QPushButton(tr("Добавить"))
+        self.add_button.clicked.connect(self.add_typed)
+        self.paste_button = QPushButton(tr("Вставить из буфера"))
+        self.paste_button.clicked.connect(self.add_from_clipboard)
         intake.addWidget(self.entry, 1)
-        intake.addWidget(add)
-        intake.addWidget(paste)
+        intake.addWidget(self.add_button)
+        intake.addWidget(self.paste_button)
         layout.addLayout(intake)
 
         controls = QHBoxLayout()
@@ -88,9 +90,15 @@ class CompetitorsScreen(Screen):
         self.scan_button = QPushButton(tr("Запустить сканы конкурентов"))
         self.scan_button.clicked.connect(self.start_scans)
         controls.addWidget(self.scan_button)
+        self.remove_button = QPushButton(tr("Убрать из списка"))
+        self.remove_button.setToolTip(tr("Локальная папка и сканы конкурента останутся на диске."))
+        self.remove_button.setEnabled(False)
+        self.remove_button.clicked.connect(self.remove_selected)
+        controls.addWidget(self.remove_button)
         layout.addLayout(controls)
 
         self.table = build_table(self.model, badge_column=None, stretch=0)
+        self.table.selectionModel().currentRowChanged.connect(lambda *_args: self._sync_actions())
         layout.addWidget(self.table, 1)
         self.status = QLabel()
         self.status.setProperty("text_style", "meta")
@@ -125,6 +133,7 @@ class CompetitorsScreen(Screen):
         self.model.set_rows(rows)
         self.table.setVisible(bool(rows))
         self.scan_button.setEnabled(bool(rows))
+        self._sync_actions()
         limit = self._limit()
         text = trf("Конкурентов: {n} из {limit}", n=number(len(rows)), limit=number(limit))
         error = host.screen_errors.get("competitors-add")
@@ -139,6 +148,18 @@ class CompetitorsScreen(Screen):
     def _known_urls(self):
         return [row["url"] for row in self.model.rows]
 
+    def _feature_available(self, tool):
+        tools = getattr(self.host, "_mcp_tools", None)
+        return tools is None or tool in tools
+
+    def _sync_actions(self):
+        self.add_button.setEnabled(self._feature_available("seo_project_competitors_add"))
+        self.paste_button.setEnabled(self._feature_available("seo_project_competitors_add"))
+        self.remove_button.setEnabled(
+            self.table.currentIndex().isValid()
+            and self._feature_available("seo_project_competitors_remove")
+        )
+
     # ---- intake ----------------------------------------------------------------------------------------------------
     def add_typed(self):
         text = self.entry.text()
@@ -150,6 +171,11 @@ class CompetitorsScreen(Screen):
 
     def _add_text(self, text: str, *, source: str) -> bool:
         host = self.host
+        if not self._feature_available("seo_project_competitors_add"):
+            self.status.setText(
+                tr("Эта версия ядра не поддерживает работу со списком конкурентов.")
+            )
+            return False
         if not host.project_directory:
             self.status.setText(tr("Сначала откройте локальный проект SEOHEAD"))
             return False
@@ -181,6 +207,44 @@ class CompetitorsScreen(Screen):
     def _added(self, result):
         count = len((result or {}).get("competitors") or [])
         self.status.setText(trf("Конкурентов в проекте: {n}", n=number(count)))
+        self.host.refresh_project()
+
+    def remove_selected(self):
+        if not self._feature_available("seo_project_competitors_remove"):
+            self.status.setText(
+                tr("Эта версия ядра не поддерживает удаление конкурентов из списка.")
+            )
+            return
+        index = self.table.currentIndex()
+        if not index.isValid() or index.row() >= len(self.model.rows):
+            return
+        row = self.model.rows[index.row()]
+        dialog = ModalDialog(
+            "Убрать конкурента из списка?",
+            "Папка проекта и сохранённые сканы останутся на диске.",
+            icon="delete",
+            tone="warning",
+            width=520,
+            parent=self,
+        )
+        dialog.add_button("Cancel", "text", on_click=dialog.reject)
+        dialog.add_button("Remove from list", "destructive", icon="delete", on_click=dialog.accept)
+        if dialog.exec_() != QDialog.Accepted:
+            return
+        self.status.setText(tr("Убираем конкурента из списка…"))
+        self.remove_button.setEnabled(False)
+        self.host.start_command(
+            "competitors-remove",
+            "seo_project_competitors_remove",
+            {"directory": self.host.project_directory, "url": row["url"]},
+            self._removed,
+        )
+
+    def _removed(self, result):
+        if not isinstance(result, dict) or result.get("ok") is False:
+            self.status.setText(tr("Ядро не подтвердило удаление конкурента."))
+            return
+        self.status.setText(tr("Конкурент убран из списка; его данные сохранены."))
         self.host.refresh_project()
 
     # ---- scans -----------------------------------------------------------------------------------------------------

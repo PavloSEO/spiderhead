@@ -47,6 +47,34 @@ def test_no_out_dir_routes_to_the_native_writer(monkeypatch, tmp_path):
     assert captured["scan_out"].startswith(str(tmp_path / "scans"))
 
 
+def test_mcp_profile_name_selects_a_saved_local_profile(tmp_path, monkeypatch):
+    from seohead.crawl import profiles
+
+    profile_dir = tmp_path / "profiles"
+    monkeypatch.setenv(profiles.DIR_ENV, str(profile_dir))
+    source = tmp_path / "config.json"
+    source.write_text(json.dumps({"speed": {"concurrency": 2}}), encoding="utf-8")
+    profiles.save("catalog", str(source))
+    captured = {}
+
+    def fake(*args, **kwargs):
+        captured.update(kwargs)
+        return SpiderResult()
+
+    monkeypatch.setattr(spider_mod, "crawl_site", fake)
+    handlers.crawl_site(
+        url="https://example.com/", profile="catalog", out_dir=str(tmp_path / "run")
+    )
+    assert captured["concurrency"] == 2
+
+
+def test_mcp_profile_and_config_are_mutually_exclusive():
+    import pytest
+
+    with pytest.raises(ValueError, match="profile and config are mutually exclusive"):
+        handlers.crawl_site(url="https://example.com/", profile="catalog", config="config.json")
+
+
 def test_urls_file_enters_the_existing_list_collector_in_source_order(tmp_path, monkeypatch):
     """A file is an input source for list mode, never a second discovery mode."""
     source = tmp_path / "urls.txt"

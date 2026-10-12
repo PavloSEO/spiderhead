@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import os
+import sqlite3
 
 import pytest
 
@@ -16,7 +17,13 @@ from tests.test_scan_url_query import _rows, _scan
 
 @pytest.fixture(scope="module")
 def scan_path(tmp_path_factory):
-    return _scan(tmp_path_factory.mktemp("presets"))
+    path = _scan(tmp_path_factory.mktemp("presets"))
+    # Model a valid older scan row whose nullable field was never retained.
+    with sqlite3.connect(path) as con:
+        con.execute(
+            "UPDATE pages SET hreflang_json=NULL WHERE url_id=(SELECT MIN(url_id) FROM pages)"
+        )
+    return path
 
 
 def _urls(result):
@@ -52,7 +59,11 @@ def test_every_preset_equals_its_explicit_filters(scan_path):
         by_hand = handlers.scan_url_query(
             input_path=str(scan_path), filters=list(filters), limit=200
         )
-        assert _urls(by_preset) == _urls(by_hand), preset
+        if by_preset.get("ok"):
+            assert _urls(by_preset) == _urls(by_hand), preset
+        else:
+            assert by_preset["state"] == by_hand["state"]
+            assert by_preset["reason_code"] == by_hand["reason_code"]
 
 
 def test_preset_is_and_combined_with_user_filters(scan_path):
@@ -67,8 +78,31 @@ def test_preset_is_and_combined_with_user_filters(scan_path):
 
 
 def test_unknown_preset_is_refused(scan_path):
-    got = handlers.scan_url_query(input_path=str(scan_path), preset="duplicate_titles")
+    got = handlers.scan_url_query(input_path=str(scan_path), preset="not-a-preset")
     assert got["ok"] is False and got["reason_code"] == "unknown_preset"
+
+
+@pytest.mark.parametrize("preset", ["hreflang", "duplicate_titles", "in_sitemap", "inlinks"])
+def test_added_presets_are_closed_filters(scan_path, preset):
+    got = handlers.scan_url_query(input_path=str(scan_path), preset=preset, limit=200)
+    if preset == "in_sitemap":
+        assert got["ok"] is False and got["reason_code"] == "sitemap_membership_unavailable"
+    elif preset == "inlinks":
+        assert got["ok"] is False and got["reason_code"] == "inlinks_unavailable"
+    elif preset == "hreflang":
+        assert got["ok"] is False and got["reason_code"] == "hreflang_unavailable"
+    else:
+        assert got["ok"] is True
+        assert got["preset"] == preset
+
+
+def test_hreflang_empty_list_is_measured_not_unavailable(tmp_path):
+    path = _scan(tmp_path)
+    got = handlers.scan_url_query(input_path=str(path), preset="hreflang")
+
+    assert got["ok"] is True
+    assert got["filtered_total"] == 0
+    assert got["filtered_total_state"] == "exact"
 
 
 def test_preset_does_not_exceed_the_filter_limit(scan_path):

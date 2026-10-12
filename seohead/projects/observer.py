@@ -7,7 +7,9 @@ scan-history and inbox stores.  It owns no crawl, task, finding, or job state.
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
+import re
 from collections import OrderedDict
 from contextlib import closing
 from datetime import datetime, timezone
@@ -46,6 +48,8 @@ _FINDINGS_CACHE_LIMIT = 8
 _FINDINGS_CACHE_MAX_BYTES = 8 * 1024 * 1024
 _FINDINGS_CACHE: OrderedDict[tuple[Any, ...], dict[str, Any]] = OrderedDict()
 _FINDINGS_CACHE_LOCK = RLock()
+_REVISION = re.compile(r"[0-9a-f]{64}\Z")
+_VOLATILE_REVISION_KEYS = {"observed_at", "age_seconds", "current_rate_per_second"}
 
 
 def _log(root: Path) -> dict[str, Any]:
@@ -55,6 +59,33 @@ def _log(root: Path) -> dict[str, Any]:
         stream.seek(max(0, size - LOG_BYTES))
         text = stream.read(LOG_BYTES).decode("utf-8", errors="replace")
     return {"text": text, "truncated": size > LOG_BYTES, "bytes": size}
+
+
+def _stable_projection(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {
+            key: _stable_projection(item)
+            for key, item in value.items()
+            if key not in _VOLATILE_REVISION_KEYS
+        }
+    if isinstance(value, list):
+        return [_stable_projection(item) for item in value]
+    return value
+
+
+def _revisioned(payload: dict[str, Any], since_revision: str | None) -> dict[str, Any]:
+    if since_revision is not None and (
+        not isinstance(since_revision, str) or not _REVISION.fullmatch(since_revision)
+    ):
+        raise ValueError("since_revision must be a 64-character lowercase SHA-256 token")
+    stable = _stable_projection(payload)
+    encoded = json.dumps(
+        stable, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode("utf-8")
+    revision = hashlib.sha256(encoded).hexdigest()
+    if since_revision == revision:
+        return {"ok": True, "revision": revision, "not_modified": True}
+    return {**payload, "revision": revision, "not_modified": False}
 
 
 def _stat_state(path: Path) -> tuple[int, int, int, int] | None:
@@ -150,11 +181,14 @@ def _read_retained_findings(row: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(issues, list) or any(not isinstance(item, dict) for item in issues):
         raise ValueError("retained scan audit has no readable finding list")
     run = audit.get("run")
+    from seohead.storage.issue_counters import coverage_summary
+
     return {
         "issues": tuple(issues),
         "skipped_checks": copy.deepcopy(run.get("checks_skipped", []))
         if isinstance(run, dict)
         else [],
+        "check_coverage": coverage_summary((audit.get("summary") or {}).get("check_coverage")),
         "schema_version": audit.get("schema_version"),
         "generated_at": run.get("generated_at") if isinstance(run, dict) else None,
     }
@@ -230,6 +264,14 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                 "truncated": False,
             },
             "skipped_checks": None,
+            "check_coverage": {
+                "state": "unavailable",
+                "reason": "collection still running; no finalized audit coverage",
+                "checks_run": None,
+                "checks_skipped": None,
+                "checks_disabled": None,
+                "checks_total": None,
+            },
         }
     try:
         status = scan_status(path)
@@ -247,6 +289,14 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
         "frontier": status["frontier"],
         "committed_page_outcomes": status["committed_page_outcomes"],
         "sitemaps": {"fetch_summaries": {key: value for key, value in sitemap_rows}},
+        "check_coverage": {
+            "state": "unavailable",
+            "reason": "saved audit check coverage is unavailable",
+            "checks_run": None,
+            "checks_skipped": None,
+            "checks_disabled": None,
+            "checks_total": None,
+        },
     }
     try:
         from seohead.storage.audit_v2 import AuditV2Reader, audit_v2_path
@@ -280,6 +330,8 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                 skipped = reader.header.get("run", {}).get("checks_skipped", [])
                 if "/run/checks_skipped" in reader.collections:
                     skipped = list(reader.iter_collection("/run/checks_skipped"))
+                from seohead.storage.issue_counters import coverage_summary
+
                 evidence.update(
                     findings={
                         "state": "available",
@@ -292,6 +344,9 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                         "next_offset": len(first) if total > len(first) else None,
                     },
                     skipped_checks=skipped,
+                    check_coverage=coverage_summary(
+                        reader.header.get("summary", {}).get("check_coverage")
+                    ),
                 )
                 return evidence
         retained = _retained_findings(row)
@@ -307,6 +362,14 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                 "truncated": False,
             },
             skipped_checks=None,
+            check_coverage={
+                "state": "unavailable",
+                "reason": str(exc),
+                "checks_run": None,
+                "checks_skipped": None,
+                "checks_disabled": None,
+                "checks_total": None,
+            },
         )
         return evidence
     by_severity: dict[str, int] = {}
@@ -347,6 +410,7 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
             else None,
         },
         skipped_checks=retained["skipped_checks"],
+        check_coverage=retained["check_coverage"],
     )
     return evidence
 
@@ -671,7 +735,7 @@ def _projection_truncated(value: Any, *, depth: int = 0) -> bool:
     return False
 
 
-def _v2_findings_page(row, *, offset, limit, query, sort, descending):
+def _v2_findings_page(row, *, offset, limit, query, url, sort, descending):
     """Let SQLite bound sorting/paging; never materialize unrelated audit collections."""
     from seohead.storage.audit_v2 import AuditV2Reader
 
@@ -683,12 +747,17 @@ def _v2_findings_page(row, *, offset, limit, query, sort, descending):
         )
         predicate = "pointer='/issues' AND instr(casefold(" + expression + "),?)>0"
         needle = query.casefold().strip()
+        parameters: tuple[Any, ...] = (needle,)
+        if url is not None:
+            predicate += " AND COALESCE(NULLIF(json_extract(value_json,'$.target_url'),''),json_extract(value_json,'$.url'))=?"
+            parameters += (url,)
         matched = reader.con.execute(
-            "SELECT COUNT(*) FROM items WHERE " + predicate, (needle,)
+            "SELECT COUNT(*) FROM items WHERE " + predicate, parameters
         ).fetchone()[0]
-        value = f"json_extract(value_json,'$.{sort}')"
+        raw_value = f"json_extract(value_json,'$.{sort}')"
         if sort == "target_url":
-            value = "COALESCE(NULLIF(" + value + ",''),json_extract(value_json,'$.url'))"
+            raw_value = "COALESCE(NULLIF(" + raw_value + ",''),json_extract(value_json,'$.url'))"
+        value = raw_value
         if sort == "severity":
             value = (
                 "CASE casefold("
@@ -697,20 +766,17 @@ def _v2_findings_page(row, *, offset, limit, query, sort, descending):
                 + " ".join(f"WHEN '{name}' THEN {rank}" for name, rank in _SEVERITY_RANK.items())
                 + " ELSE 99 END"
             )
-            order = value
         else:
-            order = f"({value} IS NULL OR {value}=''),casefold({value})"
+            value = f"casefold({raw_value})"
         direction = " DESC" if descending else " ASC"
-        order = (
-            order.replace(",casefold", direction + ",casefold") + direction + ",ordinal" + direction
-        )
+        order = f"({raw_value} IS NULL OR {raw_value}='') ASC,{value}{direction},ordinal{direction}"
         selected = reader.con.execute(
             "SELECT ordinal,value_json FROM items WHERE "
             + predicate
             + " ORDER BY "
             + order
             + " LIMIT ? OFFSET ?",
-            (needle, limit, offset),
+            (*parameters, limit, offset),
         )
         return (
             reader.count("/issues"),
@@ -726,6 +792,7 @@ def findings_page(
     offset: int = 0,
     limit: int = FINDING_PAGE_SIZE,
     query: str = "",
+    url: str | None = None,
     sort: str = "severity",
     descending: bool = False,
 ) -> dict[str, Any]:
@@ -741,6 +808,8 @@ def findings_page(
         raise ValueError("finding limit must be from 1 to 100")
     if type(query) is not str or len(query) > 256:
         raise ValueError("finding query must be text of at most 256 characters")
+    if url is not None and (type(url) is not str or not url or len(url) > 8192):
+        raise ValueError("finding URL must be exact nonempty text of at most 8192 characters")
     if sort not in _FINDING_SORTS:
         raise ValueError("finding sort must be severity, check, target_url or id")
     row = _scan_row(directory, scan_uuid)
@@ -748,7 +817,7 @@ def findings_page(
 
     if audit_v2_path(row["path"]).exists():
         source_count, matched_count, selected = _v2_findings_page(
-            row, offset=offset, limit=limit, query=query, sort=sort, descending=descending
+            row, offset=offset, limit=limit, query=query, url=url, sort=sort, descending=descending
         )
         return _finding_page_result(
             row, query, sort, descending, source_count, matched_count, selected, offset, limit
@@ -766,18 +835,26 @@ def findings_page(
                 for key in ("id", "check", "severity", "target_url", "url", "message", "text")
             ).casefold()
         ]
+    if url is not None:
+        indexed = [
+            (ordinal, issue)
+            for ordinal, issue in indexed
+            if (issue.get("target_url") or issue.get("url")) == url
+        ]
 
     def sort_key(item: tuple[int, dict[str, Any]]) -> tuple[bool, Any, int]:
         ordinal, issue = item
         value = issue.get(sort)
         if sort == "target_url":
             value = value or issue.get("url")
+        missing = value in (None, "")
         if sort == "severity":
             rank = _SEVERITY_RANK.get(str(value).casefold())
-            return rank is None, rank if rank is not None else 99, ordinal
-        return value in (None, ""), str(value or "").casefold(), ordinal
+            return missing, rank if rank is not None else 99, ordinal
+        return missing, str(value or "").casefold(), ordinal
 
     indexed.sort(key=sort_key, reverse=descending)
+    indexed.sort(key=lambda item: sort_key(item)[0])
     selected = indexed[offset : offset + limit]
     return _finding_page_result(
         row, query, sort, descending, len(issues), len(indexed), selected, offset, limit
@@ -875,8 +952,13 @@ def observe(
     scan_limit: int = 20,
     run_offset: int = 0,
     run_limit: int = 20,
+    since_revision: str | None = None,
 ) -> dict[str, Any]:
     """Return a bounded observer snapshot without changing project evidence."""
+    if since_revision is not None and (
+        not isinstance(since_revision, str) or not _REVISION.fullmatch(since_revision)
+    ):
+        raise ValueError("since_revision must be a 64-character lowercase SHA-256 token")
     if type(scan_limit) is not int or not 1 <= scan_limit <= 100:
         raise ValueError("scan_limit must be from 1 to 100")
     _pagination(0, run_offset, run_limit)
@@ -1008,7 +1090,7 @@ def observe(
     )
     if consumer is not None:
         snapshot["inbox_unread"] = unread_summary(root, consumer=consumer)
-    return snapshot
+    return _revisioned(snapshot, since_revision)
 
 
 def _pagination(total: int, offset: int, limit: int) -> dict:
@@ -1076,6 +1158,9 @@ def checklist_page(
         if kind not in {None, "method", "schema"} and item.get("kind") != kind:
             continue
         display = _item_state(item)
+        task_state = (
+            "remaining" if item.get("kind") == "custom" and display == "not_run" else display
+        )
         if needle not in text or (state is not None and state != display):
             continue
         if states is not None and display not in states:
@@ -1086,7 +1171,43 @@ def checklist_page(
             for record in saved.get("records", [])
             if isinstance(record, dict)
         ]
-        rows.append(dict(item, display_state=display, updated=max(stamps, default="") or None))
+        definition = saved.get("definition") or {}
+        records = saved.get("records", [])
+        actor = next(
+            (
+                record.get("actor") or record.get("reviewer")
+                for record in reversed(records)
+                if record.get("actor") or record.get("reviewer")
+            ),
+            None,
+        )
+        rows.append(
+            dict(
+                item,
+                display_state=display,
+                updated=max(stamps, default="") or None,
+                task={
+                    "state": task_state,
+                    "executor": definition.get("assignee"),
+                    "actor": actor,
+                    "next_step": None,
+                    **{
+                        field: definition.get(field)
+                        for field in (
+                            "assignee",
+                            "description",
+                            "acceptance_criterion",
+                            "finding_ref",
+                            "method_ref",
+                            "competitors",
+                        )
+                    },
+                },
+                executor=definition.get("assignee"),
+                actor=actor,
+                next_step=None,
+            ),
+        )
     if sort == "id":
         if descending:
             rows.reverse()
@@ -1132,6 +1253,52 @@ def task_detail(directory: str | Path, *, item_id: str) -> dict:
         history_truncated=len(records) > 20,
         catalogue=load_catalogue().get(local_id),
     )
+    definition = saved.get("definition") or {}
+    task_state = (
+        "remaining"
+        if definition.get("kind") == "custom" and item.get("display_state") == "not_run"
+        else item.get("display_state")
+    )
+    comments = saved.get("comments", [])
+    actor = next(
+        (
+            record.get("actor") or record.get("reviewer")
+            for record in reversed(records)
+            if record.get("actor") or record.get("reviewer")
+        ),
+        None,
+    )
+    item.update(
+        {
+            "task": {
+                "state": task_state,
+                "executor": definition.get("assignee"),
+                "actor": actor,
+                "next_step": None,
+                **{
+                    field: definition.get(field)
+                    for field in (
+                        "assignee",
+                        "description",
+                        "acceptance_criterion",
+                        "finding_ref",
+                        "method_ref",
+                        "competitors",
+                    )
+                },
+                "comments": comments[-20:],
+                "comments_total": len(comments),
+                "comments_truncated": len(comments) > 20,
+                "revision": view.get("revision"),
+            },
+        }
+    )
+    if definition.get("kind") == "custom":
+        from .competitor_scans import task_competitor_run_reference
+
+        item["task"]["competitor_run"] = task_competitor_run_reference(
+            root, task_id=local_id, task=saved
+        )
     return {"ok": True, "revision": view.get("revision"), "item": item}
 
 
@@ -1154,8 +1321,12 @@ def scans_page(directory: str | Path, *, offset: int = 0, limit: int = 20) -> di
     }
 
 
-def observe_activity(directory: str | Path) -> dict:
+def observe_activity(directory: str | Path, *, since_revision: str | None = None) -> dict:
     """Cheap collector telemetry; never open retained scans or compute task coverage."""
+    if since_revision is not None and (
+        not isinstance(since_revision, str) or not _REVISION.fullmatch(since_revision)
+    ):
+        raise ValueError("since_revision must be a 64-character lowercase SHA-256 token")
     from .run_observation import status as run_status
     from .runtime import preparation_status
 
@@ -1205,8 +1376,11 @@ def observe_activity(directory: str | Path) -> dict:
                     "runs": {"state": "unavailable", "reason": str(exc), "items": []},
                 }
             )
-    return {
-        "ok": True,
-        "observed_at": datetime.now(timezone.utc).isoformat(),
-        "sites": {"total": len(sites), "items": sites},
-    }
+    return _revisioned(
+        {
+            "ok": True,
+            "observed_at": datetime.now(timezone.utc).isoformat(),
+            "sites": {"total": len(sites), "items": sites},
+        },
+        since_revision,
+    )

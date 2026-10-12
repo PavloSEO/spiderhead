@@ -397,7 +397,7 @@ def read(con: sqlite3.Connection, *, limit: int = 1_000, offset: int = 0) -> dic
     if con.execute("PRAGMA user_version").fetchone()[0] != 2:
         return {"state": "unavailable", "reason": "resource graph was not stored in this scan"}
     names = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    if "resource_graph_occurrences" not in names:
+    if not {"resource_graph_occurrences", "resource_graph_fetches"} <= names:
         return {"state": "unavailable", "reason": "resource graph extension is absent"}
     if type(limit) is not int or type(offset) is not int or not 1 <= limit <= 10_000 or offset < 0:
         raise ValueError("resource graph limit must be 1..10000 and offset nonnegative")
@@ -406,6 +406,27 @@ def read(con: sqlite3.Connection, *, limit: int = 1_000, offset: int = 0) -> dic
         row[0]: row[1]
         for row in con.execute(
             "SELECT state,COUNT(*) FROM resource_graph_occurrences GROUP BY state"
+        )
+    }
+    occurrences_by_kind = {
+        row[0]: row[1]
+        for row in con.execute(
+            "SELECT kind,COUNT(*) FROM resource_graph_occurrences GROUP BY kind ORDER BY kind"
+        )
+    }
+    weights_by_kind = {
+        row[0]: {
+            "unique_urls": row[1],
+            "complete_urls": row[2],
+            "unmeasured_urls": row[1] - row[2],
+            "bytes_received": row[3] if row[1] == row[2] else None,
+            "bytes_state": "exact" if row[1] == row[2] else "partial" if row[2] else "unavailable",
+        }
+        for row in con.execute(
+            "SELECT x.kind,COUNT(*),COALESCE(SUM(f.state='complete'),0),"
+            "SUM(CASE WHEN f.state='complete' THEN f.bytes_received ELSE 0 END) "
+            "FROM (SELECT DISTINCT kind,resolved_url FROM resource_graph_occurrences) x "
+            "LEFT JOIN resource_graph_fetches f USING(resolved_url) GROUP BY x.kind ORDER BY x.kind"
         )
     }
     occurrences = [
@@ -422,18 +443,21 @@ def read(con: sqlite3.Connection, *, limit: int = 1_000, offset: int = 0) -> dic
             (limit, offset),
         )
     ]
-    coverage = (
-        {"state": "unavailable", "reason": "resource declarations were not captured"}
-        if not total
-        else {
-            "state": "partial"
-            if any(
-                states.get(name) for name in ("disabled", "budget", "failed", "excluded", "partial")
-            )
-            else "complete",
-            "counts": states,
-        }
-    )
+    coverage_rows = con.execute(
+        "SELECT completeness,COUNT(*) FROM context_items WHERE kind='resource_graph_coverage' "
+        "GROUP BY completeness"
+    ).fetchall()
+    coverage_counts = {row[0]: row[1] for row in coverage_rows}
+    coverage = {
+        "state": "unavailable"
+        if not coverage_counts
+        else "partial"
+        if coverage_counts.get("partial") or coverage_counts.get("unavailable")
+        else "complete",
+        "documents": sum(coverage_counts.values()),
+        "coverage_counts": coverage_counts,
+        "occurrence_state_counts": states,
+    }
     return {
         "state": coverage["state"],
         "coverage": coverage,
@@ -443,6 +467,13 @@ def read(con: sqlite3.Connection, *, limit: int = 1_000, offset: int = 0) -> dic
         "has_more": offset + len(occurrences) < total,
         "occurrences": occurrences,
         "fetches": fetches,
+        "aggregates": {
+            "blocks_by_kind": occurrences_by_kind,
+            "blocks_by_state": states,
+            "occurrences_by_kind": occurrences_by_kind,
+            "weight_by_kind": weights_by_kind,
+            "unique_resource_weight_by_kind": weights_by_kind,
+        },
     }
 
 
@@ -522,6 +553,7 @@ def capture(
     """Fetch deduplicated v2 declarations under resource-graph-specific budgets."""
     if scan.con.execute("PRAGMA user_version").fetchone()[0] != 2:
         return {"stored": 0, "fetched": 0, "excluded": 0, "failed": 0, "budget": 0}
+    scan._assert_mutable()
     ensure_schema(scan.con)
     graph = settings["resources"]["graph"]
     if not settings["resources"]["fetch"]:

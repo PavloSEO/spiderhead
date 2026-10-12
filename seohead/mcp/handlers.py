@@ -7,7 +7,9 @@ behavior to the core + a handler here, then surface it in each face.
 from __future__ import annotations
 
 import contextlib
+import sqlite3
 import sys
+import tempfile
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -39,6 +41,8 @@ from seohead.core.filesystem import atomic_write_bytes
 from seohead.core.models import ParseManyResult, RobotsCheckResult
 
 LARGE_EVIDENCE_JOIN_SCAN_PAGES = 100_000
+MAX_CONTENT_SEARCH_PACKAGE_BYTES = 512 * 1024 * 1024
+MAX_CONTENT_SEARCH_MANIFEST_BYTES = 1024 * 1024
 
 
 def handler_failed(result: Any) -> bool:
@@ -148,7 +152,10 @@ def redirects_generate(
     from seohead.checks import redirects as redirects_core
 
     items = redirects if isinstance(redirects, list) else []
-    return {"rules": redirects_core.generate_rules(items, fmt, default_url, custom_template)}
+    return {
+        "rules": redirects_core.generate_rules(items, fmt, default_url, custom_template),
+        "analysis": redirects_core.analyze_redirect_map(items, default_url),
+    }
 
 
 def redirects_check(
@@ -156,6 +163,11 @@ def redirects_check(
 ) -> dict[str, Any]:
     if not url:
         raise ValueError("url required")
+    if options is not None and not isinstance(options, dict):
+        raise ValueError("redirects-check options must be an object")
+    method = str((options or {}).get("method") or "HEAD").upper()
+    if method not in {"GET", "HEAD"}:
+        raise ValueError("redirects-check method must be GET or HEAD")
     from seohead.checks import redirects as redirects_core
 
     return {"chain": redirects_core.check_chain(url, options or {})}
@@ -681,11 +693,19 @@ def _record_crawl_failure(project_root: Path, reason: str) -> None:
         record_failure(project_root, reason)
 
 
+def crawl_control(project: str, run_id: str, action: str) -> dict[str, Any]:
+    """Request a checkpointed pause or stop for an active native project crawl."""
+    from seohead.projects.run_control import request
+
+    return request(project, run_id, action)
+
+
 def crawl_site(
     url: str | None = None,
     urls: list[str] | None = None,
     urls_file: str | None = None,
     config: str | None = None,
+    profile: str | None = None,
     max_urls: int | None = None,
     max_depth: int | None = None,
     min_delay: float | None = None,
@@ -739,13 +759,24 @@ def crawl_site(
     line than this one (see ``seohead.crawl.progress``).
     """
     project_root = None
+    project_settings_policy = None
+    if profile is None and config is not None:
+        from seohead.crawl.profiles import name_for_path
+
+        profile = name_for_path(config)
+        if profile is not None:
+            config = None
     if sitemap_only and not sitemap:
         raise ValueError("sitemap_only requires an explicit sitemap")
     if project is not None:
+        from seohead.projects.runtime import project_policy
         from seohead.projects.workspace import open_project
 
         opened = open_project(project)
         project_root = Path(opened["path"])
+        project_settings_policy = project_policy(str(project_root))["policy"]
+        if resume is None and config is None and profile is None:
+            profile = project_settings_policy.get("crawl_profile")
         if (
             resume is None
             and url is None
@@ -766,6 +797,7 @@ def crawl_site(
                 ("urls", urls),
                 ("urls_file", urls_file),
                 ("config", config),
+                ("profile", profile),
                 ("max_urls", max_urls),
                 ("max_depth", max_depth),
                 ("min_delay", min_delay),
@@ -799,7 +831,8 @@ def crawl_site(
             )
             if not gate["ok"]:
                 return {"ok": False, "error": gate["reason"], "admission": gate}
-            from seohead.projects.run_observation import NativeRunReporter, finish, start
+            from seohead.projects.run_control import ControlledRunReporter
+            from seohead.projects.run_observation import finish, start
 
             try:
                 within_project = Path(resume).resolve().is_relative_to(project_root.resolve())
@@ -833,7 +866,7 @@ def crawl_site(
                     aggregate_max_requests_per_second=pacer.max_requests_per_second,
                     run_id=observer_run_id,
                 )
-                reporter = NativeRunReporter(project_root, observed["id"], progress)
+                reporter = ControlledRunReporter(project_root, observed["id"], progress)
                 try:
                     result = resume_scan(
                         resume,
@@ -864,10 +897,14 @@ def crawl_site(
                             if result.get("partial") or result.get("audit_available") is False
                             else "finished"
                         ),
-                        reason=str(
-                            result.get("audit_reason") or "audit_unavailable"
-                            if result.get("audit_available") is False
-                            else result.get("finish_reason") or "finished"
+                        reason=(
+                            f"operator_{reporter.control_action}"
+                            if reporter.control_action
+                            else str(
+                                result.get("audit_reason") or "audit_unavailable"
+                                if result.get("audit_available") is False
+                                else result.get("finish_reason") or "finished"
+                            )
                         ),
                         counters=reporter.counters(),
                     )
@@ -875,6 +912,18 @@ def crawl_site(
                     **result,
                     **rate_fields(resume_data["settings"]),
                     "observer_run_id": observed["id"],
+                    **(
+                        {
+                            "control": {
+                                "action": reporter.control_action,
+                                "state": "paused"
+                                if reporter.control_action == "pause"
+                                else "stopped",
+                            }
+                        }
+                        if reporter.control_action
+                        else {}
+                    ),
                     "checklist_evidence": _record_crawl_evidence(project_root, resume),
                 }
         from seohead.crawl.settings import rate_fields
@@ -901,6 +950,13 @@ def crawl_site(
     if not url and not urls:
         raise ValueError("url, urls, or urls_file required")
 
+    if profile is not None:
+        if config is not None:
+            raise ValueError("profile and config are mutually exclusive")
+        from seohead.crawl.profiles import path_for
+
+        config = path_for(profile)
+
     # Defaults, then file, then environment, then these explicit arguments.
     # ``overrides`` carries whatever the caller reached for by dotted path -- the
     # CLI's --set and --max-urls-per-second. Only a named argument that was
@@ -920,10 +976,15 @@ def crawl_site(
         if value is not None:
             resolved_overrides[path] = value
     base_overrides = None
+    if project_settings_policy is not None:
+        base_overrides = project_settings_policy["crawl_overrides"]
+        if profile is not None:
+            # A named profile is the project's base configuration; project policy
+            # overrides and explicit call arguments layer over it.
+            resolved_overrides = {**base_overrides, **resolved_overrides}
+            base_overrides = None
     if project_root is not None:
-        from seohead.projects.runtime import admission, project_policy
-
-        base_overrides = project_policy(str(project_root))["policy"]["crawl_overrides"]
+        from seohead.projects.runtime import admission
     if user_agent is not None and user_agent != "":
         # A preset name or one custom string sets the request identity and the robots token
         # together, so the rules matched are the rules of the crawler the site sees.
@@ -1120,7 +1181,7 @@ def crawl_site(
         pacer = None
         if project_root is not None:
             from seohead.projects.origin_pacing import ProjectOriginPacer
-            from seohead.projects.run_observation import NativeRunReporter, start
+            from seohead.projects.run_observation import start
 
             try:
                 within_project = Path(scan_out).resolve().is_relative_to(project_root.resolve())
@@ -1150,7 +1211,9 @@ def crawl_site(
                     aggregate_max_requests_per_second=pacer.max_requests_per_second,
                     run_id=observer_run_id,
                 )
-                reporter = NativeRunReporter(project_root, observed["id"], progress)
+                from seohead.projects.run_control import ControlledRunReporter
+
+                reporter = ControlledRunReporter(project_root, observed["id"], progress)
         if pacer is None:
             # Outside a project the schedule lives in the user state directory, so
             # concurrent crawls of one host still share one aggregate ceiling.
@@ -1205,10 +1268,14 @@ def crawl_site(
                         if result.get("partial") or result.get("audit_available") is False
                         else "finished"
                     ),
-                    reason=str(
-                        result.get("audit_reason") or "audit_unavailable"
-                        if result.get("audit_available") is False
-                        else result.get("finish_reason") or "finished"
+                    reason=(
+                        f"operator_{reporter.control_action}"
+                        if reporter.control_action
+                        else str(
+                            result.get("audit_reason") or "audit_unavailable"
+                            if result.get("audit_available") is False
+                            else result.get("finish_reason") or "finished"
+                        )
                     ),
                     counters=reporter.counters(),
                 )
@@ -1216,6 +1283,16 @@ def crawl_site(
                 **result,
                 **crawl_config.rate_fields(settings),
                 "observer_run_id": observed["id"],
+                **(
+                    {
+                        "control": {
+                            "action": reporter.control_action,
+                            "state": "paused" if reporter.control_action == "pause" else "stopped",
+                        }
+                    }
+                    if reporter.control_action
+                    else {}
+                ),
                 "checklist_evidence": _record_scoped_evidence(project_root, url, scan_out),
             }
         return {**result, **crawl_config.rate_fields(settings)}
@@ -1319,6 +1396,7 @@ def crawl_site(
             forms_path=os.path.join(out_dir, ".forms_resume.jsonl") if out_dir else None,
             decisions_path=decisions_path,
             credential_headers=settings["http"]["credential_headers"],
+            http_auth=settings["http"]["auth"],
             # Checkpointed only when there is somewhere durable to put it; a
             # crawl with no out_dir has nothing to resume into anyway.
             state_path=os.path.join(out_dir, "crawl_state.json") if out_dir else None,
@@ -1337,7 +1415,7 @@ def crawl_site(
             classify_links=settings["link_position"]["classify"],
             link_position_rules=settings["link_position"]["rules"] or None,
             cache=cache,
-            extra_request_headers=settings["http"]["headers"] or None,
+            extra_request_headers=crawl_config.request_headers(settings),
             adaptive=settings["speed"]["adaptive"],
             store_hyperlinks=settings["discovery"]["hyperlinks"]["store"],
             crawl_hyperlinks=settings["discovery"]["hyperlinks"]["crawl"],
@@ -1353,6 +1431,7 @@ def crawl_site(
             progress=progress,
             spool_evidence=True,
             proxy_route=proxy_route,
+            normalize_tracking_parameters=settings["scope"]["normalize_tracking_parameters"],
         )
         discovery = {
             "mode": "spider",
@@ -2487,13 +2566,171 @@ def images_download(
 
 
 def images_optimize(
-    files: list[str] | None = None, settings: dict[str, Any] | None = None
+    files: list[str] | None = None,
+    settings: dict[str, Any] | None = None,
+    scan: str | None = None,
+    max_images: int = 50,
 ) -> dict[str, Any]:
     """Optimize image files with explicit output semantics.
 
     Provide ``settings.out_dir`` for non-destructive output. Rewriting source files requires the
     caller to opt in with ``settings.in_place=true``; the optimizer's backup safeguards still apply.
     """
+    if scan:
+        if files:
+            raise ValueError("provide files[] or scan, not both")
+        normalized = dict(settings or {})
+        if not normalized.get("out_dir") or normalized.get("in_place"):
+            raise ValueError("scan image batches require settings.out_dir and forbid in_place")
+        if type(max_images) is not int or not 1 <= max_images <= 50:
+            raise ValueError("max_images must be 1..50")
+        from seohead.mcp.evidence_handlers import scan_evidence
+
+        images: dict[str, list[dict[str, Any]]] = {}
+        offset = 0
+        scanned = 0
+        total = None
+        while scanned < 10_000 and len(images) < max_images:
+            page = scan_evidence(
+                scan, section="resources", offset=offset, limit=min(1000, 10_000 - scanned)
+            )
+            evidence = page.get("evidence") or {}
+            if evidence.get("state") == "unavailable":
+                return {
+                    "ok": False,
+                    "state": "unavailable",
+                    "reason": evidence.get("reason"),
+                    "results": [],
+                }
+            total = evidence.get("total")
+            occurrences = evidence.get("occurrences") or []
+            if not occurrences:
+                break
+            for occurrence in occurrences:
+                scanned += 1
+                if occurrence.get("kind") != "image" or occurrence.get("state") in {
+                    "excluded",
+                    "failed",
+                    "budget",
+                }:
+                    continue
+                url = occurrence.get("resolved_url")
+                if not isinstance(url, str) or not url:
+                    continue
+                images.setdefault(url, []).append(
+                    {
+                        "occurrence_id": occurrence.get("occurrence_id"),
+                        "source_page_url_id": occurrence.get("page_url_id"),
+                        "source_document_id": occurrence.get("source_document_id"),
+                        "representation": occurrence.get("representation"),
+                        "ordinal": occurrence.get("ordinal"),
+                    }
+                )
+                if len(images) >= max_images:
+                    break
+            offset += len(occurrences)
+            if not evidence.get("has_more"):
+                break
+        has_more = scanned < (total or 0)
+        if not images:
+            return {
+                "ok": False,
+                "state": "empty",
+                "reason": "the retained scan has no eligible image declarations",
+                "count": 0,
+                "results": [],
+            }
+        with tempfile.TemporaryDirectory(prefix="seohead-scan-images-") as temp_dir:
+            download_budget = 100 * 1024 * 1024
+            downloaded_bytes = 0
+            downloads = []
+            for url in images:
+                remaining = download_budget - downloaded_bytes
+                if remaining <= 0:
+                    downloads.append(
+                        {
+                            "url": url,
+                            "ok": False,
+                            "error": "scan image download byte budget exhausted",
+                        }
+                    )
+                    continue
+                row = downloader.download_images(
+                    [url],
+                    temp_dir,
+                    {"max_bytes": min(25 * 1024 * 1024, remaining)},
+                )[0]
+                downloads.append(row)
+                if row.get("ok"):
+                    downloaded_bytes += int(row.get("bytes") or 0)
+            downloaded = {row["url"]: row for row in downloads}
+            paths = [row["path"] for row in downloads if row.get("ok") and row.get("path")]
+            optimized = optimizer.optimize_files(paths, normalized) if paths else {"results": []}
+            by_source = {row.get("file"): row for row in optimized.get("results", [])}
+            results = []
+            for url, instances in images.items():
+                download = downloaded.get(
+                    url, {"ok": False, "error": "image download result unavailable"}
+                )
+                result = by_source.get(download.get("path"))
+                download_report = {key: value for key, value in download.items() if key != "path"}
+                optimization_report = (
+                    {key: value for key, value in result.items() if key not in {"source", "file"}}
+                    if result
+                    else None
+                )
+                results.append(
+                    {
+                        "url": url,
+                        "instances": instances,
+                        "download": download_report,
+                        "optimization": optimization_report,
+                    }
+                )
+        optimization_ok = all(
+            row.get("download", {}).get("ok")
+            and isinstance(row.get("optimization"), dict)
+            and row["optimization"].get("ok")
+            for row in results
+        )
+        any_optimized = any(
+            isinstance(row.get("optimization"), dict) and row["optimization"].get("ok")
+            for row in results
+        )
+        totals_available = all(
+            isinstance(row.get("optimization"), dict)
+            and row["optimization"].get("before_bytes") is not None
+            and row["optimization"].get("after_bytes") is not None
+            for row in results
+        )
+        return {
+            "ok": any_optimized,
+            "partial": not optimization_ok,
+            "source": "retained_scan_resource_graph",
+            "state": "partial" if has_more or not optimization_ok else "complete",
+            "scan_resources_read": scanned,
+            "scan_resources_total": total,
+            "downloaded_bytes": downloaded_bytes,
+            "download_byte_budget": 100 * 1024 * 1024,
+            "has_more": has_more,
+            "count": len(results),
+            "total_before": sum(row["optimization"]["before_bytes"] for row in results)
+            if totals_available
+            else None,
+            "total_after": sum(row["optimization"]["after_bytes"] for row in results)
+            if totals_available
+            else None,
+            "total_saved": sum(
+                row["optimization"]["before_bytes"] - row["optimization"]["after_bytes"]
+                for row in results
+            )
+            if totals_available
+            else None,
+            "totals_reason": "all selected images were measured"
+            if totals_available
+            else "one or more selected images could not be optimized",
+            "results": results,
+        }
     if not files:
         raise ValueError("files[] required")
     return optimizer.optimize_files(files, settings or {})
@@ -2514,6 +2751,9 @@ def robots_check(
 def headers_check(url: str | None = None, method: str = "GET") -> dict[str, Any]:
     if not url:
         raise ValueError("url required")
+    method = str(method).upper()
+    if method not in {"GET", "HEAD"}:
+        raise ValueError("headers-check method must be GET or HEAD")
     return headers_core.check_headers(url, method=method)
 
 
@@ -2797,6 +3037,9 @@ def compare_crawls(
     correspondence: Any = None,
     out_dir: str | None = None,
     compression: str = "none",
+    resume: bool = False,
+    progress: Any = None,
+    cancel_event: Any = None,
 ) -> dict[str, Any]:
     """Diff two audits: which findings were fixed, which are new, which pages
     dropped out of the crawl entirely. See seohead.sf.core.compare for why
@@ -2815,6 +3058,9 @@ def compare_crawls(
             correspondence=correspondence,
             out_dir=out_dir,
             compression=compression,
+            resume=resume,
+            progress=progress,
+            cancel_event=cancel_event,
         )
     finally:
         if not hasattr(before, "iter_collection") and hasattr(before_doc, "close"):
@@ -2828,6 +3074,348 @@ def compare_crawls(
     if diagnostics:
         result["input_diagnostics"] = diagnostics
     return result
+
+
+def compare_read(
+    manifest_path: str,
+    file: str,
+    offset: int = 0,
+    limit: int = 200,
+    sort: str = "url",
+    direction: str = "asc",
+    contains: str | None = None,
+    segment: str | None = None,
+    change: str | None = None,
+    max_bytes: int = 1_048_576,
+) -> dict[str, Any]:
+    """Read a bounded page from a validated compare.v2 file."""
+    from seohead.sf.core.compare_store import read_compare_page
+
+    try:
+        return read_compare_page(
+            manifest_path,
+            file,
+            offset=offset,
+            limit=limit,
+            sort=sort,
+            direction=direction,
+            contains=contains,
+            segment=segment,
+            change=change,
+            max_bytes=max_bytes,
+        )
+    except (ValueError, OSError, TypeError) as exc:
+        return {"ok": False, "state": "unavailable", "error": str(exc)}
+
+
+def compare_status(out_dir: str) -> dict[str, Any]:
+    """Read the current checkpoint or completed manifest for a comparison output path."""
+    import json
+
+    from seohead.core.filesystem import lock_exclusive, open_lock, unlock
+
+    destination = Path(out_dir).absolute()
+    if destination.is_symlink():
+        raise ValueError("comparison output path must not be a symbolic link")
+    manifest = destination / "compare.json"
+    if manifest.is_file() and not manifest.is_symlink():
+        result = json.loads(manifest.read_text(encoding="utf-8"))
+        job = result.get("job") if isinstance(result, dict) else None
+        return {
+            "ok": True,
+            "format": "compare.job-status.v1",
+            "state": "finished",
+            "stage": "complete",
+            "job_id": job.get("id") if isinstance(job, dict) else None,
+            "completed": 1,
+            "total": 1,
+            "resumable": False,
+            "cache_available": True,
+        }
+    work = destination.with_name(f".{destination.name}.compare-work")
+    if work.is_symlink() or not work.is_dir():
+        return {"ok": False, "state": "unavailable", "error": "comparison job was not found"}
+    checkpoint = work / "job.json"
+    if checkpoint.is_symlink() or not checkpoint.is_file():
+        return {"ok": False, "state": "unavailable", "error": "comparison checkpoint is unreadable"}
+    data = json.loads(checkpoint.read_text(encoding="utf-8"))
+    active = False
+    try:
+        fd = open_lock(work / ".writer.lock", create=False)
+    except OSError:
+        fd = None
+    if fd is not None:
+        try:
+            lock_exclusive(fd)
+        except OSError:
+            active = True
+        else:
+            unlock(fd)
+        finally:
+            import os
+
+            os.close(fd)
+    return {
+        "ok": True,
+        "format": "compare.job-status.v1",
+        **{
+            key: data.get(key)
+            for key in ("job_id", "state", "stage", "completed", "total", "reason")
+        },
+        "resumable": not active and data.get("state") in {"failed", "paused", "running"},
+        "active": active,
+        "cache_available": False,
+    }
+
+
+def compare_report(manifest_path: str, out_file: str, max_bytes: int = 65_536) -> dict[str, Any]:
+    """Write a bounded Markdown summary to a new path from a validated compare.v2 package."""
+    import hashlib
+    import os
+    import tempfile
+
+    from seohead.sf.core.compare_store import compare_markdown
+
+    report = compare_markdown(manifest_path, max_bytes=max_bytes)
+    destination = Path(out_file).absolute()
+    if destination.exists():
+        raise FileExistsError(f"report output already exists: {destination}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=".compare-report-", dir=destination.parent)
+    data = report.encode("utf-8")
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.link(temporary, destination)
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(temporary)
+    return {
+        "ok": True,
+        "format": "compare.v2.markdown",
+        "report": str(destination),
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def compare_url(
+    before: Any,
+    after: Any,
+    url: str,
+    *,
+    max_bytes: int = 65_536,
+    max_lines: int = 200,
+    left_representation: str = "static",
+    right_representation: str = "static",
+) -> dict[str, Any]:
+    """Return exact-URL before/after facts and finding deltas without absence claims."""
+    from collections.abc import Mapping
+
+    from seohead.sf.core.compare import _iter_rows
+    from seohead.storage.inputs import load_audit_source
+
+    if not isinstance(url, str) or not url or len(url) > 8192:
+        raise ValueError("url must be nonempty exact URL text of at most 8192 characters")
+    if type(max_bytes) is not int or not 1 <= max_bytes <= 65_536:
+        raise ValueError("max_bytes must be an integer 1..65536")
+    if type(max_lines) is not int or not 1 <= max_lines <= 200:
+        raise ValueError("max_lines must be an integer 1..200")
+    representations = {"static", "rendered", "legacy_fragment"}
+    if left_representation not in representations or right_representation not in representations:
+        raise ValueError("representations must be static, rendered, or legacy_fragment")
+
+    sources = []
+    opened = []
+    try:
+        for value, label in ((before, "before"), (after, "after")):
+            is_source = hasattr(value, "iter_collection")
+            source = value if is_source else load_audit_source(value, label)
+            sources.append(source)
+            if not is_source and hasattr(source, "close"):
+                opened.append(source)
+    except BaseException:
+        for source in opened:
+            source.close()
+        raise
+    try:
+        cards = []
+        findings = []
+        fields = (
+            "status_code",
+            "title",
+            "meta_description",
+            "h1",
+            "word_count",
+            "inlinks",
+            "internal_outlinks",
+            "canonical",
+            "response_time",
+            "size_bytes",
+            "indexability",
+        )
+        aliases = {"response_time": "response_time_seconds", "size_bytes": "html_size_bytes"}
+
+        def value_of(page: Mapping[str, Any], field: str) -> Any:
+            metrics = page.get("metrics") if isinstance(page.get("metrics"), Mapping) else {}
+            if field == "indexability":
+                val = page.get(field, metrics.get(field))
+                return val
+            if field in page:
+                return page[field]
+            if field in metrics:
+                return metrics[field]
+            return None
+
+        for source in sources:
+            page = next(
+                (item for item in _iter_rows(source, "pages") if item.get("url") == url), None
+            )
+            if page is None:
+                cards.append({"state": "absent", "url": url, "fields": {}})
+            else:
+                facts = {}
+                for field in fields:
+                    value = value_of(page, field)
+                    name = aliases.get(field, field)
+                    facts[name] = {
+                        "state": "measured" if value is not None else "unavailable",
+                        "value": value,
+                        **(
+                            {}
+                            if value is not None
+                            else {"reason": f"source does not retain {field}"}
+                        ),
+                    }
+                cards.append({"state": "present", "url": url, "fields": facts})
+            findings.append(
+                [
+                    dict(issue)
+                    for issue in _iter_rows(source, "issues")
+                    if issue.get("target_url") == url
+                ]
+            )
+
+        if cards[0]["state"] != "present" or cards[1]["state"] != "present":
+            comparison_state = "not_rechecked"
+            reason = (
+                "both scans must contain this URL before field or finding deltas can be interpreted"
+            )
+            changes = {}
+            finding_delta = {
+                "state": comparison_state,
+                "reason": reason,
+                "entered": [],
+                "left": [],
+            }
+        else:
+            comparison_state = "compared"
+            reason = None
+            changes = {}
+            for name in cards[0]["fields"]:
+                left, right = cards[0]["fields"][name], cards[1]["fields"][name]
+                if left["state"] != "measured" or right["state"] != "measured":
+                    changes[name] = {
+                        "state": "unavailable",
+                        "reason": "field was not measured on both scans",
+                    }
+                elif left["value"] != right["value"]:
+                    changes[name] = {
+                        "state": "changed",
+                        "before": left["value"],
+                        "after": right["value"],
+                    }
+                else:
+                    changes[name] = {"state": "unchanged", "value": left["value"]}
+            before_by_check = {row.get("check"): row for row in findings[0]}
+            after_by_check = {row.get("check"): row for row in findings[1]}
+            from seohead.sf.core.compare import _run
+
+            unavailable = []
+            invalid_run = False
+            for source in sources:
+                run = _run(source)
+                invalid_run = invalid_run or run.get("crawl_valid") is False
+                for field in ("checks_skipped", "checks_disabled"):
+                    unavailable.extend(
+                        item.get("id")
+                        for item in (run.get(field) or [])
+                        if isinstance(item, dict) and isinstance(item.get("id"), str)
+                    )
+            unavailable = set(unavailable)
+            if invalid_run:
+                unavailable.update(before_by_check.keys() | after_by_check.keys())
+            entered, left, unmeasured = [], [], []
+            for check in sorted(after_by_check.keys() - before_by_check.keys()):
+                if check in unavailable:
+                    unmeasured.append(
+                        {
+                            "check": check,
+                            "state": "not_measured",
+                            "reason": "check coverage is incomplete",
+                        }
+                    )
+                else:
+                    entered.append(after_by_check[check])
+            for check in sorted(before_by_check.keys() - after_by_check.keys()):
+                if check in unavailable:
+                    unmeasured.append(
+                        {
+                            "check": check,
+                            "state": "not_measured",
+                            "reason": "check coverage is incomplete",
+                        }
+                    )
+                else:
+                    left.append(before_by_check[check])
+            finding_delta = {
+                "state": "compared",
+                "entered": entered,
+                "left": left,
+                "not_comparable": unmeasured,
+                "unchanged": sorted(before_by_check.keys() & after_by_check.keys()),
+            }
+
+        body = {
+            "state": "not_requested",
+            "reason": "text diff requires native scan.v1 SQLite inputs",
+        }
+        if all(
+            isinstance(value, (str, Path)) and Path(value).suffix.lower() in {".sqlite", ".db"}
+            for value in (before, after)
+        ):
+            from seohead.storage.body_diff import body_diff
+
+            try:
+                body = body_diff(
+                    before,
+                    after,
+                    url,
+                    text=True,
+                    max_bytes=max_bytes,
+                    max_lines=max_lines,
+                    left_representation=left_representation,
+                    right_representation=right_representation,
+                )
+            except (OSError, ValueError, sqlite3.Error) as exc:
+                body = {"state": "unavailable", "reason": str(exc)[:2048]}
+        return {
+            "ok": True,
+            "format": "compare-url.v1",
+            "url": url,
+            "state": comparison_state,
+            **({"reason": reason} if reason else {}),
+            "before": cards[0],
+            "after": cards[1],
+            "changes": changes,
+            "findings": finding_delta,
+            "body_diff": body,
+        }
+    finally:
+        for source in opened:
+            source.close()
 
 
 def verify_fixes(
@@ -4579,14 +5167,85 @@ def wayback_history(
 
 
 def cloudflare_traffic(
-    zone: str | None = None, since: str | None = None, until: str | None = None
+    zone: str | None = None,
+    since: str | None = None,
+    until: str | None = None,
+    project: str | None = None,
+    include_configuration: bool = False,
 ) -> dict[str, Any]:
-    """Bot and human traffic from Cloudflare edge analytics (aggregated, not raw logs)."""
-    if not zone:
-        raise ValueError("zone required (Cloudflare zone name)")
+    """Read Cloudflare edge analytics by zone name or a selected project binding."""
+    if bool(zone) == bool(project):
+        raise ValueError("pass exactly one of zone or project")
     from seohead.data_sources import cloudflare as core
 
-    return core.traffic(zone, since=since, until=until)
+    return core.traffic(
+        zone,
+        project=project,
+        since=since,
+        until=until,
+        include_configuration=include_configuration,
+    )
+
+
+def cloudflare_history(
+    project: str | None = None,
+    zone_id: str | None = None,
+    snapshot_id: int | None = None,
+    limit: int = 20,
+    offset: int = 0,
+    include_facts: bool = False,
+    facts_offset: int = 0,
+    facts_limit: int = 100,
+) -> dict[str, Any]:
+    """Read retained aggregate Cloudflare snapshots from a local project."""
+    if not project:
+        raise ValueError("project required")
+    from seohead.data_sources.cloudflare_history import list_snapshots
+
+    return list_snapshots(
+        project=project,
+        zone_id=zone_id,
+        snapshot_id=snapshot_id,
+        limit=limit,
+        offset=offset,
+        include_facts=include_facts,
+        facts_offset=facts_offset,
+        facts_limit=facts_limit,
+    )
+
+
+def cloudflare_logpush_import(
+    input_path: str,
+    project: str,
+    max_events: int = 10_000,
+) -> dict[str, Any]:
+    """Import a supplied Logpush JSON Lines file into the project's local logstore."""
+    from seohead.data_sources.cloudflare_logs import import_logpush_file
+
+    return import_logpush_file(input_path, project, max_events=max_events)
+
+
+def cloudflare_instant_logs(
+    project: str,
+    confirm_live_capture: bool = False,
+    max_seconds: int = 10,
+    max_events: int = 100,
+    max_bytes: int = 1_048_576,
+    sample: int = 10,
+    cancel_event: Any = None,
+) -> dict[str, Any]:
+    """Explicitly create and bound a transient Cloudflare Instant Logs capture."""
+    from seohead.data_sources.cloudflare_logs import instant_logs_capture
+
+    return instant_logs_capture(
+        project,
+        confirm_live_capture=confirm_live_capture,
+        max_seconds=max_seconds,
+        max_events=max_events,
+        max_bytes=max_bytes,
+        sample=sample,
+        cancel_event=cancel_event,
+    )
 
 
 def crtsh_subdomains(domain: str | None = None) -> dict[str, Any]:
@@ -5073,6 +5732,7 @@ def scan_url_query(
     export_max_rows: int | None = None,
     issue_check: str | list[str] | None = None,
     issue_severity: str | None = None,
+    include_check_counts: bool = False,
 ) -> dict[str, Any]:
     """Filter, sort and paginate the whole page table of one saved scan, read-only.
 
@@ -5102,10 +5762,74 @@ def scan_url_query(
         count_timeout_seconds=count_timeout_seconds,
         issue_check=issue_check,
         issue_severity=issue_severity,
+        include_check_counts=include_check_counts,
         max_bytes=max_bytes,
         facets=facets,
         preset=preset,
     )
+
+
+def scan_directory_tree(
+    input_path: str,
+    max_depth: int = 3,
+    max_children: int = 50,
+    max_nodes: int = 10_000,
+    max_bytes: int = 1_048_576,
+    timeout_seconds: float = 15.0,
+) -> dict[str, Any]:
+    """Read a bounded URL-path directory tree from retained page URLs only."""
+    from seohead.storage.directory_tree import scan_directory_tree as core
+
+    try:
+        return {
+            "ok": True,
+            **core(
+                input_path,
+                max_depth=max_depth,
+                max_children=max_children,
+                max_nodes=max_nodes,
+                max_bytes=max_bytes,
+                timeout_seconds=timeout_seconds,
+            ),
+        }
+    except (ValueError, OSError) as exc:
+        return {
+            "ok": False,
+            "state": "invalid",
+            "reason_code": "invalid_directory_tree",
+            "error": str(exc),
+        }
+
+
+def headers_analyze(
+    input_path: str,
+    url: str | None = None,
+    offset: int = 0,
+    limit: int = 100,
+    max_bytes: int = 1_048_576,
+    timeout_seconds: float = 15.0,
+) -> dict[str, Any]:
+    """Analyze headers and phase timing retained in a scan; never fetch the URL."""
+    import sqlite3
+
+    from seohead.storage.headers_analyze import analyze
+
+    try:
+        return analyze(
+            input_path,
+            url=url,
+            offset=offset,
+            limit=limit,
+            max_bytes=max_bytes,
+            timeout_seconds=timeout_seconds,
+        )
+    except (ValueError, OSError, sqlite3.Error) as exc:
+        return {
+            "ok": False,
+            "state": "invalid",
+            "reason_code": "invalid_headers_analysis",
+            "error": str(exc),
+        }
 
 
 def scan_url_history(project: str, url: str, limit: int = 50) -> dict[str, Any]:
@@ -5125,6 +5849,9 @@ def scan_url_detail(
     form_offset: int = 0,
     form_limit: int = 20,
     max_bytes: int = 1_048_576,
+    body_offset: int = 0,
+    body_length: int = 4096,
+    max_body_bytes: int = 8 * 1024 * 1024,
 ) -> dict[str, Any]:
     """Read one exact native URL's bounded retained transport metadata offline."""
     from seohead.mcp.history_handlers import scan_url_detail as core
@@ -5137,6 +5864,55 @@ def scan_url_detail(
         form_offset=form_offset,
         form_limit=form_limit,
         max_bytes=max_bytes,
+        body_offset=body_offset,
+        body_length=body_length,
+        max_body_bytes=max_body_bytes,
+    )
+
+
+def scan_body_read(
+    input_path: str,
+    url: str,
+    representation: str = "static",
+    variant_key: str | None = None,
+    offset: int = 0,
+    length: int = 4096,
+    max_decoded_bytes: int = 8 * 1024 * 1024,
+) -> dict[str, Any]:
+    from seohead.mcp.history_handlers import scan_body_read as core
+
+    return core(
+        input_path,
+        url,
+        representation=representation,
+        variant_key=variant_key,
+        offset=offset,
+        length=length,
+        max_decoded_bytes=max_decoded_bytes,
+    )
+
+
+def scan_findings_page(
+    project: str,
+    scan_uuid: str | None = None,
+    offset: int = 0,
+    limit: int = 100,
+    query: str = "",
+    url: str | None = None,
+    sort: str = "severity",
+    descending: bool = False,
+) -> dict[str, Any]:
+    from seohead.projects.observer import findings_page
+
+    return findings_page(
+        project,
+        scan_uuid=scan_uuid,
+        offset=offset,
+        limit=limit,
+        query=query,
+        url=url,
+        sort=sort,
+        descending=descending,
     )
 
 
@@ -5164,6 +5940,7 @@ def scan_link_inspect(
     status_class: str = "all",
     contains: str | None = None,
     sort: str = "order",
+    preset: str | None = None,
 ) -> dict[str, Any]:
     from seohead.mcp.history_handlers import scan_link_inspect as core
 
@@ -5191,6 +5968,7 @@ def scan_link_inspect(
         status_class=status_class,
         contains=contains,
         sort=sort,
+        preset=preset,
     )
 
 
@@ -5266,6 +6044,8 @@ def scan_body_diff(
     text: bool = False,
     max_bytes: int = 5 * 1024 * 1024,
     max_lines: int = 10_000,
+    left_representation: str | None = None,
+    right_representation: str | None = None,
 ) -> dict[str, Any]:
     from seohead.mcp.history_handlers import scan_body_diff as core
 
@@ -5278,6 +6058,8 @@ def scan_body_diff(
         text=text,
         max_bytes=max_bytes,
         max_lines=max_lines,
+        left_representation=left_representation,
+        right_representation=right_representation,
     )
 
 
@@ -5307,10 +6089,149 @@ def project_open(directory: str, expected_site: str | None = None) -> dict[str, 
     return core(directory, expected_site=expected_site)
 
 
+def project_archive(
+    project: str,
+    out: str,
+    dry_run: bool = False,
+    exclude_bodies: bool = False,
+    exclude_bodies_older_than_days: int | None = None,
+    keep_newest_scans: int | None = None,
+) -> dict[str, Any]:
+    from seohead.projects.archive import archive_project
+
+    return archive_project(
+        project,
+        out,
+        dry_run=dry_run,
+        exclude_bodies=exclude_bodies,
+        exclude_bodies_older_than_days=exclude_bodies_older_than_days,
+        keep_newest_scans=keep_newest_scans,
+    )
+
+
+def project_restore(archive: str, to: str) -> dict[str, Any]:
+    from seohead.projects.archive import restore_project
+
+    return restore_project(archive, to)
+
+
+def project_update(directory: str, label: str, expected_revision: int) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_update as core
+
+    return core(directory, label=label, expected_revision=expected_revision)
+
+
+def project_delete(directory: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_delete as core
+
+    return core(directory)
+
+
+def project_settings(directory: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_settings as core
+
+    return core(directory)
+
+
+def project_settings_propose(
+    directory: str, changes: dict[str, Any], expected_revision: int
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_settings_propose as core
+
+    return core(directory, changes=changes, expected_revision=expected_revision)
+
+
+def project_settings_proposals(directory: str, offset: int = 0, limit: int = 50) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_settings_proposals as core
+
+    return core(directory, offset=offset, limit=limit)
+
+
+def project_settings_review(
+    directory: str, proposal_id: str, decision: str, expected_revision: int
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_settings_review as core
+
+    return core(
+        directory,
+        proposal_id=proposal_id,
+        decision=decision,
+        expected_revision=expected_revision,
+    )
+
+
+def project_action_log(
+    directory: str,
+    offset: int = 0,
+    limit: int = 50,
+    client: str | None = None,
+    outcome: str | None = None,
+    query: str = "",
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_action_log as core
+
+    return core(
+        directory,
+        offset=offset,
+        limit=limit,
+        client=client,
+        outcome=outcome,
+        query=query,
+    )
+
+
+def project_agent_heartbeat(directory: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_agent_heartbeat as core
+
+    return core(directory)
+
+
 def project_status(directory: str, consumer: str | None = None) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_basic_status
 
     return project_basic_status(directory, consumer=consumer)
+
+
+def doctor(
+    projects_directory: str | None = None,
+    config_path: str | None = None,
+    sf_cli: str | None = None,
+) -> dict[str, Any]:
+    from seohead.core.doctor import doctor as core_doctor
+
+    return core_doctor(
+        projects_directory=projects_directory,
+        config_path=config_path,
+        sf_cli=sf_cli,
+    )
+
+
+def update_check(consent: bool, automatic: bool = False, max_releases: int = 5) -> dict[str, Any]:
+    from seohead.core.update import check_updates
+
+    return check_updates(consent=consent, automatic=automatic, max_releases=max_releases)
+
+
+def update_download(
+    consent: bool,
+    tag: str,
+    asset_name: str,
+    out: str,
+    max_bytes: int = 250 * 1024 * 1024,
+    progress=None,
+    cancelled=None,
+) -> dict[str, Any]:
+    from seohead.core.update import download_update
+
+    return download_update(
+        consent=consent,
+        tag=tag,
+        asset_name=asset_name,
+        out=out,
+        max_bytes=max_bytes,
+        progress=progress,
+        cancelled=cancelled,
+    )
 
 
 def project_sources_link(
@@ -5717,6 +6638,28 @@ def remediation_report(
     )
 
 
+def _record_project_action(
+    directory: str,
+    *,
+    action: str,
+    outcome: str,
+    detail: str = "",
+    proposal_id: str | None = None,
+) -> None:
+    from seohead.projects.action_log import record_interface_action
+
+    try:
+        record_interface_action(
+            directory,
+            action=action,
+            outcome=outcome,
+            detail=detail,
+            proposal_id=proposal_id,
+        )
+    except (OSError, ValueError):
+        return None
+
+
 def project_inbox_submit(
     directory: str,
     text: str,
@@ -5727,7 +6670,7 @@ def project_inbox_submit(
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_inbox_submit as core
 
-    return core(
+    result = core(
         directory,
         text=text,
         kind=kind,
@@ -5735,6 +6678,13 @@ def project_inbox_submit(
         author_role=author_role,
         expected_revision=expected_revision,
     )
+    _record_project_action(
+        directory,
+        action="project.inbox.submit",
+        outcome="pending" if kind == "proposed_goal" else "applied",
+        detail=f"Recorded project inbox {kind}",
+    )
+    return result
 
 
 def project_inbox_list(
@@ -5780,7 +6730,14 @@ def project_inbox_goal(
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_inbox_goal as core
 
-    return core(directory, entry_id=entry_id, state=state, expected_revision=expected_revision)
+    result = core(directory, entry_id=entry_id, state=state, expected_revision=expected_revision)
+    _record_project_action(
+        directory,
+        action="project.goal." + state,
+        outcome="applied",
+        detail=f"Updated owner goal state to {state}",
+    )
+    return result
 
 
 def project_inbox_triage(
@@ -5819,10 +6776,22 @@ def project_event_page(
     limit: int = 50,
     source: str | None = None,
     query: str = "",
+    since_revision: int | None = None,
+    follow: bool = False,
+    wait_seconds: int = 0,
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_event_page as core
 
-    return core(directory, offset=offset, limit=limit, source=source, query=query)
+    return core(
+        directory,
+        offset=offset,
+        limit=limit,
+        source=source,
+        query=query,
+        since_revision=since_revision,
+        follow=follow,
+        wait_seconds=wait_seconds,
+    )
 
 
 def project_observe(
@@ -5831,6 +6800,7 @@ def project_observe(
     scan_limit: int = 20,
     run_offset: int = 0,
     run_limit: int = 20,
+    since_revision: str | None = None,
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_observe as core
 
@@ -5840,6 +6810,7 @@ def project_observe(
         scan_limit=scan_limit,
         run_offset=run_offset,
         run_limit=run_limit,
+        since_revision=since_revision,
     )
 
 
@@ -5870,7 +6841,14 @@ def project_checklist_init(
 def project_checklist_update(directory: str, item: dict, expected_revision: int) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_checklist_update as core
 
-    return core(directory, item=item, expected_revision=expected_revision)
+    result = core(directory, item=item, expected_revision=expected_revision)
+    _record_project_action(
+        directory,
+        action="project.checklist.update",
+        outcome="applied",
+        detail="Updated checklist item definition",
+    )
+    return result
 
 
 def project_checklist_record(
@@ -5878,7 +6856,21 @@ def project_checklist_record(
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_checklist_record as core
 
-    return core(directory, item_id=item_id, record=record, expected_revision=expected_revision)
+    result = core(directory, item_id=item_id, record=record, expected_revision=expected_revision)
+    action = (
+        "project.checklist.signoff"
+        if record.get("signoff") is True
+        else "project.checklist.review"
+        if record.get("review") == "approved"
+        else "project.checklist.record"
+    )
+    _record_project_action(
+        directory,
+        action=action,
+        outcome="applied",
+        detail=f"Recorded checklist item {item_id} as {record.get('status', 'unknown')}",
+    )
+    return result
 
 
 def project_view_list(directory: str) -> dict[str, Any]:
@@ -5941,8 +6933,55 @@ def project_policy(
     expected_revision: int | None = None,
 ) -> dict[str, Any]:
     from seohead.projects.runtime import project_policy as core
+    from seohead.projects.runtime import project_write_lock
+    from seohead.projects.workspace import _load
 
-    return core(directory, policy=policy, apply=apply, expected_revision=expected_revision)
+    root, _project = _load(directory)
+    with project_write_lock(root):
+        if not apply:
+            return core(directory, policy=policy, apply=False, expected_revision=expected_revision)
+        import uuid
+
+        from seohead.projects.action_log import record as record_action
+        from seohead.projects.action_log import resolve_pending
+
+        operation_id = uuid.uuid4().hex
+        pending = record_action(
+            root,
+            client="cli",
+            action="project.policy.apply",
+            outcome="pending",
+            detail="Crawl policy update pending; terminal result will replace this row.",
+            operation_id=operation_id,
+        )["action"]
+        try:
+            result = core(
+                directory,
+                policy=policy,
+                apply=True,
+                expected_revision=expected_revision,
+                operation_id=operation_id,
+            )
+        except (OSError, ValueError) as exc:
+            resolve_pending(
+                root,
+                pending["sequence"],
+                outcome="stale" if "revision" in str(exc).lower() else "refused",
+                detail="Crawl policy update did not apply.",
+                operation_id=operation_id,
+            )
+            raise
+        try:
+            resolve_pending(
+                root,
+                pending["sequence"],
+                outcome="applied",
+                detail=f"Applied crawl policy revision {result['revision']}.",
+                operation_id=operation_id,
+            )
+        except (OSError, ValueError):
+            result["audit_warning"] = "Policy was saved; its action row remains pending."
+        return result
 
 
 def project_prepare(
@@ -5982,6 +7021,82 @@ def project_competitors_remove(directory: str, url: str) -> dict[str, Any]:
     from seohead.projects.runtime import remove_competitor
 
     return remove_competitor(directory, url)
+
+
+def project_competitors_scan(
+    directory: str,
+    task_id: str,
+    expected_revision: int,
+    confirm: bool,
+    concurrency: int = 3,
+    approve_large_crawl: bool = False,
+    producer_build: str | None = None,
+    run_id: str | None = None,
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_competitors_scan as core
+
+    return core(
+        directory=directory,
+        task_id=task_id,
+        expected_revision=expected_revision,
+        confirm=confirm,
+        concurrency=concurrency,
+        approve_large_crawl=approve_large_crawl,
+        producer_build=producer_build,
+        run_id=run_id,
+    )
+
+
+def project_competitors_scan_status(directory: str, run_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_competitors_scan_status as core
+
+    return core(directory=directory, run_id=run_id)
+
+
+def project_competitors_scan_cancel(directory: str, run_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_competitors_scan_cancel as core
+
+    return core(directory=directory, run_id=run_id)
+
+
+def project_export(
+    directory: str,
+    dataset: str,
+    fmt: str,
+    output: str,
+    compare_manifest: str | None = None,
+    job_id: str | None = None,
+    wait: bool = True,
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_export_start as core
+
+    return core(
+        directory=directory,
+        dataset=dataset,
+        fmt=fmt,
+        output=output,
+        compare_manifest=compare_manifest,
+        job_id=job_id,
+        wait=wait,
+    )
+
+
+def project_export_status(directory: str, job_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_export_status as core
+
+    return core(directory=directory, job_id=job_id)
+
+
+def project_export_cancel(directory: str, job_id: str) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_export_cancel as core
+
+    return core(directory=directory, job_id=job_id)
+
+
+def project_exports_page(directory: str, offset: int = 0, limit: int = 50) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_exports_page as core
+
+    return core(directory=directory, offset=offset, limit=limit)
 
 
 def project_start(
@@ -6056,11 +7171,16 @@ def provider_replay(
 
 
 def provider_auth(
-    provider: str, action: str = "status", grant_file: str | None = None, confirm: bool = False
+    provider: str,
+    action: str = "status",
+    grant_file: str | None = None,
+    confirm: bool = False,
+    state: str | None = None,
+    code: str | None = None,
 ) -> dict[str, Any]:
     from seohead.data_sources.oauth import manage_grant
 
-    return manage_grant(provider, action, grant_file, confirm)
+    return manage_grant(provider, action, grant_file, confirm, state=state, code=code)
 
 
 def provider_registry() -> dict[str, Any]:
@@ -6081,12 +7201,43 @@ def provider_verify(provider: str, request: dict[str, Any] | None = None) -> dic
     return core(provider, request)
 
 
+def provider_credential(
+    provider: str,
+    component: str,
+    action: str = "status",
+    confirm: bool = False,
+    value: str | None = None,
+    replace: bool = False,
+) -> dict[str, Any]:
+    from seohead.mcp.provider_handlers import provider_credential as core
+
+    return core(provider, component, action, confirm, value, replace)
+
+
+def provider_discover(provider: str, domain: str | None = None) -> dict[str, Any]:
+    from seohead.mcp.provider_handlers import provider_discover as core
+
+    return core(provider, domain)
+
+
 def provider_collect(
     provider: str, operation: str, request: dict[str, Any], artifact_dir: str | None = None
 ) -> dict[str, Any]:
     from seohead.mcp.provider_handlers import provider_collect as core
 
     return core(provider, operation, request, artifact_dir=artifact_dir)
+
+
+def provider_artifact_read(
+    artifact_ref: str,
+    artifact_dir: str,
+    offset: int = 0,
+    limit: int = 25,
+) -> dict[str, Any]:
+    """Read a bounded, allowlisted PageSpeed summary from a caller-owned local artifact dir."""
+    from seohead.data_sources.provider_artifacts import read_pagespeed_artifact
+
+    return read_pagespeed_artifact(artifact_ref, artifact_dir, offset=offset, limit=limit)
 
 
 def provider_join(
@@ -6435,11 +7586,11 @@ def scan_navigation(
     return core(input_path=input_path, document_id=document_id, limit=limit, offset=offset)
 
 
-def project_activity(directory: str) -> dict[str, Any]:
+def project_activity(directory: str, since_revision: str | None = None) -> dict[str, Any]:
     """Read lightweight current activity for a local project and its sites."""
     from seohead.projects.observer import observe_activity as core
 
-    return core(directory=directory)
+    return core(directory=directory, since_revision=since_revision)
 
 
 def project_checklist_page(
@@ -6474,6 +7625,26 @@ def project_task_detail(directory: str, item_id: str) -> dict[str, Any]:
     from seohead.projects.observer import task_detail as core
 
     return core(directory=directory, item_id=item_id)
+
+
+def project_task_comment(
+    directory: str,
+    item_id: str,
+    text: str,
+    actor: str,
+    expected_revision: int,
+    reference: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    from seohead.mcp.project_handlers import project_task_comment as core
+
+    return core(
+        directory=directory,
+        item_id=item_id,
+        text=text,
+        actor=actor,
+        expected_revision=expected_revision,
+        reference=reference,
+    )
 
 
 def project_scans(directory: str, offset: int = 0, limit: int = 20) -> dict[str, Any]:
@@ -6681,7 +7852,7 @@ def audit_workflow(
 
 
 def tool_catalog(
-    query: str = "", limit: int = 10, include_arguments: bool = False
+    query: str = "", limit: int = 10, offset: int = 0, include_arguments: bool = False
 ) -> dict[str, Any]:
     """Discover source-derived tool metadata without advertising every schema up front."""
     from dataclasses import asdict
@@ -6693,11 +7864,17 @@ def tool_catalog(
         or len(query) > 500
         or type(limit) is not int
         or not 1 <= limit <= 50
+        or type(offset) is not int
+        or offset < 0
     ):
-        raise ValueError("query must be bounded text and limit must be 1..50")
+        raise ValueError(
+            "query must be bounded text, limit must be 1..50, and offset must be non-negative"
+        )
     words = query.casefold().split()
     matches = []
-    for tool in [*load_seo_tools(), *load_sf_tools()]:
+    from seohead.mcp.tool_reference import load_semantics_tools
+
+    for tool in [*load_seo_tools(), *load_sf_tools(), *load_semantics_tools()]:
         text = (tool.name + " " + tool.summary + " " + tool.notes).casefold()
         if not all(word in text for word in words):
             continue
@@ -6709,9 +7886,116 @@ def tool_catalog(
     return {
         "ok": True,
         "total": len(matches),
-        "items": matches[:limit],
-        "has_more": len(matches) > limit,
+        "items": matches[offset : offset + limit],
+        "offset": offset,
+        "limit": limit,
+        "has_more": offset + limit < len(matches),
         "access": "Use the matching startup profile or full profile for direct low-level calls; high-level workflows invoke their bounded steps internally.",
+    }
+
+
+def url_check_batch(
+    urls: list[str] | None = None,
+    checks: list[str] | None = None,
+    options: dict[str, Any] | None = None,
+    scan: str | None = None,
+    offset: int = 0,
+    max_urls: int = 50,
+) -> dict[str, Any]:
+    """Run a bounded set of single-URL checks over an explicit list or saved scan page."""
+    if bool(urls) == bool(scan):
+        raise ValueError("provide exactly one of urls[] or scan")
+    page = None
+    if scan:
+        if (
+            type(offset) is not int
+            or offset < 0
+            or type(max_urls) is not int
+            or not 1 <= max_urls <= 50
+        ):
+            raise ValueError("scan offset must be non-negative and max_urls must be 1..50")
+        page = scan_url_query(
+            scan, columns=["url"], offset=offset, limit=max_urls, max_bytes=1_048_576
+        )
+        if not page.get("ok"):
+            return {"ok": False, "state": "unavailable", "reason": page.get("error"), "results": []}
+        column_index = page["columns"].index("url")
+        urls = [row[column_index] for row in page.get("rows", [])]
+        if not urls:
+            return {
+                "ok": False,
+                "state": "empty",
+                "reason": "the retained scan page contains no URLs",
+                "source": "retained_scan",
+                "offset": offset,
+                "has_more": bool(page.get("has_more")),
+                "results": [],
+            }
+    if not isinstance(urls, list) or not 1 <= len(urls) <= 50:
+        raise ValueError("urls must contain 1..50 URLs")
+    if any(not isinstance(url, str) or not url.strip() or len(url) > 2048 for url in urls):
+        raise ValueError("each URL must be non-empty text no longer than 2048 characters")
+    if not isinstance(checks, list) or not 1 <= len(checks) <= 5:
+        raise ValueError("checks must contain 1..5 check names")
+    supported = {
+        "parse": lambda url, opts: parse(url=url, options=opts),
+        "robots-check": lambda url, opts: robots_check(
+            url=url, user_agent=opts.get("user_agent", "*"), paths=opts.get("paths")
+        ),
+        "headers-check": lambda url, opts: headers_check(url=url, method=opts.get("method", "GET")),
+        "redirects-check": lambda url, opts: redirects_check(url=url, options=opts),
+        "schema-check": lambda url, _opts: schema_check(url=url),
+        "links-check": lambda url, opts: links_check(
+            url=url,
+            internal_only=opts.get("internal_only", False),
+            limit=min(int(opts.get("limit", 200)), 500),
+        ),
+        "hreflang-check": lambda url, _opts: hreflang_check(url=url),
+        "security-check": lambda url, opts: security_check(url=url, probe_paths=False),
+        "ai-bots-check": lambda url, _opts: ai_bots_check(url=url),
+        "llms-txt-check": lambda url, opts: llms_txt_check(url=url, brand=opts.get("brand")),
+        "citability-check": lambda url, opts: citability_check(
+            url=url, content_area=opts.get("content_area")
+        ),
+        "social-meta-check": lambda url, _opts: social_meta_check(url=url),
+        "soft404-check": lambda url, _opts: soft404_check(url=url),
+    }
+    if len(set(checks)) != len(checks) or any(name not in supported for name in checks):
+        raise ValueError("checks must be unique supported single-URL check names")
+    if options is not None and not isinstance(options, dict):
+        raise ValueError("batch options must be an object")
+    normalized = options or {}
+    if checks and {"headers-check", "redirects-check"}.intersection(checks):
+        method = str(normalized.get("method") or "GET").upper()
+        if method not in {"GET", "HEAD"}:
+            raise ValueError("batched read-only checks allow only GET or HEAD methods")
+    if len(urls) * len(checks) > 50:
+        raise ValueError("a batch may contain at most 50 URL/check combinations")
+    results = []
+    for url in urls:
+        for name in checks:
+            try:
+                result = supported[name](url, normalized)
+                items = result.get("results") if isinstance(result, dict) else None
+                failed = isinstance(result, dict) and result.get("ok") is False
+                if name == "parse" and isinstance(items, list) and items:
+                    failed = all(
+                        isinstance(item, dict) and item.get("ok") is False for item in items
+                    )
+                results.append({"url": url, "check": name, "ok": not failed, "result": result})
+            except Exception as exc:
+                results.append({"url": url, "check": name, "ok": False, "error": str(exc)})
+    all_failed = bool(results) and all(row["ok"] is False for row in results)
+    return {
+        "ok": not all_failed,
+        "partial": any(row["ok"] is False for row in results) and not all_failed,
+        "source": "retained_scan" if scan else "explicit_url_list",
+        "offset": offset if scan else None,
+        "has_more": bool(page and page.get("has_more")),
+        "scan_state": page.get("state") if page else None,
+        "scan_reason": page.get("reason") if page else None,
+        "count": len(results),
+        "results": results,
     }
 
 
@@ -6736,15 +8020,17 @@ def scan_content_search(
     *,
     progress: Callable[[int], None] | None = None,
     kind: str = "literal",
+    url: str | None = None,
 ) -> dict[str, Any]:
-    """Search one finished retained scan and write a complete local NDJSON package.
+    """Search one finished retained scan and write a bounded local NDJSON package.
 
     The scan is read offline and never re-fetched. ``out_dir`` must be a new
-    local directory; records and their fixed-width offset index are staged then
-    atomically published. The response contains counts and paths only, while
+    local directory; each serialized record is at most 64 KiB and the package
+    is capped at 512 MiB. Records and their fixed-width offset index are staged
+    then atomically published. The response contains counts, bytes and paths, while
     ``scan_content_search_page`` reads at most 100 derived records at a time.
-    A partial source or unavailable body publishes an honest partial package,
-    never an all-clear absence claim.
+    A partial source, unavailable body, or package byte cap publishes explicit
+    partial/incomplete coverage, never an all-clear absence claim.
     """
     import hashlib
     import json
@@ -6752,7 +8038,7 @@ def scan_content_search(
     import shutil
     import tempfile
 
-    from seohead.storage.content_search import search_scan
+    from seohead.storage.content_search import MAX_SERIALIZED_RECORD_BYTES, search_scan
 
     if not isinstance(out_dir, str) or not out_dir:
         raise ValueError("out_dir required: a new local content-search package directory")
@@ -6768,17 +8054,27 @@ def scan_content_search(
     count = 0
     record_bytes = 0
     digest = hashlib.sha256()
+    package_limit_hit = False
+    package_bytes = 0
     try:
         records_path = stage / "records.ndjson"
         index_path = stage / "records.idx"
         with records_path.open("wb") as records, index_path.open("wb") as index:
 
-            def emit(record: dict[str, Any]) -> None:
-                nonlocal count, record_bytes
+            def emit(record: dict[str, Any]) -> bool | None:
+                nonlocal count, record_bytes, package_limit_hit
                 encoded = (
                     json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
                     + b"\n"
                 )
+                if len(encoded) > MAX_SERIALIZED_RECORD_BYTES:
+                    raise ValueError(
+                        "content-search record exceeds the 64 KiB serialized record limit"
+                    )
+                projected = record_bytes + len(encoded) + (count + 1) * 40
+                if projected + MAX_CONTENT_SEARCH_MANIFEST_BYTES > MAX_CONTENT_SEARCH_PACKAGE_BYTES:
+                    package_limit_hit = True
+                    return False
                 index.write(record_bytes.to_bytes(8, "big"))
                 index.write(hashlib.sha256(encoded).digest())
                 records.write(encoded)
@@ -6787,6 +8083,7 @@ def scan_content_search(
                 count += 1
                 if progress is not None:
                     progress(count)
+                return None
 
             summary = search_scan(
                 input_path,
@@ -6799,6 +8096,22 @@ def scan_content_search(
                 include_snippets=include_snippets,
                 on_record=emit,
                 kind=kind,
+                url=url,
+            )
+        if package_limit_hit:
+            summary["search_completed"] = False
+            summary["ok"] = False
+            summary["absence_confirmed"] = False
+            summary["coverage"]["package_output_truncated"] = True
+            summary["coverage"]["package_output_limit_bytes"] = MAX_CONTENT_SEARCH_PACKAGE_BYTES
+            summary["coverage"]["stream_error"] = "derived package byte limit reached"
+            summary["coverage"]["partial_reasons"] = [
+                reason
+                for reason in summary["coverage"]["partial_reasons"]
+                if reason != "record consumer stopped before all selected documents were emitted"
+            ]
+            summary["coverage"]["partial_reasons"].append(
+                "derived package byte limit reached before all selected documents were emitted"
             )
         manifest = {
             "format": "seohead.retained-content-search.v1",
@@ -6809,6 +8122,7 @@ def scan_content_search(
             "kind": summary["kind"],
             "representations": summary["representations"],
             "coverage": summary["coverage"],
+            "url_filter": url,
             "absence_confirmed": summary["absence_confirmed"],
             "records": {
                 "file": records_path.name,
@@ -6817,14 +8131,21 @@ def scan_content_search(
                 "bytes": record_bytes,
                 "sha256": digest.hexdigest(),
                 "index_entry_bytes": 40,
+                "record_byte_limit": MAX_SERIALIZED_RECORD_BYTES,
             },
+            "package_byte_limit": MAX_CONTENT_SEARCH_PACKAGE_BYTES,
             "snippets": "included" if include_snippets else "omitted",
             "network": False,
         }
-        (stage / "manifest.json").write_text(
-            json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        manifest_bytes = (
+            json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+        ).encode("utf-8")
+        if len(manifest_bytes) > MAX_CONTENT_SEARCH_MANIFEST_BYTES:
+            raise ValueError("content-search package manifest exceeds 1 MiB")
+        package_bytes = record_bytes + count * 40 + len(manifest_bytes)
+        if package_bytes > MAX_CONTENT_SEARCH_PACKAGE_BYTES:
+            raise ValueError("content-search package exceeds its byte limit")
+        (stage / "manifest.json").write_bytes(manifest_bytes)
         if os.path.lexists(destination):
             raise ValueError("content-search out_dir appeared while the package was being written")
         os.replace(stage, destination)
@@ -6844,12 +8165,22 @@ def scan_content_search(
         "out_dir": str(destination),
         "manifest": str(destination / "manifest.json"),
         "records": count,
+        "package_bytes": package_bytes,
         "source": summary["source"],
         "coverage": summary["coverage"],
         "absence_confirmed": summary["absence_confirmed"],
         "search_completed": summary["search_completed"],
         "capabilities": {"retained_content_search": True},
     }
+
+
+def custom_extract_sample(
+    html: str, extractors: list[dict[str, Any]], url: str = ""
+) -> dict[str, Any]:
+    """Run declared extractors against supplied HTML; never fetches the URL label."""
+    from seohead.checks.custom_extract import check_sample
+
+    return check_sample(html, extractors, url=url)
 
 
 def scan_content_search_page(
@@ -6868,6 +8199,8 @@ def scan_content_search_page(
     import json
     import os
 
+    from seohead.storage.content_search import MAX_SERIALIZED_RECORD_BYTES
+
     if type(offset) is not int or offset < 0 or type(limit) is not int or not 1 <= limit <= 100:
         raise ValueError("offset must be nonnegative and limit must be 1..100")
     if status is not None and status not in {"matched", "not_matched", "unavailable"}:
@@ -6884,7 +8217,7 @@ def scan_content_search_page(
         or not manifest_path.is_file()
     ):
         raise ValueError("content-search package must be a regular local package directory")
-    if manifest_path.stat().st_size > 1_048_576:
+    if manifest_path.stat().st_size > MAX_CONTENT_SEARCH_MANIFEST_BYTES:
         raise ValueError("content-search package manifest exceeds 1 MiB")
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -6901,6 +8234,8 @@ def scan_content_search_page(
         or not isinstance(records.get("file"), str)
         or not isinstance(records.get("index"), str)
         or records.get("index_entry_bytes") != 40
+        or records.get("record_byte_limit", MAX_SERIALIZED_RECORD_BYTES)
+        != MAX_SERIALIZED_RECORD_BYTES
         or Path(records["file"]).name != records["file"]
         or Path(records["index"]).name != records["index"]
     ):
@@ -6913,6 +8248,11 @@ def scan_content_search_page(
         "index_entry_bytes"
     ] or os.path.getsize(records_path) != records.get("bytes"):
         raise ValueError("content-search package index length is invalid")
+    package_bytes = (
+        manifest_path.stat().st_size + os.path.getsize(index_path) + os.path.getsize(records_path)
+    )
+    if package_bytes > MAX_CONTENT_SEARCH_PACKAGE_BYTES:
+        raise ValueError("content-search package exceeds its byte limit")
     source = manifest.get("source")
     if not isinstance(source, dict):
         raise ValueError("content-search package source identity is invalid")
@@ -6922,7 +8262,7 @@ def scan_content_search_page(
         raise ValueError("content-search package source identity is invalid")
 
     def checked_row(line: bytes, digest: bytes) -> dict[str, Any]:
-        if len(line) > 64 * 1024 or not line.endswith(b"\n"):
+        if len(line) > MAX_SERIALIZED_RECORD_BYTES or not line.endswith(b"\n"):
             raise ValueError("content-search package record is truncated or exceeds 64 KiB")
         if hashlib.sha256(line).digest() != digest:
             raise ValueError("content-search package record integrity is invalid")
@@ -6968,7 +8308,7 @@ def scan_content_search_page(
             raise ValueError("content-search package index is truncated")
         stream.seek(int.from_bytes(marker[:8], "big"))
         for _ in range(limit):
-            line = stream.readline(64 * 1024 + 1)
+            line = stream.readline(MAX_SERIALIZED_RECORD_BYTES + 1)
             if not line:
                 raise ValueError("content-search package records are truncated")
             entry = offset + len(rows)
@@ -7003,6 +8343,8 @@ def _content_search_filtered_page(
     status_code: int | None,
     checked_row: Any,
 ) -> dict[str, Any]:
+    from seohead.storage.content_search import MAX_SERIALIZED_RECORD_BYTES
+
     # ponytail: linear pass over every record, no matched index | ceiling: ~1M records per page read | upgrade: matched.idx offsets (issue #939 slice 2)
     def matches(row: dict[str, Any]) -> bool:
         return (status is None or row.get("status") == status) and (
@@ -7019,7 +8361,7 @@ def _content_search_filtered_page(
             if len(marker) != entry_bytes:
                 raise ValueError("content-search package index is truncated")
             stream.seek(int.from_bytes(marker[:8], "big"))
-            line = stream.readline(64 * 1024 + 1)
+            line = stream.readline(MAX_SERIALIZED_RECORD_BYTES + 1)
             if not line:
                 raise ValueError("content-search package records are truncated")
             row = checked_row(line, marker[8:40])
@@ -7059,11 +8401,14 @@ def scan_extract(
 
 
 def scan_structured_blocks(
-    input_path: str, url: str, representation: str = "static"
+    input_path: str,
+    url: str,
+    representation: str = "static",
+    variant_key: str | None = None,
 ) -> dict[str, Any]:
     from seohead.mcp.evidence_handlers import scan_structured_blocks as core
 
-    return core(input_path, url, representation=representation)
+    return core(input_path, url, representation=representation, variant_key=variant_key)
 
 
 def marketing_inventory(
@@ -7114,11 +8459,15 @@ def scan_import_urls(input_path: str, urls_file: str, backup_path: str) -> dict[
 
 
 _RAW_HANDLERS = {
+    "doctor": doctor,
+    "update_check": update_check,
+    "update_download": update_download,
     "parse": parse,
     "redirects_generate": redirects_generate,
     "redirects_check": redirects_check,
     "sitemap_crawl": sitemap_crawl,
     "crawl_site": crawl_site,
+    "crawl_control": crawl_control,
     "verify_fixes": verify_fixes,
     "crawl_describe_settings": crawl_describe_settings,
     "images_download": images_download,
@@ -7165,6 +8514,10 @@ _RAW_HANDLERS = {
     "report_build": report_build,
     "facts_export": facts_export,
     "compare_crawls": compare_crawls,
+    "compare_read": compare_read,
+    "compare_status": compare_status,
+    "compare_report": compare_report,
+    "compare_url": compare_url,
     "crawl_enrich": crawl_enrich,
     "crawl_import": crawl_import,
     "segment_diff": segment_diff,
@@ -7189,6 +8542,9 @@ _RAW_HANDLERS = {
     "wayback_history": wayback_history,
     "crtsh_subdomains": crtsh_subdomains,
     "cloudflare_traffic": cloudflare_traffic,
+    "cloudflare_history": cloudflare_history,
+    "cloudflare_logpush_import": cloudflare_logpush_import,
+    "cloudflare_instant_logs": cloudflare_instant_logs,
     "gsc_query": gsc_query,
     "webmaster_url_queries": webmaster_url_queries,
     "miratext_analyze": miratext_analyze,
@@ -7201,7 +8557,10 @@ _RAW_HANDLERS = {
     "scan_list": scan_list,
     "scan_inspect": scan_inspect,
     "scan_url_detail": scan_url_detail,
+    "scan_body_read": scan_body_read,
     "scan_url_query": scan_url_query,
+    "scan_directory_tree": scan_directory_tree,
+    "headers_analyze": headers_analyze,
     "scan_url_history": scan_url_history,
     "scan_link_inspect": scan_link_inspect,
     "scan_status": scan_status,
@@ -7209,6 +8568,7 @@ _RAW_HANDLERS = {
     "scan_evidence": scan_evidence,
     "scan_content_search": scan_content_search,
     "scan_content_search_page": scan_content_search_page,
+    "custom_extract_sample": custom_extract_sample,
     "scan_extract": scan_extract,
     "scan_structured_blocks": scan_structured_blocks,
     "marketing_inventory": marketing_inventory,
@@ -7220,8 +8580,19 @@ _RAW_HANDLERS = {
     "scan_pin": scan_pin,
     "scan_prune": scan_prune,
     "scan_body_diff": scan_body_diff,
+    "scan_findings_page": scan_findings_page,
     "project_new": project_new,
     "project_open": project_open,
+    "project_archive": project_archive,
+    "project_restore": project_restore,
+    "project_update": project_update,
+    "project_delete": project_delete,
+    "project_settings": project_settings,
+    "project_settings_propose": project_settings_propose,
+    "project_settings_proposals": project_settings_proposals,
+    "project_settings_review": project_settings_review,
+    "project_action_log": project_action_log,
+    "project_agent_heartbeat": project_agent_heartbeat,
     "project_status": project_status,
     "project_sources_link": project_sources_link,
     "project_sources_unlink": project_sources_unlink,
@@ -7275,11 +8646,19 @@ _RAW_HANDLERS = {
     "inspect_url": inspect_url,
     "audit_workflow": audit_workflow,
     "tool_catalog": tool_catalog,
+    "url_check_batch": url_check_batch,
     "project_policy": project_policy,
     "project_prepare": project_prepare,
     "project_competitors_add": project_competitors_add,
     "project_competitors_list": project_competitors_list,
     "project_competitors_remove": project_competitors_remove,
+    "project_competitors_scan": project_competitors_scan,
+    "project_competitors_scan_status": project_competitors_scan_status,
+    "project_competitors_scan_cancel": project_competitors_scan_cancel,
+    "project_export": project_export,
+    "project_export_status": project_export_status,
+    "project_export_cancel": project_export_cancel,
+    "project_exports_page": project_exports_page,
     "project_start": project_start,
     "skill_list": skill_list,
     "skill_show": skill_show,
@@ -7290,7 +8669,10 @@ _RAW_HANDLERS = {
     "provider_registry": provider_registry,
     "provider_readiness": provider_readiness,
     "provider_verify": provider_verify,
+    "provider_credential": provider_credential,
+    "provider_discover": provider_discover,
     "provider_collect": provider_collect,
+    "provider_artifact_read": provider_artifact_read,
     "provider_join": provider_join,
     "evidence_normalize": evidence_normalize,
     "evidence_join": evidence_join,
@@ -7300,6 +8682,7 @@ _RAW_HANDLERS = {
     "project_activity": project_activity,
     "project_checklist_page": project_checklist_page,
     "project_task_detail": project_task_detail,
+    "project_task_comment": project_task_comment,
     "project_scans": project_scans,
     "publication_cohorts": publication_cohorts,
     "gsc_progress": gsc_progress,
@@ -7308,7 +8691,19 @@ _RAW_HANDLERS = {
     "bi_destination_apply": bi_destination_apply,
 }
 
+# Sensitive values that flow only through these local workflows are omitted from journal
+# arguments and fingerprints; the generic journal sanitizer remains name-based.
+_SENSITIVE_HANDLER_ARGUMENTS = {
+    "provider_auth": frozenset({"state", "code"}),
+    "provider_credential": frozenset({"value"}),
+}
+
 # Journaling sits here rather than in each interface: the CLI and the MCP server
 # both dispatch through this mapping, so one wrapper records every call exactly
 # once and no future tool can be added without being recorded.
-HANDLERS = {name: runlog.journaled(name, fn) for name, fn in _RAW_HANDLERS.items()}
+HANDLERS = {
+    name: runlog.journaled(
+        name, fn, sensitive_arguments=_SENSITIVE_HANDLER_ARGUMENTS.get(name, frozenset())
+    )
+    for name, fn in _RAW_HANDLERS.items()
+}

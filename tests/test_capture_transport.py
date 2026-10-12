@@ -61,6 +61,36 @@ def test_bounded_entity_supports_raw_deflate_and_rejects_unknown_content_coding(
         bounded_entity(b"encoded elsewhere", "br", 100)
 
 
+def test_zstd_capture_is_opt_in_and_decodes_under_the_entity_limit():
+    raw = b"bounded zstandard fixture" * 8
+    try:
+        from compression import zstd
+    except ImportError:
+        zstandard = pytest.importorskip("zstandard")
+        encoded = zstandard.ZstdCompressor().compress(raw)
+    else:
+        compressor = zstd.ZstdCompressor()
+        encoded = compressor.compress(raw) + compressor.flush()
+    assert bounded_entity(encoded, "zstd", len(raw)) == raw
+    with pytest.raises(EntityLimitError):
+        bounded_entity(encoded, "zstd", len(raw) - 1)
+
+
+def test_zstd_capture_rejects_a_frame_window_above_the_bounded_limit():
+    raw = b"small body in a deliberately large-window frame"
+    try:
+        from compression import zstd
+    except ImportError:
+        zstandard = pytest.importorskip("zstandard")
+        encoded = zstandard.ZstdCompressor(window_log=22).compress(raw)
+    else:
+        compressor = zstd.ZstdCompressor(options={zstd.CompressionParameter.window_log: 22})
+        encoded = compressor.compress(raw) + compressor.flush()
+
+    with pytest.raises(EntityDecodeError, match="compressed entity is invalid"):
+        bounded_entity(encoded, "zstd", len(raw))
+
+
 def test_decoder_matches_scan_decoder_policy_for_utf8_and_legacy_charset():
     assert decode_entity(b"hello", "text/html")[0] == "hello"
     assert decode_entity("Привет".encode("cp1251"), "text/html; charset=cp1251")[0] == "Привет"

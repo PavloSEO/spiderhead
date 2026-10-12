@@ -7,11 +7,12 @@ from unittest.mock import patch
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QDialog
 
 from seohead_desktop import i18n
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.competitors import CompetitorsScreen
+from seohead_desktop.ui.modal import ModalDialog
 from tests._qt import sweep_widgets
 
 
@@ -230,6 +231,32 @@ class CompetitorsScreenTests(unittest.TestCase):
 
         self.assertEqual(host.manager.submitted, [])
         self.assertIn("уже идут: 1", screen.status.text())
+
+    def test_removal_is_confirmed_and_only_removes_the_shortlist_entry(self):
+        host = FakeHost(sites=[_site("one.example.test", "competitors/a")])
+        screen = self.screen(host)
+        screen.table.selectRow(0)
+        with patch.object(ModalDialog, "exec_", return_value=QDialog.Accepted) as confirm:
+            screen.remove_selected()
+        confirm.assert_called_once()
+        request_id, tool, arguments, handler = host.commands[-1]
+        self.assertEqual(
+            (request_id, tool), ("competitors-remove", "seo_project_competitors_remove")
+        )
+        self.assertEqual(arguments, {"directory": "/owner", "url": "https://one.example.test/"})
+        handler(
+            {"ok": True, "removed": "https://one.example.test/", "workspace_kept": "competitors/a"}
+        )
+        self.assertEqual(host.refreshed, 1)
+        self.assertIn("данные сохранены", screen.status.text())
+
+    def test_removal_cancel_does_not_write(self):
+        host = FakeHost(sites=[_site("one.example.test", "competitors/a")])
+        screen = self.screen(host)
+        screen.table.selectRow(0)
+        with patch.object(ModalDialog, "exec_", return_value=QDialog.Rejected):
+            screen.remove_selected()
+        self.assertEqual(host.commands, [])
 
 
 if __name__ == "__main__":

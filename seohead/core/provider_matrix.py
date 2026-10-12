@@ -306,6 +306,7 @@ WORKFLOWS: tuple[WorkflowRow, ...] = (
         use_case="Merge explicit backlink evidence, classify full rel tokens and retain history",
         providers=(
             _reg("dataforseo_backlinks"),
+            _reg("moz"),
             _reg("yandex_webmaster"),
             _reg("bing_webmaster"),
             _ded("backlink_indexes"),
@@ -317,15 +318,17 @@ WORKFLOWS: tuple[WorkflowRow, ...] = (
             "dataforseo-estimate",
         ),
         status="partial",
-        auth="Login + password",
-        cost_quota="Paid per provider response; provider is off by default",
+        auth="Provider-specific credentials; Moz API token for its dedicated backlink route",
+        cost_quota="Paid reads are opt-in; Moz per-call currency cost is unknown",
         privacy="restricted",
         limitations=(
             "DataForSEO has bounded summary, backlinks, referring domains, history and "
             "domain-page summary routes with confirmation; free property samples and CSV/WAT "
             "imports are merged locally. No source proves whole-web completeness; "
-            "Ahrefs/Majestic index reads are explicit; Moz is legacy V2 metrics only, "
-            "not a backlink enumerator. Project/month currency limits await an owner decision"
+            "Ahrefs/Majestic and modern Moz backlink reads are explicit and bounded; Moz's "
+            "modern route is available only through backlinks-profile with operation='backlinks', "
+            "while its omitted operation keeps legacy v2 URL metrics. Moz's account-dependent "
+            "price remains unknown, and project/month currency limits await an owner decision"
         ),
         csv_fallback="GSC, Ahrefs, Majestic, Moz, Semrush, DataForSEO CSV and Common Crawl WAT/domain-edge extracts",
     ),
@@ -389,6 +392,29 @@ WORKFLOWS: tuple[WorkflowRow, ...] = (
         privacy="public",
         limitations="provider-verify reports not_required — there is no access contract to verify",
         csv_fallback="not applicable",
+    ),
+    WorkflowRow(
+        workflow="cloudflare-edge-and-log-evidence",
+        use_case="Read aggregated per-URL edge facts and explicitly import a bounded edge-log interval",
+        providers=(_reg("cloudflare"),),
+        surface=("cloudflare-traffic", "cloudflare-history", "provider-collect"),
+        status="supported",
+        auth="Cloudflare API token; Zone Read + Account Analytics Read, with Logs Read for Logpull",
+        cost_quota=(
+            "GraphQL analytics is free within Cloudflare quota; Logpull is Enterprise-only, "
+            "at most one hour per request and seven days of history"
+        ),
+        privacy=(
+            "Aggregated traffic history stores no IPs; explicit Logpull imports IP-level rows "
+            "to a private project logs artifact"
+        ),
+        limitations=(
+            "Adaptive GraphQL facts are grouped daily data, not raw requests. Configured "
+            "redirect/WAF rules are not proof of per-request matches. Logpull always requires "
+            "an explicit project binding, end time at least five minutes old, and never enables "
+            "DNS verification"
+        ),
+        csv_fallback="not applicable — provider-native daily history and explicit log import",
     ),
     WorkflowRow(
         workflow="evidence-join",

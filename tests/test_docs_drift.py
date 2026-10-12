@@ -201,14 +201,14 @@ def test_skills_map_command_coverage_is_current():
 def test_documented_product_counts_match_the_registries():
     provenance = (ROOT / "docs" / "legal" / "PROVENANCE.md").read_text(encoding="utf-8")
     assert len(COMMANDS) == len(HANDLERS)
-    assert len(_sf_tool_names()) == 5
+    assert len(_sf_tool_names()) == 6
     assert CHECKS
     assert len(TECHNICAL_SKILLS) == 25
     assert len(PACKAGED_SKILLS) == 8
     assert (
         str(len(COMMANDS)) in provenance
         and str(len(CHECKS)) in provenance
-        and "five" in provenance.lower()
+        and "six" in provenance.lower()
     )
     assert (ROOT / "CITATION.cff").is_file()
 
@@ -327,7 +327,7 @@ def test_tool_reference_is_generated_and_current():
     expected = {tool.command or tool.name for tool in (*seo_tools, *sf_tools, *semantics_tools)}
     assert documented == expected, "every MCP tool must appear in the generated reference"
     assert len(seo_tools) == len(COMMANDS)
-    assert len(sf_tools) == 5
+    assert len(sf_tools) == 6
 
 
 def test_provider_matrix_is_generated_and_current():

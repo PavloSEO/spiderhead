@@ -300,7 +300,7 @@ def open_project(directory: str | Path, *, expected_site: str | None = None) -> 
 
     return {
         "ok": True,
-        "project": document,
+        "project": _project_presentation(root, document),
         "path": str(root),
         "checklist": aggregate_coverage(str(root), coverage_status(root)),
     }
@@ -309,7 +309,7 @@ def open_project(directory: str | Path, *, expected_site: str | None = None) -> 
 def project_status(
     directory: str | Path, *, _coverage_views: dict | None = None, _verify_evidence: bool = True
 ) -> dict[str, Any]:
-    """Report scan history, per-site coverage and recorded preparation state."""
+    """Report scan history, per-site coverage and bounded operational status."""
     from .coverage import coverage_status
     from .runtime import aggregate_coverage, preparation_status
 
@@ -317,16 +317,225 @@ def project_status(
     views = {} if _coverage_views is None else _coverage_views
     if str(root) not in views:
         views[str(root)] = coverage_status(root, _verify_evidence=_verify_evidence)
+    scans = list_scans(root / "scans")
+    running_scan = _running_scan(root, scans)
+    latest = scans["items"][0] if scans["items"] else None
+    latest_completeness = None
+    if latest is not None:
+        partial = latest["lifecycle"] != "finished" or bool(
+            latest["crawl_partial"] or latest["corpus_partial"]
+        )
+        latest_completeness = {
+            "state": "partial" if partial else "complete",
+            "crawl_partial": latest["crawl_partial"],
+            "corpus_partial": latest["corpus_partial"],
+            "reason": (
+                latest["finish_reason"] or f"scan lifecycle is {latest['lifecycle']}"
+                if partial
+                else None
+            ),
+        }
+    scan_errors = scans.get("errors", [])
+    checklist = aggregate_coverage(
+        str(root), views[str(root)], _coverage_views=views, _verify_evidence=_verify_evidence
+    )
+    agent_state = _agent_state(root)
+    storage = _storage_measurement(root)
+    presentation = _project_presentation(root, document)
     return {
         "ok": True,
         "project": {
-            "site": document["site"],
+            "site": presentation["site"],
+            "settings_revision": presentation["settings_revision"],
             "template_references": document["template_references"],
             "profile_references": document["profile_references"],
         },
-        "scans": list_scans(root / "scans"),
-        "checklist": aggregate_coverage(
-            str(root), views[str(root)], _coverage_views=views, _verify_evidence=_verify_evidence
-        ),
+        "scans": scans,
+        "summary": {
+            "running_scan": running_scan,
+            "open_tasks": _open_tasks(views[str(root)]),
+            "latest_scan": (
+                {
+                    "uuid": latest["uuid"],
+                    "state": latest["lifecycle"],
+                    "completeness": latest_completeness,
+                }
+                if latest is not None
+                else {
+                    "uuid": None,
+                    "state": None,
+                    "completeness": None,
+                    "reason": "no retained scan is available",
+                }
+            ),
+            "folder_health": {
+                "state": "degraded" if scan_errors else "ok",
+                "reason": (
+                    f"{len(scan_errors)} retained scan item(s) could not be read"
+                    if scan_errors
+                    else None
+                ),
+            },
+        },
+        "agent_state": agent_state,
+        "storage": storage,
+        "checklist": checklist,
         "preparation": preparation_status(str(root)),
+    }
+
+
+def _settings(root: Path) -> dict[str, Any]:
+    try:
+        from .project_settings import read_settings
+    except ImportError:
+        _root, document = _load(root)
+        return {"revision": 0, "settings": {"label": document["site"]["label"]}}
+    return read_settings(root)
+
+
+def _project_presentation(root: Path, document: dict[str, Any]) -> dict[str, Any]:
+    settings = _settings(root)
+    return {
+        **document,
+        "site": {**document["site"], "label": settings["settings"].get("label")},
+        "settings_revision": settings["revision"],
+    }
+
+
+def _agent_state(root: Path) -> dict[str, Any]:
+    try:
+        from .action_log import latest_agent_activity
+
+        activity = latest_agent_activity(root)
+    except (ImportError, OSError, ValueError) as exc:
+        return {
+            "last_seen_at": None,
+            "connected": None,
+            "heartbeat_source": None,
+            "activity_source": None,
+            "reason": f"agent activity is unavailable ({type(exc).__name__})",
+        }
+    last_seen = activity.get("last_seen_at")
+    source = activity.get("source") if last_seen is not None else None
+    return {
+        "last_seen_at": last_seen,
+        "connected": None,
+        "heartbeat_source": activity.get("heartbeat_source") if last_seen is not None else None,
+        "activity_source": source,
+        "reason": (
+            "last activity is recorded; current connection is not established"
+            if last_seen is not None
+            else "no agent activity is recorded"
+        ),
+    }
+
+
+def _storage_measurement(root: Path) -> dict[str, Any]:
+    try:
+        from .status_measurement import read_storage_measurement
+
+        return read_storage_measurement(root)
+    except (ImportError, OSError, ValueError) as exc:
+        return {
+            "relative_path": "scans",
+            "total_bytes": None,
+            "scan_count": None,
+            "measured_at": None,
+            "state": "unavailable",
+            "reason": f"project storage measurement is unavailable ({type(exc).__name__})",
+        }
+
+
+def _open_tasks(checklist: dict[str, Any]) -> dict[str, Any]:
+    """Count current, applicable operator-authored checklist tasks only."""
+    if checklist.get("state") != "initialized" or not isinstance(checklist.get("items"), list):
+        return {
+            "count": None,
+            "state": "unavailable",
+            "scope": "primary_project_custom_checklist",
+            "reason": "the project checklist is not initialized",
+        }
+    tasks = [
+        item
+        for item in checklist["items"]
+        if isinstance(item, dict)
+        and isinstance(item.get("id"), str)
+        and item["id"].startswith("custom:")
+        and not item.get("complete")
+        and not item.get("stale")
+        and item.get("applicability") not in {"excluded", "not_agreed"}
+    ]
+    count = len(tasks)
+    return {
+        "count": count,
+        "state": "measured" if count else "no_active_tasks",
+        "scope": "primary_project_custom_checklist",
+        "reason": None,
+    }
+
+
+def _running_scan(root: Path, scans: dict[str, Any]) -> dict[str, Any]:
+    """Project the active collector without treating a missing observer as idle."""
+    from .run_observation import NAME
+
+    if not (root / NAME).is_file():
+        active_scan = next(
+            (item for item in scans.get("items", []) if item.get("lifecycle") == "running"), None
+        )
+        if active_scan is not None:
+            return {
+                "running": True,
+                "id": active_scan["uuid"],
+                "progress": None,
+                "reason": "collector progress has not been recorded",
+            }
+        return {
+            "running": None,
+            "id": None,
+            "progress": None,
+            "reason": "no collector observation is recorded",
+        }
+    try:
+        from .run_observation import status as run_status
+
+        observed = run_status(root, limit=1)
+    except (OSError, ValueError) as exc:
+        return {
+            "running": None,
+            "id": None,
+            "progress": None,
+            "reason": f"collector status is unavailable: {type(exc).__name__}",
+        }
+    if observed["active_total"] == 0:
+        active_scan = next(
+            (item for item in scans.get("items", []) if item.get("lifecycle") == "running"), None
+        )
+        if active_scan is not None:
+            return {
+                "running": True,
+                "id": active_scan["uuid"],
+                "progress": None,
+                "reason": "collector progress has not been recorded",
+            }
+        return {"running": False, "id": None, "progress": None, "reason": None}
+    active = next((item for item in observed["items"] if item["state"] == "running"), None)
+    if active is None:
+        return {
+            "running": None,
+            "id": None,
+            "progress": None,
+            "reason": "active collector details are unavailable",
+        }
+    counters = active.get("counters") or {}
+    return {
+        "running": True,
+        "id": active.get("id"),
+        "progress": {
+            "fetched": counters.get("fetched"),
+            "queued": counters.get("queued"),
+            "inflight": counters.get("inflight"),
+            "excluded": counters.get("excluded"),
+            "sampled_at": (active.get("telemetry") or {}).get("sampled_at"),
+        },
+        "reason": None,
     }

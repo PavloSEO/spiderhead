@@ -107,6 +107,38 @@ def _missing(check_id: str, headers: dict[str, str]) -> bool:
     return True
 
 
+def evaluate_page(
+    url: str, status_code: Any, content_type: str, raw_headers: Any
+) -> dict[str, Any]:
+    """Analyze one retained page response without a request to the site."""
+    if not _is_judged_html(status_code, content_type):
+        return {
+            "state": "not_applicable",
+            "reason": "security headers are evaluated on successful HTML page responses",
+            "headers": None,
+            "findings": [],
+        }
+    pairs = _header_pairs(raw_headers)
+    if pairs is None:
+        return {
+            "state": "unavailable",
+            "reason": "response headers were not retained or could not be parsed",
+            "headers": None,
+            "findings": [],
+        }
+    headers = _header_map(pairs)
+    findings = [
+        {"check": check_id, "target_url": url, "header": HEADER_CHECKS[check_id]}
+        for check_id in HEADER_CHECKS
+        if _missing(check_id, headers)
+    ]
+    findings.extend(
+        {"check": DUPLICATE_CHECK, "target_url": url, "header": header}
+        for header in _repeated(pairs)
+    )
+    return {"state": "measured", "reason": "", "headers": headers, "findings": findings}
+
+
 def evaluate(con: sqlite3.Connection) -> dict[str, Any]:
     """Judge every stored HTML page for the native header checks, HSTS included.
 
@@ -120,17 +152,15 @@ def evaluate(con: sqlite3.Connection) -> dict[str, Any]:
     measured = 0
     unmeasured = 0
     for url, status_code, content_type, raw_headers in con.execute(_PAGE_RESPONSES_SQL):
-        if not _is_judged_html(status_code, content_type):
+        page = evaluate_page(url, status_code, content_type, raw_headers)
+        if page["state"] == "not_applicable":
             continue
-        pairs = _header_pairs(raw_headers) if raw_headers is not None else None
-        if pairs is None:
+        if page["state"] == "unavailable":
             unmeasured += 1
             continue
         measured += 1
-        headers = _header_map(pairs)
-        for check_id in HEADER_CHECKS:
-            if _missing(check_id, headers):
-                findings[check_id].append({"target_url": url, "header": HEADER_CHECKS[check_id]})
-        for header in _repeated(pairs):
-            findings[DUPLICATE_CHECK].append({"target_url": url, "header": header})
+        for finding in page["findings"]:
+            findings[finding["check"]].append(
+                {"target_url": finding["target_url"], "header": finding["header"]}
+            )
     return {"findings": findings, "pages_measured": measured, "pages_unmeasured": unmeasured}

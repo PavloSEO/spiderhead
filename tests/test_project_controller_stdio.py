@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -112,17 +113,36 @@ async def _controller_lifecycle(project: Path) -> dict:
                 },
             )
         )
-        accepted = _payload(
-            await session.call_tool(
-                "seo_project_inbox_goal",
-                {
-                    "directory": str(project),
-                    "entry_id": goal["entry"]["id"],
-                    "state": "accepted",
-                    "expected_revision": goal["revision"],
-                },
-            )
+        refused_acceptance = await session.call_tool(
+            "seo_project_inbox_goal",
+            {
+                "directory": str(project),
+                "entry_id": goal["entry"]["id"],
+                "state": "accepted",
+                "expected_revision": goal["revision"],
+            },
         )
+        assert refused_acceptance.isError
+        accepted_result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "seohead",
+                "project-inbox-goal",
+                "--directory",
+                str(project),
+                "--entry-id",
+                goal["entry"]["id"],
+                "--state",
+                "accepted",
+            ],
+            cwd=ROOT,
+            env=environment,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        accepted = json.loads(accepted_result.stdout)
         workflow = _payload(
             await session.call_tool(
                 "seo_workflow_start",

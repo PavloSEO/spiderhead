@@ -24,11 +24,12 @@ def pytest_configure(config):
 
 @pytest.fixture
 def exports_dir(tmp_path):
-    """A temp exports dir holding both fixture CSVs."""
+    """A temp exports dir holding top-level export fixture files."""
     dst = tmp_path / "exports"
     dst.mkdir()
-    for name in os.listdir(FIXTURES):
-        shutil.copy(os.path.join(FIXTURES, name), dst / name)
+    for entry in os.scandir(FIXTURES):
+        if entry.is_file():
+            shutil.copy(entry.path, dst / entry.name)
     return str(dst)
 
 

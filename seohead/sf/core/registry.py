@@ -396,7 +396,7 @@ CHECKS: dict[str, dict[str, Any]] = {
     # 7.G — images
     "IMG_MISSING_ALT": {
         "severity": "warning",
-        "source": "SF:Images:Missing Alt Text",
+        "source": "SF+native:retained-image-markup",
         "message": "Image is missing alt text",
         "fix": "Add concise, descriptive alt text when the image conveys content; use an empty alt attribute for decorative images.",
     },
@@ -404,9 +404,8 @@ CHECKS: dict[str, dict[str, Any]] = {
         "severity": "warning",
         "source": "crawl:images",
         "message": 'An <img> has no alt attribute at all (not even alt="")',
-        "fix": "Add an alt attribute: descriptive text when the image conveys content, or "
-        'alt="" when it is purely decorative -- an image with no alt attribute at all is '
-        'read out as its filename by assistive technology, which alt="" correctly avoids.',
+        "fix": 'Declare descriptive alt text for informative images, or alt="" for decoration. '
+        "An ARIA name can label an image for assistive technology, but does not supply the missing alt attribute.",
     },
     "IMG_ALT_TOO_LONG": {
         "severity": "notice",
@@ -1046,6 +1045,91 @@ CHECKS: dict[str, dict[str, Any]] = {
         "fix": "Give the mobile alternate link an `href` pointing at the mobile URL, or remove "
         'the `<link rel="alternate" media=...>` tag.',
     },
+    "MOBILE_CONTENT_OVERFLOW": {
+        "severity": "warning",
+        "source": "native rendered mobile layout",
+        "message": "Rendered content extends beyond the mobile viewport width",
+        "fix": "Constrain the overflowing element or provide a mobile-width layout.",
+    },
+    "MOBILE_TEXT_TOO_SMALL": {
+        "severity": "notice",
+        "source": "native rendered mobile layout",
+        "message": "Rendered text uses a computed font size below 12 CSS pixels",
+        "fix": "Use a readable mobile text size and verify the page at its target viewport.",
+    },
+    "MOBILE_TARGET_TOO_SMALL": {
+        "severity": "notice",
+        "source": "native rendered mobile layout",
+        "message": "Rendered interactive target is smaller than 48 CSS pixels in at least one dimension",
+        "fix": "Increase the interactive target's hit area and verify spacing at the target viewport.",
+    },
+    "NOINDEX_ONLY_IN_RAW_HTML": {
+        "severity": "warning",
+        "source": "native raw/rendered element comparison",
+        "message": "Noindex appears in the original HTML but not in the rendered DOM",
+        "fix": "Keep indexing directives consistent in the original response and rendered document.",
+    },
+    "NOFOLLOW_ONLY_IN_RAW_HTML": {
+        "severity": "warning",
+        "source": "native raw/rendered element comparison",
+        "message": "Nofollow appears in the original HTML but not in the rendered DOM",
+        "fix": "Keep link-following directives consistent in the original response and rendered document.",
+    },
+    "CANONICAL_MISMATCH": {
+        "severity": "warning",
+        "source": "native raw/rendered element comparison",
+        "message": "Canonical URL changes after JavaScript rendering",
+        "fix": "Declare one stable canonical URL in the original response.",
+    },
+    "CANONICAL_ONLY_IN_RENDERED_HTML": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "Canonical URL is present only after JavaScript rendering",
+        "fix": "Declare the canonical URL in the original response.",
+    },
+    "PAGE_TITLE_ONLY_IN_RENDERED_HTML": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "Page title is present only after JavaScript rendering",
+        "fix": "Serve the page title in the original HTML response.",
+    },
+    "PAGE_TITLE_UPDATED_BY_JAVASCRIPT": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "Page title changes after JavaScript rendering",
+        "fix": "Keep the initial and rendered page title aligned.",
+    },
+    "META_DESCRIPTION_ONLY_IN_RENDERED_HTML": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "Meta description is present only after JavaScript rendering",
+        "fix": "Serve the meta description in the original HTML response.",
+    },
+    "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "Meta description changes after JavaScript rendering",
+        "fix": "Keep the initial and rendered meta description aligned.",
+    },
+    "H1_ONLY_IN_RENDERED_HTML": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "H1 is present only after JavaScript rendering",
+        "fix": "Serve the primary page heading in the original HTML response.",
+    },
+    "H1_UPDATED_BY_JAVASCRIPT": {
+        "severity": "notice",
+        "source": "native raw/rendered element comparison",
+        "message": "H1 changes after JavaScript rendering",
+        "fix": "Keep the initial and rendered primary page heading aligned.",
+    },
+    "RENDER_RESOURCE_BLOCKED": {
+        "severity": "warning",
+        "source": "native rendered network log",
+        "message": "A rendered page resource was refused or returned an HTTP error",
+        "fix": "Review the recorded request reason and make required page resources available "
+        "to the renderer.",
+    },
     "UNSUPPORTED_PLUGIN": {
         "severity": "warning",
         "source": "crawl:plugin_elements",
@@ -1192,8 +1276,8 @@ CHECKS: dict[str, dict[str, Any]] = {
     },
     "IMG_MISSING_DIMENSIONS": {
         "severity": "notice",
-        "source": "SF:Images:Missing Size Attributes",
-        "message": "Image is missing width and height attributes",
+        "source": "SF+native:retained-image-markup",
+        "message": "Image does not declare positive width and height attributes",
         "fix": "Declare intrinsic width and height values to reserve layout space and reduce CLS.",
     },
     # 9.A — link position (native crawl only; SF exports carry their own Link
@@ -1365,6 +1449,12 @@ CHECKS: dict[str, dict[str, Any]] = {
         "source": "SF-derived",
         "message": "Received Content-Type conflicts with an unambiguous URL filename extension",
         "fix": "Confirm the response Content-Type and URL extension describe the intended resource; this is a declaration consistency signal, not full MIME validation.",
+    },
+    "BODY_MIME_MISMATCH": {
+        "severity": "warning",
+        "source": "crawl:body_mime",
+        "message": "Retained response body does not match its declared Content-Type",
+        "fix": "Serve the resource with a Content-Type that matches its body, or return the intended body.",
     },
     "URL_SESSION_ID": {
         "severity": "warning",
@@ -1649,6 +1739,108 @@ CHECKS: dict[str, dict[str, Any]] = {
         "source": "crawl:structured_evidence",
         "message": "Structured data lacks required properties in the bundled local rich-result rules",
         "fix": "Fill the required properties for the declared type and validate the result; local eligibility does not guarantee Google display.",
+    },
+    "GSC_ORPHAN": {
+        "severity": "warning",
+        "source": "provider:gsc_search_analytics",
+        "message": "Search Console reports impressions for a same-origin URL absent from the crawl",
+        "fix": "Check the retained page and crawl scope, then restore, redirect, or remove the URL from search when appropriate.",
+    },
+    "NO_SEARCH_DATA": {
+        "severity": "notice",
+        "source": "provider:gsc_search_analytics",
+        "message": "Indexable crawled URL has no retained Search Console impressions",
+        "fix": "Review indexing, canonicalization, demand, and the measured reporting window before changing the page.",
+    },
+    "NON_INDEXABLE_WITH_SEARCH_DATA": {
+        "severity": "warning",
+        "source": "provider:gsc_search_analytics",
+        "message": "Non-indexable crawled URL has Search Console impressions",
+        "fix": "Review the URL's indexability and canonical signals; keep the current state only when it is intentional.",
+    },
+    "GSC_INDEXED_WITH_ISSUES": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Search Console reports an indexed URL with AMP or rich-result issues",
+        "fix": "Review the specific AMP or rich-result inspection evidence for the sampled URL.",
+    },
+    "GSC_AMP_INVALID": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Search Console reports an invalid AMP result",
+        "fix": "Review the AMP inspection result and repair or remove obsolete AMP markup.",
+    },
+    "GSC_RICH_RESULTS_INVALID": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Search Console reports invalid structured data for a rich result",
+        "fix": "Review the inspected rich-result item and correct errors reported by Search Console.",
+    },
+    "GSC_INDEXABLE_NOT_INDEXED": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Crawl reports an indexable URL that Search Console does not index",
+        "fix": "Review Search Console's coverage state, canonical, fetch state, and indexing directives.",
+    },
+    "GSC_USER_CANONICAL_NOT_SELECTED": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Google selected a different canonical URL than the declared canonical",
+        "fix": "Align internal links, redirects, sitemap membership, and the declared canonical with the preferred URL.",
+    },
+    "GSC_URL_NOT_ON_GOOGLE": {
+        "severity": "warning",
+        "source": "provider:gsc_url_inspection",
+        "message": "Search Console reports that the inspected URL is not on Google",
+        "fix": "Review the sampled URL's Search Console coverage state and correct blocking or canonical issues where appropriate.",
+    },
+    "GA_ORPHAN_URL": {
+        "severity": "warning",
+        "source": "provider:ga4_history",
+        "message": "GA4 reports a landing URL absent from the crawl",
+        "fix": "Check whether the URL is intentionally retired, blocked, redirected, or missing from the crawl population.",
+    },
+    "NO_GA_DATA": {
+        "severity": "notice",
+        "source": "provider:ga4_history",
+        "message": "Indexable crawled URL has no retained GA4 sessions",
+        "fix": "Review the measured period and analytics tagging before treating the absence as a page defect.",
+    },
+    "NON_INDEXABLE_WITH_GA_DATA": {
+        "severity": "warning",
+        "source": "provider:ga4_history",
+        "message": "Non-indexable crawled URL has GA4 sessions",
+        "fix": "Review whether the URL should be indexable; keep its current state only when that is intentional.",
+    },
+    "BOUNCE_RATE_ABOVE_70": {
+        "severity": "notice",
+        "source": "provider:metrika_history",
+        "message": "Yandex Metrika reports a bounce rate above 70 percent",
+        "fix": "Review the measured URL and its traffic source; bounce rate is a diagnostic signal, not a ranking verdict.",
+    },
+    "METRIKA_ORPHAN_URL": {
+        "severity": "warning",
+        "source": "provider:metrika_history",
+        "message": "Yandex Metrika reports a landing URL absent from the crawl",
+        "fix": "Check whether the URL is intentionally retired, blocked, redirected, or missing from the crawl population.",
+    },
+    "NO_METRIKA_DATA": {
+        "severity": "notice",
+        "source": "provider:metrika_history",
+        "message": "Indexable crawled URL has no retained Yandex Metrika visits",
+        "fix": "Review the measured period and Metrika tagging before treating the absence as a page defect.",
+    },
+    "NON_INDEXABLE_WITH_METRIKA_DATA": {
+        "severity": "warning",
+        "source": "provider:metrika_history",
+        "message": "Non-indexable crawled URL has Yandex Metrika visits",
+        "fix": "Review whether the URL should be indexable; keep its current state only when that is intentional.",
+    },
+    "METRIKA_BOUNCE_RATE_ABOVE_70": {
+        "severity": "notice",
+        "source": "provider:metrika_history",
+        "message": "Yandex Metrika reports a bounce rate above 70 percent",
+        "fix": "Review the measured URL and its traffic source; bounce rate is a diagnostic signal, not a ranking verdict.",
     },
 }
 

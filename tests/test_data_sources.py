@@ -574,6 +574,21 @@ def test_spend_csv_keeps_every_row_and_flags_uncertain_ones(journal, tmp_path):
     assert lines[2].endswith(";;True")
 
 
+def test_spend_distinguishes_unknown_from_measured_zero_and_normalizes_legacy_receipts(journal):
+    spend.record("moz", "backlinks", cost=None, unit="unknown", extra={"cost_unknown": True})
+    spend.record("free-source", "read", cost=0.0, unit="requests")
+    rows = [json.loads(line) for line in journal.read_text(encoding="utf-8").splitlines()]
+    legacy = dict(rows[0], cost=0.0)
+    journal.write_text(json.dumps(legacy) + "\n" + json.dumps(rows[1]) + "\n", encoding="utf-8")
+
+    read_rows = spend.read_all()
+    assert read_rows[0]["cost"] is None
+    assert read_rows[1]["cost"] == 0.0
+    report = spend.report()
+    assert report["by_source"] == {"free-source": {"requests": 0.0}}
+    assert report["uncertain"][0]["cost"] is None
+
+
 def test_spend_csv_since_filters_rows(journal, tmp_path):
     spend.record("arsenkin", "top", cost=5)
     rows = [json.loads(line) for line in journal.read_text(encoding="utf-8").splitlines()]
@@ -2499,7 +2514,7 @@ def test_dataforseo_network_error_does_not_retry_and_logs_the_lost_attempt(monke
     rows = spend.read_all()
     assert len(rows) == 1  # The lost attempt is recorded, not silently dropped.
     assert rows[0]["source"] == "dataforseo"
-    assert rows[0]["cost"] == 0.0
+    assert rows[0]["cost"] is None
     assert rows[0]["extra"]["attempt_failed"] == "network_error"
     # A lost response proves nothing about the charge: it must not count as a measured zero.
     assert rows[0]["extra"]["cost_unknown"] is True

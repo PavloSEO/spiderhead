@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**192 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **5 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **4 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 201 in total.
+**230 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **6 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **10 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 246 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -18,6 +18,8 @@ Every tool shares one contract: JSON in, JSON out. A target that could not be re
 ## Live URL, recon, and data-source tools
 
 ### `parse`
+
+**Category:** `content` · **Project-aware:** no
 
 MCP name: `seo_parse`
 
@@ -32,6 +34,8 @@ Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6, JSON-LD, 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `redirects-generate`
+
+**Category:** `content` · **Project-aware:** no
 
 MCP name: `seo_redirects_generate`
 
@@ -48,6 +52,8 @@ Generate redirect rules (Apache mod_rewrite/Redirect, Nginx, or a custom templat
 
 ### `redirects-check`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_redirects_check`
 
 Follow a live redirect chain for a URL and report each hop (status, location).
@@ -60,6 +66,8 @@ Follow a live redirect chain for a URL and report each hop (status, location).
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `scan-reanalyze`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_reanalyze`
 
@@ -85,6 +93,8 @@ DNS, browser, provider, or cache-miss fallback is permitted.
 
 ### `scan-sitemap-generate`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_sitemap_generate`
 
 Write local XML sitemap files from retained indexable, canonical 200 responses.
@@ -108,6 +118,8 @@ uses observed modification evidence, never the capture or generation time.
 Exclusion patterns and skipped evidence are reported. No network or deployment.
 
 ### `scan-graph`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_graph`
 
@@ -143,6 +155,8 @@ Orphan and component counts describe the admitted graph scope.
 
 ### `crawl-site`
 
+**Category:** `crawl` · **Project-aware:** yes
+
 MCP name: `seo_crawl_site`
 
 Crawl a site from a start URL by following links, or fetch an explicit ``urls`` list instead of following links at all, then audit the result through the same checks used for Screaming Frog exports. One of ``url`` or ``urls``/``urls_file`` is required. Same host only when following links, politeness adapts to the origin. Checks whose evidence a native crawl cannot produce are reported as skipped, never as clean.
@@ -155,6 +169,7 @@ Crawl a site from a start URL by following links, or fetch an explicit ``urls`` 
 | `sitemap` | `str | None` | `None` |
 | `sitemap_only` | `bool` | `False` |
 | `config` | `str | None` | `None` |
+| `profile` | `str | None` | `None` |
 | `max_urls` | `int | None` | `None` |
 | `max_depth` | `int | None` | `None` |
 | `min_delay` | `float | None` | `None` |
@@ -188,8 +203,9 @@ silently. ``concurrency`` is a per-origin ceiling the adaptive throttle
 grows into, not a fixed thread count. ``sitemap`` seeds the crawl from a
 sitemap's declared URLs in addition to following links from ``url``, and
 reconciles the two sources (declared vs. observed). ``config`` is a path
-to a crawler config file (JSON) on this machine, the same file
-``crawl-site --config`` reads. ``max_urls``, ``max_depth``, ``min_delay``,
+to a crawler config file (JSON) on this machine; ``profile`` selects a
+saved local crawl profile by name. They are mutually exclusive.
+``max_urls``, ``max_depth``, ``min_delay``,
 ``robots`` and ``concurrency`` are left unset by default: an omitted
 override preserves whatever ``config`` (or its own defaults) already
 says, exactly like the CLI's flags -- pass one explicitly only to
@@ -235,7 +251,25 @@ that frontier was built under, so no other crawl argument may accompany it.
 A scan written by a different producing build, for a different start URL,
 or already finished is refused by name before the first request.
 
+### `crawl-control`
+
+**Category:** `crawl` · **Project-aware:** yes
+
+MCP name: `seo_crawl_control`
+
+Request a native project crawl to checkpoint and pause or stop by its run ID.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `run_id` | `str` | `required` |
+| `action` | `Literal['pause', 'stop']` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
 ### `crawl-describe-settings`
+
+**Category:** `crawl` · **Project-aware:** no
 
 MCP name: `seo_crawl_describe_settings`
 
@@ -246,6 +280,8 @@ Takes no arguments.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `log-scan`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_log_scan`
 
@@ -261,6 +297,8 @@ Report claims a finished run makes that cannot all be true at once: a recorded s
 
 ### `crawl-diagnose`
 
+**Category:** `crawl` · **Project-aware:** no
+
 MCP name: `seo_crawl_diagnose`
 
 Explain a small or unfinished native crawl from retained scan or run evidence. This MCP tool is read-only and makes no network request. To deliberately write a new redacted JSON file, use ``seo_crawl_diagnose_export`` or the CLI's ``crawl-diagnose-export --export`` command.
@@ -274,6 +312,8 @@ Explain a small or unfinished native crawl from retained scan or run evidence. T
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `crawl-diagnose-export`
+
+**Category:** `crawl` · **Project-aware:** no
 
 MCP name: `seo_crawl_diagnose_export`
 
@@ -289,6 +329,8 @@ Create one new redacted crawl-diagnostic JSON file from retained evidence. This 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
 ### `sitemap-crawl`
+
+**Category:** `crawl` · **Project-aware:** yes
 
 MCP name: `seo_sitemap_crawl`
 
@@ -310,6 +352,8 @@ are not fetched HTML pages. Counters count parsed sitemap documents only.
 
 ### `images-download`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_images_download`
 
 Download images from a URL list, setting the correct extension by content-type and skipping already-downloaded files.
@@ -324,24 +368,33 @@ Download images from a URL list, setting the correct extension by content-type a
 
 ### `images-optimize`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_images_optimize`
 
 Compress, convert, or resize raster images and conservatively minify SVG.
 
 | Argument | Type | Default |
 |---|---|---|
-| `files` | `list[str]` | `required` |
+| `files` | `list[str] | None` | `None` |
 | `settings` | `dict[str, Any] | None` | `None` |
+| `scan` | `str | None` | `None` |
+| `max_images` | `int` | `50` |
 
-**Cost** — network: no · writes files: yes · idempotent: no · spends money: no · can overwrite/remove existing data
+**Cost** — network: yes · writes files: yes · idempotent: no · spends money: no · can overwrite/remove existing data
 
 **Behavior and failure modes**
 
-Safe default: settings.out_dir is required. Source mutation needs
+settings.quality="auto" uses bounded search and reports measured SSIM plus whether the target was met on an aligned 1024 px RGB thumbnail (0.98 by default).
+settings.strip_exif=true removes EXIF. Safe default: settings.out_dir is required. Source mutation needs
 settings.in_place=true and creates a backup by default. Existing destinations
-require settings.overwrite=true. Animated and multipage images are rejected.
+require settings.overwrite=true. Animated and multipage images are rejected. A retained
+scan may supply up to max_images declared image URLs; those images are downloaded through
+the bounded network client, optimized into out_dir, and mapped back to source occurrences.
 
 ### `keywords-cluster`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_keywords_cluster`
 
@@ -357,6 +410,8 @@ Cluster keywords into topic groups (K-Means, DBSCAN, Agglomerative).
 
 ### `robots-check`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_robots_check`
 
 Fetch and analyze a site's robots.txt: user-agent groups, declared sitemaps, and whether given paths are crawlable.
@@ -371,6 +426,8 @@ Fetch and analyze a site's robots.txt: user-agent groups, declared sitemaps, and
 
 ### `headers-check`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_headers_check`
 
 Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link, Cache-Control, HSTS, ...), HTTP version, TTFB, and body size.
@@ -378,11 +435,13 @@ Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link, Cache-Contr
 | Argument | Type | Default |
 |---|---|---|
 | `url` | `str` | `required` |
-| `method` | `str` | `'GET'` |
+| `method` | `Literal['GET', 'HEAD']` | `'GET'` |
 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `asset-weight-check`
+
+**Category:** `content` · **Project-aware:** no
 
 MCP name: `seo_asset_weight_check`
 
@@ -396,6 +455,8 @@ Fetch a page's linked CSS/JS and report delivery problems: render-blocking resou
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `links-check`
+
+**Category:** `content` · **Project-aware:** no
 
 MCP name: `seo_links_check`
 
@@ -411,6 +472,8 @@ Check a page's outbound links for broken (4xx/5xx) targets and links that point 
 
 ### `hreflang-check`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_hreflang_check`
 
 Extract and validate a page's hreflang alternates (x-default, self-reference, duplicates, malformed codes).
@@ -422,6 +485,8 @@ Extract and validate a page's hreflang alternates (x-default, self-reference, du
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `domain-profile`
+
+**Category:** `recon` · **Project-aware:** no
 
 MCP name: `seo_domain_profile`
 
@@ -436,6 +501,8 @@ Infrastructure profile of a domain: registrar and domain age (RDAP, whois fallba
 
 ### `cdn-check`
 
+**Category:** `recon` · **Project-aware:** no
+
 MCP name: `seo_cdn_check`
 
 Which CDN sits in front of a URL and whether caching actually works: cache status on a repeat request (MISS->HIT), Cache-Control, ETag/Last-Modified, 304 revalidation, HTTP version, HTTP/3 advertisement, brotli/gzip and TTFB.
@@ -448,6 +515,8 @@ Which CDN sits in front of a URL and whether caching actually works: cache statu
 
 ### `tech-detect`
 
+**Category:** `recon` · **Project-aware:** no
+
 MCP name: `seo_tech_detect`
 
 Detect the technologies behind a page: CMS, framework, server stack, analytics and ad pixels, chat widgets, consent tools, fonts and third-party script hosts. Every hit carries the marker it was detected by.
@@ -459,6 +528,8 @@ Detect the technologies behind a page: CMS, framework, server stack, analytics a
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `security-check`
+
+**Category:** `recon` · **Project-aware:** no
 
 MCP name: `seo_security_check`
 
@@ -473,6 +544,8 @@ Security headers with a score and grade (HSTS, CSP, X-Frame-Options, X-Content-T
 
 ### `backlinks-check`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_backlinks_check`
 
 Verify backlinks from a list of donor pages: is the link still there, its anchor and rel, whether it passes weight (nofollow/ugc/sponsored), and whether the donor page itself is indexable.
@@ -486,6 +559,8 @@ Verify backlinks from a list of donor pages: is the link still there, its anchor
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `backlinks-profile`
+
+**Category:** `provider` · **Project-aware:** yes
 
 MCP name: `seo_backlinks_profile`
 
@@ -523,6 +598,8 @@ account/production approval. No automatic pagination or web-wide completeness cl
 
 ### `backlinks-disavow`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_backlinks_disavow`
 
 Generate a reviewed disavow selection locally; never submit or overwrite a file.
@@ -537,6 +614,8 @@ Generate a reviewed disavow selection locally; never submit or overwrite a file.
 
 ### `schema-check`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_schema_check`
 
 Validate a page's structured data in two layers. Layer one is the Schema.org vocabulary itself (1010 types, 1676 properties, shipped with the toolkit): does the type exist, is the property allowed on it once inheritance is resolved, does the value type match, is the term deprecated or still in the pending layer. Layer two is Google rich-result eligibility per type. Also analyses the JSON-LD as a GRAPH: which entities carry @id, which are linked, which hang as islands, and whether any @id reference dangles. Pass html to check markup offline.
@@ -549,6 +628,8 @@ Validate a page's structured data in two layers. Layer one is the Schema.org voc
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `schema-build`
+
+**Category:** `content` · **Project-aware:** no
 
 MCP name: `seo_schema_build`
 
@@ -563,6 +644,8 @@ Suggest a connected Schema.org @graph for a page. Classifies the page (Article/P
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `duplicate-check`
+
+**Category:** `content` · **Project-aware:** no
 
 MCP name: `seo_duplicate_check`
 
@@ -580,6 +663,8 @@ Find near-duplicate pages among a list of {id, text} documents using simhash + l
 
 ### `mirror-check`
 
+**Category:** `recon` · **Project-aware:** no
+
 MCP name: `seo_mirror_check`
 
 Audit host consolidation across HTTP/HTTPS, ``www``, index.php/index.html, case, and trailing-slash variants. Returns every redirect hop and identifies live 200 duplicates, HTTPS-to-HTTP downgrades, chains longer than one hop, dead variants, and ``www`` DNS availability. DNS is checked through DNS-over-HTTPS rather than the machine's local resolver so local cache or split-DNS state does not create false evidence.
@@ -592,6 +677,8 @@ Audit host consolidation across HTTP/HTTPS, ``www``, index.php/index.html, case,
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `ai-bots-check`
+
+**Category:** `content` · **Project-aware:** no
 
 MCP name: `seo_ai_bots_check`
 
@@ -606,6 +693,8 @@ Which AI crawlers (GPTBot, ClaudeBot, Perplexity, Google-Extended, CCBot, Bytesp
 
 ### `llms-txt-check`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_llms_txt_check`
 
 Fetch and score the site's /llms.txt (the LLM-facing manifest): 9 checks — H1 title, >=3 sections, >=3 links, brand mention, category mention, product/ proof/docs pages, size <= 60KB. Returns a 0-10 score, a letter grade, and the per-check breakdown. A missing llms.txt is itself a finding (no AI-ready context). Set brand to verify the project name is mentioned.
@@ -618,6 +707,8 @@ Fetch and score the site's /llms.txt (the LLM-facing manifest): 9 checks — H1 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `citability-check`
+
+**Category:** `content` · **Project-aware:** no
 
 MCP name: `seo_citability_check`
 
@@ -633,6 +724,8 @@ Score how citable a piece of content is for AI answers (GEO/AEO): 0-100 across f
 
 ### `markdown-extract`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_markdown_extract`
 
 Render a page as Markdown in two scopes. content_markdown strips navigation and footer (boilerplate) while keeping headings, lists, and links -- the representation worth diffing between crawls, feeding to content scoring (seo_citability_check, seo_duplicate_check), or handing to a model. full_markdown keeps header/nav/footer too, for reading -- Markdown has already lost the tag structure seo_boilerplate_report hashes, so it is not a valid input there; pass that tool the original html (or a hash precomputed from it) instead. content_area_strategy records how the region was resolved for this page. Pass html to render offline, or url to fetch it first. content_area configures the region (root/include CSS selectors, tag/selector exclusions); defaults exclude <nav> and <footer>.
@@ -647,6 +740,8 @@ Render a page as Markdown in two scopes. content_markdown strips navigation and 
 
 ### `boilerplate-report`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_boilerplate_report`
 
 Answer "is the boilerplate actually the same everywhere?" across a crawled corpus. Hashes each page's header/nav/footer markup (structure kept, not just text, so a link dropped from a menu still changes the hash), groups pages by that hash, and reports every group that is not the dominant one -- with its fraction of the corpus and a sample URL. Catches a nav block that lost links on one template, a footer never migrated on old pages, or a menu that renders differently under one language branch. Each page is {"url", "html"}, or {"url", "hash"} when the hash was already computed upstream. Pass scan for a validated read-only scan.v1 corpus with retained page HTML. The corpus is streamed and only each page's digest is retained, so coverage does not depend on total HTML size; reaching the 10,000-document or 16 MiB retained-input bound reports the exact partial coverage.
@@ -659,6 +754,8 @@ Answer "is the boilerplate actually the same everywhere?" across a crawled corpu
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `semantic-inputs`
+
+**Category:** `semantic` · **Project-aware:** no
 
 MCP name: `seo_semantic_inputs`
 
@@ -673,6 +770,8 @@ Build the reproducible normalized-input manifest for semantic analysis over reta
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `semantic-similarity`
+
+**Category:** `semantic` · **Project-aware:** no
 
 MCP name: `seo_semantic_similarity`
 
@@ -705,6 +804,8 @@ explicit in the response.
 
 ### `meta-description-drafts`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_meta_description_drafts`
 
 Prepare or validate a resumable, page-grounded meta-description batch.
@@ -735,6 +836,8 @@ json_path and csv_path export a review artifact; neither path writes a
 CMS or metadata.
 
 ### `ai-column`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_ai_column`
 
@@ -767,6 +870,8 @@ a site or CMS.
 
 ### `social-meta-check`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_social_meta_check`
 
 Check OpenGraph and Twitter Card tags against the minimum needed for a link preview to render: which required tags (og:title/type/url/image/image:alt, twitter:card/title/description/image/image:alt) are missing, and which recommended ones. Pass url to fetch and check, or hand in pre-extracted og/twitter dicts.
@@ -781,6 +886,8 @@ Check OpenGraph and Twitter Card tags against the minimum needed for a link prev
 
 ### `soft404-check`
 
+**Category:** `content` · **Project-aware:** no
+
 MCP name: `seo_soft404_check`
 
 Detect soft-404: whether the site returns an honest 404/410 for non-existent URLs, or silently serves 200/3xx (which pollutes the index with junk pages). Sends two deterministic probes (sha256 of origin, at ordinary root paths) and applies strict AND-logic: both 2xx/3xx -> soft-404 confirmed (warning); both 404/410 -> pass; anything else -> unknown. Screaming Frog cannot see this — it crawls known URLs, not invented ones, so this needs an active request.
@@ -792,6 +899,8 @@ Detect soft-404: whether the site returns an honest 404/410 for non-existent URL
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `log-analyze`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_log_analyze`
 
@@ -820,6 +929,8 @@ DNS failure/deadline remains unchecked; it never becomes a fake-bot verdict.
 
 ### `logs-import`
 
+**Category:** `provider` · **Project-aware:** yes
+
 MCP name: `seo_logs_import`
 
 Stream supplied access logs into a new local project logs.v1 artifact.
@@ -840,6 +951,8 @@ aggregates, coverage and source digests; source files stay unchanged. No DNS,
 site request, provider call or scan mutation occurs. Raw client IPs stay local.
 
 ### `logs-summary`
+
+**Category:** `provider` · **Project-aware:** no
 
 MCP name: `seo_logs_summary`
 
@@ -867,6 +980,8 @@ Totals remain exact for imported rows. UTC date and bot filters are explicit;
 unsupported/missing measurements remain unavailable. No DNS or source reimport.
 
 ### `logs-join`
+
+**Category:** `provider` · **Project-aware:** no
 
 MCP name: `seo_logs_join`
 
@@ -896,6 +1011,8 @@ or partial scans remain unavailable. No crawl, DNS or scan schema change.
 
 ### `logs-bots`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_logs_bots`
 
 Read a bounded per-IP bot page with retained PTR, forward result, visits and last visit.
@@ -924,6 +1041,8 @@ The cache writes only to the supplied local log artifact, never to a scan.
 
 ### `regions-check`
 
+**Category:** `recon` · **Project-aware:** no
+
 MCP name: `seo_regions_check`
 
 Audit a site's regional structure: subdomains (msk.site.ru), folders (site.ru/msk/) and satellite domains (site-msk.ru). Finds the city switcher on the page, recognises ~100 Russian cities by URL slug (msk/moskva/moscow all collapse to one region) and by Cyrillic anchor text, then fetches each regional page and reports what actually kills regional promotion: hosts that just redirect to the main domain (so the region does not exist), regional pages canonicalised to another host (self-removal from the index), noindex, identical content across cities, one shared phone number for the whole country, a missing city name in the title, and two schemes used at once. Satellite domains are invisible from the page — pass them in `extra`. Set render=true when the city switcher is drawn by JavaScript (needs Playwright) — on many large sites it is not in the raw HTML at all.
@@ -938,6 +1057,8 @@ Audit a site's regional structure: subdomains (msk.site.ru), folders (site.ru/ms
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `render-check`
+
+**Category:** `crawl` · **Project-aware:** no
 
 MCP name: `seo_render_check`
 
@@ -954,6 +1075,8 @@ Compare the raw server HTML with the DOM after JavaScript runs — the gap betwe
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `site-audit`
+
+**Category:** `crawl` · **Project-aware:** no
 
 MCP name: `seo_site_audit`
 
@@ -972,6 +1095,8 @@ Run the whole live toolkit over one site and return a single audit document (sch
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `report-build`
+
+**Category:** `report` · **Project-aware:** yes
 
 MCP name: `seo_report_build`
 
@@ -1000,6 +1125,8 @@ materialized inputs reject the policy. PDF and companion directory must be new.
 
 ### `facts-export`
 
+**Category:** `report` · **Project-aware:** no
+
 MCP name: `seo_facts_export`
 
 Build one comparable facts table (schema facts.v1) across several sites from crawl/site audits you already produced. Each site is {label, crawl_audit?, site_audit?} -- crawl_audit is an SF Analyzer audit.json (dict or path), site_audit is a seo_site_audit document (dict or path), both optional but at least one is needed for real facts; a site with neither still gets a full row of unavailable facts, named. Reads documents only: zero network requests, zero paid calls. Every leaf is a fact with one of five states -- measured, absent (a true 0/[]), partial (bounded, e.g. a crawl that stopped early), unavailable (the source did not answer), or not_requested (this tool never asks, as for Google/Yandex index counts: no configured provider returns a result count) -- plus an is_not line saying what it must not be read as. This tool computes no score, rank, ratio or winner: it exports operands, not quotients, so a language model can compare the sites itself. Refuses before doing any work when a document's own domain does not match the label it is filed under, or when two labels resolve to the exact same domain; two subdomains of one registrable domain are allowed, only noted.
@@ -1011,6 +1138,8 @@ Build one comparable facts table (schema facts.v1) across several sites from cra
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `compare-crawls`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_compare_crawls`
 
@@ -1024,6 +1153,7 @@ Diff two audit documents (dict, JSON path, or scan.v1 SQLite path) into four dis
 | `correspondence` | `Any` | `None` |
 | `out_dir` | `str | None` | `None` |
 | `compression` | `Literal['none', 'gzip']` | `'none'` |
+| `resume` | `bool` | `False` |
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
@@ -1036,9 +1166,91 @@ above 10,000 pages or issues require explicit out_dir. Never overwrites
 a package and never collects evidence or calls the network. Explicit
 compression='gzip' requires out_dir and preserves every row in deterministic
 .ndjson.gz files; manifests record compressed checksums and both byte counts.
-Default compression='none' keeps uncompressed output.
+Default compression='none' keeps uncompressed output. Exact-input results are
+reusable from the same out_dir. A matching interrupted job requires resume=True;
+its source identities and options are verified before any checkpoint is read.
+
+### `compare-read`
+
+**Category:** `scan` · **Project-aware:** no
+
+MCP name: `seo_compare_read`
+
+Read a bounded, sorted page from one integrity-checked compare.v2 file.
+
+| Argument | Type | Default |
+|---|---|---|
+| `manifest_path` | `str` | `required` |
+| `file` | `str` | `required` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `200` |
+| `sort` | `Literal['url', 'check', 'severity']` | `'url'` |
+| `direction` | `Literal['asc', 'desc']` | `'asc'` |
+| `contains` | `str | None` | `None` |
+| `segment` | `str | None` | `None` |
+| `change` | `Literal['entered', 'left', 'appeared', 'disappeared', 'unchanged'] | None` | `None` |
+| `max_bytes` | `int` | `1048576` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `compare-status`
+
+**Category:** `scan` · **Project-aware:** no
+
+MCP name: `seo_compare_status`
+
+Read the checkpoint or completed cache state for one compare.v2 output path.
+
+| Argument | Type | Default |
+|---|---|---|
+| `out_dir` | `str` | `required` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `compare-report`
+
+**Category:** `scan` · **Project-aware:** no
+
+MCP name: `seo_compare_report`
+
+Write a new, bounded Markdown summary from a compare.v2 manifest.
+
+| Argument | Type | Default |
+|---|---|---|
+| `manifest_path` | `str` | `required` |
+| `out_file` | `str` | `required` |
+| `max_bytes` | `int` | `65536` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `compare-url`
+
+**Category:** `scan` · **Project-aware:** no
+
+MCP name: `seo_compare_url`
+
+Show exact-URL before/after facts, finding deltas and a bounded body diff.
+
+| Argument | Type | Default |
+|---|---|---|
+| `before` | `Any` | `required` |
+| `after` | `Any` | `required` |
+| `url` | `str` | `required` |
+| `max_bytes` | `int` | `65536` |
+| `max_lines` | `int` | `200` |
+| `left_representation` | `Literal['static', 'rendered', 'legacy_fragment']` | `'static'` |
+| `right_representation` | `Literal['static', 'rendered', 'legacy_fragment']` | `'static'` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+A URL absent from either scan is not classified as a fixed finding. Text is read only
+from compatible retained native bodies; this call never fetches the URL.
 
 ### `verify-fixes`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_verify_fixes`
 
@@ -1070,6 +1282,8 @@ findings remain not_verifiable, never resolved.
 
 ### `crawl-enrich`
 
+**Category:** `crawl` · **Project-aware:** no
+
 MCP name: `seo_crawl_enrich`
 
 Join an existing audit or scan to an offline URL-keyed CSV without a provider call. Matched rows retain both page and external data; crawl-only, external-only, and unkeyable rows remain separate. A completed crawl can write same-origin external-only URLs to ``out_urls`` for `crawl-site --urls-file`; a partial crawl never labels them as orphan URLs.
@@ -1090,6 +1304,8 @@ Join an existing audit or scan to an offline URL-keyed CSV without a provider ca
 
 ### `crawl-import`
 
+**Category:** `crawl` · **Project-aware:** no
+
 MCP name: `seo_crawl_import`
 
 Read a versioned third-party crawl CSV bundle from a local manifest.
@@ -1108,6 +1324,8 @@ per-field coverage; it is not scan.v1 or SF audit evidence.
 
 ### `segment-diff`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_segment_diff`
 
 Cross-segment counterpart diff (#358): which pages in the ``source`` segment (e.g. "en") have a counterpart in the ``target`` segment (e.g. "pl"), and which do not. Requires a native crawl whose scope.segments were declared and whose pages carry hreflang alternates (#357) — an audit missing either is refused by name. Classifies every eligible page into exactly one of: declared (hreflang names the counterpart and it was crawled), declared_not_crawled (hreflang names one the crawl never reached), inferred (no hreflang, but the mirrored path exists and this site's own mirror rate measured high enough to trust that), absent (no counterpart by either method), or undetermined (naming why neither method could safely answer — e.g. a translated slug on a site whose mirror rate is too low for path inference, or a target segment the crawl only partially reached, where "absent" would be an unsupported negative claim).
@@ -1122,6 +1340,8 @@ Cross-segment counterpart diff (#358): which pages in the ``source`` segment (e.
 
 ### `keywords-expand`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_keywords_expand`
 
 Expand a seed phrase via Yandex Wordstat: refinements (left column) plus similar queries (right column), each with its base frequency. Frequency here is BASE, not exact — the API has no !/+/[] operators and base runs roughly 9x higher than exact; good enough for a first cut, then top up exact via seo_keywords_exact. A multi-region request SUMS frequency, so query regions one at a time. Paid and quota-bound: 100 Wordstat requests per hour.
@@ -1135,6 +1355,8 @@ Expand a seed phrase via Yandex Wordstat: refinements (left column) plus similar
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
 
 ### `keywords-seasonality`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_keywords_seasonality`
 
@@ -1151,6 +1373,8 @@ Demand over time for one phrase (Yandex Wordstat dynamics). Dates are RFC3339, e
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
 
 ### `keywords-exact`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_keywords_exact`
 
@@ -1179,6 +1403,8 @@ task_id, cost, region, cleaned, and a recovery note — no frequencies.
 
 ### `serp-fetch`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_serp_fetch`
 
 Yandex search results for one query or a batch. Async only: the synchronous endpoint is materially more expensive and deliberately absent. A batch launches all operations at once and polls them together, so N queries take one batch's time, not N times one. Use it to see who actually ranks before promising a client a position.
@@ -1193,6 +1419,8 @@ Yandex search results for one query or a batch. Async only: the synchronous endp
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
 
 ### `dataforseo-estimate`
+
+**Category:** `provider` · **Project-aware:** no
 
 MCP name: `seo_dataforseo_estimate`
 
@@ -1218,6 +1446,8 @@ Unknown pricing is unavailable. refresh_prices explicitly reads the free account
 without it, no provider request or credential access occurs.
 
 ### `google-keywords`
+
+**Category:** `provider` · **Project-aware:** no
 
 MCP name: `seo_google_keywords`
 
@@ -1251,6 +1481,8 @@ Production is an explicit opt-in via DATAFORSEO_ENV=prod.
 
 ### `google-serp`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_google_serp`
 
 Google organic results for a query — who actually ranks. Same geo rules as seo_google_keywords: Russia and Belarus are not covered, use seo_serp_fetch (Yandex) for those. Default environment is sandbox.
@@ -1271,6 +1503,8 @@ Google organic results for a query — who actually ranks. Same geo rules as seo
 
 ### `topvisor-read`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_topvisor_read`
 
 Read existing Topvisor projects, competitors, groups, keywords, history or summary. Uses topvisor/access_token and topvisor/user_id under the central credential root (or TOPVISOR_TOKEN and TOPVISOR_USER_ID). One page only: limit defaults to 100, maximum 1000; the continuation signal is the provider's nextOffset — present on non-final pages, absent on the last — not len(result) == limit. Provider total and limitedBy pass through when sent, separate from the echoed request limit/offset. projects/competitors/groups/keywords return arrays; history and summary return objects (history rows at result.keywords; summary covers the two requested dates). Non-project operations require project_id. History regions_indexes are project region indexes (projects with show_searchers_and_regions:2), not geographic region keys; summary takes the singular region_index. In positionsData, position is an integer ordinal rank; "--" means the query had no position inside the checked depth — unavailable, not rank 0 or 100 — and a requested date without an entry is a missing observation. headers.dates lists dates actually returned; topsByDepth is percent of queries in Top N; visitors, dynamics and tops are counts; avgs is an average rank. Does not launch checks, add/edit/delete records, or authorize paid operations. Transport redirects are refused and provider errors are redacted.
@@ -1284,6 +1518,8 @@ Read existing Topvisor projects, competitors, groups, keywords, history or summa
 
 ### `metrika-counters`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_metrika_counters`
 
 List the Yandex Metrika counters this token can see (id, name, site). Start here to get the counter_id the report tools need. Requires a Metrika OAuth token.
@@ -1293,6 +1529,8 @@ Takes no arguments.
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `metrika-setup`
+
+**Category:** `provider` · **Project-aware:** no
 
 MCP name: `seo_metrika_setup`
 
@@ -1305,6 +1543,8 @@ How a counter is configured: goals, filters, data operations. Check this BEFORE 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `metrika-report`
+
+**Category:** `provider` · **Project-aware:** no
 
 MCP name: `seo_metrika_report`
 
@@ -1325,6 +1565,8 @@ What visitors actually did, as flat records. metrics and dimensions are comma-se
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `metrika-traffic-pdf`
+
+**Category:** `provider` · **Project-aware:** no
 
 MCP name: `seo_metrika_traffic_pdf`
 
@@ -1370,6 +1612,8 @@ table_header, positive, negative, font_stack, logo_text.
 
 ### `sources-sync`
 
+**Category:** `provider` · **Project-aware:** yes
+
 MCP name: `seo_sources_sync`
 
 Accumulate provider data in one local SQLite database: fetch missing or explicitly forced days. source is gsc, ga4, metrika, webmaster (queries per day) or webmaster_history (daily shows/clicks, pages in search, crawl by HTTP class); resource is the property (sc-domain:example.com), GA4 property ID, Metrika counter ID or Webmaster host ID (https:example.com:443). Pass db (a file path) or project (its sources.sqlite is used). Default period is the last 28 eligible days. Requested lagged days remain visible without being fetched. force=true re-fetches stored days; a partial or failed retry cannot erase a complete day. Tokens are never stored.
@@ -1388,6 +1632,8 @@ Accumulate provider data in one local SQLite database: fetch missing or explicit
 
 ### `sources-status`
 
+**Category:** `provider` · **Project-aware:** yes
+
 MCP name: `seo_sources_status`
 
 Offline local history: requested, complete, empty, partial, failed, pending and lagged dates, gaps, rows, metric additivity and reporting-timezone policy.
@@ -1400,6 +1646,8 @@ Offline local history: requested, complete, empty, partial, failed, pending and 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `sources-export`
+
+**Category:** `provider` · **Project-aware:** yes
 
 MCP name: `seo_sources_export`
 
@@ -1421,6 +1669,8 @@ Read stored rows of one source filtered by resource, date range and a substring 
 
 ### `regions-tree`
 
+**Category:** `recon` · **Project-aware:** no
+
 MCP name: `seo_regions_tree`
 
 Authoritative tree of Yandex region IDs for the regions[] parameter. This is the only FREE Wordstat method, so it is not journaled. Note that a multi-region request SUMS frequency rather than reporting per region — query regions one at a time.
@@ -1432,6 +1682,8 @@ Authoritative tree of Yandex region IDs for the regions[] parameter. This is the
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
 
 ### `spend-report`
+
+**Category:** `report` · **Project-aware:** no
 
 MCP name: `seo_spend_report`
 
@@ -1446,6 +1698,8 @@ What the paid sources have actually charged: totals by source, by operation and 
 
 ### `sources-doctor`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_sources_doctor`
 
 Inspect redacted credential references, readiness and declared provider operations.
@@ -1459,7 +1713,74 @@ Takes no arguments.
 Configured credentials do not verify account or target permission. This local check makes
 no provider requests; use seo_provider_verify for an explicit bounded read.
 
+### `doctor`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_doctor`
+
+Inspect Python, browser, SF, MCP, SQLite and optional project-directory readiness.
+
+| Argument | Type | Default |
+|---|---|---|
+| `projects_directory` | `str | None` | `None` |
+| `config_path` | `str | None` | `None` |
+| `sf_cli` | `str | None` | `None` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+This is a local read-only diagnostic. It does not write a probe file, launch a browser,
+crawl a site, or establish Screaming Frog licence validity.
+
+### `update-check`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_update_check`
+
+Check bounded stable core releases after explicit consent and retain the check result.
+
+| Argument | Type | Default |
+|---|---|---|
+| `consent` | `bool` | `required` |
+| `automatic` | `bool` | `False` |
+| `max_releases` | `int` | `5` |
+
+**Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+The daily mode only reuses a result checked within 24 hours; it never starts a scheduler.
+No request is made when consent is false. Changelog text and asset lists are capped.
+
+### `update-download`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_update_download`
+
+Download a checksummed wheel or source archive from a previously checked release.
+
+| Argument | Type | Default |
+|---|---|---|
+| `consent` | `bool` | `required` |
+| `tag` | `str` | `required` |
+| `asset_name` | `str` | `required` |
+| `out` | `str` | `required` |
+| `max_bytes` | `int` | `262144000` |
+
+**Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+The destination must be a new local file. The core reports progress, honors MCP request
+cancellation, and never installs or executes the downloaded package.
+
 ### `wayback-history`
+
+**Category:** `provider` · **Project-aware:** no
 
 MCP name: `seo_wayback_history`
 
@@ -1476,19 +1797,81 @@ Every recorded Wayback Machine snapshot of a URL, oldest first: timestamp, HTTP 
 
 ### `cloudflare-traffic`
 
+**Category:** `provider` · **Project-aware:** yes
+
 MCP name: `seo_cloudflare_traffic`
 
-Bot and human traffic for a Cloudflare zone from edge GraphQL analytics (read-only, free): bots x URLs x status codes x cache status per day, in the same shape as seo_log_analyze. Use it when origin logs are absent. It is aggregated data (source=cloudflare-aggregated), not raw logs: no client IPs, so bots cannot be verified by reverse DNS. Dates are UTC YYYY-MM-DD; the Free plan keeps 32 days. The token is read from CLOUDFLARE_API_TOKEN or SEOHEAD_CLOUDFLARE_TOKEN_FILE.
+Read Cloudflare edge GraphQL analytics by zone name or project binding. Pass exactly one of zone or project; project requires one selected Cloudflare zone ID binding. Returns aggregated bot/human summaries and bounded URL/day edge/origin status, cache, redirect status and Cloudflare verified-bot category facts. Set include_configuration=true for extra bounded AI zone settings, redirect/custom-WAF rules, and destination-redacted Logpush job summaries. These are configured rules, not proof of per-request matches. It is not a raw log: it has no client IPs, sub-day timestamps or rule IDs, so reverse-DNS verification is unavailable. Dates are UTC YYYY-MM-DD; the Free plan keeps 32 days. A read-only token needs Zone Read and Account Analytics Read. Token is read from CLOUDFLARE_API_TOKEN or SEOHEAD_CLOUDFLARE_TOKEN_FILE.
 
 | Argument | Type | Default |
 |---|---|---|
-| `zone` | `str` | `required` |
+| `zone` | `str | None` | `None` |
 | `since` | `str | None` | `None` |
 | `until` | `str | None` | `None` |
+| `project` | `str | None` | `None` |
+| `include_configuration` | `bool` | `False` |
+
+**Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
+### `cloudflare-history`
+
+**Category:** `provider` · **Project-aware:** yes
+
+MCP name: `seo_cloudflare_history`
+
+Read retained, bounded Cloudflare aggregate snapshots from a local project. History defaults to metadata-only; set include_facts for a bounded page of URL/day counts and cache/status/bot dimensions. It contains no client IP logs and makes no provider request.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `zone_id` | `str | None` | `None` |
+| `snapshot_id` | `int | None` | `None` |
+| `limit` | `int` | `20` |
+| `offset` | `int` | `0` |
+| `include_facts` | `bool` | `False` |
+| `facts_offset` | `int` | `0` |
+| `facts_limit` | `int` | `100` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `cloudflare-logpush-import`
+
+**Category:** `provider` · **Project-aware:** yes
+
+MCP name: `seo_cloudflare_logpush_import`
+
+Import a caller-supplied UTF-8 Logpush JSON Lines file into the selected project's local logstore. This operation reads only the supplied local file and makes no provider request; input is capped at 16 MiB and 10,000 records.
+
+| Argument | Type | Default |
+|---|---|---|
+| `input_path` | `str` | `required` |
+| `project` | `str` | `required` |
+| `max_events` | `int` | `10000` |
+
+**Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
+### `cloudflare-instant-logs`
+
+**Category:** `provider` · **Project-aware:** yes
+
+MCP name: `seo_cloudflare_instant_logs`
+
+Explicitly create one short, bounded Instant Logs session for a Business/Enterprise project zone. Requires confirm_live_capture=true. A session already active for the zone is left untouched. Only an allowlisted sample is imported locally; canceling closes this client's socket and Cloudflare automatically expires idle sessions.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `confirm_live_capture` | `bool` | `False` |
+| `max_seconds` | `int` | `10` |
+| `max_events` | `int` | `100` |
+| `max_bytes` | `int` | `1048576` |
+| `sample` | `int` | `10` |
 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `crtsh-subdomains`
+
+**Category:** `recon` · **Project-aware:** no
 
 MCP name: `seo_crtsh_subdomains`
 
@@ -1501,6 +1884,8 @@ Subdomains discovered from public Certificate Transparency logs (crt.sh). Free a
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `gsc-query`
+
+**Category:** `provider` · **Project-aware:** no
 
 MCP name: `seo_gsc_query`
 
@@ -1526,6 +1911,8 @@ naming what to configure; it never fabricates a result.
 
 ### `webmaster-url-queries`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_webmaster_url_queries`
 
 Read bounded Yandex Webmaster URL-to-query evidence for a verified host.
@@ -1549,6 +1936,8 @@ summing CTR or average position across pages; caps remain explicit in the respon
 
 ### `miratext-analyze`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_miratext_analyze`
 
 Start or resume Miratext analysis; paid and keyword modes need confirmation.
@@ -1570,6 +1959,8 @@ Start or resume Miratext analysis; paid and keyword modes need confirmation.
 
 ### `gsc-archive`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_gsc_archive`
 
 Manage an explicit local GSC SQLite archive. Status is offline and never creates an absent archive. Prepare creates/extends the queue for a verified property and inclusive YYYY-MM-DD dates without calling Google. Run performs at most max_requests API calls (1..1000, default 1), writes checkpoints and obeys quota/retry waits. Backup makes a verified snapshot at a new backup_path. Only prepare creates a database. Search Analytics can omit anonymized/top-limited rows; never sum different datasets.
@@ -1589,6 +1980,8 @@ Manage an explicit local GSC SQLite archive. Status is offline and never creates
 
 ### `crux-report`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_crux_report`
 
 Field Core Web Vitals (LCP, INP, CLS) as real Chrome users experienced them, at the 75th percentile — the honest counterpart to seo_render_check's synthesized-score-free design (issue #59). Pass exactly one of url/origin. Requires a Chrome UX Report API key. No eligible field record and missing metrics remain unavailable. Optional urls samples at most 25 targets; cache_dir enables an explicit local cache. Never substitutes Lighthouse lab metrics for CrUX field data.
@@ -1607,6 +2000,8 @@ Field Core Web Vitals (LCP, INP, CLS) as real Chrome users experienced them, at 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `indexnow-submit`
+
+**Category:** `provider` · **Project-aware:** no
 
 MCP name: `seo_indexnow_submit`
 
@@ -1629,6 +2024,8 @@ seo_compare_crawls reports as new or changed.
 
 ### `project-open`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_open`
 
 Open a local project workspace without executing template references.
@@ -1642,6 +2039,8 @@ Open a local project workspace without executing template references.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `project-new`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_new`
 
@@ -1658,7 +2057,43 @@ Create a local project workspace; no crawl, checklist execution, or network work
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
+### `project-archive`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_archive`
+
+Write a portable archive to a new path, optionally omitting bodies or older scans.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `out` | `str` | `required` |
+| `dry_run` | `bool` | `False` |
+| `exclude_bodies` | `bool` | `False` |
+| `exclude_bodies_older_than_days` | `int | None` | `None` |
+| `keep_newest_scans` | `int | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `project-restore`
+
+**Category:** `project` · **Project-aware:** no
+
+MCP name: `seo_project_restore`
+
+Restore a verified portable archive into a new project directory.
+
+| Argument | Type | Default |
+|---|---|---|
+| `archive` | `str` | `required` |
+| `to` | `str` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
 ### `project-sources-link`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_sources_link`
 
@@ -1675,6 +2110,8 @@ Bind a provider resource ID to a local project; no provider call or discovery ru
 
 ### `project-sources-unlink`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_sources_unlink`
 
 Remove one resource binding from a local project; no provider call runs.
@@ -1689,6 +2126,8 @@ Remove one resource binding from a local project; no provider call runs.
 
 ### `project-sources-list`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_sources_list`
 
 List the resource bindings of a local project; reads sources.json only.
@@ -1700,6 +2139,8 @@ List the resource bindings of a local project; reads sources.json only.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `project-status`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_status`
 
@@ -1718,6 +2159,8 @@ A stable consumer optionally receives a bounded inbox notice.  Reading a
 status never marks notes read or acknowledged.
 
 ### `project-progress`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_progress`
 
@@ -1741,9 +2184,11 @@ explicitly task completion, not a site-health or remediation percentage.
 
 ### `project-observe`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_observe`
 
-Read the bounded project observer snapshot: tasks, methods, competitors, retained scan state and the execution-log tail. It never starts work or consumes inbox entries; a consumer only receives its own unread summary. Workflow/checklist receipt observations are metadata-only, not fresh byte verification. Missing historical receipts remain unverified. Explicit project-status and workflow-status retain byte verification by default. Run pagination applies independently per site: all stored running records plus one terminal page, newest admitted first. run_offset must be nonnegative and run_limit 1..100. Totals cover at most 100 retained records per site, not lifetime history; earlier evictions were not counted. A changed runs revision requires the caller to restart terminal pagination.
+Read the bounded project observer snapshot: tasks, methods, competitors, retained scan state and the execution-log tail. It never starts work or consumes inbox entries; a consumer only receives its own unread summary. Workflow/checklist receipt observations are metadata-only, not fresh byte verification. Missing historical receipts remain unverified. Explicit project-status and workflow-status retain byte verification by default. Run pagination applies independently per site: all stored running records plus one terminal page, newest admitted first. run_offset must be nonnegative and run_limit 1..100. Totals cover at most 100 retained records per site, not lifetime history; earlier evictions were not counted. A changed runs revision requires the caller to restart terminal pagination. Pass the returned opaque revision as since_revision to receive a small not_modified response when the snapshot has not changed.
 
 | Argument | Type | Default |
 |---|---|---|
@@ -1752,10 +2197,13 @@ Read the bounded project observer snapshot: tasks, methods, competitors, retaine
 | `scan_limit` | `int` | `20` |
 | `run_offset` | `StrictInt` | `0` |
 | `run_limit` | `StrictInt` | `20` |
+| `since_revision` | `str | None` | `None` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `project-inbox-submit`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_inbox_submit`
 
@@ -1774,6 +2222,8 @@ Persist a specialist note, proposed goal or question without starting any work.
 
 ### `project-inbox-list`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_inbox_list`
 
 List a bounded project inbox page without consuming any entries.
@@ -1790,6 +2240,8 @@ List a bounded project inbox page without consuming any entries.
 
 ### `project-inbox-read`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_inbox_read`
 
 Record an agent's explicit inspection; acknowledgment remains separate.
@@ -1804,6 +2256,8 @@ Record an agent's explicit inspection; acknowledgment remains separate.
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
 ### `project-inbox-acknowledge`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_inbox_acknowledge`
 
@@ -1820,6 +2274,8 @@ Explicitly acknowledge entries. This never accepts or completes a goal.
 
 ### `project-inbox-goal`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_inbox_goal`
 
 Explicitly accept or complete a stored proposed goal; no executor is launched.
@@ -1834,6 +2290,8 @@ Explicitly accept or complete a stored proposed goal; no executor is launched.
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
 ### `project-inbox-triage`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_inbox_triage`
 
@@ -1857,6 +2315,8 @@ note, and never launches a scan or a provider operation.
 
 ### `project-inbox-unread`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_inbox_unread`
 
 Return a bounded unread reference summary without changing delivery state.
@@ -1870,6 +2330,8 @@ Return a bounded unread reference summary without changing delivery state.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `project-event-append`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_event_append`
 
@@ -1890,9 +2352,11 @@ Earlier events are never edited. Nothing is executed; the event only records tex
 
 ### `project-event-page`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_event_page`
 
-Read a newest-first bounded page of project events, optionally filtered.
+Read project events after a revision; optionally wait up to 30 seconds for an update.
 
 | Argument | Type | Default |
 |---|---|---|
@@ -1901,10 +2365,15 @@ Read a newest-first bounded page of project events, optionally filtered.
 | `limit` | `int` | `50` |
 | `source` | `Literal['agent', 'user', 'scans', 'app'] | None` | `None` |
 | `query` | `str` | `''` |
+| `since_revision` | `int | None` | `None` |
+| `follow` | `bool` | `False` |
+| `wait_seconds` | `int` | `0` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `remediation-summary`
+
+**Category:** `project` · **Project-aware:** no
 
 MCP name: `seo_remediation_summary`
 
@@ -1923,6 +2392,8 @@ regressed, false-positive-reviewed and unverifiable states separate.
 It does not run a crawl or infer that omitted evidence is clean.
 
 ### `remediation-create`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_remediation_create`
 
@@ -1944,6 +2415,8 @@ overwrite.
 
 ### `remediation-ingest`
 
+**Category:** `project` · **Project-aware:** no
+
 MCP name: `seo_remediation_ingest`
 
 Ingest one retained saved audit into a local ledger without rerunning a crawl.
@@ -1962,6 +2435,8 @@ a new revision appends observation history.
 
 ### `workflow-start`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_workflow_start`
 
 Start a local registered workflow; it performs no scan or provider call.
@@ -1978,6 +2453,8 @@ Start a local registered workflow; it performs no scan or provider call.
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
 ### `workflow-checkpoint`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_workflow_checkpoint`
 
@@ -1999,6 +2476,8 @@ Persist one registered-step result before the next step or agent handoff.
 
 ### `workflow-status`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_workflow_status`
 
 Recover the exact next registered step after interruption or handoff.
@@ -2011,6 +2490,8 @@ Recover the exact next registered step after interruption or handoff.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `workflow-execute`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_workflow_execute`
 
@@ -2029,6 +2510,8 @@ Checkpoint a supplied local sequence without executing network work.
 
 ### `workflow-resume`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_workflow_resume`
 
 Reopen only the interrupted registered step after a second-agent handoff.
@@ -2044,6 +2527,8 @@ Reopen only the interrupted registered step after a second-agent handoff.
 
 ### `monitor-configure`
 
+**Category:** `other` · **Project-aware:** yes
+
 MCP name: `seo_monitor_configure`
 
 Configure a disabled local incremental monitor; this starts no schedule or message delivery.
@@ -2058,6 +2543,8 @@ Configure a disabled local incremental monitor; this starts no schedule or messa
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
 ### `monitor-run`
+
+**Category:** `other` · **Project-aware:** yes
 
 MCP name: `seo_monitor_run`
 
@@ -2075,6 +2562,8 @@ Record one bounded retained-scan diff; quiet runs do not notify anyone.
 
 ### `monitor-schedule`
 
+**Category:** `other` · **Project-aware:** yes
+
 MCP name: `seo_monitor_schedule`
 
 Claim or recover a local run; no timer, crawl, or delivery starts here.
@@ -2090,6 +2579,8 @@ Claim or recover a local run; no timer, crawl, or delivery starts here.
 
 ### `schedule-show`
 
+**Category:** `other` · **Project-aware:** yes
+
 MCP name: `seo_schedule_show`
 
 Read a project's scheduled-scan settings, last run, and next due window.
@@ -2102,6 +2593,8 @@ Read a project's scheduled-scan settings, last run, and next due window.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `schedule-set`
+
+**Category:** `other` · **Project-aware:** yes
 
 MCP name: `seo_schedule_set`
 
@@ -2118,6 +2611,8 @@ Merge a partial update into the project's schedule settings; starts nothing.
 
 ### `schedule-run-due`
 
+**Category:** `other` · **Project-aware:** yes
+
 MCP name: `seo_schedule_run_due`
 
 Run the project's scheduled scans now if they are due; crawls over the network.
@@ -2130,6 +2625,8 @@ Run the project's scheduled scans now if they are due; crawls over the network.
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
 
 ### `schedule-install`
+
+**Category:** `other` · **Project-aware:** yes
 
 MCP name: `seo_schedule_install`
 
@@ -2147,6 +2644,8 @@ Write a launchd plist, cron line, or Task Scheduler command; never loads it.
 
 ### `schedule-uninstall`
 
+**Category:** `other` · **Project-aware:** yes
+
 MCP name: `seo_schedule_uninstall`
 
 Remove the trigger file written by seo_schedule_install; does not unload it.
@@ -2161,6 +2660,8 @@ Remove the trigger file written by seo_schedule_install; does not unload it.
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no · can overwrite/remove existing data
 
 ### `monitor-collect`
+
+**Category:** `other` · **Project-aware:** yes
 
 MCP name: `seo_monitor_collect`
 
@@ -2183,6 +2684,8 @@ require an explicit new start. No timer, background service or delivery starts.
 
 ### `monitor-local-deliver`
 
+**Category:** `other` · **Project-aware:** yes
+
 MCP name: `seo_monitor_local_deliver`
 
 Record a deduplicated local receipt for one retained monitoring run.
@@ -2202,6 +2705,8 @@ transport and does not claim that any recipient outside the project received it.
 
 ### `monitor-status`
 
+**Category:** `other` · **Project-aware:** yes
+
 MCP name: `seo_monitor_status`
 
 Read local monitor policy and its last retained checkpoint.
@@ -2214,6 +2719,8 @@ Read local monitor policy and its last retained checkpoint.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `remediation-cases`
+
+**Category:** `project` · **Project-aware:** no
 
 MCP name: `seo_remediation_cases`
 
@@ -2234,6 +2741,8 @@ Read a bounded page of exact remediation cases and decision history.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `remediation-transition`
+
+**Category:** `project` · **Project-aware:** no
 
 MCP name: `seo_remediation_transition`
 
@@ -2259,6 +2768,8 @@ missing source or failed fetch cannot resolve a case.
 
 ### `remediation-record-verification`
 
+**Category:** `project` · **Project-aware:** no
+
 MCP name: `seo_remediation_record_verification`
 
 Attach a retained bounded verification artifact to pending cases.
@@ -2281,6 +2792,8 @@ byte digest is saved in the decision evidence; ambiguous or stale
 batches are rejected atomically.
 
 ### `remediation-recheck`
+
+**Category:** `project` · **Project-aware:** no
 
 MCP name: `seo_remediation_recheck`
 
@@ -2308,6 +2821,8 @@ its hashes and measured outcome atomically in the local ledger.
 
 ### `remediation-report`
 
+**Category:** `project` · **Project-aware:** no
+
 MCP name: `seo_remediation_report`
 
 Render retained before/after remediation evidence without network access.
@@ -2327,6 +2842,8 @@ With out_dir this creates a new immutable JSON/Markdown review snapshot;
 without it, it returns the JSON-ready report document only.
 
 ### `project-facts`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_facts`
 
@@ -2351,6 +2868,8 @@ with its reason instead of guessing. The default is a read-only preview;
 apply=true records the result in project.json.
 
 ### `project-checklist-init`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_checklist_init`
 
@@ -2390,6 +2909,8 @@ revision for a later conditional write. This never makes a network request.
 
 ### `project-checklist-update`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_checklist_update`
 
 Add or update one local checklist definition without executing it.
@@ -2410,6 +2931,8 @@ identity and source provenance remain validated by the project core. This never 
 network request.
 
 ### `project-checklist-record`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_checklist_record`
 
@@ -2441,6 +2964,8 @@ inside the denominator. This never makes a network request.
 
 ### `project-view-list`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_view_list`
 
 List saved declarative finding views and the current project view-config revision.
@@ -2453,6 +2978,8 @@ List saved declarative finding views and the current project view-config revisio
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `project-view-show`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_view_show`
 
@@ -2467,6 +2994,8 @@ Read one saved finding view with its stable identity, schema version and revisio
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `project-view-save`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_view_save`
 
@@ -2489,6 +3018,8 @@ changes project view configuration only; it does not edit scans or affect scores
 
 ### `project-view-delete`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_view_delete`
 
 Delete one saved finding view using the current project view-config revision.
@@ -2507,6 +3038,8 @@ Delete one saved finding view using the current project view-config revision.
 Changes project view configuration only; it does not edit scans or affect scores/tasks.
 
 ### `project-view-rename`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_view_rename`
 
@@ -2529,6 +3062,8 @@ only; it does not edit scans or affect scores/tasks.
 
 ### `findings-view`
 
+**Category:** `other` · **Project-aware:** yes
+
 MCP name: `seo_findings_view`
 
 Apply one saved view to an audit object, JSON file, or validated scan.v1 SQLite artifact.
@@ -2550,6 +3085,8 @@ truncation, source identity, and view/config revisions. Filtering never suppress
 findings or changes audit coverage/scoring; no crawl or provider call occurs.
 
 ### `project-priorities`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_priorities`
 
@@ -2574,6 +3111,8 @@ not executable code; omitted policy uses the packaged defaults.
 
 ### `project-policy`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_policy`
 
 Read or explicitly update operator crawl defaults and project admission thresholds.
@@ -2588,7 +3127,135 @@ Read or explicitly update operator crawl defaults and project admission threshol
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
+### `project-settings`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_settings`
+
+Read current project settings and their optimistic-concurrency revision.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `project-update`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_update`
+
+Update the project label; owner-only changes are unavailable through this MCP server.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `label` | `str` | `required` |
+| `expected_revision` | `int` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `project-delete`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_delete`
+
+Move a project to Trash; owner-only deletion is unavailable through this MCP server.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `project-settings-propose`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_settings_propose`
+
+Submit a label or crawl-policy proposal for explicit owner review; it is not applied.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `changes` | `dict[str, Any]` | `required` |
+| `expected_revision` | `int` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `project-settings-proposals`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_settings_proposals`
+
+Read a bounded newest-first page of project setting proposals.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `50` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `project-settings-review`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_settings_review`
+
+Review a setting proposal; owner approval is unavailable through this MCP server.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `proposal_id` | `str` | `required` |
+| `decision` | `Literal['approve', 'deny']` | `required` |
+| `expected_revision` | `int` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `project-action-log`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_action_log`
+
+Read a bounded project action log, filtering by interface, outcome or text.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `50` |
+| `client` | `Literal['cli', 'mcp', 'system'] | None` | `None` |
+| `outcome` | `Literal['pending', 'applied', 'approved', 'denied', 'stale', 'refused', 'deleted'] | None` | `None` |
+| `query` | `str` | `''` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `project-agent-heartbeat`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_agent_heartbeat`
+
+Record a bounded MCP activity timestamp; it does not establish connectivity or identity.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
 ### `project-competitors-add`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_competitors_add`
 
@@ -2608,6 +3275,8 @@ Each item needs url, source and observed_at. Scans are started separately per wo
 
 ### `project-competitors-list`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_competitors_list`
 
 List the recorded competitor candidates and their local workspaces; no change.
@@ -2620,6 +3289,8 @@ List the recorded competitor candidates and their local workspaces; no change.
 
 ### `project-competitors-remove`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_competitors_remove`
 
 Drop one recorded competitor from the shortlist. Its local workspace and scans stay on disk, untouched; no crawl runs.
@@ -2631,7 +3302,69 @@ Drop one recorded competitor from the shortlist. Its local workspace and scans s
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
+### `project-competitors-scan`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_competitors_scan`
+
+Run a task's structured competitor scans with per-site URL caps.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `task_id` | `str` | `required` |
+| `expected_revision` | `int` | `required` |
+| `confirm` | `bool` | `required` |
+| `concurrency` | `int` | `3` |
+| `approve_large_crawl` | `bool` | `False` |
+| `producer_build` | `str | None` | `None` |
+| `run_id` | `str | None` | `None` |
+| `consumer` | `str | None` | `None` |
+
+**Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+This contacts only the registered competitor workspaces listed on the current custom
+task. Each task entry supplies its own max_urls cap. Concurrency is limited to three
+sites, and each crawl also has bounded request and one-hour time budgets. A fresh
+confirm=true and the current checklist revision are required. This is a one-shot scan,
+independent of the schedule engine; no competitor cadence is started or changed.
+
+### `project-competitors-scan-status`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_competitors_scan_status`
+
+Read durable per-site progress for one explicitly started competitor scan run.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `run_id` | `str` | `required` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `project-competitors-scan-cancel`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_competitors_scan_cancel`
+
+Request a durable stop for one active competitor scan at its next crawl checkpoint.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `run_id` | `str` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
 ### `project-prepare`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_prepare`
 
@@ -2658,6 +3391,8 @@ never hidden in preparation.
 
 ### `project-start`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_start`
 
 Create and prepare a new bounded project; failures leave inspectable pending work.
@@ -2677,6 +3412,8 @@ Create and prepare a new bounded project; failures leave inspectable pending wor
 
 ### `skill-list`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_skill_list`
 
 List the packaged, source-derived method playbooks without executing them.
@@ -2686,6 +3423,8 @@ Takes no arguments.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `skill-show`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_skill_show`
 
@@ -2699,6 +3438,8 @@ Return a packaged skill's exact text and definition identity.
 
 ### `scenario-list`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_scenario_list`
 
 List the packaged workflow scenarios with their ordered steps, without running them.
@@ -2708,6 +3449,8 @@ Takes no arguments.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `scenario-show`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_scenario_show`
 
@@ -2720,6 +3463,8 @@ Return a packaged workflow scenario's text without running its commands.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `provider-replay`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_provider_replay`
 
@@ -2737,20 +3482,24 @@ Join a saved private provider collection to a saved scan with no network; retain
 
 ### `provider-auth`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_provider_auth`
 
-Manage GSC read-only OAuth grants: import private file, refresh, cancel a pending flow, or explicitly revoke. Never returns secrets.
+Manage GSC read-only OAuth: start consent, inspect/cancel flows, import grants, refresh or confirm revocation. Never returns tokens.
 
 | Argument | Type | Default |
 |---|---|---|
 | `provider` | `str` | `required` |
-| `action` | `Literal['status', 'connect', 'refresh', 'cancel', 'disconnect', 'revoke']` | `'status'` |
+| `action` | `Literal['status', 'start', 'connect', 'refresh', 'cancel', 'disconnect', 'revoke']` | `'status'` |
 | `grant_file` | `str | None` | `None` |
 | `confirm` | `bool` | `False` |
 
 **Cost** — network: yes · writes files: yes · idempotent: yes · spends money: no
 
 ### `provider-registry`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_provider_registry`
 
@@ -2761,6 +3510,8 @@ Takes no arguments.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `provider-readiness`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_provider_readiness`
 
@@ -2780,6 +3531,8 @@ seo_provider_verify for an explicit bounded read-only access check.
 
 ### `provider-verify`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_provider_verify`
 
 Explicitly verify bounded read-only account/target access; present credentials are not verification.
@@ -2791,7 +3544,41 @@ Explicitly verify bounded read-only account/target access; present credentials a
 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
+### `provider-credential`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_provider_credential`
+
+Inspect or explicitly revoke a provider credential; secret writes stay on the local CLI.
+
+| Argument | Type | Default |
+|---|---|---|
+| `provider` | `str` | `required` |
+| `component` | `str` | `required` |
+| `action` | `Literal['status', 'revoke']` | `'status'` |
+| `confirm` | `bool` | `False` |
+
+**Cost** — network: yes · writes files: yes · idempotent: yes · spends money: no
+
+### `provider-discover`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_provider_discover`
+
+List account-visible provider resources; discovery does not bind or select them.
+
+| Argument | Type | Default |
+|---|---|---|
+| `provider` | `Literal['google', 'yandex', 'topvisor']` | `required` |
+| `domain` | `str | None` | `None` |
+
+**Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
 ### `provider-collect`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_provider_collect`
 
@@ -2812,7 +3599,26 @@ Raw identifiers and rows belong only in an explicit restricted artifact director
 Paid operations require their provider's explicit production and cost guards; the
 backlink-index adapter is disabled by default. Collection never implies indexing.
 
+### `provider-artifact-read`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_provider_artifact_read`
+
+Read a bounded PageSpeed summary from an existing provider artifact. The reader validates the local artifact reference and returns an allowlisted, sanitized sample page; it never returns the raw saved envelope or makes a provider request.
+
+| Argument | Type | Default |
+|---|---|---|
+| `artifact_ref` | `str` | `required` |
+| `artifact_dir` | `str` | `required` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `25` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
 ### `provider-join`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_provider_join`
 
@@ -2828,6 +3634,8 @@ Join supplied URL evidence exactly and preserve unmatched populations and techni
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `evidence-normalize`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_evidence_normalize`
 
@@ -2853,6 +3661,8 @@ explicit private ``out_dir`` artifact. No provider, DNS or page fetch
 ever runs here.
 
 ### `evidence-join`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_evidence_join`
 
@@ -2891,6 +3701,8 @@ inputs return counts only.
 
 ### `bi-filter`
 
+**Category:** `report` · **Project-aware:** no
+
 MCP name: `seo_bi_filter`
 
 Filter a verified local BI package into a new typed package and optional XLSX.
@@ -2917,6 +3729,8 @@ and coverage are preserved. Creates new local outputs without network calls.
 
 ### `scan-navigation`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_navigation`
 
 Read bounded observed navigation evidence from a retained local scan.
@@ -2936,6 +3750,8 @@ Reads saved local evidence only; does not collect, fetch or modify it.
 
 ### `project-activity`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_activity`
 
 Read lightweight current activity for a local project and its sites.
@@ -2943,14 +3759,18 @@ Read lightweight current activity for a local project and its sites.
 | Argument | Type | Default |
 |---|---|---|
 | `directory` | `str` | `required` |
+| `since_revision` | `str | None` | `None` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 **Behavior and failure modes**
 
-Reads saved local evidence only; does not collect, fetch or modify it.
+Reads saved local evidence only; does not collect, fetch or modify it. Pass the returned
+opaque revision as since_revision to receive a small not_modified response.
 
 ### `project-checklist-page`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_checklist_page`
 
@@ -2980,6 +3800,8 @@ Does not collect, fetch or modify evidence.
 
 ### `project-task-detail`
 
+**Category:** `project` · **Project-aware:** yes
+
 MCP name: `seo_project_task_detail`
 
 Read one project task definition, evidence and bounded history.
@@ -2997,7 +3819,104 @@ Reads saved local evidence with metadata-only receipt status; this is not
 fresh byte verification. Missing historical receipts remain unverified.
 Does not collect, fetch or modify evidence.
 
+### `project-task-comment`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_task_comment`
+
+Append a comment to a custom project task with an optional scan/finding link.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `item_id` | `str` | `required` |
+| `text` | `str` | `required` |
+| `actor` | `str` | `required` |
+| `expected_revision` | `int` | `required` |
+| `reference` | `dict[str, str] | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+The comment records its actor and timestamp. expected_revision prevents overwriting a
+newer checklist update. This writes local project metadata and makes no network request.
+
+### `project-export`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_export`
+
+Start a complete task, task-comments, task-history or compare.v2 export under reports/.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `dataset` | `Literal['tasks', 'task_comments', 'task_history', 'compare']` | `required` |
+| `fmt` | `str` | `required` |
+| `output` | `str` | `required` |
+| `compare_manifest` | `str | None` | `None` |
+| `job_id` | `str | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+The job returns immediately with an ID; use project_export_status to read bounded
+progress and project_export_cancel to request cancellation. Successful outputs are
+recorded in project export history. No network request is made.
+
+### `project-export-status`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_export_status`
+
+Read progress and completion state for one local project export job.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `job_id` | `str` | `required` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `project-export-cancel`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_export_cancel`
+
+Request cancellation of a running local project export job.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `job_id` | `str` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `project-exports-page`
+
+**Category:** `project` · **Project-aware:** yes
+
+MCP name: `seo_project_exports_page`
+
+Read the bounded newest-first project export history.
+
+| Argument | Type | Default |
+|---|---|---|
+| `directory` | `str` | `required` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `50` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
 ### `project-scans`
+
+**Category:** `project` · **Project-aware:** yes
 
 MCP name: `seo_project_scans`
 
@@ -3016,6 +3935,8 @@ Read a bounded page of retained project scans with evidence metadata.
 Reads saved local evidence only; does not collect, fetch or modify it.
 
 ### `bi-export`
+
+**Category:** `report` · **Project-aware:** no
 
 MCP name: `seo_bi_export`
 
@@ -3046,6 +3967,8 @@ without publishing a partial package. No crawl or provider request runs.
 
 ### `bi-sheets-plan`
 
+**Category:** `report` · **Project-aware:** no
+
 MCP name: `seo_bi_sheets_plan`
 
 Preflight a complete local BI package for Sheets without Google access or writes.
@@ -3058,6 +3981,8 @@ Preflight a complete local BI package for Sheets without Google access or writes
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `publication-cohorts`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_publication_cohorts`
 
@@ -3079,6 +4004,8 @@ causal traffic claim and never calls a provider.
 
 ### `gsc-progress`
 
+**Category:** `provider` · **Project-aware:** no
+
 MCP name: `seo_gsc_progress`
 
 Project saved GSC query evidence into branded/non-branded summaries.
@@ -3098,6 +4025,8 @@ unknown, and average-position values are never rank-placement claims.
 
 ### `bi-bigquery-plan`
 
+**Category:** `report` · **Project-aware:** no
+
 MCP name: `seo_bi_bigquery_plan`
 
 Describe an optional BigQuery load offline; it never selects a project or writes data.
@@ -3111,6 +4040,8 @@ Describe an optional BigQuery load offline; it never selects a project or writes
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `bi-destination-apply`
+
+**Category:** `report` · **Project-aware:** no
 
 MCP name: `seo_bi_destination_apply`
 
@@ -3129,6 +4060,8 @@ Request a BI destination write; host authorization is required and credentials a
 
 ### `inspect-url`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_inspect_url`
 
 Inspect one URL with bounded metadata/header/robots/redirect/structured/render steps.
@@ -3141,6 +4074,8 @@ Inspect one URL with bounded metadata/header/robots/redirect/structured/render s
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
 ### `audit-workflow`
+
+**Category:** `crawl` · **Project-aware:** yes
 
 MCP name: `seo_audit_workflow`
 
@@ -3167,19 +4102,43 @@ A report without ``audit`` is built from the project's latest complete audited s
 
 ### `tool-catalog`
 
+**Category:** `other` · **Project-aware:** no
+
 MCP name: `seo_tool_catalog`
 
-Search complete source-derived tool metadata and load argument details only on request.
+Search source-derived tool metadata with categories, project awareness, and bounded offset paging.
 
 | Argument | Type | Default |
 |---|---|---|
 | `query` | `str` | `''` |
 | `limit` | `int` | `10` |
+| `offset` | `int` | `0` |
 | `include_arguments` | `bool` | `False` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
+### `url-check-batch`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_url_check_batch`
+
+Run up to 50 URL/check pairs from the supported single-URL checks over a URL list or a page of retained scan URLs. Per-pair network errors remain attached to their input URL.
+
+| Argument | Type | Default |
+|---|---|---|
+| `urls` | `list[str] | None` | `None` |
+| `checks` | `list[str] | None` | `None` |
+| `options` | `dict[str, Any] | None` | `None` |
+| `scan` | `str | None` | `None` |
+| `offset` | `int` | `0` |
+| `max_urls` | `int` | `50` |
+
+**Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
 ### `scan-evidence`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_evidence`
 
@@ -3195,6 +4154,8 @@ Read captured evidence, resource windows or the event timeline without fetching 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `scan-content-search`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_content_search`
 
@@ -3212,6 +4173,7 @@ Search one closed retained scan offline and create an indexed local NDJSON packa
 | `case_sensitive` | `bool` | `False` |
 | `include_snippets` | `bool` | `False` |
 | `kind` | `Literal['literal', 'regex']` | `'literal'` |
+| `url` | `str | None` | `None` |
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
@@ -3219,12 +4181,38 @@ Search one closed retained scan offline and create an indexed local NDJSON packa
 
 The tool never fetches or reconstructs a body. Static and rendered are
 separate requests; a missing body remains unavailable rather than an
-absence. It returns only source identity, counts and output paths.
+absence. Each serialized record is limited to 64 KiB and each package
+to 512 MiB; hitting the package limit returns an explicitly incomplete
+package. It returns source identity, counts and output paths.
 ``include_snippets`` is opt-in and redacts common credential-shaped values.
 ``kind="regex"`` treats ``query`` as a regular expression; a document
-that exceeds the per-document regex budget is unavailable, not absent.
+that exceeds the per-document regex budget, or runs where that deadline
+cannot be enforced, is unavailable, not absent.
+
+### `custom-extract-sample`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_custom_extract_sample`
+
+Preview declared extractors against supplied HTML without fetching a URL.
+
+| Argument | Type | Default |
+|---|---|---|
+| `html` | `str` | `required` |
+| `extractors` | `list[dict]` | `required` |
+| `url` | `str` | `''` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+``url`` is an output label only. Pass the HTML already held locally and
+an explicit extractor list; this tool has no network path.
 
 ### `scan-content-search-page`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_content_search_page`
 
@@ -3246,6 +4234,8 @@ Optional status or status_code filters the stream; offset then counts matching r
 
 ### `scan-extract`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_extract`
 
 Run bounded data-only extraction rules on retained complete bodies, without network or writes.
@@ -3262,19 +4252,24 @@ Run bounded data-only extraction rules on retained complete bodies, without netw
 
 ### `scan-structured-blocks`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_structured_blocks`
 
-Describe one retained page's JSON-LD blocks: line, state, graph findings and source JSON, offline.
+Read bounded retained structured data and offline Schema.org validation for one exact URL.
 
 | Argument | Type | Default |
 |---|---|---|
 | `input_path` | `str` | `required` |
 | `url` | `str` | `required` |
 | `representation` | `str` | `'static'` |
+| `variant_key` | `str | None` | `None` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `marketing-inventory`
+
+**Category:** `other` · **Project-aware:** no
 
 MCP name: `seo_marketing_inventory`
 
@@ -3292,6 +4287,8 @@ Inventory supplied CTA/form DOM occurrences without fetching or submitting forms
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no · can overwrite/remove existing data
 
 ### `scan-fragment-links`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_fragment_links`
 
@@ -3316,6 +4313,8 @@ fetched and the artifact is not modified.
 
 ### `scan-requeue`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_requeue`
 
 Explicitly requeue selected saved URLs in the same SQLite with verified backup and attempt history.
@@ -3336,6 +4335,8 @@ an explicit write-time v1 to v2 upgrade; readers never upgrade. It makes no netw
 
 ### `scan-import-urls`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_import_urls`
 
 Explicitly import a TXT/CSV/XLSX/XML seed list through stored scope and query guards with backup.
@@ -3349,6 +4350,8 @@ Explicitly import a TXT/CSV/XLSX/XML seed list through stored scope and query gu
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no · can overwrite/remove existing data
 
 ### `scan-list`
+
+**Category:** `scan` · **Project-aware:** yes
 
 MCP name: `seo_scan_list`
 
@@ -3364,6 +4367,8 @@ List saved SQLite scan metadata without loading retained bodies.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `scan-inspect`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_inspect`
 
@@ -3387,9 +4392,11 @@ Read a bounded, paginated table view from one saved scan.
 
 ### `scan-url-detail`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_url_detail`
 
-Read one exact native URL's retained headers, redirects, page fields, and forms.
+Read one exact native URL's bounded retained HTML and transport evidence.
 
 | Argument | Type | Default |
 |---|---|---|
@@ -3400,16 +4407,62 @@ Read one exact native URL's retained headers, redirects, page fields, and forms.
 | `form_offset` | `int` | `0` |
 | `form_limit` | `int` | `20` |
 | `max_bytes` | `int` | `1048576` |
+| `body_offset` | `int` | `0` |
+| `body_length` | `int` | `4096` |
+| `max_body_bytes` | `int` | `8 * 1024 * 1024` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 **Behavior and failure modes**
 
 The query is offline and read-only. Header and query values stay redacted,
-body bytes remain unavailable here, and legacy/Screaming Frog sources
-return named unavailable evidence instead of an empty detail record.
+source HTML is returned as one bounded window with raw and decoded hashes,
+and legacy/Screaming Frog sources return named unavailable evidence.
+
+### `scan-body-read`
+
+**Category:** `scan` · **Project-aware:** no
+
+MCP name: `seo_scan_body_read`
+
+Read a bounded static or rendered HTML window from one saved scan offline.
+
+| Argument | Type | Default |
+|---|---|---|
+| `input_path` | `str` | `required` |
+| `url` | `str` | `required` |
+| `representation` | `str` | `'static'` |
+| `variant_key` | `str | None` | `None` |
+| `offset` | `int` | `0` |
+| `length` | `int` | `4096` |
+| `max_decoded_bytes` | `int` | `8 * 1024 * 1024` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `scan-findings-page`
+
+**Category:** `scan` · **Project-aware:** yes
+
+MCP name: `seo_scan_findings_page`
+
+Read one bounded page of saved findings, optionally for one exact URL.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `scan_uuid` | `str | None` | `None` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `100` |
+| `query` | `str` | `''` |
+| `url` | `str | None` | `None` |
+| `sort` | `str` | `'severity'` |
+| `descending` | `bool` | `False` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `scan-url-history`
+
+**Category:** `scan` · **Project-aware:** yes
 
 MCP name: `seo_scan_url_history`
 
@@ -3432,6 +4485,8 @@ retained URL text through an index, not a scan of the page table.
 
 ### `scan-url-query`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_url_query`
 
 Filter, sort and paginate the page table of one saved scan across the whole scan.
@@ -3451,6 +4506,7 @@ Filter, sort and paginate the page table of one saved scan across the whole scan
 | `facets` | `list[str] | str | None` | `None` |
 | `issue_check` | `str | list[str] | None` | `None` |
 | `issue_severity` | `str | None` | `None` |
+| `include_check_counts` | `bool` | `False` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
@@ -3467,9 +4523,63 @@ issue_severity (critical|warning|notice) filter by saved audit findings, includi
 URLs. Check ids are case-insensitive. Missing saved findings return state unavailable
 with reason_code issue_index_missing. Skipped, disabled or absent saved checks return
 issue_check_unmeasured; a bounded audit read can return issue_selection_timeout.
+Set include_check_counts to include exact saved whole-scan severity/check totals and
+registry-wide fired, silent, skipped, disabled or unavailable states. Missing summary
+data returns issue_summary.state=unavailable, never zero counters.
 No unfiltered result is substituted.
 
+### `scan-directory-tree`
+
+**Category:** `scan` · **Project-aware:** no
+
+MCP name: `seo_scan_directory_tree`
+
+Read a bounded directory tree from retained page URLs using local SQLite only.
+
+| Argument | Type | Default |
+|---|---|---|
+| `input_path` | `str` | `required` |
+| `max_depth` | `int` | `3` |
+| `max_children` | `int` | `50` |
+| `max_nodes` | `int` | `10000` |
+| `max_bytes` | `int` | `1048576` |
+| `timeout_seconds` | `float` | `15.0` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+The tree counts pages at each path ancestor and folds omitted children into exact
+`other_children`/`other_pages` totals. A temporary SQLite aggregation bounds Python memory.
+It never fetches, replays, or mutates the scan.
+
+### `headers-analyze`
+
+**Category:** `content` · **Project-aware:** no
+
+MCP name: `seo_headers_analyze`
+
+Analyze redacted response headers and captured transport phases from a saved scan.
+
+| Argument | Type | Default |
+|---|---|---|
+| `input_path` | `str` | `required` |
+| `url` | `str | None` | `None` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `100` |
+| `max_bytes` | `int` | `1048576` |
+| `timeout_seconds` | `float` | `15.0` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Reads retained local evidence only. Missing response headers or phases stay unavailable;
+the command never probes the site or infers a measurement from total response time.
+
 ### `scan-link-inspect`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_link_inspect`
 
@@ -3500,6 +4610,7 @@ Inspect saved shortest paths, reverse inlinks, per-link DOM context, or one URL'
 | `status_class` | `str` | `'all'` |
 | `contains` | `str | None` | `None` |
 | `sort` | `str` | `'order'` |
+| `preset` | `str | None` | `None` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
@@ -3511,6 +4622,8 @@ internal/external, position when classified at scan time, and the HTTP status of
 target (outgoing) or source (incoming); the status is null when that page was not
 scanned. Filters: link_type, follow, status_class (2xx..5xx, broken, error, unscanned),
 contains; sort (out only): order, url, status. At most 200 rows per page with offset;
+preset=inlinks selects internal incoming links; preset=broken_links selects internal
+outgoing links whose saved targets are broken.
 `total` and `filtered_total` are exact or flagged capped/null. The scan is opened
 read-only without full validation; failures carry a machine `reason_code`
 (url_not_found, scan_not_available, url_not_scanned, links_not_retained).
@@ -3528,6 +4641,8 @@ full response returns a named limit result. Invalid scans and URLs are
 error results, not empty or clean graph evidence.
 
 ### `scan-status`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_status`
 
@@ -3547,6 +4662,8 @@ full_validation=true runs the complete artifact validation (`validation: "full"`
 
 ### `scan-rendered-routes`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_rendered_routes`
 
 Read stored static/rendered route evidence without fetching routes.
@@ -3558,6 +4675,8 @@ Read stored static/rendered route evidence without fetching routes.
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
 ### `scan-snapshot`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_snapshot`
 
@@ -3571,6 +4690,8 @@ Create a consistent new SQLite snapshot without overwriting a destination.
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
 ### `scan-export`
+
+**Category:** `scan` · **Project-aware:** no
 
 MCP name: `seo_scan_export`
 
@@ -3588,6 +4709,8 @@ Export retained scan data under scan_export.v1 as CSV, XLSX, JSON, or XML.
 
 ### `scan-pin`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_pin`
 
 Pin or unpin a finished scan; this is an explicit metadata mutation.
@@ -3600,6 +4723,8 @@ Pin or unpin a finished scan; this is an explicit metadata mutation.
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no · can overwrite/remove existing data
 
 ### `scan-prune`
+
+**Category:** `scan` · **Project-aware:** yes
 
 MCP name: `seo_scan_prune`
 
@@ -3618,9 +4743,11 @@ Preview candidates by default; deletion requires apply plus the reviewed plan.
 
 ### `scan-body-diff`
 
+**Category:** `scan` · **Project-aware:** no
+
 MCP name: `seo_scan_body_diff`
 
-Compare compatible retained bodies offline; a change is not an SEO verdict.
+Compare retained bodies across scans or static/rendered bodies in one scan offline.
 
 | Argument | Type | Default |
 |---|---|---|
@@ -3632,6 +4759,8 @@ Compare compatible retained bodies offline; a change is not an SEO verdict.
 | `text` | `bool` | `False` |
 | `max_bytes` | `int` | `5 * 1024 * 1024` |
 | `max_lines` | `int` | `10000` |
+| `left_representation` | `str | None` | `None` |
+| `right_representation` | `str | None` | `None` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
@@ -3640,6 +4769,8 @@ Compare compatible retained bodies offline; a change is not an SEO verdict.
 ## Crawl-audit tools (Screaming Frog)
 
 ### `sf_audit_run`
+
+**Category:** `screaming-frog` · **Project-aware:** yes
 
 Run an SF audit and write audit.json plus audit.md.
 
@@ -3652,6 +4783,7 @@ Run an SF audit and write audit.json plus audit.md.
 | `config` | `str | None` | `None` |
 | `sitemap` | `str | None` | `None` |
 | `project` | `str | None` | `None` |
+| `inspect_gsc` | `bool` | `False` |
 
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: no
 
@@ -3668,6 +4800,11 @@ summary and absolute file paths instead of embedding the large reports.
 caller-supplied body/title/H1 vectors. No embedding model or provider
 is selected by default; absent bodies or adapters remain unavailable.
 
+``inspect_gsc`` explicitly enables a bounded live Search Console URL Inspection sample.
+It requires a project-bound GSC property, stores results in that project's private local
+inspection history, and applies a local 2,000-request-per-property-per-UTC-day budget.
+By default this run reads only retained GSC/analytics history and makes no provider call.
+
 A live crawl can run for a long time; this call runs off the server's
 event loop, so other sf_* calls stay answerable while it is in
 progress, and cancelling the request (an MCP CancelledNotification)
@@ -3678,6 +4815,8 @@ response, recover by pointing sf_list_exports/sf_audit_summary at the
 same ``out`` path.
 
 ### `sf_audit_summary`
+
+**Category:** `screaming-frog` · **Project-aware:** no
 
 Read a compact health summary from audit.json or a scan.v1 SQLite artifact.
 
@@ -3694,6 +4833,8 @@ checks, and sitemap statistics without loading the complete issue list
 into the agent context.
 
 ### `sf_audit_issues`
+
+**Category:** `screaming-frog` · **Project-aware:** no
 
 Return filtered issues from audit.json or a validated scan.v1 SQLite artifact.
 
@@ -3713,6 +4854,8 @@ Omit both filters to inspect the first issues in report order.
 
 ### `sf_list_exports`
 
+**Category:** `screaming-frog` · **Project-aware:** no
+
 Discover recognized SF exports in a directory.
 
 | Argument | Type | Default |
@@ -3728,6 +4871,8 @@ that are absent, allowing an agent to explain which checks may be skipped
 before running the audit.
 
 ### `sf_audit_tasks`
+
+**Category:** `screaming-frog` · **Project-aware:** no
 
 Build tasks.json and tasks.md from audit.json or a scan.v1 SQLite artifact.
 
@@ -3747,11 +4892,42 @@ only declared template/component URLs or validated audit segments and
 preserves grouping provenance and candidate/declared/confirmed state.
 Returns a compact summary and absolute paths to both backlog files.
 
+### `sf_snippet_edits`
+
+**Category:** `screaming-frog` · **Project-aware:** no
+
+Import supplied snippet CSV text and write unapplied review tasks to a new JSON file.
+
+| Argument | Type | Default |
+|---|---|---|
+| `csv_text` | `str` | `required` |
+| `out` | `str` | `required` |
+| `metrics` | `dict[str, dict[str, Any]] | None` | `None` |
+| `retained_scan` | `str | None` | `None` |
+| `query` | `str | None` | `None` |
+| `representation` | `str` | `'static'` |
+| `variant_key` | `str | None` | `None` |
+| `content_area` | `dict[str, Any] | None` | `None` |
+| `max_decoded_bytes` | `int` | `8 * 1024 * 1024` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+The CSV needs ``url`` and at least one of ``title`` or ``description``. Empty edit cells
+leave that field unchanged. Optional ``metrics`` names local font profiles with
+``font_path`` and ``font_size``; their widths are typography measurements, not Google or
+Yandex truncation predictions. ``retained_scan`` can add bounded, offline content context
+for those exact URLs; ``query`` selects a visible-text excerpt and requires that scan.
+Existing output files are never replaced.
+
 ---
 
 ## Semantic-core tools
 
 ### `seo_semantics_status`
+
+**Category:** `semantic` · **Project-aware:** yes
 
 Read a semantic core's phrase counters, provider units used and the next stage, without migrating or writing its database. project is the semantic project directory, or a SEOHEAD project workspace whose semantics/ subdirectory holds the core.
 
@@ -3763,7 +4939,9 @@ Read a semantic core's phrase counters, provider units used and the next stage, 
 
 ### `seo_semantics_run`
 
-Run one free, offline semantic-core stage: init, import (file = CSV with a norm/phrase/query column), clean, graph, competitors, report, excel, sitematch, relevance or export. Phrases and evidence are retained; statuses change reversibly. No network access; paid stages are refused here (use seo_semantics_paid).
+**Category:** `semantic` · **Project-aware:** yes
+
+Run one free semantic-core stage or preview an import/export without writes. Import accepts CSV or XLSX, sheet selection, explicit field-to-column mapping and add/update/replace merge policy. Export and Excel accept all, cluster:<name> or no-landing scope. Phrases and evidence are retained; statuses change reversibly. No network access; paid stages are refused here (use seo_semantics_paid).
 
 | Argument | Type | Default |
 |---|---|---|
@@ -3771,10 +4949,17 @@ Run one free, offline semantic-core stage: init, import (file = CSV with a norm/
 | `project` | `str` | `required` |
 | `out` | `str | None` | `None` |
 | `file` | `str | None` | `None` |
+| `sheet` | `str | None` | `None` |
+| `mapping` | `dict[str, str] | None` | `None` |
+| `merge` | `str` | `'add'` |
+| `scope` | `str` | `'all'` |
+| `dry_run` | `bool` | `False` |
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
 
 ### `seo_semantics_mine`
+
+**Category:** `semantic` · **Project-aware:** yes
 
 Fetch the most frequent competitor pages from the core's cached SERP and append title/heading 2-3-grams to synonyms.txt as candidate phrases. Reads public pages; spends no provider quota. Run seo_semantics_paid stage=synonyms afterwards to check them.
 
@@ -3787,17 +4972,114 @@ Fetch the most frequent competitor pages from the core's cached SERP and append 
 
 ### `seo_semantics_paid`
 
-Run one paid semantic-core stage: collect (Wordstat expansion of seeds.txt), synonyms (Wordstat check of synonyms.txt), cluster (Yandex Search SERP, cached per phrase; method=louvain needs the semantics extra) or exact (Arsenkin !W, once, at the end). Paid: without confirm_paid=true nothing is sent. Every submission is reserved before the call, so an interrupted or ambiguous request is never paid for twice; charges land in the shared spend journal (seo_spend_report).
+**Category:** `semantic` · **Project-aware:** yes
+
+Preview or run one paid semantic-core stage: collect (Wordstat expansion of seeds.txt), synonyms (Wordstat check of synonyms.txt), cluster (Yandex Search SERP, cached per phrase; method=louvain needs the semantics extra) or exact (Arsenkin !W, once, at the end). The offline estimate is returned before confirmation; paid: without confirm_paid=true nothing is sent. Every submission is reserved before the call, so an interrupted or ambiguous request is never paid for twice; charges land in the shared spend journal (seo_spend_report).
 
 | Argument | Type | Default |
 |---|---|---|
 | `stage` | `str` | `required` |
 | `project` | `str` | `required` |
 | `confirm_paid` | `bool` | `False` |
+| `dry_run` | `bool` | `False` |
 | `resume` | `bool` | `False` |
 | `max_seeds` | `int` | `0` |
+| `max_phrases` | `int` | `100000` |
 | `limit` | `int` | `0` |
 | `method` | `str` | `'serp'` |
 | `yes` | `bool` | `False` |
 
 **Cost** — network: yes · writes files: yes · idempotent: no · spends money: yes, external provider quota
+
+### `seo_semantics_clusters`
+
+**Category:** `semantic` · **Project-aware:** yes
+
+Read paginated semantic clusters and nullable frequency aggregates.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `50` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `seo_semantics_cluster_show`
+
+**Category:** `semantic` · **Project-aware:** yes
+
+Read one semantic cluster, its phrases aggregate and stored landing candidates.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `cluster` | `str` | `required` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `seo_semantics_cluster_queries`
+
+**Category:** `semantic` · **Project-aware:** yes
+
+Read a bounded page of phrases belonging to one semantic cluster.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `cluster` | `str` | `required` |
+| `offset` | `int` | `0` |
+| `limit` | `int` | `50` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `seo_semantics_set_landing`
+
+**Category:** `semantic` · **Project-aware:** yes
+
+Set or clear a cluster landing URL and retain an audit record.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `cluster` | `str` | `required` |
+| `url` | `str` | `required` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+### `seo_semantics_insights`
+
+**Category:** `semantic` · **Project-aware:** yes
+
+Read weekly GSC, Metrika and Webmaster evidence by cluster and bound resource, and evaluate rules. Reads local provider history and project bindings only; never fetches providers. Missing values stay null with a reason.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `period` | `str` | `required` |
+| `sources` | `list[str] | None` | `None` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `seo_semantics_insights_tasks`
+
+**Category:** `semantic` · **Project-aware:** yes
+
+Preview or write only selected matched rule/cluster pairs as project checklist items.
+
+| Argument | Type | Default |
+|---|---|---|
+| `project` | `str` | `required` |
+| `period` | `str` | `required` |
+| `selections` | `list[dict[str, Any]]` | `required` |
+| `expected_revision` | `int` | `required` |
+| `confirm` | `bool` | `False` |
+| `dry_run` | `bool` | `False` |
+| `sources` | `list[str] | None` | `None` |
+
+**Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+The call never executes the task. A write requires confirm=true and the checklist
+expected_revision, preventing stale or duplicate task updates.

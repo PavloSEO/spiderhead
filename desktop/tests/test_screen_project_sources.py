@@ -13,7 +13,11 @@ from seohead_desktop import i18n
 from seohead_desktop.app import MainWindow, load_theme
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.project_sources import SERVICES, access_count, build_rows
-from seohead_desktop.screens.project_sources_page import ProjectSettingsDialog, ProjectSourcesPage
+from seohead_desktop.screens.project_sources_page import (
+    ProjectSettingsDialog,
+    ProjectSettingsPage,
+    ProjectSourcesPage,
+)
 from seohead_desktop.ui.brand_logos import LOGOS, BrandTile, logo_path
 from seohead_desktop.ui.kit import StatePanel
 from tests._qt import sweep_widgets
@@ -236,6 +240,42 @@ class DialogTests(unittest.TestCase):
         self.assertEqual(dialog.windowTitle(), ui("Настройки проекта"))
         self.assertIsInstance(dialog.page, ProjectSourcesPage)
         dialog.close()
+
+    def test_core_web_vitals_moves_to_overflow_at_narrow_width_and_keeps_selection(self):
+        page = ProjectSettingsPage(Host())
+        page.resize(800, 700)
+        page.show()
+        self.app.processEvents()
+        self.assertTrue(page.nav.isTabVisible(4))
+        self.assertFalse(page.nav.isTabVisible(5))
+        page.nav.setCurrentIndex(3)
+        page.nav.setCurrentIndex(4)
+        self.app.processEvents()
+        self.assertTrue(page.overflow_menu.isVisible())
+        page.overflow_menu.hide()
+        self.app.processEvents()
+        self.assertEqual(page.nav.currentIndex(), 3)
+        self.assertEqual(page.pages.currentIndex(), 3)
+
+        page.nav.setCurrentIndex(4)
+        self.app.processEvents()
+        page.vitals_action.trigger()
+        self.app.processEvents()
+        self.assertIs(page.pages.currentWidget(), page.vitals_page)
+        self.assertEqual(page.nav.currentIndex(), 4)
+
+        page.resize(1200, 800)
+        self.app.processEvents()
+        self.assertTrue(page.nav.isTabVisible(5))
+        self.assertEqual(page.nav.currentIndex(), 5)
+        self.assertIs(page.pages.currentWidget(), page.vitals_page)
+        page.resize(800, 700)
+        self.app.processEvents()
+        self.assertFalse(page.nav.isTabVisible(5))
+        self.assertEqual(page.nav.currentIndex(), 4)
+        self.assertIs(page.pages.currentWidget(), page.vitals_page)
+        page.close()
+        page.deleteLater()
 
     def test_project_picker_menu_has_the_settings_entry_enabled_only_with_a_project(self):
         seen = []

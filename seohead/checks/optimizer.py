@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import os
 import re
 import shutil
@@ -261,6 +262,10 @@ def _encode_raster(
             save_kwargs = _pil_save_kwargs(pillow_format, quality)
             if settings.get("preserve_icc", True) and icc_profile:
                 save_kwargs["icc_profile"] = icc_profile
+            if not settings.get("strip_exif", False):
+                exif = image.getexif()
+                if exif:
+                    save_kwargs["exif"] = exif.tobytes()
             image.save(destination, format=pillow_format, **save_kwargs)
 
     with Image.open(destination) as verification:
@@ -290,6 +295,81 @@ def _encode_svg(source: str, destination: str, settings: dict[str, Any]) -> str:
     with open(destination, "w", encoding="utf-8") as stream:
         stream.write(output)
     return "svg"
+
+
+def _ssim_score(source: str, candidate: str) -> float:
+    """Compute bounded-memory RGB SSIM over aligned 1024px thumbnails."""
+    import numpy as np
+    from PIL import Image, ImageOps
+
+    with Image.open(source) as original, Image.open(candidate) as optimized:
+        source_image = ImageOps.exif_transpose(original).convert("RGB")
+        candidate_image = ImageOps.exif_transpose(optimized).convert("RGB")
+        if source_image.size != candidate_image.size:
+            candidate_image = candidate_image.resize(source_image.size, Image.Resampling.LANCZOS)
+        source_image.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
+        candidate_image.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
+        left = np.asarray(source_image, dtype=np.float32)
+        right = np.asarray(candidate_image, dtype=np.float32)
+
+    window = min(11, min(source_image.size))
+    if window > 1 and window % 2 == 0:
+        window -= 1
+
+    def moments(values):
+        integral = (
+            np.pad(values, ((1, 0), (1, 0), (0, 0)))
+            .cumsum(0, dtype=np.float64)
+            .cumsum(1, dtype=np.float64)
+        )
+        return (
+            integral[window:, window:]
+            - integral[:-window, window:]
+            - integral[window:, :-window]
+            + integral[:-window, :-window]
+        ) / (window * window)
+
+    mean_left, mean_right = moments(left), moments(right)
+    var_left = np.maximum(moments(left * left) - mean_left * mean_left, 0)
+    var_right = np.maximum(moments(right * right) - mean_right * mean_right, 0)
+    covariance = moments(left * right) - mean_left * mean_right
+    c1, c2 = (0.01 * 255) ** 2, (0.03 * 255) ** 2
+    score = ((2 * mean_left * mean_right + c1) * (2 * covariance + c2)) / (
+        (mean_left * mean_left + mean_right * mean_right + c1) * (var_left + var_right + c2)
+    )
+    return float(score.mean())
+
+
+def _encode_raster_auto(
+    source: str, destination: str, target_format: str, settings: dict[str, Any]
+) -> tuple[str, int, float, bool]:
+    """Select a bounded-search quality and report whether thumbnail SSIM meets target."""
+    pillow_format = _FORMAT_TO_PIL[target_format][0]
+    if pillow_format not in {"JPEG", "WEBP", "AVIF"}:
+        raise ValueError("quality=auto requires a lossy JPEG, WebP, or AVIF output format")
+    threshold = settings.get("ssim_threshold", 0.98)
+    if (
+        isinstance(threshold, bool)
+        or not isinstance(threshold, int | float)
+        or not math.isfinite(threshold)
+        or not 0 < threshold <= 1
+    ):
+        raise ValueError("ssim_threshold must be a finite number in (0, 1]")
+
+    low, high, best = 10, 100, None
+    while low <= high:
+        quality = (low + high) // 2
+        _encode_raster(source, destination, target_format, {**settings, "quality": quality})
+        score = _ssim_score(source, destination)
+        if score >= threshold:
+            best = (quality, score)
+            high = quality - 1
+        else:
+            low = quality + 1
+    quality = best[0] if best else 100
+    _encode_raster(source, destination, target_format, {**settings, "quality": quality})
+    score = _ssim_score(source, destination)
+    return pillow_format.lower(), quality, score, score >= threshold
 
 
 def _result(source: str) -> dict[str, Any]:
@@ -363,9 +443,21 @@ def _optimize_one(
     os.close(descriptor)
 
     backup_path: str | None = None
+    quality_report = None
     try:
         if target_format == "svg":
             encoded_format = _encode_svg(source, temporary, settings)
+        elif str(settings.get("quality", "")).lower() == "auto":
+            encoded_format, chosen_quality, ssim, threshold_met = _encode_raster_auto(
+                source, temporary, target_format, settings
+            )
+            quality_report = {
+                "mode": "auto-ssim",
+                "quality": chosen_quality,
+                "ssim": ssim,
+                "threshold": settings.get("ssim_threshold", 0.98),
+                "threshold_met": threshold_met,
+            }
         else:
             encoded_format = _encode_raster(source, temporary, target_format, settings)
         if same_file and settings.get("backup", True):
@@ -386,6 +478,8 @@ def _optimize_one(
                 "ok": True,
             }
         )
+        if quality_report is not None:
+            result["quality_selection"] = quality_report
     except Exception as exc:  # Per-file errors do not abort the batch.
         result["error"] = str(exc)
     finally:

@@ -42,6 +42,33 @@ def provider_verify(provider: str, request: dict[str, Any] | None = None) -> dic
     return _verify(provider, request)
 
 
+def provider_credential(
+    provider: str,
+    component: str,
+    action: str = "status",
+    confirm: bool = False,
+    value: str | None = None,
+    replace: bool = False,
+) -> dict[str, Any]:
+    """Inspect or explicitly revoke a registry-owned credential without reading its value."""
+    from seohead.data_sources.providers import manage_credential
+
+    if action == "set" and value is None:
+        raise ValueError("credential writes require the local CLI stdin channel")
+    if action != "set" and (value is not None or replace):
+        raise ValueError("value and replace are valid only for local credential writes")
+    return manage_credential(
+        provider, component, action, value=value, replace=replace, confirm=confirm
+    )
+
+
+def provider_discover(provider: str, domain: str | None = None) -> dict[str, Any]:
+    """Discover account-visible resources without selecting or binding them."""
+    from seohead.data_sources.providers import provider_discover as core
+
+    return core(provider, domain=domain)
+
+
 def provider_collect(
     provider: str,
     operation: str,

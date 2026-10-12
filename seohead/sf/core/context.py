@@ -360,20 +360,19 @@ class _DiskIssues:
         stable-ID key and retain only one duplicate group at a time.
         """
         current: Issue | None = None
-        current_key: tuple[str, str | None] | None = None
+        current_key: tuple[Any, ...] | None = None
         for row in self.con.execute(
-            "SELECT value_json FROM issues ORDER BY severity_rank, check_id, target_sort, ordinal"
+            "SELECT value_json FROM issues ORDER BY severity_rank, check_id, target_sort,"
+            "CASE WHEN check_id GLOB 'IMG_*' AND json_type(value_json,'$.details.source_page')='text' "
+            "THEN json_extract(value_json,'$.details.source_page') ELSE '' END,"
+            "CASE WHEN check_id GLOB 'IMG_*' AND json_type(value_json,'$.details.source_page')='text' "
+            "AND json_type(value_json,'$.details.target_scope')='text' "
+            "THEN COALESCE(json_extract(value_json,'$.details.target_scope'),'') ELSE '' END,ordinal"
         ):
             issue = Issue(**json.loads(row[0]))
-            key = (issue.check, issue.target_url)
+            key = issue.dedupe_key
             if current is not None and issue.target_url is not None and key == current_key:
-                current.locations.extend(issue.locations)
-                unique_sources = {
-                    loc.get("source_url") for loc in current.locations if loc.get("source_url")
-                }
-                current.occurrences_count = max(
-                    len(unique_sources), current.occurrences_count, issue.occurrences_count
-                )
+                current.merge(issue)
                 continue
             if current is not None:
                 yield current

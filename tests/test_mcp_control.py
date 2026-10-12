@@ -39,7 +39,7 @@ def test_state_roundtrip_and_audit():
     state = control.read_state()
     assert state["by"] == "SEOHEAD Desktop" and state["changed_at"]
     assert len(state["history"]) == 2
-    assert control.status()["tools"] == 3
+    assert control.status()["tools"] == 4
 
 
 def test_disabled_startup_without_sdk(capsys):
@@ -71,6 +71,7 @@ def test_live_server_revoked_before_handler(monkeypatch):
         "seo_inspect_url",
         "seo_audit_workflow",
         "seo_tool_catalog",
+        "seo_doctor",
     }
     with pytest.raises(ToolError, match="profile"):
         asyncio.run(server.call_tool("seo_parse", {"url": "https://example.test"}))

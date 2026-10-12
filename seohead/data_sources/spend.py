@@ -53,7 +53,7 @@ def record(
     source: str,
     operation: str,
     *,
-    cost: float = 0.0,
+    cost: float | None = 0.0,
     unit: str = "limits",
     task_id: Any | None = None,
     items: int = 0,
@@ -69,7 +69,7 @@ def record(
         "at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "source": source,
         "operation": operation,
-        "cost": cost,
+        "cost": None if cost is None else cost,
         "unit": unit,
         "items": items,
     }
@@ -98,7 +98,12 @@ def read_all() -> list[dict]:
         if not line:
             continue
         try:
-            rows.append(json.loads(line))
+            row = json.loads(line)
+            # Earlier writers encoded an unmeasured cost as zero plus an uncertainty flag.
+            # Normalize that shape only while reading; the append-only journal is untouched.
+            if isinstance(row, dict) and _is_uncertain(row) and row.get("cost") == 0:
+                row["cost"] = None
+            rows.append(row)
         except ValueError:
             continue  # Preserve usable history even when one JSONL line is malformed.
     return rows
@@ -111,7 +116,7 @@ def _is_uncertain(row: dict) -> bool:
     request reached the provider without proving what it cost. Such a row must never be folded
     into ``by_source``/``by_operation``/``by_day`` alongside confirmed zero-cost calls — that
     would silently relabel "unmeasured" as "measured and free". Callers set either flag on
-    ``extra`` for this: ``cost_unknown`` (used here for DataForSEO) or ``charge_uncertain`` (used
+    ``extra`` for this: ``cost_unknown`` or ``charge_uncertain`` (used
     by Yandex Cloud) both mean the same thing.
     """
     extra = row.get("extra") or {}
@@ -178,7 +183,7 @@ def iter_rows(since: str | None = None) -> Iterator[dict]:
             "at": row.get("at", ""),
             "source": row.get("source", ""),
             "operation": row.get("operation", ""),
-            "cost": row.get("cost", 0),
+            "cost": row.get("cost"),
             "unit": row.get("unit", "limits"),
             "items": row.get("items", 0),
             "task_id": "" if row.get("task_id") is None else row["task_id"],

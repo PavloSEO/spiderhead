@@ -416,6 +416,9 @@ def requeue_scan(
             backup_sha256=backup_sha256,
             source_scan_uuid=source_scan_uuid,
         )
+        from .url_query_projection import invalidate as invalidate_url_query_projection
+
+        invalidate_url_query_projection(con)
         from .resource_graph import invalidate_pages as invalidate_resource_graph_pages
 
         invalidate_resource_graph_pages(con, [row["url_id"] for row in rows])

@@ -412,9 +412,25 @@ def _truth(path):
 
 def test_facets_match_independent_counts(scan_path):
     got = _q(scan_path, facets="all")
-    assert got["ok"] is True and got["facets_state"] == "exact"
-    assert got["facets"] == _truth(scan_path)
+    assert got["ok"] is True and got["facets_state"] == "partial"
+    truth = _truth(scan_path)
+    assert {name: got["facets"][name] for name in truth} == truth
+    assert all(got["facet_states"][name] == "exact" for name in truth)
     assert got["facets"]["all"] == got["total"]
+    unavailable = {
+        "in_sitemap",
+        "with_inlinks",
+        "with_resources",
+        "with_images",
+        "with_scripts",
+        "with_stylesheets",
+    }
+    assert all(got["facet_states"][name] == "unavailable" for name in unavailable)
+    assert all(got["facets"][name] is None for name in unavailable)
+    assert all(
+        count is None or got["facet_states"][name] == "exact"
+        for name, count in got["facets"].items()
+    )
     listed = _q(scan_path, facets=["status_4xx", "title_missing"])
     assert listed["facets"] == {
         "status_4xx": got["facets"]["status_4xx"],
@@ -463,6 +479,13 @@ def test_capped_facets_are_null_and_state_named(scan_path, monkeypatch):
     assert got["facets_state"] == "capped"
 
 
+def test_origin_and_title_facets_are_exact(scan_path):
+    got = _q(scan_path, facets=["internal", "external", "title_duplicate"])
+    assert got["ok"] is True
+    assert got["facets"] == {"internal": 60, "external": 0, "title_duplicate": 0}
+    assert got["facets_state"] == "exact"
+
+
 def test_cli_and_mcp_pass_facets(scan_path, capsys):
     code = cli.main(
         ["scan-url-query", "--scan", str(scan_path), "--facets", "status_4xx,title_missing"]
@@ -474,6 +497,31 @@ def test_cli_and_mcp_pass_facets(scan_path, capsys):
     assert code == 0 and set(out["facets"]) == set(url_query.FACET_GROUPS)
     tool = build_server()._tool_manager.get_tool("seo_scan_url_query")
     assert "facets" in tool.parameters["properties"]
+
+
+def test_check_counts_are_opt_in_and_missing_audit_stays_unavailable(scan_path, capsys):
+    plain = _q(scan_path)
+    assert "issue_summary" not in plain
+    got = _q(scan_path, include_check_counts=True)
+    assert got["ok"] is True
+    assert got["issue_summary"]["state"] == "unavailable"
+    assert got["issue_summary"]["issues_total"] is None
+    code = cli.main(["scan-url-query", "--scan", str(scan_path), "--include-check-counts"])
+    result = json.loads(capsys.readouterr().out)
+    assert code == 0 and result["issue_summary"]["state"] == "unavailable"
+    tool = build_server()._tool_manager.get_tool("seo_scan_url_query")
+    assert "include_check_counts" in tool.parameters["properties"]
+
+
+def test_frozen_scan_v1_exposes_unavailable_transport_phases_without_migration(scan_path):
+    before = hashlib.sha256(scan_path.read_bytes()).hexdigest()
+    got = _q(scan_path, columns=["url", "dns_seconds", "dns_state", "download_reason"])
+
+    assert got["ok"] is True
+    assert got["rows"][0]["dns_seconds"] is None
+    assert got["rows"][0]["dns_state"] == "unavailable"
+    assert got["rows"][0]["download_reason"] == "transport phase was not retained in this scan"
+    assert hashlib.sha256(scan_path.read_bytes()).hexdigest() == before
 
 
 @pytest.mark.parametrize(

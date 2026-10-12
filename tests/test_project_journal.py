@@ -76,6 +76,27 @@ def test_crawl_finish_is_journaled(project):
     assert _log_bullets(project)[-1].endswith(f"scans/agent · {text}")
 
 
+def test_run_start_and_first_measured_progress_are_journaled(project):
+    run = run_observation.start(
+        str(project),
+        kind="native",
+        mode="spider",
+        max_urls=100,
+        config_fingerprint="synthetic",
+        artifact=project / "scans" / "live.sqlite",
+    )
+
+    run_observation.progress(str(project), run["id"], fetched=2, queued=3, inflight=1, excluded=0)
+    run_observation.progress(str(project), run["id"], fetched=3, queued=2, inflight=1, excluded=0)
+
+    rows = _events(project)
+    assert [row["text"] for row in rows] == [
+        f"run {run['id']} started (native/spider)",
+        f"run {run['id']} progress: fetched=2, queued=3, inflight=1",
+    ]
+    assert len(_log_bullets(project)) == 2
+
+
 def test_checklist_attempt_is_journaled(project):
     item_id = next(iter(load_catalogue()))
     record_execution(

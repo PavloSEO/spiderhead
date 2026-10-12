@@ -22,11 +22,23 @@ import httpx
 from seohead.checks.parser import _rel_has, robots_directives, uses_ajax_crawling_scheme
 from seohead.core.canonical_policy import matching_canonical_rule
 
-from .asset_checks import check_lighthouse_reports, check_render_assets, check_resource_assets
+from .asset_checks import (
+    _ACTIVE_DOCUMENT_WHERE,
+    _HTML_WHERE,
+    _RAW_DOCUMENT_JOIN,
+    _measurement,
+    check_lighthouse_reports,
+    check_render_assets,
+    check_resource_assets,
+)
 from .context import AuditContext
 from .markup_rules import check_document_markup
+from .mobile_checks import CHECKS as MOBILE_RENDER_CHECKS
+from .mobile_checks import check_mobile_render_layout
 from .models import Page
 from .normalize import norm_url
+from .render_checks import CHECKS as RENDER_ELEMENT_CHECKS
+from .render_checks import check_rendered_elements
 
 NON_ASCII = re.compile(r"[^\x00-\x7F]")
 
@@ -3369,15 +3381,21 @@ def check_native_page_evidence(ctx: AuditContext) -> None:
             count = rec.get("plugin_elements") or 0
             if count > 0:
                 ctx.add("UNSUPPORTED_PLUGIN", target_url=page.url, details={"count": count})
-        if has_images:
+        if has_images and ctx.scan_con is None:
             missing_alt_attr = rec.get("images_missing_alt_attr") or 0
             if missing_alt_attr > 0:
                 ctx.add(
                     "IMG_MISSING_ALT_ATTRIBUTE",
                     target_url=page.url,
+                    status_code=page.status_code,
+                    source="native-page-image-count",
                     details={
                         "images_missing_alt_attribute": missing_alt_attr,
                         "images_total": rec.get("images_total"),
+                        "source_page": page.url,
+                        "target_scope": "page_aggregate",
+                        "status_scope": "source_page",
+                        "reason": "the recorded page contains image elements without an alt attribute",
                     },
                 )
             max_alt_length = rec.get("images_max_alt_length") or 0
@@ -3385,13 +3403,22 @@ def check_native_page_evidence(ctx: AuditContext) -> None:
                 ctx.add(
                     "IMG_ALT_TOO_LONG",
                     target_url=page.url,
-                    details={"max_alt_length": max_alt_length, "max_chars": alt_max_chars},
+                    status_code=page.status_code,
+                    source="native-page-image-count",
+                    details={
+                        "max_alt_length": max_alt_length,
+                        "max_chars": alt_max_chars,
+                        "source_page": page.url,
+                        "target_scope": "page_aggregate",
+                        "status_scope": "source_page",
+                        "reason": "the recorded page contains image alt text above the configured length",
+                    },
                 )
     if not has_lorem:
         ctx.skip("LOREM_IPSUM_PLACEHOLDER", "no Lorem Ipsum evidence (native crawl only)")
     if not has_plugin:
         ctx.skip("UNSUPPORTED_PLUGIN", "no plugin-element evidence (native crawl only)")
-    if not has_images:
+    if not has_images and ctx.scan_con is None:
         ctx.skip("IMG_MISSING_ALT_ATTRIBUTE", "no per-image evidence (native crawl only)")
         ctx.skip("IMG_ALT_TOO_LONG", "no per-image evidence (native crawl only)")
 
@@ -3472,6 +3499,17 @@ def check_og(ctx: AuditContext) -> None:
         ctx.add("OG_MISSING", target_url=page.url, details={"missing_tags": missing})
 
 
+def _image_graph_scope(tables: set[str]) -> tuple[str, str]:
+    """Restrict a full native graph to eligible pages and active declarations."""
+    if {"pages", "documents", "context_items"} <= tables:
+        return (
+            " JOIN pages p ON p.url_id=o.page_url_id "
+            "JOIN documents d ON d.document_id=o.source_document_id " + _RAW_DOCUMENT_JOIN,
+            " AND " + _HTML_WHERE + " AND " + _ACTIVE_DOCUMENT_WHERE,
+        )
+    return "", ""  # Existing small standalone graph projections have no page table.
+
+
 def check_native_image_resources(ctx: AuditContext) -> None:
     """IMG_BROKEN: an <img> whose fetched target answered 4xx/5xx.
 
@@ -3496,17 +3534,31 @@ def check_native_image_resources(ctx: AuditContext) -> None:
     if measured is None:
         ctx.skip("IMG_BROKEN", no_evidence)
         return
+    joins, where = _image_graph_scope(tables)
     rows = con.execute(
-        "SELECT p.url, o.resolved_url, f.status_code FROM resource_graph_occurrences o "
+        "SELECT DISTINCT u.url, o.resolved_url, f.status_code FROM resource_graph_occurrences o "
         "JOIN resource_graph_fetches f ON f.resolved_url=o.resolved_url "
-        "JOIN urls p ON p.url_id=o.page_url_id "
-        "WHERE o.kind='image' AND f.status_code>=400 ORDER BY p.url, o.resolved_url"
+        "JOIN urls u ON u.url_id=o.page_url_id "
+        + joins
+        + "WHERE o.kind='image' AND f.status_code>=400 "
+        + where
+        + " ORDER BY u.url, o.resolved_url"
     )
     for page_url, image_url, status in rows:
         ctx.add(
             "IMG_BROKEN",
             target_url=image_url,
-            details={"source_page": page_url, "status_code": status, "reason": f"HTTP {status}"},
+            status_code=status,
+            source="native-resource-graph",
+            details={
+                "source_page": page_url,
+                "resource_url": image_url,
+                "target_scope": "image_source_page",
+                "status_code": status,
+                "status_scope": "resource",
+                "reason": f"HTTP {status}",
+            },
+            locations=[{"source_url": page_url}],
         )
 
 
@@ -3534,55 +3586,291 @@ def check_native_image_size(ctx: AuditContext) -> None:
         ctx.skip("IMG_OVER_KB", "not measured by this native crawl: no image body was fetched")
         return
     limit_kb = ctx.thresholds.get("img_max_kb", 150)
+    joins, where = _image_graph_scope(tables)
     rows = con.execute(
-        "SELECT o.resolved_url, MIN(p.url), COUNT(DISTINCT o.page_url_id), f.bytes_received "
+        "SELECT DISTINCT o.resolved_url,u.url,f.bytes_received,"
+        "f.status_code,f.state "
         "FROM resource_graph_occurrences o "
         "JOIN resource_graph_fetches f ON f.resolved_url=o.resolved_url "
-        "JOIN urls p ON p.url_id=o.page_url_id "
-        "WHERE o.kind='image' AND f.state IN ('complete','partial') "
-        "AND f.bytes_received > ? GROUP BY o.resolved_url ORDER BY o.resolved_url",
+        "JOIN urls u ON u.url_id=o.page_url_id "
+        + joins
+        + "WHERE o.kind='image' AND f.state IN ('complete','partial') "
+        "AND f.bytes_received > ? " + where + " ORDER BY o.resolved_url,u.url",
         (int(limit_kb * 1024),),
     )
-    for image_url, source_page, pages, size in rows:
+    for image_url, source_page, size, status, state in rows:
         ctx.add(
             "IMG_OVER_KB",
             target_url=image_url,
+            status_code=status,
+            source="native-resource-graph",
             details={
                 "bytes": size,
                 "limit_kb": limit_kb,
                 "source_page": source_page,
-                "pages": pages,
+                "pages": 1,
+                "resource_url": image_url,
+                "target_scope": "image_source_page",
+                "status_code": status,
+                "status_scope": "resource",
+                "size_state": "complete" if state == "complete" else "lower_bound",
+                "reason": "captured image response bytes exceed the configured image threshold",
+            },
+            locations=[{"source_url": source_page}],
+        )
+
+
+def _retained_image_count_fallback(ctx, document, *, sampled_missing=0, sampled_long=False):
+    """Keep known page-count positives when their element locations are unavailable."""
+    details = {
+        "source_page": document["url"],
+        "source_status_code": document["status_code"],
+        "resource_url": None,
+        "resource_status_code": None,
+        "resource_evidence_state": "unavailable",
+        "target_scope": "page_aggregate",
+        "status_scope": "source_page",
+    }
+    missing = document.get("images_missing_alt_attr")
+    if type(missing) is int and missing > sampled_missing:
+        remaining = missing - sampled_missing
+        ctx.add(
+            "IMG_MISSING_ALT_ATTRIBUTE",
+            target_url=document["url"],
+            status_code=document["status_code"],
+            source="native-page-image-count",
+            occurrences_count=remaining,
+            details={
+                **details,
+                "images_missing_alt_attribute": remaining,
+                "images_total": document.get("images_total"),
+                "reason": "stored page count records missing alt attributes; per-image locations were not fully retained or analyzed",
+            },
+        )
+    maximum = document.get("images_max_alt_length")
+    limit = ctx.thresholds.get("alt_max_chars", 100)
+    if type(maximum) is int and maximum > limit and not sampled_long:
+        ctx.add(
+            "IMG_ALT_TOO_LONG",
+            target_url=document["url"],
+            status_code=document["status_code"],
+            source="native-page-image-count",
+            details={
+                **details,
+                "max_alt_length": maximum,
+                "max_chars": limit,
+                "reason": "stored page maximum records overlong alt text; its image location was not fully retained or analyzed",
             },
         )
 
 
-def check_native_export_aggregates(ctx: AuditContext) -> None:
-    """IMG_MISSING_ALT, IMG_MISSING_DIMENSIONS and HREFLANG_ERROR on a native crawl.
+def _measure_retained_image_declarations(ctx: AuditContext) -> None:
+    """Measure bounded active image markup without a fetch or schema extension."""
+    from bs4 import BeautifulSoup
 
-    None of the three is an export-only fact here, and none is measured as the
-    export defines it, so each says so in native terms rather than pointing at an SF
-    filter. Alt text is stored as a per-page count of missing alt attributes
-    (IMG_MISSING_ALT_ATTRIBUTE), not per image with empty values. Image pixel size is
-    stored, but not whether each <img> declares width and height. HREFLANG_ERROR is an
-    umbrella over the per-kind hreflang checks, which the native crawl runs itself.
+    from seohead.checks.parser import document_base_url, extract_images
+    from seohead.storage import ScanError
+    from seohead.storage.bodies import read_document
+    from seohead.storage.fragment_links import _document_final_url
+
+    codes = (
+        "IMG_MISSING_ALT_ATTRIBUTE",
+        "IMG_MISSING_ALT",
+        "IMG_MISSING_DIMENSIONS",
+        "IMG_ALT_TOO_LONG",
+    )
+    con = ctx.scan_con
+    tables = (
+        {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        if con is not None
+        else set()
+    )
+    eligible = measured = partial = 0
+    available = {"pages", "urls", "documents", "responses", "bodies"} <= tables
+    if available:
+        rows = con.execute(
+            "SELECT u.url,p.status_code,p.images_total,p.images_missing_alt_attr,p.images_max_alt_length,d.* "
+            "FROM pages p JOIN urls u ON u.url_id=p.url_id "
+            "LEFT JOIN documents d ON d.document_id=p.document_id WHERE "
+            + _HTML_WHERE
+            + " ORDER BY p.page_ordinal"
+        )
+        for row in rows:
+            eligible += 1
+            document = dict(row)
+            if document["document_id"] is None or document["body_state"] != "complete":
+                _retained_image_count_fallback(ctx, document)
+                continue
+            try:
+                html = read_document(
+                    con, document["document_id"], max_decoded_bytes=2 * 1024 * 1024
+                )
+                soup = BeautifulSoup(html, "lxml")
+                base = document_base_url(soup, _document_final_url(con, document, document["url"]))
+                images = extract_images(soup, base_url=base, max_images=2000)
+            except (ScanError, ValueError):
+                _retained_image_count_fallback(ctx, document)
+                continue
+            measured += 1
+            partial += len(images) > 2000
+            for image in images[:2000]:
+                resource = image["resource_url"]
+                fetched = (
+                    con.execute(
+                        "SELECT status_code FROM resource_graph_fetches WHERE resolved_url=?",
+                        (resource,),
+                    ).fetchone()
+                    if resource and "resource_graph_fetches" in tables
+                    else None
+                )
+                resource_status = fetched[0] if fetched else None
+                status = resource_status if resource else document["status_code"]
+                details = {
+                    "source_page": document["url"],
+                    "source_status_code": document["status_code"],
+                    "resource_url": resource,
+                    "resource_status_code": resource_status,
+                    "resource_evidence_state": "measured"
+                    if resource_status is not None
+                    else "unavailable",
+                    "status_code": status,
+                    "status_scope": "resource" if resource else "source_document",
+                    "target_scope": "image_element",
+                    "document_id": document["document_id"],
+                    "representation": document["representation"],
+                    "image_ordinal": image["ordinal"],
+                }
+                findings = []
+                if image["missing_alt_attribute"]:
+                    findings.append((codes[0], "image element has no alt attribute", {}))
+                if image["missing_alt_text"]:
+                    findings.append(
+                        (
+                            codes[1],
+                            "image alt is whitespace-only or an informative/unnamed interactive image has empty alt text",
+                            {},
+                        )
+                    )
+                if image["missing_dimensions"]:
+                    findings.append(
+                        (
+                            codes[2],
+                            "visible image does not declare positive width and height attributes",
+                            {"missing_attributes": image["missing_dimensions"]},
+                        )
+                    )
+                limit = ctx.thresholds.get("alt_max_chars", 100)
+                if image["alt_length"] > limit:
+                    findings.append(
+                        (
+                            codes[3],
+                            "image alt text exceeds the configured character threshold",
+                            {"max_alt_length": image["alt_length"], "max_chars": limit},
+                        )
+                    )
+                for code, reason, facts in findings:
+                    ctx.add(
+                        code,
+                        target_url=resource or document["url"],
+                        status_code=status,
+                        source="native-retained-image-markup",
+                        details={**details, **facts, "reason": reason},
+                        locations=[
+                            {"source_url": document["url"], "link_path": f"img[{image['ordinal']}]"}
+                        ],
+                    )
+            if len(images) > 2000:
+                _retained_image_count_fallback(
+                    ctx,
+                    document,
+                    sampled_missing=sum(item["missing_alt_attribute"] for item in images[:2000]),
+                    sampled_long=any(
+                        item["alt_length"] > ctx.thresholds.get("alt_max_chars", 100)
+                        for item in images[:2000]
+                    ),
+                )
+    reason = "not fully measured by this native crawl: active HTML/DOM is absent, incomplete, exceeds 2 MiB, or more than 2000 visible images were declared"
+    for code in codes:
+        _measurement(ctx, code, "pages", eligible if available else None, measured, partial, reason)
+
+
+def check_native_export_aggregates(ctx: AuditContext) -> None:
+    """Native image declarations and the unmeasured aggregate HREFLANG_ERROR.
+
+    Reuse retained markup for image attributes. HREFLANG_ERROR remains an
+    umbrella over the measured per-kind native hreflang checks.
     """
     if ctx.scan_con is None:
         return
-    ctx.skip(
-        "IMG_MISSING_ALT",
-        "not measured by this native crawl: alt text is recorded as a per-page count of "
-        "missing alt attributes (IMG_MISSING_ALT_ATTRIBUTE); empty alt values are not stored per image",
-    )
-    ctx.skip(
-        "IMG_MISSING_DIMENSIONS",
-        "not measured by this native crawl: the stored scan keeps each image's pixel size, "
-        "not whether the <img> tag declares width and height",
-    )
+    _measure_retained_image_declarations(ctx)
     ctx.skip(
         "HREFLANG_ERROR",
         "not measured by this native crawl as one aggregate; the native hreflang checks "
         "report each error kind on its own",
     )
+
+
+def check_body_mime(ctx: AuditContext) -> None:
+    """Judge declared Content-Type against the selected native response body.
+
+    Export-only inputs have no retained per-URL bodies, so they get an explicit
+    unavailable verdict. Native scans use the same retained-body evaluator for
+    crawl, reanalysis and direct rule-runner callers.
+    """
+    from seohead.checks import body_mime
+
+    if ctx.scan_con is None:
+        ctx.skip(
+            body_mime.CHECK_ID,
+            "export-only analysis retains no per-URL response bodies; a native retained scan is required",
+        )
+        return
+
+    body_evidence = body_mime.evaluate(
+        ctx.scan_con,
+        on_finding=lambda item: ctx.add(
+            body_mime.CHECK_ID, target_url=item["target_url"], details=item
+        ),
+    )
+    eligible = body_evidence["pages_eligible"]
+    measured = body_evidence["pages_measured"]
+    unavailable = body_evidence["pages_unavailable"]
+    measurement_reason = (
+        "no eligible page response with a supported Content-Type"
+        if not eligible
+        else "some supported response bodies were unavailable or ambiguous"
+        if unavailable
+        else ""
+    )
+    ctx.asset_measurements[body_mime.CHECK_ID] = {
+        "unit": "pages",
+        "eligible": eligible,
+        "measured": measured,
+        "partial": 0,
+        "unavailable": unavailable,
+        "state": (
+            "unavailable"
+            if not eligible or not measured
+            else "partial"
+            if unavailable
+            else "measured"
+        ),
+        "reason": measurement_reason,
+        "unavailable_reasons": body_evidence["unavailable_reasons"],
+        "body_retention_states": body_evidence["body_retention_states"],
+    }
+    if not body_evidence["findings_count"]:
+        if unavailable:
+            reason_counts = ", ".join(
+                f"{name}={count}"
+                for name, count in sorted(body_evidence["unavailable_reasons"].items())
+            )
+            ctx.skip(body_mime.CHECK_ID, f"page body evidence was incomplete: {reason_counts}")
+        elif not measured:
+            ctx.skip(
+                body_mime.CHECK_ID,
+                "no page response had a supported Content-Type and recognizable body signature",
+            )
 
 
 _NATIVE_NO_RESOURCES = "no resource evidence (native crawl with resource capture only)"
@@ -3591,6 +3879,7 @@ _NATIVE_NO_RESOURCES = "no resource evidence (native crawl with resource capture
 # or say honestly that the crawl could not measure them. Absence of an SF export says nothing
 # about them, so neither skip_unsupported nor the export fallback declares them missing.
 NATIVE_RESOLVED_CHECKS = (
+    "BODY_MIME_MISMATCH",
     "IMG_OVER_KB",
     "IMG_MISSING_ALT",
     "IMG_MISSING_DIMENSIONS",
@@ -3774,6 +4063,8 @@ def native_check_ids(ctx: AuditContext) -> frozenset[str]:
     if con is None:
         return frozenset(ids)
     ids.update(NATIVE_RESOLVED_CHECKS)
+    ids.update(MOBILE_RENDER_CHECKS)
+    ids.update(RENDER_ELEMENT_CHECKS)
     from seohead.storage.retained_link_findings import CHECK_IDS
 
     ids.update(CHECK_IDS)
@@ -3862,6 +4153,7 @@ ALL_CHECKS = [
     check_render_assets,
     check_resource_assets,
     check_document_markup,
+    check_body_mime,
     check_native_structured_and_mixed,
     check_response_codes,
     check_render_blocking,
@@ -3898,6 +4190,8 @@ ALL_CHECKS = [
     check_native_page_evidence,
     check_native_image_resources,
     check_native_image_size,
+    check_mobile_render_layout,
+    check_rendered_elements,
     check_native_export_aggregates,
     check_ajax_crawling_scheme,
     check_charset,
@@ -3920,6 +4214,7 @@ def run_rules(ctx: AuditContext) -> None:
     """Run every Internal:All-derived check against the context."""
     if ctx.internal_df is None:
         ctx.skip("INTERNAL_ALL", "Internal:All export not loaded")
+        check_body_mime(ctx)
         return
     _declare_unparsed_body_skips(ctx)
     if ctx.scan_con is None:

@@ -29,7 +29,8 @@ or it no longer does.
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+import threading
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
@@ -508,6 +509,9 @@ def compare(
     correspondence: Any = None,
     out_dir: str | Path | None = None,
     compression: str = "none",
+    resume: bool = False,
+    progress: Callable[[Any], None] | None = None,
+    cancel_event: threading.Event | None = None,
 ) -> dict[str, Any]:
     """Diff two audit.json documents into the four sets, per check.
 
@@ -522,6 +526,8 @@ def compare(
     """
     if compression not in {"none", "gzip"}:
         raise CompareError("comparison compression must be none or gzip")
+    if resume and out_dir is None:
+        raise CompareError("comparison resume requires out_dir")
     if compression != "none" and out_dir is None:
         raise CompareError("comparison compression requires out_dir")
     before_source, after_source = before, after
@@ -555,6 +561,9 @@ def compare(
             force=force,
             correspondence=correspondence,
             compression=compression,
+            resume=resume,
+            progress=progress,
+            cancel_event=cancel_event,
         )
     for source in (before_source, after_source):
         if hasattr(source, "iter_collection") and any(

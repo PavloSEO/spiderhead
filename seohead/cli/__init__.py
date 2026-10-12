@@ -33,6 +33,7 @@ MAX_CRUX_EVIDENCE_BYTES = 2 * 1024 * 1024
 COMMANDS = (
     "parse",
     "crawl-site",
+    "crawl-control",
     "crawl-describe-settings",
     "scan-reanalyze",
     "scan-graph",
@@ -41,6 +42,10 @@ COMMANDS = (
     "crawl-diagnose",
     "crawl-diagnose-export",
     "compare-crawls",
+    "compare-read",
+    "compare-report",
+    "compare-status",
+    "compare-url",
     "verify-fixes",
     "crawl-enrich",
     "crawl-import",
@@ -94,6 +99,9 @@ COMMANDS = (
     "serp-fetch",
     "spend-report",
     "sources-doctor",
+    "doctor",
+    "update-check",
+    "update-download",
     "sources-sync",
     "sources-status",
     "sources-export",
@@ -109,6 +117,9 @@ COMMANDS = (
     "wayback-history",
     "crtsh-subdomains",
     "cloudflare-traffic",
+    "cloudflare-history",
+    "cloudflare-logpush-import",
+    "cloudflare-instant-logs",
     "gsc-query",
     "webmaster-url-queries",
     "miratext-analyze",
@@ -118,9 +129,13 @@ COMMANDS = (
     "scan-list",
     "scan-inspect",
     "scan-url-detail",
+    "scan-body-read",
+    "scan-findings-page",
     "scan-url-query",
+    "scan-directory-tree",
     "scan-url-history",
     "scan-link-inspect",
+    "headers-analyze",
     "scan-status",
     "scan-rendered-routes",
     "scan-content-search",
@@ -132,6 +147,16 @@ COMMANDS = (
     "scan-body-diff",
     "project-new",
     "project-open",
+    "project-archive",
+    "project-restore",
+    "project-update",
+    "project-delete",
+    "project-settings",
+    "project-settings-proposals",
+    "project-settings-review",
+    "project-settings-propose",
+    "project-action-log",
+    "project-agent-heartbeat",
     "project-status",
     "project-progress",
     "project-sources-link",
@@ -188,16 +213,26 @@ COMMANDS = (
     "project-competitors-add",
     "project-competitors-list",
     "project-competitors-remove",
+    "project-competitors-scan",
+    "project-competitors-scan-status",
+    "project-competitors-scan-cancel",
+    "project-export",
+    "project-export-status",
+    "project-export-cancel",
+    "project-exports-page",
     "skill-list",
     "skill-show",
     "scenario-list",
     "scenario-show",
     "provider-replay",
     "provider-auth",
+    "provider-credential",
+    "provider-discover",
     "provider-registry",
     "provider-readiness",
     "provider-verify",
     "provider-collect",
+    "provider-artifact-read",
     "provider-join",
     "evidence-normalize",
     "evidence-join",
@@ -207,6 +242,7 @@ COMMANDS = (
     "project-activity",
     "project-checklist-page",
     "project-task-detail",
+    "project-task-comment",
     "project-scans",
     "publication-cohorts",
     "gsc-progress",
@@ -216,8 +252,10 @@ COMMANDS = (
     "inspect-url",
     "audit-workflow",
     "tool-catalog",
+    "url-check-batch",
     "scan-evidence",
     "scan-extract",
+    "custom-extract-sample",
     "marketing-inventory",
     "scan-fragment-links",
     "scan-structured-blocks",
@@ -281,8 +319,11 @@ _SCAN_PATH_COMMANDS = frozenset(
     {
         "scan-inspect",
         "scan-url-detail",
+        "scan-body-read",
         "scan-url-query",
+        "scan-directory-tree",
         "scan-link-inspect",
+        "headers-analyze",
         "scan-status",
         "scan-rendered-routes",
         "scan-snapshot",
@@ -444,6 +485,23 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             value = getattr(args, flag, None)
             if value is not None:
                 kw[flag] = value
+    elif cmd == "project-archive":
+        for name in (
+            "project",
+            "out",
+            "exclude_bodies_older_than_days",
+            "keep_newest_scans",
+        ):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+        if getattr(args, "dry_run", False):
+            kw["dry_run"] = True
+        if getattr(args, "exclude_bodies", False):
+            kw["exclude_bodies"] = True
+    elif cmd == "project-restore":
+        for name in ("archive", "to"):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
     elif cmd in {"scan-graph", "scan-sitemap-generate"}:
         for flag in (
             "input_path",
@@ -498,6 +556,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "urls_file",
             "url",
             "representation",
+            "variant_key",
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
@@ -511,6 +570,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "representation",
             "selector",
             "kind",
+            "url",
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
@@ -539,9 +599,27 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "export_max_rows",
             "issue_check",
             "issue_severity",
+            "include_check_counts",
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "scan-directory-tree":
+        for name in (
+            "input_path",
+            "max_depth",
+            "max_children",
+            "max_nodes",
+            "max_bytes",
+            "timeout_seconds",
+        ):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "headers-analyze":
+        for name in ("input_path", "url", "offset", "limit", "max_bytes", "timeout_seconds"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "scan-url-history":
         for name in ("project", "url", "limit"):
             if getattr(args, name, None) is not None:
@@ -555,9 +633,38 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "form_offset",
             "form_limit",
             "max_bytes",
+            "body_offset",
+            "body_length",
+            "max_body_bytes",
         ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "scan-body-read":
+        for name in (
+            "input_path",
+            "url",
+            "representation",
+            "variant_key",
+            "offset",
+            "length",
+            "max_decoded_bytes",
+        ):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+    elif cmd == "scan-findings-page":
+        for name in (
+            "project",
+            "scan_uuid",
+            "offset",
+            "limit",
+            "query",
+            "url",
+            "sort",
+        ):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+        if getattr(args, "descending", False):
+            kw["descending"] = True
     elif cmd == "inspect-url":
         if getattr(args, "url", None):
             kw["url"] = args.url
@@ -566,11 +673,19 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "tool-catalog":
-        for name in ("query", "limit"):
+        for name in ("query", "limit", "offset"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
         if getattr(args, "include_arguments", False):
             kw["include_arguments"] = True
+    elif cmd == "url-check-batch":
+        if getattr(args, "urls", None):
+            kw["urls"] = _split_list(args.urls)
+        if getattr(args, "checks", None):
+            kw["checks"] = _split_list(args.checks)
+        for name in ("scan", "offset", "max_urls"):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
     elif cmd == "parse":
         if args.url:
             kw["url"] = args.url
@@ -632,6 +747,11 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             overrides[path] = value
         if overrides:
             kw["overrides"] = overrides
+    elif cmd == "crawl-control":
+        for name in ("project", "run_id", "action"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "sitemap-crawl":
         if args.project is not None:
             kw["project"] = args.project
@@ -647,6 +767,10 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     elif cmd == "images-optimize":
         if args.files:
             kw["files"] = _split_list(args.files)
+        if getattr(args, "scan", None):
+            kw["scan"] = args.scan
+        if getattr(args, "max_images", None) is not None:
+            kw["max_images"] = args.max_images
         settings = dict(kw.get("settings") or {})
         if getattr(args, "output_dir", None):
             settings["out_dir"] = args.output_dir
@@ -658,6 +782,8 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             settings["in_place"] = True
         if getattr(args, "overwrite", False):
             settings["overwrite"] = True
+        if getattr(args, "strip_exif", False):
+            settings["strip_exif"] = True
         kw["settings"] = settings
     elif cmd == "keywords-cluster":
         pass  # keywords/algorithm come from --input JSON
@@ -756,6 +882,13 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     elif cmd in {
         "project-new",
         "project-open",
+        "project-update",
+        "project-delete",
+        "project-settings",
+        "project-settings-proposals",
+        "project-settings-review",
+        "project-settings-propose",
+        "project-agent-heartbeat",
         "project-status",
         "project-progress",
         "project-facts",
@@ -769,6 +902,13 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         "project-competitors-add",
         "project-competitors-list",
         "project-competitors-remove",
+        "project-competitors-scan",
+        "project-competitors-scan-status",
+        "project-competitors-scan-cancel",
+        "project-export",
+        "project-export-status",
+        "project-export-cancel",
+        "project-exports-page",
     }:
         for name in ("directory", "target", "label", "expected_site"):
             value = getattr(args, name, None)
@@ -777,12 +917,39 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         if cmd == "project-progress":
             kw["limit"] = args.limit
             kw["offset"] = args.offset
+        if cmd == "project-settings-proposals":
+            kw["limit"] = args.limit
+            kw["offset"] = args.offset
+        if cmd == "project-settings-review":
+            kw["proposal_id"] = args.proposal_id
+            kw["decision"] = args.decision
         if getattr(args, "expected_revision", None) is not None:
             kw["expected_revision"] = args.expected_revision
         if cmd == "project-prepare" and args.max_urls is not None:
             kw["max_urls"] = args.max_urls
         if getattr(args, "item_id", None) is not None:
             kw["item_id"] = args.item_id
+        if getattr(args, "task_id", None) is not None:
+            kw["task_id"] = args.task_id
+        if getattr(args, "concurrency", None) is not None:
+            kw["concurrency"] = args.concurrency
+        if cmd == "project-competitors-scan":
+            kw["confirm"] = bool(getattr(args, "confirm", False))
+            if getattr(args, "run_id", None) is not None:
+                kw["run_id"] = args.run_id
+        if cmd in {"project-competitors-scan-status", "project-competitors-scan-cancel"}:
+            kw["run_id"] = args.run_id
+        if cmd == "project-export":
+            for name in ("dataset", "fmt", "output", "compare_manifest", "job_id"):
+                value = getattr(args, name, None)
+                if value is not None:
+                    kw[name] = value
+            kw["wait"] = True
+        if cmd in {"project-export-status", "project-export-cancel"}:
+            kw["job_id"] = args.job_id
+        if cmd == "project-exports-page":
+            kw["offset"] = args.offset
+            kw["limit"] = args.limit
         if cmd in {"project-priorities", "project-policy", "project-facts"} and getattr(
             args, "apply", False
         ):
@@ -828,12 +995,37 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         for name in ("directory", "source", "actor", "text"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
-    elif cmd == "project-event-page":
-        for name in ("directory", "source", "offset", "limit", "query"):
+    elif cmd == "project-task-comment":
+        for name in ("directory", "item_id", "text", "actor", "expected_revision", "reference"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "project-event-page":
+        for name in (
+            "directory",
+            "source",
+            "offset",
+            "limit",
+            "query",
+            "since_revision",
+            "follow",
+            "wait_seconds",
+        ):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+    elif cmd == "project-action-log":
+        for name in ("directory", "offset", "limit", "client", "outcome", "query"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "project-observe":
-        for name in ("directory", "consumer", "scan_limit", "run_offset", "run_limit"):
+        for name in (
+            "directory",
+            "consumer",
+            "scan_limit",
+            "run_offset",
+            "run_limit",
+            "since_revision",
+        ):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd in {"skill-show", "scenario-show"}:
@@ -849,10 +1041,55 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         for name in ("provider", "action", "grant_file"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+        if getattr(args, "action", None) == "callback":
+            if not getattr(args, "callback_stdin", False):
+                raise ValueError("OAuth callback requires --callback-stdin")
+            raw_callback = sys.stdin.read(8193)
+            if len(raw_callback.encode("utf-8")) > 8192:
+                raise ValueError("OAuth callback input exceeds 8192 bytes")
+            try:
+                callback = json.loads(raw_callback)
+            except (TypeError, ValueError) as exc:
+                raise ValueError("OAuth callback input must be a JSON object") from exc
+            if (
+                not isinstance(callback, dict)
+                or set(callback) != {"state", "code"}
+                or not all(isinstance(callback[key], str) for key in ("state", "code"))
+            ):
+                raise ValueError("OAuth callback input must contain string state and code fields")
+            kw["state"], kw["code"] = callback["state"], callback["code"]
+        elif getattr(args, "callback_stdin", False):
+            raise ValueError("--callback-stdin is valid only with --action callback")
         if getattr(args, "confirm", False):
             kw["confirm"] = True
+    elif cmd == "provider-credential":
+        for name in ("provider", "component", "action"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        action = getattr(args, "action", "status")
+        if action == "set":
+            if not getattr(args, "value_stdin", False):
+                raise ValueError("credential set requires --value-stdin")
+            value = sys.stdin.read(65537)
+            if len(value.encode("utf-8")) > 65536:
+                raise ValueError("credential input exceeds 65536 bytes")
+            kw["value"] = value
+            kw["replace"] = bool(getattr(args, "replace", False))
+        elif getattr(args, "value_stdin", False) or getattr(args, "replace", False):
+            raise ValueError("--value-stdin and --replace are valid only with --action set")
+        if getattr(args, "confirm", False):
+            kw["confirm"] = True
+    elif cmd == "provider-discover":
+        kw["provider"] = args.provider
+        if args.domain:
+            kw["domain"] = args.domain
     elif cmd in {"provider-verify", "provider-collect"}:
         for name in ("provider", "operation", "artifact_dir"):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+    elif cmd == "provider-artifact-read":
+        for name in ("artifact_ref", "artifact_dir", "offset", "limit"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "evidence-normalize":
@@ -884,12 +1121,14 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         "project-activity",
         "project-checklist-page",
         "project-task-detail",
+        "project-task-comment",
         "project-scans",
         "scan-navigation",
         "bi-filter",
     }:
         for name in (
             "directory",
+            "since_revision",
             "item_id",
             "offset",
             "limit",
@@ -1121,6 +1360,45 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             kw["correspondence"] = args.correspondence
         if getattr(args, "force", False):
             kw["force"] = True
+        if getattr(args, "resume", False):
+            kw["resume"] = True
+    elif cmd == "compare-read":
+        for name in (
+            "manifest_path",
+            "file",
+            "offset",
+            "limit",
+            "sort",
+            "direction",
+            "contains",
+            "segment",
+            "change",
+            "max_bytes",
+        ):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "compare-report":
+        for name in ("manifest_path", "out_file", "max_bytes"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    elif cmd == "compare-status":
+        if getattr(args, "out_dir", None) is not None:
+            kw["out_dir"] = args.out_dir
+    elif cmd == "compare-url":
+        for name in (
+            "before",
+            "after",
+            "url",
+            "max_bytes",
+            "max_lines",
+            "left_representation",
+            "right_representation",
+        ):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
     elif cmd == "verify-fixes":
         for name in ("baseline", "view", "urls_file", "after", "config", "out_dir"):
             value = getattr(args, name, None)
@@ -1282,10 +1560,35 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
     if cmd == "crtsh-subdomains" and args.domain:
         kw["domain"] = args.domain
     if cmd == "cloudflare-traffic":
-        for name in ("zone", "since", "until"):
+        for name in ("zone", "since", "until", "project"):
             value = getattr(args, name, None)
             if value:
                 kw[name] = value
+        if getattr(args, "include_configuration", False):
+            kw["include_configuration"] = True
+    if cmd == "cloudflare-history":
+        for name in ("project", "zone_id", "snapshot_id"):
+            value = getattr(args, name, None)
+            if value:
+                kw[name] = value
+        for name in ("limit", "offset", "facts_offset", "facts_limit"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        if getattr(args, "include_facts", False):
+            kw["include_facts"] = True
+    if cmd == "cloudflare-logpush-import":
+        for name in ("input_path", "project", "max_events"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+    if cmd == "cloudflare-instant-logs":
+        for name in ("project", "max_seconds", "max_events", "max_bytes", "sample"):
+            value = getattr(args, name, None)
+            if value is not None:
+                kw[name] = value
+        if getattr(args, "confirm_live_capture", False):
+            kw["confirm_live_capture"] = True
     if cmd == "gsc-query":
         if args.site_url:
             kw["site_url"] = args.site_url
@@ -1390,6 +1693,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "status_class",
             "contains",
             "sort",
+            "preset",
         ):
             value = getattr(args, name, None)
             if value is not None:
@@ -1429,6 +1733,8 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             "url",
             "variant_key",
             "representation",
+            "left_representation",
+            "right_representation",
             "max_bytes",
             "max_lines",
         ):
@@ -1595,6 +1901,34 @@ def _project_crawl_defaults(kwargs: dict[str, Any]) -> dict | None:
     return project_policy(kwargs["project"])["policy"]["crawl_overrides"]
 
 
+def _resolved_crawl_settings(kwargs: dict[str, Any]):
+    """Resolve the same named profile, project defaults and explicit overrides as the handler."""
+    from seohead.crawl import settings as crawl_config
+
+    config = kwargs.get("config")
+    profile = kwargs.get("profile")
+    base_overrides = _project_crawl_defaults(kwargs)
+    if config and not profile:
+        from seohead.crawl.profiles import name_for_path
+
+        profile = name_for_path(config)
+        if profile:
+            config = None
+    if not config and not profile and kwargs.get("project"):
+        from seohead.projects.runtime import project_policy
+
+        profile = project_policy(kwargs["project"])["policy"].get("crawl_profile")
+    overrides = _crawl_overrides(kwargs)
+    if profile:
+        from seohead.crawl.profiles import path_for
+
+        config = path_for(profile)
+        if base_overrides:
+            overrides = {**base_overrides, **overrides}
+            base_overrides = None
+    return crawl_config.load(config, overrides=overrides, base_overrides=base_overrides)
+
+
 def _print_effective_rate(kwargs: dict[str, Any]) -> None:
     """Print the worst-case requests/second a crawl-site run permits, before it runs.
 
@@ -1611,11 +1945,7 @@ def _print_effective_rate(kwargs: dict[str, Any]) -> None:
         # The same overrides the handler will resolve, in the same precedence, or
         # the printed rate describes a run that is not the one about to happen --
         # which is worse than printing nothing, because it is believed.
-        resolved = crawl_config.load(
-            kwargs.get("config"),
-            overrides=_crawl_overrides(kwargs),
-            base_overrides=_project_crawl_defaults(kwargs),
-        )
+        resolved = _resolved_crawl_settings(kwargs)
     except crawl_config.ConfigError:
         return  # the handler call below reports the same error to the user
     rate = crawl_config.effective_request_rate(resolved)
@@ -1735,11 +2065,7 @@ def _crawl_progress(kwargs: dict[str, Any]) -> CrawlProgress | None:
 
             resolved = resume_inputs(resume)["settings"]
         else:
-            resolved = crawl_config.load(
-                kwargs.get("config"),
-                overrides=_crawl_overrides(kwargs),
-                base_overrides=_project_crawl_defaults(kwargs),
-            )
+            resolved = _resolved_crawl_settings(kwargs)
     except (crawl_config.ConfigError, OSError, ValueError, sqlite3.Error):
         return None
     stream = sys.stderr
@@ -1923,6 +2249,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--selector", help="CSS selector required only by selector_markup")
         sub.add_argument("--case-sensitive", action="store_true")
         sub.add_argument("--include-snippets", action="store_true")
+        _source_flag(sub, "--url", help="optional exact logical URL filter")
     if cmd == "scan-content-search-page":
         _source_flag(sub, "--package", help="completed local content-search package directory")
         sub.add_argument("--offset", type=int, help="zero-based derived record offset")
@@ -1938,6 +2265,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "scan-structured-blocks":
         _source_flag(sub, "--url", help="exact retained logical URL")
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
+        sub.add_argument("--variant-key", help="exact retained HTTP variant key when required")
     if cmd == "scan-extract":
         _source_flag(sub, "--url", help="optional exact logical URL")
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
@@ -1962,7 +2290,16 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "tool-catalog":
         sub.add_argument("--query")
         sub.add_argument("--limit", type=int)
+        sub.add_argument("--offset", type=int, help="zero-based result offset")
         sub.add_argument("--include-arguments", action="store_true")
+    if cmd == "url-check-batch":
+        _source_flag(sub, "--urls", help="comma-separated URL list; maximum 50 URL/check pairs")
+        sub.add_argument("--checks", help="comma-separated supported single-URL check names")
+        _source_flag(
+            sub, "--scan", help="retained scan; checks only the requested page starting at --offset"
+        )
+        sub.add_argument("--offset", type=int, help="zero-based retained scan page offset")
+        sub.add_argument("--max-urls", type=int, help="retained scan URL page size (1..50)")
     if cmd == "crawl-site":
         sub.add_argument(
             "--approve-large-crawl",
@@ -2019,17 +2356,17 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument(
             "--profile",
             metavar="NAME",
-            help="crawl with a saved profile instead of --config; --set still applies",
+            help="use a saved profile; --set still applies",
         )
         sub.add_argument(
             "--save-profile",
             metavar="NAME",
-            help="store the --config file as profile NAME after validating it; does not crawl",
+            help="validate and save --config as NAME; does not crawl",
         )
         sub.add_argument(
             "--robots",
             choices=["respect", "report_only", "ignore"],
-            help="obey, report-only, or skip robots.txt",
+            help="robots.txt policy",
         )
         sub.add_argument(
             "--sitemap",
@@ -2055,22 +2392,26 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             "--max-urls-per-second",
             type=float,
             metavar="N",
-            help="requests/second per host (sets speed.min_delay_seconds)",
+            help="maximum request rate per host",
         )
         sub.add_argument(
             "--set",
             action="append",
             dest="set_settings",
             metavar="PATH=VALUE",
-            help="set PATH=VALUE after --config; repeatable; paths: --config-help",
+            help="set dotted PATH=VALUE; repeatable (--config-help)",
         )
-        # Kept working for scripts written before --config existed, but no longer advertised in
-        # --help: depth and delay are exactly the kind of setting #13's config file exists for, and
-        # every flag shown here is one more line standing between a new setting and --config.
-        # --set is the answer to that tension rather than an exception to it: one flag reaches
-        # every setting, and a setting added tomorrow is reachable with no CLI change at all.
-        sub.add_argument("--max-depth", type=int, help=argparse.SUPPRESS)
-        sub.add_argument("--min-delay", type=float, help=argparse.SUPPRESS)
+        # Keep these compatibility controls discoverable while config remains the preferred route.
+        sub.add_argument(
+            "--max-depth", type=int, help="maximum link depth (legacy setting override)"
+        )
+        sub.add_argument(
+            "--min-delay", type=float, help="minimum delay between requests in seconds"
+        )
+    if cmd == "crawl-control":
+        _source_flag(sub, "--project", help="project containing the active crawl")
+        _source_flag(sub, "--run-id", dest="run_id", help="active project run ID")
+        sub.add_argument("--action", choices=("pause", "stop"), required=True)
     if cmd == "compare-crawls":
         sub.add_argument(
             "--compression",
@@ -2259,10 +2600,71 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--to-date", dest="to_date", help="latest timestamp, e.g. 20260101")
     if cmd == "cloudflare-traffic":
         _source_flag(sub, "--zone", help="Cloudflare zone name, e.g. example.com")
+        _source_flag(sub, "--project", help="project with one selected Cloudflare zone binding")
+        sub.add_argument(
+            "--include-configuration",
+            action="store_true",
+            help="read AI-related zone settings and bounded redirect/custom-WAF rulesets",
+        )
         sub.add_argument(
             "--since", help="first UTC day, YYYY-MM-DD (default: 6 days before --until)"
         )
         sub.add_argument("--until", help="last UTC day, YYYY-MM-DD (default: today)")
+    if cmd == "cloudflare-history":
+        _source_flag(sub, "--project", help="local project containing Cloudflare history")
+        sub.add_argument("--zone-id", dest="zone_id", help="optional zone ID filter")
+        sub.add_argument(
+            "--snapshot-id", dest="snapshot_id", type=int, help="optional exact snapshot ID filter"
+        )
+        sub.add_argument("--limit", type=int, default=20, help="snapshots per page, 1..100")
+        sub.add_argument("--offset", type=int, default=0, help="zero-based snapshot offset")
+        sub.add_argument(
+            "--include-facts",
+            action="store_true",
+            help="include bounded URL/day fact rows; default is metadata-only",
+        )
+        sub.add_argument(
+            "--facts-offset",
+            dest="facts_offset",
+            type=int,
+            default=0,
+            help="fact offset within each returned snapshot",
+        )
+        sub.add_argument(
+            "--facts-limit",
+            dest="facts_limit",
+            type=int,
+            default=100,
+            help="facts per snapshot page, 1..500",
+        )
+    if cmd == "cloudflare-logpush-import":
+        _source_flag(
+            sub, "--file", dest="input_path", help="caller-supplied UTF-8 Logpush JSON Lines file"
+        )
+        _source_flag(sub, "--project", help="local project that owns the logstore")
+        sub.add_argument("--max-events", type=int, default=10_000, help="maximum records to import")
+    if cmd == "cloudflare-instant-logs":
+        _source_flag(sub, "--project", help="project with one selected Cloudflare zone binding")
+        sub.add_argument(
+            "--confirm-live-capture",
+            action="store_true",
+            help="confirm creating a transient Instant Logs session",
+        )
+        sub.add_argument(
+            "--max-seconds", type=int, default=10, help="capture duration, 1..60 seconds"
+        )
+        sub.add_argument(
+            "--max-events", type=int, default=100, help="maximum records to retain, 1..1000"
+        )
+        sub.add_argument(
+            "--max-bytes",
+            type=int,
+            default=1_048_576,
+            help="maximum received frame bytes, 1..8388608",
+        )
+        sub.add_argument(
+            "--sample", type=int, default=10, help="Cloudflare sample interval, 1..100"
+        )
     if cmd == "crtsh-subdomains":
         _source_flag(sub, "--domain", help="domain to search Certificate Transparency logs for")
     if cmd == "gsc-query":
@@ -2434,6 +2836,62 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             sub, "--before", help="path to the earlier audit.json or scan.v1 SQLite artifact"
         )
         _source_flag(sub, "--after", help="path to the later audit.json or scan.v1 SQLite artifact")
+        sub.add_argument(
+            "--resume",
+            action="store_true",
+            help="resume the matching local comparison checkpoint for --out-dir",
+        )
+    if cmd == "compare-read":
+        _source_flag(
+            sub, "--manifest", dest="manifest_path", help="compare.v2 compare.json manifest"
+        )
+        sub.add_argument(
+            "--file",
+            choices=(
+                "entered",
+                "left",
+                "appeared",
+                "disappeared",
+                "unchanged",
+                "by_check",
+                "facts",
+                "correspondence",
+                "segment_changes",
+            ),
+        )
+        sub.add_argument("--offset", type=int)
+        sub.add_argument("--limit", type=int)
+        sub.add_argument("--sort", choices=("url", "check", "severity"))
+        sub.add_argument("--direction", choices=("asc", "desc"))
+        sub.add_argument("--contains")
+        sub.add_argument("--segment")
+        sub.add_argument(
+            "--change",
+            choices=("entered", "left", "appeared", "disappeared", "unchanged"),
+        )
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+    if cmd == "compare-report":
+        _source_flag(
+            sub, "--manifest", dest="manifest_path", help="compare.v2 compare.json manifest"
+        )
+        _source_flag(sub, "--out-file", help="new Markdown report path; refuses overwrite")
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+    if cmd == "compare-status":
+        _source_flag(sub, "--out-dir", help="compare.v2 destination or checkpoint base path")
+    if cmd == "compare-url":
+        _source_flag(sub, "--before", help="earlier audit.json or native scan SQLite")
+        _source_flag(sub, "--after", help="later audit.json or native scan SQLite")
+        _source_flag(sub, "--url", help="exact URL to compare")
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+        sub.add_argument("--max-lines", dest="max_lines", type=int)
+        sub.add_argument(
+            "--left-representation",
+            choices=("static", "rendered", "legacy_fragment"),
+        )
+        sub.add_argument(
+            "--right-representation",
+            choices=("static", "rendered", "legacy_fragment"),
+        )
     if cmd == "verify-fixes":
         _source_flag(sub, "--baseline", help="saved baseline audit.json or SQLite scan")
         sub.add_argument("--finding-ids", help="comma-separated baseline finding IDs")
@@ -2462,6 +2920,16 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--offset", type=int)
         sub.add_argument("--limit", type=int)
         _source_flag(sub, "--project", help="project directory whose scans/ directory is listed")
+    if cmd == "project-archive":
+        _source_flag(sub, "--project", help="existing project workspace")
+        _source_flag(sub, "--out", help="new archive file path")
+        sub.add_argument("--dry-run", action="store_true")
+        sub.add_argument("--exclude-bodies", action="store_true")
+        sub.add_argument("--exclude-bodies-older-than-days", type=int, choices=(30, 90))
+        sub.add_argument("--keep-newest-scans", type=int)
+    if cmd == "project-restore":
+        _source_flag(sub, "--archive", help="verified project archive file")
+        _source_flag(sub, "--to", help="new destination directory")
     if cmd in _SCAN_PATH_COMMANDS:
         _source_flag(sub, "--scan", dest="input_path", required=False, help="scan SQLite file")
     if cmd == "scan-inspect":
@@ -2510,6 +2978,11 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             dest="issue_severity",
             choices=("critical", "warning", "notice"),
         )
+        sub.add_argument(
+            "--include-check-counts",
+            action="store_true",
+            help="include exact saved whole-scan severity totals and registry-wide check states",
+        )
     if cmd == "scan-url-history":
         _source_flag(sub, "--project", help="project directory whose scans/ directory is read")
         _source_flag(sub, "--url", help="exact retained URL text")
@@ -2521,6 +2994,25 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--form-offset", type=int)
         sub.add_argument("--form-limit", type=int)
         sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+        sub.add_argument("--body-offset", type=int)
+        sub.add_argument("--body-length", type=int)
+        sub.add_argument("--max-body-bytes", dest="max_body_bytes", type=int)
+    if cmd == "scan-body-read":
+        _source_flag(sub, "--url", help="exact retained logical URL")
+        sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
+        sub.add_argument("--variant-key")
+        sub.add_argument("--offset", type=int)
+        sub.add_argument("--length", type=int)
+        sub.add_argument("--max-decoded-bytes", dest="max_decoded_bytes", type=int)
+    if cmd == "scan-findings-page":
+        _source_flag(sub, "--project", help="project directory whose retained scan is read")
+        sub.add_argument("--scan-uuid")
+        sub.add_argument("--offset", type=int)
+        sub.add_argument("--limit", type=int)
+        sub.add_argument("--query")
+        sub.add_argument("--url", help="exact URL for findings-by-URL")
+        sub.add_argument("--sort", choices=("severity", "check", "target_url", "id"))
+        sub.add_argument("--descending", action="store_true")
     if cmd == "scan-link-inspect":
         sub.add_argument("--view", choices=("path", "inlinks", "context", "links"))
         sub.add_argument("--url", help="URL whose links to page (view=links)")
@@ -2533,6 +3025,11 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             choices=("all", "2xx", "3xx", "4xx", "5xx", "broken", "error", "unscanned"),
         )
         sub.add_argument("--contains", help="substring of the other URL or the anchor")
+        sub.add_argument(
+            "--preset",
+            choices=("inlinks", "broken_links"),
+            help="named view filter; applies incoming internal links or broken internal targets",
+        )
         sub.add_argument("--sort", choices=("order", "url", "status"))
         sub.add_argument("--seed")
         sub.add_argument("--target")
@@ -2550,6 +3047,18 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--max-nodes", dest="max_nodes", type=int)
         sub.add_argument("--max-edges", dest="max_edges", type=int)
         sub.add_argument("--max-depth", dest="max_depth", type=int)
+        sub.add_argument("--timeout-seconds", dest="timeout_seconds", type=float)
+    if cmd == "scan-directory-tree":
+        sub.add_argument("--max-depth", type=int)
+        sub.add_argument("--max-children", type=int)
+        sub.add_argument("--max-nodes", type=int)
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
+        sub.add_argument("--timeout-seconds", dest="timeout_seconds", type=float)
+    if cmd == "headers-analyze":
+        _source_flag(sub, "--url", help="optional exact retained URL")
+        sub.add_argument("--offset", type=int)
+        sub.add_argument("--limit", type=int)
+        sub.add_argument("--max-bytes", dest="max_bytes", type=int)
         sub.add_argument("--timeout-seconds", dest="timeout_seconds", type=float)
     if cmd == "scan-snapshot":
         _source_flag(sub, "--out", help="new snapshot SQLite file")
@@ -2599,7 +3108,8 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--directory", help="validated local project workspace")
         if cmd != "project-sources-list":
             sub.add_argument(
-                "--service", help="gsc, ga4, gtm, metrika, webmaster, bing or topvisor"
+                "--service",
+                help="gsc, ga4, gtm, metrika, webmaster, bing, topvisor or cloudflare",
             )
             sub.add_argument("--resource", help="provider resource ID, e.g. a GSC property")
         if cmd == "project-sources-link":
@@ -2611,6 +3121,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--run-offset", type=int, help="terminal run offset per site (default: 0)")
         sub.add_argument(
             "--run-limit", type=int, help="terminal runs per site, 1..100 (default: 20)"
+        )
+        sub.add_argument(
+            "--since-revision", help="opaque observer revision from the previous response"
         )
     if cmd.startswith("project-inbox-"):
         _source_flag(sub, "--directory", help="validated local project workspace")
@@ -2624,6 +3137,43 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--offset", type=int, default=0)
         sub.add_argument("--limit", type=int, default=50, help="events per page, 1..200")
         sub.add_argument("--query", default="", help="case-insensitive text substring")
+        sub.add_argument("--since", dest="since_revision", type=int, help="event revision cursor")
+        sub.add_argument("--follow", action="store_true", help="wait for a newer event")
+        sub.add_argument(
+            "--wait-seconds", type=int, default=30, help="maximum follow wait, 0..30 (default: 30)"
+        )
+    if cmd in {
+        "project-update",
+        "project-delete",
+        "project-settings",
+        "project-settings-proposals",
+        "project-settings-review",
+        "project-settings-propose",
+        "project-agent-heartbeat",
+        "project-action-log",
+    }:
+        _source_flag(sub, "--directory", help="validated local project workspace")
+    if cmd == "project-update":
+        sub.add_argument("--label", required=True, help="new project label, up to 128 characters")
+        sub.add_argument("--expected-revision", type=int, required=True)
+    if cmd == "project-settings-proposals":
+        sub.add_argument("--offset", type=int, default=0)
+        sub.add_argument("--limit", type=int, default=50)
+    if cmd == "project-settings-review":
+        sub.add_argument("--proposal-id", required=True)
+        sub.add_argument("--decision", required=True, choices=("approve", "deny"))
+        sub.add_argument("--expected-revision", type=int, required=True)
+    if cmd == "project-settings-propose":
+        sub.add_argument("--expected-revision", type=int, required=True)
+    if cmd == "project-action-log":
+        sub.add_argument("--offset", type=int, default=0)
+        sub.add_argument("--limit", type=int, default=50)
+        sub.add_argument("--client", choices=("cli", "mcp", "system"))
+        sub.add_argument(
+            "--outcome",
+            choices=("pending", "applied", "approved", "denied", "stale", "refused", "deleted"),
+        )
+        sub.add_argument("--query", default="")
     if cmd == "project-inbox-submit":
         _source_flag(sub, "--text", help="specialist note, proposed goal or question text")
         sub.add_argument(
@@ -2825,6 +3375,10 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "project-view-rename",
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
+    if cmd == "project-activity":
+        sub.add_argument(
+            "--since-revision", help="opaque activity revision from the previous response"
+        )
     if cmd in {"project-view-show", "project-view-delete", "project-view-rename"}:
         sub.add_argument("--name", help="saved finding view name")
     if cmd == "project-view-rename":
@@ -2871,10 +3425,46 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "project-competitors-add",
         "project-competitors-list",
         "project-competitors-remove",
+        "project-competitors-scan",
+        "project-competitors-scan-status",
+        "project-competitors-scan-cancel",
+        "project-export",
+        "project-export-status",
+        "project-export-cancel",
+        "project-exports-page",
     }:
         _source_flag(sub, "--directory", help="project directory")
     if cmd == "project-competitors-remove":
         sub.add_argument("--url", required=True, help="recorded competitor URL to remove")
+    if cmd == "project-competitors-scan":
+        sub.add_argument(
+            "--task-id", required=True, help="current custom task with structured competitor limits"
+        )
+        sub.add_argument("--expected-revision", type=int, required=True)
+        sub.add_argument(
+            "--confirm", action="store_true", help="explicitly start competitor crawls"
+        )
+        sub.add_argument("--concurrency", type=int, default=3, help="parallel sites, 1..3")
+        sub.add_argument("--run-id", help="stable UUID for polling, cancellation and safe resume")
+    if cmd in {"project-competitors-scan-status", "project-competitors-scan-cancel"}:
+        _source_flag(sub, "--run-id", required=True, help="competitor scan run UUID")
+    if cmd == "project-export":
+        _source_flag(
+            sub,
+            "--dataset",
+            choices=("tasks", "task_comments", "task_history", "compare"),
+            required=True,
+            help="complete project dataset",
+        )
+        sub.add_argument("--format", dest="fmt", choices=("json", "csv", "xlsx"), required=True)
+        _source_flag(sub, "--output", required=True, help="new filename under project reports/")
+        _source_flag(sub, "--compare-manifest", help="compare.v2 manifest for dataset=compare")
+        sub.add_argument("--job-id", help="optional caller-generated UUID for later cancellation")
+    if cmd in {"project-export-status", "project-export-cancel"}:
+        _source_flag(sub, "--job-id", help="project export job UUID")
+    if cmd == "project-exports-page":
+        sub.add_argument("--offset", type=int, default=0)
+        sub.add_argument("--limit", type=int, default=50)
     if cmd == "project-policy":
         sub.add_argument(
             "--expected-revision", type=int, help="current policy revision, zero for a new policy"
@@ -2885,7 +3475,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             type=int,
             help="URL cap for a new preparation crawl: 1..1,000,000; reuses a suitable saved scan first",
         )
-    if cmd in {"project-prepare", "project-start"}:
+    if cmd in {"project-prepare", "project-start", "project-competitors-scan"}:
         sub.add_argument("--approve-large-crawl", action="store_true")
         sub.add_argument(
             "--producer-build", help="explicit producer revision when working outside a clean build"
@@ -2903,17 +3493,53 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "provider-auth":
         _source_flag(sub, "--provider", help="OAuth provider (gsc)")
         sub.add_argument(
-            "--action", choices=("status", "connect", "refresh", "cancel", "disconnect", "revoke")
+            "--action",
+            choices=(
+                "status",
+                "start",
+                "callback",
+                "connect",
+                "refresh",
+                "cancel",
+                "disconnect",
+                "revoke",
+            ),
         )
         _source_flag(
             sub, "--grant-file", help="private bounded JSON grant obtained through provider consent"
         )
         sub.add_argument("--confirm", action="store_true")
+        sub.add_argument(
+            "--callback-stdin",
+            action="store_true",
+            help="read OAuth callback state and code from stdin JSON",
+        )
+    if cmd == "provider-credential":
+        _source_flag(sub, "--provider", required=True, help="provider registry identifier")
+        _source_flag(sub, "--component", required=True, help="stored credential component")
+        sub.add_argument("--action", choices=("status", "set", "revoke"), default="status")
+        sub.add_argument(
+            "--value-stdin",
+            action="store_true",
+            help="read the credential value from stdin; never pass it as an argument",
+        )
+        sub.add_argument("--replace", action="store_true", help="replace an existing value")
+        sub.add_argument("--confirm", action="store_true", help="confirm credential revocation")
+    if cmd == "provider-discover":
+        _source_flag(sub, "--provider", required=True, choices=("google", "yandex", "topvisor"))
+        sub.add_argument("--domain", help="optional hostname for domain-match hints")
     if cmd in {"provider-verify", "provider-collect"}:
         _source_flag(sub, "--provider", help="provider registry identifier")
     if cmd == "provider-collect":
         _source_flag(sub, "--operation", help="declared read-only provider operation")
         _source_flag(sub, "--artifact-dir", help="restricted local raw-evidence directory")
+    if cmd == "provider-artifact-read":
+        _source_flag(
+            sub, "--artifact-ref", dest="artifact_ref", help="local-artifact digest reference"
+        )
+        _source_flag(sub, "--artifact-dir", help="the directory used by the collection call")
+        sub.add_argument("--offset", type=int, default=0, help="zero-based sample offset")
+        sub.add_argument("--limit", type=int, default=25, help="sample rows to return, 1..25")
     if cmd == "evidence-normalize":
         _source_flag(
             sub,
@@ -2949,11 +3575,17 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         "project-activity",
         "project-checklist-page",
         "project-task-detail",
+        "project-task-comment",
         "project-scans",
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
     if cmd == "project-task-detail":
         sub.add_argument("--item-id", help="exact checklist item identifier")
+    if cmd == "project-task-comment":
+        sub.add_argument("--item-id", help="exact custom task identifier")
+        sub.add_argument("--expected-revision", type=int)
+        sub.add_argument("--actor", help="person or agent adding the comment")
+        _source_flag(sub, "--text", help="comment text")
     if cmd in {"project-checklist-page", "project-scans", "scan-navigation"}:
         sub.add_argument("--limit", type=int, help="bounded page size")
         sub.add_argument("--offset", type=int, help="zero-based item offset")
@@ -3057,6 +3689,10 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         _source_flag(sub, "--url", help="exact logical URL")
         sub.add_argument("--variant-key")
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
+        sub.add_argument("--left-representation", choices=("static", "rendered", "legacy_fragment"))
+        sub.add_argument(
+            "--right-representation", choices=("static", "rendered", "legacy_fragment")
+        )
         sub.add_argument("--text", action="store_true")
         sub.add_argument("--max-bytes", dest="max_bytes", type=int)
         sub.add_argument("--max-lines", dest="max_lines", type=int)
@@ -3133,6 +3769,14 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--output-dir", help="download target directory")
     if cmd == "images-optimize":
         _source_flag(sub, "--files", help="comma-separated image paths/dirs")
+        _source_flag(
+            sub, "--scan", help="validated retained scan whose declared images should be optimized"
+        )
+        sub.add_argument(
+            "--max-images",
+            type=int,
+            help="maximum distinct scan images to download and optimize (1..50)",
+        )
         sub.add_argument("--output-dir", help="safe output directory (recommended)")
         sub.add_argument(
             "--in-place",
@@ -3142,8 +3786,11 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument(
             "--overwrite", action="store_true", help="replace an existing destination file"
         )
+        sub.add_argument(
+            "--strip-exif", action="store_true", help="remove EXIF metadata from output images"
+        )
         sub.add_argument("--format", choices=("keep", "jpeg", "png", "webp", "avif"))
-        sub.add_argument("--quality", type=int, help="lossy quality, clamped to 10..100")
+        sub.add_argument("--quality", help="lossy quality 10..100 or auto (SSIM-guided)")
         sub.add_argument("--max-width", type=int, help="maximum output width; never upscales")
         sub.add_argument("--max-height", type=int, help="maximum output height; never upscales")
         sub.add_argument("--max-pixels", type=int, help="input pixel safety limit")
@@ -3201,7 +3848,6 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
 # crawl-site keeps only its most-used settings as direct flags; everything the crawler build-out
 # (#13 onward) has added or will add lives in --config instead, so --help stays short as the
 # surface grows. This note is the pointer from one to the other.
-CRAWL_SITE_HELP_NOTE = "More crawler settings: seohead crawl-site --config-help."
 SCAN_FRAGMENT_LINKS_HELP_NOTE = (
     "Measures only retained complete HTML/DOM from the saved scan; missing, "
     "truncated or otherwise incomplete evidence stays skipped/unavailable and "
@@ -3246,14 +3892,35 @@ def build_parser() -> argparse.ArgumentParser:
     subs = p.add_subparsers(dest="command", metavar="<command>")
     version = subs.add_parser("version", help="core version, formats and commands")
     version.add_argument("--json", action="store_true", help="print machine-readable core info")
+    version.add_argument(
+        "--required-core-revision",
+        help="compare this exact packaged Desktop core revision with the running core",
+    )
+    doctor = subs.add_parser("doctor", help="inspect local core prerequisites without writes")
+    doctor.add_argument("--json", action="store_true", help="print machine-readable diagnostics")
+    doctor.add_argument("--projects-directory", help="existing projects directory to inspect")
+    doctor.add_argument("--config", default="config.json", help="SF configuration path")
+    doctor.add_argument("--sf-cli", help="explicit Screaming Frog CLI path")
+    update_check = subs.add_parser(
+        "update-check", help="check core releases after explicit consent"
+    )
+    update_check.add_argument("--consent", action="store_true", required=True)
+    update_check.add_argument(
+        "--automatic", action="store_true", help="reuse a fresh result for a consented daily check"
+    )
+    update_check.add_argument("--max-releases", type=int, default=5)
+    update_download = subs.add_parser(
+        "update-download", help="download a checksummed core release asset"
+    )
+    update_download.add_argument("--consent", action="store_true", required=True)
+    update_download.add_argument("--tag", required=True)
+    update_download.add_argument("--asset", dest="asset_name", required=True)
+    update_download.add_argument("--out", required=True)
+    update_download.add_argument("--max-bytes", type=int, default=250 * 1024 * 1024)
     for cmd in COMMANDS:
-        epilog = (
-            CRAWL_SITE_HELP_NOTE
-            if cmd == "crawl-site"
-            else SCAN_FRAGMENT_LINKS_HELP_NOTE
-            if cmd == "scan-fragment-links"
-            else None
-        )
+        if cmd in {"doctor", "update-check", "update-download"}:
+            continue  # these commands have dedicated options above
+        epilog = SCAN_FRAGMENT_LINKS_HELP_NOTE if cmd == "scan-fragment-links" else None
         if cmd == "workflow-start":
             epilog = WORKFLOW_START_HELP_NOTE
         sp = subs.add_parser(
@@ -3304,12 +3971,21 @@ def build_parser() -> argparse.ArgumentParser:
     for action in (
         "new",
         "open",
+        "update",
+        "delete",
+        "settings",
+        "settings-proposals",
+        "settings-review",
+        "settings-propose",
+        "action-log",
+        "agent-heartbeat",
         "status",
         "progress",
         "observe",
         "activity",
         "checklist-page",
         "task-detail",
+        "task-comment",
         "scans",
         "inbox-submit",
         "inbox-list",
@@ -3330,6 +4006,13 @@ def build_parser() -> argparse.ArgumentParser:
         "policy",
         "prepare",
         "start",
+        "competitors-scan",
+        "competitors-scan-status",
+        "competitors-scan-cancel",
+        "export",
+        "export-status",
+        "export-cancel",
+        "exports-page",
         "sources-link",
         "sources-unlink",
         "sources-list",
@@ -3347,6 +4030,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     project_archive.add_argument("--project", dest="project_dir", required=True)
     project_archive.add_argument("--out", required=True, help="new archive file path")
+    project_archive.add_argument("--exclude-bodies", action="store_true")
+    project_archive.add_argument("--exclude-bodies-older-than-days", type=int, choices=(30, 90))
+    project_archive.add_argument("--keep-newest-scans", type=int)
     project_archive.add_argument(
         "--dry-run", action="store_true", help="report files and size estimate; write nothing"
     )
@@ -3380,11 +4066,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     reanalyze = scan_subs.add_parser("reanalyze", help="reanalyze retained inputs without network")
     _add_flags(reanalyze, "scan-reanalyze")
-    crawl_profile = subs.add_parser("crawl-profile", help="list or delete saved crawl profiles")
+    crawl_profile = subs.add_parser("crawl-profile", help="inspect or delete saved crawl profiles")
     crawl_profile_subs = crawl_profile.add_subparsers(
         dest="crawl_profile_command", metavar="<action>", required=True
     )
     crawl_profile_subs.add_parser("list", help="list saved crawl profile names")
+    crawl_profile_subs.add_parser(
+        "show", help="print one saved crawl profile as JSON"
+    ).add_argument("name", metavar="NAME")
     crawl_profile_subs.add_parser("delete", help="delete a saved crawl profile").add_argument(
         "name", metavar="NAME"
     )
@@ -3464,14 +4153,92 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if cmd == "version":
         from seohead.core.core_info import core_info
+        from seohead.mcp.tool_reference import load_semantics_tools, load_seo_tools, load_sf_tools
 
-        info = core_info(COMMANDS)
+        tools = [*load_seo_tools(), *load_sf_tools(), *load_semantics_tools()]
+        info = core_info(
+            COMMANDS,
+            [tool.name for tool in tools],
+            required_core_revision=args.required_core_revision,
+        )
         if args.json:
             print(json.dumps(info, ensure_ascii=False, indent=2))
         else:
             rev = f" ({info['revision'][:7]})" if info["revision"] else ""
             print(f"seohead {info['package_version']}{rev}")
         return 0
+    if cmd == "doctor":
+        from seohead.core.doctor import doctor as run_doctor
+
+        result = run_doctor(
+            projects_directory=args.projects_directory,
+            config_path=args.config,
+            sf_cli=args.sf_cli,
+        )
+        if args.json:
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        else:
+            for name, component in result.items():
+                if name == "format":
+                    continue
+                if isinstance(component, dict) and "state" in component:
+                    print(f"{name}: {component['state']}")
+                    if component.get("reason"):
+                        print(f"  {component['reason']}")
+                elif isinstance(component, dict):
+                    print(f"{name}:")
+                    for subname, subcomponent in component.items():
+                        if isinstance(subcomponent, dict) and "state" in subcomponent:
+                            print(f"  {subname}: {subcomponent['state']}")
+                            if subcomponent.get("reason"):
+                                print(f"    {subcomponent['reason']}")
+        return 0
+    if cmd == "update-check":
+        from seohead.core.update import check_updates
+
+        result = check_updates(
+            consent=args.consent,
+            automatic=args.automatic,
+            max_releases=args.max_releases,
+        )
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result.get("ok") else 1
+    if cmd == "update-download":
+        import signal
+        import threading
+
+        from seohead.core.update import download_update
+
+        cancel = threading.Event()
+        prior_sigint = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, lambda *_args: cancel.set())
+        last_reported = 0
+
+        def report_progress(received: int, total: int | None) -> None:
+            nonlocal last_reported
+            if (
+                received == 0
+                or (total is not None and received >= total)
+                or received - last_reported >= 1024 * 1024
+            ):
+                label = str(total) if total is not None else "unknown"
+                print(f"download progress: {received}/{label} bytes", file=sys.stderr)
+                last_reported = received
+
+        try:
+            result = download_update(
+                consent=args.consent,
+                tag=args.tag,
+                asset_name=args.asset_name,
+                out=args.out,
+                max_bytes=args.max_bytes,
+                progress=report_progress,
+                cancelled=cancel.is_set,
+            )
+        finally:
+            signal.signal(signal.SIGINT, prior_sigint)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result.get("ok") else 1
     if cmd == "sf":
         # The crawl-audit subsystem owns its parser; preserve and forward its argument tail.
         from seohead.sf.cli import main as sf_main
@@ -3540,19 +4307,25 @@ def main(argv: list[str] | None = None) -> int:
             return mcp_main()
         return mcp_main(profile=args.profile, progress_notifications=not args.no_progress)
     if cmd == "project-archive":
-        from seohead.projects.archive import archive_project
-
         try:
-            result = archive_project(args.project_dir, args.out, dry_run=args.dry_run)
+            result = handlers.project_archive(
+                project=getattr(args, "project_dir", None) or args.project,
+                out=args.out,
+                dry_run=args.dry_run,
+                exclude_bodies=args.exclude_bodies,
+                exclude_bodies_older_than_days=args.exclude_bodies_older_than_days,
+                keep_newest_scans=args.keep_newest_scans,
+            )
         except ValueError as exc:
             result = {"ok": False, "error": str(exc)}
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0 if result["ok"] else 1
     if cmd == "project-restore":
-        from seohead.projects.archive import restore_project
-
         try:
-            result = restore_project(args.archive_file, args.to_dir)
+            result = handlers.project_restore(
+                archive=getattr(args, "archive_file", None) or args.archive,
+                to=getattr(args, "to_dir", None) or args.to,
+            )
         except (ValueError, OSError, zipfile.BadZipFile, KeyError) as exc:
             result = {"ok": False, "error": str(exc)}
         print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -3583,6 +4356,8 @@ def main(argv: list[str] | None = None) -> int:
         try:
             if args.crawl_profile_command == "list":
                 print(json.dumps({"profiles": profiles.saved_names()}, ensure_ascii=False))
+            elif args.crawl_profile_command == "show":
+                print(json.dumps(profiles.show(args.name), ensure_ascii=False, indent=2))
             else:
                 profiles.delete(args.name)
                 print(json.dumps({"profile": args.name, "deleted": True}, ensure_ascii=False))
@@ -3621,6 +4396,23 @@ def main(argv: list[str] | None = None) -> int:
                 _print_effective_rate(kwargs)
             progress = _crawl_progress(kwargs)
             kwargs["progress"] = progress
+        elif cmd == "compare-crawls" and not quiet and kwargs.get("out_dir"):
+            from time import monotonic
+
+            last_emit = {"stage": None, "at": 0.0}
+
+            def comparison_progress(update: Any) -> None:
+                now = monotonic()
+                if update.stage != last_emit["stage"] or now - last_emit["at"] >= 1.0:
+                    total = update.total if update.total is not None else "unknown"
+                    completed = update.completed if update.completed is not None else "unknown"
+                    print(
+                        f"compare-crawls: {update.stage} {completed}/{total} ({update.state})",
+                        file=sys.stderr,
+                    )
+                    last_emit.update(stage=update.stage, at=now)
+
+            kwargs["progress"] = comparison_progress
         try:
             result = handlers.HANDLERS[handler_name](**kwargs)
         finally:

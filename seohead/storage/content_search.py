@@ -1,4 +1,4 @@
-"""Stream literal content-presence evidence from one retained scan.v1 artifact.
+"""Stream occurrence-level content evidence from one retained scan.v1 artifact.
 
 The module deliberately reads only retained bytes.  It never fetches a URL,
 recovers an omitted body, or treats a missing/corrupt body as an absence.  A
@@ -11,7 +11,11 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import signal
 import sqlite3
+import threading
+from array import array
+from bisect import bisect_right
 from collections import Counter
 from collections.abc import Callable, Iterable
 from contextlib import closing
@@ -28,6 +32,17 @@ from .bodies import read_document
 MAX_QUERY_CHARS = 512
 MAX_DOCUMENT_BYTES = 5 * 1024 * 1024
 MAX_SNIPPET_CHARS = 320
+MAX_OCCURRENCES_PER_DOCUMENT = 10_000
+MAX_MATCH_WINDOW_CHARS = 4_000
+MAX_SERIALIZED_RECORD_BYTES = 64 * 1024
+_REDACTION_PATTERN = (
+    r"(?i)(?:\b(?:set[-_ ]?cookie|cookie)\s*[:=]\s*[^\r\n]+"
+    r"|\b(?:authorization|proxy[-_ ]?authorization|access[-_ ]?token|"
+    r"refresh[-_ ]?token|id[-_ ]?token|client[-_ ]?secret|api[-_ ]?key|"
+    r"secret[-_ ]?key|token|secret|password|passwd|credential|private[-_ ]?key)"
+    r"(?:[\"'])?\s*[:=]\s*(?:bearer\s+)?(?:'[^']*'|\"[^\"]*\"|[^\s,;<'\">]+)"
+    r"|\bbearer\s+[A-Za-z0-9._~+/=-]{8,})"
+)
 _SCOPES = {"raw_html", "head_markup", "body_text", "selector_markup"}
 _REPRESENTATIONS = {"static", "rendered"}
 _MODES = {"contains", "not_contains"}
@@ -80,6 +95,7 @@ def _snippet(
     *,
     case_sensitive: bool,
     span: tuple[int, int] | None = None,
+    redaction_spans: tuple[array, array] | None = None,
 ) -> str:
     """Return a bounded match excerpt without commonly shaped credential values.
 
@@ -97,12 +113,8 @@ def _snippet(
         start, end = span
     left = max(0, start - MAX_SNIPPET_CHARS // 3)
     right = min(len(target), end + MAX_SNIPPET_CHARS * 2 // 3)
-    value = " ".join(target[left:right].split())
-    # The result is evidence for a literal marker, never a credential dump.
-    value = re.sub(
-        r"(?i)\b(authorization|bearer|token|api[_-]?key|secret|password)\s*([:=])\s*(?:'[^']*'|\"[^\"]*\"|[^\s<'\">]+)",
-        r"\1\2[REDACTED]",
-        value,
+    value = " ".join(
+        _redact_slice(target, left, right, redaction_spans or _redaction_spans(target)).split()
     )
     return value[:MAX_SNIPPET_CHARS]
 
@@ -120,8 +132,142 @@ def _source(header: dict[str, Any], query: str, *, active: bool) -> dict[str, An
     }
 
 
-def _row_stream(con, representations: tuple[str, ...]):
+def _occurrence_spans(
+    target: str,
+    query: str,
+    *,
+    case_sensitive: bool,
+    pattern: re.Pattern[str] | None,
+) -> tuple[list[tuple[int, int]], int, bool, bool, str | None]:
+    """Return bounded offsets, total count, output-cap state, and timeout state."""
+    spans: list[tuple[int, int]] = []
+    total = 0
+    if pattern is not None and (
+        not hasattr(signal, "SIGALRM")
+        or not hasattr(signal, "setitimer")
+        or threading.current_thread() is not threading.main_thread()
+    ):
+        return spans, total, False, True, "regex_deadline_unavailable"
+    matcher = pattern or re.compile(
+        f"(?=({re.escape(query)}))", 0 if case_sensitive else re.IGNORECASE
+    )
+
+    def collect() -> int:
+        nonlocal total
+        for match in matcher.finditer(target):
+            total += 1
+            if len(spans) < MAX_OCCURRENCES_PER_DOCUMENT:
+                spans.append(match.span(1) if pattern is None else match.span())
+        return total
+
+    _, timed_out = _run_with_budget(collect, timeout_seconds=DEFAULT_TIMEOUT_SECONDS)
+    timeout_reason = None
+    if timed_out:
+        timeout_reason = "regex_budget_exceeded" if pattern is not None else "match_budget_exceeded"
+    return spans, total, total > MAX_OCCURRENCES_PER_DOCUMENT, timed_out, timeout_reason
+
+
+def _serialized_record_bytes(record: dict[str, Any]) -> int:
+    encoded = json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    return len(encoded) + 1
+
+
+def _set_occurrence_output(
+    record: dict[str, Any], *, occurrence_count: int, count_limited: bool, record_limited: bool
+) -> None:
+    returned = len(record["occurrences"])
+    reasons = []
+    if count_limited:
+        reasons.append("occurrence_count_limit")
+    if record_limited:
+        reasons.append("serialized_record_limit")
+    record["occurrences_returned"] = returned
+    record["occurrences_omitted"] = max(0, occurrence_count - returned)
+    record["occurrence_truncated"] = bool(reasons or returned < occurrence_count)
+    record["occurrence_truncation_reasons"] = reasons
+
+
+def _redaction_spans(target: str) -> tuple[array, array]:
+    starts, ends = array("I"), array("I")
+    for match in re.finditer(_REDACTION_PATTERN, target):
+        starts.append(match.start())
+        ends.append(match.end())
+    return starts, ends
+
+
+def _redact_slice(target: str, start: int, end: int, spans: tuple[array, array]) -> str:
+    """Redact credential-shaped tokens intersecting one bounded source slice."""
+    starts, ends = spans
+    index = max(0, bisect_right(starts, start) - 1)
+    cursor = start
+    pieces: list[str] = []
+    while index < len(starts) and starts[index] < end:
+        token_start, token_end = starts[index], ends[index]
+        if token_end > start:
+            overlap_start = max(start, token_start)
+            overlap_end = min(end, token_end)
+            if overlap_start > cursor:
+                pieces.append(target[cursor:overlap_start])
+            if overlap_end > cursor:
+                pieces.append("[REDACTED]")
+                cursor = overlap_end
+        index += 1
+    if cursor < end:
+        pieces.append(target[cursor:end])
+    return "".join(pieces)
+
+
+def _line_starts(target: str) -> array:
+    starts = array("I", [0])
+    index = 0
+    while index < len(target):
+        if target[index] == "\r":
+            index += 2 if target[index : index + 2] == "\r\n" else 1
+            starts.append(index)
+        elif target[index] == "\n":
+            index += 1
+            starts.append(index)
+        else:
+            index += 1
+    return starts
+
+
+def _match_window(
+    target: str,
+    starts: array,
+    span: tuple[int, int],
+    redaction_spans: tuple[array, array],
+) -> tuple[int, str, bool]:
+    """Return a six-line context window and its one-based first line."""
+    match_line = bisect_right(starts, span[0])
+    start_line = max(1, match_line - 3)
+    end_line = min(len(starts), start_line + 5)
+    if end_line - start_line < 5:
+        start_line = max(1, end_line - 5)
+    start = starts[start_line - 1]
+    end = starts[end_line] if end_line < len(starts) else len(target)
+    if end_line < len(starts):
+        end -= 2 if target[end - 2 : end] == "\r\n" else 1
+    truncated = end - start > MAX_MATCH_WINDOW_CHARS
+    left, right = start, end
+    if truncated:
+        content_chars = MAX_MATCH_WINDOW_CHARS - 2
+        left = max(start, span[0] - content_chars // 2)
+        right = min(end, left + content_chars)
+        left = max(start, right - content_chars)
+        if right < span[1]:
+            right = min(end, span[1])
+            left = max(start, right - content_chars)
+    value = _redact_slice(target, left, right, redaction_spans)
+    if truncated:
+        value = ("…" if left > start else "") + value + ("…" if right < end else "")
+    value = value[:MAX_MATCH_WINDOW_CHARS]
+    return bisect_right(starts, left), value, truncated
+
+
+def _row_stream(con, representations: tuple[str, ...], url: str | None = None):
     requested = ",".join("(?)" for _ in representations)
+    url_predicate = "u.url=?" if url is not None else "1"
     # The newest retained document wins per URL and representation.  A former
     # static document may remain after a rendered capture, but it is not the
     # current observation requested by this search.
@@ -132,6 +278,8 @@ def _row_stream(con, representations: tuple[str, ...]):
                 PARTITION BY d.url_id,d.representation ORDER BY d.document_id DESC
             ) AS position
             FROM documents d JOIN requested USING(representation)
+            JOIN urls u USING(url_id)
+            WHERE {url_predicate}
         ), observations AS (
             SELECT l.document_id,l.url_id,l.representation,l.body_state,l.body_reason,
                    l.fidelity,l.decoder_errors,l.decoder_source,
@@ -152,7 +300,7 @@ def _row_stream(con, representations: tuple[str, ...]):
                    'unavailable','unknown','not_applicable',u.url,p.page_ordinal,
                    p.status_code,p.content_type
             FROM pages p JOIN urls u USING(url_id) CROSS JOIN requested
-            WHERE NOT EXISTS (
+            WHERE {url_predicate} AND NOT EXISTS (
                 SELECT 1 FROM documents d
                 WHERE d.url_id=p.url_id AND d.representation=requested.representation
             )
@@ -160,7 +308,8 @@ def _row_stream(con, representations: tuple[str, ...]):
         SELECT * FROM observations
         ORDER BY page_ordinal IS NULL,page_ordinal,url,representation
     """
-    return con.execute(sql, representations)
+    parameters = (*representations, *((url,) * 2 if url is not None else ()))
+    return con.execute(sql, parameters)
 
 
 def search_scan(
@@ -174,15 +323,20 @@ def search_scan(
     case_sensitive: bool = False,
     allow_active: bool = False,
     include_snippets: bool = False,
-    on_record: Callable[[dict[str, Any]], None] | None = None,
+    on_record: Callable[[dict[str, Any]], bool | None] | None = None,
     kind: str = "literal",
+    url: str | None = None,
 ) -> dict[str, Any]:
     """Search a closed retained scan without materializing its corpus.
 
     ``kind="regex"`` treats ``query`` as a Python regular expression, run per
     document under the custom-extraction wall-clock budget. A document that
     exceeds the budget is unavailable (``regex_budget_exceeded``), never an
-    absence.
+    absence. Regex matching is unavailable on a worker thread or platform where
+    that wall-clock deadline cannot be enforced.
+
+    ``on_record`` may return ``False`` to stop a streaming consumer. The result
+    then has incomplete coverage and cannot confirm an absence.
 
     ``absence_confirmed`` is true only when every selected HTML observation is
     readable, the marker is absent from all of them, and the source scan itself
@@ -196,16 +350,21 @@ def search_scan(
         or type(include_snippets) is not bool
     ):
         raise ValueError("case_sensitive, allow_active, and include_snippets must be boolean")
+    if url is not None and (type(url) is not str or not url.strip()):
+        raise ValueError("url must be a nonempty exact logical URL when supplied")
     pattern = re.compile(query, 0 if case_sensitive else re.IGNORECASE) if kind == "regex" else None
     scan_path = Path(scan)
     if not scan_path.is_file():
         raise ValueError(f"scan does not exist: {scan_path}")
 
     measured = present = absent = filter_matches = unavailable = non_html = documents = 0
+    occurrence_truncated = 0
+    occurrence_truncation_reasons: Counter[str] = Counter()
     url_pages = 0
     reasons: Counter[str] = Counter()
     previous_url: str | None = None
     stream_error = ""
+    consumer_stopped = False
     try:
         reader = open_scan(
             scan_path, require_audit=False, query_timeout_seconds=READ_TIMEOUT_SECONDS
@@ -240,6 +399,13 @@ def search_scan(
                 "integrity_error": str(exc),
                 "stream_error": None,
                 "body_byte_limit": MAX_DOCUMENT_BYTES,
+                "occurrence_output_limit_per_document": MAX_OCCURRENCES_PER_DOCUMENT,
+                "serialized_record_byte_limit": MAX_SERIALIZED_RECORD_BYTES,
+                "window_character_limit": MAX_MATCH_WINDOW_CHARS,
+                "occurrence_truncated_documents": 0,
+                "occurrence_truncation_reasons": {},
+                "record_consumer_stopped": False,
+                "url_filter": url,
             },
             "absence_confirmed": False,
         }
@@ -253,7 +419,7 @@ def search_scan(
         capabilities = json.loads(header["capabilities_json"])
         source = _source(header, query, active=active)
         try:
-            cursor = _row_stream(con, selected)
+            cursor = _row_stream(con, selected, url)
         except sqlite3.Error as exc:
             cursor = iter(())
             stream_error = f"SQLite read deadline or query failure: {exc}"
@@ -279,6 +445,14 @@ def search_scan(
                 "capture_mode": item["representation"],
                 "status_code": item["status_code"],
                 "presence": None,
+                "occurrence_count": None,
+                "occurrence_truncated": None,
+                "occurrences": [],
+                "occurrences_returned": 0,
+                "occurrences_omitted": None,
+                "occurrence_truncation_reasons": [],
+                "offset_unit": "unicode_codepoint_zero_based_end_exclusive",
+                "line_numbering": "one_based",
                 "status": "unavailable",
                 "reason": "",
             }
@@ -304,16 +478,15 @@ def search_scan(
                         }[scope],
                         selector,
                     )
-                    if pattern is None:
-                        match, timed_out = None, False
-                        found = (
-                            query in target if case_sensitive else query.lower() in target.lower()
+                    spans, occurrence_count, occurrences_truncated, timed_out, timeout_reason = (
+                        _occurrence_spans(
+                            target,
+                            query,
+                            case_sensitive=case_sensitive,
+                            pattern=pattern,
                         )
-                    else:
-                        match, timed_out = _run_with_budget(
-                            pattern.search, target, timeout_seconds=DEFAULT_TIMEOUT_SECONDS
-                        )
-                        found = match is not None
+                    )
+                    found = occurrence_count > 0
                     # A replacement character or legacy re-encoded body can
                     # prove a positive marker, never a clean site-wide absence.
                     uncertain_absence = not found and (
@@ -323,13 +496,64 @@ def search_scan(
                     )
                     if timed_out:
                         unavailable += 1
-                        record["reason"] = "regex_budget_exceeded"
+                        record["reason"] = timeout_reason or "match_budget_exceeded"
                     elif uncertain_absence:
                         unavailable += 1
                         record["reason"] = "decode_fidelity_unavailable_for_absence"
                     else:
                         measured += 1
                         record["presence"] = found
+                        record["occurrence_count"] = occurrence_count
+                        record["occurrences_omitted"] = occurrence_count
+                        record["occurrence_truncated"] = occurrences_truncated
+                        if occurrences_truncated:
+                            record["occurrence_truncation_reasons"] = ["occurrence_count_limit"]
+                        if found:
+                            line_starts = _line_starts(target)
+                            redaction_spans = (
+                                _redaction_spans(target)
+                                if include_snippets
+                                else (array("I"), array("I"))
+                            )
+                            occurrence_rows = []
+                            record["occurrences"] = occurrence_rows
+                            for match_index, span in enumerate(spans, start=1):
+                                occurrence = {
+                                    "match_index": match_index,
+                                    "match_total": occurrence_count,
+                                    "offset_start": span[0],
+                                    "offset_end": span[1],
+                                    "line": bisect_right(line_starts, span[0]),
+                                }
+                                if include_snippets:
+                                    line_start, window, window_truncated = _match_window(
+                                        target, line_starts, span, redaction_spans
+                                    )
+                                    occurrence.update(
+                                        window_start_line=line_start,
+                                        window=window,
+                                        window_truncated=window_truncated,
+                                    )
+                                occurrence_rows.append(occurrence)
+                                _set_occurrence_output(
+                                    record,
+                                    occurrence_count=occurrence_count,
+                                    count_limited=occurrences_truncated,
+                                    record_limited=False,
+                                )
+                                if _serialized_record_bytes(record) > MAX_SERIALIZED_RECORD_BYTES:
+                                    occurrence_rows.pop()
+                                    _set_occurrence_output(
+                                        record,
+                                        occurrence_count=occurrence_count,
+                                        count_limited=occurrences_truncated,
+                                        record_limited=True,
+                                    )
+                                    break
+                        else:
+                            record["occurrences_omitted"] = 0
+                            record["occurrence_truncated"] = False
+                            record["occurrence_truncation_reasons"] = []
                         if found:
                             present += 1
                         else:
@@ -343,15 +567,34 @@ def search_scan(
                                     target,
                                     query,
                                     case_sensitive=case_sensitive,
-                                    span=match.span() if match is not None else None,
+                                    span=spans[0] if spans else None,
+                                    redaction_spans=redaction_spans,
                                 )
+                        while record["occurrences"] and (
+                            _serialized_record_bytes(record) > MAX_SERIALIZED_RECORD_BYTES
+                        ):
+                            record["occurrences"].pop()
+                            _set_occurrence_output(
+                                record,
+                                occurrence_count=occurrence_count,
+                                count_limited=occurrences_truncated,
+                                record_limited=True,
+                            )
                 except ScanError as exc:
                     unavailable += 1
                     record["reason"] = f"body_integrity_error/{exc}"
+            if _serialized_record_bytes(record) > MAX_SERIALIZED_RECORD_BYTES:
+                raise ValueError("content-search record exceeds the 64 KiB serialized record limit")
+            if record["status"] != "unavailable" and record["occurrence_truncated"]:
+                occurrence_truncated += 1
+                for reason in record["occurrence_truncation_reasons"]:
+                    occurrence_truncation_reasons[reason] += 1
             if record["status"] == "unavailable":
                 reasons[record["reason"]] += 1
-            if on_record is not None:
-                on_record(record)
+            if on_record is not None and on_record(record) is False:
+                consumer_stopped = True
+                stream_error = "record consumer stopped before all selected documents were emitted"
+                break
 
     partial_reasons: list[str] = []
     if header["crawl_partial"]:
@@ -367,6 +610,14 @@ def search_scan(
         partial_reasons.append(stream_error)
     if documents == 0:
         partial_reasons.append("no selected URL pages")
+    if occurrence_truncated:
+        partial_reasons.append(
+            f"occurrence output truncated in {occurrence_truncated} document(s): "
+            + ", ".join(
+                f"{reason}={count}"
+                for reason, count in sorted(occurrence_truncation_reasons.items())
+            )
+        )
     if unavailable or non_html or partial_reasons:
         coverage = "unavailable" if measured == 0 else "partial"
     else:
@@ -394,6 +645,13 @@ def search_scan(
             "partial_reasons": partial_reasons,
             "stream_error": stream_error or None,
             "body_byte_limit": MAX_DOCUMENT_BYTES,
+            "occurrence_output_limit_per_document": MAX_OCCURRENCES_PER_DOCUMENT,
+            "serialized_record_byte_limit": MAX_SERIALIZED_RECORD_BYTES,
+            "window_character_limit": MAX_MATCH_WINDOW_CHARS,
+            "occurrence_truncated_documents": occurrence_truncated,
+            "occurrence_truncation_reasons": dict(sorted(occurrence_truncation_reasons.items())),
+            "record_consumer_stopped": consumer_stopped,
+            "url_filter": url,
         },
         "absence_confirmed": absence_confirmed,
     }

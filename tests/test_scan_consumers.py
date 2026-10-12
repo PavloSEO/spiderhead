@@ -124,6 +124,8 @@ def test_report_cannot_replace_its_sqlite_input(scan):
 def test_compare_handler_cli_and_mcp_keep_identical_comparability_warnings(
     legacy_run, scan, tmp_path, capsys
 ):
+    import asyncio
+
     from seohead import cli
     from seohead.mcp import handlers
     from seohead.mcp.mcp_server import build_server
@@ -133,7 +135,9 @@ def test_compare_handler_cli_and_mcp_keep_identical_comparability_warnings(
     assert handlers.compare_crawls(str(scan), original) == expected
     server = build_server()
     assert (
-        server._tool_manager.get_tool("seo_compare_crawls").fn(before=str(scan), after=original)
+        asyncio.run(
+            server._tool_manager.get_tool("seo_compare_crawls").fn(before=str(scan), after=original)
+        )
         == expected
     )
     assert cli.main(["compare-crawls", "--before", str(scan), "--after", original]) == 0

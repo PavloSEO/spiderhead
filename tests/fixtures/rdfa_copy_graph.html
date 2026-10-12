@@ -1,0 +1,29 @@
+<div vocab="https://schema.org/">
+  <div resource="#direct" typeof="rdfa:Pattern">
+    <span property="name">Shared name</span>
+  </div>
+  <div resource="#base" typeof="rdfa:Pattern">
+    <span property="description">Shared description</span>
+  </div>
+  <div resource="#chained" typeof="rdfa:Pattern">
+    <span property="name">Chained name</span>
+    <link property="rdfa:copy" href="#base">
+  </div>
+  <div resource="#cycle-a" typeof="rdfa:Pattern">
+    <span property="name">Cycle name</span>
+    <link property="rdfa:copy" href="#cycle-b">
+  </div>
+  <div resource="#cycle-b" typeof="rdfa:Pattern">
+    <span property="description">Cycle description</span>
+    <link property="rdfa:copy" href="#cycle-a">
+  </div>
+  <div resource="#event" typeof="schema:Thing">
+    <link property="rdfa:copy" href="#direct">
+  </div>
+  <div resource="#article" typeof="schema:Thing">
+    <link property="rdfa:copy" href="#chained">
+  </div>
+  <div resource="#other" typeof="schema:Thing">
+    <link property="rdfa:copy" href="#cycle-a">
+  </div>
+</div>

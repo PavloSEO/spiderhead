@@ -1,139 +1,159 @@
-"""Проверка ботов (canvas LogsBots.dc.html): bot authenticity from the server log, per IP and subnet.
-
-The sheet needs a per-IP verification: PTR and forward DNS for every bot address, the subnet table, and the nginx
-deny rule for fake bots. The core answers ``log-analyze --verify-bots`` with one sample per bot family and no IP rows,
-so the screen cannot honestly show the table or the verdicts yet. Until the core gives them, the board keeps its
-layout (KPI pills, filters, table, verification panel), every value reads «—», and the body is the waiting state.
-Nothing is computed here and no sample rows exist.
-"""
+"""Read and explicitly verify the retained access-log bot IP page."""
 
 from __future__ import annotations
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QToolButton, QVBoxLayout
-
-from .. import i18n, theming
-from ..i18n import tr
-from ..ui.icons import material_icon
-from ..ui.kit import StatePanel, no_project_panel
-from .base import Screen
-
-KPIS = (
-    ("IP с User-Agent ботов", "select_all"),
-    ("подтверждено", "verified"),
-    ("подделки", "gpp_bad"),
-    ("не проверено", "help"),
+from PyQt5.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QTableView,
+    QVBoxLayout,
 )
-FILTERS = (("all", "Все"), ("ok", "Подтверждён"), ("fake", "Подделка"), ("left", "Не проверен"))
-BOT_GROUPS = (("Google", "Google"), ("Yandex", "Яндекс"), ("Bing", "Bing"), ("ai", "AI-боты"))
-UNAVAILABLE_TIP_TEXT = "Проверка по IP появится, когда ядро отдаст вердикт по каждому адресу лога. Недоступно в этой версии ядра"
 
-
-def disabled_pill(text, icon, name, group=False):
-    """``text`` is already translated; the pill is disabled because the core has no per-IP verdicts yet."""
-    pill = QToolButton()
-    pill.setProperty("pill", "group" if group else "kpi")
-    pill.setObjectName(name)
-    pill.setText(text)
-    pill.setIcon(material_icon(icon, theming.roles()["text_2"]))
-    pill.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-    pill.setEnabled(False)
-    pill.setToolTip(tr(UNAVAILABLE_TIP_TEXT))
-    return pill
+from ..ui.kit import StatePanel
+from .base import Screen
+from .logs import LogRowsModel, bot_arguments
+from .url_query import CoreJob
 
 
 class LogsBotsScreen(Screen):
     slot = ""
-    watches = ("project",)
+    watches = ()
 
     def __init__(self, host):
         super().__init__(host)
+        self.job = CoreJob(host, self)
+        self.job.done.connect(self._done)
+        self.job.failed.connect(self._failed)
+        self._token = None
+        self.offset = 0
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
-        head = QFrame()
-        head.setProperty("page_bar", True)
-        head_layout = QVBoxLayout(head)
-        head_layout.setContentsMargins(20, 8, 16, 8)
-        head_layout.setSpacing(8)
-        title_row = QHBoxLayout()
-        title = QLabel(tr("Проверка ботов"))
-        title.setProperty("text_style", "title")
-        title_row.addWidget(title)
-        title_row.addStretch(1)
-        self.scope_text = QLabel()
-        self.scope_text.setProperty("text_style", "meta")
-        title_row.addWidget(self.scope_text)
-        head_layout.addLayout(title_row)
-        kpi_row = QHBoxLayout()
-        kpi_row.setSpacing(6)
-        self.kpis = []
-        for index, (label, icon) in enumerate(KPIS):
-            pill = disabled_pill(f"— {tr(label)}", icon, f"logs_bots_kpi_{index}")
-            self.kpis.append(pill)
-            kpi_row.addWidget(pill)
-        kpi_row.addStretch(1)
-        head_layout.addLayout(kpi_row)
-        filter_row = QHBoxLayout()
-        filter_row.setSpacing(6)
-        self.filters = []
-        for key, label in FILTERS:
-            pill = disabled_pill(tr(label), "select_all", f"logs_bots_filter_{key}", group=True)
-            self.filters.append(pill)
-            filter_row.addWidget(pill)
-        filter_row.addSpacing(8)
-        for key, label in BOT_GROUPS:
-            pill = disabled_pill(tr(label), "smart_toy", f"logs_bots_group_{key}", group=True)
-            self.filters.append(pill)
-            filter_row.addWidget(pill)
-        filter_row.addStretch(1)
-        head_layout.addLayout(filter_row)
-        root.addWidget(head)
-        self.body = QVBoxLayout()
-        self.body.setContentsMargins(24, 16, 24, 16)
-        root.addLayout(self.body, 1)
-        self.foot_text = QLabel()
-        self.foot_text.setProperty("text_style", "meta")
-        self.foot_text.setContentsMargins(16, 6, 16, 6)
-        self.foot_text.setWordWrap(True)
-        root.addWidget(self.foot_text)
-        self.panel = None
-        i18n.signals.changed.connect(self._language_changed)
-        self.refresh()
+        header = QFrame()
+        header.setProperty("page_bar", True)
+        bar = QHBoxLayout(header)
+        bar.setContentsMargins(20, 8, 16, 8)
+        self.title = QLabel("Bot IP evidence")
+        self.title.setProperty("text_style", "title")
+        bar.addWidget(self.title)
+        bar.addStretch(1)
+        self.back = QPushButton("Back to logs")
+        self.back.clicked.connect(lambda: host.show_screen("logs"))
+        bar.addWidget(self.back)
+        self.verify_button = QPushButton("Verify this page with DNS…")
+        self.verify_button.setEnabled(bool(self._source()))
+        self.verify_button.clicked.connect(self.verify)
+        bar.addWidget(self.verify_button)
+        self.previous = QPushButton("Previous")
+        self.previous.clicked.connect(lambda: self.load(offset=max(0, self.offset - 100)))
+        bar.addWidget(self.previous)
+        self.next = QPushButton("Next")
+        self.next.clicked.connect(lambda: self.load(offset=self.offset + 100))
+        bar.addWidget(self.next)
+        root.addWidget(header)
+        self.summary = QLabel()
+        self.summary.setProperty("text_style", "meta")
+        self.summary.setContentsMargins(20, 8, 20, 8)
+        root.addWidget(self.summary)
+        self.table = QTableView()
+        self.model = LogRowsModel(self.table)
+        self.table.setModel(self.model)
+        self.table.setAlternatingRowColors(True)
+        self.table.setSelectionBehavior(QTableView.SelectRows)
+        root.addWidget(self.table, 1)
+        self.state = StatePanel(
+            "empty", "No retained log evidence", "Import an access log from Logs first."
+        )
+        root.addWidget(self.state)
+        self.state.hide()
 
-    def _language_changed(self, _language):
-        self.refresh()
-
-    def _set_panel(self, widget):
-        while self.body.count():
-            item = self.body.takeAt(0)
-            if item.widget() is not None:
-                item.widget().deleteLater()
-        self.body.addWidget(widget, 1)
-        self.panel = widget
-        self.layout().activate()  # a panel built while the window was hidden keeps its default 640x480 geometry otherwise
+    def _data_changed(self, kind):
+        if kind == "project" and self.isVisible():
+            self.refresh()
 
     def refresh(self):
-        if not self.project_open:
-            self.scope_text.setText(tr("Проект не открыт"))
-            self._set_panel(
-                no_project_panel(
-                    self.host, tr("Откройте проект, чтобы проверить ботов по логам сервера.")
-                )
-            )
-            self.foot_text.setText(tr("Лог сервера не подключён"))
+        source = self._source()
+        if not source:
+            self.model.set_rows([])
+            self.state.show()
+            self.verify_button.setEnabled(False)
+            self.summary.setText("No retained log import is loaded for this project.")
             return
-        self.scope_text.setText(tr("Лог сервера не загружен"))
-        # The core verifies bots per family (one sample IP each); it has no per-IP verdicts to list.
-        self._set_panel(
-            StatePanel(
-                "waiting",
-                "Проверка ботов по логу не загружена",
-                tr(
-                    "Ядро проверяет подлинность ботов по обратному и прямому DNS, но отдаёт вердикт по семейству ботов, "
-                    "а не по каждому IP. Таблица IP, подсетей и цепочка проверки появятся с этим ответом ядра."
-                ),
-                hint=UNAVAILABLE_TIP_TEXT,
-            )
+        self.state.hide()
+        self.verify_button.setEnabled(True)
+        self.load(reset=True)
+
+    def load(self, *, offset=None, reset=False, verify=False):
+        source = self._source()
+        if not source:
+            return
+        if reset:
+            offset = 0
+        if offset is not None:
+            self.offset = offset
+        self.summary.setText(
+            "Loading bot IP claims. No DNS request will run until you choose Verify."
         )
-        self.foot_text.setText(tr("Журнал сервера не подключён в этой версии ядра"))
+        token = object()
+        self._token = (token, verify)
+        self.job.start(bot_arguments(source, verify=verify, offset=self.offset), token)
+
+    def verify(self):
+        source = self._source()
+        if not source:
+            return
+        result = QMessageBox.question(
+            self,
+            "Verify bot IPs",
+            "This checks up to 20 IP addresses on the current page using DNS and stores the returned verdicts in the retained log artifact. Continue?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if result != QMessageBox.Yes:
+            return
+        token = object()
+        self._token = (token, True)
+        self.verify_button.setEnabled(False)
+        self.summary.setText("Running the explicitly requested DNS verification…")
+        self.job.start(bot_arguments(source, verify=True, offset=self.offset), token)
+
+    def _source(self):
+        project = getattr(self.host, "project_directory", None)
+        if not project:
+            return None
+        imports = getattr(self.host, "log_imports", {})
+        entry = imports.get(project) if isinstance(imports, dict) else None
+        return entry.get("source") if isinstance(entry, dict) else None
+
+    def _done(self, token, payload):
+        if self._token is None or token is not self._token[0]:
+            return
+        verify = self._token[1]
+        self._token = None
+        if payload.get("ok") is not True:
+            self.summary.setText(
+                str(payload.get("error") or "Bot IP evidence is unavailable.")[:300]
+            )
+            self.model.set_rows([])
+            self.verify_button.setEnabled(bool(self._source()))
+            return
+        self.model.set_rows(payload.get("rows") or [])
+        verification = payload.get("verification") or {}
+        status = "DNS verification was requested" if verify else "DNS was not requested"
+        self.summary.setText(
+            f"{payload.get('total', '—')} bot IP records · {payload.get('unique_ips', '—')} unique IPs · "
+            f"{status} · {verification.get('dns_checks', 0)} checks · Bot names begin as user-agent claims"
+        )
+        self.previous.setEnabled(self.offset > 0)
+        self.next.setEnabled(bool(payload.get("has_more")))
+        self.verify_button.setEnabled(bool(self._source()))
+
+    def _failed(self, token, reason):
+        if self._token is None or token is not self._token[0]:
+            return
+        self._token = None
+        self.summary.setText(str(reason)[:300])
+        self.verify_button.setEnabled(bool(self._source()))

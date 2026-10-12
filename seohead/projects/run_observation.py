@@ -72,7 +72,52 @@ def _empty(project_uuid: str) -> dict[str, Any]:
 def _process_identity(pid: int) -> str | None:
     """Return a platform process-start identity when the host exposes one."""
     if os.name == "nt":
-        return None
+        import ctypes
+        from ctypes import wintypes
+
+        class _FileTime(ctypes.Structure):
+            _fields_ = [("low", wintypes.DWORD), ("high", wintypes.DWORD)]
+
+        try:
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            open_process = kernel32.OpenProcess
+            open_process.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+            open_process.restype = wintypes.HANDLE
+            get_times = kernel32.GetProcessTimes
+            get_times.argtypes = (
+                wintypes.HANDLE,
+                ctypes.POINTER(_FileTime),
+                ctypes.POINTER(_FileTime),
+                ctypes.POINTER(_FileTime),
+                ctypes.POINTER(_FileTime),
+            )
+            get_times.restype = wintypes.BOOL
+            close_handle = kernel32.CloseHandle
+            close_handle.argtypes = (wintypes.HANDLE,)
+            close_handle.restype = wintypes.BOOL
+            handle = open_process(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+            if not handle:
+                return None
+            created = _FileTime()
+            exited = _FileTime()
+            kernel = _FileTime()
+            user = _FileTime()
+            try:
+                measured = get_times(
+                    handle,
+                    ctypes.byref(created),
+                    ctypes.byref(exited),
+                    ctypes.byref(kernel),
+                    ctypes.byref(user),
+                )
+                if not measured:
+                    return None
+                value = (created.high << 32) | created.low
+                return f"windows:{value}"
+            finally:
+                close_handle(handle)
+        except (AttributeError, OSError, ValueError):
+            return None
     try:
         result = subprocess.run(
             ["ps", "-o", "lstart=", "-p", str(pid)],
@@ -437,6 +482,20 @@ def start(
         document["runs"].append(run)
         try:
             _save(root, document)
+            from .journal import note
+
+            note(root, source="scans", actor="agent", text=f"run {run_id} started ({kind}/{mode})")
+            try:
+                from .action_log import record_interface_action
+
+                record_interface_action(
+                    root,
+                    action="run.start",
+                    outcome="applied",
+                    detail=f"Started {kind}/{mode} run",
+                )
+            except (OSError, ValueError):
+                pass
             return copy.deepcopy(run)
         except ValueError as exc:
             if not _contention(exc) or attempt + 1 == WRITE_ATTEMPTS:
@@ -517,6 +576,10 @@ def progress(
         run = _find(document, run_id)
         if run["state"] != "running":
             return
+        first_progress = not any(
+            event.get("phase") == "collection" and event.get("code") == "progress"
+            for event in run["events"]
+        )
         run["counters"] = values
         run["telemetry"] = {
             "sampled_at": _now(),
@@ -528,6 +591,29 @@ def progress(
         _event(run, "collection", "progress")
         try:
             _save(root, document)
+            if first_progress:
+                from .journal import note
+
+                note(
+                    root,
+                    source="scans",
+                    actor="agent",
+                    text=(
+                        f"run {run_id} progress: fetched={values['fetched']}, "
+                        f"queued={values['queued']}, inflight={values['inflight']}"
+                    ),
+                )
+                try:
+                    from .action_log import record_interface_action
+
+                    record_interface_action(
+                        root,
+                        action="run.progress",
+                        outcome="applied",
+                        detail=f"Recorded first measured progress for run {run_id}",
+                    )
+                except (OSError, ValueError):
+                    pass
             return
         except ValueError as exc:
             if not _contention(exc) or attempt + 1 == WRITE_ATTEMPTS:
@@ -577,9 +663,26 @@ def finish(
                 raise
             _retry_delay(attempt)
             continue
+        try:
+            from .status_measurement import refresh_storage_measurement
+
+            refresh_storage_measurement(root)
+        except (OSError, ValueError):
+            pass
         from .journal import note
 
         note(root, source="scans", actor="agent", text=f"crawl {run_id} {state}: {finish_reason}")
+        try:
+            from .action_log import record_interface_action
+
+            record_interface_action(
+                root,
+                action="run.finish",
+                outcome="applied",
+                detail=f"Run {run_id} reached {state}",
+            )
+        except (OSError, ValueError):
+            pass
         return
 
 
@@ -643,6 +746,31 @@ def finish_sitemap(directory: str | Path, run_id: str, result: dict) -> None:
         _validate(document, document["project_uuid"])
         try:
             _save(root, document)
+            try:
+                from .status_measurement import refresh_storage_measurement
+
+                refresh_storage_measurement(root)
+            except (OSError, ValueError):
+                pass
+            from .journal import note
+
+            note(
+                root,
+                source="scans",
+                actor="agent",
+                text=f"sitemap run {run_id} {run['state']}: {run['finish_reason']}",
+            )
+            try:
+                from .action_log import record_interface_action
+
+                record_interface_action(
+                    root,
+                    action="run.finish",
+                    outcome="applied",
+                    detail=f"Sitemap run {run_id} reached {run['state']}",
+                )
+            except (OSError, ValueError):
+                pass
             return
         except ValueError as exc:
             if not _contention(exc) or attempt + 1 == WRITE_ATTEMPTS:

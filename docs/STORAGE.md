@@ -547,6 +547,8 @@ checks read static source; accessibility and schema findings read the active doc
 The SQL `scan.v1` schema and `PageRecord` columns are unchanged. Full AMP validator
 rules, rendered axe-core and computed contrast remain explicitly unmeasured.
 
+Schema.org RDFa properties require an absolute Schema.org vocabulary IRI or a recognized prefix. A schemeless `schema.org/name` token or a different host containing `schema.org` does not establish Schema.org markup.
+
 `scan-structured-blocks` reads the latest retained complete body for the requested exact
 URL and representation. Each live JSON-LD block includes line/column, syntax error,
 types, validation messages, a property tree, source JSON and `parsed_json`. Source output
@@ -797,6 +799,14 @@ unverifiable source checkout still requires an explicit `--producer-build`
 SHA; the runtime never borrows an enclosing repository's revision. The producing version/revision,
 runtime versions, full effective configuration and result-affecting fingerprint are stored in the
 scan. A different configuration or producing build refuses resume.
+
+The native header retains the earlier configuration shape and its historical fingerprint.
+New tracking-parameter, HTTP authentication, zstd, page-action and screenshot-mode options
+are retained in a validated `native_config_extension.v1` run context with the full effective
+fingerprint. Readers merge that context for execution, resume and reanalysis; metadata reads
+do not migrate the file. Artifacts without the context keep their earlier behavior, including
+leaving tracking parameters intact. An older reader can inspect the compatible header but
+must refuse full validation or resume when it does not understand the extension.
 
 `python -m seohead.storage inspect native.sqlite` also validates a capture with
 no audit and reports `audit_available`; report commands still require an audit.

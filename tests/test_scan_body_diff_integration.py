@@ -90,6 +90,17 @@ def _static_and_rendered_scan(path, *, static: bytes, diagnostic: bytes, rendere
         return static_id
 
 
+def _mark_inventory(scan: sqlite3.Connection, document_id: int):
+    scan.execute(
+        "INSERT INTO context_items(kind,item_key,payload_version,payload_json,completeness,reason) "
+        "VALUES('resource_inventory',?,'scan_context.v1',?,'complete','')",
+        (
+            f"document:{document_id}",
+            json.dumps({"document_id": document_id, "state": "complete", "omitted": 0}),
+        ),
+    )
+
+
 def test_static_uses_active_inventory_after_page_selects_rendered_document(tmp_path):
     left_path = tmp_path / "left.sqlite"
     right_path = tmp_path / "right.sqlite"
@@ -109,6 +120,118 @@ def test_static_uses_active_inventory_after_page_selects_rendered_document(tmp_p
         result = body_diff(left, right, PAGE_URL)
     assert result["status"] == "unchanged"
     assert result["left"]["document_id"] == left_static
+
+
+def test_body_diff_compares_static_with_rendered_in_one_scan(tmp_path):
+    path = tmp_path / "scan.sqlite"
+    _static_and_rendered_scan(
+        path,
+        static=b"<html><body>server copy</body></html>",
+        diagnostic=b"<html>diagnostic</html>",
+        renderer=_renderer(PAGE_URL),
+    )
+    with sqlite3.connect(path) as scan:
+        result = body_diff(
+            scan,
+            scan,
+            PAGE_URL,
+            left_representation="static",
+            right_representation="rendered",
+            text=True,
+        )
+    assert result["status"] == "changed"
+    assert result["representation"] == "cross-representation"
+    assert result["left_representation"] == "static"
+    assert result["right_representation"] == "rendered"
+    assert "server copy" in "\n".join(result["text_diff"])
+
+
+def test_body_read_and_diff_keep_multiple_inventory_variants_inspectable(tmp_path):
+    path = tmp_path / "variants.sqlite"
+    _static_and_rendered_scan(
+        path,
+        static=b"<html>primary variant</html>",
+        diagnostic=b"<html>secondary variant</html>",
+        renderer=_renderer(PAGE_URL),
+    )
+    with sqlite3.connect(path) as scan:
+        documents = scan.execute(
+            "SELECT document_id,source_response_id FROM documents "
+            "WHERE representation='static' ORDER BY document_id"
+        ).fetchall()
+        _primary_id, primary_response = documents[0]
+        secondary_id, secondary_response = documents[-1]
+        scan.execute(
+            "UPDATE responses SET variant_key='primary-v1' WHERE response_id=?",
+            (primary_response,),
+        )
+        scan.execute(
+            "UPDATE responses SET variant_key='secondary-v2' WHERE response_id=?",
+            (secondary_response,),
+        )
+        _mark_inventory(scan, secondary_id)
+        result = body_diff(scan, scan, PAGE_URL)
+        selected = body_diff(scan, scan, PAGE_URL, variant_key="secondary-v2")
+        scan.commit()
+
+    assert result["status"] == "not_comparable"
+    assert "variant_key is required" in result["reason"]
+    assert selected["status"] == "unchanged"
+    assert selected["left"]["document_id"] == secondary_id
+
+
+def test_rendered_comparison_preserves_explicit_variant_constraint(tmp_path):
+    path = tmp_path / "rendered.sqlite"
+    _static_and_rendered_scan(
+        path,
+        static=b"<html>static</html>",
+        diagnostic=b"<html>diagnostic</html>",
+        renderer=_renderer(PAGE_URL),
+    )
+    with sqlite3.connect(path) as scan:
+        result = body_diff(scan, scan, PAGE_URL, representation="rendered", variant_key="http-v1")
+
+    assert result["status"] == "not_comparable"
+    assert "requested HTTP variant is missing" in result["reason"]
+
+
+def test_body_diff_cli_and_mcp_share_cross_representation_options(tmp_path, capsys):
+    from seohead import cli
+    from seohead.mcp.mcp_server import build_server
+
+    path = tmp_path / "scan.sqlite"
+    _static_and_rendered_scan(
+        path,
+        static=b"<html><body>server copy</body></html>",
+        diagnostic=b"<html>diagnostic</html>",
+        renderer=_renderer(PAGE_URL),
+    )
+    args = [
+        "scan-body-diff",
+        "--left",
+        str(path),
+        "--right",
+        str(path),
+        "--url",
+        PAGE_URL,
+        "--left-representation",
+        "static",
+        "--right-representation",
+        "rendered",
+        "--text",
+    ]
+    assert cli.main(args) == 0
+    command_result = json.loads(capsys.readouterr().out)
+    tool = build_server()._tool_manager.get_tool("seo_scan_body_diff")
+    mcp_result = tool.fn(
+        left=str(path),
+        right=str(path),
+        url=PAGE_URL,
+        left_representation="static",
+        right_representation="rendered",
+        text=True,
+    )
+    assert command_result == mcp_result
 
 
 def test_static_resource_response_fallback_is_retained_and_variant_safe(tmp_path):

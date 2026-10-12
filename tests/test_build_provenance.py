@@ -51,6 +51,26 @@ def test_staged_package_manifest_covers_python_sql_and_json_without_absolute_pat
     assert (staged / "seohead" / "storage" / "scan_v1.sql").read_bytes() == source_before
 
 
+def test_build_manifest_records_a_reproducible_utc_timestamp(tmp_path, monkeypatch):
+    staged = _staged_package(tmp_path)
+    monkeypatch.setenv("SOURCE_DATE_EPOCH", "1791806400")
+
+    manifest = build_provenance.build_manifest(staged, version=__version__, revision=REVISION)
+    result = build_provenance.validate_manifest(staged, manifest)
+
+    assert result.built_at == "2026-10-12T12:00:00Z"
+    legacy = {key: value for key, value in manifest.items() if key != "built_at"}
+    assert build_provenance.validate_manifest(staged, legacy).built_at is None
+
+
+def test_build_manifest_rejects_invalid_reproducible_timestamp(tmp_path, monkeypatch):
+    staged = _staged_package(tmp_path)
+    monkeypatch.setenv("SOURCE_DATE_EPOCH", "not-an-integer")
+
+    with pytest.raises(BuildProvenanceError, match="SOURCE_DATE_EPOCH"):
+        build_provenance.build_manifest(staged, version=__version__, revision=REVISION)
+
+
 @pytest.mark.parametrize("manifest_version", (99, True))
 def test_staged_package_refuses_changed_sql_or_malformed_metadata(tmp_path, manifest_version):
     staged = _staged_package(tmp_path)

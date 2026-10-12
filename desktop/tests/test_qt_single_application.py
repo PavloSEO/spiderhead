@@ -1,12 +1,30 @@
 import re
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 CREATES = re.compile(r"\bQApplication\s*\(")
 
 
 class SingleApplicationTests(unittest.TestCase):
+    def test_theme_changes_do_not_register_bundled_fonts_again(self):
+        from PyQt5.QtGui import QFontDatabase
+
+        from seohead_desktop.app import load_theme
+        from seohead_desktop.qt import app as qt_app
+        from tests._qt import sweep_widgets
+
+        app = qt_app()
+        sweep_widgets()
+        load_theme(app, "light")
+        with patch.object(
+            QFontDatabase, "addApplicationFont", wraps=QFontDatabase.addApplicationFont
+        ) as register:
+            load_theme(app, "dark")
+            load_theme(app, "light")
+        register.assert_not_called()
+
     def test_only_the_qt_helper_creates_the_application(self):
         offenders = []
         for folder in ("tests", "scripts", "src"):

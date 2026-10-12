@@ -7,8 +7,8 @@ artifact and counts the rows it actually holds. A reported count that came from
 a parallel in-memory tally rather than the artifact would drift from that and
 fail here.
 
-The rest guards the other half of believing it: a percentage of a frontier that
-is still growing must not read as a completion estimate, an unmeasured rate must
+The rest guards the other half of believing it: percentage and ETA cover only
+the frontier currently known, not the crawl's eventual workload; an unmeasured rate must
 not read as a stalled crawl, ``-q`` must be silent, and a non-TTY must get whole
 lines rather than carriage returns.
 """
@@ -195,20 +195,22 @@ def _reporter(**kwargs):
 def test_the_percentage_is_of_the_known_set_not_of_a_total():
     line = _reporter().line(25, 75, elapsed=10, rate=2.5)
     assert "100 known (25%)" in line
+    assert "known ETA ~30s" in line
     assert "total" not in line
 
 
 def test_the_header_says_the_frontier_is_still_growing():
     header = _reporter(budget=40000)._header()
     assert "40000-URL budget" in header
-    assert "grows" in header and "not of the site" in header
-    assert "not an estimate of when the crawl will finish" in header
+    assert "grows" in header and "not the whole site" in header
+    assert "cover only the current known frontier" in header
+    assert "total crawl duration" in header
 
 
 def test_unlimited_progress_reports_the_discovered_population_without_a_zero_cap():
     reporter = _reporter(budget=0)
     assert "without a URL limit" in reporter._header()
-    assert "not of the site" in reporter._header()
+    assert "not the whole site" in reporter._header()
     assert "300 known (66%)" in reporter.line(200, 100, elapsed=1, rate=1.0)
 
 
@@ -219,6 +221,7 @@ def test_the_known_set_is_capped_at_the_url_budget():
 
 def test_an_unmeasured_rate_says_so_rather_than_reading_as_a_stall():
     assert "rate n/a" in _reporter().line(3, 4, elapsed=0.0, rate=None)
+    assert "known ETA n/a" in _reporter().line(3, 4, elapsed=0.0, rate=None)
     assert "0.0 req/s" not in _reporter().line(3, 4, elapsed=0.0, rate=None)
 
 

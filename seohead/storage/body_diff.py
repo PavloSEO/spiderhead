@@ -8,7 +8,7 @@ import sqlite3
 from typing import Any
 
 from . import ScanError
-from .bodies import decode_entity, read_body
+from .bodies import _DOCUMENT_CANDIDATE, decode_entity, read_body
 
 _MAX_BYTES = 64 * 1024 * 1024
 _MAX_LINES = 1_000_000
@@ -39,7 +39,10 @@ def _observation(
         con,
         "SELECT DISTINCT r.variant_key FROM documents d JOIN urls u ON u.url_id=d.url_id "
         "LEFT JOIN responses r ON r.response_id=d.source_response_id "
-        "WHERE u.url=? AND d.representation=? LIMIT 2",
+        "LEFT JOIN pages p ON p.url_id=d.url_id "
+        "LEFT JOIN context_items i ON i.kind='resource_inventory' "
+        "AND i.item_key='document:'||d.document_id "
+        "WHERE u.url=? AND d.representation=? AND " + _DOCUMENT_CANDIDATE + " LIMIT 2",
         identity,
     )
     if not variants:
@@ -61,7 +64,7 @@ def _observation(
         "LEFT JOIN pages p ON p.url_id=d.url_id "
         "LEFT JOIN context_items i ON i.kind='resource_inventory' "
         "AND i.item_key='document:'||d.document_id "
-        "WHERE u.url=? AND d.representation=?" + clause + " "
+        "WHERE u.url=? AND d.representation=?" + clause + " AND " + _DOCUMENT_CANDIDATE + " "
         "ORDER BY (p.document_id=d.document_id) DESC,(i.item_key IS NOT NULL) DESC,"
         "d.document_id DESC LIMIT 1",
         values,
@@ -133,12 +136,20 @@ def _result(
     variant_key: str | None,
     left: dict[str, Any] | None,
     right: dict[str, Any] | None,
+    left_representation: str | None = None,
+    right_representation: str | None = None,
 ) -> dict[str, Any]:
     return {
         "status": status,
         "reason": reason,
         "url": url,
         "representation": representation,
+        "left_representation": (
+            left_representation if left_representation is not None else representation
+        ),
+        "right_representation": (
+            right_representation if right_representation is not None else representation
+        ),
         "variant_key": variant_key,
         "left": _summary(left),
         "right": _summary(right),
@@ -216,21 +227,59 @@ def body_diff(
     text: bool = False,
     max_bytes: int = 5 * 1024 * 1024,
     max_lines: int = 10_000,
+    left_representation: str | None = None,
+    right_representation: str | None = None,
 ) -> dict[str, Any]:
     """Compare exactly matched retained bodies without fetching or SEO scoring."""
     if not isinstance(url, str) or not url:
         raise ValueError("url must be a nonempty string")
     if representation not in _REPRESENTATIONS:
         raise ValueError("representation must be static, rendered, or legacy_fragment")
+    left_representation = representation if left_representation is None else left_representation
+    right_representation = representation if right_representation is None else right_representation
+    if left_representation not in _REPRESENTATIONS or right_representation not in _REPRESENTATIONS:
+        raise ValueError(
+            "left and right representations must be static, rendered, or legacy_fragment"
+        )
     if variant_key is not None and not isinstance(variant_key, str):
         raise ValueError("variant_key must be a string or null")
     if type(text) is not bool:
         raise ValueError("text must be a boolean")
     _limits(max_bytes, max_lines)
-    left_row, left_problem = _observation(_connection(left), url, representation, variant_key)
-    right_row, right_problem = _observation(_connection(right), url, representation, variant_key)
-    if left_problem or right_problem:
+    cross_representation = left_representation != right_representation
+    left_row, left_problem = _observation(
+        _connection(left),
+        url,
+        left_representation,
+        None if cross_representation and left_representation == "rendered" else variant_key,
+    )
+    right_row, right_problem = _observation(
+        _connection(right),
+        url,
+        right_representation,
+        None if cross_representation and right_representation == "rendered" else variant_key,
+    )
+    result_representation = (
+        left_representation
+        if left_representation == right_representation
+        else "cross-representation"
+    )
+
+    def result(status, reason):
         return _result(
+            status,
+            reason,
+            url=url,
+            representation=result_representation,
+            variant_key=variant_key,
+            left=left_row,
+            right=right_row,
+            left_representation=left_representation,
+            right_representation=right_representation,
+        )
+
+    if left_problem or right_problem:
+        return result(
             "not_comparable"
             if any(problem and "variant" in problem for problem in (left_problem, right_problem))
             else "missing_evidence",
@@ -239,97 +288,66 @@ def body_diff(
                 for side, problem in (("left", left_problem), ("right", right_problem))
                 if problem
             ),
-            url=url,
-            representation=representation,
-            variant_key=variant_key,
-            left=left_row,
-            right=right_row,
         )
     assert left_row is not None and right_row is not None
-    if variant_key is None and left_row["variant_key"] != right_row["variant_key"]:
-        return _result(
+    if (
+        variant_key is None
+        and not (cross_representation and "rendered" in {left_representation, right_representation})
+        and left_row["variant_key"] != right_row["variant_key"]
+    ):
+        return result(
             "not_comparable",
-            "HTTP variants differ between scans; variant_key is required",
-            url=url,
-            representation=representation,
-            variant_key=variant_key,
-            left=left_row,
-            right=right_row,
+            "HTTP variants differ between selected observations; variant_key is required",
         )
     for side, row in (("left", left_row), ("right", right_row)):
         if row["body_state"] != "complete" or row["body_sha256"] is None:
-            return _result(
+            return result(
                 "missing_evidence",
                 f"{side} body is {row['body_state']}/{row['body_reason']}",
-                url=url,
-                representation=representation,
-                variant_key=variant_key,
-                left=left_row,
-                right=right_row,
             )
-    if left_row["fidelity"] != right_row["fidelity"]:
-        return _result(
+    if left_row["fidelity"] != right_row["fidelity"] and not (
+        left_representation != right_representation and _textual(left_row) and _textual(right_row)
+    ):
+        return result(
             "not_comparable",
-            "body fidelity differs between scans",
-            url=url,
-            representation=representation,
-            variant_key=variant_key,
-            left=left_row,
-            right=right_row,
+            "body fidelity differs between selected observations",
         )
     if left_row["purpose"] != right_row["purpose"]:
-        return _result(
+        return result(
             "not_comparable",
             "body purpose differs between scans",
-            url=url,
-            representation=representation,
-            variant_key=variant_key,
-            left=left_row,
-            right=right_row,
         )
-    if representation == "rendered":
-        left_renderer = _renderer_provenance(left_row)
-        right_renderer = _renderer_provenance(right_row)
-        if left_renderer is None or right_renderer is None:
-            sides = ", ".join(
-                side
-                for side, renderer in (("left", left_renderer), ("right", right_renderer))
-                if renderer is None
-            )
-            return _result(
+    renderer_rows = [
+        (side, row)
+        for side, row, selected in (
+            ("left", left_row, left_representation),
+            ("right", right_row, right_representation),
+        )
+        if selected == "rendered"
+    ]
+    if renderer_rows:
+        renderers = [(side, _renderer_provenance(row)) for side, row in renderer_rows]
+        if any(renderer is None for _side, renderer in renderers):
+            sides = ", ".join(side for side, renderer in renderers if renderer is None)
+            return result(
                 "not_comparable",
                 f"rendered renderer provenance is unavailable for {sides}",
-                url=url,
-                representation=representation,
-                variant_key=variant_key,
-                left=left_row,
-                right=right_row,
             )
-        if left_renderer != right_renderer:
-            return _result(
+        if len(renderers) == 2 and renderers[0][1] != renderers[1][1]:
+            return result(
                 "not_comparable",
                 "rendered renderer provenance differs between scans",
-                url=url,
-                representation=representation,
-                variant_key=variant_key,
-                left=left_row,
-                right=right_row,
             )
     status = "unchanged" if left_row["body_sha256"] == right_row["body_sha256"] else "changed"
-    result = _result(
+    output = result(
         status,
         "body hashes match" if status == "unchanged" else "body hashes differ",
-        url=url,
-        representation=representation,
-        variant_key=variant_key,
-        left=left_row,
-        right=right_row,
     )
     if not text or status == "unchanged":
-        return result
+        return output
     if not _textual(left_row) or not _textual(right_row):
-        result.update(status="not_comparable", reason="text diff requires textual body fidelity")
-        return result
+        output.update(status="not_comparable", reason="text diff requires textual body fidelity")
+        return output
     left_size = _rows(
         _connection(left),
         "SELECT decoded_bytes FROM bodies WHERE sha256=?",
@@ -346,19 +364,19 @@ def body_diff(
         or left_size[0]["decoded_bytes"] > max_bytes
         or right_size[0]["decoded_bytes"] > max_bytes
     ):
-        result.update(
+        output.update(
             status="not_comparable", reason="text diff exceeds max_bytes before materialization"
         )
-        return result
+        return output
     left_raw = read_body(_connection(left), left_row["body_sha256"], max_decoded_bytes=max_bytes)
     right_raw = read_body(_connection(right), right_row["body_sha256"], max_decoded_bytes=max_bytes)
     left_lines = _text(left_raw, left_row).splitlines()
     right_lines = _text(right_raw, right_row).splitlines()
     if len(left_lines) > max_lines or len(right_lines) > max_lines:
-        result.update(
+        output.update(
             status="not_comparable", reason="text diff exceeds max_lines before materialization"
         )
-        return result
+        return output
     diff: list[str] = []
     output_bytes = 0
     for line in difflib.unified_diff(
@@ -366,14 +384,14 @@ def body_diff(
     ):
         line_bytes = len((line + "\n").encode("utf-8"))
         if len(diff) >= max_lines or output_bytes + line_bytes > max_bytes:
-            result.update(
+            output.update(
                 status="not_comparable", reason="text diff output exceeds configured limits"
             )
-            return result
+            return output
         diff.append(line)
         output_bytes += line_bytes
-    result["text_diff"] = diff
-    return result
+    output["text_diff"] = diff
+    return output
 
 
 __all__ = ["body_diff"]

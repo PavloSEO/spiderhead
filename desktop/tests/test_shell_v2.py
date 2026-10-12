@@ -64,6 +64,7 @@ class ShellV2Tests(unittest.TestCase):
                 "methods",
                 "reports",
                 "log",
+                "logs",
             ],
         )
         self.assertEqual(headers(nav), [ui("Данные"), ui("Результат")])
@@ -90,6 +91,7 @@ class ShellV2Tests(unittest.TestCase):
                 "search",
                 "reports",
                 "log",
+                "logs",
             ],
         )
         self.window.navigation.select_section("work")
@@ -155,9 +157,7 @@ class ShellV2Tests(unittest.TestCase):
         texts = [label.text() for label in top.findChildren(QLabel)]
         self.assertNotIn("SEOHEAD", texts)
         self.assertFalse(hasattr(self.window, "brand"))
-        self.assertEqual(
-            self.window.windowTitle(), "SEOHEAD"
-        )  # the brand stays in the window title
+        self.assertEqual(self.window.windowTitle(), "SpiderHead")
 
     def test_top_bar_height_and_labels(self):
         top = self.window.findChild(type(self.window.centralWidget()), "topbar")
@@ -252,16 +252,26 @@ class ShellV2Tests(unittest.TestCase):
         self.app.processEvents()
         self.assertFalse(self.window.navigation.property("compact"))
 
-    def test_new_sections_open_the_placeholder_without_numbers(self):
+    def test_methods_workspace_and_graph_waiting_screens_have_no_invented_counts(self):
         from seohead_desktop.screens.graph import GraphScreen
+        from seohead_desktop.screens.methods import MethodsWorkspace
+        from seohead_desktop.screens.snippets import SnippetEditor
         from seohead_desktop.screens.tool_redirects import ToolRedirectsScreen
         from seohead_desktop.ui.kit import StatePanel
 
         self.assertTrue(self.window.navigation.select_section("methods"))
         page = self.window.pages.currentWidget()
-        self.assertIsInstance(page, ToolRedirectsScreen)
-        self.assertIn(page, self.window.placeholder_pages.values())
-        self.assertNotRegex("\n".join(label.text() for label in page.findChildren(QLabel)), r"#\d")
+        self.assertIsInstance(page, MethodsWorkspace)
+        self.assertEqual(
+            [page.tabs.tabText(index) for index in range(page.tabs.count())],
+            ["Method library", "Snippet editor", "Redirect generator"],
+        )
+        self.assertIsInstance(page.catalogue, QWidget)
+        self.assertIsInstance(page.snippets, SnippetEditor)
+        self.assertIsInstance(page.redirects, ToolRedirectsScreen)
+        self.assertEqual(page.tabs.widget(0), page.catalogue)
+        self.assertEqual(page.tabs.widget(1), page.snippets)
+        self.assertEqual(page.tabs.widget(2), page.redirects)
 
         self.assertTrue(self.window.navigation.select_section("crawler"))
         page = self.window.pages.currentWidget()
@@ -304,8 +314,10 @@ class ShellV2Tests(unittest.TestCase):
         items = self.window.navigation.list._items
         locked = {name for name, item in items.items() if item.data(ROLE_LOCKED)}
         self.assertEqual(
-            locked, {"work", "inbox", "issues", "compare", "search", "methods", "reports"}
+            locked,
+            {"work", "inbox", "issues", "compare", "search", "reports", "logs"},
         )
+        self.assertFalse(items["methods"].data(ROLE_LOCKED))
         self.assertIn("Project needed", items["work"].toolTip())
         clicked = []
         self.window.navigation.lockedClicked.connect(clicked.append)
@@ -314,6 +326,23 @@ class ShellV2Tests(unittest.TestCase):
         self.window.project_directory = "/p"
         self.window.sync_navigation_state()
         self.assertFalse([name for name, item in items.items() if item.data(ROLE_LOCKED)])
+
+    def test_server_logs_screen_routes_through_project_gate(self):
+        from seohead_desktop.screens.logs import LogsScreen
+        from seohead_desktop.ui.shell import ROLE_LOCKED
+
+        item = self.window.navigation.list._items["logs"]
+        self.assertTrue(item.data(ROLE_LOCKED))
+
+        self.window.project_directory = "/p"
+        self.window.sync_navigation_state()
+        self.assertFalse(item.data(ROLE_LOCKED))
+        self.assertTrue(self.window.navigation.select_section("logs"))
+        screen = self.window.extra_screens["logs"]
+        self.assertIsInstance(screen, LogsScreen)
+        self.assertIs(self.window.pages.currentWidget(), screen)
+        self.assertEqual(screen.scope.text(), "Project access logs")
+        self.assertTrue(screen.import_button.isEnabled())
 
     def test_counters_exist_only_with_data(self):
         items = self.window.navigation.list._items

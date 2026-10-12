@@ -8,7 +8,6 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-import shutil
 import sys
 
 import pytest
@@ -21,7 +20,6 @@ from mcp.client.stdio import stdio_client
 from seohead.mcp.mcp_server import build_server
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FIXTURES = os.path.join(ROOT, "tests", "fixtures")
 
 
 def test_all_mcp_tools_have_structured_schemas_and_safety_annotations():
@@ -38,7 +36,9 @@ def test_all_mcp_tools_have_structured_schemas_and_safety_annotations():
     optimizer = tools["seo_images_optimize"].annotations
     assert optimizer.destructiveHint is True
     assert optimizer.readOnlyHint is False
-    assert optimizer.openWorldHint is False
+    # Scan-backed optimization downloads the selected page images before writing;
+    # the annotation covers that supported network-capable mode too.
+    assert optimizer.openWorldHint is True
 
     # The only tool that writes to somebody else's service (#97). A caller decides
     # whether to ask a person first from these hints, so "submits URLs to four search
@@ -72,6 +72,11 @@ def test_all_mcp_tools_have_structured_schemas_and_safety_annotations():
     assert tasks.readOnlyHint is False
     assert tasks.destructiveHint is False
     assert tasks.openWorldHint is False
+
+    snippet_edits = tools["sf_snippet_edits"].annotations
+    assert snippet_edits.readOnlyHint is False
+    assert snippet_edits.destructiveHint is False
+    assert snippet_edits.openWorldHint is False
 
 
 def test_report_build_accepts_an_audit_document_or_json_path(monkeypatch):
@@ -180,14 +185,10 @@ async def _drive(exports_dir: str, out_dir: str) -> dict:
         }
 
 
-def test_mcp_all_tools(tmp_path):
-    exports = tmp_path / "exports"
-    exports.mkdir()
-    for name in os.listdir(FIXTURES):
-        shutil.copy(os.path.join(FIXTURES, name), exports / name)
+def test_mcp_all_tools(tmp_path, exports_dir):
     out = tmp_path / "out"
 
-    res = asyncio.run(_drive(str(exports), str(out)))
+    res = asyncio.run(_drive(exports_dir, str(out)))
 
     assert {
         "sf_audit_run",
@@ -206,6 +207,27 @@ def test_mcp_all_tools(tmp_path):
     assert len(res["issues"][0]["locations"]) == 2
     assert res["tasks"]["summary"]["tasks_total"] >= 1
     assert os.path.isfile(res["tasks"]["tasks_md"])
+
+
+def test_mcp_snippet_csv_exports_review_tasks(tmp_path):
+    output = tmp_path / "snippet-tasks.json"
+    tool = next(
+        tool
+        for tool in build_server()._tool_manager.list_tools()
+        if tool.name == "sf_snippet_edits"
+    )
+    result = asyncio.run(
+        tool.run(
+            {
+                "csv_text": "url,title,description\nhttps://example.test/p,New title,\n",
+                "out": str(output),
+            }
+        )
+    )
+    assert result["summary"] == {"tasks": 1, "rejected_rows": 0}
+    saved = json.loads(output.read_text(encoding="utf-8"))
+    assert saved["tasks"][0]["target_url"] == "https://example.test/p"
+    assert saved["tasks"][0]["state"] == "candidate"
 
 
 def test_crawl_site_omitted_overrides_forward_none(monkeypatch):
@@ -278,16 +300,31 @@ def test_compare_crawls_mcp_forwards_declared_correspondence(monkeypatch):
         )
     )
 
-    assert received == [
-        {
-            "before": {"pages": [], "issues": []},
-            "after": {"pages": [], "issues": []},
-            "force": False,
-            "correspondence": correspondence,
-            "out_dir": "compare-output",
-            "compression": "gzip",
-        }
-    ]
+    assert len(received) == 1
+    forwarded = received[0]
+    assert {
+        key: forwarded[key]
+        for key in (
+            "before",
+            "after",
+            "force",
+            "correspondence",
+            "out_dir",
+            "compression",
+            "resume",
+        )
+    } == {
+        "before": {"pages": [], "issues": []},
+        "after": {"pages": [], "issues": []},
+        "force": False,
+        "correspondence": correspondence,
+        "out_dir": "compare-output",
+        "compression": "gzip",
+        "resume": False,
+    }
+    assert callable(forwarded["progress"])
+    assert hasattr(forwarded["cancel_event"], "set")
+    assert hasattr(forwarded["cancel_event"], "is_set")
 
 
 def test_crawl_site_forwards_the_rendering_browser_overrides(monkeypatch):

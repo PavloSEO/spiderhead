@@ -1,8 +1,8 @@
-"""Проблемы (canvas Issues.dc.html, StatesIssues.dc.html): findings of the selected saved scan.
+"""Findings for the selected saved scan, with whole-scan counters from core evidence.
 
-The core gives per scan the totals by severity, the first 20 findings and the list of checks it skipped (the scan row of
-``project-scans``). Per-check counters for the whole scan and the filter by check wait for #981, the paged findings for #980; the path
-«found → task → fixed → confirmed» waits for the remediation ledger (#926) and tasks (#922). Nothing is counted here from the 20-row sample.
+The scan row supplies severity totals, a bounded findings sample, and skipped checks. A separate
+core query supplies exact per-check totals; URL examples remain limited to the saved sample. The
+remediation path still depends on the task ledger and confirmation workflow.
 """
 
 from __future__ import annotations
@@ -45,6 +45,7 @@ from ..ui.kit import (
 )
 from .base import Screen
 from .scan_common import number, parse_time, selected_scan
+from .url_query import CoreJob
 from .url_widgets import StackBar, section_label
 
 SEVERITIES = (
@@ -275,10 +276,29 @@ COLUMNS = ("Адрес", "HTTP", "Доказательство", "Состоян
 
 
 def check_name(check, _message=None):
-    """Use localized labels or the core registry title; unknown codes stay out of the UI."""
+    """Use localized labels or the registry message; an unknown id stays identifiable."""
     return tr(
-        CHECK_NAMES.get(check) or CORE_CHECKS.get(check, {}).get("message") or "Другая проверка"
+        CHECK_NAMES.get(check)
+        or CORE_CHECKS.get(check, {}).get("message")
+        or str(check).replace("_", " ").title()
     )
+
+
+def issue_summary_arguments(scan_path):
+    if not isinstance(scan_path, str) or not scan_path:
+        raise ValueError("A retained scan is required")
+    return [
+        "scan-url-query",
+        "--scan",
+        scan_path,
+        "--columns",
+        "url",
+        "--limit",
+        "1",
+        "--offset",
+        "0",
+        "--include-check-counts",
+    ]
 
 
 def message_ru(message):
@@ -418,7 +438,7 @@ class LaneStrip(QWidget):
 
 class IssuesScreen(Screen):
     slot = "issues"
-    watches = ("project", "scans", "scan_status")
+    watches = ()
 
     def __init__(self, host):
         super().__init__(host)
@@ -428,6 +448,12 @@ class IssuesScreen(Screen):
         self.check_counts = {}
         self.signature = None
         self.panel_state = None
+        self.issue_summary = None
+        self._issue_summary_key = None
+        self._issue_summary_pending = None
+        self.issue_summary_job = CoreJob(host, self)
+        self.issue_summary_job.done.connect(self._issue_summary_done)
+        self.issue_summary_job.failed.connect(self._issue_summary_failed)
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
@@ -445,6 +471,101 @@ class IssuesScreen(Screen):
         body.addWidget(self._build_detail(), 1)
         i18n.signals.changed.connect(self._language_changed)
         self.refresh()
+
+    def _data_changed(self, kind):
+        if kind in {"project", "scans", "scan_status"} and self.isVisible():
+            self.refresh()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.refresh()
+
+    @staticmethod
+    def _scan_key(scan):
+        evidence = scan.get("evidence") or {}
+        return (
+            scan.get("path"),
+            scan.get("uuid"),
+            scan.get("evidence_revision") or evidence.get("evidence_revision"),
+        )
+
+    def _request_issue_summary(self, scan):
+        if not self.isVisible():
+            return
+        key = self._scan_key(scan)
+        if key == self._issue_summary_key or (
+            self._issue_summary_pending is not None and self._issue_summary_pending[1] == key
+        ):
+            return
+        token = object()
+        self._issue_summary_pending = (token, key)
+        self.issue_summary = None
+        self.issue_summary_job.start(issue_summary_arguments(scan.get("path")), token)
+
+    def _issue_summary_done(self, token, payload):
+        if self._issue_summary_pending is None or token is not self._issue_summary_pending[0]:
+            return
+        _token, key = self._issue_summary_pending
+        self._issue_summary_pending = None
+        summary = payload.get("issue_summary") or (payload.get("evidence") or {}).get(
+            "issue_summary"
+        )
+        if payload.get("ok") is not True or not isinstance(summary, dict):
+            self._issue_summary_key = None
+            return
+        self._issue_summary_key = key
+        self.issue_summary = summary
+        scan = selected_scan(self.host) or {}
+        if self._scan_key(scan) == key:
+            self._merge_issue_summary()
+            self._fill_all()
+
+    def _issue_summary_failed(self, token, _reason):
+        if self._issue_summary_pending is not None and token is self._issue_summary_pending[0]:
+            self._issue_summary_pending = None
+            self._issue_summary_key = None
+
+    def _merge_issue_summary(self):
+        summary = self.issue_summary or {}
+        by_check = summary.get("by_check")
+        if not isinstance(by_check, dict):
+            scan = selected_scan(self.host) or {}
+            by_check = ((scan.get("evidence") or {}).get("findings") or {}).get("by_check")
+        self.check_counts = (
+            {
+                key: value
+                for key, value in by_check.items()
+                if isinstance(key, str) and type(value) is int and value >= 0
+            }
+            if isinstance(by_check, dict)
+            else {}
+        )
+        for check, count in self.check_counts.items():
+            if count > 0 and check not in self.checks:
+                self.checks[check] = {
+                    "severity": CORE_CHECKS.get(check, {}).get("severity") or "notice",
+                    "message": "",
+                    "items": [],
+                }
+        for row in summary.get("checks") or []:
+            if not isinstance(row, dict) or not isinstance(row.get("id"), str):
+                continue
+            check = row["id"]
+            count = row.get("findings")
+            if type(count) is not int or count <= 0:
+                continue
+            entry = self.checks.setdefault(
+                check,
+                {
+                    "severity": row.get("severity") or "notice",
+                    "message": row.get("message") or "",
+                    "items": [],
+                },
+            )
+            entry["severity"] = row.get("severity") or entry["severity"]
+            entry["state"] = row.get("state")
+            entry["findings"] = count
+            entry["reason"] = row.get("reason")
 
     # ---- construction ----------------------------------------------------------------------------------------
     def _build_list(self):
@@ -478,10 +599,6 @@ class IssuesScreen(Screen):
         self.list_note.setProperty("text_style", "meta")
         self.list_note.setWordWrap(True)
         layout.addWidget(self.list_note)
-        self.list_waiting = waiting_badge(
-            981, "Число находок по каждой проверке для всего скана и фильтр по проверке"
-        )
-        layout.addWidget(self.list_waiting, 0, Qt.AlignLeft)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.NoFrame)
@@ -678,6 +795,8 @@ class IssuesScreen(Screen):
                 no_project_panel(host, "Откройте проект, чтобы увидеть проблемы его сканов."),
             )
         if scan is None:
+            self._issue_summary_key = None
+            self.issue_summary = None
             if host._project_loading:
                 return set_panel_state(
                     self,
@@ -696,6 +815,7 @@ class IssuesScreen(Screen):
                     action=("Новый скан", host.scan_preview),
                 ),
             )
+        self._request_issue_summary(scan)
         findings = (scan.get("evidence") or {}).get("findings") or {}
         if findings.get("state") != "available":
             reason = findings.get("reason") or "Ядро не вернуло находок для этого скана"
@@ -708,15 +828,25 @@ class IssuesScreen(Screen):
             )
         if findings.get("total") == 0:
             skipped = (scan.get("evidence") or {}).get("skipped_checks") or []
-            skipped = (scan.get("evidence") or {}).get("skipped_checks") or []
+            skipped = list(skipped)
+            skipped.extend(
+                row
+                for row in (self.issue_summary or {}).get("checks", [])
+                if isinstance(row, dict)
+                and row.get("state") in {"skipped", "disabled", "unavailable"}
+            )
+            unique_skipped = {}
+            for row in skipped:
+                if isinstance(row, dict) and isinstance(row.get("id"), str):
+                    unique_skipped[row["id"]] = row
             panel = StatePanel(
                 "empty",
                 "Проблем не найдено",
                 "Находок нет по выбранному скану. Это измеренный ноль: проверки, которые не запускались, перечислены отдельно.",
             )
             panel.findChild(MaterialIconLabel).set_material_icon("verified", "role:success")
-            if skipped:  # the count of checks that did not run is measured data, shown as a neutral badge (never as «0 проблем»)
-                badge = QLabel(trf("{n} не измерялось", n=len(skipped)))
+            if unique_skipped:  # skipped states are measured separately from the zero finding count
+                badge = QLabel(trf("{n} проверок не измерялось", n=len(unique_skipped)))
                 badge.setProperty("badge", "mut")
                 panel.layout().addWidget(badge, 0, Qt.AlignHCenter)
             return set_panel_state(self, "zero", panel)
@@ -732,6 +862,7 @@ class IssuesScreen(Screen):
             self.checks = sample_checks(findings)
             if self.selected not in self.checks:
                 self.selected = None
+        self._merge_issue_summary()
         self._fill_all()
 
     def _language_changed(self, _language):
@@ -790,14 +921,6 @@ class IssuesScreen(Screen):
             f"{check_name(item.get('id'))} — {skip_reason(item.get('reason'))}" for item in skipped
         ]
         self._sync_skipped()
-        by_check = findings.get(
-            "by_check"
-        )  # per-check counts of the whole scan, when the core provides them
-        self.check_counts = (
-            {k: v for k, v in by_check.items() if type(v) is int}
-            if isinstance(by_check, dict)
-            else {}
-        )
         if self.check_counts:
             self.list_note.setText(
                 trf(
@@ -957,12 +1080,22 @@ class IssuesScreen(Screen):
                 n=len(urls),
             )
         )
-        self.foot.setText(
-            trf(
-                "{n} URL в выборке находок этой проверки. Полный список по всему скану пока недоступен.",
-                n=len(entry["items"]),
+        count = self.check_counts.get(self.selected)
+        if type(count) is int:
+            self.foot.setText(
+                trf(
+                    "{total} находок по всему скану; {sample} URL показаны из выборки.",
+                    total=number(count),
+                    sample=len(entry["items"]),
+                )
             )
-        )
+        else:
+            self.foot.setText(
+                trf(
+                    "{n} URL в выборке находок этой проверки; число по всему скану недоступно.",
+                    n=len(entry["items"]),
+                )
+            )
 
     # ---- actions ---------------------------------------------------------------------------------------------
     def _open_in_url(self):

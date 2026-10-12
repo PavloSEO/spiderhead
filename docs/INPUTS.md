@@ -24,22 +24,30 @@ and this decision makes no backend migration.
 | --- | --- | --- |
 | `bi-filter` | Local directory (`package, out_dir`)<br>Selector (`dataset, columns`)<br>Inline JSON (`where, max_rows_per_file, max_bytes_per_file, max_output_bytes, xlsx_max_rows_per_sheet`)<br>Local file (`xlsx_out`) | — |
 | `scan-navigation` | Scan artifact (`input_path`)<br>Selector (`document_id, limit, offset`) | — |
-| `project-activity` | Project directory (`directory`) | — |
+| `doctor` | Project directory (`projects_directory`)<br>Local configuration (`config_path`)<br>Local file (`sf_cli`) | Optional directory access check.; Optional Screaming Frog executable path. |
+| `update-check` | Selector (`consent, automatic, max_releases`) | Network access requires consent; no scheduler starts. |
+| `update-download` | Selector (`consent, tag, asset_name, max_bytes`)<br>Local file (`out`) | Downloads only an asset from a previously checked release.; New destination file; the package is not installed. |
+| `project-activity` | Project directory (`directory`)<br>Selector (`since_revision`) | Optional opaque observer revision for a compact unchanged response. |
 | `project-checklist-page` | Project directory (`directory`)<br>Selector (`offset, limit, query, kind, state, sort, descending, states`) | — |
 | `project-task-detail` | Project directory (`directory`)<br>Selector (`item_id`) | — |
 | `project-scans` | Project directory (`directory`)<br>Selector (`offset, limit`) | — |
 | `provider-auth` | Inline JSON (`provider, action, grant_file, confirm`) | GSC private grant import/status/refresh; cancel a pending browser flow; confirmed disconnect or remote revoke. No secret values returned. |
 | `provider-replay` | Scan artifact (`input_path`); requires `evidence_file, out_dir` | Offline join with a private saved provider envelope; raw joins remain in restricted output. |
 | `parse` | Live URL (`url`)<br>URL list (`urls`) | — |
-| `crawl-site` | Live URL (`url`)<br>URL list (`urls`)<br>Local file (`urls_file`)<br>Scan artifact (`resume`)<br>Local configuration (`config`)<br>Project directory (`project`) | TXT, CSV, XLSX, or XML URL input; Resumes retained crawl evidence and continues network collection.; Defaults the target and scans/ path; explicit paths, legacy output and resume keep their route. |
+| `crawl-site` | Live URL (`url`)<br>URL list (`urls`)<br>Local file (`urls_file`)<br>Scan artifact (`resume`)<br>Local configuration (`config`)<br>Saved crawl profile (`profile`)<br>Project directory (`project`) | TXT, CSV, XLSX, or XML URL input; Resumes retained crawl evidence and continues network collection.; Selects a saved local crawl profile by name.; Defaults the target and scans/ path; explicit paths, legacy output and resume keep their route. |
 | `crawl-describe-settings` | No direct input | — |
+| `crawl-control` | Project directory (`project`)<br>Selector (`run_id, action`) | — |
 | `scan-reanalyze` | Scan artifact (`scan`) | — |
 | `scan-graph` | Scan artifact (`scan`)<br>Scan artifact (`compare_to`)<br>Selector (`positions, section, around, depth, aggregate, representation, node_offset, edge_offset, node_limit, edge_limit, max_nodes, max_edges, timeout_seconds, max_bytes`) | Reads a bounded retained graph offline; missing evidence and clipping stay explicit.; Optional retained comparison source. |
 | `scan-sitemap-generate` | Scan artifact (`scan`); requires `out_dir, sitemap_base_url`<br>Local directory (`out_dir`)<br>Selector (`sitemap_base_url, include_images, exclude`) | Deployment base URL sets output scope; it is never fetched.; Fresh exclusive output directory; never deploys. |
 | `log-scan` | Local directory (`run`)<br>Scan artifact (`run`) | — |
 | `crawl-diagnose` | Scan artifact (`scan`)<br>Local directory (`run`) | Choose one retained source; diagnosis is offline and read-only. |
 | `crawl-diagnose-export` | Scan artifact (`scan`); requires `export`<br>Local directory (`run`); requires `export`<br>Local file (`export`) | Choose one retained source and a new redacted export destination; refuses overwrite. |
-| `compare-crawls` | Audit document (`before, after`)<br>Local file (`correspondence`)<br>Local directory (`out_dir`)<br>Selector (`compression`) | Each path may be audit JSON or scan.v1.; Optional closed url-correspondence.v1 JSON declaration; exact URL comparison remains the default.; Optional new compare.v2 package; required for audit.v2 populations above 10,000 pages or issues. Refuses overwrite.; none (default) or explicit gzip with out_dir; every row is retained and compressed/uncompressed bytes are declared. |
+| `compare-crawls` | Audit document (`before, after`)<br>Local file (`correspondence`)<br>Local directory (`out_dir`)<br>Selector (`compression, resume`) | Each path may be audit JSON or scan.v1.; Optional closed url-correspondence.v1 JSON declaration; exact URL comparison remains the default.; Optional new compare.v2 package; required for audit.v2 populations above 10,000 pages or issues. Refuses overwrite.; none (default) or explicit gzip with out_dir; every row is retained and compressed/uncompressed bytes are declared. Resume requires an exact matching persistent checkpoint. |
+| `compare-read` | Local file (`manifest_path`)<br>Selector (`file`)<br>Selector (`offset`)<br>Selector (`limit`)<br>Selector (`sort`)<br>Selector (`direction`)<br>Selector (`contains`)<br>Selector (`segment`)<br>Selector (`change`)<br>Selector (`max_bytes`) | compare.v2 compare.json manifest; one retained comparison stream; optional URL substring filter; named segment; only available for segment_changes; change type; only available for segment_changes |
+| `compare-report` | Local file (`manifest_path`)<br>Local file (`out_file`)<br>Selector (`max_bytes`) | compare.v2 compare.json manifest; new Markdown path; refuses overwrite |
+| `compare-status` | Local directory (`out_dir`) | comparison output path; reads active checkpoint or completed cache |
+| `compare-url` | Audit document (`before, after`)<br>Selector (`url`)<br>Selector (`max_bytes`)<br>Selector (`max_lines`)<br>Selector (`left_representation, right_representation`) | Each source may be audit JSON or scan.v1 SQLite.; Exact retained URL text. |
 | `verify-fixes` | Audit document (`baseline`); requires `out_dir`<br>Audit document (`after`); requires `baseline, out_dir`<br>Selector (`finding_ids`); requires `baseline, out_dir`<br>Local file (`view`); requires `baseline, out_dir`<br>URL list (`urls`); requires `baseline, out_dir`<br>Local file (`urls_file`); requires `baseline, out_dir`<br>Local configuration (`config`) | Offline verification without recrawling.; Saved verification_view.v1 selection.; Required when the baseline redacted credentials. |
 | `crawl-enrich` | Audit document (`audit`); requires `external_csv`<br>Local file (`external_csv`); requires `audit` | — |
 | `crawl-import` | Local file (`manifest_path`) | third_party_crawl_manifest.v1 with manifest-relative CSV datasets; output remains foreign crawl evidence |
@@ -48,7 +56,7 @@ and this decision makes no backend migration.
 | `redirects-check` | Live URL (`url`) | — |
 | `sitemap-crawl` | Live URL (`url`)<br>Project directory (`project`) | Optional explicit local observation; same origin only. Declared URLs are not fetched HTML pages. |
 | `images-download` | URL list (`urls`) | — |
-| `images-optimize` | Local file (`files`) | — |
+| `images-optimize` | Local file (`files`)<br>Scan artifact (`scan`)<br>Selector (`max_images`) | — |
 | `keywords-cluster` | Inline JSON (`params`) | — |
 | `robots-check` | Live URL (`url`) | — |
 | `headers-check` | Live URL (`url`) | — |
@@ -118,12 +126,14 @@ and this decision makes no backend migration.
 | `scan-list` | Local directory (`directory`)<br>Project directory (`project`) | — |
 | `project-new` | Project directory (`directory`)<br>Live URL (`target`) | — |
 | `project-open` | Project directory (`directory`) | — |
+| `project-archive` | Project directory (`project`)<br>Local file (`out`)<br>Selector (`dry_run, exclude_bodies, exclude_bodies_older_than_days, keep_newest_scans`) | — |
+| `project-restore` | Local file (`archive, to`) | — |
 | `project-sources-link` | Project directory (`directory`) | Binds a provider resource ID (--service, --resource, optional --label) to the project in sources.json; no network. |
 | `project-sources-unlink` | Project directory (`directory`) | Removes one (--service, --resource) binding from sources.json; no network. |
 | `project-sources-list` | Project directory (`directory`) | — |
 | `project-status` | Project directory (`directory`) | — |
 | `project-progress` | Project directory (`directory`)<br>Inline JSON (`limit, offset`) | Optional bounded progress pagination. |
-| `project-observe` | Project directory (`directory`)<br>Selector (`consumer`)<br>Inline JSON (`scan_limit`)<br>Inline JSON (`run_offset, run_limit`) | Optional scoped unread-notice recipient.; Bounded retained scan-history page.; Per-site terminal run page; all stored running records remain visible. |
+| `project-observe` | Project directory (`directory`)<br>Selector (`consumer`)<br>Inline JSON (`scan_limit`)<br>Inline JSON (`run_offset, run_limit`)<br>Selector (`since_revision`) | Optional scoped unread-notice recipient.; Bounded retained scan-history page.; Per-site terminal run page; all stored running records remain visible.; Optional opaque observer revision for a compact unchanged response. |
 | `project-inbox-submit` | Project directory (`directory`)<br>Inline text (`text`)<br>Selector (`kind, references, author_role`) | — |
 | `project-inbox-list` | Project directory (`directory`)<br>Selector (`consumer, offset, limit, include_acknowledged`) | — |
 | `project-inbox-read` | Project directory (`directory`)<br>Selector (`consumer, entry_ids, expected_revision`) | — |
@@ -193,12 +203,17 @@ and this decision makes no backend migration.
 | `monitor-collect` | Project directory (`directory`); requires `expected_revision`<br>Selector (`expected_revision, apply`) | Preview by default; explicit apply collects only an existing validated bounded claim. No timer or delivery starts. |
 | `monitor-local-deliver` | Project directory (`directory`); requires `scan_id, expected_revision`<br>Selector (`scan_id, expected_revision`) | Records a local:receipt only; no network, external transport or recipient delivery claim. |
 | `monitor-schedule` | Project directory (`directory`); requires `action, expected_revision` | Claims, cancels, backs off, or recovers a local bounded pass; it starts no timer. |
-| `tool-catalog` | Inline text (`query`) | Optional bounded discovery query. |
+| `tool-catalog` | Inline text (`query`)<br>Selector (`limit, offset, include_arguments`) | Optional bounded discovery query. |
+| `url-check-batch` | URL list (`urls`)<br>Selector (`checks`)<br>Inline JSON (`options`)<br>Scan artifact (`scan`)<br>Selector (`offset, max_urls`) | Shared options for the selected checks. |
 | `scan-inspect` | Scan artifact (`scan`) | — |
-| `scan-content-search` | Scan artifact (`input_path`)<br>Inline text (`query`) | Offline retained-content query; package output is bounded and source-identified. |
+| `scan-content-search` | Scan artifact (`input_path`)<br>Inline text (`query`)<br>Selector (`url`) | Offline retained-content query; package output is bounded and source-identified.; Optional exact logical URL filter. |
 | `scan-content-search-page` | Local file (`package`) | Read one bounded page from a prior offline search package. |
-| `scan-url-detail` | Scan artifact (`input_path`)<br>Selector (`url`) | Exact retained native URL; output redacts query values. |
+| `scan-url-detail` | Scan artifact (`input_path`)<br>Selector (`url, body_offset, body_length, max_body_bytes`) | Exact retained native URL; bounded source HTML and redacted query values. |
+| `scan-body-read` | Scan artifact (`input_path`)<br>Selector (`url, representation, variant_key, offset, length, max_decoded_bytes`) | Exact retained URL; body output is bounded and read-only. |
+| `scan-findings-page` | Project directory (`project`)<br>Selector (`scan_uuid, offset, limit, query, url, sort, descending`) | — |
 | `scan-url-query` | Scan artifact (`scan`) | — |
+| `scan-directory-tree` | Scan artifact (`input_path`) | Retained URL paths only; no network access. |
+| `headers-analyze` | Scan artifact (`input_path`) | Reads saved redacted response headers only. |
 | `scan-url-history` | Project directory (`project`)<br>Selector (`url`) | Exact retained URL text, as scan-url-detail takes it. |
 | `scan-link-inspect` | Scan artifact (`scan`) | Offline path, inlinks, occurrence context or one URL's paged links selected by view; mode-specific selectors and limits are required. |
 | `scan-status` | Scan artifact (`scan`) | — |
@@ -207,15 +222,39 @@ and this decision makes no backend migration.
 | `scan-export` | Scan artifact (`input_path`)<br>Selector (`records, fields`) | Also accepts an SF Analyzer audit.json document; links are unavailable there.; Optional record-type and field projection validated before any file is written. |
 | `scan-pin` | Scan artifact (`scan`) | — |
 | `scan-prune` | Local directory (`directory`)<br>Local file (`plan`)<br>Project directory (`project`) | Defaults the directory to project scans/; apply remains explicit. |
-| `scan-body-diff` | Scan artifact (`left, right`)<br>Selector (`url`) | Selects the logical URL within both scans. |
+| `scan-body-diff` | Scan artifact (`left, right`)<br>Selector (`url, representation, left_representation, right_representation, variant_key`) | Selects one exact URL and retained representation from both scans. |
 | `scan-evidence` | Scan artifact (`input_path`)<br>Selector (`section`) | capabilities, corpus, structured, routes, resources, or timeline. |
 | `scan-extract` | Scan artifact (`input_path`)<br>Inline JSON (`rules`)<br>Selector (`url`) | Closed declarative rules over retained complete bodies.; Optional exact logical URL. |
-| `scan-structured-blocks` | Scan artifact (`input_path`)<br>Selector (`url`) | Exact retained logical URL. |
+| `custom-extract-sample` | Inline text (`html`)<br>Inline JSON (`extractors`)<br>Selector (`url`) | Supplied HTML; never fetched.; Explicit extractor specifications.; Optional output label only; never fetched. |
+| `scan-structured-blocks` | Scan artifact (`input_path`)<br>Selector (`url`)<br>Selector (`representation`)<br>Selector (`variant_key`) | Exact retained logical URL.; static, rendered, or legacy_fragment source.; Optional exact retained HTTP variant key. |
 | `scan-fragment-links` | Scan artifact (`input_path`)<br>Selector (`state`)<br>Selector (`representation`) | Optional resolved, missing, or skipped occurrence filter.; Optional static, rendered, or legacy_fragment source filter. |
 | `scan-requeue` | Scan artifact (`input_path`)<br>Selector (`where`)<br>Local file (`backup_path`)<br>Scan artifact (`from_scan`) | Restricted saved URL/page predicate.; Mandatory new verified backup destination.; Optional alternate saved selection source. |
 | `scan-import-urls` | Scan artifact (`input_path`)<br>Local file (`urls_file`)<br>Local file (`backup_path`) | Explicit TXT, CSV, XLSX, or XML URL source.; Mandatory new verified backup destination. |
+| `cloudflare-history` | Project directory (`project`)<br>Provider identifier (`zone_id`)<br>Selector (`snapshot_id, limit, offset, include_facts, facts_offset, facts_limit`) | Reads retained snapshots only; facts are opt-in and bounded.; Required local project with retained Cloudflare history. |
+| `cloudflare-instant-logs` | Project directory (`project`)<br>Selector (`confirm_live_capture, max_seconds, max_events, max_bytes, sample`) | Uses the project's selected Cloudflare zone binding.; Live capture requires explicit --confirm-live-capture and remains duration/event/byte bounded. |
+| `cloudflare-logpush-import` | Local file (`input_path`)<br>Project directory (`project`)<br>Selector (`max_events`) | Caller-supplied UTF-8 Logpush JSON Lines file.; Project owning the local logstore.; Maximum imported records. |
+| `project-action-log` | Project directory (`directory`)<br>Selector (`offset, limit, client, outcome, query`) | Bounded local read-only history. |
+| `project-agent-heartbeat` | Project directory (`directory`) | Records a timestamped interface event; it does not prove the client remains connected. |
+| `project-competitors-scan` | Project directory (`directory`)<br>Selector (`task_id, expected_revision, confirm, concurrency, approve_large_crawl, producer_build, run_id`) | Network scans require explicit confirmation, current task revision, and any large-crawl approval; URL and concurrency caps remain enforced. |
+| `project-competitors-scan-cancel` | Project directory (`directory`)<br>Selector (`run_id`) | Requests checkpointed cancellation of the named run. |
+| `project-competitors-scan-status` | Project directory (`directory`)<br>Selector (`run_id`) | Reads status for the named durable run. |
+| `project-delete` | Project directory (`directory`) | Moves the project to sibling Trash; active project/job writers are refused. |
+| `project-export` | Project directory (`directory`)<br>Selector (`dataset, fmt, compare_manifest, job_id`)<br>Local file (`output`) | compare_manifest is required for the compare dataset.; New output beneath the project's reports directory; refuses overwrite. |
+| `project-export-cancel` | Project directory (`directory`)<br>Selector (`job_id`) | Requests cancellation at an export checkpoint. |
+| `project-export-status` | Project directory (`directory`)<br>Selector (`job_id`) | Reads bounded status for the named export job. |
+| `project-exports-page` | Project directory (`directory`)<br>Selector (`offset, limit`) | Reads a bounded page of retained export receipts. |
+| `project-settings` | Project directory (`directory`) | Reads local project settings and their revision. |
+| `project-settings-proposals` | Project directory (`directory`)<br>Selector (`offset, limit`) | Reads a bounded page of setting proposals. |
+| `project-settings-propose` | Project directory (`directory`)<br>Inline JSON (`changes`)<br>Selector (`expected_revision`) | Proposed settings only; proposal does not apply the changes.; Current proposal revision for compare-and-swap. |
+| `project-settings-review` | Project directory (`directory`)<br>Selector (`proposal_id, decision, expected_revision`) | Explicit local owner decision against the current proposal revision. |
+| `project-task-comment` | Project directory (`directory`)<br>Inline text (`text`)<br>Selector (`item_id, actor, expected_revision`)<br>Inline JSON (`reference`) | Optional retained scan/finding reference. |
+| `project-update` | Project directory (`directory`)<br>Selector (`label, expected_revision`) | Label update uses the current settings revision. |
+| `provider-artifact-read` | Local directory (`artifact_dir`)<br>Selector (`artifact_ref, offset, limit`) | Caller-owned directory containing the saved provider artifact.; Reads only a bounded sanitized sample; no provider request. |
+| `provider-credential` | Provider identifier (`provider`)<br>Selector (`component, action, confirm`)<br>Secret from stdin (`value`)<br>Selector (`replace`) | Revocation requires explicit confirmation.; Only action=set; the CLI requires --value-stdin. Secret bytes never belong in argv, logs, or catalogue examples.; Only action=set; replacement is explicit. |
+| `provider-discover` | Provider identifier (`provider`)<br>Domain (`domain`) | Optional domain-match hint; discovery does not bind or select resources. |
 | `sf run` | Live URL (`crawl`)<br>Local file (`load_crawl`)<br>Local file (`crawl_list`)<br>Local directory (`exports_dir`)<br>Local configuration (`config`)<br>Local file (`auth_config`)<br>Inline text (`auth`)<br>Local file (`sf_cli`)<br>Live URL (`sitemap`)<br>Local directory (`out`) | Saved .seospider crawl; requires licensed SF CLI; URL-list file for licensed SF live traversal; SF audit configuration; semantic_similarity requires an explicit adapter declaration and supplied vectors. No model is selected by default.; Optional SF authentication profile.; Optional HTTP Basic credentials; do not persist or log them.; Optional explicit licensed SF CLI path.; Optional explicit sitemap URL for live rechecks.; Local audit and optional task output directory. |
 | `sf tasks` | Audit document (`audit_json`)<br>Local configuration (`config`)<br>Local directory (`out`) | Audit JSON or a retained scan.v1 artifact.; Local task output directory. |
 | `sf doctor` | Local configuration (`config`)<br>Local file (`sf_cli`) | Optional explicit licensed SF CLI path. |
 | `sf save-config` | Local file (`out`) | — |
+| `sf snippet-edits` | Local file (`csv`)<br>Local file (`out`)<br>Local file (`metrics_json`)<br>Scan artifact (`scan`)<br>Local file (`content_area_json`)<br>Selector (`query, representation, variant_key, max_body_bytes`) | Supplied CSV; requires url and title/description columns.; New JSON review-task destination; refuses overwrite.; Optional named local font profiles for width measurement.; Optional retained context for exact source URLs; read-only.; Optional JSON content-area rules for retained context.; query requires scan; measurements are local font widths, not search-engine truncation predictions. |
 | `mcp` | No direct input | Starts the local stdio server; profile and progress-notification behavior are startup options. |

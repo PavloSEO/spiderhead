@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -11,6 +12,7 @@ import pytest
 from seohead.crawl import settings as crawl_settings
 from seohead.crawl.user_agents import DEFAULT_TOKEN, DEFAULT_USER_AGENT, resolve
 from seohead.projects import schedule, schedule_install
+from seohead.projects.runtime import add_competitors
 from seohead.projects.schedule import due_state, infer_time_zone, next_due, validate
 from seohead.projects.workspace import create_project
 
@@ -131,7 +133,7 @@ def _fake_scan(calls, *, partial=False):
         calls.append(kwargs)
         return {
             "ok": True,
-            "scan": f"/scan/{len(calls)}.seohead",
+            "scan": str(Path(kwargs["project"]) / "scans" / f"{len(calls)}.seohead"),
             "partial": partial,
             "finish_reason": "x",
         }
@@ -162,17 +164,121 @@ def test_run_due_passes_budgets_user_agent_and_writes_journal(tmp_path):
     assert again["ran"] is False and len(calls) == 1
 
 
-def test_run_due_refuses_overlap_and_stale_lock_is_reclaimed(tmp_path):
+def test_competitor_has_an_independent_monthly_schedule(tmp_path):
+    project = _project(tmp_path)
+    competitor = add_competitors(str(project), ["https://rival.example.test/"])["competitors"][0]
+    child = project / competitor["directory"]
+    schedule.configure(
+        project,
+        expected_revision=0,
+        enabled=True,
+        time_zone="UTC",
+        weekdays=["tue"],
+        include_competitors=True,
+    )
+    schedule.configure(
+        child,
+        expected_revision=0,
+        enabled=True,
+        time_zone="UTC",
+        weekdays=[],
+        month_days=[12],
+        user_agent={"preset": "bingbot", "custom": None},
+        crawl={"max_urls": 120, "max_requests": 240},
+    )
+
+    calls = []
+    result = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00"))
+
+    assert result["ran"] is True and result["ok"] is True
+    assert result["runs"][0]["role"] == "competitor"
+    assert len(calls) == 1 and calls[0]["project"] == str(child)
+    assert calls[0]["user_agent"] == "bingbot"
+    assert calls[0]["max_urls"] == 120
+    assert json.loads((child / "schedule-state.json").read_text())["last_window"] == "2026-10-12"
+    assert not (project / "schedule-state.json").exists()
+
+
+def test_schedule_show_reports_each_competitors_own_next_run(tmp_path):
+    project = _project(tmp_path)
+    competitor = add_competitors(str(project), ["https://rival.example.test/"])["competitors"][0]
+    child = project / competitor["directory"]
+    schedule.configure(
+        project,
+        expected_revision=0,
+        enabled=True,
+        time_zone="UTC",
+        weekdays=["mon"],
+        include_competitors=True,
+    )
+    schedule.configure(
+        child,
+        expected_revision=0,
+        enabled=True,
+        time_zone="UTC",
+        weekdays=[],
+        month_days=[15],
+    )
+
+    shown = schedule.show(project, now=_utc("2026-10-12T02:00:00"))
+
+    assert shown["due"]["due"] is True
+    assert shown["competitors"][0]["due"]["due"] is False
+    assert shown["competitors"][0]["next_due_at"] == "2026-10-15T01:00:00Z"
+
+
+def test_competitor_overlap_is_recorded_in_both_workspaces(tmp_path):
+    project = _project(tmp_path)
+    competitor = add_competitors(str(project), ["https://rival.example.test/"])["competitors"][0]
+    child = project / competitor["directory"]
+    schedule.configure(
+        project, expected_revision=0, enabled=True, time_zone="UTC", include_competitors=True
+    )
+    schedule.configure(child, expected_revision=0, enabled=True, time_zone="UTC")
+    competitor_lock = schedule._acquire(child)
+    assert competitor_lock is not None
+    calls = []
+    try:
+        result = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00"))
+    finally:
+        schedule._release(competitor_lock)
+
+    assert result["runs"][0]["role"] == "primary"
+    assert result["runs"][1]["error"] == "overlap refused"
+    assert len(calls) == 1
+    assert "another scheduled run holds its lock" in (child / "log.md").read_text(encoding="utf-8")
+
+
+def test_run_due_refuses_overlap_while_another_process_holds_the_lock(tmp_path):
     project = _project(tmp_path)
     schedule.configure(project, expected_revision=0, enabled=True, time_zone="UTC")
-    lock = project / ".schedule.lock"
-    lock.write_text("held|2026-10-12T00:00:00+00:00", encoding="utf-8")
+    owner_lock = schedule._acquire(project)
+    assert owner_lock is not None
     calls = []
-    held = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00"))
+    try:
+        held = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-12T02:00:00"))
+    finally:
+        schedule._release(owner_lock)
     assert held == {"ok": True, "ran": False, "reason": "overlap refused"} and not calls
-    assert lock.exists()
     late = schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-13T03:00:00"))
-    assert late["ran"] is True and not lock.exists()
+    assert late["ran"] is True and len(calls) == 1
+
+
+@pytest.mark.parametrize("cancellation", [KeyboardInterrupt, SystemExit, asyncio.CancelledError])
+def test_run_due_records_cancellation_before_reraising(tmp_path, cancellation):
+    project = _project(tmp_path)
+    schedule.configure(project, expected_revision=0, enabled=True, time_zone="UTC")
+
+    def cancel(**kwargs):
+        raise cancellation()
+
+    with pytest.raises(cancellation):
+        schedule.run_due(project, scan=cancel, now=_utc("2026-10-12T02:00:00"))
+
+    state = json.loads((project / "schedule-state.json").read_text(encoding="utf-8"))
+    assert state["last_result"][0]["finish_reason"] == "cancelled"
+    assert state["last_result"][0]["error"] == cancellation.__name__
+    assert "cancelled" in (project / "log.md").read_text(encoding="utf-8")
 
 
 def test_slice_mode_resumes_the_previous_partial_artifact(tmp_path):
@@ -182,12 +288,28 @@ def test_slice_mode_resumes_the_previous_partial_artifact(tmp_path):
     )
     calls = []
     schedule.run_due(project, scan=_fake_scan(calls, partial=True), now=_utc("2026-10-12T02:00:00"))
+    state = json.loads((project / "schedule-state.json").read_text(encoding="utf-8"))
+    assert state["resume_artifact"] == "scans/1.seohead"
+    assert state["last_result"][0]["scan"] == "scans/1.seohead"
     schedule.run_due(project, scan=_fake_scan(calls), now=_utc("2026-10-13T02:00:00"))
     assert calls[1] == {
-        "resume": "/scan/1.seohead",
+        "resume": str(project / "scans" / "1.seohead"),
         "project": str(project),
         "approve_large_crawl": False,
     }
+
+
+def test_legacy_absolute_resume_path_rebases_inside_restored_project(tmp_path):
+    old_scan = tmp_path / "old-project" / "scans" / "resume.sqlite"
+    old_scan.parent.mkdir(parents=True)
+    old_scan.write_text("synthetic scan", encoding="utf-8")
+    restored_parent = tmp_path / "restored"
+    restored_parent.mkdir()
+    project = _project(restored_parent)
+    rebased = project / "scans" / old_scan.name
+    rebased.write_text("restored scan", encoding="utf-8")
+
+    assert schedule._resume_scan_path(project, str(old_scan)) == str(rebased)
 
 
 def test_list_mode_uses_project_urls_and_refuses_without_them(tmp_path):

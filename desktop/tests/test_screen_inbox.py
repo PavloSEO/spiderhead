@@ -7,12 +7,15 @@ from tests._qt import ui
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtCore import QCoreApplication, QEvent, Qt
+from PyQt5.QtWidgets import QDialog
 
 from seohead_desktop import i18n, theming
 from seohead_desktop.app import MainWindow, load_theme
+from seohead_desktop.local_owner_actions import LocalOwnerActions, accept_goal_arguments
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.inbox import MAX_TEXT, InboxScreen, is_processed, stages
 from seohead_desktop.ui.kit import BADGE_ROLE
+from seohead_desktop.ui.modal import ModalDialog
 from tests._qt import sweep_widgets
 from tests._screens_core import DIRECTORY, fixture, open_qa, texts
 
@@ -200,6 +203,47 @@ class InboxScreenTests(unittest.TestCase):
         self.assertEqual(arguments["author_role"], "specialist")
         self.assertFalse(self.composer.send.isEnabled())  # saving: no double write
         self.assertEqual(self.composer.send.text(), ui("Сохранение…"))
+
+    def proposed_goal(self):
+        open_qa(self.window)
+        rows = list(self.window.inbox_model.rows)
+        goal = dict(rows[1], goal_state="proposed", triage=[])
+        self.window.inbox_model.replace([rows[0], goal])
+        self.window.inbox_revision = 4
+        self.window.core_executable = "seohead"
+        self.screen.selected_id = goal["id"]
+        self.screen.all_rows = list(self.window.inbox_model.rows)
+        self.screen._fill_rows()
+        return goal
+
+    def test_owner_goal_acceptance_uses_confirmed_local_cli_not_mcp(self):
+        goal = self.proposed_goal()
+        self.assertFalse(self.screen.accept_goal_button.isHidden())
+        submitted = []
+
+        def submit(_service, executable, arguments, _success, _error, _owner):
+            submitted.append((executable, arguments))
+
+        with (
+            patch.object(ModalDialog, "exec_", return_value=QDialog.Accepted),
+            patch.object(LocalOwnerActions, "submit", autospec=True, side_effect=submit),
+            patch.object(self.window, "start_command") as mcp_call,
+        ):
+            self.screen._accept_goal()
+        self.assertEqual(
+            submitted,
+            [("seohead", accept_goal_arguments(DIRECTORY, goal["id"], 4))],
+        )
+        mcp_call.assert_not_called()
+
+    def test_owner_goal_acceptance_cancel_has_no_local_write(self):
+        self.proposed_goal()
+        with (
+            patch.object(ModalDialog, "exec_", return_value=QDialog.Rejected),
+            patch.object(LocalOwnerActions, "submit", autospec=True) as submit,
+        ):
+            self.screen._accept_goal()
+        submit.assert_not_called()
 
     def test_refused_write_keeps_the_draft_and_says_why(self):
         open_qa(self.window)

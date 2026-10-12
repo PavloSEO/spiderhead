@@ -12,11 +12,14 @@ import pytest
 from seohead.storage import ScanError
 from seohead.storage.bodies import (
     MAX_WINDOW_CHARS,
+    _line_count,
+    _read_document,
     decode_entity,
     encode_body,
     read_body,
     read_document,
     read_document_window,
+    read_page_document_content,
 )
 
 
@@ -198,6 +201,18 @@ def test_read_document_validates_entity_lineage_and_named_unavailable_state():
         read_document(con, 1, max_decoded_bytes=100)
 
 
+def test_private_document_reader_keeps_its_two_value_shape():
+    con = _con()
+    sha = _body(con, b"caf\xe9")
+    _response(con, sha)
+    document_id = _document(con, sha)
+
+    text, decoder = _read_document(con, document_id, max_decoded_bytes=100)
+
+    assert text == "café"
+    assert decoder["decoder_charset"] == "iso8859-1"
+
+
 def test_read_document_handles_legacy_reencoded_text_and_rendered_dom_separately():
     con = _con()
     legacy_sha = _body(con, b"legacy text")
@@ -287,6 +302,12 @@ def test_document_window_counts_characters_and_keeps_multibyte_whole():
     assert window["lines"] == 2
     assert window["encoding"] == "utf-8"
     assert window["sha256"] == hashlib.sha256(text.encode()).hexdigest()
+    assert window["raw_body_sha256"] == hashlib.sha256(raw).hexdigest()
+
+
+@pytest.mark.parametrize("text", ["", "one\n", "one\ntwo", "\r\n\n", "a\v b\u2028c\x1cd"])
+def test_line_count_matches_splitlines_without_materializing_lines(text):
+    assert _line_count(text) == len(text.splitlines())
 
 
 def test_document_window_full_read_and_empty_body():
@@ -324,3 +345,31 @@ def test_document_window_rejects_invalid_bounds_and_respects_byte_limit():
             read_document_window(con, 1, max_decoded_bytes=100, **kwargs)
     with pytest.raises(ScanError, match="decoded byte limit"):
         read_document_window(con, 1, max_decoded_bytes=2)
+
+
+def test_page_document_content_returns_complete_text_and_provenance_under_cap():
+    con = _con()
+    raw = b"caf\xe9"
+    sha = _body(con, raw)
+    _response(con, sha)
+    _document(con, sha)
+
+    result = read_page_document_content(
+        con,
+        "https://example.test/",
+        max_decoded_bytes=4,
+    )
+
+    assert result["state"] == "available"
+    assert result["document_id"] == 1
+    assert result["representation"] == "static"
+    assert result["content_type"] == "text/html; charset=iso-8859-1"
+    assert result["raw_body_sha256"] == sha
+    assert result["sha256"] == hashlib.sha256("café".encode()).hexdigest()
+    assert result["text"] == "café"
+    with pytest.raises(ScanError, match="decoded byte limit"):
+        read_page_document_content(
+            con,
+            "https://example.test/",
+            max_decoded_bytes=3,
+        )

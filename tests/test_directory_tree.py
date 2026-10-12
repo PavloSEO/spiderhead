@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
-from seohead.storage.directory_tree import build_directory_tree
+from seohead import cli
+from seohead.mcp import handlers
+from seohead.mcp.mcp_server import build_server
+from seohead.storage.directory_tree import build_directory_tree, scan_directory_tree
 
 BASE = "https://example.test"
 
@@ -72,3 +77,42 @@ def test_empty_input_gives_empty_root():
 def test_negative_limits_are_refused(kwargs):
     with pytest.raises(ValueError):
         build_directory_tree([f"{BASE}/a/"], **kwargs)
+
+
+def test_saved_scan_directory_tree_uses_a_bounded_sqlite_projection(tmp_path):
+    from tests.test_scan_url_query import _scan
+
+    path = _scan(tmp_path)
+    result = scan_directory_tree(path, max_depth=1, max_children=1, max_nodes=10)
+
+    assert result["state"] == "partial"
+    assert result["scope"]["included_pages"] == 60
+    assert result["tree"]["pages"] == 60
+    assert len(result["tree"]["children"]) == 1
+    assert result["tree"]["other_children"] == 1
+    assert result["tree"]["other_pages"] > 0
+
+
+def test_saved_scan_directory_tree_node_limit_folds_unemitted_children(tmp_path):
+    from tests.test_scan_url_query import _scan
+
+    path = _scan(tmp_path)
+    result = scan_directory_tree(path, max_depth=3, max_children=50, max_nodes=1)
+
+    assert result["state"] == "partial"
+    assert result["tree"]["children"] == []
+    assert result["tree"]["other_children"] == 2
+    assert result["tree"]["other_pages"] == 60
+
+
+def test_scan_directory_tree_is_registered_for_cli_and_mcp(tmp_path, capsys):
+    from tests.test_scan_url_query import _scan
+
+    path = _scan(tmp_path)
+    code = cli.main(["scan-directory-tree", "--scan", str(path), "--max-depth", "1"])
+    output = json.loads(capsys.readouterr().out)
+    assert code == 0 and output["tree"]["pages"] == 60
+    direct = handlers.scan_directory_tree(str(path), max_depth=1)
+    assert direct["tree"]["pages"] == 60
+    tool = build_server()._tool_manager.get_tool("seo_scan_directory_tree")
+    assert "max_depth" in tool.parameters["properties"]

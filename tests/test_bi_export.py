@@ -55,7 +55,7 @@ def _offline_fetch(url: str):
     )
 
 
-def _crawl_with_audit(tmp_path: Path, monkeypatch) -> Path:
+def _crawl_with_audit(tmp_path: Path, monkeypatch, overrides=None) -> Path:
     original = sqlite_adapter.crawl_to_scan
 
     def offline_crawl(*args, **kwargs):
@@ -65,15 +65,17 @@ def _crawl_with_audit(tmp_path: Path, monkeypatch) -> Path:
 
     monkeypatch.setattr(sqlite_adapter, "crawl_to_scan", offline_crawl)
     scan_path = tmp_path / "synthetic-scan.sqlite"
+    crawl_overrides = {
+        "speed.min_delay_seconds": 0,
+        "limits.max_urls": 2,
+        "limits.max_depth": 1,
+    }
+    crawl_overrides.update(overrides or {})
     result = handlers.crawl_site(
         url="https://example.test/",
         scan_out=str(scan_path),
         producer_build="a" * 40,
-        overrides={
-            "speed.min_delay_seconds": 0,
-            "limits.max_urls": 2,
-            "limits.max_depth": 1,
-        },
+        overrides=crawl_overrides,
     )
     assert result["audit_available"] is True
     return scan_path
@@ -294,6 +296,50 @@ def test_scan_projection_conserves_pages_findings_links_and_provider_grain(tmp_p
     assert _files(package) == _files(Path(repeated["output_directory"]))
 
 
+def test_bi_settings_manifest_uses_native_effective_config_without_secrets(tmp_path, monkeypatch):
+    username_env = "SEOHEAD_BI_AUTH_USER"
+    password_env = "SEOHEAD_BI_AUTH_PASSWORD"
+    username = "synthetic-bi-user"
+    password = "synthetic-bi-password"
+    monkeypatch.setenv(username_env, username)
+    monkeypatch.setenv(password_env, password)
+    scan_path = _crawl_with_audit(
+        tmp_path,
+        monkeypatch,
+        overrides={
+            "scope.normalize_tracking_parameters": True,
+            "http.auth": [
+                {
+                    "host": "example.test",
+                    "scheme": "basic",
+                    "username_env": f"env:{username_env}",
+                    "password_env": f"env:{password_env}",
+                }
+            ],
+            "http.auth_acknowledged": True,
+            "rendering.actions": [{"action": "wait_ms", "ms": 25}],
+            "rendering.presets": ["expand_tabs"],
+            "rendering.artifacts.screenshot_mode": "first_screen",
+        },
+    )
+    package = tmp_path / "bi-native-effective-config"
+
+    export_bi(scan=scan_path, out_dir=package)
+
+    manifest = json.loads((package / "manifest.json").read_text(encoding="utf-8"))
+    settings = manifest["run"]["crawl_settings"]
+    assert settings["scope.normalize_tracking_parameters"] is True
+    assert settings["http.auth"] == [{"host": "example.test", "scheme": "basic"}]
+    assert settings["http.auth_acknowledged"] is True
+    assert settings["rendering.actions"] == [{"action": "wait_ms", "ms": 25}]
+    assert settings["rendering.presets"] == ["expand_tabs"]
+    # BI's settings manifest includes result-affecting options only.
+    assert "rendering.artifacts.screenshot_mode" not in settings
+    encoded = json.dumps(settings)
+    assert username_env not in encoded and password_env not in encoded
+    assert username not in encoded and password not in encoded
+
+
 def test_audit_v2_page_overlay_is_keyed_not_positional(tmp_path, monkeypatch):
     """A valid audit.v2 collection may be ordered independently from the crawl."""
     from seohead.storage.audit_v2 import write_audit_v2
@@ -329,11 +375,18 @@ def test_audit_v2_page_overlay_is_keyed_not_positional(tmp_path, monkeypatch):
 
 def test_audit_v2_finding_segment_selection_matches_saved_view_engine(tmp_path, monkeypatch):
     """Streamed audit.v2 selection keeps project-view analysis segment semantics."""
+    from seohead.crawl.settings import manifest as settings_manifest
     from seohead.projects.finding_views import _segment_definitions
     from seohead.reports.bi_destinations import filter_package
     from seohead.sf.core.segments import assign_segments
+    from seohead.storage import _dump, _sha
     from seohead.storage.audit_v2 import write_audit_v2
-    from seohead.storage.native_scan import crawl_config_fingerprint
+    from seohead.storage.native_scan import (
+        _config_extension_context,
+        _frozen_header_config,
+        crawl_config_fingerprint,
+        read_effective_config,
+    )
 
     scan_path = _crawl_with_audit(tmp_path, monkeypatch)
     document = read_audit(scan_path)
@@ -342,12 +395,24 @@ def test_audit_v2_finding_segment_selection_matches_saved_view_engine(tmp_path, 
         {"name": "child", "rules": [{"op": "contains", "field": "url", "value": "/child"}]},
     ]
     with sqlite3.connect(scan_path) as con:
-        row = con.execute("SELECT config_json FROM scan WHERE singleton=1").fetchone()
-        config = json.loads(row[0])
+        con.row_factory = sqlite3.Row
+        config = read_effective_config(con)
         config["analysis"]["segments"] = definitions
+        header_config = _frozen_header_config(config)
+        extension = _config_extension_context(config)
+        document["run"]["crawl_config"] = settings_manifest(config)
+        document_json = _dump(document)
         con.execute(
             "UPDATE scan SET config_json=?,config_fingerprint=? WHERE singleton=1",
-            (json.dumps(config), crawl_config_fingerprint(config)),
+            (_dump(header_config), crawl_config_fingerprint(header_config)),
+        )
+        con.execute(
+            "UPDATE context_items SET payload_json=? WHERE kind='native_config_extension' AND item_key='run'",
+            (extension["payload_json"],),
+        )
+        con.execute(
+            "UPDATE audit SET document_json=?,sha256=? WHERE singleton=1",
+            (document_json, _sha(document_json)),
         )
         metadata = con.execute(
             "SELECT scan_uuid,evidence_revision,writer_version,writer_revision FROM scan WHERE singleton=1"

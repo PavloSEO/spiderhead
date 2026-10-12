@@ -170,6 +170,30 @@ def _candidate(
     from seohead.crawl.sqlite_adapter import _parse_options
 
     candidate = replace(record)
+    renderer = fetched.get("renderer")
+    if isinstance(renderer, dict):
+        from seohead.checks.element_diff import classify_diffs, diff_elements
+        from seohead.checks.render import _snapshot
+
+        rendered_values = _snapshot(html, fetched.get("final_url") or target_url, "rendered")
+        raw_available = getattr(record, "trust_signals", None) is not None
+        raw_values = {
+            "title": record.title,
+            "description": record.meta_description,
+            "h1": record.h1,
+            "canonical": record.canonical,
+            "meta_robots": record.meta_robots,
+        }
+        diffs = diff_elements(raw_values, rendered_values) if raw_available else []
+        renderer["raw_rendered_evidence"] = {
+            "schema": "raw_rendered_evidence.v1",
+            "state": "complete" if raw_available else "unavailable",
+            "reason": "" if raw_available else "static source HTML was not parsed",
+            "raw": raw_values if raw_available else None,
+            "rendered": {name: rendered_values.get(name, "") for name in raw_values},
+            "diffs": [dict(item) for item in diffs],
+            "rules": [{"rule": rule, "diff": dict(item)} for rule, item in classify_diffs(diffs)],
+        }
     parsed, degenerate = render_escalation.fold_rendered_evidence(
         candidate,
         current_links,
@@ -564,10 +588,10 @@ def run_render_escalation(
                     unavailable_reason="rendered probe was not parsed for content evidence",
                 ),
             )
-            raw = render_tool._snapshot(str(raw_html or ""), target)
+            raw = render_tool._snapshot(str(raw_html or ""), target, "raw")
             rendered_html = str(fetched.get("html") or "")
             final_url = str(fetched.get("final_url") or target)
-            rendered = render_tool._snapshot(rendered_html, final_url)
+            rendered = render_tool._snapshot(rendered_html, final_url, "rendered")
             shell = render_tool.detect_empty_shell(str(raw_html or ""))
             findings = render_tool.compare(raw, rendered, str(raw_html or ""), shell)
             needs = findings != [render_tool.ALL_CLEAR]

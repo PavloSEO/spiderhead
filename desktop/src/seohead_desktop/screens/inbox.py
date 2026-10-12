@@ -11,6 +11,7 @@ from PyQt5.QtCore import QRectF, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QFont, QPainter
 from PyQt5.QtWidgets import (
     QButtonGroup,
+    QDialog,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -32,9 +33,11 @@ from PyQt5.QtWidgets import (
 
 from .. import i18n, theming
 from ..i18n import tr, trf
+from ..local_owner_actions import LocalOwnerActions, accept_goal_arguments
 from ..ui.controls import Note
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import BADGE_ROLE, StatePanel, no_project_panel, show_empty, waiting_badge
+from ..ui.modal import ModalDialog
 from .base import Screen
 from .work import RowsModel, build_table, clear_layout, local_stamp, number, project_state
 
@@ -485,6 +488,8 @@ class InboxScreen(Screen):
         self.filter = "all"
         self.selected_id = None
         self.all_rows = []
+        self._goal_pending = False
+        self.owner_actions = LocalOwnerActions(self)
         self.model = RowsModel(entry_columns())
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -561,6 +566,12 @@ class InboxScreen(Screen):
         wrap = QWidget()
         wrap_layout = QVBoxLayout(wrap)
         wrap_layout.setContentsMargins(24, 8, 24, 16)
+        self.accept_goal_button = QPushButton(tr("Принять цель проекта"))
+        self.accept_goal_button.setProperty("role", "primary")
+        self.accept_goal_button.setIcon(material_icon("check"))
+        self.accept_goal_button.clicked.connect(self._accept_goal)
+        self.accept_goal_button.hide()
+        wrap_layout.addWidget(self.accept_goal_button)
         self.composer = Composer(self)
         wrap_layout.addWidget(self.composer)
         layout.addWidget(wrap)
@@ -701,6 +712,7 @@ class InboxScreen(Screen):
         entry = next((e for e in self.model.rows if e.get("id") == self.selected_id), None)
         layout = self.detail_layout
         if entry is None:
+            self.accept_goal_button.hide()
             layout.addWidget(
                 StatePanel(
                     "empty", "Выберите запись", "Здесь появятся текст, стадии и разбор записи"
@@ -708,6 +720,14 @@ class InboxScreen(Screen):
             )
             layout.addStretch(1)
             return
+        can_accept_goal = (
+            entry.get("kind") == "proposed_goal"
+            and entry.get("goal_state") == "proposed"
+            and type(self.host.inbox_revision) is int
+            and bool(self.host.core_executable)
+        )
+        self.accept_goal_button.setVisible(can_accept_goal)
+        self.accept_goal_button.setEnabled(can_accept_goal and not self._goal_pending)
         kind, label = KINDS.get(entry.get("kind"), ("mut", entry.get("kind") or "—"))
         head = QHBoxLayout()
         badge = QLabel(tr(label))
@@ -776,3 +796,58 @@ class InboxScreen(Screen):
             )
         )
         layout.addStretch(1)
+
+    def _accept_goal(self):
+        entry = next((row for row in self.model.rows if row.get("id") == self.selected_id), None)
+        if not entry or not self.accept_goal_button.isEnabled():
+            return
+        dialog = ModalDialog(
+            "Принять цель проекта?",
+            "Принятие запишет решение владельца и обновит план проекта.",
+            icon="flag",
+            tone="agent",
+            width=560,
+            parent=self,
+        )
+        note = QLabel(entry.get("text") or tr("Нет данных"))
+        note.setWordWrap(True)
+        note.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        dialog.body.addWidget(note)
+        dialog.add_button("Отмена", "text", on_click=dialog.reject)
+        dialog.add_button("Принять цель", "primary", icon="check", on_click=dialog.accept)
+        if dialog.exec_() != QDialog.Accepted:
+            return
+        try:
+            arguments = accept_goal_arguments(
+                self.host.project_directory,
+                entry.get("id"),
+                self.host.inbox_revision,
+            )
+        except ValueError as exc:
+            self.status.setText(str(exc))
+            return
+        self._goal_pending = True
+        self.accept_goal_button.setEnabled(False)
+        project = self.host.project_directory
+        self.status.setText(tr("Принимаем цель через локальный CLI ядра…"))
+        self.owner_actions.submit(
+            self.host.core_executable,
+            arguments,
+            lambda result: self._goal_accepted(result, project),
+            lambda message: self._goal_failed(message, project),
+            self,
+        )
+
+    def _goal_accepted(self, _result, project):
+        self._goal_pending = False
+        if self.host.project_directory != project:
+            return
+        self.status.setText(tr("Цель принята владельцем."))
+        self.host.refresh_project()
+
+    def _goal_failed(self, message, project):
+        self._goal_pending = False
+        if self.host.project_directory != project:
+            return
+        self.status.setText(message)
+        self.accept_goal_button.setEnabled(True)

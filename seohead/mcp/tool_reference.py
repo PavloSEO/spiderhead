@@ -44,6 +44,68 @@ class ToolSpec:
     destructive: bool  # destructiveHint: can overwrite or remove existing data
     idempotent: bool  # idempotentHint: repeating the call changes nothing further
     paid: bool  # uses the "paid" annotations profile: spends an external provider's quota
+    category: str
+    project_aware: bool
+
+
+def _category(name: str) -> str:
+    """Return the stable public category for a registered tool name."""
+    name = name.removeprefix("seo_")
+    rules = (
+        ("crawl", ("crawl", "sitemap", "render", "site_audit", "audit_workflow")),
+        ("scan", ("scan", "compare", "verify_fixes")),
+        ("project", ("project", "remediation", "workflow", "task", "checklist")),
+        ("screaming-frog", ("sf_",)),
+        ("semantic", ("semantic",)),
+        (
+            "content",
+            (
+                "parse",
+                "schema",
+                "duplicate",
+                "heading",
+                "meta_description",
+                "images",
+                "redirects",
+                "links",
+                "robots",
+                "headers",
+                "hreflang",
+                "asset_weight",
+                "social_meta",
+                "soft404",
+                "citability",
+                "llms_txt",
+                "ai_bots",
+            ),
+        ),
+        (
+            "provider",
+            (
+                "gsc",
+                "metrika",
+                "webmaster",
+                "dataforseo",
+                "google_",
+                "topvisor",
+                "backlinks",
+                "serp",
+                "arsenkin",
+                "sources_",
+                "cloudflare",
+                "crux",
+                "wayback",
+                "logs_",
+                "indexnow",
+            ),
+        ),
+        ("recon", ("domain", "cdn", "tech", "security", "regions", "crtsh", "mirror", "whois")),
+        ("report", ("report", "export", "facts", "spend", "bi_")),
+    )
+    for category, prefixes in rules:
+        if any(name.startswith(prefix) for prefix in prefixes):
+            return category
+    return "other"
 
 
 def _profiles(func_node: ast.FunctionDef) -> dict[str, dict[str, bool]]:
@@ -73,6 +135,8 @@ def _arguments(func: ast.FunctionDef) -> tuple[Argument, ...]:
     out = []
     for arg, default in zip(args.args, defaults, strict=True):
         type_str = ast.unparse(arg.annotation) if arg.annotation is not None else "Any"
+        if type_str.endswith("Context"):
+            continue
         default_str = "required" if default is None else ast.unparse(default)
         out.append(Argument(arg.arg, type_str, default_str))
     return tuple(out)
@@ -143,6 +207,11 @@ def _tool_specs(source: Path, register_func_name: str, command_prefix: str) -> l
                 destructive=bool(flags.get("destructiveHint")),
                 idempotent=bool(flags.get("idempotentHint")),
                 paid=profile_name == "paid",
+                category=_category(node.name),
+                project_aware=any(
+                    arg.arg in {"project", "directory", "project_dir", "project_directory"}
+                    for arg in node.args.args
+                ),
             )
         )
     return specs
@@ -154,7 +223,7 @@ def load_seo_tools() -> list[ToolSpec]:
 
 
 def load_sf_tools() -> list[ToolSpec]:
-    """The 5 ``sf_*`` crawl-audit tools, in the order they are registered.
+    """The ``sf_*`` crawl-audit and snippet tools, in the order they are registered.
 
     These do not have a 1:1 CLI command the way ``seo_*`` tools do (``sf run``
     dispatches by ``mode``, not by tool name), so no ``command`` is derived for them.
@@ -181,7 +250,12 @@ def _cost_line(tool: ToolSpec) -> str:
 
 def _render_tool(tool: ToolSpec) -> list[str]:
     heading = f"### `{tool.command}`" if tool.command else f"### `{tool.name}`"
-    lines = [heading, ""]
+    lines = [
+        heading,
+        "",
+        f"**Category:** `{tool.category}` · **Project-aware:** {'yes' if tool.project_aware else 'no'}",
+        "",
+    ]
     if tool.command:
         lines += [f"MCP name: `{tool.name}`", ""]
     if tool.summary:

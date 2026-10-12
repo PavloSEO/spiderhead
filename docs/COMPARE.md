@@ -24,13 +24,16 @@ The new output directory contains:
 - `unchanged.ndjson`: both original rows, as `before` and `after`, for each shared
   finding key. A shared key does **not** assert equal evidence. Both evidence
   objects remain available even when details or suppression fields changed.
+- `segment_changes.ndjson`: every delta and unchanged pair annotated with the
+  shared primary segment and change bucket, when segment rules are comparable.
 - `by_check.ndjson`: full counts for the four delta categories per check.
 - With correspondence: `correspondence.ndjson` and `facts.ndjson`, including
   unmatched declarations and measured/absent/unavailable page facts.
 
 Each file entry has a relative `path`, `format`, `rows`, `bytes`, and SHA-256.
 The returned result includes the absolute `manifest` and `out_dir` paths.
-The manifest is published last, after all streams have been written and flushed.
+The complete directory is published atomically after every stream and the manifest
+have been written and flushed.
 Existing destination directories are rejected, including empty directories.
 Temporary SQL data is removed; it is not part of the artifact contract.
 
@@ -118,3 +121,53 @@ same scan is not fresh evidence. An invalid after crawl cannot resolve findings.
 A partial crawl can verify an actually measured selected page only when check
 coverage, policy, response and representation support that local verdict; missing
 pages and unmeasured or graph-wide checks remain `not_verifiable`.
+
+## Reading and inspecting a comparison
+
+Use `compare-read` (MCP `seo_compare_read`) to page a complete compare.v2 stream by
+`file`, with a stable offset, a bounded row count and byte budget, a URL substring
+filter, and sorting by URL, check or severity. The first read validates the manifest,
+checksum, row framing and complete stored stream, then builds a disk-backed SQLite
+index; later pages in the same local CLI/MCP
+process reuse it. One stream is retained in that process, and its
+temporary indexes are removed at shutdown. The first page can take time proportional
+to the selected stream. A changed manifest or stream identity forces revalidation
+and index rebuilding. The output remains capped at 500 rows and 8 MiB.
+The `segment_changes` stream carries a segment, change type and original issue row;
+filter it with `segment` and `change` to page one template or change bucket.
+
+Use `compare-url` (MCP `seo_compare_url`) for one exact URL. It returns before and
+after page facts, measured field deltas, and finding changes. Missing URLs yield
+`not_rechecked`; unavailable facts stay unavailable. For two native scan.v1 SQLite
+inputs it also requests a text diff capped at 200 lines and 64 KiB per side from
+the retained-body diff primitive. Choose static, rendered or legacy-fragment evidence
+independently for before and after when that provenance is available. It makes no
+network request.
+
+`scan-url-history` now includes title, meta description, H1, word count, observed
+inlinks/outlinks, response time and HTML size alongside status, indexability,
+canonical, redirect and body identity. Adjacent `transitions` compare fields only
+when both scans contain a readable URL observation; gaps are `not_comparable`.
+External-link response codes include only retained responses for linked targets.
+Incomplete link inventories, unfetched targets and missing response codes remain
+unavailable or partial, never zero responses.
+The URL comparison includes observed link counts; link-by-link outgoing URL diff
+remains an owner decision.
+
+The compare.v2 manifest includes before/after page and finding totals and per-change
+counts for each shared primary segment. Segment slices are unavailable when either
+run lacks the same named segment rules; whole-site totals remain usable.
+
+Large comparisons report stage progress and checkpoint every 10,000 indexed or
+classified rows. The interrupted job's sidecar checkpoint is bound to exact source
+hashes, scan identities, correspondence, force setting and compression. Use
+`compare-status --out-dir PATH` (MCP `seo_compare_status`) to read its current state,
+then pass `--resume` to `compare-crawls` with the same inputs and output path.
+The completed compare.v2 package is the cache: repeating the same request with the
+same output path verifies its streams and returns `cache_hit=true`. Different
+inputs or options cannot reuse that package.
+
+Use `compare-report --manifest compare/compare.json --out-file comparison.md` to
+write a new Markdown summary. It reports aggregate deltas, primary-segment counts,
+per-check counts and bounded caveats; it includes no page URLs. The report
+is limited to 64 KiB and 280 checks, and an existing destination is refused.

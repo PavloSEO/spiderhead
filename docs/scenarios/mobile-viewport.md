@@ -11,12 +11,18 @@ print templates, landing pages built outside the CMS, a checkout that predates t
 
 ## Covers
 
-- **Mobile** — Viewport Not Set · Contains Unsupported Plugins · Mobile Alternate Link
+- **Mobile** — Viewport Not Set · Contains Unsupported Plugins · Mobile Alternate Link · Content Not Sized Correctly · Illegible Font Size · Target Size
 
 ## The chain
 
 **1. Crawl with this toolkit's own crawler.** That matters here more than anywhere else: the
-viewport check needs a viewport column, and a native crawl records one per page.
+viewport check needs a viewport column, and the mobile geometry checks need a retained rendered
+page. For a bounded mobile render of up to 30 URLs, save this as `crawl.json`:
+
+```json
+{"rendering":{"mode":"js","escalation":{"policy":"full","max_render_urls":30},
+ "browser":{"viewport_width":390,"viewport_height":844}}}
+```
 
 ```bash
 seohead crawl-site --url https://example.com --config ./crawl.json --out-dir ./run
@@ -46,20 +52,23 @@ head and looks like a solved problem.
 seohead parse --url https://example.com/page
 ```
 
-**5. Look at the page the way a phone would be given it.**
+**5. Measure the rendered page at a mobile viewport.**
 
 ```bash
 seohead render-check --url https://example.com/page --viewport mobile --wait load
 ```
 
-This is the step that separates a missing declaration from a broken layout. The tag is a
-declaration; whether the page then works is something you have to look at.
+This one-page check reports its measured mobile geometry. For findings in `log-scan`, use the
+mobile-rendered crawl from step 1: when it retains complete geometry, the audit checks horizontal
+content overflow, computed text sizes below 12 CSS pixels, and interactive targets below 48 CSS
+pixels. These findings stay unavailable when mobile geometry is absent or malformed; a capped
+inspection is partial and its counts are lower bounds.
 
 **6. Check for plugin-dependent content while you're here.** `UNSUPPORTED_PLUGIN` fires when a
 page contains an `<object>`, `<embed>` or `<applet>` element that is not a benign image
 fallback (an `<object>` whose `type` is `image/...` or `application/pdf`, used for an inline SVG,
-raster image or PDF, is excluded — that renders in every browser, mobile included). No phone runs a plugin, so content behind one of
-these tags is not degraded on mobile, it is simply absent.
+raster image or PDF, is excluded — that renders in every browser, mobile included). No phone
+runs a plugin, so content behind one of these tags is not degraded on mobile, it is simply absent.
 
 **7. Group it by template before reporting it.** Findings on 200 URLs are usually four
 templates. The deliverable is four edits, not two hundred.
@@ -82,16 +91,16 @@ recorded.
 
 ## What it costs
 
-Nothing beyond the crawl. `render-check` costs one browser session per page and is an order of
-magnitude more expensive than a fetch, so it is for one page per template, never for the site.
+Nothing beyond the crawl. Rendering costs one browser session per page and is an order of
+magnitude more expensive than a fetch, so use the configured URL cap and prioritize one page per
+template.
 
 Nothing paid.
 
 ## What it cannot answer
 
-- **Whether the page is actually usable on a phone.** Content wider than the screen, text too
-  small to read, and tap targets too close together all need a rendered mobile layout measured
-  against the device, and none of them is checked here.
+- **Whether the page is usable on a real phone.** The rendered layout checks measure a headless
+  browser at the requested viewport; they do not reproduce every device, font, or interaction.
 - **A viewport set by JavaScript.** A tag injected after load is invisible to a static crawl.
   The render step above is how you find out, one page at a time.
 - **Mobile alternate annotations.** A separate mobile URL declared through `rel="alternate"`

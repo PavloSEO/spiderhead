@@ -15,18 +15,18 @@ here is written about *our own* behaviour.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| check | 162 | a registry check finds it |
-| tool | 24 | a command outside the crawl registry finds it |
-| partial | 27 | we find part of it; the missing part is stated |
+| check | 189 | a registry check finds it |
+| tool | 10 | a command outside the crawl registry finds it |
+| partial | 26 | we find part of it; the missing part is stated |
 | gap | 2 | we should find it and do not |
-| out of scope | 105 | a decision, with its reason |
+| out of scope | 93 | a decision, with its reason |
 | **total** | **320** | |
 
 Accessibility and AMP include measured subsets; their remaining limits are stated
 per issue below. Across the catalogue,
-**186 issues are found today**, 27 are
+**199 issues are found today**, 26 are
 found in part, 2 are gaps worth closing, and
-105 need something we have decided not to build.
+93 need something we have decided not to build.
 
 A gap is not a defect. It is a named, deliberate absence — which is the only kind worth
 having, because the alternative is an absence nobody has noticed.
@@ -66,7 +66,7 @@ having, because the alternative is an absence nobody has noticed.
 | Missing X-Content-Type-Options Header | check | `MISSING_X_CONTENT_TYPE_OPTIONS` |  |
 | Missing X-Frames-Options Header | check | `MISSING_X_FRAME_OPTIONS` |  |
 | Missing Secure Referrer-Policy Header | check | `MISSING_REFERRER_POLICY` |  |
-| Bad Content Type | partial | — | content type is recorded and drives HTML detection, but a mismatch between the declared type and the body is not asserted |
+| Bad Content Type | check | `BODY_MIME_MISMATCH` `DECLARED_MIME_MISMATCH` |  |
 
 ## URL
 
@@ -153,7 +153,7 @@ having, because the alternative is an absence nobody has noticed.
 | Issue | Status | Found by | Note |
 |---|---|---|---|
 | Missing Alt Text | check | `IMG_MISSING_ALT` |  |
-| Missing Alt Attribute | check | `IMG_MISSING_ALT_ATTRIBUTE` | a native crawl's own per-image inventory distinguishes the attribute being absent from a decorative alt="" -- only the former fires; IMG_MISSING_ALT (an SF export column) still reports the two together, since that export's own shape has not changed |
+| Missing Alt Attribute | check | `IMG_MISSING_ALT_ATTRIBUTE` | a native crawl's own per-image inventory distinguishes the attribute being absent from a decorative alt=""; native IMG_MISSING_ALT separately reports whitespace-only or explicitly informative/unnamed-interactive empty alt. The SF export keeps its original filter semantics |
 | Background Images | tool | `parse` | CSS url() sources are extracted by the parser's url_sources option, which is how four images invisible to the HTML were found on a live site |
 | Over 100 kb | check | `IMG_OVER_KB` |  |
 | Alt Text Over 100 Characters | check | `IMG_ALT_TOO_LONG` |  |
@@ -223,21 +223,21 @@ having, because the alternative is an absence nobody has noticed.
 
 | Issue | Status | Found by | Note |
 |---|---|---|---|
-| Noindex Only in Original HTML | tool | `render-check` |  |
-| Nofollow Only in Original HTML | tool | `render-check` |  |
-| Canonical Mismatch | tool | `render-check` |  |
+| Noindex Only in Original HTML | check | `NOINDEX_ONLY_IN_RAW_HTML` |  |
+| Nofollow Only in Original HTML | check | `NOFOLLOW_ONLY_IN_RAW_HTML` |  |
+| Canonical Mismatch | check | `CANONICAL_MISMATCH` |  |
 | Uses Old AJAX Crawling Scheme URLs | check | `AJAX_CRAWLING_SCHEME_URL` |  |
 | Uses Old AJAX Crawling Scheme Meta Fragment Tag | check | `AJAX_CRAWLING_SCHEME_META_FRAGMENT` |  |
-| Pages with Blocked Resources | check | `ROBOTS_BLOCKS_RESOURCES` |  |
+| Pages with Blocked Resources | check | `ROBOTS_BLOCKS_RESOURCES` `RENDER_RESOURCE_BLOCKED` |  |
 | Contains JavaScript Links | tool | `render-check` |  |
 | Contains JavaScript Content | tool | `render-check` |  |
-| Page Title Only in Rendered HTML | tool | `render-check` |  |
-| Page Title Updated by JavaScript | tool | `render-check` |  |
-| Meta Description Only in Rendered HTML | tool | `render-check` |  |
-| Meta Description Updated by JavaScript | tool | `render-check` |  |
-| H1 Only in Rendered HTML | tool | `render-check` |  |
-| H1 Updated by JavaScript | tool | `render-check` |  |
-| Canonical Only in Rendered HTML | tool | `render-check` |  |
+| Page Title Only in Rendered HTML | check | `PAGE_TITLE_ONLY_IN_RENDERED_HTML` |  |
+| Page Title Updated by JavaScript | check | `PAGE_TITLE_UPDATED_BY_JAVASCRIPT` |  |
+| Meta Description Only in Rendered HTML | check | `META_DESCRIPTION_ONLY_IN_RENDERED_HTML` |  |
+| Meta Description Updated by JavaScript | check | `META_DESCRIPTION_UPDATED_BY_JAVASCRIPT` |  |
+| H1 Only in Rendered HTML | check | `H1_ONLY_IN_RENDERED_HTML` |  |
+| H1 Updated by JavaScript | check | `H1_UPDATED_BY_JAVASCRIPT` |  |
+| Canonical Only in Rendered HTML | check | `CANONICAL_ONLY_IN_RENDERED_HTML` |  |
 | Pages With JavaScript Errors | check | `JS_CONSOLE_ERRORS` |  |
 
 ## Links
@@ -308,10 +308,10 @@ having, because the alternative is an absence nobody has noticed.
 | Issue | Status | Found by | Note |
 |---|---|---|---|
 | Viewport Not Set | check | `VIEWPORT_MISSING` |  |
-| Content Not Sized Correctly | out of scope | — | needs a rendered mobile layout to measure overflow |
-| Illegible Font Size | out of scope | — | needs computed styles from a rendered page |
+| Content Not Sized Correctly | check | `MOBILE_CONTENT_OVERFLOW` |  |
+| Illegible Font Size | check | `MOBILE_TEXT_TOO_SMALL` |  |
 | Contains Unsupported Plugins | check | `UNSUPPORTED_PLUGIN` | <object>/<embed>/<applet> are counted, excluding an <object> whose type declares an image (an SVG or raster fallback, not plugin content) |
-| Target Size | out of scope | — | needs rendered hit-box geometry |
+| Target Size | check | `MOBILE_TARGET_TOO_SMALL` |  |
 | Mobile Alternate Link | check | `MOBILE_ALTERNATE_LINK` | only a media-qualified rel=alternate with no href is flagged; the reciprocal canonical on the mobile URL is not checked |
 
 ## Accessibility
@@ -415,25 +415,25 @@ having, because the alternative is an absence nobody has noticed.
 
 | Issue | Status | Found by | Note |
 |---|---|---|---|
-| Orphan URLs | tool | `crawl-enrich` | found from an offline analytics CSV joined to the crawl, not by sf run; a withheld result on a partial crawl; live per-URL sourcing needs #990 |
-| Bounce Rate Above 70% | tool | `crawl-enrich` | found from an offline per-URL bounce column (--bounce-column), not by sf run; live per-URL sourcing needs #990 and #984 |
-| No GA Data | tool | `crawl-enrich` | found from an offline analytics CSV joined to the crawl, not by sf run; skipped for an empty analytics file |
-| Non-Indexable with GA Data | tool | `crawl-enrich` | found from an offline visits column (--visits-column), not by sf run |
+| Orphan URLs | check | `GA_ORPHAN_URL` `METRIKA_ORPHAN_URL` | joined from complete project-bound GA4 or Metrika URL history; absence claims are withheld for incomplete source coverage or partial crawls |
+| Bounce Rate Above 70% | check | `BOUNCE_RATE_ABOVE_70` `METRIKA_BOUNCE_RATE_ABOVE_70` | measured from retained per-URL Metrika bounce rates; GA4 does not provide this metric in the project join |
+| No GA Data | check | `NO_GA_DATA` `NO_METRIKA_DATA` | absence is reported only for an explicitly bound property with complete retained coverage and a complete crawl |
+| Non-Indexable with GA Data | check | `NON_INDEXABLE_WITH_GA_DATA` `NON_INDEXABLE_WITH_METRIKA_DATA` | joined from retained GA4 sessions or Metrika visits |
 
 ## Search Console
 
 | Issue | Status | Found by | Note |
 |---|---|---|---|
 | Page is Not Mobile Friendly | out of scope | — | needs Search Console; see #97 |
-| Orphan URLs | out of scope | — | needs Search Console |
-| URL is on Google, But Has Issues | out of scope | — | needs Search Console |
-| AMP URL is Invalid | out of scope | — | needs Search Console, and AMP is retired |
-| Rich Result is Invalid | out of scope | — | needs Search Console |
-| Indexable URL Not Indexed | out of scope | — | needs Search Console |
-| User-Declared Canonical Not Selected | out of scope | — | needs Search Console |
-| No Search Analytics Data | out of scope | — | needs Search Console |
-| Non-Indexable with Search Analytics Data | out of scope | — | needs Search Console |
-| URL Is Not on Google | out of scope | — | needs Search Console |
+| Orphan URLs | check | `GSC_ORPHAN` | requires complete retained Search Analytics coverage and crawl |
+| URL is on Google, But Has Issues | check | `GSC_INDEXED_WITH_ISSUES` |  |
+| AMP URL is Invalid | check | `GSC_AMP_INVALID` |  |
+| Rich Result is Invalid | check | `GSC_RICH_RESULTS_INVALID` |  |
+| Indexable URL Not Indexed | check | `GSC_INDEXABLE_NOT_INDEXED` |  |
+| User-Declared Canonical Not Selected | check | `GSC_USER_CANONICAL_NOT_SELECTED` |  |
+| No Search Analytics Data | check | `NO_SEARCH_DATA` | requires complete retained Search Analytics coverage and crawl |
+| Non-Indexable with Search Analytics Data | check | `NON_INDEXABLE_WITH_SEARCH_DATA` |  |
+| URL Is Not on Google | check | `GSC_URL_NOT_ON_GOOGLE` |  |
 
 ## Validation
 
