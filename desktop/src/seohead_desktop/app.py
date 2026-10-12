@@ -78,8 +78,15 @@ def load_theme(app, theme=None):
         theming.set_active_theme(theme)
     tokens = theme_tokens()
     app.setWindowIcon(brand.app_icon())
-    for font in sorted((ROOT / "assets/fonts").glob("*.ttf")):
-        QFontDatabase.addApplicationFont(str(font))
+    if not app.property("spiderheadFontsRegistered"):
+        font_ids = [
+            QFontDatabase.addApplicationFont(str(font))
+            for font in sorted((ROOT / "assets/fonts").glob("*.ttf"))
+        ]
+        app.setProperty(
+            "spiderheadFontsRegistered",
+            bool(font_ids) and all(font_id >= 0 for font_id in font_ids),
+        )
     app.setStyleSheet(theming.stylesheet() + component_stylesheet(tokens))
     install_popup_style(app, tokens["radius_popup"])
     return tokens

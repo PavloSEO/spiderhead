@@ -2,3 +2,4 @@
 - Show a custom User-Agent preview only when its value is available; do not present a preset label as the actual transmitted header. Preserve the scheduler's configured delay limits.
 - Re-evaluate owner task creation after project refresh and retain core-validated compatible competitor runs across unrelated checklist revisions. Confirmation and current-revision checks remain required for writes.
 - Disable bot verification until retained project logs are available, support ordinary Qt table-model calls, and show saved issue totals separately from bounded URL samples and unmeasured checks.
+- Register bundled fonts once per application instead of registering duplicate copies on every theme change.
