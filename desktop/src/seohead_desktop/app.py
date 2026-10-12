@@ -28,6 +28,7 @@ from PyQt5.QtWidgets import (
 )
 
 from . import brand, i18n, qt, theming
+from .winproc import hide_console_windows
 from .agent import AgentMixin
 from .chrome import ChromeMixin
 from .commands import CommandsMixin
@@ -480,6 +481,7 @@ def main():
         help="Existing owned runtime directory for explicit local agent control",
     )
     args = parser.parse_args()
+    hide_console_windows()
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
     app = qt.app(sys.argv[:1])

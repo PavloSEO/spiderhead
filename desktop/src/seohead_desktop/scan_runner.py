@@ -12,6 +12,7 @@ from urllib.parse import urlsplit
 
 from PyQt5.QtCore import QObject, QProcess, pyqtSignal
 
+from .winproc import new_process
 from .bundle import verified_bundled_core_identity
 
 
@@ -33,7 +34,7 @@ class LocalScanProcess(QObject):
             else None
         )
         self.stop_requested = False
-        self.process = QProcess(self)
+        self.process = new_process(self)
         self.process.setProcessChannelMode(QProcess.MergedChannels)
         self.process.started.connect(self.started)
         self.process.readyReadStandardOutput.connect(self._read_output)

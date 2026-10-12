@@ -12,6 +12,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from PyQt5.QtCore import QObject, QProcess, QTimer, pyqtSignal
+from .winproc import new_process
 
 TIMEOUT_MS = 30000
 MAX_OUTPUT = 1 << 20
@@ -105,7 +106,7 @@ class ProjectCreator(QObject):
         if label.strip():
             arguments += ["--label", label.strip()]
         self._done = False
-        process = self._process = QProcess(self)
+        process = self._process = new_process(self)
         process.errorOccurred.connect(self._error)
         process.finished.connect(self._finished)
         process.start(core, arguments)

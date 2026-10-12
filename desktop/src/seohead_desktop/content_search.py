@@ -14,6 +14,7 @@ import uuid
 from pathlib import Path
 
 from PyQt5.QtCore import QObject, QProcess, QTimer, pyqtSignal
+from .winproc import new_process
 
 FORMAT = "seohead.retained-content-search.v1"
 TOOLS = frozenset({"seo_scan_content_search", "seo_scan_content_search_page"})
@@ -269,7 +270,7 @@ class ContentSearchController(QObject):
         if self._job is not None or self._pending is None or self._closing:
             return
         job, self._pending = self._pending, None
-        process = QProcess(self)
+        process = new_process(self)
         job.update(
             process=process, stdout=bytearray(), stderr=bytearray(), stopping=False, failure=None
         )

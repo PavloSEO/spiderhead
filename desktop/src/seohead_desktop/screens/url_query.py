@@ -12,6 +12,7 @@ from urllib.parse import urlsplit
 
 from PyQt5.QtCore import QCoreApplication, QObject, QProcess, QTimer, pyqtSignal
 
+from ..winproc import new_process
 from ..i18n import tr
 
 PAGE = 200  # the core allows at most 200 rows per page
@@ -234,7 +235,7 @@ class CoreJob(QObject):
             self.failed.emit(token, tr("Исполняемый файл локального ядра не указан"))
             return
         self.cancel()
-        process = QProcess(self)
+        process = new_process(self)
         job = {
             "token": token,
             "process": process,
