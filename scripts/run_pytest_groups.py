@@ -79,6 +79,7 @@ def main() -> int:
                 "-q",
                 "--cov=seohead",
                 "--cov-report=",
+                "--durations=10",
                 f"--junitxml={out / f'group-{index}.xml'}",
                 f"--basetemp={out / f'group-{index}-temp'}",
                 *sorted(group),
