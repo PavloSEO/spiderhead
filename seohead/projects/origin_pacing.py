@@ -41,6 +41,11 @@ def _user_state_dir() -> Path:
     return root
 
 
+def _group_or_world_accessible(path: Path) -> bool:
+    """POSIX mode bits say nothing about privacy on Windows (files report 0o666)."""
+    return os.name != "nt" and bool(path.stat().st_mode & 0o077)
+
+
 class ProjectOriginPacer:
     """Reserve one request turn across local processes for one host.
 
@@ -91,7 +96,7 @@ class ProjectOriginPacer:
             descriptor = None
         else:
             os.close(descriptor)
-        if self.path.is_symlink() or not self.path.is_file() or self.path.stat().st_mode & 0o077:
+        if self.path.is_symlink() or not self.path.is_file() or _group_or_world_accessible(self.path):
             raise ValueError("project origin pacing store must be private")
 
     def _connect(self) -> sqlite3.Connection:
@@ -105,7 +110,7 @@ class ProjectOriginPacer:
             if (
                 self.path.is_symlink()
                 or not self.path.is_file()
-                or self.path.stat().st_mode & 0o077
+                or _group_or_world_accessible(self.path)
             ):
                 raise ValueError("project origin pacing store must be private")
             return con
