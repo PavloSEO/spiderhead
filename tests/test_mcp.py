@@ -8,7 +8,6 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-import shutil
 import sys
 
 import pytest
@@ -21,7 +20,6 @@ from mcp.client.stdio import stdio_client
 from seohead.mcp.mcp_server import build_server
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FIXTURES = os.path.join(ROOT, "tests", "fixtures")
 
 
 def test_all_mcp_tools_have_structured_schemas_and_safety_annotations():
@@ -187,14 +185,10 @@ async def _drive(exports_dir: str, out_dir: str) -> dict:
         }
 
 
-def test_mcp_all_tools(tmp_path):
-    exports = tmp_path / "exports"
-    exports.mkdir()
-    for name in os.listdir(FIXTURES):
-        shutil.copy(os.path.join(FIXTURES, name), exports / name)
+def test_mcp_all_tools(tmp_path, exports_dir):
     out = tmp_path / "out"
 
-    res = asyncio.run(_drive(str(exports), str(out)))
+    res = asyncio.run(_drive(exports_dir, str(out)))
 
     assert {
         "sf_audit_run",
