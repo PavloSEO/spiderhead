@@ -15,9 +15,9 @@ from seohead.sf.config import load_config
 from seohead.sf.core.context import AuditContext
 from seohead.sf.core.loader import LoadedExports
 from seohead.sf.core.rules import (
+    _measure_retained_image_declarations,
     check_native_image_resources,
     check_native_image_size,
-    _measure_retained_image_declarations,
 )
 from seohead.storage import open_scan
 from seohead.storage.audit_v2 import AuditV2Reader
