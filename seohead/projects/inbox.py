@@ -9,7 +9,6 @@ or injects text into a model conversation.
 from __future__ import annotations
 
 import copy
-import fcntl
 import hashlib
 import json
 import os
@@ -24,6 +23,7 @@ from typing import Any
 from seohead.core.common import utc_iso_z as _now
 from seohead.core.filesystem import atomic_write_bytes
 
+from ..core.portable_flock import fcntl
 from .workspace import _load
 
 FORMAT = "seohead.project-inbox.v1"

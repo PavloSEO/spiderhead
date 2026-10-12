@@ -8,7 +8,6 @@ never edits earlier lines and reading never writes.
 
 from __future__ import annotations
 
-import fcntl
 import json
 import os
 import time
@@ -16,6 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from ..core.portable_flock import fcntl
 from .workspace import _load
 
 FILE = "events.jsonl"
