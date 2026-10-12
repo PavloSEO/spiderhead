@@ -17,7 +17,7 @@ from seohead.sf.core.loader import LoadedExports
 from seohead.sf.core.rules import (
     check_native_image_resources,
     check_native_image_size,
-    check_retained_image_declarations,
+    _measure_retained_image_declarations,
 )
 from seohead.storage import open_scan
 from seohead.storage.audit_v2 import AuditV2Reader
@@ -66,7 +66,7 @@ def _run(path):
     ctx = AuditContext(LoadedExports(), load_config(None), disk_backed_pages=True)
     ctx.scan_con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
     ctx.scan_con.row_factory = sqlite3.Row
-    check_retained_image_declarations(ctx)
+    _measure_retained_image_declarations(ctx)
     check_native_image_resources(ctx)
     check_native_image_size(ctx)
     return ctx
