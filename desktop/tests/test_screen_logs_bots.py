@@ -42,6 +42,15 @@ class LogsBotsScreenTests(unittest.TestCase):
         self.assertEqual(screen.model.rowCount(), 0)
         self.assertEqual(host.calls, [])
 
+    def test_retained_import_enables_explicit_verification_without_starting_it(self):
+        host = FakeHost(project="/project/qa")
+        host.log_imports = {"/project/qa": {"source": "/project/qa/logs/retained.sqlite"}}
+        screen = LogsBotsScreen(host)
+        self.addCleanup(screen.close)
+        self.addCleanup(screen.deleteLater)
+        self.assertTrue(screen.verify_button.isEnabled())
+        self.assertEqual(host.calls, [])
+
 
 if __name__ == "__main__":
     unittest.main()

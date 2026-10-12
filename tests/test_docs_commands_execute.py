@@ -363,7 +363,11 @@ def _seed_resumable_scan(tmp_path: Path, base_url: str, argv: list[str]) -> None
     NativeScan.claim = counting_claim
     try:
         handlers.crawl_site(
-            url=f"{base_url}/", scan_out=str(target), min_delay=0, producer_build=build
+            url=f"{base_url}/",
+            scan_out=str(target),
+            max_urls=200,
+            min_delay=0,
+            producer_build=build,
         )
     except _Killed:
         pass
