@@ -298,13 +298,13 @@ class SnippetPage(QWidget):
     def _edit(self):
         if not self.host or not self.url:
             return
-        from .methods import VIEW_METHODS
+        from .methods import VIEW_UTILITIES
 
-        page = self.host.placeholder_pages.get(VIEW_METHODS)
+        page = self.host.placeholder_pages.get(VIEW_UTILITIES)
         if page is None or not hasattr(page, "open_snippet"):
             return
         page.open_snippet(self.url, self.title, self.description)
-        self.host.navigation.select_section("methods")
+        self.host.navigation.select_section("tools")
 
 
 class Accordion(QFrame):

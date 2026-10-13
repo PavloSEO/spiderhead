@@ -518,7 +518,7 @@ class AgentMixin:
         self.search.selectAll()
 
     def navigate(self, row):
-        if row == VIEW_IDS.index("methods"):
+        if row in (VIEW_IDS.index("methods"), VIEW_IDS.index("utilities")):
             page = self.placeholder_pages.get(row)
             if page is not None and hasattr(page, "refresh"):
                 page.refresh()

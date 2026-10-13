@@ -53,6 +53,7 @@ VIEW_IDS = (
     "methods",
     "graph",
     "logs",
+    "utilities",
 )
 
 

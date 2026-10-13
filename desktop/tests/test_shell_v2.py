@@ -61,13 +61,14 @@ class ShellV2Tests(unittest.TestCase):
                 "compare",
                 "graph",
                 "search",
+                "tools",
                 "methods",
                 "reports",
                 "log",
                 "logs",
             ],
         )
-        self.assertEqual(headers(nav), [ui("Данные"), ui("Результат")])
+        self.assertEqual(headers(nav), [ui("Данные"), ui("Инструменты"), ui("Результат")])
 
     def test_simple_display_has_no_agent_sections_and_is_remembered(self):
         self.window.set_display("simple")
@@ -250,7 +251,7 @@ class ShellV2Tests(unittest.TestCase):
 
     def test_methods_workspace_and_graph_waiting_screens_have_no_invented_counts(self):
         from seohead_desktop.screens.graph import GraphScreen
-        from seohead_desktop.screens.methods import MethodsWorkspace
+        from seohead_desktop.screens.methods import MethodsWorkspace, ToolsWorkspace
         from seohead_desktop.screens.snippets import SnippetEditor
         from seohead_desktop.screens.tool_redirects import ToolRedirectsScreen
         from seohead_desktop.ui.kit import StatePanel
@@ -258,16 +259,16 @@ class ShellV2Tests(unittest.TestCase):
         self.assertTrue(self.window.navigation.select_section("methods"))
         page = self.window.pages.currentWidget()
         self.assertIsInstance(page, MethodsWorkspace)
+        self.assertIsInstance(page.catalogue, QWidget)
+        self.assertTrue(self.window.navigation.select_section("tools"))
+        page = self.window.pages.currentWidget()
+        self.assertIsInstance(page, ToolsWorkspace)
         self.assertEqual(
             [page.tabs.tabText(index) for index in range(page.tabs.count())],
-            ["Method library", "Snippet editor", "Redirect generator"],
+            ["Redirect generator", "Snippet editor"],
         )
-        self.assertIsInstance(page.catalogue, QWidget)
-        self.assertIsInstance(page.snippets, SnippetEditor)
         self.assertIsInstance(page.redirects, ToolRedirectsScreen)
-        self.assertEqual(page.tabs.widget(0), page.catalogue)
-        self.assertEqual(page.tabs.widget(1), page.snippets)
-        self.assertEqual(page.tabs.widget(2), page.redirects)
+        self.assertIsInstance(page.snippets, SnippetEditor)
 
         self.assertTrue(self.window.navigation.select_section("crawler"))
         page = self.window.pages.currentWidget()

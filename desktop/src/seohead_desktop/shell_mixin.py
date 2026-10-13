@@ -63,13 +63,15 @@ class ShellMixin:
         )
         self.pages.addWidget(self.scans_placeholder)
         from .screens.crawler import CrawlerScreen
-        from .screens.methods import MethodsWorkspace
+        from .screens.methods import MethodsWorkspace, ToolsWorkspace
 
-        for view in ("crawler", "methods"):
+        for view in ("crawler", "methods", "utilities"):
             if view == "crawler":
                 page = CrawlerScreen(self)
             elif view == "methods":
                 page = MethodsWorkspace(self)
+            elif view == "utilities":
+                page = ToolsWorkspace(self)
             else:
                 page = QWidget()
                 layout = QVBoxLayout(page)

@@ -113,6 +113,13 @@ class SnippetEditor(QWidget):
         except (OSError, UnicodeDecodeError, ValueError) as exc:
             self.status.setText(str(exc)[:300])
 
+    def use_selected_scan(self):
+        """Tick the scan context when a scan is selected, so the editor opens with it loaded."""
+        has_scan = bool(self.host.selected_scan_path)
+        self.use_scan.setEnabled(has_scan)
+        if has_scan and not self.csv.toPlainText().strip():
+            self.use_scan.setChecked(True)
+
     def prefill_row(self, url: str, title: str = "", description: str = ""):
         stream = io.StringIO(newline="")
         writer = csv.writer(stream, lineterminator="\n")

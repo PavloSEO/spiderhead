@@ -39,6 +39,7 @@ SECTIONS = (
     ("compare", "compare_arrows", "Сравнение", "data", True, True),
     ("graph", "hub", "Граф ссылок", "data", True, True),
     ("search", "find_in_page", "Поиск в HTML", "data", True, True),
+    ("tools", "build", "Инструменты", "tools", False, True),
     ("methods", "menu_book", "Методы", "result", False, True),
     ("reports", "description", "Отчёты и задачи", "result", True, True),
     ("log", "terminal", "Журнал", "result", True, True),
@@ -58,6 +59,7 @@ VIEW_OF = {
     "logs": "logs",
     "crawler": "crawler",
     "methods": "methods",
+    "tools": "utilities",
     "graph": "graph",
 }
 # SideNav sheet: without a project these items are shown dimmed with «нужен проект»; the rest stay active.
@@ -68,7 +70,7 @@ SIMPLE_VIEW_OF = {
     **VIEW_OF,
     "work": "tasks",
 }  # «Работа» opens the simple task list in the Simple display
-GROUP_TITLES = {"data": "Данные", "result": "Результат"}
+GROUP_TITLES = {"data": "Данные", "tools": "Инструменты", "result": "Результат"}
 ROLE_ID, ROLE_COUNT, ROLE_DOT, ROLE_HEADER, ROLE_LOCKED = (Qt.UserRole + i for i in range(5))
 ROLE_CONTEXT = Qt.UserRole + 5
 

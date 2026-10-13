@@ -18,12 +18,14 @@ from PyQt5.QtWidgets import (
 
 from ..i18n import tr, trf
 from ..ui import motion
+from ..ui.presentation import short_run_id
 from ..ui.workspace import VIEW_IDS
 from .snippets import SnippetEditor
 from .tool_redirects import ToolRedirectsScreen
 from .url_query import CoreJob
 
 VIEW_METHODS = VIEW_IDS.index("methods")
+VIEW_UTILITIES = VIEW_IDS.index("utilities")
 FIELD_NAMES = {
     "description": "Description",
     "when": "When to apply",
@@ -184,7 +186,32 @@ class MethodCatalogueScreen(QWidget):
 
 
 class MethodsWorkspace(QWidget):
-    """Methods catalogue plus the existing redirect tool, both native and local."""
+    """Methods: the packaged catalogue, opened with the selected scan shown."""
+
+    def __init__(self, host):
+        super().__init__()
+        self.host = host
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.scan_label = QLabel()
+        self.scan_label.setProperty("text_style", "meta")
+        self.scan_label.setContentsMargins(16, 8, 16, 0)
+        layout.addWidget(self.scan_label)
+        self.catalogue = MethodCatalogueScreen(host)
+        layout.addWidget(self.catalogue, 1)
+
+    def refresh(self):
+        uuid = getattr(self.host, "selected_scan_uuid", None)
+        self.scan_label.setText(
+            trf("Selected scan: {scan}", scan=short_run_id(uuid))
+            if uuid
+            else tr("No scan selected. Choose one in Scans to apply methods to it.")
+        )
+        self.catalogue.ensure_loaded()
+
+
+class ToolsWorkspace(QWidget):
+    """Tools: utilities that produce files (redirect generator, snippet editor), apart from Methods."""
 
     def __init__(self, host):
         super().__init__()
@@ -192,25 +219,19 @@ class MethodsWorkspace(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.tabs = QTabWidget()
-        self.catalogue = MethodCatalogueScreen(host)
-        self.snippets = SnippetEditor(host)
         self.redirects = ToolRedirectsScreen(host)
-        self.tabs.addTab(self.catalogue, tr("Method library"))
-        self.tabs.addTab(self.snippets, tr("Snippet editor"))
+        self.snippets = SnippetEditor(host)
         self.tabs.addTab(self.redirects, tr("Redirect generator"))
-        self.tabs.currentChanged.connect(self._tab_changed)
+        self.tabs.addTab(self.snippets, tr("Snippet editor"))
+        self.tabs.currentChanged.connect(lambda _i: self.refresh())
         layout.addWidget(self.tabs)
 
     def refresh(self):
-        if self.tabs.currentWidget() is self.catalogue:
-            self.catalogue.ensure_loaded()
+        if self.tabs.currentWidget() is self.redirects:
+            self.redirects.refresh()
+        else:
+            self.snippets.use_selected_scan()
 
     def open_snippet(self, url: str, title: str = "", description: str = ""):
         self.snippets.prefill_row(url, title, description)
         self.tabs.setCurrentWidget(self.snippets)
-
-    def _tab_changed(self, index):
-        if self.tabs.widget(index) is self.catalogue:
-            self.catalogue.ensure_loaded()
-        elif self.tabs.widget(index) is self.redirects:
-            self.redirects.refresh()
