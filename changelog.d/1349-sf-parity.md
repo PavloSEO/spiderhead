@@ -1,0 +1,1 @@
+- Desktop Crawler (#1349): URL detail tabs (inlinks, outlinks, resources, snippet, saved source, headers) over the crawl file, per-tab filters with counts, a fuller overview with directives, a column chooser per tab wired to export columns, header sorting, context menu and keyboard navigation; New scan can save its settings as a named crawl profile.

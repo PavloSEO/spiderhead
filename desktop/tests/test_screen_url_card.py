@@ -159,15 +159,15 @@ class CardTests(CardBase):
         ]
         self.assertEqual(badges[0].property("waiting_issue"), 974)
         self.assertIn("Недоступно", badges[0].toolTip())
-        for tab, issue in (("html", 936),):
-            card.select_tab(tab)
-            self.app.processEvents()
-            found = [
-                w.property("waiting_issue")
-                for w in card.facts[tab].findChildren(type(card.scan_caption))
+        card.select_tab("html")  # the saved source is read by the core, not announced as missing
+        self.app.processEvents()
+        self.assertFalse(
+            [
+                w
+                for w in card.facts["html"].findChildren(type(card.scan_caption))
                 if w.property("waiting_issue")
             ]
-            self.assertEqual(found, [issue])
+        )
 
     def test_history_reads_the_url_in_every_saved_scan_and_marks_missing_ones(self):
         card = self.open_tab("hist")

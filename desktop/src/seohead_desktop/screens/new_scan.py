@@ -8,6 +8,8 @@ the network or a scan itself.
 
 from __future__ import annotations
 
+import json
+import tempfile
 from pathlib import Path
 
 from PyQt5.QtCore import Qt, QTimer
@@ -18,8 +20,10 @@ from PyQt5.QtWidgets import (
     QFrame,
     QGridLayout,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPlainTextEdit,
     QPushButton,
     QScrollArea,
@@ -39,7 +43,6 @@ from ..ui.kit import StatePanel, waiting_badge
 from ..ui.presentation import ElidedLabel
 from .new_scan_draft import (
     ISSUE_ESTIMATE,
-    ISSUE_PROFILES,
     ISSUE_URL_QUERY,
     LIST_FILE_CAP,
     PlanError,
@@ -49,6 +52,7 @@ from .new_scan_draft import (
     request_project_policy,
 )
 from .new_scan_pages import ChoiceCard, FormRow, HelpIcon, Stepper, flow, number_edit
+from .url_query import CoreJob
 
 SOURCE_CARDS = (
     ("site", "travel_explore", "Сайт целиком", "Обход по ссылкам со стартового URL проекта"),
@@ -227,6 +231,49 @@ class NewScanDialog(QDialog):
         self.quick_requested = True
         self.reject()
 
+    def _save_profile(self):
+        """Name the settings of this scan and let the core store them (``crawl-site --config … --save-profile``)."""
+        name, accepted = QInputDialog.getText(
+            self, tr("Сохранить как профиль"), tr("Profile name (a-z, 0-9, - and _)")
+        )
+        if not accepted or not self.draft:
+            return
+        config = {}
+        for path, value in self.draft.overrides().items():
+            node = config
+            *parents, leaf = path.split(".")
+            for part in parents:
+                node = node.setdefault(part, {})
+            node[leaf] = value
+        self._profile_dir = tempfile.TemporaryDirectory(prefix="spiderhead-profile-")
+        target = Path(self._profile_dir.name) / "config.json"
+        target.write_text(json.dumps(config), encoding="utf-8")
+        self.profile_job = CoreJob(self.host, self)
+        self.profile_job.done.connect(self._profile_saved)
+        self.profile_job.failed.connect(
+            lambda _token, reason: self._profile_saved(None, {"error": reason})
+        )
+        self.profile_button.setEnabled(False)
+        self.profile_job.start(
+            ["crawl-site", "--config", str(target), "--save-profile", name.strip()], name
+        )
+
+    def _profile_saved(self, _token, payload):
+        self._profile_dir.cleanup()
+        self.profile_button.setEnabled(True)
+        if payload.get("profile"):
+            QMessageBox.information(
+                self,
+                tr("Сохранить как профиль"),
+                trf("Profile saved: {name}", name=payload["profile"]),
+            )
+        else:
+            QMessageBox.warning(
+                self,
+                tr("Сохранить как профиль"),
+                payload.get("error") or payload.get("reason") or tr("Ядро не сохранило профиль"),
+            )
+
     def _footer(self):
         bar = QFrame()
         bar.setObjectName("dialogFooter")
@@ -234,15 +281,12 @@ class NewScanDialog(QDialog):
         layout = QHBoxLayout(bar)
         layout.setContentsMargins(20, 0, 20, 0)
         layout.setSpacing(8)
-        profile = QPushButton(tr("Сохранить как профиль"))
+        self.profile_button = profile = QPushButton(tr("Сохранить как профиль"))
         profile.setObjectName("scanSaveProfile")
         profile.setIcon(icon("bookmark_add"))
-        profile.setEnabled(False)
-        profile.setToolTip(
-            f"{tr('Недоступно в этой версии ядра')}: {tr('ядро не хранит именованные профили скана')}"
-        )
+        profile.setToolTip(tr("Save the changed settings as a named crawl profile of the core"))
+        profile.clicked.connect(self._save_profile)
         layout.addWidget(profile)
-        layout.addWidget(waiting_badge(ISSUE_PROFILES))
         self.problem_icon = MaterialIconLabel("error", 18, color="role:error")
         self.problem = QLabel()  # wraps to two lines instead of eliding the reason
         self.problem.setWordWrap(True)
