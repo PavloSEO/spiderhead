@@ -18,6 +18,7 @@ from .common import (  # noqa: F401
     plain,
     scan_request_key,
 )
+from .i18n import tr, trf
 from .ui.icons import material_icon as icon
 from .ui.presentation import (
     theme_tokens,
@@ -98,7 +99,7 @@ class WorkspaceMixin:
             self.set_panel_visible("Сводка", False)
             self.open_monitor_window()
         keep_on_screen(self)
-        self.statusBar().showMessage("Раскладка: " + LAYOUTS[identifier])
+        self.statusBar().showMessage(trf("Раскладка: {name}", name=LAYOUTS[identifier]))
 
     def save_workspace_layout(self):
         if not self.settings:
@@ -364,10 +365,10 @@ class WorkspaceMixin:
         self.activity_text.setPlainText(reason)
         self.inbox_detail.setPlainText(reason)
         self.task_detail.setPlainText(reason)
-        self.activity_caption.setText("Запуски · данные не загружены")
-        self.journal_caption.setText("События · данные не загружены")
-        self.task_caption.setText("Задачи · данные не загружены")
-        self.inbox_caption.setText("Входящие · данные не загружены")
+        self.activity_caption.setText(tr("Запуски · данные не загружены"))
+        self.journal_caption.setText(tr("События · данные не загружены"))
+        self.task_caption.setText(tr("Задачи · данные не загружены"))
+        self.inbox_caption.setText(tr("Входящие · данные не загружены"))
         self.summary_source.setText("Данные не загружены")
         self.summary_records.setText("—")
         self.summary_scan.setText("Скан не выбран")

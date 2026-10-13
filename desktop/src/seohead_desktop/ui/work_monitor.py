@@ -22,6 +22,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ..i18n import tr, trf
 from .components import PageModel, material_icon
 from .icons import MaterialIconLabel
 from .presentation import (
@@ -511,11 +512,19 @@ class WorkMonitor(QWidget):
         self.cards_scroll.setVisible(bool(overview))
         self.all_runs_button.setEnabled(bool(rows))
         self._arrange_cards()
-        suffix = " · показаны не все запуски" if truncated else ""
+        suffix = tr(" · показаны не все запуски") if truncated else ""
         self.observation.setText(
-            f"Карточки: {len(overview)} · В наблюдении: {len(rows)} · Незавершённых: {_display(_counter(_mapping(runs).get('active_total')))}{suffix}"
+            trf(
+                "Карточки: {cards} · В наблюдении: {watched} · Незавершённых: {open}{suffix}",
+                cards=len(overview),
+                watched=len(rows),
+                open=_display(_counter(_mapping(runs).get("active_total"))),
+                suffix=suffix,
+            )
         )
-        self.observation.setToolTip("Наблюдение ядра: " + field_text("observed_at", observed_at))
+        self.observation.setToolTip(
+            trf("Наблюдение ядра: {v}", v=field_text("observed_at", observed_at))
+        )
         self.empty.setText(
             "В этом наблюдении запусков нет"
             if not rows

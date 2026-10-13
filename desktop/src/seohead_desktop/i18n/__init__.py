@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import QEvent, QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (
     QAbstractButton,
     QAction,
@@ -237,3 +237,29 @@ def retranslate(root):
             _menu(menu)
     for action in root.findChildren(QAction):
         _action(action)
+
+
+_DONE = "_i18n_done"  # property: the subtree was translated for the language it was first shown in
+
+
+class _ShowTranslator(QObject):
+    """Translates a widget subtree the first time it is shown, so windows and pages built after a language change match it."""
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Show and isinstance(obj, QWidget) and not obj.property(_DONE):
+            retranslate(obj)
+            obj.setProperty(_DONE, True)
+            for child in obj.findChildren(QWidget):
+                child.setProperty(_DONE, True)
+        return False
+
+
+_show_translator = None
+
+
+def install(app):
+    """Attach the first-show translation pass to the application (idempotent)."""
+    global _show_translator
+    if _show_translator is None:
+        _show_translator = _ShowTranslator(app)
+        app.installEventFilter(_show_translator)

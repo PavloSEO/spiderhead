@@ -171,6 +171,7 @@ class Columns(QWidget):
     def __init__(self, left, right, breakpoint=800):
         super().__init__()
         self._breakpoint = breakpoint
+        self.setMinimumWidth(320)
         self._narrow = None
         self._grid = QGridLayout(self)
         self._grid.setContentsMargins(0, 0, 0, 0)

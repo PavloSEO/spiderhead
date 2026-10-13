@@ -32,6 +32,7 @@ from PyQt5.QtWidgets import (
 
 from .. import qt, theming
 from ..app import load_theme
+from ..i18n import tr
 from .presentation import SwitchCheckBox
 
 ROWS = [
@@ -247,7 +248,7 @@ def build_board(width, height):
     body.addWidget(scroll, 1)
     outer.addLayout(body, 1)
     status = QStatusBar()
-    status.showMessage("Скан №2 · 1 314 URL · наблюдение 12 с назад")
+    status.showMessage(tr("Скан №2 · 1 314 URL · наблюдение 12 с назад"))
     outer.addWidget(status)
     return root
 

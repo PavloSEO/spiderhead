@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ..i18n import trf
 from .icons import MaterialIconLabel, material_icon
 from .presentation import StateBadge
 
@@ -282,7 +283,7 @@ class HelpGuideDialog(QDialog):
             button = QPushButton(VIEW_TITLES[view])
             button.setIcon(material_icon("open_in_new"))
             button.setProperty("role", "quiet")
-            button.setAccessibleName("Открыть раздел: " + VIEW_TITLES[view])
+            button.setAccessibleName(trf("Открыть раздел: {name}", name=VIEW_TITLES[view]))
             button.setEnabled(view in self.available_views)
             button.setToolTip(
                 "Открыть раздел, без запуска операций"

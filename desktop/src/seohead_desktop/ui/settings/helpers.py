@@ -73,6 +73,9 @@ class _Columns(QWidget):
 
     def __init__(self, left, right):
         super().__init__()
+        self.setMinimumWidth(
+            320
+        )  # explicit: the two-column minimum must not force a sideways scroll
         self._grid = QGridLayout(self)
         self._grid.setContentsMargins(0, 0, 0, 0)
         self._grid.setHorizontalSpacing(32)

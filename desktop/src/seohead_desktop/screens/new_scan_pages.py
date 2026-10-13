@@ -300,7 +300,6 @@ class FormRow(QWidget):
         self.note.setWordWrap(True)
         self.note.setVisible(bool(hint))
         grid.addWidget(self.note, 1, 1)
-        self.setMinimumHeight(32)
 
     def set_error(self, message):
         target = self.control if isinstance(self.control, Stepper) else self.edit

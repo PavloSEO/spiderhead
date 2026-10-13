@@ -43,6 +43,7 @@ class SettingsDialog(QDialog):
         root.setSpacing(0)
         nav = QFrame()
         nav.setObjectName("settingsNav")
+        self._nav_frame = nav
         nav.setFixedWidth(260)
         nav_layout = QVBoxLayout(nav)
         nav_layout.setContentsMargins(12, 16, 12, 12)
@@ -122,9 +123,10 @@ class SettingsDialog(QDialog):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         holder = QWidget()
         holder_layout = QVBoxLayout(holder)
-        holder_layout.setContentsMargins(36, 8, 36, 24)
+        holder_layout.setContentsMargins(24, 8, 24, 24)
         page.setMaximumWidth(760)
         holder_layout.addWidget(page)
         holder_layout.addStretch(1)
@@ -133,6 +135,12 @@ class SettingsDialog(QDialog):
         i18n.retranslate(scroll)
         self._pages[module.ID] = (scroll, page)
         return scroll
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._nav_frame.setFixedWidth(
+            200 if event.size().width() < 900 else 260
+        )  # 800x600 leaves the page room
 
     def current_section(self):
         return next((sid for sid, b in self._nav.items() if b.isChecked()), None)

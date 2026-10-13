@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
 )
 
 from ..content_search import SEARCH_PRESETS
+from ..i18n import tr, trf
 from .components import PageModel, material_icon
 from .presentation import (
     ElidedLabel,
@@ -393,7 +394,7 @@ class ContentSearchPanel(QWidget):
             value = coverage.get(key)
             text = str(value) if type(value) is int and value >= 0 else "—"
             self.coverage_values[key].setText(text)
-            self.coverage_values[key].setAccessibleName(title + ": " + text)
+            self.coverage_values[key].setAccessibleName(tr(title) + ": " + text)
             self.coverage_values[key].setToolTip(
                 "Весь сохранённый корпус; не только текущая страница"
             )
@@ -425,9 +426,9 @@ class ContentSearchPanel(QWidget):
         self.result_context.setToolTip(value_text(source))
         total = payload.get("total")
         self.count.setText(
-            f"Строки {self._offset + 1}–{self._offset + len(rows)} из {total}"
+            trf("Строки {a}–{b} из {n}", a=self._offset + 1, b=self._offset + len(rows), n=total)
             if rows
-            else f"Нет строк на этой странице · всего {value_text(total)}"
+            else trf("Нет строк на этой странице · всего {n}", n=value_text(total))
         )
         self.previous.setEnabled(state == "ready" and self._offset > 0)
         self.next.setEnabled(state == "ready" and bool(payload.get("has_more")) and bool(rows))

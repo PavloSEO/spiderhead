@@ -60,4 +60,7 @@ def app(argv=None):
     if instance is None:
         _app = instance = QApplication(list(argv) if argv is not None else [])
     _install_hooks()
+    from . import i18n
+
+    i18n.install(instance)
     return instance
