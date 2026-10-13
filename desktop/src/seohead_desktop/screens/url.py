@@ -514,6 +514,9 @@ class UrlScreen(Screen):
         self.vertical = QSplitter(Qt.Vertical)
         self.vertical.setChildrenCollapsible(False)
         self.table_box = self._build_table()
+        self.table_box.setMinimumHeight(
+            220
+        )  # at 800x600 the detail card must not take the whole column
         self.vertical.addWidget(self.table_box)
         self.bottom = UrlCard(self.host)
         self.bottom.hide_requested.connect(lambda: self._set_detail_visible(False))

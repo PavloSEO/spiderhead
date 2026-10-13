@@ -10,6 +10,7 @@ from .common import (  # noqa: F401
     plain,
     scan_request_key,
 )
+from .i18n import tr
 from .mcp_gateway import PersistentMcpGateway
 
 
@@ -18,7 +19,7 @@ class CommandsMixin:
 
     def ensure_mcp_gateway(self):
         if not self.core_executable:
-            self.statusBar().showMessage("Укажите --core-cli: CLI ядра SEOHEAD не найден")
+            self.statusBar().showMessage(tr("Укажите --core-cli: CLI ядра SEOHEAD не найден"))
             return None
         if self.mcp_gateway is None:
             self.mcp_gateway = PersistentMcpGateway(self.core_executable)
@@ -34,7 +35,7 @@ class CommandsMixin:
         self._mcp_tools = frozenset(_tools)
         self.content_search.set_available(_tools)
         self.data_changed.emit("mcp")
-        self.statusBar().showMessage("Локальный SEOHEAD MCP подключён")
+        self.statusBar().showMessage(tr("Локальный SEOHEAD MCP подключён"))
 
     def mcp_transport_failed(self, text):
         self.mcp_ready = False
@@ -84,7 +85,7 @@ class CommandsMixin:
             self.notice.hide()
         self.select_owned_run()
         if not self.requests and self.project_directory:
-            self.statusBar().showMessage("Данные проекта обновлены")
+            self.statusBar().showMessage(tr("Данные проекта обновлены"))
 
     def command_failed(self, request_id, text, generation):
         if generation != self.read_generation:
@@ -167,14 +168,14 @@ class CommandsMixin:
             self.comparison.clear("Выберите два скана и нажмите «Сравнить»")
         self.cancel_button.setEnabled(False)
         self.statusBar().showMessage(
-            "Текущие чтения отменены; сохранённые данные проекта не изменены"
+            tr("Текущие чтения отменены; сохранённые данные проекта не изменены")
         )
 
     def cancel_active_work(self):
         if self.scan_manager is not None and self.selected_managed_run_id:
             if self.scan_manager.stop(self.selected_managed_run_id):
                 self.statusBar().showMessage(
-                    "Остановка отправлена только выбранному запуску этого окна"
+                    tr("Остановка отправлена только выбранному запуску этого окна")
                 )
                 return
         self.cancel_requests()

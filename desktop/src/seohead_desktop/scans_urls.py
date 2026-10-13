@@ -22,6 +22,7 @@ from .common import (  # noqa: F401
     plain,
     scan_request_key,
 )
+from .i18n import trf
 from .ui.components import PAGE_LIMIT as PANEL_PAGE_LIMIT
 from .ui.icons import material_icon as icon
 from .ui.presentation import (
@@ -111,7 +112,11 @@ class ScansUrlsMixin:
         self.task_total = total if type(total) is int else len(rows)
         self.navigation.set_count("work", str(total) if total else None)
         self.task_caption.setText(
-            f"Задачи · {pagination.get('total', len(rows))} всего · показано {len(rows)}"
+            trf(
+                "Задачи · {total} всего · показано {shown}",
+                total=pagination.get("total", len(rows)),
+                shown=len(rows),
+            )
         )
         self.show_task_page(0)
         if rows:
@@ -466,7 +471,11 @@ class ScansUrlsMixin:
         self.url_previous.setEnabled(self._url_page_offset > 0)
         self.url_next.setEnabled(self._url_page_has_more and bool(rows))
         self.url_page_label.setText(
-            f"Строки {self._url_page_offset + 1}–{self._url_page_offset + len(rows)} · сохранённая страница"
+            trf(
+                "Строки {a}–{b} · сохранённая страница",
+                a=self._url_page_offset + 1,
+                b=self._url_page_offset + len(rows),
+            )
             if rows
             else "На этой странице нет URL"
         )

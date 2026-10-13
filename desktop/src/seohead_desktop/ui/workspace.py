@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ..i18n import tr
 from .presentation import ElidedLabel, WorkspaceSplitter
 
 LAYOUTS = {
@@ -265,7 +266,7 @@ class ActionFinder(QDialog):
             haystack = (action["title"] + " " + action.get("keywords", "")).casefold()
             if all(term in haystack for term in terms):
                 label = action["title"] + (
-                    " · недоступно" if not action.get("enabled", True) else ""
+                    tr(" · недоступно") if not action.get("enabled", True) else ""
                 )
                 item = QListWidgetItem(label)
                 item.setData(Qt.UserRole, action)

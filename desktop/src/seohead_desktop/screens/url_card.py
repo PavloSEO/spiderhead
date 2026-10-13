@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
     QHeaderView,
     QLabel,
     QLineEdit,
+    QMenu,
     QPushButton,
     QScrollArea,
     QStackedWidget,
@@ -1358,6 +1359,16 @@ class UrlCard(QFrame):
             self.tabs.addTab(tr(TAB_LABELS[tab]))
         self.tabs.currentChanged.connect(self._tab_changed)
         bar.addWidget(self.tabs, 1)
+        self.tab_more = QToolButton()
+        self.tab_more.setPopupMode(QToolButton.InstantPopup)
+        self.tab_more.setToolTip(tr("Все вкладки URL"))
+        self.tab_more.setAccessibleName(tr("Все вкладки URL"))
+        self.tab_more.setMenu(QMenu(self.tab_more))
+        for index, tab in enumerate(TAB_ORDER):
+            action = self.tab_more.menu().addAction(tr(TAB_LABELS[tab]))
+            action.triggered.connect(lambda _c=False, i=index: self.tabs.setCurrentIndex(i))
+        self.tab_more.hide()
+        bar.addWidget(self.tab_more)
         self.back = icon_button("arrow_back", "Предыдущий URL в истории", False)
         self.back.clicked.connect(self.back_requested.emit)
         self.expand_button = icon_button("open_in_full", "Развернуть карточку")
@@ -1432,6 +1443,10 @@ class UrlCard(QFrame):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.scan_caption.setVisible(event.size().width() >= 1000)
+        # The strip falls back to an overflow menu when its tabs cannot fit beside the header buttons.
+        fits = self.tabs.sizeHint().width() <= self.tabs.parentWidget().width() - 140
+        self.tabs.setVisible(fits)
+        self.tab_more.setVisible(not fits)
 
     # ---- modes -----------------------------------------------------------------------------------------------
     def set_expanded(self, expanded, emit=False):
@@ -1449,6 +1464,8 @@ class UrlCard(QFrame):
     # ---- tabs ----------------------------------------------------------------------------------------------------
     def _tab_changed(self, index):
         self.tab = TAB_ORDER[index] if index < len(TAB_ORDER) else "summary"
+        if 0 <= index < len(TAB_ORDER):
+            self.tab_more.setText(tr(TAB_LABELS[TAB_ORDER[index]]))
         self.head.note.setVisible(self.tab == "info" and self.head.note_allowed)
         self._show()
 

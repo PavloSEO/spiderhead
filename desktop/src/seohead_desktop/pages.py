@@ -33,6 +33,7 @@ from .common import (  # noqa: F401
     plain,
     scan_request_key,
 )
+from .i18n import tr, trf
 from .models import RecordModel, UrlModel
 from .ui.icons import material_icon as icon
 from .ui.kit import Gate
@@ -81,7 +82,7 @@ class PagesMixin:
             button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
             button.setCheckable(True)
             button.setProperty("role", "panelToggle")
-            button.setAccessibleName("Показать или скрыть: " + text)
+            button.setAccessibleName(trf("Показать или скрыть: {name}", name=text))
             button.toggled.connect(
                 lambda visible, panel=kind: self.toggle_work_inspector(panel, visible)
             )
@@ -466,7 +467,7 @@ class PagesMixin:
         page = QWidget()
         layout = QVBoxLayout(page)
         layout.setContentsMargins(20, 16, 20, 16)
-        self.task_caption = QLabel("Задачи · откройте локальный проект")
+        self.task_caption = QLabel(tr("Задачи · откройте локальный проект"))
         self.task_caption.setObjectName("sectionTitle")
         layout.addWidget(self.task_caption)
         self.task_model = RecordModel(
@@ -567,7 +568,7 @@ class PagesMixin:
         page = QWidget()
         layout = QVBoxLayout(page)
         layout.setContentsMargins(20, 16, 20, 16)
-        self.inbox_caption = QLabel("Входящие · откройте локальный проект")
+        self.inbox_caption = QLabel(tr("Входящие · откройте локальный проект"))
         self.inbox_caption.setObjectName("sectionTitle")
         layout.addWidget(self.inbox_caption)
         self.inbox_model = RecordModel(

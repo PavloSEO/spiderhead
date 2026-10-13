@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ..i18n import tr, trf
 from ..ui.help_guide import EXPLANATIONS, SECTIONS, START, VIEW_TITLES
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.presentation import StateBadge
@@ -194,9 +195,11 @@ class HelpScreen(Screen):
         button = self.group.button(index)
         if button is not None:
             button.setChecked(True)
-        self.crumb.setText(f"Справка · {group}")
+        self.crumb.setText(trf("Справка · {group}", group=group))
         self.article_title.setText(heading)
-        self.article_meta.setText(f"{group} · {VIEW_TITLES[view]}" if view else group)
+        self.article_meta.setText(
+            trf("{group} · {view}", group=group, view=VIEW_TITLES[view]) if view else tr(group)
+        )
         self.article_text.setText(text)
         self.open_button.setVisible(view is not None)
         self.open_button.setEnabled(view is not None and view in VIEW_IDS)

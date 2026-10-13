@@ -415,6 +415,7 @@ class NewScanDialog(QDialog):
         start = QLineEdit(draft.target)
         start.setObjectName("scanStartUrl")
         start.setReadOnly(True)
+        start.setToolTip(draft.target)  # a long address is elided in the field
         start.setAccessibleName(tr("Стартовый URL"))
         start.setProperty("mono", True)
         badge = QLabel(tr("Сайт проекта"))

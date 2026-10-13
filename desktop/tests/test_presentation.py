@@ -66,7 +66,7 @@ class PresentationTests(unittest.TestCase):
             }
         )
         self.assertTrue(self.window.scan_progress.isHidden())
-        self.assertEqual(self.window.scan_state_badge.text(), "Частичный результат")
+        self.assertEqual(self.window.scan_state_badge.text(), "Partial result")
         self.assertNotEqual(value_text(None), value_text(0))
         self.assertNotEqual(value_text(None), value_text(""))
 

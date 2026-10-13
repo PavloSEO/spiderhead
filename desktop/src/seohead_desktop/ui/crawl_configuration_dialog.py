@@ -29,6 +29,7 @@ from PyQt5.QtWidgets import (
 )
 
 from ..crawl_configuration import describe_controls, validate_overrides
+from ..i18n import tr, trf
 from .components import PageModel
 
 PROFILE_SCHEMA = "seohead.desktop.crawl-profile.v1"
@@ -269,19 +270,19 @@ class CrawlConfigurationDialog(QDialog):
         )
         kind = "choice" if "choices" in row else row["type"]
         editor = self._editors.get(kind, self.text_editor)
-        editor.setAccessibleName("Значение " + self._active_path)
+        editor.setAccessibleName(trf("Значение {path}", path=self._active_path))
         self.editor_stack.setCurrentWidget(editor)
         self.editor_stack.setEnabled(row["editable"])
         self.stage_button.setEnabled(row["editable"])
         self.description.setText(row["description"])
         if row["editable"]:
             origin = (
-                "Изменение в черновике"
+                tr("Изменение в черновике")
                 if self._active_path in self._working
-                else "Исходное значение; не добавлено в изменения"
+                else tr("Исходное значение; не добавлено в изменения")
             )
             self.availability.setText(
-                origin + (" · влияет на результаты" if row["results_affecting"] else "")
+                origin + (tr(" · влияет на результаты") if row["results_affecting"] else "")
             )
         else:
             self.availability.setText("Недоступно: " + row["unavailable_reason"])
@@ -356,7 +357,7 @@ class CrawlConfigurationDialog(QDialog):
         self.override_model.replace(
             [{"path": path, "value": value} for path, value in sorted(self._working.items())]
         )
-        self.override_caption.setText(f"Явные изменения: {len(self._working)}")
+        self.override_caption.setText(trf("Явные изменения: {n}", n=len(self._working)))
         self._refresh_validation()
 
     def stage_current(self):

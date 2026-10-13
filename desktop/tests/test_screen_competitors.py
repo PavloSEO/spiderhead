@@ -110,7 +110,7 @@ class CompetitorsScreenTests(unittest.TestCase):
                 for menu in window.menuBar().actions()
                 if menu.menu()
                 for action in menu.menu().actions()
-                if action.text() == "Конкуренты…"
+                if action.text() == "Competitors…"
             ]
             self.assertEqual(len(actions), 1)
             actions[0].trigger()

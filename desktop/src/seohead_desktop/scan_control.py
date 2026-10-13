@@ -18,6 +18,7 @@ from .common import (  # noqa: F401
     scan_request_key,
 )
 from .crawl_configuration import preview_configuration
+from .i18n import tr
 from .scan_manager import LocalScanManager
 from .ui.presentation import (
     readable_record,
@@ -48,7 +49,7 @@ class ScanControlMixin:
         if not self.project_directory or not self.core_executable:
             return
         if self.crawl_descriptor is None or not isinstance(self.current_project_uuid, str):
-            self.statusBar().showMessage("Ядро не вернуло устойчивый ID проекта")
+            self.statusBar().showMessage(tr("Ядро не вернуло устойчивый ID проекта"))
             return
         if (
             sitemap_url is not None
@@ -212,7 +213,7 @@ class ScanControlMixin:
         self.data_changed.emit("observer")
         if run.get("state") in {"starting", "running"}:
             self.statusBar().showMessage(
-                "Локальный native crawl запущен; наблюдение обновляется каждые 0,5 с"
+                tr("Локальный native crawl запущен; наблюдение обновляется каждые 0,5 с")
             )
         elif run.get("state") == "awaiting_core_status":
             self.scan_poll_timer.start()

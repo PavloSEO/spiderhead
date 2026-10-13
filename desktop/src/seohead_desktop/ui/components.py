@@ -36,6 +36,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ..i18n import tr, trf
 from .icons import material_icon
 from .presentation import (
     COLUMN_LABELS,
@@ -196,14 +197,14 @@ class TablePanel(QWidget):
         self.toolbar = QGridLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
         self.filter = QComboBox()
-        self.filter.setAccessibleName(f"Фильтр {spec.title}")
+        self.filter.setAccessibleName(trf("Фильтр {title}", title=spec.title))
         self.filter.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.filter.setMinimumContentsLength(10)
         self.filter.setMaximumWidth(280)
         for label in spec.filters:
             self.filter.addItem("Все" if label == "All" else label, filter_id(label))
         self.search = QLineEdit()
-        self.search.setAccessibleName(f"Поиск в загруженной странице {spec.title}")
+        self.search.setAccessibleName(trf("Поиск в загруженной странице {title}", title=spec.title))
         self.search.setPlaceholderText("Поиск в этой странице")
         self.search.setClearButtonEnabled(True)
         self.refresh_button = QToolButton()
@@ -236,7 +237,7 @@ class TablePanel(QWidget):
         self.proxy.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.search.textChanged.connect(self._search_page)
         self.table = QTableView()
-        self.table.setAccessibleName(f"Таблица {spec.title}")
+        self.table.setAccessibleName(trf("Таблица {title}", title=spec.title))
         self.table.setModel(self.proxy)
         self.table.setSortingEnabled(True)
         self.table.sortByColumn(-1, Qt.AscendingOrder)
@@ -314,7 +315,7 @@ class TablePanel(QWidget):
         self.set_page(
             [],
             state="unavailable",
-            reason="Нет подключённой проекции для этого раздела.",
+            reason=tr("Нет подключённой проекции для этого раздела."),
         )
 
     def set_page(
@@ -390,11 +391,11 @@ class TablePanel(QWidget):
         self.previous_button.setEnabled(state == "ready" and offset > 0)
         self.next_button.setEnabled(state == "ready" and self.has_more and bool(self.model.rows))
         messages = {
-            "ready": "В сохранённой выборке нет записей.",
-            "loading": "Загрузка сохранённых данных…",
-            "unavailable": "Данные недоступны",
-            "error": "Не удалось получить данные",
-            "idle": "Ничего не запущено",
+            "ready": tr("В сохранённой выборке нет записей."),
+            "loading": tr("Загрузка сохранённых данных…"),
+            "unavailable": tr("Данные недоступны"),
+            "error": tr("Не удалось получить данные"),
+            "idle": tr("Ничего не запущено"),
         }
         self.message.setText(messages[state] + ("\n\n" + reason if reason else ""))
         self.stack.setCurrentIndex(0 if state == "ready" and self.model.rows else 1)
@@ -465,14 +466,24 @@ class TablePanel(QWidget):
             return
         count = len(self.model.rows)
         extent = f"{self.offset + 1}–{self.offset + count}" if count else "0"
-        total = str(self.total) if self.total is not None else "неизвестного количества"
+        total = str(self.total) if self.total is not None else tr("неизвестного количества")
         suffix = (
-            f" · найдено на странице: {self.proxy.rowCount()}"
+            trf(" · найдено на странице: {n}", n=self.proxy.rowCount())
             if self.search.text() or self.proxy.state_filter
             else ""
         )
-        state = f" · {state_text(self.proxy.state_filter)}" if self.proxy.state_filter else ""
-        self.count_label.setText(f"Строки {extent} из {total}{suffix}{state}")
+        state = (
+            trf(" · {s}", s=state_text(self.proxy.state_filter)) if self.proxy.state_filter else ""
+        )
+        self.count_label.setText(
+            trf(
+                "Строки {extent} из {total}{suffix}{state}",
+                extent=extent,
+                total=total,
+                suffix=suffix,
+                state=state,
+            )
+        )
 
     def _selected(self, current, previous):
         index = self.proxy.mapToSource(current)
@@ -539,7 +550,7 @@ class TabConfigurationDialog(QDialog):
             column.addWidget(QLabel(title))
             search = QLineEdit()
             search.setPlaceholderText("Найти вкладку")
-            search.setAccessibleName(f"Поиск: {title.lower()}")
+            search.setAccessibleName(trf("Поиск: {name}", name=title.lower()))
             search.textChanged.connect(lambda text, view=view: self._filter_list(view, text))
             column.addWidget(search)
             column.addWidget(view, 1)
@@ -649,7 +660,9 @@ class TabDeck(QWidget):
         self.tabbar.setUsesScrollButtons(True)
         self.tabbar.setMovable(True)
         self.tabbar.setElideMode(Qt.ElideNone)
-        self.tabbar.setAccessibleName(f"Вкладки: {next(iter(self.specs.values())).pane}")
+        self.tabbar.setAccessibleName(
+            trf("Вкладки: {pane}", pane=next(iter(self.specs.values())).pane)
+        )
         header.addWidget(self.tabbar, 1)
         self.menu_button = QToolButton()
         self.menu_button.setIcon(material_icon("tune"))

@@ -25,6 +25,7 @@ from .common import (  # noqa: F401
     scan_request_key,
 )
 from .crawl_configuration import validate_overrides
+from .i18n import tr
 from .ui.presentation import (
     field_text,
     readable_record,
@@ -49,7 +50,7 @@ class ProjectMixin:
             )
             return
         if not (Path(directory) / "project.json").is_file():
-            self.statusBar().showMessage("В папке нет project.json SEOHEAD")
+            self.statusBar().showMessage(tr("В папке нет project.json SEOHEAD"))
             if self.recent_projects or self.prefs.get(
                 "shell.onboarding_done"
             ):  # first-run wizard owns the screen until it is passed
@@ -61,7 +62,7 @@ class ProjectMixin:
         self._project_loading = True
         self.update_note_controls()
         self.cancel_requests()
-        self.statusBar().showMessage("Чтение локального проекта в фоне…")
+        self.statusBar().showMessage(tr("Чтение локального проекта в фоне…"))
         gateway = self.ensure_mcp_gateway()
         if gateway is None:
             self._project_loading = False
@@ -129,7 +130,7 @@ class ProjectMixin:
         self.search.setEnabled(False)
         self.url_caption.setText("URL · выберите сохранённый скан")
         if not self.project_directory:
-            self.statusBar().showMessage("Ядро не вернуло путь открытого проекта")
+            self.statusBar().showMessage(tr("Ядро не вернуло путь открытого проекта"))
             return
         project = result.get("project", {})
         site = project.get("site", {}) if isinstance(project, dict) else {}
@@ -194,16 +195,16 @@ class ProjectMixin:
     def refresh_project(self):
         if self._pending_note is not None:
             self.statusBar().showMessage(
-                "Обновление будет доступно после подтверждения сохранения заметки"
+                tr("Обновление будет доступно после подтверждения сохранения заметки")
             )
             return
         if not self.project_directory:
-            self.statusBar().showMessage("Сначала откройте локальный проект SEOHEAD")
+            self.statusBar().showMessage(tr("Сначала откройте локальный проект SEOHEAD"))
             return
         self.cancel_requests()
         directory = self.project_directory
         self._reload_selected_scan = True
-        self.statusBar().showMessage("Обновление сохранённых проекций в фоне…")
+        self.statusBar().showMessage(tr("Обновление сохранённых проекций в фоне…"))
         self.start_command(
             "observer",
             "seo_project_observe",
@@ -533,7 +534,7 @@ class ProjectMixin:
         if not self.navigation.setCurrentRow(0):
             self.navigation.select_section("work")
         self.show_start()
-        self.statusBar().showMessage("Выберите проект для начала работы")
+        self.statusBar().showMessage(tr("Выберите проект для начала работы"))
 
     def remember_project(self, label, path):
         opened = datetime.now().astimezone().isoformat(timespec="minutes")

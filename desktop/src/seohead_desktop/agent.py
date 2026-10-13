@@ -32,6 +32,7 @@ from .common import (  # noqa: F401
 )
 from .content_search import SEARCH_PRESETS
 from .crawl_configuration import preview_configuration
+from .i18n import trf
 from .local_control import ControlError, DesktopControlServer, prepare_endpoint, validate_arguments
 from .scan_runner import crawl_arguments
 from .ui.help_guide import HelpGuideDialog
@@ -473,7 +474,7 @@ class AgentMixin:
         for identifier, title in LAYOUTS.items():
             actions.append(
                 {
-                    "title": "Раскладка · " + title,
+                    "title": trf("Раскладка · {name}", name=title),
                     "keywords": "layout вид панели",
                     "callback": lambda identifier=identifier: self.apply_layout(identifier),
                 }
@@ -493,7 +494,7 @@ class AgentMixin:
         for preset in (*SEARCH_PRESETS, {"id": None, "label": "Текст в сохранённом HTML"}):
             actions.append(
                 {
-                    "title": "Поиск · " + preset["label"],
+                    "title": trf("Поиск · {name}", name=preset["label"]),
                     "keywords": "html body код теги search " + str(preset["id"]),
                     "callback": lambda identifier=preset["id"]: self.open_content_search(
                         identifier

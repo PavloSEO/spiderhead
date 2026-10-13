@@ -12,6 +12,7 @@ from .common import (  # noqa: F401
     plain,
     scan_request_key,
 )
+from .i18n import tr, trf
 from .ui.presentation import (
     readable_record,
 )
@@ -25,7 +26,7 @@ class InboxMixin:
         rows = list(result.get("entries") or [])
         self.inbox_model.replace(rows)
         total = (result.get("pagination") or {}).get("total", len(rows))
-        self.inbox_caption.setText(f"Входящие · {total} сохранённых записей")
+        self.inbox_caption.setText(trf("Входящие · {n} сохранённых записей", n=total))
         self.project_panels.set_page(
             "inbox", rows, total=total, source="Сохранённые входящие проекта"
         )
@@ -48,8 +49,10 @@ class InboxMixin:
             self.navigation.set_count("inbox", None)
             return
         self.navigation.set_count("inbox", count or None, dot=True)
-        label = "сообщений" if count != 1 else "сообщение"
-        self.source_badge.setText(f"Локальный проект · {count} непрочит. {label}")
+        label = tr("сообщений") if count != 1 else tr("сообщение")
+        self.source_badge.setText(
+            trf("Локальный проект · {n} непрочит. {label}", n=count, label=label)
+        )
 
     def show_inbox_entry(self, current, _previous):
         if not current.isValid():
@@ -115,16 +118,16 @@ class InboxMixin:
             and self.note_kind.currentData() in {"note", "proposed_goal"}
         )
         destination = (
-            f"Проект: {self.project_picker.currentText()} · {self.project_directory}"
+            trf("Проект: {p} · {d}", p=self.project_picker.currentText(), d=self.project_directory)
             if self.project_directory
-            else "Откройте проект"
+            else tr("Откройте проект")
         )
         reason = (
             "Сохранение…"
             if self._pending_note is not None
             else "Ожидание состояния входящих"
             if not ready
-            else "Черновик относится только к этому проекту"
+            else tr("Черновик относится только к этому проекту")
         )
         if hasattr(self, "note_destination"):
             self.note_destination.setText(destination + " · " + reason)
@@ -210,6 +213,6 @@ class InboxMixin:
         if pending["source"] == "project" and not panel.note.toPlainText():
             panel.submission_succeeded()  # tab-contracts: only after the core confirmed storage
         self.statusBar().showMessage(
-            "Заметка сохранена в выбранном проекте; остальные черновики сохранены"
+            tr("Заметка сохранена в выбранном проекте; остальные черновики сохранены")
         )
         self.refresh_project()

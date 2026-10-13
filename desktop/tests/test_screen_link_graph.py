@@ -58,7 +58,7 @@ class LinkGraphScreenTests(unittest.TestCase):
         self.assertIsInstance(panel, StatePanel)
         self.assertEqual(panel.kind, "waiting")
         self.assertEqual(self.screen.badge.property("waiting_issue"), GRAPH_ISSUE)
-        self.assertEqual(self.screen.counts.text(), "Узлов: Нет данных · рёбер: Нет данных")
+        self.assertEqual(self.screen.counts.text(), "Nodes: No data · edges: No data")
 
     def test_no_number_or_issue_reference_is_shown(self):
         open_qa(self.window)

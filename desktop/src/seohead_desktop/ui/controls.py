@@ -109,6 +109,9 @@ class SettingRow(QFrame):
     def __init__(self, title, description="", control=None, parent=None):
         super().__init__(parent)
         self.setProperty("set_row", True)
+        self.setMinimumWidth(
+            320
+        )  # explicit: the row may shrink, its control then moves under the text
         grid = QGridLayout(self)
         grid.setContentsMargins(0, 14, 0, 14)
         grid.setHorizontalSpacing(24)
@@ -117,7 +120,7 @@ class SettingRow(QFrame):
         self.title = QLabel(title)
         self.title.setProperty("text_style", "control")
         self.title.setWordWrap(True)
-        self.title.setMinimumWidth(200)
+        self.title.setMinimumWidth(120)
         text.addWidget(self.title)
         self.later_badge = QLabel(
             "Заработает позже"
@@ -144,11 +147,28 @@ class SettingRow(QFrame):
         text.addWidget(self._error_box)
         grid.addLayout(text, 0, 0)
         grid.setColumnStretch(0, 1)
+        self._grid = grid
+        self._below = False
         self.control = control
         if control is not None:
             grid.addWidget(control, 0, 1, Qt.AlignRight | Qt.AlignVCenter)
             if not control.accessibleName():
                 control.setAccessibleName(title)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.control is None:
+            return
+        # A control wider than the room beside the text moves under it, so nothing is clipped at 800x600.
+        room = event.size().width() - self.title.minimumWidth() - self._grid.horizontalSpacing()
+        below = self.control.minimumSizeHint().width() > room
+        if below != self._below:
+            self._below = below
+            self._grid.removeWidget(self.control)
+            if below:
+                self._grid.addWidget(self.control, 1, 0, Qt.AlignLeft | Qt.AlignVCenter)
+            else:
+                self._grid.addWidget(self.control, 0, 1, Qt.AlignRight | Qt.AlignVCenter)
 
     def mark_later(self, reason):
         """The value is stored but changes nothing yet; say so instead of implying it works."""

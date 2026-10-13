@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ..i18n import tr, trf
 from .components import ASSET_ROOT, material_icon
 from .icons import MaterialIconLabel
 from .presentation import StateBadge, content_spacing, readable_record, theme_tokens
@@ -87,16 +88,18 @@ class _MetricCard(QPushButton):
 
     def set_count(self, count, scope):
         self.value.setText(_number(count))
-        measured = _number(count) if count is not None else "не измерено"
-        self.setAccessibleName(f"{self.title}: {measured}. {scope}. {self.note}")
+        measured = _number(count) if count is not None else tr("не измерено")
+        self.setAccessibleName(
+            trf("{t}: {m}. {s}. {n}", t=self.title, m=measured, s=scope, n=self.note)
+        )
         self.setToolTip(
-            f"{self.note}. {scope}.\n"
+            trf("{n}. {s}.\n", n=self.note, s=scope)
             + (
-                "Показать этот статус в текущей странице таблицы"
+                tr("Показать этот статус в текущей странице таблицы")
                 if count
-                else "На этой странице нет таких находок"
+                else tr("На этой странице нет таких находок")
                 if count == 0
-                else "Результат ещё не измерен"
+                else tr("Результат ещё не измерен")
             )
         )
         self.setEnabled(count is not None and count > 0)
@@ -164,7 +167,7 @@ class ComparisonSummary(QWidget):
         self.cards.setSpacing(12)
         self.metric_buttons = {}
         for state, title, note, icon, tone in STATUSES:
-            button = _MetricCard(state, title, note, icon, tone, self)
+            button = _MetricCard(state, tr(title), tr(note), icon, tone, self)
             button.clicked.connect(lambda _checked, state=state: self._request_filter(state))
             self.metric_buttons[state] = button
         layout.addLayout(self.cards)
@@ -242,8 +245,11 @@ class ComparisonSummary(QWidget):
         self.details.setVisible(visible)
         self.details_toggle.setIcon(material_icon("chevron_up" if visible else "chevron_down"))
         self.details_toggle.setAccessibleName(
-            ("Свернуть" if visible else "Раскрыть")
-            + " пояснения, ограничения и источники сравнения"
+            tr(
+                "Свернуть пояснения, ограничения и источники сравнения"
+                if visible
+                else "Раскрыть пояснения, ограничения и источники сравнения"
+            )
         )
 
     def set_payload(self, payload):
@@ -266,8 +272,13 @@ class ComparisonSummary(QWidget):
         new = entered + appeared if entered is not None and appeared is not None else None
         self.raw_summary.hide()
         self.raw_summary.setText(
-            f"Не обнаружены: {_number(_count(delta.get('left')))}   ·   Новые: {_number(new)}   ·   "
-            f"В обоих: {_number(_count(delta.get('unchanged')))}   ·   На отсутствующих URL: {_number(_count(delta.get('disappeared')))}"
+            trf(
+                "Не обнаружены: {a}   ·   Новые: {b}   ·   В обоих: {c}   ·   На отсутствующих URL: {d}",
+                a=_number(_count(delta.get("left"))),
+                b=_number(new),
+                c=_number(_count(delta.get("unchanged"))),
+                d=_number(_count(delta.get("disappeared"))),
+            )
         )
         extent = (
             f"{offset + 1}–{offset + count}"
@@ -276,9 +287,15 @@ class ComparisonSummary(QWidget):
             if count == 0
             else "—"
         )
-        scope = f"Строки {extent} из {_number(total)}; только текущая страница"
+        scope = trf(
+            "Строки {extent} из {total}; только текущая страница",
+            extent=extent,
+            total=_number(total),
+        )
         self.page_scope.setText(
-            "Перепроверка · " + scope if ready else "Перепроверка страницы · ещё не измерено"
+            trf("Перепроверка · {scope}", scope=scope)
+            if ready
+            else tr("Перепроверка страницы · ещё не измерено")
         )
         complete = (
             isinstance(verified, Mapping)
@@ -292,7 +309,7 @@ class ComparisonSummary(QWidget):
                 if isinstance(verified, Mapping)
                 else None
             )
-            button.set_count(value, scope if ready else "Текущая страница ещё не измерена")
+            button.set_count(value, scope if ready else tr("Текущая страница ещё не измерена"))
         other = (
             sum(value for key, value in verified.items() if key not in self.metric_buttons)
             if complete
