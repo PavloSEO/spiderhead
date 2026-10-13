@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 
 from PyQt5.QtCore import QAbstractTableModel, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtGui import QColor, QFont, QFontDatabase, QTextCursor
 from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
@@ -22,6 +22,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
     QMenu,
+    QPlainTextEdit,
     QPushButton,
     QScrollArea,
     QStackedWidget,
@@ -66,6 +67,7 @@ from .url_query import (
     detail_arguments,
     http_badge,
     links_arguments,
+    query_arguments,
     seconds_to_ms,
     split_url,
 )
@@ -114,6 +116,14 @@ UNAVAILABLE = {
         980,
     ),
 }
+RESOURCE_ROWS = (
+    ("Ресурсов всего", "resource_count"),
+    ("Изображения", "resource_images"),
+    ("Скрипты", "resource_scripts"),
+    ("Стили", "resource_stylesheets"),
+    ("Вес ресурсов, байт", "resource_bytes"),
+)
+RESOURCE_COLUMNS = ("url_id", *(key for _title, key in RESOURCE_ROWS))
 MAX_HOPS = 10
 HEADER_NOTES = (
     ("x-robots-tag", "visibility_off", "X-Robots"),
@@ -974,6 +984,8 @@ class FactsPage(QWidget):
     def __init__(self, tab, ctx, parent=None):
         super().__init__(parent)
         self.tab, self.ctx = tab, ctx
+        self.job = CoreJob(ctx.host_ref, self)
+        self.job.done.connect(self._resources)
         title, text, issue = UNAVAILABLE[tab]
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 14, 20, 14)
@@ -1000,23 +1012,49 @@ class FactsPage(QWidget):
                 ("Изображений на странице", number(page.get("images_total"))),
                 ("Изображений без alt", number(page.get("images_missing_alt_attr"))),
             ]
+            self._read_resources()
         if rows:
             pairs = Pairs(tuple(key for key, _v in rows))
             for key, value in rows:
                 pairs.set(key, value)
             self.facts.addWidget(pairs)
 
+    def _read_resources(self):
+        """Counts of the page's resource graph (``scan-url-query`` columns); the core lists no single resources."""
+        if not self.ctx.scan or not self.ctx.url:
+            return
+        self.job.start(
+            query_arguments(
+                self.ctx.scan,
+                filters=[{"column": "url", "op": "eq", "value": self.ctx.url}],
+                limit=1,
+                columns=RESOURCE_COLUMNS,
+            ),
+            self.ctx.url,
+        )
+
+    def _resources(self, token, payload):
+        row = next(iter(payload.get("rows") or []), None)
+        if token != self.ctx.url or not row:
+            return
+        pairs = Pairs(tuple(title for title, _key in RESOURCE_ROWS))
+        for title, key in RESOURCE_ROWS:
+            pairs.set(title, number(row.get(key)))
+        self.facts.addWidget(pairs)
+
 
 class HtmlPage(QWidget):
-    """HTML tab in the canvas layout: source toolbar, source area and a facts column with the saved body's real fields.
+    """Source tab: the retained body of the URL as ``scan-body-read`` returns it (static or rendered), searchable, plus the response facts."""
 
-    The core does not give a saved page body per URL yet (issue 936, merged into 980), so the source area is the
-    neutral waiting state and the toolbar controls stay disabled. Only the response record is shown as facts.
-    """
+    LENGTH = 65_536  # characters per read; the core marks a longer body as truncated
 
     def __init__(self, ctx, parent=None):
         super().__init__(parent)
         self.ctx = ctx
+        self.loaded_for = None
+        self.job = CoreJob(ctx.host_ref, self)
+        self.job.done.connect(self._done)
+        self.job.failed.connect(lambda _token, reason: self._message(reason))
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(0)
@@ -1024,28 +1062,29 @@ class HtmlPage(QWidget):
         bar.setContentsMargins(20, 8, 12, 8)
         bar.setSpacing(10)
         self.mode = Segmented(
-            (("raw", tr("Исходный")), ("rendered", tr("После рендеринга JS"))),
-            value="raw",
+            (("static", tr("Исходный")), ("rendered", tr("После рендеринга JS"))),
+            value="static",
             accessible_name=tr("Представление HTML"),
         )
-        self.mode.setEnabled(False)
+        self.mode.changed.connect(lambda _value: self._read())
         self.search = QLineEdit()
         self.search.setPlaceholderText(tr("Поиск в HTML"))
-        self.search.setEnabled(False)
         self.search.setFixedWidth(240)
+        self.search.returnPressed.connect(self._find)
+        self.status = QLabel()
+        self.status.setProperty("text_style", "meta")
         bar.addWidget(self.mode)
-        bar.addStretch(1)
+        bar.addWidget(self.status, 1)
         bar.addWidget(self.search)
         outer.addLayout(bar)
         body = QHBoxLayout()
         body.setContentsMargins(0, 0, 0, 0)
         body.setSpacing(0)
-        self.source = StatePanel(
-            "waiting",
-            "Исходник страницы недоступен",
-            "Сохранённое тело страницы ядро по одному URL пока не отдаёт: строки, подсветка и поиск появятся после этого.",
-            issue=936,
-        )
+        self.source = QPlainTextEdit()
+        self.source.setReadOnly(True)
+        self.source.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.source.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
+        self.source.setFrameShape(QFrame.NoFrame)
         body.addWidget(self.source, 1)
         side = QFrame()
         side.setFixedWidth(300)
@@ -1060,6 +1099,51 @@ class HtmlPage(QWidget):
         side_layout.addStretch(1)
         body.addWidget(side)
         outer.addLayout(body, 1)
+
+    def _message(self, text):
+        self.source.setPlainText("")
+        self.status.setText(text)
+
+    def _find(self):
+        text = self.search.text()
+        if text and not self.source.find(text):
+            self.source.moveCursor(QTextCursor.Start)  # wrap around
+            self.source.find(text)
+
+    def _read(self):
+        key = (self.ctx.scan, self.ctx.url, self.mode.value())
+        if not self.ctx.scan or not self.ctx.url or self.loaded_for == key:
+            return
+        self.loaded_for = key
+        self._message(tr("Чтение сохранённого тела…"))
+        self.job.start(
+            [
+                "scan-body-read",
+                "--scan",
+                self.ctx.scan,
+                "--url",
+                self.ctx.url,
+                "--representation",
+                key[2],
+                "--length",
+                str(self.LENGTH),
+            ],
+            key,
+        )
+
+    def _done(self, token, payload):
+        if token != self.loaded_for:
+            return
+        if payload.get("ok") is not True or payload.get("state") != "available":
+            return self._message(
+                payload.get("reason") or tr("Тело этой страницы не сохранено в скане")
+            )
+        self.source.setPlainText(payload.get("text") or "")
+        self.status.setText(
+            tr("Показано начало: {n} знаков").replace("{n}", number(self.LENGTH))
+            if payload.get("truncated")
+            else ""
+        )
 
     def activate(self):
         page, detail = self.ctx.page, self.ctx.detail
@@ -1078,6 +1162,13 @@ class HtmlPage(QWidget):
             "Представление",
             source_text({"source_kind": (detail or {}).get("source", {}).get("source_kind")}, page),
         )
+        self._read()
+
+    def context_changed(self):
+        self.job.cancel()
+        self.loaded_for = None
+        self.source.setPlainText("")
+        self.status.setText("")
 
 
 class SchemaPage(QWidget):
@@ -1530,6 +1621,7 @@ class UrlCard(QFrame):
             self.graph.context_changed()
             self.redirects.context_changed()
             self.history.context_changed()
+            self.facts["html"].context_changed()
             self._counter("redir", "")
         if self.has_row:
             self.head.set_row(row)
@@ -1572,6 +1664,8 @@ class UrlCard(QFrame):
             self.graph.job,
             self.redirects.job,
             self.history.job,
+            self.facts["html"].job,
+            self.facts["res"].job,
         ):
             job.shutdown()
 
