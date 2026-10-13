@@ -123,9 +123,9 @@ class InboxMixin:
             else tr("Откройте проект")
         )
         reason = (
-            "Сохранение…"
+            tr("Сохранение…")
             if self._pending_note is not None
-            else "Ожидание состояния входящих"
+            else tr("Ожидание состояния входящих")
             if not ready
             else tr("Черновик относится только к этому проекту")
         )
@@ -143,7 +143,9 @@ class InboxMixin:
             return
         if type(self.inbox_revision) is not int:
             self.notice.show_error(
-                "Состояние входящих ещё не получено. Обновите проект перед сохранением; черновик остаётся в форме."
+                tr(
+                    "Состояние входящих ещё не получено. Обновите проект перед сохранением; черновик остаётся в форме."
+                )
             )
             return
         if isinstance(supplied_text, bool):
@@ -152,11 +154,13 @@ class InboxMixin:
         text = (supplied_text if supplied_text is not None else self.note_input.text()).strip()
         kind = supplied_kind or self.note_kind.currentData()
         if not 0 < len(text) <= 4000:
-            self.notice.show_error("Введите заметку до 4 000 символов. Текст остаётся в форме.")
+            self.notice.show_error(tr("Введите заметку до 4 000 символов. Текст остаётся в форме."))
             return
         if kind not in {"note", "proposed_goal"}:
             self.notice.show_error(
-                "Выбранный тип сообщения не поддержан ядром. Выберите заметку или предложенную цель; текст не изменён."
+                tr(
+                    "Выбранный тип сообщения не поддержан ядром. Выберите заметку или предложенную цель; текст не изменён."
+                )
             )
             return
         pending = {"key": self.note_project_key(), "source": source, "text": text, "kind": kind}
