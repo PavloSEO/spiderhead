@@ -26,8 +26,10 @@ from . import i18n, shortcuts, theming
 from .screens.graph import GraphScreen
 from .screens.scan_common import parse_time
 from .source_service import SourceService
+from .ui import motion
 from .ui.controls import Segmented
 from .ui.icons import material_icon as icon
+from .ui.motion import BusyIndicator
 from .ui.presentation import ElidedLabel
 from .ui.settings.context import SettingsContext
 from .ui.settings.dialog import SettingsDialog
@@ -183,6 +185,10 @@ class ShellMixin:
             self.observed_label,
         ):
             widget.setContentsMargins(8, 0, 8, 0)
+        self.busy = BusyIndicator(14)
+        self.busy.hide()
+        motion.activity.changed.connect(lambda count: self.busy.setVisible(count > 0))
+        bar.addPermanentWidget(self.busy)
         for widget in (
             self.source_badge,
             self.project_label,

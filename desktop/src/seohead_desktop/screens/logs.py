@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
+from ..ui import motion
 from ..ui.kit import StatePanel
 from .base import Screen
 from .url_query import CoreJob
@@ -221,7 +222,7 @@ class LogsScreen(Screen):
         self.summary = QLabel()
         self.summary.setProperty("text_style", "meta")
         self.summary.setContentsMargins(20, 8, 20, 8)
-        root.addWidget(self.summary)
+        root.addWidget(motion.status_row(self.summary, self.read_job, self.import_job))
         self.table = QTableView()
         self.model = LogRowsModel(self.table)
         self.table.setModel(self.model)

@@ -104,9 +104,9 @@ class ScheduleTabTests(unittest.TestCase):
         self.assertEqual(dialog.nav.tabText(5), "Core Web Vitals")
         self.assertFalse(dialog.nav.isTabVisible(5))
         dialog.nav.setCurrentIndex(2)
-        self.assertIsInstance(dialog.pages.currentWidget(), SchedulePage)
+        self.assertIsInstance(dialog.pages.currentWidget().build(), SchedulePage)
         dialog.nav.setCurrentIndex(3)
-        self.assertIsInstance(dialog.pages.currentWidget(), CrawlPage)
+        self.assertIsInstance(dialog.pages.currentWidget().build(), CrawlPage)
 
     def test_shared_save_waits_for_core_and_preserves_the_other_settings(self):
         i18n.set_language("en")
@@ -126,7 +126,7 @@ class ScheduleTabTests(unittest.TestCase):
         ):
             dialog = self.dialog()
             dialog.nav.setCurrentIndex(2)
-            page = dialog.pages.currentWidget()
+            page = dialog.pages.currentWidget().build()
             self.wait(lambda: page.state is not None and page.isEnabled())
             original = copy.deepcopy(page.state["settings"])
             dialog.content.save.click()
@@ -215,7 +215,7 @@ class ScheduleTabTests(unittest.TestCase):
             dialog.resize(1440, 900)
             dialog.show()
             dialog.nav.setCurrentIndex(2)
-            page = dialog.pages.currentWidget()
+            page = dialog.pages.currentWidget().build()
             self.wait(lambda: page.state is not None)
         self.assertTrue(page.target_row.isHidden())
         dialog.resize(800, 900)
@@ -237,7 +237,7 @@ class ScheduleTabTests(unittest.TestCase):
             dialog.resize(1440, 900)
             dialog.show()
             dialog.nav.setCurrentIndex(2)
-            page = dialog.pages.currentWidget()
+            page = dialog.pages.currentWidget().build()
             self.wait(lambda: page.state is not None)
         self.assertFalse(page.target_row.isHidden())
         dialog.close()

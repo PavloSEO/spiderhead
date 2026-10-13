@@ -38,6 +38,7 @@ from PyQt5.QtWidgets import (
 
 from .. import i18n, theming
 from ..i18n import tr, trf
+from ..ui import motion
 from ..ui.icons import material_icon
 from ..ui.kit import (
     BADGE_ROLE,
@@ -207,6 +208,7 @@ def skeleton_table():
         line.addWidget(_skeleton_bar(80))
         layout.addWidget(row)
     layout.addStretch(1)
+    motion.pulse(box)
     return box
 
 

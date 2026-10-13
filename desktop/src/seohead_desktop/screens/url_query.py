@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 from PyQt5.QtCore import QCoreApplication, QObject, QProcess, QTimer, pyqtSignal
 
 from ..i18n import tr
+from ..ui import motion
 
 PAGE = 200  # the core allows at most 200 rows per page
 QUERY_COLUMNS = (
@@ -201,6 +202,7 @@ class CoreJob(QObject):
     """One ``seohead`` process at a time; ``start`` replaces the running one, the stale answer is never delivered."""
 
     done = pyqtSignal(object, dict)  # token, parsed JSON answer (may carry ok: false)
+    busyChanged = pyqtSignal(bool)
     failed = pyqtSignal(
         object, str
     )  # token, Russian reason (process error, no JSON, too large, timeout)
@@ -245,6 +247,8 @@ class CoreJob(QObject):
             "text_result": bool(text_result),
         }
         self._job = job
+        motion.activity.begin()
+        self.busyChanged.emit(True)
         process.readyReadStandardOutput.connect(lambda: self._read(job))
         process.readyReadStandardError.connect(lambda: self._read(job))
         process.errorOccurred.connect(lambda error: self._error(job, error))
@@ -255,6 +259,9 @@ class CoreJob(QObject):
     def cancel(self):
         """Drop the running job: its answer will not be delivered."""
         job, self._job = self._job, None
+        if job is not None:
+            motion.activity.end()
+            self.busyChanged.emit(False)
         self._timer.stop()
         if job is not None:
             job["dead"] = True
@@ -311,6 +318,8 @@ class CoreJob(QObject):
             return
         self._read(job)
         self._job = None
+        motion.activity.end()
+        self.busyChanged.emit(False)
         self._timer.stop()
         job["dead"] = True
         token, failure = job["token"], job["failure"]
