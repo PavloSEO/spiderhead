@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from uuid import UUID
 
@@ -11,12 +12,14 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QFrame,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QPushButton,
     QTableView,
     QVBoxLayout,
 )
 
+from ..i18n import tr
 from ..ui import motion
 from ..ui.kit import StatePanel
 from .base import Screen
@@ -31,6 +34,14 @@ LOG_VIEWS = (
     ("statuses", "Status codes"),
     ("sections", "Sections"),
 )
+HEADER_ACRONYMS = {
+    "url": "URL",
+    "urls": "URLs",
+    "ip": "IP",
+    "ips": "IPs",
+    "id": "ID",
+    "http": "HTTP",
+}
 
 
 def import_arguments(project: str, path: str) -> list[str]:
@@ -134,13 +145,14 @@ class LogRowsModel(QAbstractTableModel):
         if value is None:
             return "—"
         if isinstance(value, (dict, list)):
-            return str(value)
+            return json.dumps(value, ensure_ascii=False)
         return str(value)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole or orientation != Qt.Horizontal or section >= len(self.columns):
             return None
-        return self.columns[section].replace("_", " ").title()
+        words = self.columns[section].split("_")
+        return " ".join(HEADER_ACRONYMS.get(word, word.capitalize()) for word in words)
 
     def set_rows(self, rows):
         bounded = (
@@ -191,32 +203,44 @@ class LogsScreen(Screen):
         row = QHBoxLayout(controls)
         row.setContentsMargins(20, 6, 16, 6)
         row.setSpacing(8)
-        self.import_button = QPushButton("Import access log…")
+        self.import_button = QPushButton(tr("Import access log…"))
         self.import_button.setProperty("role", "primary")
         self.import_button.clicked.connect(self.choose_log)
         row.addWidget(self.import_button)
+        self.cancel_button = QPushButton(tr("Cancel import"))
+        self.cancel_button.clicked.connect(self.cancel_import)
+        self.cancel_button.hide()
+        row.addWidget(self.cancel_button)
         self.view = QComboBox()
         for key, label in LOG_VIEWS:
             self.view.addItem(label, key)
         self.view.currentIndexChanged.connect(self.change_view)
         row.addWidget(self.view)
-        self.refresh_button = QPushButton("Refresh")
+        self.refresh_button = QPushButton(tr("Refresh"))
         self.refresh_button.clicked.connect(lambda: self.load_page(reset=True))
         row.addWidget(self.refresh_button)
-        self.bots_button = QPushButton("Bot IP details")
+        self.bots_button = QPushButton(tr("Bot IPs"))
         self.bots_button.clicked.connect(self.show_bots)
         row.addWidget(self.bots_button)
-        self.join_button = QPushButton("Compare with scan")
+        self.join_button = QPushButton(tr("Compare with scan"))
         self.join_button.clicked.connect(self.show_join)
         row.addWidget(self.join_button)
-        self.previous = QPushButton("Previous")
+        self.previous = QPushButton(tr("Previous"))
         self.previous.clicked.connect(
             lambda: self.load_page(offset=max(0, self.offset - PAGE_SIZE))
         )
         row.addWidget(self.previous)
-        self.next = QPushButton("Next")
+        self.next = QPushButton(tr("Next"))
         self.next.clicked.connect(lambda: self.load_page(offset=self.offset + PAGE_SIZE))
         row.addWidget(self.next)
+        for button in (
+            self.refresh_button,
+            self.bots_button,
+            self.join_button,
+            self.previous,
+            self.next,
+        ):
+            button.setEnabled(False)
         root.addWidget(controls)
 
         self.summary = QLabel()
@@ -229,11 +253,13 @@ class LogsScreen(Screen):
         self.table.setAlternatingRowColors(True)
         self.table.setSelectionBehavior(QTableView.SelectRows)
         self.table.setSortingEnabled(False)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.horizontalHeader().setMinimumSectionSize(120)
         root.addWidget(self.table, 1)
         self.state = StatePanel(
             "empty",
-            "No access log imported",
-            "Choose a local log file to retain a bounded, read-only summary in this project.",
+            tr("No access log imported"),
+            tr("Choose a local log file to retain a bounded, read-only summary in this project."),
         )
         root.addWidget(self.state)
         self.state.hide()
@@ -262,41 +288,58 @@ class LogsScreen(Screen):
 
     def refresh(self):
         if not self.host.project_directory:
-            self.scope.setText("No project open")
+            self.scope.setText(tr("No project open"))
             self.import_button.setEnabled(False)
-            self._show_empty("Open a project to retain access-log evidence.")
+            self._show_empty(tr("Open a project to retain access-log evidence."))
             return
-        self.scope.setText("Project access logs")
+        self.scope.setText(tr("Project access logs"))
         self.import_button.setEnabled(not self.import_job.busy)
         entry = self._entry()
         if not entry:
-            self.summary.setText("No retained log import is loaded for this project.")
+            self.summary.setText(tr("No retained log import is loaded for this project."))
             self.model.set_rows([])
             self._show_empty(
-                "Import a local access log. Opening this screen does not read files or perform DNS checks."
+                tr(
+                    "Import a local access log. Opening this screen does not read files or perform DNS checks."
+                )
             )
             return
         self.state.hide()
+        self.table.show()
+        self.bots_button.setEnabled(True)
+        self.join_button.setEnabled(True)
+        self.refresh_button.setEnabled(True)
         self.load_page()
 
     def choose_log(self):
-        if not self.host.project_directory:
+        if not self.host.project_directory or self.import_job.busy:
             return
         path, _ = QFileDialog.getOpenFileName(
-            self, "Import access log", "", "Log files (*);;All files (*)"
+            self, tr("Import access log"), "", tr("Log files") + " (*);;" + tr("All files") + " (*)"
         )
         if not path:
             return
-        self.summary.setText("Importing the selected file with a 10 million line limit…")
+        self.summary.setText(tr("Importing the selected file with a 10 million line limit…"))
         self.import_button.setEnabled(False)
+        self.cancel_button.show()
         token = object()
         self._pending = ("import", token)
         self.import_job.start(
             import_arguments(self.host.project_directory, path), token, timeout_ms=1_800_000
         )
 
+    def cancel_import(self):
+        if not self.import_job.busy:
+            return
+        self._pending = None
+        self.import_job.cancel()
+        self.cancel_button.hide()
+        self.import_button.setEnabled(True)
+        self.summary.setText(tr("Import cancelled. The retained log is unchanged."))
+
     def change_view(self, _index):
         self.offset = 0
+        self.model.set_rows([])
         self.load_page(reset=True)
 
     def load_page(self, *, offset=None, reset=False):
@@ -309,7 +352,7 @@ class LogsScreen(Screen):
             self.offset = offset
         token = object()
         self._pending = ("summary", token)
-        self.summary.setText("Loading the retained summary…")
+        self.summary.setText(tr("Loading the retained summary…"))
         self.read_job.start(
             summary_arguments(entry["source"], self.view.currentData(), self.offset), token
         )
@@ -326,9 +369,10 @@ class LogsScreen(Screen):
         if self._pending != ("import", token):
             return
         self._pending = None
+        self.cancel_button.hide()
         if payload.get("ok") is not True or not payload.get("source"):
             self.summary.setText(
-                payload.get("error") or "The core did not retain the selected log."
+                payload.get("error") or tr("The core did not retain the selected log.")
             )
             self.import_button.setEnabled(True)
             return
@@ -347,9 +391,11 @@ class LogsScreen(Screen):
         if payload.get("ok") is not True:
             entry = self._entry() or {}
             source = entry.get("source", "")
-            message = str(payload.get("error") or "The retained log summary is unavailable.")
-            self.summary.setText(message.replace(source, "retained log")[:300])
+            message = str(payload.get("error") or tr("The retained log summary is unavailable."))
+            self.summary.setText(message.replace(source, tr("retained log"))[:300])
             self.model.set_rows([])
+            self.previous.setEnabled(False)
+            self.next.setEnabled(False)
             return
         totals = payload.get("totals") or {}
         imported = payload.get("import") or {}
@@ -361,9 +407,10 @@ class LogsScreen(Screen):
         self.summary.setText(values)
         self.model.set_rows(payload.get(self.view.currentData()) or payload.get("rows") or [])
         self.state.hide()
+        self.table.show()
         self.previous.setEnabled(self.offset > 0)
         self.next.setEnabled(bool(payload.get("has_more")))
-        self.import_button.setEnabled(True)
+        self.import_button.setEnabled(not self.import_job.busy)
 
     def _failed(self, token, reason):
         if self._pending is None or self._pending[1] != token:
@@ -372,8 +419,19 @@ class LogsScreen(Screen):
         self._pending = None
         self.summary.setText(str(reason)[:300])
         if kind == "import":
+            self.cancel_button.hide()
             self.import_button.setEnabled(True)
 
     def _show_empty(self, message):
+        self.table.hide()
+        self.model.set_rows([])
+        for button in (
+            self.refresh_button,
+            self.bots_button,
+            self.join_button,
+            self.previous,
+            self.next,
+        ):
+            button.setEnabled(False)
         self.state.text.setText(message)
         self.state.show()
