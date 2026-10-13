@@ -20,6 +20,10 @@ REQUESTS_PER_PAGE = 3
 MAX_CRAWL_SECONDS = 600
 _SPLIT = re.compile(r"[\s,;]+")
 _FINISHED = {"finished"}
+_CANDIDATE_TEXT = {
+    "candidate": "кандидат",
+    "candidate; audit not run": "кандидат, аудит не запущен",
+}
 
 
 def parse_candidates(text: str, *, existing=(), limit: int = 5) -> dict:
@@ -30,9 +34,9 @@ def parse_candidates(text: str, *, existing=(), limit: int = 5) -> dict:
     sees the refusal before the core is called.
     """
     if not isinstance(text, str):
-        return {"accepted": [], "refused": [("", "clipboard is not text")]}
+        return {"accepted": [], "refused": [("", "буфер обмена не содержит текст")]}
     if len(text) > MAX_TEXT:
-        return {"accepted": [], "refused": [("", "the pasted text is too large")]}
+        return {"accepted": [], "refused": [("", "текст слишком большой")]}
     known = {_key(url) for url in existing}
     accepted: list[str] = []
     refused: list[tuple[str, str]] = []
@@ -41,9 +45,9 @@ def parse_candidates(text: str, *, existing=(), limit: int = 5) -> dict:
         if reason:
             refused.append((token[:200], reason))
         elif _key(url) in known or any(_key(url) == _key(item) for item in accepted):
-            refused.append((url, "already in the list"))
+            refused.append((url, "уже в списке"))
         elif len(known) + len(accepted) >= limit:
-            refused.append((url, f"the project limit is {limit} competitors"))
+            refused.append((url, f"лимит проекта: {limit} конкурентов"))
         else:
             accepted.append(url)
     return {"accepted": accepted, "refused": refused}
@@ -58,19 +62,19 @@ def _key(url: str) -> tuple:
 
 def _normalize(token: str) -> tuple[str | None, str | None]:
     if len(token) > MAX_URL or any(ord(char) < 32 for char in token):
-        return None, "not a bounded URL"
+        return None, "не похоже на адрес"
     candidate = token if "://" in token else "https://" + token
     try:
         parsed = urlsplit(candidate)
         _ = parsed.port  # malformed ports raise ValueError
     except ValueError:
-        return None, "not a valid URL"
+        return None, "некорректный адрес"
     if parsed.scheme not in {"http", "https"}:
-        return None, "only http and https URLs can be scanned"
+        return None, "сканируются только адреса http и https"
     if not parsed.hostname or "." not in parsed.hostname:
-        return None, "the host name is missing or incomplete"
+        return None, "у адреса нет полного имени хоста"
     if parsed.username or parsed.password or parsed.fragment:
-        return None, "credentials and fragments are not accepted"
+        return None, "адреса с логином или фрагментом не принимаются"
     return candidate, None
 
 
@@ -130,11 +134,16 @@ def competitor_rows(sites) -> list[dict]:
 
 
 def state_text(candidate: dict, latest: dict | None, scans: list) -> str:
-    """Plain state: finished scans win over the candidate note; an unfinished scan is said to be unfinished."""
+    """Plain state (a source text for ``tr``): finished scans win over the candidate note."""
     if latest is not None:
         if latest.get("crawl_partial"):
-            return "scanned, partial"
-        return "scanned"
+            return "просканирован частично"
+        return "просканирован"
     if any(isinstance(item, dict) and item.get("lifecycle") == "running" for item in scans):
-        return "scan running"
-    return (candidate or {}).get("state") or "candidate; audit not run"
+        return "скан идёт"
+    return candidate_text((candidate or {}).get("state"))
+
+
+def candidate_text(raw) -> str:
+    """Russian source text for the core's candidate note; unknown notes read as not audited."""
+    return _CANDIDATE_TEXT.get(raw, "кандидат, аудит не запущен")

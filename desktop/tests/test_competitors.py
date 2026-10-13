@@ -36,12 +36,13 @@ class ParseCandidatesTests(unittest.TestCase):
         self.assertEqual(parsed["accepted"], ["https://ok.example.test"])
         reasons = dict(parsed["refused"])
         self.assertEqual(
-            reasons["ftp://files.example.test"], "only http and https URLs can be scanned"
+            reasons["ftp://files.example.test"], "сканируются только адреса http и https"
         )
         self.assertEqual(
-            reasons["https://user:pw@x.example.test/"], "credentials and fragments are not accepted"
+            reasons["https://user:pw@x.example.test/"],
+            "адреса с логином или фрагментом не принимаются",
         )
-        self.assertEqual(reasons["localhost"], "the host name is missing or incomplete")
+        self.assertEqual(reasons["localhost"], "у адреса нет полного имени хоста")
 
     def test_existing_urls_and_project_limit_are_refused_before_the_core_call(self):
         parsed = parse_candidates(
@@ -51,8 +52,8 @@ class ParseCandidatesTests(unittest.TestCase):
         )
 
         self.assertEqual(parsed["accepted"], ["https://b.example.test"])
-        self.assertEqual(parsed["refused"][0], ("https://a.example.test", "already in the list"))
-        self.assertEqual(parsed["refused"][1][1], "the project limit is 2 competitors")
+        self.assertEqual(parsed["refused"][0], ("https://a.example.test", "уже в списке"))
+        self.assertEqual(parsed["refused"][1][1], "лимит проекта: 2 конкурентов")
 
     def test_same_site_with_a_trailing_slash_is_a_duplicate(self):
         parsed = parse_candidates(
@@ -60,13 +61,13 @@ class ParseCandidatesTests(unittest.TestCase):
         )
 
         self.assertEqual(parsed["accepted"], [])
-        self.assertEqual(parsed["refused"][0][1], "already in the list")
+        self.assertEqual(parsed["refused"][0][1], "уже в списке")
 
     def test_www_form_of_a_listed_site_is_the_same_site(self):
         parsed = parse_candidates("www.one.example.test", existing=["https://one.example.test/"])
 
         self.assertEqual(parsed["accepted"], [])
-        self.assertEqual(parsed["refused"][0][1], "already in the list")
+        self.assertEqual(parsed["refused"][0][1], "уже в списке")
 
     def test_non_text_and_oversized_input_are_refused_whole(self):
         self.assertEqual(parse_candidates(None)["accepted"], [])
@@ -118,7 +119,7 @@ class UrlCapTests(unittest.TestCase):
             self.assertLessEqual(budget["limits.max_crawl_seconds"], 600)
 
 
-def _site(url, directory, *scans, state="candidate; audit not run"):
+def _site(url, directory, *scans, state="кандидат, аудит не запущен"):
     return {
         "role": "competitor",
         "site": {"target": url},
@@ -139,7 +140,7 @@ class CompetitorRowsTests(unittest.TestCase):
         )
 
         self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]["state"], "candidate; audit not run")
+        self.assertEqual(rows[0]["state"], "кандидат, аудит не запущен")
         self.assertEqual(rows[0]["host"], "one.example.test")
         self.assertEqual(rows[0]["scan_count"], 0)
 
@@ -151,7 +152,7 @@ class CompetitorRowsTests(unittest.TestCase):
         }
         rows = competitor_rows([_site("https://one.example.test/", "competitors/a", scan)])
 
-        self.assertEqual(rows[0]["state"], "scanned, partial")
+        self.assertEqual(rows[0]["state"], "просканирован частично")
         self.assertEqual(rows[0]["scan_count"], 1)
         self.assertEqual(rows[0]["latest_finished_at"], "2026-10-11T10:00:00Z")
 
@@ -167,8 +168,8 @@ class CompetitorRowsTests(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(rows[0]["state"], "scan running")
-        self.assertEqual(rows[1]["state"], "candidate; audit not run")
+        self.assertEqual(rows[0]["state"], "скан идёт")
+        self.assertEqual(rows[1]["state"], "кандидат, аудит не запущен")
         self.assertEqual(rows[1]["scan_count"], 0)
 
     def test_malformed_snapshot_is_ignored_not_guessed(self):
