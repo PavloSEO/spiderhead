@@ -14,7 +14,7 @@ same CLI/MCP contracts the agents use.
 | Path | What it is |
 |---|---|
 | `src/seohead_desktop/app.py` | Main window: top bars, navigation, pages and signal wiring |
-| `src/seohead_desktop/ui/` | Reusable widgets: `components.py` (buttons, badges, panels), `workspace_tabs.py` (workspace tabs), `tabcatalogue.py` (SF-style tab/column contracts), `work_monitor.py` (scan observer), `crawl_configuration_dialog.py` (advanced scan settings), `content_search_panel.py`, `comparison_summary.py`, `help_guide.py`, `icons.py` (Material Symbols registry), `gallery.py` (component gallery for screenshots) |
+| `src/seohead_desktop/ui/` | Reusable widgets: `components.py` (buttons, badges, panels), `workspace_tabs.py` (workspace tabs), `tabcatalogue.py` (SF-style tab/column contracts), `work_monitor.py` (scan observer), `content_search_panel.py`, `comparison_summary.py`, `help_guide.py`, `icons.py` (Material Symbols registry), `gallery.py` (component gallery for screenshots) |
 | `src/seohead_desktop/theme/` | `tokens.json` (single source of colours, sizes, density, motion) → `theme.qss` |
 | `src/seohead_desktop/models.py` | Qt table models (no widget per cell) |
 | `src/seohead_desktop/mcp_gateway.py` | Talks to the core over local stdio MCP; allow-list of tools the app may call |
