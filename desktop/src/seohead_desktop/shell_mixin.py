@@ -247,9 +247,7 @@ class ShellMixin:
             if opened:
                 stamp = parse_time(self.observed_at) if isinstance(self.observed_at, str) else None
                 if stamp is None:
-                    observed = (
-                        tr("Наблюдение: нет данных") + " · " + tr("Недоступно в этой версии ядра")
-                    )
+                    observed = tr("Наблюдение: нет данных")
                 else:
                     seconds = max(0, int((datetime.now(timezone.utc) - stamp).total_seconds()))
                     ago = (

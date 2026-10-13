@@ -188,7 +188,7 @@ class HistoryPage(QWidget):
         }
         for metric in self.metrics.values():
             strip.addWidget(metric, 1)
-        self.metrics["in"].value.setText(tr("Недоступно в этой версии ядра"))
+        self.metrics["in"].value.setText(tr("Нет данных"))
         self.metrics["in"].sub.setToolTip(unavailable_tip("Входящие ссылки по сканам"))
         layout.addWidget(self.strip_box)
         self.table = QTableWidget(0, len(COLUMNS))

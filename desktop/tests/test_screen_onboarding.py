@@ -179,7 +179,6 @@ class OnboardingTests(unittest.TestCase):
         self.assertIn(os.path.basename(self.core), wizard.core_text.text())
         self.assertEqual(wizard.version_text.text(), ui("Версия и совместимость ядра — нет данных"))
         texts = " ".join(label.text() for label in wizard.findChildren(QLabel))
-        self.assertIn("in this core version", texts)
         for invented in ("3.4", "3.0.0", "совместимо ", "Python 3", "200 за"):
             self.assertNotIn(invented, texts)
 

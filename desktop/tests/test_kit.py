@@ -51,7 +51,7 @@ class KitTests(unittest.TestCase):
         panel = StatePanel(
             "waiting", "Журнал по страницам", "Показаны последние 200 событий", issue=923
         )
-        self.assertEqual(panel.issue_label.text(), "Недоступно в этой версии ядра")
+        self.assertTrue(panel.issue_label.isHidden())
         self.assertNotIn("923", panel.issue_label.text() + panel.issue_label.toolTip())
         self.assertEqual(panel.issue_label.property("waiting_issue"), 923)
 
@@ -93,7 +93,10 @@ class KitTests(unittest.TestCase):
             i18n.set_language("ru")
 
     def test_waiting_badge_text(self):
-        self.assertEqual(waiting_badge(931).text(), "Недоступно в этой версии ядра")
+        badge = waiting_badge(931)
+        badge.show()
+        self.assertFalse(badge.isVisible())  # the chip is never shown
+        self.assertEqual(badge.text(), "")
 
 
 if __name__ == "__main__":

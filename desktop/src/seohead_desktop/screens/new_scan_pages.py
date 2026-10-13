@@ -488,7 +488,6 @@ def waiting_row(page, title, description, issue, reason, preview=None, into=None
     item.later_badge.setProperty("waiting_issue", issue)
     item.later_badge.setMinimumWidth(1)
     item.later_badge.setToolTip(tr("Появится") + ": " + tr(description or title))
-    item.later_badge.show()
     item.setProperty("waiting", True)
     if into is None:
         page.add(item)

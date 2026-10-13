@@ -46,7 +46,7 @@ class BacklinksScreenTests(unittest.TestCase):
         self.assertIsInstance(screen.panel, StatePanel)
         self.assertEqual(screen.panel.kind, "waiting")
         self.assertEqual(screen.panel.issue_label.property("waiting_issue"), PROFILE_ISSUE)
-        self.assertEqual(screen.panel.issue_label.text(), "Недоступно в этой версии ядра")
+        self.assertTrue(screen.panel.issue_label.isHidden())
 
     def test_group_filters_are_disabled_with_reason(self):
         screen = self.make("/project/qa")

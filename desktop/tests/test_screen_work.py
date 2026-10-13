@@ -437,8 +437,7 @@ class WorkScreenTests(unittest.TestCase):
         self.assertIsNone(accepted_at)  # the core stores no acceptance time (#946)
         self.assertEqual(self.screen.goal_title.text(), "Убрать технические ошибки каталога")
         self.assertEqual(self.screen.eyebrow.text(), ui("Принятая цель"))
-        self.assertFalse(self.screen.goal_waiting.isHidden())
-        self.assertIn("in this core version", self.screen.goal_waiting.text())
+        self.assertTrue(self.screen.goal_waiting.isHidden())
         rows = self.window.inbox_model.rows
         proposed = dict(rows[1], goal_state="proposed")
         self.window.inbox_model.replace([rows[0], proposed])
@@ -520,9 +519,9 @@ class WorkScreenTests(unittest.TestCase):
         self.window.show()
         self.app.processEvents()
         self.assertTrue(self.screen.detail.isHidden())
+        self.assertEqual(self.screen.task_table.horizontalScrollBar().maximum(), 0)
         self.screen.detail_toggle.click()
         self.assertFalse(self.screen.detail.isHidden())
-        self.assertEqual(self.screen.task_table.horizontalScrollBar().maximum(), 0)
         labels = [label for label in self.screen.findChildren(QLabel) if label.property("badge")]
         self.assertTrue(labels)
 

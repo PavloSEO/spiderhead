@@ -80,12 +80,12 @@ class CardTests(CardBase):
             label.text() for label in card.headers.findChildren(type(card.scan_caption))
         )
         self.assertIn("content-type", text.lower())
-        self.assertIn(
+        self.assertNotIn(
             "Недоступно",
             " ".join(
                 w.text()
                 for w in card.headers.findChildren(type(card.scan_caption))
-                if w.property("badge")
+                if w.property("badge") and not w.isHidden()
             ),
         )
 
@@ -178,7 +178,7 @@ class CardTests(CardBase):
         self.assertEqual(page.entries[0]["status"], 200)
         self.assertEqual(page.table.rowCount(), len(page.scans))
         self.assertEqual(page.table.item(0, 6).text(), i18n.tr("Первое появление в выборке"))
-        self.assertIn("Недоступно", page.metrics["in"].value.text())
+        self.assertIn("Нет данных", page.metrics["in"].value.text())
         self.assertTrue(card.tabs.tabText(TAB_ORDER.index("hist")).startswith(i18n.tr("История")))
 
     def test_history_change_column_names_status_title_and_words_changes(self):

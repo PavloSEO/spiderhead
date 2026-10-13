@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import (
 
 from ..i18n import tr, trf
 from ..ui.icons import material_icon
-from ..ui.kit import Gate, Kpi, PageHeader, StatePanel, style_table
+from ..ui.kit import Gate, Kpi, PageHeader, StatePanel, page_margins, style_table
 from .scan_common import number, selected_scan
 from .url_query import PAGE, CoreJob, reason_text
 
@@ -94,8 +94,7 @@ class GraphScreen(QWidget):
         foot.addWidget(self.next)
         body_layout.addLayout(foot)
         self.gate = Gate(body, self._state, host.choose_project)
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout = page_margins(QVBoxLayout(self))
         layout.setSpacing(12)
         layout.addWidget(self.header)
         layout.addWidget(self.gate, 1)

@@ -29,7 +29,7 @@ from PyQt5.QtWidgets import (
 
 from ..i18n import tr, trf
 from ..ui.icons import material_icon as icon
-from ..ui.kit import PageHeader, StatePanel, no_project_panel, style_table
+from ..ui.kit import PageHeader, StatePanel, no_project_panel, page_margins, style_table
 from .base import Screen
 
 PREVIEW_ROWS = 20
@@ -93,7 +93,7 @@ class SemImportScreen(Screen):
         self.path = None
         self.pending = False
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 10, 16, 16)
+        page_margins(layout)
         layout.setSpacing(16)
         self.header = PageHeader(
             "Импорт фраз в ядро",

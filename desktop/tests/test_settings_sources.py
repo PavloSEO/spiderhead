@@ -123,7 +123,6 @@ class SourcesSectionTests(unittest.TestCase):
         page._open(("spend",))
         joined = " | ".join(texts(page))
         self.assertIn(ui("ЛИМИТЫ И ПОДТВЕРЖДЕНИЯ"), joined)
-        self.assertIn(ui("Недоступно в этой версии ядра"), joined)
         self.assertNotIn("₽", joined)
         export = [b for b in page.findChildren(QPushButton) if b.text() == ui("Экспорт CSV")]
         self.assertEqual(len(export), 1)

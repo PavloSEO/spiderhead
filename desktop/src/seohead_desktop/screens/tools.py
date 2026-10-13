@@ -22,7 +22,15 @@ from PyQt5.QtWidgets import (
 )
 
 from ..i18n import tr, trf
-from ..ui.kit import BADGE_ROLE, BadgeDelegate, PageHeader, StatePanel, style_table, waiting_badge
+from ..ui.kit import (
+    BADGE_ROLE,
+    BadgeDelegate,
+    PageHeader,
+    StatePanel,
+    page_margins,
+    style_table,
+    waiting_badge,
+)
 from .base import Screen
 
 CATALOG_TOOL = "seo_tool_catalog"
@@ -122,7 +130,7 @@ class ToolsScreen(Screen):
         self.model = ToolsModel(self)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 16, 16, 16)
+        page_margins(layout)
         layout.setSpacing(10)
 
         self.header = PageHeader(tr("Инструменты"))

@@ -15,8 +15,10 @@ QLabel[text_style="overline"] { font-size: ${font_overline}px; font-weight: 500;
 QLabel[text_style="mono"], QPlainTextEdit[mono="true"] { font-family: "$mono_family"; font-size: ${font_mono}px; }
 QLabel[na="true"] { color: $text_muted; font-style: italic; }
 
-/* buttons: role = primary | secondary | tonal | text | danger ; size = md | lg | pill */
-QPushButton { height: ${control_md}px; min-height: ${control_md}px; padding: 0 12px; border: 1px solid $outline; border-radius: ${radius_control}px; background: $base; color: $text; font-weight: 500; }
+/* one button system: primary (filled) | secondary (outlined, the default) | ghost (= text) | segmented (QToolButton[segment]);
+   size = md | lg | pill. Outlined buttons keep a strong border and dark text, so they never read as disabled
+   (disabled = grey fill, no border, grey text). */
+QPushButton { height: ${control_md}px; min-height: ${control_md}px; padding: 0 12px; border: 1px solid $outline_hover; border-radius: ${radius_control}px; background: $base; color: $text; font-weight: 500; }
 QPushButton:hover { background: $raised; }
 QPushButton:pressed { background: $pressed; border-color: $outline_hover; }
 QPushButton:focus { border: 2px solid $ring; padding: 0 11px; }
@@ -32,10 +34,10 @@ QPushButton[role="primary"]:disabled { background: $disabled_bg; border-color: $
 QPushButton[role="tonal"] { background: $selected; border-color: $selected; color: $on_selected; }
 QPushButton[role="tonal"]:hover { background: $selected_hover; border-color: $selected_hover; }
 QPushButton[role="tonal"]:pressed { background: $selected_hover; border-color: $primary; }
-QPushButton[role="text"] { background: transparent; border-color: transparent; color: $primary; }
-QPushButton[role="text"]:hover { background: $tonal_text_hover; }
-QPushButton[role="text"]:pressed { background: $selected_hover; }
-QPushButton[role="text"]:disabled { background: transparent; border-color: transparent; color: $disabled_fg; }
+QPushButton[role="text"], QPushButton[role="ghost"] { background: transparent; border-color: transparent; color: $primary; }
+QPushButton[role="text"]:hover, QPushButton[role="ghost"]:hover { background: $tonal_text_hover; }
+QPushButton[role="text"]:pressed, QPushButton[role="ghost"]:pressed { background: $selected_hover; }
+QPushButton[role="text"]:disabled, QPushButton[role="ghost"]:disabled { background: transparent; border-color: transparent; color: $disabled_fg; }
 QPushButton[role="danger"] { color: $error; border-color: $error_border; }
 QPushButton[role="danger"]:hover { background: $error_hover; }
 QPushButton[role="danger"]:pressed { background: $error_hover; border-color: $error; }

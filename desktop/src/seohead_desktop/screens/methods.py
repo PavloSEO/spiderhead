@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
 
 from ..i18n import tr, trf
 from ..ui import motion
+from ..ui.kit import page_margins
 from ..ui.workspace import VIEW_IDS
 from .snippets import SnippetEditor
 from .tool_redirects import ToolRedirectsScreen
@@ -46,7 +47,7 @@ class MethodCatalogueScreen(QWidget):
         self._pending = None
         self._items = []
         root = QVBoxLayout(self)
-        root.setContentsMargins(16, 12, 16, 12)
+        page_margins(root)
         root.setSpacing(10)
         header = QHBoxLayout()
         title = QLabel(tr("Methods and scenarios"))

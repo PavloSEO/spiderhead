@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import (
     QHeaderView,
     QLabel,
     QPushButton,
-    QSizePolicy,
     QStackedWidget,
     QStyle,
     QStyledItemDelegate,
@@ -34,6 +33,15 @@ STATE_ICONS = {
     "waiting": "schedule",
 }
 UNAVAILABLE = "Недоступно в этой версии ядра"
+
+
+def page_margins(layout):
+    """Standard page container: screen margin at the sides, panel margin above and below (tokens.json layout)."""
+    sides, ends = (theming.metrics()["layout"][key] for key in ("margin_screen", "margin_panel"))
+    layout.setContentsMargins(sides, ends, sides, ends)
+    return layout
+
+
 # Core issue number -> what will appear once the core gives it. Numbers live in code only; the UI shows the hint.
 ISSUE_HINTS = {
     920: "Запуск скана списка URL из приложения и его появление в наблюдении проекта",
@@ -181,36 +189,16 @@ class Gate(QStackedWidget):
 
 
 class UnavailableBadge(QLabel):
-    """Pill «Недоступно в этой версии ядра» that falls back, by whole words, to «Недоступно» when the row is narrow."""
-
-    PAD = 20  # 8 + 8 padding and the border, see QLabel[badge] in theme.qss
+    """Placeholder for a value the core does not give. It is never shown (no «Недоступно» chip anywhere in the app):
+    the row it sits in shows what it has, and the tooltip text stays for code and tests."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.full = tr(UNAVAILABLE)
-        self.short = tr("Недоступно")
         self.setProperty("badge", "mut")
-        self.setText(self.full)
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        super().setVisible(False)
 
-    def _width(self, text):
-        return self.fontMetrics().horizontalAdvance(text) + self.PAD
-
-    def sizeHint(self):
-        hint = super().sizeHint()
-        hint.setWidth(self._width(self.full))
-        return hint
-
-    def minimumSizeHint(self):
-        hint = super().minimumSizeHint()
-        hint.setWidth(self._width(self.short))
-        return hint
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        text = self.full if self.width() >= self._width(self.full) else self.short
-        if text != self.text():
-            self.setText(text)
+    def setVisible(self, visible):
+        super().setVisible(False)
 
 
 def waiting_badge(issue, hint=""):

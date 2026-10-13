@@ -519,7 +519,7 @@ class UrlSideDetail(QFrame):
         self.sections["meta"].set_content("mut", "", meta)
         self.sections["in"].set_content(
             "mut",
-            tr("Недоступно в этой версии ядра"),
+            tr("Нет данных"),
             tr("Счётчик и список входящих ссылок ядро пока не отдаёт. Это не «0»."),
         )
         outlinks, external = page.get("outlinks"), page.get("external_outlinks")
@@ -541,12 +541,12 @@ class UrlSideDetail(QFrame):
         )
         self.sections["html"].set_content(
             "mut",
-            tr("Недоступно в этой версии ядра"),
+            tr("Нет данных"),
             tr("Читатель сохранённого исходника ждёт ядра."),
         )
         self.sections["checks"].set_content(
             "mut",
-            tr("Недоступно в этой версии ядра"),
+            tr("Нет данных"),
             tr("Находки по одному URL ядро пока не отдаёт."),
         )
 

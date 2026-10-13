@@ -655,10 +655,7 @@ class DialogTests(DialogCase):
         for key in ("duration", "disk"):
             badge = dialog.plan_values[key][1]
             self.assertEqual(badge.property("waiting_issue"), 931)
-            self.assertTrue(
-                badge.text().startswith(ui("Недоступно в этой версии ядра")), badge.text()
-            )
-            self.assertNotRegex(badge.text(), r"\d")
+            self.assertTrue(badge.isHidden())  # no «unavailable» chip, and no invented number
         self.assertEqual(rows["speed"], "2 req/s · 1 threads")
         self.assertEqual(rows["urls"], "1\u00a0500")
         self.assertEqual(rows["requests"], ui("без лимита"))
