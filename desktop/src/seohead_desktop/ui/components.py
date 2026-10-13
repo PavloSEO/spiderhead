@@ -184,6 +184,7 @@ class TablePanel(QWidget):
         super().__init__(parent)
         self.spec = spec
         self.state = "unavailable"
+        self.idle_when_cleared = False  # a cleared panel is a neutral prompt, not an error
         self.offset = 0
         self.total = None
         self.has_more = False
@@ -328,7 +329,7 @@ class TablePanel(QWidget):
         reason="",
         available_filters=("all",),
     ):
-        if state not in {"ready", "loading", "unavailable", "error"}:
+        if state not in {"ready", "loading", "unavailable", "error", "idle"}:
             raise ValueError("Unknown panel state")
         if (
             not isinstance(offset, int)
@@ -393,6 +394,7 @@ class TablePanel(QWidget):
             "loading": "Загрузка сохранённых данных…",
             "unavailable": "Данные недоступны",
             "error": "Не удалось получить данные",
+            "idle": "Ничего не запущено",
         }
         self.message.setText(messages[state] + ("\n\n" + reason if reason else ""))
         self.stack.setCurrentIndex(0 if state == "ready" and self.model.rows else 1)
@@ -735,4 +737,6 @@ class TabDeck(QWidget):
 
     def clear(self, reason="Выберите сохранённый источник."):
         for panel in self._panels.values():
-            panel.set_page([], state="unavailable", reason=reason)
+            panel.set_page(
+                [], state="idle" if panel.idle_when_cleared else "unavailable", reason=reason
+            )

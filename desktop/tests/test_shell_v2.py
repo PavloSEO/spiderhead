@@ -133,12 +133,8 @@ class ShellV2Tests(unittest.TestCase):
         self.assertTrue(field.hasFocus())
         self.assertEqual(field.selectedText(), "retained query")
 
-    def test_agent_slot_is_a_neutral_gap_badge_in_agent_mode_only(self):
-        self.assertTrue(self.window.agent_gap.isVisibleTo(self.window))
-        self.assertEqual(self.window.agent_gap.property("waiting_issue"), 1238)
-        self.window.set_display("simple")
-        self.assertFalse(self.window.agent_gap.isVisibleTo(self.window))
-        self.window.set_display("agent")
+    def test_top_bar_has_no_unavailable_badge(self):
+        self.assertFalse(hasattr(self.window, "agent_gap"))
 
     def test_rail_and_wide_navigation_widths_come_from_tokens(self):
         layout = theming.metrics()["layout"]
@@ -278,7 +274,7 @@ class ShellV2Tests(unittest.TestCase):
         self.assertIn(page, self.window.placeholder_pages.values())
         self.assertIsInstance(page, CrawlerScreen)
         self.assertEqual(
-            page.findChild(StatePanel).title.text(), ui("Краул без проекта пока не запускается")
+            page.findChild(StatePanel).title.text(), ui("Введите адрес и нажмите «Старт»")
         )
         self.assertNotRegex("\n".join(label.text() for label in page.findChildren(QLabel)), r"#\d")
 
@@ -449,7 +445,7 @@ class ShellV2Tests(unittest.TestCase):
             ui("Справка"),
         ):
             self.assertIn(title, actions)
-        self.assertFalse(actions[ui("Быстрый краул без проекта")].isEnabled())
+        self.assertTrue(actions[ui("Быстрый краул без проекта")].isEnabled())
         self.assertFalse(actions[ui("Командная строка")].isEnabled())
         self.assertEqual(actions[ui("Командная строка")].toolTip(), ui("Недоступно в этой сборке"))
         self.assertTrue(any(t.startswith("Theme · ") for t in actions))

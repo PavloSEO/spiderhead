@@ -18,7 +18,6 @@ from PyQt5.QtWidgets import (
 from . import theming
 from .i18n import tr, trf
 from .ui.icons import material_icon as icon
-from .ui.kit import waiting_badge
 from .ui.presentation import StateBadge, short_run_id
 from .ui.shell import PickerButton
 
@@ -148,9 +147,6 @@ class ChromeMixin:
         self.simple_pill.setAccessibleName("Простой режим: сменить отображение")
         self.simple_pill.clicked.connect(self.show_display_menu)
         self.simple_pill.hide()
-        # Agent chip slot (canvas TopBar, mode «С агентом»): no heartbeat in the core yet, so a neutral badge, never a claim.
-        self.agent_gap = waiting_badge(1238)
-        layout.addWidget(self.agent_gap)
         layout.addWidget(self.agent_pill)
         layout.addWidget(self.simple_pill)
         self.cancel_button = _HideWhenDisabled("Отменить чтение")

@@ -175,7 +175,7 @@ class ComparisonController(QObject):
     def clear(self, reason="Выберите два сохранённых скана"):
         self.revision += 1
         self.pair = self.package = self._pending_page = self._request = None
-        self.changed.emit({"state": "unavailable", "rows": [], "reason": reason, "summary": {}})
+        self.changed.emit({"state": "idle", "rows": [], "reason": reason, "summary": {}})
 
     def start(self, before, after):
         self.clear("Сравнение сохранённых наблюдений…")

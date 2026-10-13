@@ -69,7 +69,7 @@ class ShellMixin:
         self.link_graph_screen.hide()
         for view in ("crawler", "methods"):
             if view == "crawler":
-                page = CrawlerScreen()
+                page = CrawlerScreen(self)
             elif view == "methods":
                 page = MethodsWorkspace(self)
             else:
@@ -277,7 +277,6 @@ class ShellMixin:
         self.agent_pill.setVisible(
             False
         )  # shown only from a real agent heartbeat (step 7); never claimed here
-        self.agent_gap.setVisible(not simple)
         self.update_status_tail()
 
     def set_display(self, mode, remember=True):
@@ -324,8 +323,7 @@ class ShellMixin:
         box_layout.addWidget(segmented)
         self._menu_widget(menu, box)
         crawler = menu.addAction(icon("travel_explore"), "Быстрый краул без проекта")
-        crawler.setEnabled(self.can_open_crawler())
-        crawler.setToolTip(UNAVAILABLE)
+        crawler.triggered.connect(self.open_crawler)
         settings = menu.addAction(icon("settings"), "Настройки")
         settings.setShortcut(QKeySequence.Preferences)
         settings.triggered.connect(lambda: self.open_settings())
@@ -354,13 +352,15 @@ class ShellMixin:
             action.triggered.connect(lambda _c, m=mode: self.set_display(m))
         menu.addSeparator()
         crawler = menu.addAction(icon("travel_explore"), "Быстрый краул без проекта")
-        crawler.setEnabled(self.can_open_crawler())
-        crawler.setToolTip(UNAVAILABLE)
+        crawler.triggered.connect(self.open_crawler)
         i18n.retranslate(menu)
         menu.exec_(self.simple_pill.mapToGlobal(QPoint(0, self.simple_pill.height() + 4)))
 
     def can_open_crawler(self):
-        return hasattr(self, "open_crawler")
+        return True
+
+    def open_crawler(self):
+        self.navigation.select_section("crawler")
 
     @staticmethod
     def _menu_widget(menu, widget):
