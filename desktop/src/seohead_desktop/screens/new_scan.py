@@ -649,6 +649,7 @@ class NewScanDialog(QDialog):
         # why
         why = QLineEdit()
         why.setEnabled(False)
+        why.setMinimumWidth(160)
         why.setToolTip(tr("В записи запуска ядра нет поля цели или задачи"))
         why.setAccessibleName(tr("Зачем этот скан"))
         why.setPlaceholderText(tr("Связь запуска с задачей проекта"))
@@ -1031,7 +1032,7 @@ class NewScanDialog(QDialog):
         self.problem.setText(shown)
         self.problem.setToolTip("; ".join(problems.values()))
         self.problem_icon.setVisible(bool(shown))
-        ready = bool(draft.confirmed) and not problems
+        ready = bool(draft.confirmed) and not problems and draft.policy_state != "loading"
         self.start.setEnabled(ready)
         self.start.setToolTip("" if ready else tr("Подтвердите объём и исправьте поля"))
 

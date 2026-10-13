@@ -193,8 +193,7 @@ class OverviewPage(QWidget):
         self.right = Pairs(("Источник", "Скан", "Снято", "Ответ"), mono=("Скан",))
         right.addWidget(self.right)
         right.addWidget(key_label("Связано"))
-        for text, issue in (("Проблемы URL", 980), ("Задача", 922), ("Глубина кликов", 992)):
-            right.addWidget(self._waiting(text, issue))
+        right.addWidget(self._waiting("Проблемы URL, задача, глубина кликов", 980))
         right.addStretch(1)
         self.grid = grid
         grid.addWidget(self.left, 1, 0, Qt.AlignTop)
@@ -262,6 +261,7 @@ class OverviewPage(QWidget):
         self.right.values["Скан"].setToolTip(source.get("scan_uuid") or "")
         self.right.set("Снято", stamp_text(response.get("received_at")))
         self.right.set("Ответ", trf("{ms} мс", ms=number(ms)) if ms is not None else None)
+        text = text or (tr("Читаю страницу…") if state == "loading" else "")
         self.note.setText(text)
         self.note.setVisible(bool(text))
 
