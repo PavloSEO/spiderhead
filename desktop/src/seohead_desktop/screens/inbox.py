@@ -345,7 +345,8 @@ class Composer(QFrame):
         self.text = QPlainTextEdit()
         self.text.setPlaceholderText(tr("Заметка для текущего проекта"))
         self.text.setAccessibleName(tr("Текст заметки"))
-        self.text.setFixedHeight(88)
+        self.text.setMinimumHeight(56)
+        self.text.setMaximumHeight(88)
         self.text.textChanged.connect(self._changed)
         layout.addWidget(self.text)
         self.error = QFrame()
@@ -489,6 +490,7 @@ class InboxScreen(Screen):
         self.selected_id = None
         self.all_rows = []
         self._goal_pending = False
+        self._shown_entry = None
         self.owner_actions = LocalOwnerActions(self)
         self.model = RowsModel(entry_columns())
         root = QVBoxLayout(self)
@@ -507,11 +509,16 @@ class InboxScreen(Screen):
         self.refresh()
 
     def _language_changed(self, _language):
+        self._shown_entry = None
         self.refresh()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.composer.hint.setVisible(self.height() >= 700)
 
     def _build_list(self):
         pane = ListPane()
-        pane.setMinimumWidth(340)
+        pane.setMinimumWidth(300)
         pane.resized.connect(self._label_tabs)
         layout = QVBoxLayout(pane)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -708,10 +715,11 @@ class InboxScreen(Screen):
 
     # ---- detail -------------------------------------------------------------------------------------------------
     def _fill_detail(self):
-        clear_layout(self.detail_layout)
         entry = next((e for e in self.model.rows if e.get("id") == self.selected_id), None)
-        layout = self.detail_layout
         if entry is None:
+            self._shown_entry = None
+            clear_layout(self.detail_layout)
+            layout = self.detail_layout
             self.accept_goal_button.hide()
             layout.addWidget(
                 StatePanel(
@@ -728,6 +736,11 @@ class InboxScreen(Screen):
         )
         self.accept_goal_button.setVisible(can_accept_goal)
         self.accept_goal_button.setEnabled(can_accept_goal and not self._goal_pending)
+        if entry == self._shown_entry:
+            return  # unchanged record: keep the widgets and the text selection the user has
+        self._shown_entry = entry
+        clear_layout(self.detail_layout)
+        layout = self.detail_layout
         kind, label = KINDS.get(entry.get("kind"), ("mut", entry.get("kind") or "—"))
         head = QHBoxLayout()
         badge = QLabel(tr(label))
@@ -827,6 +840,7 @@ class InboxScreen(Screen):
             self.status.setText(str(exc))
             return
         self._goal_pending = True
+        self.accept_goal_button.setText(tr("Принимаем…"))
         self.accept_goal_button.setEnabled(False)
         project = self.host.project_directory
         self.status.setText(tr("Принимаем цель через локальный CLI ядра…"))
@@ -840,6 +854,7 @@ class InboxScreen(Screen):
 
     def _goal_accepted(self, _result, project):
         self._goal_pending = False
+        self.accept_goal_button.setText(tr("Принять цель проекта"))
         if self.host.project_directory != project:
             return
         self.status.setText(tr("Цель принята владельцем."))
@@ -847,6 +862,7 @@ class InboxScreen(Screen):
 
     def _goal_failed(self, message, project):
         self._goal_pending = False
+        self.accept_goal_button.setText(tr("Принять цель проекта"))
         if self.host.project_directory != project:
             return
         self.status.setText(message)
