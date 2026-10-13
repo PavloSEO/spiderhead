@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import (
 from .. import theming
 from ..i18n import tr, trf
 from .icons import MaterialIconLabel
+from .motion import BusyIndicator
 
 STATE_ICONS = {
     "empty": "inbox",
@@ -98,7 +99,11 @@ class StatePanel(QFrame):
         layout.setSpacing(8)
         layout.setAlignment(Qt.AlignCenter)
         layout.addWidget(
-            MaterialIconLabel(STATE_ICONS[kind], 32, color="role:text_muted"), 0, Qt.AlignHCenter
+            BusyIndicator(32)
+            if kind == "loading"
+            else MaterialIconLabel(STATE_ICONS[kind], 32, color="role:text_muted"),
+            0,
+            Qt.AlignHCenter,
         )
         self.title = QLabel(tr(title))
         self.title.setProperty("text_style", "section")

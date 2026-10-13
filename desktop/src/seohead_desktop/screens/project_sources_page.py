@@ -342,6 +342,34 @@ class ProjectSourcesPage(QWidget):
         self._fit()
 
 
+class LazyPage(QWidget):
+    """Builds its page on first show, so opening Project settings does not construct every tab."""
+
+    def __init__(self, factory, built=None, parent=None):
+        super().__init__(parent)
+        self._factory, self._built = factory, built
+        self.inner = None
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+    def build(self):
+        if self.inner is None:
+            self.inner = self._factory()
+            self.layout().addWidget(self.inner)
+            i18n.retranslate(self.inner)
+            if self._built:
+                self._built()
+        return self.inner
+
+    def showEvent(self, event):
+        self.build()
+        super().showEvent(event)
+
+    def reload(self):
+        if self.inner is not None:
+            self.inner.reload()
+
+
 class ProjectSettingsPage(QWidget):
     """«Настройки проекта» (sheet ProjSettings): the container with its four tabs.
 
@@ -383,8 +411,8 @@ class ProjectSettingsPage(QWidget):
         tabs = (
             ("settings", "Main", self._main_page()),
             ("database", "Sources", _scrolled(self.page)),
-            ("event_repeat", "Schedule", SchedulePage(host)),
-            ("travel_explore", "Обход", CrawlPage(host)),
+            ("event_repeat", "Schedule", self._lazy(SchedulePage)),
+            ("travel_explore", "Обход", self._lazy(CrawlPage)),
             (
                 "ios_share",
                 "Экспорт",
@@ -397,10 +425,6 @@ class ProjectSettingsPage(QWidget):
         for icon_name, title, widget in tabs:
             self.nav.add_canvas_tab(icon_name, tr(title))
             self.pages.addWidget(widget)
-            if isinstance(widget, (SchedulePage, CrawlPage)):
-                widget.revert.hide()
-                widget.save_button.hide()
-                widget.availabilityChanged.connect(lambda _available: self._sync_actions())
         self.nav.currentChanged.connect(self._nav_changed)
         self.nav.tabBarClicked.connect(self._nav_clicked)
         self.nav.setCurrentIndex(0)
@@ -410,6 +434,20 @@ class ProjectSettingsPage(QWidget):
         i18n.retranslate(self)
         self._fit_tabs()
         self._sync_actions()
+
+    def _lazy(self, cls):
+        def make():
+            page = cls(self.host)
+            page.revert.hide()
+            page.save_button.hide()
+            page.availabilityChanged.connect(lambda _available: self._sync_actions())
+            return page
+
+        return LazyPage(make, self._sync_actions)
+
+    def _current(self):
+        page = self.pages.currentWidget()
+        return page.inner if isinstance(page, LazyPage) else page
 
     def _nav_changed(self, index):
         if self._syncing_nav:
@@ -503,7 +541,7 @@ class ProjectSettingsPage(QWidget):
         self.vitals_page.refresh_history()
 
     def _sync_actions(self):
-        page = self.pages.currentWidget()
+        page = self._current()
         editable = isinstance(page, (SchedulePage, CrawlPage))
         self.save.setEnabled(editable and page.save_button.isEnabled())
         self.cancel.setEnabled(editable and page.revert.isEnabled())
@@ -527,7 +565,7 @@ class ProjectSettingsPage(QWidget):
                 nav.settings_revision.setText(f"schedule.json · rev {state['revision']}")
 
     def _edit_action(self, method):
-        page = self.pages.currentWidget()
+        page = self._current()
         if isinstance(page, (SchedulePage, CrawlPage)) and page.isEnabled():
             getattr(page, method)()
 

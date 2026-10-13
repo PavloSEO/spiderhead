@@ -22,6 +22,7 @@ from .common import (  # noqa: F401
     scan_request_key,
 )
 from .i18n import tr
+from .ui import motion
 from .ui.presentation import (
     content_spacing,
     short_run_id,
@@ -45,6 +46,7 @@ class ViewStateMixin:
 
     def set_reduced_motion(self, enabled):
         self.reduced_motion = bool(enabled) or self.system_reduced_motion
+        motion.set_reduced(self.reduced_motion)
         self.work_monitor.set_reduced_motion(self.reduced_motion)
         if self.monitor is not None:
             self.monitor.work_monitor.set_reduced_motion(self.reduced_motion)
@@ -83,11 +85,14 @@ class ViewStateMixin:
         if action is not None:
             self._syncing_panel = True
             action.setChecked(visible)
-            {
+            panel = {
                 "Навигация": self.navigation,
                 "Сводка": self.overview,
                 "Инспектор URL": self.inspector,
-            }[name].setVisible(visible)
+            }[name]
+            panel.setVisible(visible)
+            if visible and name != "Навигация":
+                motion.fade_in(panel)
             self._syncing_panel = False
 
     def sync_workspace_width(self):

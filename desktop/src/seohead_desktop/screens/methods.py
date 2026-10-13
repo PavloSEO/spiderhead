@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ..ui import motion
 from ..ui.workspace import VIEW_IDS
 from .snippets import SnippetEditor
 from .tool_redirects import ToolRedirectsScreen
@@ -52,7 +53,7 @@ class MethodCatalogueScreen(QWidget):
         root.addLayout(header)
         self.status = QLabel("The local catalogue loads when you open this view.")
         self.status.setProperty("text_style", "meta")
-        root.addWidget(self.status)
+        root.addWidget(motion.status_row(self.status, self.job))
         split = QSplitter(Qt.Horizontal)
         self.list = QListWidget()
         self.list.currentRowChanged.connect(self._select)

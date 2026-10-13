@@ -31,11 +31,14 @@ QPushButton[role="primary"]:focus { border: 2px solid $ring; }
 QPushButton[role="primary"]:disabled { background: $disabled_bg; border-color: $disabled_bg; color: $disabled_fg; }
 QPushButton[role="tonal"] { background: $selected; border-color: $selected; color: $on_selected; }
 QPushButton[role="tonal"]:hover { background: $selected_hover; border-color: $selected_hover; }
+QPushButton[role="tonal"]:pressed { background: $selected_hover; border-color: $primary; }
 QPushButton[role="text"] { background: transparent; border-color: transparent; color: $primary; }
 QPushButton[role="text"]:hover { background: $tonal_text_hover; }
+QPushButton[role="text"]:pressed { background: $selected_hover; }
 QPushButton[role="text"]:disabled { background: transparent; border-color: transparent; color: $disabled_fg; }
 QPushButton[role="danger"] { color: $error; border-color: $error_border; }
 QPushButton[role="danger"]:hover { background: $error_hover; }
+QPushButton[role="danger"]:pressed { background: $error_hover; border-color: $error; }
 
 /* icon button */
 QToolButton { border: 0; border-radius: ${radius_control}px; background: transparent; color: $text_2; padding: 0; }
@@ -50,11 +53,13 @@ QToolButton::menu-indicator { image: none; width: 0; }
 /* group pill: checkable toolbutton */
 QToolButton[pill="group"] { height: 28px; padding: 0 10px; border-radius: ${radius_chip}px; font-size: ${font_meta}px; font-weight: 500; color: $text_2; }
 QToolButton[pill="group"]:hover { background: $hover; color: $text; }
+QToolButton[pill="group"]:pressed { background: $pressed; color: $text; }
 QToolButton[pill="group"]:checked { background: $selected; color: $on_selected; }
 
 /* choice card (scan source) */
 QToolButton[card="choice"] { border: 1px solid $divider; border-radius: ${radius_card}px; background: $base; color: $text; padding: 12px; }
 QToolButton[card="choice"]:hover { background: $raised; }
+QToolButton[card="choice"]:pressed { background: $pressed; }
 QToolButton[card="choice"]:checked { border: 2px solid $primary; background: $choice_bg; color: $text; padding: 11px; }
 
 /* task board («Доска»): columns on raised surface, cards on base with a divider border */
@@ -121,26 +126,32 @@ QCheckBox:focus { outline: 0; }
 QTableView, QTreeView, QListView { background: $base; alternate-background-color: $zebra; border: 0; gridline-color: $divider_inner; selection-background-color: $selected; selection-color: $on_selected; outline: 0; }
 QTableView::item { padding: 0 10px; border-bottom: 1px solid $divider_inner; }
 QTableView::item:hover:!selected { background: $hover_row; }
+QTableView::item:selected:hover { background: $selected_hover; }
 QTableView::item:selected { background: $selected; color: $on_selected; }
 QHeaderView { background: $raised; }
 QHeaderView::section { background: $raised; color: $text_2; border: 0; border-right: 1px solid $divider_head; border-bottom: 1px solid $divider; padding: 0 10px; height: ${row_header}px; font-size: ${font_meta}px; font-weight: 500; }
 QHeaderView::section:hover { background: $hover; }
+QHeaderView::section:pressed { background: $pressed; }
 QTableCornerButton::section { background: $raised; border: 0; border-bottom: 1px solid $divider; }
 
 /* navigation (QListView#navView): item 36, groups, rail */
 QListView#navView { background: $raised; border: 0; border-right: 1px solid $divider; padding: 8px; }
 QListView#navView::item { height: ${control_nav_item}px; padding: 0 12px; border-radius: ${radius_control}px; color: $text_2; font-weight: 500; }
 QListView#navView::item:hover { background: $nav_hover; color: $text; }
+QListView#navView::item:pressed { background: $pressed; color: $text; }
+QListView#navView::item:selected:hover { background: $selected_hover; }
 QListView#navView::item:selected { background: $selected; color: $on_selected; }
 QListView#navView[rail="true"]::item { font-size: ${font_rail}px; padding: 0; }
 
 /* section tabs (underline) and workspace tabs */
 QTabBar[tabs="underline"]::tab { height: ${layout_tabbar}px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: $text_2; font-weight: 500; }
 QTabBar[tabs="underline"]::tab:hover { background: $raised; color: $text; }
+QTabBar[tabs="underline"]::tab:pressed { background: $pressed; color: $text; }
 QTabBar[tabs="underline"]::tab:selected { color: $primary; border-bottom: 2px solid $primary; }
 QTabBar[tabs="workspace"] { background: $raised; }
 QTabBar[tabs="workspace"]::tab { height: 34px; padding: 0 8px 0 12px; margin: 0; border: 1px solid transparent; border-bottom: 0; border-top-left-radius: 8px; border-top-right-radius: 8px; background: transparent; color: $text_2; font-size: ${font_meta}px; font-weight: 500; max-width: 220px; }
 QTabBar[tabs="workspace"]::tab:hover { background: $nav_hover; color: $text; }
+QTabBar[tabs="workspace"]::tab:pressed { background: $pressed; color: $text; }
 QTabBar[tabs="workspace"]::tab:selected { background: $base; border-color: $divider; color: $text; }
 QTabBar[tabs="workspace"]::scroller { width: 56px; }
 QTabBar[tabs="workspace"] QToolButton { width: 24px; min-width: 0; padding: 0; margin: 0; border: 0; border-radius: 4px; }
