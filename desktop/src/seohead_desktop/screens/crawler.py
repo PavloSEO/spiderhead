@@ -33,6 +33,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QScrollArea,
     QShortcut,
+    QSizePolicy,
     QSpinBox,
     QSplitter,
     QStackedWidget,
@@ -468,7 +469,7 @@ class CrawlerScreen(QWidget):
         row.addWidget(chip)
         self.address = QLineEdit()
         self.address.setPlaceholderText(tr(PLACEHOLDERS["site"]))
-        self.address.setMinimumWidth(120)
+        self.address.setMinimumWidth(40)
         self.address.returnPressed.connect(self._start_or_stop)
         row.addWidget(self.address, 1)
         segmented = QFrame()
@@ -493,8 +494,9 @@ class CrawlerScreen(QWidget):
         self.limit = QSpinBox()
         self.limit.setRange(1, 100000)
         self.limit.setValue(DEFAULT_LIMIT)
-        self.limit.setPrefix(tr("Лимит URL: "))
-        self.limit.setMinimumWidth(150)
+        self.limit.setPrefix(tr("Лимит: "))
+        self.limit.setMinimumWidth(110)
+        self.limit.setButtonSymbols(QSpinBox.NoButtons)
         self.limit.setToolTip(tr("Сколько адресов обойти самое большее"))
         row.addWidget(self.limit)
         self.start = QPushButton(tr("Старт"))
@@ -571,6 +573,7 @@ class CrawlerScreen(QWidget):
         self.columns_button.clicked.connect(self._columns_menu)
         filters.addWidget(self.columns_button)
         self.export = QPushButton(tr("Экспорт"))
+        self.export.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
         self.export.clicked.connect(self._export)
         filters.addWidget(self.export)
         column.addLayout(filters)
@@ -728,6 +731,7 @@ class CrawlerScreen(QWidget):
         self.start.setIcon(material_icon("stop" if running else "play_arrow"))
         for widget in (self.address, self.limit, self.clear, *self.mode_buttons.values()):
             widget.setEnabled(not running)
+        self.limit.setEnabled(not running and self.mode != "list")
         self.start.setEnabled(state != "stopping")
         self._sync_start()
         self._note.setVisible(self.scan_path is not None)
@@ -780,7 +784,7 @@ class CrawlerScreen(QWidget):
             )
         except ValueError as exc:
             shutil.rmtree(workdir, ignore_errors=True)
-            return self._set_state("failed", tr(str(exc)))
+            return self._set_state("idle", tr(str(exc)))
         self.workdir, self.stderr, self.started_at = workdir, "", time.monotonic()
         process = QProcess(self)
         process.setStandardOutputFile(
@@ -804,6 +808,7 @@ class CrawlerScreen(QWidget):
         if process is None or process.state() == QProcess.NotRunning:
             return
         self._set_state("stopping")
+        QTimer.singleShot(10000, lambda: self._force_stop(process))
         pid = process.processId()
         if os.name != "nt" and pid:
             try:
@@ -812,6 +817,10 @@ class CrawlerScreen(QWidget):
             except OSError:
                 pass
         process.terminate()
+
+    def _force_stop(self, process):
+        if self.process is process and process.state() != QProcess.NotRunning:
+            process.kill()
 
     def _read_progress(self):
         process = self.process

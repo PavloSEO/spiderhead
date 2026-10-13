@@ -152,7 +152,7 @@ class GraphPage(QWidget):
         self.help.setAccessibleName(tr("Как читать граф"))
         self.help.setToolTip(
             tr(
-                "Узел — URL скана, линия — ссылка. Цвет узла — HTTP-статус. Граф строится из сохранённых ссылок, только чтение."
+                "Узел — URL скана, линия — ссылка. Цвет узла — раздел URL. Граф строится из сохранённых ссылок, только чтение."
             )
         )
         bar.addWidget(self.help)

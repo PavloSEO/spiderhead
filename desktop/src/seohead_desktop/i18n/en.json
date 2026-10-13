@@ -2203,7 +2203,7 @@
  "Краул не удался": "The crawl failed",
  "Краул остановлен": "Crawl stopped",
  "Краул остановлен до первого адреса": "The crawl was stopped before the first address",
- "Лимит URL: ": "URL limit: ",
+ "Лимит: ": "Limit: ",
  "Локальное ядро seohead не найдено": "The local seohead core was not found",
  "На другой URL": "To another URL",
  "Не удалось заменить существующий файл": "The existing file could not be replaced",
@@ -3561,7 +3561,7 @@
  "Тяжелее 200 КБ · {n}": "Heavier than 200 KB · {n}",
  "Убрать выбранное изменение": "Remove selected change",
  "Удаляет данные": "Deletes data",
- "Узел — URL скана, линия — ссылка. Цвет узла — HTTP-статус. Граф строится из сохранённых ссылок, только чтение.": "Node is a scan URL, line is a link. Node color is the HTTP status. The graph is built from saved links, read-only.",
+ "Узел — URL скана, линия — ссылка. Цвет узла — раздел URL. Граф строится из сохранённых ссылок, только чтение.": "Node is a scan URL, line is a link. Node color is the URL section. The graph is built from saved links, read-only.",
  "Узлов: {n}": "Nodes: {n}",
  "Узлов: Нет данных · рёбер: Нет данных": "Nodes: No data · edges: No data",
  "Узлы": "Nodes",
@@ -3885,5 +3885,7 @@
  "Скрипты": "Scripts",
  "Стили": "Styles",
  "Вес ресурсов, байт": "Resource weight, bytes",
- "Ядро не сохранило профиль": "The core did not save the profile"
+ "Ядро не сохранило профиль": "The core did not save the profile",
+ "Читаю страницу…": "Reading the page…",
+ "Проблемы URL, задача, глубина кликов": "URL issues, task, click depth"
 }

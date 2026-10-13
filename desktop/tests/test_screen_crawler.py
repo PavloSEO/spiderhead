@@ -99,7 +99,7 @@ class CrawlerScreenTests(unittest.TestCase):
         self.host.core_executable = "/bin/true"
         self.screen.address.setText("ftp://nope")
         self.screen._start_or_stop()
-        self.assertEqual(self.screen.state, "failed")
+        self.assertEqual(self.screen.state, "idle")
         self.assertIsNone(self.screen.workdir)
         self.assertIn("http", self.screen.status_note.text())
 
