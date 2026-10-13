@@ -138,7 +138,6 @@ def sync_chrome(window):
         window.scan_state_badge.setVisible(
             not compact and isinstance(window.scan_picker.currentData(), dict)
         )
-        window.agent_gap.hide()
         window.agent_pill.setVisible(
             not compact and bool(window.agent_pill.text()) and not window.agent_pill.isHidden()
         )

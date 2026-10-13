@@ -223,6 +223,7 @@ class ComparePanel(TablePanel):
 
     def __init__(self, spec, parent=None):
         super().__init__(spec, parent)
+        self.idle_when_cleared = True
         self.before = QComboBox()
         self.before.setAccessibleName("До: исходный сохранённый скан")
         self.after = QComboBox()
@@ -401,7 +402,7 @@ class ComparePanel(TablePanel):
 
     def set_summary(self, payload):
         state = payload.get("state")
-        if state == "unavailable":
+        if state in {"unavailable", "idle"}:
             self._valid_pair()
         self.comparison_status.setText(
             payload.get("reason")

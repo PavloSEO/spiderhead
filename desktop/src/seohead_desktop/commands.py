@@ -164,7 +164,7 @@ class CommandsMixin:
         self.pending_commands.clear()
         self.read_generation += 1
         if hasattr(self, "comparison"):
-            self.comparison.clear("Чтение сравнения отменено; выберите пару и повторите")
+            self.comparison.clear("Выберите два скана и нажмите «Сравнить»")
         self.cancel_button.setEnabled(False)
         self.statusBar().showMessage(
             "Текущие чтения отменены; сохранённые данные проекта не изменены"

@@ -4,22 +4,56 @@ from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QResizeEvent
-from PyQt5.QtWidgets import QApplication, QFrame, QLabel, QPushButton, QTabWidget, QToolButton
+from PyQt5.QtWidgets import QLabel, QPushButton
 
 from seohead_desktop import i18n
 from seohead_desktop.app import load_theme
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.crawler import (
-    CHECK_TABS,
-    DETAIL_TABS,
     OVERVIEW,
-    WAITING_ISSUE,
+    PROGRESS,
+    TAB_FILTERS,
     CrawlerScreen,
+    crawl_arguments,
 )
-from seohead_desktop.ui.kit import StatePanel, UnavailableBadge
 from tests._qt import sweep_widgets
+
+
+class Host:
+    core_executable = None
+
+
+class CrawlArgumentsTests(unittest.TestCase):
+    def test_site_list_and_sitemap_modes_map_to_core_flags(self):
+        site = crawl_arguments("site", "example.org", 50, "/tmp/x.sqlite")
+        self.assertEqual(site[0], "crawl-site")
+        self.assertIn("https://example.org", site)
+        self.assertIn("--url", site)
+        self.assertEqual(site[site.index("--max-urls") + 1], "50")
+        listed = crawl_arguments("list", "https://a.test/ b.test,https://c.test/x", 50, "/tmp/x")
+        self.assertEqual(
+            listed[listed.index("--urls") + 1], "https://a.test/,https://b.test,https://c.test/x"
+        )
+        self.assertNotIn("--max-urls", listed)
+        sitemap = crawl_arguments("sitemap", "https://a.test/sitemap.xml", 10, "/tmp/x")
+        self.assertIn("--sitemap-only", sitemap)
+
+    def test_bad_addresses_are_rejected_before_any_process_starts(self):
+        for mode, text in (
+            ("site", ""),
+            ("site", "ftp://a.test"),
+            ("list", "  "),
+            ("site", "http://"),
+        ):
+            with self.assertRaises(ValueError):
+                crawl_arguments(mode, text, 10, "/tmp/x")
+
+    def test_progress_line_of_the_core_is_parsed(self):
+        line = "crawl-site: 20 fetched, 31 known (64%), 2.5 req/s, known ETA ~4s, 8s, scan 260.0 KB"
+        self.assertEqual(PROGRESS.findall(line), [("20", "31", "2.5")])
+        self.assertEqual(
+            PROGRESS.findall("crawl-site: 0 fetched, 1 known (0%), rate n/a")[0][2], ""
+        )
 
 
 class CrawlerScreenTests(unittest.TestCase):
@@ -31,89 +65,70 @@ class CrawlerScreenTests(unittest.TestCase):
     def setUp(self):
         sweep_widgets()
         i18n.set_language("ru")
-        self.screen = CrawlerScreen()
+        self.host = Host()
+        self.screen = CrawlerScreen(self.host)
 
     def tearDown(self):
+        self.screen.shutdown()
         self.screen.deleteLater()
         sweep_widgets()
 
-    def test_start_and_actions_are_waiting_and_say_why(self):
-        start = next(b for b in self.screen.findChildren(QPushButton) if b.text() == "Старт")
-        self.assertFalse(start.isEnabled())
-        self.assertIn("в этой версии ядра", start.toolTip())
-        badges = self.screen.findChildren(UnavailableBadge)
-        self.assertEqual([b.property("waiting_issue") for b in badges], [WAITING_ISSUE])
-        self.assertFalse(any(b.isEnabled() for b in self.screen.findChildren(QToolButton)))
+    def button(self, text):
+        return next(b for b in self.screen.findChildren(QPushButton) if b.text() == text)
 
-    def test_waiting_state_panel_is_the_only_table_content(self):
-        panels = self.screen.findChildren(StatePanel)
-        self.assertEqual(len(panels), 1)
-        self.assertEqual(panels[0].kind, "waiting")
-        self.assertEqual(panels[0].title.text(), "Краул без проекта пока не запускается")
+    def test_controls_are_live_and_start_needs_a_core(self):
+        self.assertTrue(self.screen.address.isEnabled())
+        self.assertTrue(all(b.isEnabled() for b in self.screen.mode_buttons.values()))
+        self.screen.show()  # showing re-checks the core
+        self.assertFalse(self.button("Старт").isEnabled())
+        self.assertIn("ядро", self.button("Старт").toolTip())
+        self.host.core_executable = "/bin/true"
+        self.screen._sync_start()
+        self.assertTrue(self.button("Старт").isEnabled())
 
-    def test_no_numbers_or_sample_addresses_are_shown(self):
-        texts = [label.text() for label in self.screen.findChildren(QLabel)]
-        texts += [button.text() for button in self.screen.findChildren(QPushButton)]
-        joined = "\n".join(texts)
-        self.assertNotIn("shop.example", joined)
-        self.assertNotRegex(joined, r"#\d")
+    def test_opening_the_screen_starts_nothing(self):
+        self.screen.show()
+        self.assertIsNone(self.screen.process)
+        self.assertIsNone(self.screen.scan_path)
+        self.assertFalse(self.screen.export.isEnabled())
+        self.assertFalse(self.screen._note.isVisibleTo(self.screen))
 
-    def test_check_tabs_and_overview_counts_are_empty_dashes(self):
-        self.assertEqual(len(CHECK_TABS), 15)
-        self.assertEqual(len(OVERVIEW), 18)
-        dashes = [label for label in self.screen.findChildren(QLabel) if label.text() == "—"]
-        self.assertEqual(len(dashes), len(OVERVIEW))
+    def test_invalid_address_shows_the_reason_and_creates_no_folder(self):
+        self.host.core_executable = "/bin/true"
+        self.screen.address.setText("ftp://nope")
+        self.screen._start_or_stop()
+        self.assertEqual(self.screen.state, "failed")
+        self.assertIsNone(self.screen.workdir)
+        self.assertIn("http", self.screen.status_note.text())
 
-    def test_temporary_results_banner_is_hidden_until_results_exist(self):
-        banner = next(f for f in self.screen.findChildren(QFrame) if f.property("note") == "info")
-        self.assertTrue(banner.isHidden())
-        self.screen.set_temporary_results(True, "https://crawl.localhost/")
-        self.assertFalse(banner.isHidden())
-        texts = [label.text() for label in self.screen.findChildren(QLabel)]
-        self.assertIn("Выбрано: https://crawl.localhost/", texts)
-        self.assertIn("Без проекта · данные во временной папке до закрытия окна", texts)
-        self.screen.set_temporary_results(False)
-        self.assertTrue(banner.isHidden())
-        self.assertIn(
-            "Сведения появятся, когда будет выбран адрес краула",
-            [label.text() for label in self.screen.findChildren(QLabel)],
+    def test_tab_and_overview_filters_feed_the_core_query(self):
+        resp = next(i for i, (label, _f) in enumerate(TAB_FILTERS) if label == "Коды ответа")
+        self.screen.tabs.setCurrentIndex(resp)
+        self.assertEqual(self.screen.filters(), TAB_FILTERS[resp][1])
+        self.screen.search.setText("shop")
+        self.assertEqual(
+            self.screen.filters()[-1], {"column": "url", "op": "contains", "value": "shop"}
         )
+        row = next(i for i, r in enumerate(OVERVIEW) if r[3] == "title_missing")
+        self.screen._select_overview(row)
+        self.assertEqual(self.screen.base_filters, OVERVIEW[row][4])
+
+    def test_status_strip_has_no_placeholder_text_after_progress(self):
+        self.screen._counters("2.5", 20, 11)
+        texts = " ".join(label.text() for label in self.screen.findChildren(QLabel))
+        self.assertIn("Пройдено: 20", texts)
+        self.assertIn("Осталось: 11", texts)
 
     def test_every_overview_leaf_has_an_icon_asset(self):
         icons_dir = (
             Path(__file__).resolve().parents[1] / "src" / "seohead_desktop" / "assets" / "icons"
         )
-        missing = [
-            name for name, _text, _depth in OVERVIEW if not (icons_dir / f"{name}.svg").is_file()
-        ]
+        missing = [row[0] for row in OVERVIEW if not (icons_dir / f"{row[0]}.svg").is_file()]
         self.assertEqual(missing, [])
 
-    def test_detail_tabs_are_empty_until_a_row_is_selected(self):
-        tabs = self.screen.findChild(QTabWidget)
-        self.assertEqual(tabs.count(), len(DETAIL_TABS))
-        self.assertFalse(tabs.isEnabled())
-        self.assertIn(
-            "Сведения появятся",
-            " ".join(label.text() for label in self.screen.findChildren(QLabel)),
-        )
-
-    def test_tune_action_is_present_and_waiting(self):
-        tune = next(
-            b for b in self.screen.findChildren(QToolButton) if b.toolTip() == "Настройки скана"
-        )
-        self.assertFalse(tune.isEnabled())
-
-    def test_narrow_toolbar_moves_clear_and_save_into_overflow(self):
-        clear = next(b for b in self.screen.findChildren(QPushButton) if b.text() == "Очистить")
-        save = next(
-            b for b in self.screen.findChildren(QPushButton) if b.text() == "Сохранить как проект"
-        )
-        self.screen.resize(800, 800)
-        QApplication.sendEvent(self.screen, QResizeEvent(QSize(800, 800), QSize(640, 480)))
-        self.assertTrue(clear.isHidden() and save.isHidden())
-        self.screen.resize(1200, 800)
-        QApplication.sendEvent(self.screen, QResizeEvent(QSize(1200, 800), QSize(800, 800)))
-        self.assertFalse(clear.isHidden() or save.isHidden())
+    def test_clear_returns_to_the_idle_state(self):
+        self.screen.clear_results()
+        self.assertEqual(self.screen.state, "idle")
 
 
 if __name__ == "__main__":

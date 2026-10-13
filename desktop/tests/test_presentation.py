@@ -237,8 +237,8 @@ class PresentationTests(unittest.TestCase):
         panel = self.window.project_panels.panel("compare")
         self.window.load_comparison({"state": "loading", "rows": []})
         self.window.cancel_requests()
-        self.assertEqual(panel.state, "unavailable")
-        self.assertIn("отменено", panel.comparison_status.text())
+        self.assertEqual(panel.state, "idle")  # a cancelled read is a prompt, not an error
+        self.assertIn("Выберите два скана", panel.comparison_status.text())
 
     def test_sitemap_preview_gate_and_required_url(self):
         scratch = Path(__file__).parents[1] / ".build/scratch"
