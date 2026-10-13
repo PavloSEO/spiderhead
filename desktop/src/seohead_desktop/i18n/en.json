@@ -3877,5 +3877,11 @@
  "Раскладка · {name}": "Layout · {name}",
  "Поиск · {name}": "Search · {name}",
  "Раскладка: {name}": "Layout: {name}",
- "Параметры без редактора в приложении (только чтение)": "Parameters without an in-app editor (read-only)"
+ "Параметры без редактора в приложении (только чтение)": "Parameters without an in-app editor (read-only)",
+ "Загрузка задачи…": "Loading the task…",
+ "Читаем задачу из ядра": "Reading the task from the core",
+ "Записываем попытку…": "Recording the attempt…",
+ "Не удалось сохранить задачу в проекте": "Could not save the task to the project",
+ "Нет задач": "No tasks",
+ "Исполнитель, описание, комментарии задачи и число касающихся URL": "Assignee, description, task comments and the number of related URLs"
 }

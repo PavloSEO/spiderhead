@@ -152,12 +152,14 @@ class WorkScreenTests(unittest.TestCase):
         open_qa(self.window)
         total = self.window.task_total
         self.screen.search.setText("AJAX_CRAWLING_SCHEME_URL")
+        self.screen.search_timer.timeout.emit()  # the filter waits for the debounce timer
         self.assertEqual(
             [row["id"] for row in self.screen.tasks.rows],
             ["check:AJAX_CRAWLING_SCHEME_URL"],
         )
         self.assertEqual(self.window.task_total, total)
         self.screen.search.clear()
+        self.screen.search_timer.timeout.emit()
         self.assertEqual(len(self.screen.tasks.rows), 3)
 
     def test_every_core_task_state_has_a_badge(self):
