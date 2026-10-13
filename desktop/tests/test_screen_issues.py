@@ -14,6 +14,7 @@ from seohead_desktop.app import load_theme
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.base import SLOTS
 from seohead_desktop.screens.issues import (
+    CHECK_NAMES,
     IssuesScreen,
     check_name,
     issue_summary_arguments,
@@ -162,6 +163,7 @@ class IssuesTests(IssuesBase):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         self.assertGreater(len(module.CHECKS), 100)
+        self.assertEqual([code for code in module.CHECKS if code not in CHECK_NAMES], [])
         self.assertEqual([code for code in module.CHECKS if not check_name(code)], [])
 
     def test_no_issue_numbers_and_no_service_footer_on_screen(self):
@@ -186,12 +188,14 @@ class IssuesTests(IssuesBase):
         self.assertEqual(
             message_ru("Page returns a 4xx response (broken page)"), "Битая страница, ответ 4xx"
         )
-        self.assertIn("языке ядра", message_ru("Some phrase nobody translated"))
+        self.assertEqual(
+            message_ru("Some phrase nobody translated"), "Some phrase nobody translated"
+        )
         self.screen.row_buttons["BROKEN_PAGE_4XX"].click()
         self.app.processEvents()
         raw = "Page returns a 4xx response"
         self.assertNotIn(raw, self.screen.desc.text())
-        self.assertNotIn(raw, self.screen.model.data(self.screen.model.index(0, 2)))
+        self.assertNotIn(raw, self.screen.model.data(self.screen.model.index(0, 1)))
         self.assertTrue(self.screen.raw.isHidden())
         self.assertEqual(self.screen.raw_toggle.text(), "Исходный ответ ядра")
         self.screen.raw_toggle.click()
