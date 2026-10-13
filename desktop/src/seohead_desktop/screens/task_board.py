@@ -54,7 +54,9 @@ class TaskCard(QFrame):
         dot.setStyleSheet(
             f"background: {resolve_color(priority_colour(row.get('priority')))}; border-radius: 4px;"
         )
-        meta = QLabel(f"{row.get('priority') or tr('Нет данных')} · {self.item_id}")
+        meta = QLabel(
+            row.get("priority") or tr("Нет данных")
+        )  # the raw core id goes to the tooltip only
         meta.setProperty("text_style", "meta")
         meta.setToolTip(self.item_id)
         top.addWidget(dot)
@@ -121,6 +123,10 @@ class BoardColumn(QFrame):
             card = TaskCard(row)
             card.picked.connect(on_pick)
             self.cards.addWidget(card)
+        if not rows:
+            empty = QLabel(tr("Нет задач"))
+            empty.setProperty("text_style", "meta")
+            self.cards.insertWidget(0, empty)
         self.cards.addStretch(1)
         self.count.setText(number(len(rows)))
         if len(rows) > len(shown):
@@ -160,8 +166,9 @@ class TaskBoard(QWidget):
         self.outside = QLabel()
         self.outside.setProperty("text_style", "meta")
         self.outside.setWordWrap(True)
-        footer.addWidget(waiting_badge(922, "Исполнитель, описание и комментарии задачи"))
-        footer.addWidget(waiting_badge(1240, "Число URL, которых касается задача"))
+        footer.addWidget(
+            waiting_badge(922, "Исполнитель, описание, комментарии задачи и число касающихся URL")
+        )
         footer.addWidget(self.outside, 1)
         outer.addLayout(footer)
 

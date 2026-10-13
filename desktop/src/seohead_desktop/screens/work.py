@@ -58,6 +58,7 @@ from ..ui.kit import (
     waiting_badge,
 )
 from ..ui.modal import ModalDialog
+from ..ui.motion import fade_stack
 from .base import Screen
 from .scan_common import number
 
@@ -311,6 +312,20 @@ def goal_entry(host):
     return None, None
 
 
+def op_busy(host, *operations):
+    """True while a core operation is running or queued: the write controls stay disabled until it answers."""
+    return any(op in host.active_commands or op in host.pending_commands for op in operations)
+
+
+def write_failed(host, result):
+    """Shows the core's refusal and re-renders the screen, so controls disabled for the write come back."""
+    text = None
+    if isinstance(result, dict):
+        text = result.get("error") or result.get("reason") or result.get("message")
+    host.statusBar().showMessage(str(text) if text else tr("Не удалось сохранить задачу в проекте"))
+    host.data_changed.emit("tasks")
+
+
 class TaskDetail(QFrame):
     """Right panel: the selected task from project-task-detail (loading / error / empty / data)."""
 
@@ -480,6 +495,8 @@ class TaskDetail(QFrame):
         )
         self.edit_button.setVisible(editable)
         self.comment_button.setVisible(editable)
+        self.edit_button.setEnabled(not op_busy(self.host, "task-update"))
+        self.comment_button.setEnabled(not op_busy(self.host, "task-comment"))
         manual_approval = (
             isinstance(result, dict)
             and type(result.get("revision")) is int
@@ -845,6 +862,7 @@ class TaskDetail(QFrame):
         dialog = TaskEditDialog(definition, metadata, self)
         if dialog.exec_() != QDialog.Accepted or dialog.result_item is None:
             return
+        self.edit_button.setEnabled(False)
         self.host.start_command(
             "task-update",
             "seo_project_checklist_update",
@@ -860,6 +878,7 @@ class TaskDetail(QFrame):
         dialog = TaskCommentDialog(self)
         if dialog.exec_() != QDialog.Accepted:
             return
+        self.comment_button.setEnabled(False)
         self.host.start_command(
             "task-comment",
             "seo_project_task_comment",
@@ -1179,6 +1198,7 @@ class TaskDetail(QFrame):
 
     def _write_succeeded(self, result):
         if not isinstance(result, dict) or result.get("ok") is False:
+            write_failed(self.host, result)
             return
         item_id = self._row.get("id")
         self.host.statusBar().showMessage(tr("Задача обновлена в проекте"))
@@ -1508,13 +1528,13 @@ class WorkScreen(Screen):
                 button.clicked.connect(
                     lambda _c=False: self.host.navigation.select_section("reports")
                 )
-            row.addWidget(button, 0, Qt.AlignBottom)
+            row.addWidget(button, 0, Qt.AlignTop)
         self.note_button = QPushButton(tr("Заметка агенту"))
         self.note_button.setIcon(material_icon("edit_note"))
         self.note_button.clicked.connect(
             lambda _c=False: self.host.navigation.select_section("inbox")
         )
-        row.addWidget(self.note_button, 0, Qt.AlignBottom)
+        row.addWidget(self.note_button, 0, Qt.AlignTop)
         return row
 
     def _build_card(self):
@@ -1535,7 +1555,7 @@ class WorkScreen(Screen):
         self.tabs.setDrawBase(False)
         for _ in range(3):
             self.tabs.addTab("")
-        self.tabs.currentChanged.connect(lambda index: self.pages.setCurrentIndex(index))
+        self.tabs.currentChanged.connect(self._tab_changed)
         bar.addWidget(self.tabs)
         bar.addStretch(1)
         self.view_switch = Segmented(
@@ -1555,7 +1575,6 @@ class WorkScreen(Screen):
             [("open", tr("Открытые")), ("all", tr("Все"))], "open", tr("Фильтр задач")
         )
         self.filter_switch.changed.connect(self._set_filter)
-        bar.addWidget(self.filter_switch)
         self.detail_toggle = QToolButton()
         self.detail_toggle.setProperty("role", "icon")
         self.detail_toggle.setCheckable(True)
@@ -1580,7 +1599,7 @@ class WorkScreen(Screen):
         )
 
         self.task_views = QStackedWidget()
-        self.task_table = build_table(self.tasks, fixed={1: 132, 2: 88, 3: 112, 4: 180}, stretch=0)
+        self.task_table = build_table(self.tasks, fixed={1: 132, 2: 88, 3: 112, 4: 120}, stretch=0)
         self.task_table.selectionModel().currentRowChanged.connect(self._row_changed)
         self.task_table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.task_table.customContextMenuRequested.connect(self._task_menu)
@@ -1588,13 +1607,22 @@ class WorkScreen(Screen):
         self.task_board = TaskBoard()
         self.task_board.card_picked.connect(self._board_pick)
         self.task_views.addWidget(self.task_board)
+        fade_stack(self.task_views)
         self.search = QLineEdit()
         self.search.setPlaceholderText(tr("Найти задачу по названию, ID или причине"))
         self.search.setAccessibleName(tr("Поиск задач"))
         self.search.setClearButtonEnabled(True)
         self.search.addAction(material_icon("search", "role:text_muted"), QLineEdit.LeadingPosition)
-        self.search.textChanged.connect(lambda _text: self._fill_tasks())
-        tasks_layout.addWidget(self.search)
+        self.search_timer = QTimer(self)
+        self.search_timer.setSingleShot(True)
+        self.search_timer.setInterval(150)  # re-filter after typing pauses, not on every keystroke
+        self.search_timer.timeout.connect(self._fill_tasks)
+        self.search.textChanged.connect(lambda _text: self.search_timer.start())
+        search_row = QHBoxLayout()
+        search_row.setContentsMargins(0, 0, 0, 0)
+        search_row.addWidget(self.search, 1)
+        search_row.addWidget(self.filter_switch)
+        tasks_layout.addLayout(search_row)
         tasks_layout.addWidget(self.task_views, 1)
         self.limits = QLabel()
         self.limits.setProperty("text_style", "meta")
@@ -1625,6 +1653,10 @@ class WorkScreen(Screen):
         self.detail.setVisible(visible)
         self.detail_toggle.setChecked(visible)
 
+    def _tab_changed(self, index):
+        self.pages.setCurrentIndex(index)
+        self._set_view(self.view_switch.value())
+
     def _set_filter(self, value):
         self.filter = value
         self._fill_tasks()
@@ -1644,7 +1676,10 @@ class WorkScreen(Screen):
         ):
             action = menu.addAction(material_icon(icon), tr(label))
             tools = getattr(self.host, "_mcp_tools", None)
-            action.setEnabled(tools is None or "seo_project_checklist_record" in tools)
+            action.setEnabled(
+                (tools is None or "seo_project_checklist_record" in tools)
+                and not op_busy(self.host, "task-record")
+            )
             action.triggered.connect(
                 lambda _checked=False, s=status, r=row: self._record_task(r, s)
             )
@@ -1671,6 +1706,7 @@ class WorkScreen(Screen):
         dialog = TaskAttemptDialog(self)
         if dialog.exec_() != QDialog.Accepted:
             return
+        self.host.statusBar().showMessage(tr("Записываем попытку…"))
         self.host.start_command(
             "task-record",
             "seo_project_checklist_record",
@@ -1689,6 +1725,7 @@ class WorkScreen(Screen):
 
     def _task_recorded(self, result):
         if not isinstance(result, dict) or result.get("ok") is False:
+            write_failed(self.host, result)
             return
         item_id = self.selected_id
         self.host.statusBar().showMessage(tr("Попытка записана в историю задачи."))
@@ -1705,6 +1742,7 @@ class WorkScreen(Screen):
             and type(getattr(self.host, "task_revision", None)) is int
             and bool(self.host.core_executable)
             and available
+            and not op_busy(self.host, "task-update")
         )
 
     def _set_view(self, value):
@@ -1733,6 +1771,7 @@ class WorkScreen(Screen):
         if dialog.exec_() != QDialog.Accepted or dialog.result_item is None:
             return
         item_id = dialog.result_item["id"]
+        self.add_task_button.setEnabled(False)
         self.host.start_command(
             "task-update",
             "seo_project_checklist_update",
@@ -1746,6 +1785,7 @@ class WorkScreen(Screen):
 
     def _custom_task_created(self, result, item_id):
         if not isinstance(result, dict) or result.get("ok") is False:
+            write_failed(self.host, result)
             return
         self.host.statusBar().showMessage(tr("Задача добавлена в проект."))
         self.host.refresh_project()
@@ -1819,6 +1859,15 @@ class WorkScreen(Screen):
             if isinstance(result, dict) and (result.get("item") or {}).get("id") == row.get("id")
             else None
         )
+        if (
+            fresh is None
+            and not host.screen_errors.get("task-detail")
+            and op_busy(host, "task-detail")
+        ):
+            self.detail.show_state(
+                StatePanel("loading", "Загрузка задачи…", "Читаем задачу из ядра")
+            )
+            return
         if fresh is None and host.screen_errors.get("task-detail"):
             self.detail.show_state(
                 StatePanel(
@@ -1850,7 +1899,7 @@ class WorkScreen(Screen):
             not self._detail_user
         ):  # narrow windows start without the side panel; the toggle brings it back
             self._toggle_detail(self.width() >= 1000, user=False)
-        self.task_table.setColumnHidden(4, self.task_table.viewport().width() < 700)
+        self.task_table.setColumnHidden(4, self.task_table.viewport().width() < 620)
         self.task_table.setColumnHidden(3, self.task_table.viewport().width() < 560)
 
     def refresh(self):
@@ -1900,6 +1949,7 @@ class WorkScreen(Screen):
             )
         )
         self.tabs.setTabToolTip(2, tr("Недоступно в этой версии ядра"))
+        self.tabs.setTabEnabled(2, False)
         self._sync_task_actions()
 
     def _fill_header(self):
