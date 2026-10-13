@@ -19,6 +19,8 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ..i18n import tr
+from ..ui import motion
 from .url_query import CoreJob
 
 MAX_CSV_BYTES = 5 * 1024 * 1024
@@ -53,29 +55,33 @@ class SnippetEditor(QWidget):
         root = QVBoxLayout(self)
         root.setContentsMargins(16, 12, 16, 12)
         root.setSpacing(10)
-        title = QLabel("Snippet review")
+        title = QLabel(tr("Snippet review"))
         title.setProperty("text_style", "title")
         root.addWidget(title)
         note = QLabel(
-            "Paste or import CSV with a URL column and a title and/or description column. This works without a crawl and never fetches a page."
+            tr(
+                "Paste or import CSV with a URL column and a title and/or description column. This works without a crawl and never fetches a page."
+            )
         )
         note.setProperty("text_style", "meta")
         note.setWordWrap(True)
         root.addWidget(note)
         buttons = QHBoxLayout()
-        self.open_button = QPushButton("Open CSV…")
+        self.open_button = QPushButton(tr("Open CSV…"))
         self.open_button.clicked.connect(self.open_csv)
         buttons.addWidget(self.open_button)
-        self.export_button = QPushButton("Export review tasks…")
+        self.export_button = QPushButton(tr("Export review tasks…"))
         self.export_button.setProperty("role", "primary")
         self.export_button.clicked.connect(self.export_tasks)
         buttons.addWidget(self.export_button)
         buttons.addStretch(1)
         root.addLayout(buttons)
-        self.use_scan = QCheckBox("Include context from the selected retained scan")
+        self.use_scan = QCheckBox(tr("Include context from the selected retained scan"))
         root.addWidget(self.use_scan)
         self.query = QLineEdit()
-        self.query.setPlaceholderText("Optional literal search query for a retained text excerpt")
+        self.query.setPlaceholderText(
+            tr("Optional literal search query for a retained text excerpt")
+        )
         root.addWidget(self.query)
         self.csv = QPlainTextEdit()
         self.csv.setPlaceholderText(
@@ -84,11 +90,13 @@ class SnippetEditor(QWidget):
         self.csv.setLineWrapMode(QPlainTextEdit.NoWrap)
         root.addWidget(self.csv, 2)
         self.status = QLabel(
-            "Input stays local. Empty edit fields mean unchanged; rejected rows are reported with their source line."
+            tr(
+                "Input stays local. Empty edit fields mean unchanged; rejected rows are reported with their source line."
+            )
         )
         self.status.setProperty("text_style", "meta")
         self.status.setWordWrap(True)
-        root.addWidget(self.status)
+        root.addWidget(motion.status_row(self.status, self.job))
 
     def open_csv(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -121,6 +129,14 @@ class SnippetEditor(QWidget):
         if not data.strip() or len(data) > MAX_CSV_BYTES:
             self.status.setText("Enter CSV text up to 5 MiB before exporting.")
             return
+        # Context checks run before the save dialog, so a wrong combination never asks for a file first.
+        scan = self.host.selected_scan_path if self.use_scan.isChecked() else ""
+        if self.use_scan.isChecked() and not scan:
+            self.status.setText("Select a retained scan in the project header first")
+            return
+        if self.query.text().strip() and not scan:
+            self.status.setText("Choose retained scan context before adding a search query")
+            return
         out_path, _ = QFileDialog.getSaveFileName(
             self, "Save snippet review tasks", "snippet-tasks.json", "JSON files (*.json)"
         )
@@ -140,9 +156,6 @@ class SnippetEditor(QWidget):
         temporary.close()
         self._temporary = temporary
         try:
-            scan = self.host.selected_scan_path if self.use_scan.isChecked() else ""
-            if self.use_scan.isChecked() and not scan:
-                raise ValueError("Select a retained scan in the project header first")
             arguments = snippet_arguments(
                 csv_path, out_path, scan=scan or "", query=self.query.text()
             )
@@ -154,7 +167,7 @@ class SnippetEditor(QWidget):
         self._pending = token
         self._out_name = Path(out_path).name
         self.export_button.setEnabled(False)
-        self.status.setText("Building local snippet review tasks…")
+        self.status.setText(tr("Building local snippet review tasks…"))
         self.job.start(arguments, token, text_result=True)
 
     def _done(self, token, payload):

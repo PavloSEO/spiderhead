@@ -22,6 +22,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QPlainTextEdit,
     QPushButton,
+    QScrollArea,
     QTableView,
     QVBoxLayout,
     QWidget,
@@ -29,6 +30,7 @@ from PyQt5.QtWidgets import (
 
 from .. import i18n, theming
 from ..i18n import tr, trf
+from ..ui import motion
 from ..ui.controls import Segmented
 from ..ui.kit import PageHeader, style_table
 from .base import Screen
@@ -145,6 +147,10 @@ class ToolRedirectsScreen(Screen):
         self.debounce.timeout.connect(self._start_export)
         self.root = QVBoxLayout(self)
         self.root.setContentsMargins(0, 0, 0, 0)
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setFrameShape(QFrame.NoFrame)
+        self.root.addWidget(self.scroll)
         self.content = None
         i18n.signals.changed.connect(self._language_changed)
         self._build()
@@ -160,10 +166,9 @@ class ToolRedirectsScreen(Screen):
 
     # ---- layout -------------------------------------------------------------------------------------------------
     def _build(self):
-        if self.content is not None:
-            self.content.deleteLater()
+        # setWidget deletes the previous page, so a language switch rebuilds it inside the same scroll area.
         self.content = QWidget()
-        self.root.addWidget(self.content)
+        self.scroll.setWidget(self.content)
         page = QVBoxLayout(self.content)
         page.setContentsMargins(20, 14, 20, 12)
         page.setSpacing(10)
@@ -207,6 +212,7 @@ class ToolRedirectsScreen(Screen):
         )
         self.empty.setProperty("text_style", "meta")
         self.empty.setAlignment(Qt.AlignCenter)
+        self.empty.setWordWrap(True)
         left.addWidget(self.empty)
         hint = QLabel(
             tr("Цель не подбирается автоматически: укажите её справа или в строке «старый, новый».")
@@ -226,7 +232,8 @@ class ToolRedirectsScreen(Screen):
 
         status = QLabel(tr("redirects-generate · локально, без сетевых запросов"))
         status.setProperty("text_style", "meta")
-        page.addWidget(status)
+        status.setWordWrap(True)
+        page.addWidget(motion.status_row(status, self.job))
         self.status = status
         self.code.setPlainText(self.code_text)
         self._show_selected()
@@ -260,6 +267,7 @@ class ToolRedirectsScreen(Screen):
         for key, label, role in CHECKS:
             row = QHBoxLayout()
             name = QLabel(tr(label))
+            name.setWordWrap(True)
             name.setStyleSheet(f"color: {theming.roles()[role]};")
             count = QLabel("0")
             count.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
