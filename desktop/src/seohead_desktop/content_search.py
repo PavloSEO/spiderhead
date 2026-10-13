@@ -15,6 +15,8 @@ from pathlib import Path
 
 from PyQt5.QtCore import QObject, QProcess, QTimer, pyqtSignal
 
+from .ui import motion
+
 FORMAT = "seohead.retained-content-search.v1"
 TOOLS = frozenset({"seo_scan_content_search", "seo_scan_content_search_page"})
 MAX_OUTPUT = 8 * 1024 * 1024
@@ -274,6 +276,7 @@ class ContentSearchController(QObject):
             process=process, stdout=bytearray(), stderr=bytearray(), stopping=False, failure=None
         )
         self._job = job
+        motion.activity.begin()
         process.readyReadStandardOutput.connect(lambda: self._read(job))
         process.readyReadStandardError.connect(lambda: self._read(job))
         process.started.connect(lambda: self._started(job))
@@ -356,6 +359,7 @@ class ContentSearchController(QObject):
             return
         self._read(job)
         self._job = None
+        motion.activity.end()
         job["process"].deleteLater()
         if self._current(job):
             try:
