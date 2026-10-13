@@ -134,8 +134,8 @@ class StartScreenTests(unittest.TestCase):
             if "not at its old path" in note.text() or "no project.json" in note.text()
         ]
         self.assertEqual(len(banners), 2)
-        self.assertIn("«Потерянный»", banners[0].text())
-        self.assertIn("«Без файла»", banners[1].text())
+        self.assertIn("“Потерянный”", banners[0].text())
+        self.assertIn("“Без файла”", banners[1].text())
 
     def test_the_check_runs_in_a_worker_and_rows_wait_unmarked_until_it_answers(self):
         seen = []

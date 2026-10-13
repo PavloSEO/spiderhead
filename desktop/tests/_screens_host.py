@@ -28,6 +28,7 @@ class FakeHost(QObject):
         self.scan_model = type("Model", (), {"rows": []})()
         self.observed_runs, self.observed_at = [], None
         self.owned = []
+        self.active_commands, self.pending_commands = {}, {}
         self.selected_scan_path = None
         self.scan_manager = None
         self.navigation = Navigation()
