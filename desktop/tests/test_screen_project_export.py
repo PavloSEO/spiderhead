@@ -1,12 +1,15 @@
 import os
+import tempfile
 import unittest
+from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from seohead_desktop import i18n
 from seohead_desktop.app import MainWindow, load_theme
 from seohead_desktop.qt import app as qt_app
-from seohead_desktop.screens.project_export import UNAVAILABLE, ProjExportScreen
+from seohead_desktop.screens.project_export import ProjExportScreen
+from seohead_desktop.screens.url_query import CoreJob
 from tests._qt import sweep_widgets
 from tests._screens_core import fixture
 from tests._screens_host import FakeHost
@@ -53,9 +56,9 @@ class ProjExportTests(unittest.TestCase):
         self.assertTrue(screen.dataset_buttons["url"].isEnabled())
         self.assertTrue(screen.dataset_buttons["url"].isChecked())
         self.assertTrue(screen.dataset_buttons["issues"].isEnabled())
-        for key in ("compare", "tasks"):
-            self.assertFalse(screen.dataset_buttons[key].isEnabled())
-            self.assertEqual(screen.dataset_buttons[key].toolTip(), i18n.tr(UNAVAILABLE))
+        self.assertEqual(
+            set(screen.dataset_buttons), {"url", "issues"}
+        )  # no compare/tasks export in the core
 
     def test_scan_meta_and_file_name_come_from_the_selected_scan(self):
         screen = self.screen()
@@ -65,10 +68,24 @@ class ProjExportTests(unittest.TestCase):
         self.assertIn(".json", screen.file_name.text())
         self.assertTrue(screen.folder.text().endswith("/exports"))
 
-    def test_run_stays_disabled_until_the_export_is_wired(self):
+    def test_run_asks_the_core_to_export_the_chosen_dataset(self):
         screen = self.screen()
-        self.assertFalse(screen.run.isEnabled())
         self.assertNotIn("pdf", screen.format_buttons)  # PDF report is not in scan_export.v1
+        with tempfile.TemporaryDirectory() as folder:
+            screen.folder_choice = folder
+            screen.refresh()
+            screen.pick_format("csv")
+            screen.pick_dataset("issues")
+            with patch.object(CoreJob, "start") as start:
+                screen.export()
+            arguments = start.call_args[0][0]
+            self.assertEqual(arguments[0], "scan-export")
+            self.assertEqual(arguments[arguments.index("--records") + 1], "findings")
+            self.assertEqual(arguments[arguments.index("--format") + 1], "csv")
+            self.assertTrue(arguments[arguments.index("--out") + 1].startswith(folder))
+            screen._exported(None, {"ok": True, "files": ["a.csv"]})
+            self.assertTrue(screen.run.isEnabled())
+            self.assertIn("1", screen.result.text())
 
     def test_window_hosts_the_export_screen_in_the_reports_slot(self):
         window = MainWindow(persistent=False)

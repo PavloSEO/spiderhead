@@ -57,6 +57,7 @@ from .url_card import UrlCard
 from .url_detail import RunSummary, UrlSideDetail
 from .url_query import (
     PAGE,
+    QUERY_COLUMNS,
     CoreJob,
     count_arguments,
     detail_arguments,
@@ -79,7 +80,7 @@ COLUMNS = (
     ("indexable", "Индексация", False, "indexable", None),
     ("title", "Title", False, "title", None),
     ("crawl_depth", "Глубина обхода", True, "crawl_depth", None),
-    ("inlinks", "Входящих", True, None, 971),
+    ("inlinks", "Входящих", True, "inlinks", None),
     ("word_count", "Слов", True, "word_count", None),
     ("response_time", "Ответ, мс", True, "response_time", None),
     ("issues", "Проблем", True, None, 980),
@@ -90,7 +91,10 @@ DROP_ORDER = (9, 6, 8, 2, 7, 5, 4)  # columns that give way first when the table
 COMPACT_COLUMNS = (0, 1, 3)  # canvas Compact (800x800): address, HTTP, indexability only
 COMPACT_WINDOW = 900  # the same breakpoint at which the navigation becomes a rail
 URL_MIN = 340
-SIDE_COLUMNS = (0, 1, 7, 6, 9)  # MainB: address, HTTP, words, inlinks, issues
+SIDE_COLUMNS = (0, 1, 7, 6)  # MainB: address, HTTP, words, inlinks
+UNMEASURED = frozenset(
+    {9}
+)  # «Проблем»: the core has no per-URL issue count, so the column is not offered
 # group id, label, core filters (None: the core cannot filter it), hint issue, tooltip
 GROUPS = (
     ("all", "Все URL", [], None, "Все страницы скана"),
@@ -275,7 +279,9 @@ class UrlPageModel(QAbstractTableModel):
             return number(ms) if ms is not None else None
         if key in ("crawl_depth", "word_count"):
             return number(value) if type(value) is int else None
-        if key in ("inlinks", "issues"):
+        if key == "inlinks":
+            return number(value) if type(value) is int else None
+        if key == "issues":
             return "—"
         return value if isinstance(value, str) and value else None
 
@@ -418,6 +424,7 @@ class UrlScreen(Screen):
         self.count_queue = []
         self.user_hidden = set()
         self.focus_mode = False
+        self.no_inlinks = False  # set when the core says the scan has no link observations
         self.job = CoreJob(host, self)
         self.job.done.connect(self._page_done)
         self.job.failed.connect(self._page_failed)
@@ -871,7 +878,7 @@ class UrlScreen(Screen):
         wanted = [
             c
             for c in range(len(COLUMNS))
-            if c not in self.user_hidden and (not side or c in SIDE_COLUMNS)
+            if c not in self.user_hidden and c not in UNMEASURED and (not side or c in SIDE_COLUMNS)
         ]
         if self.window().width() < COMPACT_WINDOW:
             wanted = [c for c in wanted if c in COMPACT_COLUMNS]
@@ -914,6 +921,8 @@ class UrlScreen(Screen):
     def _show_columns(self):
         menu = QMenu(self.columns_button)
         for column, (_key, title, _r, _s, issue) in enumerate(COLUMNS):
+            if column in UNMEASURED:
+                continue
             action = menu.addAction(tr(title) + (f"  ·  {tr(UNAVAILABLE)}" if issue else ""))
             action.setCheckable(True)
             action.setChecked(column not in self.user_hidden)
@@ -968,6 +977,7 @@ class UrlScreen(Screen):
         self.bottom.summary.set_scan(scan)
         if scan.get("path") != self.scan_path:
             self.scan_path = scan.get("path")
+            self.no_inlinks = False
             self.total = self.filtered = None
             self.counts = {}
             self.history = []
@@ -1025,6 +1035,7 @@ class UrlScreen(Screen):
                 sort=self.sort[0] if self.sort else None,
                 direction=self.sort[1] if self.sort else "asc",
                 offset=self.offset,
+                columns=QUERY_COLUMNS if self.no_inlinks else (*QUERY_COLUMNS, "inlinks"),
             )
         except ValueError as exc:
             return self._show_error(str(exc))
@@ -1036,6 +1047,16 @@ class UrlScreen(Screen):
             return
         if payload.get("ok") is not True:
             code = payload.get("reason_code")
+            if code == "inlinks_unavailable" and not self.no_inlinks:
+                self.no_inlinks = (
+                    True  # this scan kept no link observations: show the page without the counter
+                )
+                if self.sort and self.sort[0] == "inlinks":
+                    self.sort = None
+                return self._reload(
+                    keep_page=True,
+                    note=tr("В этом скане нет данных о ссылках: счётчик входящих недоступен"),
+                )
             if code == "sort_not_indexed" and self.total is not None:
                 self.sort = None
                 self.table.horizontalHeader().setSortIndicator(-1, Qt.AscendingOrder)

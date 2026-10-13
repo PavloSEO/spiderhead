@@ -604,6 +604,7 @@ class NewScanDialog(QDialog):
         # why
         why = QLineEdit()
         why.setEnabled(False)
+        why.setToolTip(tr("В записи запуска ядра нет поля цели или задачи"))
         why.setAccessibleName(tr("Зачем этот скан"))
         why.setPlaceholderText(tr("Связь запуска с задачей проекта"))
         self.why_row = FormRow(

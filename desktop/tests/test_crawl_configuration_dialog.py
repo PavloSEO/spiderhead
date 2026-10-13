@@ -195,12 +195,12 @@ class ConfigurationDialogTests(unittest.TestCase):
             },
         )
 
-    def test_readonly_field_is_selectable_with_reason_but_cannot_be_staged(self):
+    def test_fields_without_an_editor_are_listed_once_read_only(self):
         dialog = self.dialog()
+        self.assertEqual(dialog.path.findData("http.proxy"), -1)
+        self.assertIn("http.proxy", dialog.readonly_list.toPlainText())
+        self.assertTrue(dialog.readonly_list.isReadOnly())
         dialog.select_path("http.proxy")
-        self.assertFalse(dialog.editor_stack.isEnabled())
-        self.assertFalse(dialog.stage_button.isEnabled())
-        self.assertIn("Недоступно", dialog.availability.text())
         self.assertFalse(dialog.stage_current())
         self.assertEqual(dialog.get_overrides(), {})
 

@@ -299,8 +299,8 @@ class ShellV2Tests(unittest.TestCase):
         page.gate.refresh()
         panel = page.gate.content.findChild(StatePanel)
         self.assertEqual(page.gate.currentWidget(), page.gate.content)
-        self.assertEqual(panel.kind, "waiting")
-        self.assertIsNotNone(panel.issue_label)
+        self.assertEqual(panel.kind, "empty")  # a project without a selected scan
+        self.assertIsNone(panel.issue_label)
         self.assertNotRegex(panel.text.text() + panel.title.text(), r"#\d")
         self.window.project_directory = ""
 
