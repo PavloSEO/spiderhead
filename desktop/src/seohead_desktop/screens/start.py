@@ -47,7 +47,7 @@ from .. import i18n, theming
 from ..project_create import ProjectCreator, normalize_target, suggest_directory, validate
 from ..ui.controls import Note, Switch, polish
 from ..ui.icons import material_icon
-from ..ui.kit import UNAVAILABLE, StatePanel
+from ..ui.kit import StatePanel
 from .base import Screen
 
 tr, trf = i18n.tr, i18n.trf
@@ -181,16 +181,15 @@ class ProjectDelegate(QStyledItemDelegate):
         "missing": ("mut", "folder_off", "Папка не найдена"),
         "not_project": ("warn", "warning", "Нет project.json"),
         "open": ("info", "check_circle", "Открыт сейчас"),
-        # the core has no per-project status yet (issue #1224): neutral pill, no invented state
-        "waiting": ("mut", "", UNAVAILABLE),
     }
 
     @classmethod
     def badge_key(cls, row):
-        """Which badge a row shows: the open project, the core gap for a healthy folder, or the probe result."""
+        """Which badge a row shows: the open project or the probe result. A healthy folder gets no pill: the core has
+        no per-project status yet (issue #1224), and an invented «unavailable» pill on every row is noise."""
         if row.get("current"):
             return "open"
-        return "waiting" if row["status"] == "ok" else row["status"]
+        return None if row["status"] == "ok" else row["status"]
 
     def sizeHint(self, option, index):
         return QSize(option.rect.width(), ROW_HEIGHT)
@@ -691,7 +690,8 @@ class StartScreen(Screen):
             self.banners.addWidget(more)
 
     def _banner(self, row):
-        name, path = html.escape(row["label"]), html.escape(tilde(row["path"]))
+        name = html.escape(row["label"])
+        path = html.escape(tilde(row["path"])).replace("/", "/\u200b")  # wrap long paths at 640 px
         if row["status"] == "missing":
             title, text = (
                 trf("Проект «{name}» не найден по прежнему пути.", name=name),
@@ -726,6 +726,10 @@ class StartScreen(Screen):
                     "Папка проекта «{name}» недоступна: {path}", name=row["label"], path=row["path"]
                 )
             )
+            for index in range(self.banners.count()):  # and point at the banner that explains it
+                banner = self.banners.itemAt(index).widget()
+                if banner is not None and banner.property("project_banner") == row["path"]:
+                    banner.findChild(QPushButton).setFocus()
             return
         self.host.read_project(row["path"])
 

@@ -364,8 +364,8 @@ class StartScreenTests(unittest.TestCase):
 
     def test_helpers(self):
         self.assertEqual(initials("Мебельный магазин"), "ММ")
-        # a healthy folder has no core status yet: neutral waiting pill; the open project wins; probe failures stay as they are
-        self.assertEqual(ProjectDelegate.badge_key({"status": "ok"}), "waiting")
+        # a healthy folder shows no pill; the open project wins; probe failures stay as they are
+        self.assertIsNone(ProjectDelegate.badge_key({"status": "ok"}))
         self.assertEqual(ProjectDelegate.badge_key({"status": "ok", "current": True}), "open")
         self.assertEqual(ProjectDelegate.badge_key({"status": "missing"}), "missing")
         self.assertEqual(ProjectDelegate.badge_key({"status": "checking"}), "checking")
