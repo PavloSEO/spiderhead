@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
     QMenu,
     QPushButton,
     QScrollArea,
+    QSizePolicy,
     QStackedWidget,
     QTableView,
     QToolButton,
@@ -34,14 +35,11 @@ from ..i18n import tr, trf
 from ..ui import menus
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import (
-    BADGE_ROLE,
-    BadgeDelegate,
     StatePanel,
     no_project_panel,
     set_panel_state,
     style_table,
     unavailable_tip,
-    waiting_badge,
 )
 from .base import Screen
 from .scan_common import number, parse_time, selected_scan
@@ -236,6 +234,104 @@ CHECK_NAMES = {
     "MISSING_PRIVACY_POLICY": "Нет политики конфиденциальности",
     "MISSING_TERMS_PAGE": "Нет пользовательского соглашения",
     "YMYL_REVIEW_CANDIDATE": "Страница YMYL, нужна проверка экспертом",
+    "URL_INTERNAL_SEARCH": "Адрес — внутренний маршрут поиска",
+    "INTERNAL_LINK_NO_ANCHOR": "Внутренняя ссылка без текста",
+    "EXTERNAL_NO_RESPONSE": "Внешний адрес, который проверяли явно, не ответил",
+    "SITEMAP_URL_NON_CANONICAL": "Адрес в sitemap указывает на другой канонический адрес",
+    "SITEMAP_URL_BLOCKED_ROBOTS": "Адрес из sitemap закрыт robots.txt",
+    "INTERNALLY_LINKED_ROBOTS_BLOCKED": "На адрес есть внутренние ссылки, но robots.txt его закрывает",
+    "SEMANTIC_SIMILARITY_CANDIDATE": "Страницы похожи по тематике, нужна проверка",
+    "TITLE_LOW_SEMANTIC_RELEVANCE": "Title слабо связан с текстом страницы, нужна проверка",
+    "H1_LOW_SEMANTIC_RELEVANCE": "H1 слабо связан с текстом страницы, нужна проверка",
+    "URL_HAS_PARAMETERS": "Внутренний адрес содержит параметры",
+    "HTML_OVER_2MB": "HTML-документ больше 2 МБ",
+    "NOODP": "Устаревшая директива noodp",
+    "NOYDIR": "Устаревшая директива noydir",
+    "CANONICAL_INVALID_ATTRIBUTE": "Canonical с неподдерживаемыми атрибутами или битыми rel/href",
+    "CANONICAL_CROSS_ORIGIN": "Canonical меняет хост или протокол страницы",
+    "HREFLANG_UNLINKED_TARGET": "Альтернатива hreflang нигде в обходе не связана ссылкой",
+    "AMP_NON_200": "AMP-страница из rel=amphtml отвечает не 200",
+    "AMP_MISSING_CANONICAL": "AMP-страница без rel=canonical",
+    "AMP_MISSING_RETURN_LINK": "rel=canonical AMP-страницы не ведёт обратно",
+    "AMP_NON_INDEXABLE_CANONICAL": "Канонический адрес AMP-страницы не индексируется",
+    "AMP_INDEXABLE": "AMP-страница индексируется",
+    "MOBILE_ALTERNATE_LINK": "link rel=alternate media без адреса",
+    "MOBILE_CONTENT_OVERFLOW": "Контент выходит за ширину мобильного экрана",
+    "MOBILE_TEXT_TOO_SMALL": "Текст мельче 12 CSS-пикселей",
+    "MOBILE_TARGET_TOO_SMALL": "Элемент нажатия меньше 48 CSS-пикселей",
+    "NOINDEX_ONLY_IN_RAW_HTML": "Noindex только в исходном HTML, не в отрендеренном DOM",
+    "NOFOLLOW_ONLY_IN_RAW_HTML": "Nofollow только в исходном HTML, не в отрендеренном DOM",
+    "CANONICAL_MISMATCH": "Canonical меняется после JavaScript",
+    "CANONICAL_ONLY_IN_RENDERED_HTML": "Canonical появляется только после JavaScript",
+    "PAGE_TITLE_ONLY_IN_RENDERED_HTML": "Title появляется только после JavaScript",
+    "PAGE_TITLE_UPDATED_BY_JAVASCRIPT": "Title меняется JavaScript",
+    "META_DESCRIPTION_ONLY_IN_RENDERED_HTML": "Meta description появляется только после JavaScript",
+    "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT": "Meta description меняется JavaScript",
+    "H1_ONLY_IN_RENDERED_HTML": "H1 появляется только после JavaScript",
+    "H1_UPDATED_BY_JAVASCRIPT": "H1 меняется JavaScript",
+    "RENDER_RESOURCE_BLOCKED": "Ресурс отрисовки отклонён или вернул ошибку HTTP",
+    "RENDER_BLOCKING": "Скрипт или стиль в head блокирует первую отрисовку",
+    "IMG_BROKEN": "Картинка отвечает ошибкой HTTP",
+    "MISSING_CSP": "Нет заголовка Content-Security-Policy",
+    "MISSING_X_CONTENT_TYPE_OPTIONS": "Нет заголовка X-Content-Type-Options",
+    "MISSING_X_FRAME_OPTIONS": "Нет X-Frame-Options и frame-ancestors в CSP",
+    "MISSING_REFERRER_POLICY": "Нет заголовка Referrer-Policy",
+    "DUPLICATE_SECURITY_HEADER": "Заголовок безопасности отправлен дважды",
+    "JS_CONSOLE_ERRORS": "Ошибки в консоли браузера при отрисовке страницы",
+    "INTERNAL_NOFOLLOW_OUTLINKS": "Внутренние исходящие ссылки с nofollow",
+    "INTERNAL_LINK_SPONSORED_UGC": "Внутренняя ссылка с rel=sponsored или rel=ugc",
+    "MIXED_LINK_REL": "Ссылка совмещает nofollow, sponsored и ugc",
+    "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE": "Платная внешняя ссылка без пояснения",
+    "BODY_MIME_MISMATCH": "Тело ответа не совпадает с Content-Type",
+    "ASSET_SHORT_CACHE": "Ресурс без долгого публичного кэша",
+    "FONT_DISPLAY_MISSING": "В @font-face не задан допустимый font-display",
+    "HEAVY_PAGE_WEIGHT": "Страница больше заданного бюджета по объёму",
+    "RESOURCE_OVER_2MB": "Ресурс больше заданного бюджета по размеру",
+    "UNUSED_CSS_JS": "Значительная часть CSS или JavaScript не используется",
+    "UNMINIFIED_CSS_JS": "CSS или JavaScript не минифицированы (эвристика)",
+    "DUPLICATED_JS": "Разные скрипты страницы с одинаковым кодом",
+    "LEGACY_JS": "Устаревший полифилл в JavaScript (эвристика)",
+    "IMG_INTRINSIC_OVERSIZED": "Картинка шире, чем её показ на экране",
+    "IMG_UPSCALED": "Картинка растянута: ширины не хватает для показа",
+    "LCP_DISCOVERY": "Lighthouse: LCP-ресурс найден поздно",
+    "NETWORK_DEPENDENCY_TREE": "Lighthouse: цепочку запросов можно сократить",
+    "LAYOUT_SHIFT_CULPRITS": "Lighthouse: найдены виновники сдвигов макета",
+    "IMAGE_DELIVERY": "Lighthouse: можно оптимизировать изображения",
+    "FORCED_REFLOW": "Lighthouse: принудительная перерисовка макета",
+    "JS_EXECUTION_TIME": "Lighthouse: долгое выполнение скриптов",
+    "AMP_MISSING_HTML_ATTRIBUTE": "У html в AMP нет атрибута amp или ⚡",
+    "AMP_INVALID_DOCTYPE": "У AMP нет или неверный HTML5 doctype",
+    "AMP_MISSING_HEAD": "В AMP-документе нет явного head",
+    "AMP_MISSING_BODY": "В AMP-документе нет явного body",
+    "AMP_INVALID_CHARSET": "Head AMP не начинается с объявления UTF-8",
+    "AMP_INVALID_VIEWPORT": "В AMP нет viewport device-width",
+    "AMP_INVALID_RUNTIME": "В AMP нет асинхронного runtime-скрипта в head",
+    "AMP_INVALID_BOILERPLATE": "В AMP нет обязательного boilerplate",
+    "A11Y_HTML_LANG_MISSING": "Корневой html без непустого lang",
+    "A11Y_FORM_LABEL_MISSING": "У поля формы нет подписи",
+    "A11Y_IMAGE_ALT_MISSING": "У картинки нет alt и доступного имени",
+    "A11Y_HEADING_ORDER": "Заголовки пропускают уровень",
+    "A11Y_MAIN_LANDMARK_MISSING": "Нет ориентира main",
+    "STRUCTURED_DATA_SCHEMA_ERROR": "Ошибки в структурированных данных по Schema.org",
+    "STRUCTURED_DATA_SCHEMA_WARNING": "Предупреждения в структурированных данных по Schema.org",
+    "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING": "Нет обязательных свойств для расширенного результата",
+    "GSC_ORPHAN": "Search Console видит показы адреса, которого нет в обходе",
+    "NO_SEARCH_DATA": "Индексируемый адрес без показов в Search Console",
+    "NON_INDEXABLE_WITH_SEARCH_DATA": "Неиндексируемый адрес с показами в Search Console",
+    "GSC_INDEXED_WITH_ISSUES": "Search Console: проиндексирована страница с ошибками AMP или результатов",
+    "GSC_AMP_INVALID": "Search Console: некорректный AMP-результат",
+    "GSC_RICH_RESULTS_INVALID": "Search Console: некорректная разметка расширенного результата",
+    "GSC_INDEXABLE_NOT_INDEXED": "Индексируемый адрес не в индексе Search Console",
+    "GSC_USER_CANONICAL_NOT_SELECTED": "Google выбрал другой канонический адрес",
+    "GSC_URL_NOT_ON_GOOGLE": "Search Console: проверенного адреса нет в Google",
+    "GA_ORPHAN_URL": "GA4 видит посадочный адрес, которого нет в обходе",
+    "NO_GA_DATA": "Индексируемый адрес без сессий в GA4",
+    "NON_INDEXABLE_WITH_GA_DATA": "Неиндексируемый адрес с сессиями в GA4",
+    "BOUNCE_RATE_ABOVE_70": "Яндекс.Метрика: отказы выше 70%",
+    "METRIKA_ORPHAN_URL": "Метрика видит посадочный адрес, которого нет в обходе",
+    "NO_METRIKA_DATA": "Индексируемый адрес без визитов в Метрике",
+    "NON_INDEXABLE_WITH_METRIKA_DATA": "Неиндексируемый адрес с визитами в Метрике",
+    "METRIKA_BOUNCE_RATE_ABOVE_70": "Метрика: отказы выше 70% на адресе",
 }
 # Core finding message (English, may embed values) -> Russian; matched fully, case-insensitive. Groups are re-inserted as {1}, {2}.
 MESSAGES = (
@@ -255,7 +351,6 @@ MESSAGES = (
     ),
     (r"URL uses HTTP instead of HTTPS", "Адрес использует HTTP вместо HTTPS"),
 )
-NO_TRANSLATION = "описание на языке ядра — в блоке «Исходный ответ ядра»"
 # Core reason of a skipped check (English, free text) -> Russian. First matching pattern wins; unknown stays «причина не указана ядром».
 SKIP_REASONS = (
     (r"missing export|export \S+ not available|no \S+ export", "нет выгрузки в источнике"),
@@ -273,7 +368,7 @@ SKIP_REASONS = (
     (r"not captured", "ответ цели не сохранён в скане"),
 )
 GROUP_ROWS = 10  # checks listed in «Крупнейшие группы»
-COLUMNS = ("Адрес", "HTTP", "Доказательство", "Состояние")
+COLUMNS = ("Адрес", "Доказательство")
 
 
 def check_name(check, _message=None):
@@ -309,7 +404,7 @@ def message_ru(message):
         match = re.fullmatch(pattern, text, re.IGNORECASE)
         if match:
             return tr(ru).format(*match.groups()) if match.groups() else tr(ru)
-    return tr(NO_TRANSLATION) if text else tr("Нет данных")
+    return text or tr("Нет данных")
 
 
 def skip_reason(reason):
@@ -362,27 +457,12 @@ class FindingModel(QAbstractTableModel):
         if not index.isValid():
             return None
         item, column = self.rows[index.row()], index.column()
-        if column == 3 and role == BADGE_ROLE:
-            return "mut", tr("Найдена в скане")
         if role == Qt.DisplayRole:
-            return (
-                item.get("target_url") or tr("Нет данных"),
-                "—",
-                message_ru(item.get("message")),
-                tr("Найдена в скане"),
-            )[column]
+            return (item.get("target_url") or tr("Нет данных"), message_ru(item.get("message")))[
+                column
+            ]
         if role == Qt.ToolTipRole:
-            return (
-                item.get("target_url")
-                if column == 0
-                else tr("Нет данных")
-                if column == 1
-                else item.get("message")
-                if column == 2
-                else item.get("fingerprint")
-                if column == 3
-                else None
-            )
+            return (item.get("target_url"), message_ru(item.get("message")))[column]
         return None
 
 
@@ -418,6 +498,8 @@ class LaneStrip(QWidget):
             layout.addWidget(caption)
             self.chips.append((step_index, chip, caption, rule if step_index > 1 else None))
         layout.addStretch(1)
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.setMinimumWidth(0)
         self.refresh()
 
     def refresh(self):
@@ -452,6 +534,7 @@ class IssuesScreen(Screen):
         self.issue_summary = None
         self._issue_summary_key = None
         self._issue_summary_pending = None
+        self._issue_summary_failed_key = None
         self.issue_summary_job = CoreJob(host, self)
         self.issue_summary_job.done.connect(self._issue_summary_done)
         self.issue_summary_job.failed.connect(self._issue_summary_failed)
@@ -494,8 +577,10 @@ class IssuesScreen(Screen):
         if not self.isVisible():
             return
         key = self._scan_key(scan)
-        if key == self._issue_summary_key or (
-            self._issue_summary_pending is not None and self._issue_summary_pending[1] == key
+        if (
+            key == self._issue_summary_key
+            or key == self._issue_summary_failed_key
+            or (self._issue_summary_pending is not None and self._issue_summary_pending[1] == key)
         ):
             return
         token = object()
@@ -523,6 +608,7 @@ class IssuesScreen(Screen):
 
     def _issue_summary_failed(self, token, _reason):
         if self._issue_summary_pending is not None and token is self._issue_summary_pending[0]:
+            self._issue_summary_failed_key = self._issue_summary_pending[1]
             self._issue_summary_pending = None
             self._issue_summary_key = None
 
@@ -648,9 +734,6 @@ class IssuesScreen(Screen):
         head_layout.addWidget(self.lane_found)
         lane = QHBoxLayout()
         lane.setSpacing(8)
-        lane.addWidget(
-            waiting_badge(926, "Путь находки: задача, исправление и подтверждение перепроверкой")
-        )
         lane.addStretch(1)
         self.recheck = QPushButton(tr("Перепроверить"))
         self.recheck.setIcon(material_icon("replay"))
@@ -666,15 +749,11 @@ class IssuesScreen(Screen):
         self.model = FindingModel(self)
         self.table = style_table(QTableView())
         self.table.setModel(self.model)
-        self.table.setItemDelegateForColumn(3, BadgeDelegate(self.table))
         self.table.verticalHeader().setDefaultSectionSize(40)
         self.table.setFrameShape(QFrame.NoFrame)
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         self.table.horizontalHeader().setStretchLastSection(False)
-        for column, width in ((1, 90), (3, 150)):
-            self.table.horizontalHeader().setSectionResizeMode(column, QHeaderView.Fixed)
-            self.table.setColumnWidth(column, width)
         self.table.doubleClicked.connect(lambda index: self._open_row(index.row()))
         self.pages.addWidget(self.table)
         self.raw_toggle = QToolButton()
@@ -774,11 +853,6 @@ class IssuesScreen(Screen):
             if step_index > 1:
                 for widget in (chip, caption, rule):
                     widget.setVisible(not narrow)
-        for column in (
-            1,
-            3,
-        ):  # constant «—» and «Найдена в скане» only steal width from address and evidence when narrow
-            self.table.setColumnHidden(column, narrow)
 
     # ---- state -----------------------------------------------------------------------------------------------
     def refresh(self):
@@ -944,7 +1018,13 @@ class IssuesScreen(Screen):
         ranked = sorted(self.check_counts.items(), key=lambda pair: (-pair[1], pair[0]))
         ranked = [pair for pair in ranked if pair[1] > 0][:GROUP_ROWS]
         if not ranked:
-            note = QLabel(tr("Счётчики по проверкам ядро не вернуло"))
+            if self._issue_summary_pending is not None:
+                text = tr("Считаем счётчики по проверкам…")
+            elif self._issue_summary_failed_key is not None:
+                text = tr("Счётчики по проверкам не загрузились.")
+            else:
+                text = tr("Счётчики по проверкам ядро не вернуло")
+            note = QLabel(text)
             note.setProperty("text_style", "meta")
             self.groups_box.addWidget(note)
             return
@@ -1114,7 +1194,14 @@ class IssuesScreen(Screen):
             )
         )
         count = self.check_counts.get(self.selected)
-        if type(count) is int:
+        if not entry["items"]:
+            self.foot.setText(
+                trf(
+                    "Образцов URL для этой проверки нет в выборке; число по всему скану: {n}.",
+                    n=number(count) if type(count) is int else tr("нет данных"),
+                )
+            )
+        elif type(count) is int:
             self.foot.setText(
                 trf(
                     "{total} находок по всему скану; {sample} URL показаны из выборки.",
