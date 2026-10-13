@@ -377,10 +377,17 @@ class MainWindow(
         fill_menu(
             self.menuBar().addMenu("Скан"),
             [
-                entry("play_arrow", "Новый скан…", self.scan_preview, "⌘N"),
+                entry(
+                    "play_arrow", "Новый скан…", self.scan_preview, self.shortcut_label("new_scan")
+                ),
                 unavailable("format_list_bulleted", "Скан по списку URL…"),
                 None,
-                entry("stop_circle", "Запросить остановку", self.stop_selected_run, "⌘."),
+                entry(
+                    "stop_circle",
+                    "Запросить остановку",
+                    self.stop_selected_run,
+                    self.shortcut_label("stop_scan"),
+                ),
                 entry("resume", "Продолжить запуск", self.resume_selected_scan),
                 None,
                 entry(
@@ -395,7 +402,7 @@ class MainWindow(
             self.menuBar().addMenu("Агент"),
             [
                 entry("smart_toy", "Подключение агента…", self.show_agent_connection),
-                entry("inbox", "Входящие", lambda: self.navigation.select_section("inbox"), "⌘2"),
+                entry("inbox", "Входящие", lambda: self.navigation.select_section("inbox")),
                 unavailable("edit_note", "Новая заметка агенту", "⌘⇧N"),
                 None,
                 entry("terminal", "Журнал действий", lambda: self.navigation.select_section("log")),
