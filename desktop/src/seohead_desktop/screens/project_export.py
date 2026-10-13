@@ -239,7 +239,13 @@ class ProjExportScreen(Screen):
         self.preset_run.setProperty("role", "primary")
         self.preset_run.clicked.connect(self.export_preset)
         box.addWidget(self.preset_run)
-        box.addWidget(meta(tr("Presets run on the URL table; CSV or XLSX. Add your own in export_presets.json in the project folder.")))
+        box.addWidget(
+            meta(
+                tr(
+                    "Presets run on the URL table; CSV or XLSX. Add your own in export_presets.json in the project folder."
+                )
+            )
+        )
         return frame
 
     def _segment(self, key, label, hint):
@@ -309,7 +315,13 @@ class ProjExportScreen(Screen):
         for button in (self.open_button, self.reveal_button, refresh):
             row.addWidget(button)
         box.addLayout(row)
-        box.addWidget(meta(tr("Files in the project exports and reports folders, including those agents save there.")))
+        box.addWidget(
+            meta(
+                tr(
+                    "Files in the project exports and reports folders, including those agents save there."
+                )
+            )
+        )
         return frame
 
     def refresh_files(self):
@@ -426,7 +438,9 @@ class ProjExportScreen(Screen):
         self.preset_box.clear()
         for item in loaded:
             self.preset_box.addItem(tr(item["label"]), item)
-        self.preset_box.setCurrentIndex(next((i for i, p in enumerate(loaded) if p["id"] == previous), 0))
+        self.preset_box.setCurrentIndex(
+            next((i for i, p in enumerate(loaded) if p["id"] == previous), 0)
+        )
         self.preset_box.blockSignals(False)
         self.pick_preset()
 

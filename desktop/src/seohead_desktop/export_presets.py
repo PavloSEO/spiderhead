@@ -34,7 +34,15 @@ BUILTIN = (
     {
         "id": "content_inventory",
         "label": "Content inventory",
-        "columns": ["url", "status_code", "title", "meta_description", "h1", "word_count", "crawl_depth"],
+        "columns": [
+            "url",
+            "status_code",
+            "title",
+            "meta_description",
+            "h1",
+            "word_count",
+            "crawl_depth",
+        ],
     },
     {
         "id": "indexability",
@@ -47,7 +55,11 @@ BUILTIN = (
         "columns": ["url", "images_total", "images_missing_alt_attr"],
         "preset": "images_missing_alt",
     },
-    {"id": CHECK, "label": "Issues for one check (enter check ID)", "columns": ["url", "status_code", "title"]},
+    {
+        "id": CHECK,
+        "label": "Issues for one check (enter check ID)",
+        "columns": ["url", "status_code", "title"],
+    },
     {
         "id": CUSTOM,
         "label": "Custom columns (all pages)",
@@ -70,9 +82,18 @@ def _valid(item):
         return None
     columns = clean_columns(item.get("columns"))
     filters = item.get("filters", [])
-    if columns is None or not isinstance(filters, list) or not all(isinstance(f, dict) for f in filters):
+    if (
+        columns is None
+        or not isinstance(filters, list)
+        or not all(isinstance(f, dict) for f in filters)
+    ):
         return None
-    out = {"id": item["id"], "label": str(item.get("label") or item["id"]), "columns": columns, "filters": filters}
+    out = {
+        "id": item["id"],
+        "label": str(item.get("label") or item["id"]),
+        "columns": columns,
+        "filters": filters,
+    }
     if isinstance(item.get("preset"), str):
         out["preset"] = item["preset"]
     return out
