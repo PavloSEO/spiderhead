@@ -45,8 +45,7 @@ class ShellMixin:
     placeholder_pages = {}  # navigation row -> «Раздел готовится» page (replaced per window)
 
     def build_placeholder_pages(self):
-        """Methods opens the redirect generator; Link graph keeps its site-wide waiting state (GraphScreen)."""
-        from .screens.link_graph import LinkGraphScreen
+        """Methods opens the redirect generator; Link graph is GraphScreen."""
         from .ui.kit import StatePanel
         from .ui.workspace import VIEW_IDS
 
@@ -66,9 +65,6 @@ class ShellMixin:
         from .screens.crawler import CrawlerScreen
         from .screens.methods import MethodsWorkspace
 
-        # The link graph screen is kept for its own tests; the graph section is GraphScreen (below)
-        self.link_graph_screen = LinkGraphScreen(self)
-        self.link_graph_screen.hide()
         for view in ("crawler", "methods"):
             if view == "crawler":
                 page = CrawlerScreen(self)

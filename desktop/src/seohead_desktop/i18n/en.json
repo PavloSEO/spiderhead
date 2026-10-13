@@ -352,6 +352,8 @@
  "Нужен модификатор (⌘, ⌃, ⌥) или клавиша F1–F12": "A modifier (⌘, ⌃, ⌥) or an F1–F12 key is required",
  "Навигация": "Navigation",
  "Сканы": "Scans",
+ "Узлов нет": "No nodes",
+ "В сохранённом скане нет страниц для графа.": "The saved scan has no pages for the graph.",
  "Таблицы": "Tables",
  "Новая вкладка": "New tab",
  "Закрыть вкладку": "Close tab",
