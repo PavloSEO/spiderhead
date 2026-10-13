@@ -120,10 +120,14 @@ class GraphScreen(QWidget):
 
     def _reload(self):
         self.job.cancel()
-        self._clear_panel()
+        self._reset_view()
         if not self.scan_path:
-            self._show("empty", "Скан не выбран", "Выберите скан проекта, чтобы увидеть его граф.")
-            return self._reset_view()
+            return self._show(
+                "empty",
+                "Скан не выбран",
+                "Выберите скан проекта, чтобы увидеть его граф.",
+                action=("Сканы", lambda: self.host.navigation.select_section("scans")),
+            )
         self.token += 1
         self.job.start(graph_arguments(self.scan_path, self.offset), self.token)
         self._show("loading", "Читаю граф", "Ядро считает узлы, рёбра и сироты скана.")
@@ -140,12 +144,7 @@ class GraphScreen(QWidget):
         if token != self.token:
             return
         if payload.get("ok") is not True or payload.get("state") not in ("complete", "partial"):
-            self._reset_view()
-            return self._show(
-                "partial",
-                "Граф недоступен",
-                reason_text(payload) if not payload.get("ok") else payload.get("reason_code") or "",
-            )
+            return self._fail(reason_text(payload))
         self._clear_panel()
         nodes = payload.get("nodes") or []
         total = payload.get("filtered_total")
@@ -154,6 +153,9 @@ class GraphScreen(QWidget):
         self.kpis[1].set_value(number(payload.get("edge_total")))
         orphans = stats.get("orphans")
         self.kpis[2].set_value(number(orphans) if type(orphans) is int else None)
+        if not nodes:
+            return self._show("empty", "Узлов нет", "В сохранённом скане нет страниц для графа.")
+        self.table.setVisible(True)
         self.table.setRowCount(len(nodes))
         for row, node in enumerate(nodes):
             for column, (key, _title) in enumerate(COLUMNS):
@@ -176,16 +178,26 @@ class GraphScreen(QWidget):
 
     def _failed(self, token, reason):
         if token == self.token:
-            self._reset_view()
-            self._show("partial", "Граф недоступен", reason)
+            self._fail(reason)
+
+    def _fail(self, reason):
+        # the offset stays: «Повторить» re-reads the same page, «Назад» still works from a later page
+        self._reset_view()
+        self.prev.setEnabled(self.offset > 0)
+        self._show("partial", "Граф недоступен", reason, action=("Повторить", self._reload))
 
     def _go(self, step):
+        if self.job.busy:
+            return
         self.offset = max(0, self.offset + step * PAGE)
         self._reload()
 
-    def _show(self, kind, title, text=""):
+    def _show(self, kind, title, text="", action=None):
         self._clear_panel()
-        self.panel.addWidget(StatePanel(kind, title, text))
+        self.table.setVisible(False)
+        panel = StatePanel(kind, title, text, action=action)
+        panel.setMinimumHeight(panel.sizeHint().height())
+        self.panel.addWidget(panel)
 
     def _clear_panel(self):
         while self.panel.count():
