@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QStackedWidget,
     QTableView,
+    QToolButton,
     QVBoxLayout,
 )
 
@@ -159,6 +160,26 @@ class CrawlConfigurationDialog(QDialog):
             lambda index: self.select_path(self.override_model.rows[index.row()]["path"])
         )
         layout.addWidget(self.override_table, 1)
+        self.readonly_toggle = QToolButton()
+        self.readonly_toggle.setText("Параметры без редактора в приложении (только чтение)")
+        self.readonly_toggle.setCheckable(True)
+        self.readonly_toggle.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.readonly_toggle.setArrowType(Qt.RightArrow)
+        layout.addWidget(self.readonly_toggle, 0, Qt.AlignLeft)
+        self.readonly_list = QPlainTextEdit()
+        self.readonly_list.setObjectName("configurationReadonly")
+        self.readonly_list.setReadOnly(True)
+        self.readonly_list.setMaximumHeight(140)
+        self.readonly_list.setPlainText(
+            "\n".join(
+                f"{path} — {row['unavailable_reason']}"
+                for path, row in self.controls.items()
+                if not row["editable"]
+            )
+        )
+        self.readonly_list.setVisible(False)
+        self.readonly_toggle.toggled.connect(self._toggle_readonly)
+        layout.addWidget(self.readonly_list)
         actions = QHBoxLayout()
         self.remove_button = QPushButton("Убрать выбранное изменение")
         self.remove_button.clicked.connect(self.remove_selected)
@@ -208,6 +229,10 @@ class CrawlConfigurationDialog(QDialog):
         self.search.clear()
         self.path.setCurrentIndex(self.path.findData(path))
 
+    def _toggle_readonly(self, opened):
+        self.readonly_list.setVisible(opened)
+        self.readonly_toggle.setArrowType(Qt.DownArrow if opened else Qt.RightArrow)
+
     def _refresh_paths(self, *_args):
         selected = self.path.currentData()
         group, query = self.group.currentData(), self.search.text().casefold()
@@ -218,7 +243,8 @@ class CrawlConfigurationDialog(QDialog):
                 continue
             if query and query not in (path + " " + row["description"]).casefold():
                 continue
-            self.path.addItem(path + (" · недоступно" if not row["editable"] else ""), path)
+            if row["editable"]:  # parameters without an editor are listed once, read-only
+                self.path.addItem(path, path)
         index = self.path.findData(selected)
         self.path.setCurrentIndex(max(index, 0))
         self.path.blockSignals(False)

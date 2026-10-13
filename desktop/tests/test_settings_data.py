@@ -26,11 +26,14 @@ class DataSectionTests(unittest.TestCase):
         self.assertTrue(store.set("data.html_age", "7"))
         self.assertFalse(store.is_set("data.keep_scans"))
 
-    def test_segmented_writes_and_reset_restores(self):
+    def test_unapplied_setting_is_disabled_and_reset_restores(self):
         store, dialog, page = make("data")
         seg = row(page, "Хранить сканов на проект").control
-        seg._buttons["10"].click()
-        self.assertEqual(store.get("data.keep_scans"), "10")
+        self.assertFalse(
+            seg.isEnabled()
+        )  # stored but not applied yet: not offered as a working control
+        self.assertIn("пока ничего не меняет", seg.toolTip())
+        store.set("data.keep_scans", "10")
         dialog.reset_section()
         self.assertEqual(store.get("data.keep_scans"), "20")
         seg = row(dialog._pages["data"][1], "Хранить сканов на проект").control

@@ -154,6 +154,9 @@ class SettingRow(QFrame):
         """The value is stored but changes nothing yet; say so instead of implying it works."""
         self.later_badge.setToolTip(reason)
         self.later_badge.show()
+        if self.control is not None:  # a control that changes nothing must not look usable
+            self.control.setEnabled(False)
+            self.control.setToolTip(reason)
 
     def set_error(self, message):
         self._error.setText(tr(message) if message else "")

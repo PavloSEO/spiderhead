@@ -1,16 +1,18 @@
-"""«Экспорт и отчёты» (canvas ProjExport.dc.html): what the selected scan can be exported as.
+"""«Экспорт и отчёты»: export of the selected scan through the core ``scan-export`` command.
 
-The sheet's three columns are kept: dataset and format, columns, folder and run. The dataset list comes from the
-selected scan; the page reads nothing itself. The core's ``scan_export.v1`` covers pages (URL table) and findings in
-CSV, XLSX, JSON and XML. Not connected in this build, shown as the neutral waiting state instead of a sample: the
-PDF report, compare and task exports, the column catalogue, the run button and the list of earlier exports.
+The dataset list comes from the selected scan; pages (URL table) and findings go out as CSV, XLSX, JSON or XML into the
+chosen folder (default: the project's ``exports``). Compare and task exports, the PDF report, the column catalogue and
+the history of earlier exports do not exist in the core, so they are not offered.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QButtonGroup,
+    QFileDialog,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -30,6 +32,7 @@ from ..ui.kit import StatePanel, no_project_panel
 from ..ui.presentation import short_run_id
 from .base import Screen
 from .scan_common import number
+from .url_query import CoreJob, reason_text
 
 UNAVAILABLE = "Недоступно в этой версии ядра"
 SHORT_UNAVAILABLE = "Недоступно"
@@ -37,8 +40,6 @@ SHORT_UNAVAILABLE = "Недоступно"
 DATASETS = (
     ("url", "table_view", "Таблица URL", "pages"),
     ("issues", "rule", "Проблемы", "findings"),
-    ("compare", "compare_arrows", "Сравнение", None),
-    ("tasks", "checklist", "Задачи", None),
 )
 FORMATS = (
     ("csv", "CSV", "CSV: отдельный файл на каждый тип записи"),
@@ -46,7 +47,6 @@ FORMATS = (
     ("json", "JSON", "JSON: построчно, для скриптов и агентов"),
     ("xml", "XML", "XML: схема scan_export.v1"),
 )
-PDF_NOTE = "PDF-отчёт: недоступно в этой версии ядра"
 
 
 def dataset_count(record, scan):
@@ -103,6 +103,9 @@ class ProjExportScreen(Screen):
         super().__init__(host)
         self.dataset = "url"
         self.fmt = "xlsx"
+        self.job = CoreJob(host, self)
+        self.job.done.connect(self._exported)
+        self.job.failed.connect(self._export_failed)
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
@@ -139,7 +142,6 @@ class ProjExportScreen(Screen):
         row.setContentsMargins(20, 16, 20, 16)
         row.setSpacing(16)
         row.addWidget(self._left_column(), 0, Qt.AlignTop)
-        row.addWidget(self._columns_card(), 1, Qt.AlignTop)
         row.addWidget(self._right_column(), 0, Qt.AlignTop)
         row.addStretch(0)
         return page
@@ -180,7 +182,6 @@ class ProjExportScreen(Screen):
         layout.addWidget(segment)
         self.format_hint = meta()
         layout.addWidget(self.format_hint)
-        layout.addWidget(meta(tr(PDF_NOTE)))
         layout.addStretch(1)
         return frame
 
@@ -194,18 +195,6 @@ class ProjExportScreen(Screen):
         self.format_group.addButton(button)
         return button
 
-    def _columns_card(self):
-        frame, layout = card("Колонки", "view_column")
-        layout.addWidget(
-            StatePanel(
-                "waiting",
-                "Выбор колонок пока недоступен",
-                "Ядро выгружает записи целиком. Список полей по типам записи в приложении не подключён.",
-                hint=tr("Выбор полей записей ядра"),
-            )
-        )
-        return frame
-
     def _right_column(self):
         column = QWidget()
         column.setFixedWidth(360)
@@ -216,11 +205,12 @@ class ProjExportScreen(Screen):
         row = QHBoxLayout()
         self.folder = QLineEdit()
         self.folder.setReadOnly(True)
+        self.folder_choice = None
         self.folder.setAccessibleName(tr("Папка экспорта"))
         row.addWidget(self.folder, 1)
         browse = QPushButton("…")
-        browse.setEnabled(False)
-        browse.setToolTip(tr(UNAVAILABLE))
+        browse.setToolTip(tr("Выбрать папку"))
+        browse.clicked.connect(self.browse)
         row.addWidget(browse)
         box.addLayout(row)
         self.file_name = meta()
@@ -229,20 +219,12 @@ class ProjExportScreen(Screen):
         self.run.setProperty("size", "lg")
         self.run.setProperty("role", "primary")
         self.run.setIcon(material_icon("download"))
-        self.run.setEnabled(False)
-        self.run.setToolTip(tr("Запуск экспорта из приложения пока не подключён"))
+        self.run.clicked.connect(self.export)
         box.addWidget(self.run)
+        self.result = meta()
+        box.addWidget(self.result)
         layout.addWidget(frame)
-        history, history_box = card("Недавние экспорты", "history")
-        history_box.addWidget(
-            StatePanel(
-                "waiting",
-                "Журнал экспортов пока недоступен",
-                "Ядро не ведёт журнал выгрузок. Список появится, когда он будет.",
-                hint=tr("Журнал экспортов ядра"),
-            )
-        )
-        layout.addWidget(history, 1)
+        layout.addStretch(1)
         return column
 
     def pick_dataset(self, key):
@@ -282,5 +264,61 @@ class ProjExportScreen(Screen):
             self.format_buttons[key].setChecked(key == self.fmt)
         self.format_hint.setText(tr(next(hint for key, _label, hint in FORMATS if key == self.fmt)))
         name = f"{self.dataset}_{short_run_id(scan.get('uuid'))}.{self.fmt}"
-        self.folder.setText(f"{self.host.project_directory}/exports")
+        self.folder.setText(self.folder_choice or f"{self.host.project_directory}/exports")
         self.file_name.setText(f"{tr('Файл')}: {name}")
+
+    def browse(self):
+        chosen = QFileDialog.getExistingDirectory(
+            self,
+            tr("Папка экспорта"),
+            self.folder.text() if Path(self.folder.text()).is_dir() else "",
+        )
+        if chosen:
+            self.folder_choice = chosen
+            self.refresh()
+
+    def export(self):
+        """Run ``scan-export`` for the chosen dataset and format; the core writes the files and reports them."""
+        scan = selected_scan(self.host)
+        record = dict((key, rec) for key, _i, _l, rec in DATASETS).get(self.dataset)
+        if scan is None or record is None or not scan.get("path"):
+            return
+        folder = Path(self.folder.text())
+        try:
+            folder.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            self.result.setText(tr("Не удалось создать папку экспорта"))
+            return
+        out = folder / f"{self.dataset}_{short_run_id(scan.get('uuid'))}.{self.fmt}"
+        if any(folder.glob(out.stem + ".*")):
+            self.result.setText(tr("Файлы с таким именем уже есть: выберите другую папку"))
+            return
+        self.run.setEnabled(False)
+        self.result.setText(tr("Экспортирую…"))
+        self.job.start(
+            [
+                "scan-export",
+                "--scan",
+                scan["path"],
+                "--out",
+                str(out),
+                "--format",
+                self.fmt,
+                "--records",
+                record,
+            ],
+            out,
+        )
+
+    def _exported(self, _token, payload):
+        self.run.setEnabled(True)
+        if payload.get("ok") is not True:
+            self.result.setText(reason_text(payload))
+            return
+        files = payload.get("files") or []
+        self.result.setText(trf("Записано файлов: {n}", n=len(files)))
+        self.result.setToolTip("\n".join(str(item) for item in files))
+
+    def _export_failed(self, _token, reason):
+        self.run.setEnabled(True)
+        self.result.setText(reason)

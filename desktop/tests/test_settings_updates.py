@@ -22,12 +22,12 @@ class UpdatesSectionTests(unittest.TestCase):
         self.assertTrue(store.set("updates.channel", "nightly"))
         self.assertFalse(store.is_set("updates.channel"))
 
-    def test_controls_write_store(self):
-        store, _dialog, page = make("updates")
-        row(page, "Канал").control._buttons["beta"].click()
-        self.assertEqual(store.get("updates.channel"), "beta")
-        row(page, "Загружать в фоне").control.click()
-        self.assertIs(store.get("updates.background_download"), True)
+    def test_unapplied_controls_are_disabled_with_the_reason(self):
+        _store, _dialog, page = make("updates")
+        for title in ("Канал", "Загружать в фоне"):
+            control = row(page, title).control
+            self.assertFalse(control.isEnabled(), title)
+            self.assertIn("пока ничего не меняет", control.toolTip())
 
     def test_reset_section(self):
         store, dialog, _page = make("updates")

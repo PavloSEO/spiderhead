@@ -272,6 +272,7 @@ SKIP_REASONS = (
     (r"no url with", "нет подходящих URL"),
     (r"not captured", "ответ цели не сохранён в скане"),
 )
+GROUP_ROWS = 10  # checks listed in «Крупнейшие группы»
 COLUMNS = ("Адрес", "HTTP", "Доказательство", "Состояние")
 
 
@@ -738,15 +739,10 @@ class IssuesScreen(Screen):
         self.total = QLabel()
         self.total.setProperty("text_style", "meta")
         layout.addWidget(self.total)
-        groups = StatePanel(
-            "waiting",
-            "Крупнейшие группы и счётчики по проверкам",
-            "Ядро отдаёт итоги по важности и первые 20 находок; счётчики по каждой проверке и постраничный список URL появятся позже",
-            issue=980,
-            hint="Находки по проверкам для всего скана и постраничный список URL",
-        )
-        groups.setMinimumHeight(220)
-        layout.addWidget(groups)
+        layout.addWidget(section_label("Крупнейшие группы по проверкам"))
+        self.groups_box = QVBoxLayout()
+        self.groups_box.setSpacing(6)
+        layout.addLayout(self.groups_box)
         self.skipped_toggle = QToolButton()
         self.skipped_toggle.setCheckable(True)
         self.skipped_toggle.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
@@ -935,8 +931,45 @@ class IssuesScreen(Screen):
                     n=len(findings.get("items") or []),
                 )
             )
+        self._fill_groups()
         self._fill_list()
         self._fill_detail()
+
+    def _fill_groups(self):
+        """Top checks of the whole scan by finding count (the core's per-check counters), as bars."""
+        while self.groups_box.count():
+            item = self.groups_box.takeAt(0)
+            if item.widget() is not None:
+                item.widget().deleteLater()
+        ranked = sorted(self.check_counts.items(), key=lambda pair: (-pair[1], pair[0]))
+        ranked = [pair for pair in ranked if pair[1] > 0][:GROUP_ROWS]
+        if not ranked:
+            note = QLabel(tr("Счётчики по проверкам ядро не вернуло"))
+            note.setProperty("text_style", "meta")
+            self.groups_box.addWidget(note)
+            return
+        peak = ranked[0][1]
+        for check, count in ranked:
+            line = QWidget()
+            row = QHBoxLayout(line)
+            row.setContentsMargins(0, 0, 0, 0)
+            row.setSpacing(10)
+            caption = QLabel(check_name(check))
+            caption.setMinimumWidth(220)
+            caption.setToolTip(check)
+            row.addWidget(caption)
+            bar = StackBar(10)
+            severity = (self.checks.get(check) or {}).get("severity") or "notice"
+            role = {"critical": "error", "warning": "warning"}.get(severity, "text_3")
+            bar.set_parts(
+                [(count, theming.roles()[role]), (peak - count, theming.roles()["disabled_bg"])]
+            )
+            row.addWidget(bar, 1)
+            value = QLabel(number(count))
+            value.setMinimumWidth(60)
+            value.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            row.addWidget(value)
+            self.groups_box.addWidget(line)
 
     def _sync_raw(self):
         entry = self.checks.get(self.selected)

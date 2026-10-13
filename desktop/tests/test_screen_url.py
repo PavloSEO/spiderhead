@@ -204,14 +204,22 @@ class UrlTests(UrlBase):
 
     def test_columns_without_core_data_are_not_sortable_and_say_why(self):
         before = len(self.calls())
-        inlinks = next(i for i, c in enumerate(COLUMNS) if c[0] == "inlinks")
-        self.screen._sort_clicked(inlinks)
+        issues = next(i for i, c in enumerate(COLUMNS) if c[0] == "issues")
+        self.screen._sort_clicked(issues)
         self.wait()
         self.assertEqual(len(self.calls()), before)
         self.assertIn(
-            "Недоступно", self.screen.model.headerData(inlinks, Qt.Horizontal, Qt.ToolTipRole)
+            "Недоступно", self.screen.model.headerData(issues, Qt.Horizontal, Qt.ToolTipRole)
         )
-        self.assertIn("Недоступно", self.screen.model.index(0, inlinks).data(Qt.ToolTipRole))
+        self.assertIn("Недоступно", self.screen.model.index(0, issues).data(Qt.ToolTipRole))
+
+    def test_inlinks_are_asked_from_the_core_and_sortable(self):
+        inlinks = next(i for i, c in enumerate(COLUMNS) if c[0] == "inlinks")
+        self.assertIn("inlinks", self.calls()[-1][self.calls()[-1].index("--columns") + 1])
+        self.screen._sort_clicked(inlinks)
+        self.wait()
+        call = self.calls()[-1]
+        self.assertEqual(call[call.index("--sort") + 1], "inlinks")
 
     def test_filter_chip_is_a_core_filter_and_the_filtered_total_is_shown(self):
         self.screen._class_chip("4xx")
