@@ -332,10 +332,16 @@ class ProjectSourcesPage(QWidget):
         return body
 
     def _fit(self):
-        narrow = self.width() < NARROW
+        narrow = self._viewport_width() < NARROW
         if hasattr(self, "head"):
             for widget in (self.head.sync, *(row.sync for row in self.row_widgets)):
                 widget.setVisible(not narrow)
+
+    def _viewport_width(self):
+        parent = self.parentWidget()
+        while parent is not None and not isinstance(parent, QScrollArea):
+            parent = parent.parentWidget()
+        return parent.viewport().width() if parent is not None else self.width()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -355,7 +361,7 @@ class LazyPage(QWidget):
     def build(self):
         if self.inner is None:
             self.inner = self._factory()
-            self.layout().addWidget(self.inner)
+            self.layout().addWidget(_scrolled(self.inner))
             i18n.retranslate(self.inner)
             if self._built:
                 self._built()
@@ -401,8 +407,8 @@ class ProjectSettingsPage(QWidget):
         self._overflow_menu_selection = False
         self._overflow_previous_page = 0
         self.overflow_menu = QMenu(self.nav)
-        self.export_action = self.overflow_menu.addAction("Export")
-        self.vitals_action = self.overflow_menu.addAction("Core Web Vitals")
+        self.export_action = self.overflow_menu.addAction(tr("Export"))
+        self.vitals_action = self.overflow_menu.addAction(tr("Core Web Vitals"))
         self.export_action.triggered.connect(lambda: self._select_page(self._overflow_index))
         self.vitals_action.triggered.connect(lambda: self._select_page(self._vitals_index))
         self.overflow_menu.aboutToHide.connect(self._overflow_menu_hidden)
@@ -512,9 +518,11 @@ class ProjectSettingsPage(QWidget):
         self._syncing_nav = True
         self.nav.setTabVisible(self._vitals_index, not compact)
         self.nav.setTabVisible(self._overflow_index, True)
-        self.nav.setTabText(self._overflow_index, "" if compact else "Export")
+        self.nav.setTabText(self._overflow_index, "" if compact else tr("Export"))
         self.nav.names[self._overflow_index] = "more_horiz" if compact else "ios_share"
-        self.nav.setTabToolTip(self._overflow_index, "More settings" if compact else "Export")
+        self.nav.setTabToolTip(
+            self._overflow_index, tr("More settings") if compact else tr("Export")
+        )
         target_tab = (
             self._overflow_index
             if compact and current_page in {self._overflow_index, self._vitals_index}
@@ -552,7 +560,7 @@ class ProjectSettingsPage(QWidget):
             and bool(state and state["settings"]["enabled"] and state["next_run"])
         )
         if state:
-            self.next_badge.setText("Next scan · " + next_run_text(state["next_run"]))
+            self.next_badge.setText(tr("Next scan") + " · " + next_run_text(state["next_run"]))
         if hasattr(self.host, "navigation") and hasattr(self.host.navigation, "settings_note"):
             nav = self.host.navigation
             nav.settings_note.setVisible(
@@ -609,12 +617,14 @@ class ProjectSettingsPage(QWidget):
         head.addWidget(self.next_pill)
         self.cancel = QPushButton(tr("Отмена"))
         self.cancel.setProperty("size", "lg")
-        self.cancel.setFixedSize(76, 36)
+        self.cancel.setFixedHeight(36)
+        self.cancel.setMinimumWidth(76)
         self.cancel.clicked.connect(lambda: self._edit_action("reload"))
         self.save = QPushButton(tr("Сохранить"))
         self.save.setProperty("role", "primary")
         self.save.setProperty("size", "lg")
-        self.save.setFixedSize(92, 36)
+        self.save.setFixedHeight(36)
+        self.save.setMinimumWidth(92)
         self.save.setIconSize(QSize(20, 20))
         self.save.setIcon(material_icon("save", "role:on_primary"))
         self.save.clicked.connect(lambda: self._edit_action("save"))
@@ -631,11 +641,12 @@ class ProjectSettingsPage(QWidget):
         compact = self.width() < 1000
         self.header_frame.setFixedHeight(61 if compact else 65)
         margin = 16 if compact else 24
+        self.page._fit()
         self.header_frame.layout().setContentsMargins(
             margin, 12 if compact else 14, margin, 12 if compact else 14
         )
         self.pages.setContentsMargins(margin, 16 if compact else 20, margin, 16 if compact else 20)
-        self.nav.setTabText(3, "Crawl" if compact else "Crawl & User-Agent")
+        self.nav.setTabText(3, tr("Crawl") if compact else tr("Crawl & User-Agent"))
         self.header_icon.setVisible(not compact)
         self._fit_tabs()
         self._sync_actions()
@@ -681,24 +692,6 @@ class ProjectSettingsPage(QWidget):
         layout.addStretch(1)
         return _scrolled(page)
 
-    def _footer(self):
-        footer = QFrame()
-        footer.setObjectName("dialogFooter")
-        footer_layout = QHBoxLayout(footer)
-        footer_layout.setContentsMargins(24, 12, 24, 12)
-        hint = QLabel(
-            tr(
-                "Ключи и токены задаются в настройках приложения · здесь их значения не показываются"
-            )
-        )
-        hint.setProperty("text_style", "meta")
-        hint.setWordWrap(True)
-        footer_layout.addWidget(hint, 1)
-        cancel = QPushButton(tr("Закрыть"))
-        cancel.clicked.connect(self.reject)
-        footer_layout.addWidget(cancel)
-        return footer
-
 
 def _scrolled(widget):
     scroll = QScrollArea()
@@ -706,7 +699,7 @@ def _scrolled(widget):
     scroll.setFrameShape(QFrame.NoFrame)
     holder = QWidget()
     holder_layout = QVBoxLayout(holder)
-    holder_layout.setContentsMargins(24, 4, 24, 16)
+    holder_layout.setContentsMargins(0, 4, 0, 16)
     holder_layout.addWidget(widget)
     scroll.setWidget(holder)
     return scroll
@@ -742,6 +735,7 @@ def _value(text, mono=False):
         label.setProperty("na", True)
         return label
     label = QLabel(text)
+    label.setWordWrap(True)
     label.setTextInteractionFlags(Qt.TextSelectableByMouse)
     if mono:
         label.setProperty("text_style", "mono")

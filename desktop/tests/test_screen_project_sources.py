@@ -303,5 +303,36 @@ class DialogTests(unittest.TestCase):
         self.assertIn((ui("Настройки проекта…"), True), seen[1])
 
 
+class ScrolledNarrowTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = qt_app()
+        load_theme(cls.app, "light")
+
+    def setUp(self):
+        sweep_widgets()
+        i18n.set_language("ru")
+        self.addCleanup(i18n.set_language, "ru")
+
+    def test_sync_column_follows_the_scroll_viewport_not_the_page_width(self):
+        from PyQt5.QtWidgets import QScrollArea
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        host = Host()
+        page = ProjectSourcesPage(host)
+        host.answer(None)
+        self.app.processEvents()
+        scroll.setWidget(page)
+        scroll.resize(1000, 640)
+        scroll.show()
+        self.addCleanup(scroll.close)
+        page._fit()
+        self.assertTrue(page.row_widgets[0].sync.isVisibleTo(page))
+        scroll.resize(640, 640)
+        page._fit()
+        self.assertFalse(page.row_widgets[0].sync.isVisibleTo(page))
+
+
 if __name__ == "__main__":
     unittest.main()
