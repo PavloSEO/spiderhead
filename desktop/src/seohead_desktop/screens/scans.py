@@ -32,6 +32,7 @@ from PyQt5.QtWidgets import (
 
 from .. import i18n, theming
 from ..i18n import tr, trf
+from ..ui import motion
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import (
     BADGE_ROLE,
@@ -69,6 +70,15 @@ ROW_ROLE = Qt.UserRole + 42
 COLUMNS = ("", "Запуск скана", "Источник", "Состояние", "URL", "Начат", "Полнота")
 GROUP_ORDER = {"live": 0, "stale": 1, "pending": 2, "partial": 3, "failed": 4, "done": 5}
 ALL_SOURCES = "Все источники"
+SIDE_BY_SIDE_MIN = 1100  # px: below it the aside moves under the table
+
+
+def ru_plural(count, one, few, many):
+    if count % 10 == 1 and count % 100 != 11:
+        return one
+    if 2 <= count % 10 <= 4 and not 12 <= count % 100 <= 14:
+        return few
+    return many
 
 
 class RunModel(QAbstractTableModel):
@@ -520,7 +530,7 @@ class RunAside(QFrame):
         self.stop_button.setToolTip(
             ""
             if can_stop(row)
-            else tr("Остановка запуска, начатого не этим окном: недоступно в этой версии ядра")
+            else tr("Остановка запуска, начатого не этим окном: недоступно в этой версии")
         )
         self.live_saved.setEnabled(row.scan is not None)
 
@@ -528,7 +538,7 @@ class RunAside(QFrame):
         age = row.sample_age(at)
         self.stale_note.setText(
             trf(
-                "<b>Наблюдение устарело · {age}.</b> Процесс не отвечает или не обновляет счётчики; последние данные показаны как были. Анимации нет, пока нет свежего статуса.",
+                "<b>Наблюдение устарело · {age}.</b> Процесс не отвечает или не обновляет счётчики; последние данные показаны как были. Живого обновления нет, пока нет свежего статуса.",
                 age=duration(age) if age is not None else tr("возраст неизвестен"),
             )
         )
@@ -567,13 +577,13 @@ class RunAside(QFrame):
         )
         self.resume_button.setVisible(row.partial_resumable())
         self.resume_button.setEnabled(eligible)
-        self.resume_button.setToolTip(
-            ""
-            if eligible
-            else tr(
-                "Продолжить можно прерванный скан с сохранённым состоянием; выбор и проверка занимают секунду"
-            )
-        )
+        if eligible:
+            hint = ""
+        elif not self.host.resume_scan_button.isEnabled():
+            hint = tr("Продолжить можно прерванный скан с сохранённым состоянием")
+        else:
+            hint = tr("Выберите этот скан в проекте, чтобы продолжить его")
+        self.resume_button.setToolTip(hint)
         self.open_button.setEnabled(row.scan is not None)
 
 
@@ -598,6 +608,7 @@ class ScansScreen(Screen):
         self.monitor = ScanRunPage(host, self)
         self.monitor.back.connect(self.show_list)
         self.stack.addWidget(self.monitor)
+        motion.fade_stack(self.stack)
         page = QVBoxLayout(self.list_page)
         page.setContentsMargins(0, 0, 0, 0)
         page.setSpacing(0)
@@ -611,6 +622,7 @@ class ScansScreen(Screen):
         self.source_button.setIcon(material_icon("expand_more"))
         self.source_button.setLayoutDirection(Qt.RightToLeft)
         self.source_button.setAccessibleName(tr("Фильтр по источнику"))
+        self.source_button.setToolTip(tr("Показать запуски из одного источника"))
         self.source_menu = QMenu(self.source_button)
         self.source_button.clicked.connect(
             lambda: self.source_menu.exec_(
@@ -646,7 +658,7 @@ class ScansScreen(Screen):
         self.table.setAccessibleName(tr("Запуски и сканы проекта"))
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         self.table.horizontalHeader().setMinimumSectionSize(30)
-        for column, width in ((0, 30), (2, 116), (3, 124), (4, 74), (5, 118), (6, 150)):
+        for column, width in ((0, 30), (2, 116), (3, 160), (4, 74), (5, 118), (6, 220)):
             self.table.setColumnWidth(column, width)
         self.table.sortByColumn(5, Qt.DescendingOrder)
         self.table.selectionModel().currentRowChanged.connect(self._row_changed)
@@ -680,21 +692,23 @@ class ScansScreen(Screen):
         i18n.signals.changed.connect(self._language_changed)
         self.refresh()
 
-    # layout: below 1000 px the aside goes under the table instead of squeezing it
+    # layout: below SIDE_BY_SIDE_MIN the aside goes under the table instead of squeezing it
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        narrow = event.size().width() < 1000
+        narrow = event.size().width() < SIDE_BY_SIDE_MIN
         direction = QBoxLayout.TopToBottom if narrow else QBoxLayout.LeftToRight
         if self.body.direction() != direction:
             self.body.setDirection(direction)
             if narrow:
                 self.aside.setMaximumWidth(16777215)
                 self.aside.setMinimumWidth(0)
-                self.aside.setFixedHeight(max(260, event.size().height() // 2))
             else:
                 self.aside.setMinimumHeight(0)
                 self.aside.setMaximumHeight(16777215)
                 self.aside.setFixedWidth(400)
+        if narrow:  # the height follows every resize; the table keeps the rest
+            height = event.size().height()
+            self.aside.setFixedHeight(max(160, min(height // 2, height - 400)))
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -752,7 +766,7 @@ class ScansScreen(Screen):
         self.rows = rows
         if not host.project_directory:
             kind = "noproject"
-        elif not rows and host._project_loading:
+        elif host._project_loading:  # rows of the previous project must not stay visible
             kind = "loading"
         elif not rows:
             kind = "empty"
@@ -818,7 +832,13 @@ class ScansScreen(Screen):
         if not self.rows:
             self.header.set_meta("")
         else:
-            meta = trf("{n} запусков в загруженной странице · {k} идёт сейчас", n=total, k=running)
+            template = ru_plural(
+                total,
+                "{n} запуск в загруженной странице · {k} в работе",
+                "{n} запуска в загруженной странице · {k} в работе",
+                "{n} запусков в загруженной странице · {k} в работе",
+            )
+            meta = trf(template, n=total, k=running)
             self.header.set_meta(meta)
         self.foot_text.setText(
             trf(
