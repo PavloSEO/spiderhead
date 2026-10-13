@@ -2182,7 +2182,7 @@
  "Граф недоступен": "Graph unavailable",
  "Крупнейшие группы по проверкам": "Largest groups by check",
  "Счётчики по проверкам ядро не вернуло": "The core returned no per-check counters",
- "Выбрать папку": "Choose folder",
+ "Выбрать папку": "Select folder",
  "Папка экспорта": "Export folder",
  "Не удалось создать папку экспорта": "The export folder could not be created",
  "Файлы с таким именем уже есть: выберите другую папку": "Files with this name already exist: choose another folder",
@@ -3239,7 +3239,6 @@
  "Папка для результата": "Output folder",
  "Папка не выбрана": "No folder selected",
  "Папка с картинками": "Images folder",
- "Папка экспорта": "Export folder",
  "Папка: {name}": "Folder: {name}",
  "Параметр сканирования": "Scan parameter",
  "Параметры": "Parameters",
@@ -3667,7 +3666,6 @@
  "скан {run} · {count}": "scan {run} · {count}",
  "сообщение": "message",
  "сообщений": "messages",
- "стр./с": "pages/s",
  "текст <body>": "<body> content",
  "только текущие чтения": "current reads only",
  "тот же каталог из терминала": "the same catalog from the terminal",
@@ -3821,7 +3819,6 @@
  "Выбраны два последних скана: проверьте пару и нажмите «Сравнить сохранённые сканы»": "The two latest scans are selected: check the pair and click \"Compare saved scans\"",
  "Выбрать другую папку…": "Choose another folder…",
  "Выбрать локальный проект": "Select local project",
- "Выбрать папку": "Select folder",
  "Выбрать папку…": "Select folder…",
  "Выбрать пару": "Select pair",
  "Вывод выбранного запуска ещё не получен": "Output of the selected run not received yet",
@@ -3879,5 +3876,6 @@
  "Явные изменения: {n}": "Explicit changes: {n}",
  "Раскладка · {name}": "Layout · {name}",
  "Поиск · {name}": "Search · {name}",
- "Раскладка: {name}": "Layout: {name}"
+ "Раскладка: {name}": "Layout: {name}",
+ "Параметры без редактора в приложении (только чтение)": "Parameters without an in-app editor (read-only)"
 }
