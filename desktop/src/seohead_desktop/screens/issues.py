@@ -538,6 +538,9 @@ class IssuesScreen(Screen):
         self.issue_summary_job = CoreJob(host, self)
         self.issue_summary_job.done.connect(self._issue_summary_done)
         self.issue_summary_job.failed.connect(self._issue_summary_failed)
+        self.page_cache = {}  # (scan key, check) -> findings of that check from scan-findings-page
+        self.page_job = CoreJob(host, self)
+        self.page_job.done.connect(self._page_done)
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
@@ -1155,7 +1158,30 @@ class IssuesScreen(Screen):
         self.selected = None if check == self.selected else check
         for key, button in self.row_buttons.items():
             button.setChecked(key == self.selected)
+        self._request_page()
         self._fill_detail()
+
+    def _request_page(self):
+        """Ask the core for the selected check's findings; the bounded scan sample may hold none of them."""
+        scan = selected_scan(self.host) or {}
+        directory = getattr(self.host, "project_directory", None)
+        key = (self._scan_key(scan), self.selected)
+        if not (self.selected and directory and scan.get("uuid")) or key in self.page_cache:
+            return
+        arguments = ["scan-findings-page", "--project", str(directory)]
+        arguments += ["--scan-uuid", scan["uuid"], "--query", self.selected, "--limit", "100"]
+        self.page_job.start(arguments, key)
+
+    def _page_done(self, key, payload):
+        if payload.get("ok") is not True:
+            return
+        self.page_cache[key] = [
+            i
+            for i in payload.get("items") or []
+            if isinstance(i, dict) and i.get("check") == key[1]
+        ]
+        if key == (self._scan_key(selected_scan(self.host) or {}), self.selected):
+            self._fill_detail()
 
     def _fill_detail(self):
         entry = self.checks.get(self.selected)
@@ -1184,6 +1210,8 @@ class IssuesScreen(Screen):
         self.desc.setText(message_ru(entry["message"]))
         self._sync_raw()
         self.lane_found.refresh()
+        key = (self._scan_key(selected_scan(self.host) or {}), self.selected)
+        entry = {**entry, "items": self.page_cache.get(key) or entry["items"]}
         self.model.set_rows(entry["items"])
         urls = [i.get("target_url") for i in entry["items"] if i.get("target_url")]
         self.open_url.setEnabled(bool(urls))
@@ -1222,6 +1250,13 @@ class IssuesScreen(Screen):
         entry = self.checks.get(self.selected)
         if not entry:
             return
+        entry = {
+            **entry,
+            "items": self.page_cache.get(
+                (self._scan_key(selected_scan(self.host) or {}), self.selected)
+            )
+            or entry["items"],
+        }
         urls = [i["target_url"] for i in entry["items"] if i.get("target_url")][:100]
         label = trf(
             "Проверка «{name}» · выборка {n} URL",

@@ -257,3 +257,26 @@ class IssuesTests(IssuesBase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class IssuesPageTests(IssuesBase):
+    def test_check_without_sample_lists_urls_from_core_page(self):
+        screen, host = self.screen, self.host
+        screen.checks.setdefault("zz_check", {"severity": "warning", "message": "x", "items": []})
+        host.project_directory = "/p"
+        started = []
+        screen.page_job.start = lambda args, token: started.append((args, token))
+        screen._select("zz_check")
+        args, key = started[0]
+        self.assertEqual(args[:2], ["scan-findings-page", "--project"])
+        screen._page_done(
+            key,
+            {
+                "ok": True,
+                "items": [
+                    {"check": "zz_check", "target_url": "https://a.test/"},
+                    {"check": "other"},
+                ],
+            },
+        )
+        self.assertEqual([r["target_url"] for r in screen.model.rows], ["https://a.test/"])
