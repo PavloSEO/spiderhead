@@ -9,15 +9,20 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtWidgets import (
     QButtonGroup,
+    QComboBox,
     QFileDialog,
     QFrame,
     QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QScrollArea,
     QPushButton,
     QSizePolicy,
     QStackedWidget,
@@ -26,6 +31,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from .. import export_presets as presets
 from ..i18n import tr, trf
 from ..ui import motion
 from ..ui.icons import MaterialIconLabel, material_icon
@@ -141,7 +147,11 @@ class ProjExportScreen(Screen):
         root.addWidget(bar)
         self.stack = QStackedWidget()
         root.addWidget(self.stack, 1)
-        self.stack.addWidget(self._content())
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(self._content())
+        self.stack.addWidget(scroll)
         self.no_scan = StatePanel(
             "empty",
             "Скан не выбран",
@@ -165,6 +175,11 @@ class ProjExportScreen(Screen):
         return page
 
     def _left_column(self):
+        column = QWidget()
+        column.setFixedWidth(260)
+        outer = QVBoxLayout(column)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(16)
         frame, layout = card("Набор данных", "dataset", width=260)
         self.dataset_group = QButtonGroup(self)
         self.dataset_group.setExclusive(True)
@@ -200,7 +215,31 @@ class ProjExportScreen(Screen):
         layout.addWidget(segment)
         self.format_hint = meta()
         layout.addWidget(self.format_hint)
-        layout.addStretch(1)
+        outer.addWidget(frame)
+        outer.addWidget(self._preset_card())
+        outer.addStretch(1)
+        return column
+
+    def _preset_card(self):
+        frame, box = card("Export presets", "table_view", width=260)
+        self.preset_box = QComboBox()
+        self.preset_box.setAccessibleName(tr("Export presets"))
+        self.preset_box.currentIndexChanged.connect(self.pick_preset)
+        box.addWidget(self.preset_box)
+        box.addWidget(meta(tr("Columns (comma-separated)")))
+        self.columns_edit = QLineEdit()
+        self.columns_edit.setAccessibleName(tr("Columns (comma-separated)"))
+        box.addWidget(self.columns_edit)
+        self.check_label = meta(tr("Check ID"))
+        box.addWidget(self.check_label)
+        self.check_edit = QLineEdit()
+        self.check_edit.setAccessibleName(tr("Check ID"))
+        box.addWidget(self.check_edit)
+        self.preset_run = QPushButton(tr("Export preset"))
+        self.preset_run.setProperty("role", "primary")
+        self.preset_run.clicked.connect(self.export_preset)
+        box.addWidget(self.preset_run)
+        box.addWidget(meta(tr("Presets run on the URL table; CSV or XLSX. Add your own in export_presets.json in the project folder.")))
         return frame
 
     def _segment(self, key, label, hint):
@@ -249,8 +288,87 @@ class ProjExportScreen(Screen):
         self.result = meta()
         box.addWidget(motion.status_row(self.result, self.job))
         layout.addWidget(frame)
+        layout.addWidget(self._files_card())
         layout.addStretch(1)
         return column
+
+    def _files_card(self):
+        frame, box = card("Project files", "folder_open")
+        self.files = QListWidget()
+        self.files.setMinimumHeight(140)
+        self.files.setAccessibleName(tr("Project files"))
+        self.files.itemDoubleClicked.connect(lambda _item: self.open_file())
+        box.addWidget(self.files)
+        row = QHBoxLayout()
+        self.open_button = QPushButton(tr("Open"))
+        self.open_button.clicked.connect(lambda: self.open_file())
+        self.reveal_button = QPushButton(tr("Show in folder"))
+        self.reveal_button.clicked.connect(lambda: self.open_file(reveal=True))
+        refresh = QPushButton(tr("Refresh"))
+        refresh.clicked.connect(self.refresh_files)
+        for button in (self.open_button, self.reveal_button, refresh):
+            row.addWidget(button)
+        box.addLayout(row)
+        box.addWidget(meta(tr("Files in the project exports and reports folders, including those agents save there.")))
+        return frame
+
+    def refresh_files(self):
+        self.files.clear()
+        if not self.project_open:
+            return
+        root = Path(self.host.project_directory)
+        for path in presets.list_files(root):
+            item = QListWidgetItem(str(path.relative_to(root)))
+            item.setData(Qt.UserRole, str(path))
+            item.setToolTip(str(path))
+            self.files.addItem(item)
+        if not self.files.count():
+            self.files.addItem(tr("No files yet"))
+            self.files.item(0).setFlags(Qt.NoItemFlags)
+
+    def open_file(self, reveal=False):
+        item = self.files.currentItem()
+        path = item.data(Qt.UserRole) if item else None
+        if path:
+            target = str(Path(path).parent) if reveal else path
+            QDesktopServices.openUrl(QUrl.fromLocalFile(target))
+
+    def pick_preset(self, _index=0):
+        preset = self.preset_box.currentData()
+        if preset:
+            self.columns_edit.setText(", ".join(preset["columns"]))
+            needs_check = preset["id"] == presets.CHECK
+            self.check_label.setVisible(needs_check)
+            self.check_edit.setVisible(needs_check)
+
+    def export_preset(self):
+        """Run ``scan-url-query --export`` for the chosen preset, edited columns and the chosen folder."""
+        scan = selected_scan(self.host)
+        preset = self.preset_box.currentData()
+        if scan is None or preset is None or not scan.get("path"):
+            return
+        columns = presets.clean_columns(self.columns_edit.text())
+        check = self.check_edit.text().strip() if preset["id"] == presets.CHECK else None
+        if columns is None:
+            self.result.setText(tr("Columns must be plain names separated by commas"))
+            return
+        if preset["id"] == presets.CHECK and not check:
+            self.result.setText(tr("Enter a check ID"))
+            return
+        fmt = self.fmt if self.fmt in ("csv", "xlsx") else "csv"
+        folder = Path(self.folder.text())
+        try:
+            folder.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            self.result.setText(tr("Не удалось создать папку экспорта"))
+            return
+        out = folder / f"{preset['id']}_{short_run_id(scan.get('uuid'))}.{fmt}"
+        if out.exists():
+            self.result.setText(tr("Файлы с таким именем уже есть: выберите другую папку"))
+            return
+        self.run.setEnabled(False)
+        self.result.setText(tr("Экспортирую…"))
+        self.job.start(presets.query_arguments(scan["path"], preset, out, fmt, columns, check), out)
 
     def pick_dataset(self, key):
         self.dataset = key
@@ -276,6 +394,8 @@ class ProjExportScreen(Screen):
             self.stack.setCurrentWidget(self.no_scan)
             return
         self.stack.setCurrentIndex(0)
+        self._fill_presets()
+        self.refresh_files()
         urls = scan_urls(scan)
         self.scan_meta.setText(
             trf(
@@ -296,6 +416,19 @@ class ProjExportScreen(Screen):
         self.folder.setText(self.folder_choice or f"{self.host.project_directory}/exports")
         self.folder.setToolTip(self.folder.text())
         self.file_name.setText(f"{tr('Файл')}: {shown_name(scan, self.dataset, self.fmt)}")
+
+    def _fill_presets(self):
+        loaded = presets.load_presets(self.host.project_directory)
+        if [self.preset_box.itemData(i) for i in range(self.preset_box.count())] == loaded:
+            return
+        previous = (self.preset_box.currentData() or {}).get("id")
+        self.preset_box.blockSignals(True)
+        self.preset_box.clear()
+        for item in loaded:
+            self.preset_box.addItem(tr(item["label"]), item)
+        self.preset_box.setCurrentIndex(next((i for i, p in enumerate(loaded) if p["id"] == previous), 0))
+        self.preset_box.blockSignals(False)
+        self.pick_preset()
 
     def browse(self):
         chosen = QFileDialog.getExistingDirectory(
@@ -350,7 +483,8 @@ class ProjExportScreen(Screen):
         if payload.get("ok") is not True:
             self.result.setText(reason_text(payload))
             return
-        files = payload.get("files") or []
+        files = payload.get("files") or ([payload["file"]] if payload.get("file") else [])
+        self.refresh_files()
         self.result.setText(
             trf("Записано файлов: {n}", n=len(files)) if files else tr("Экспорт не создал файлов")
         )
