@@ -145,7 +145,9 @@ class CompetitorsScreenTests(unittest.TestCase):
         screen = self.screen(host)
 
         rows = screen.model.rows
-        self.assertEqual([row["state"] for row in rows], ["scanned", "candidate; audit not run"])
+        self.assertEqual(
+            [row["state"] for row in rows], ["просканирован", "кандидат, аудит не запущен"]
+        )
         self.assertEqual(screen.table.model().rowCount(), 2)
 
     def test_typed_entry_is_sent_to_the_core_with_provenance_and_known_urls_refused(self):
@@ -162,7 +164,7 @@ class CompetitorsScreenTests(unittest.TestCase):
             [item["url"] for item in arguments["competitors"]], ["https://two.example.test"]
         )
         self.assertEqual(arguments["competitors"][0]["source"], "desktop manual entry")
-        self.assertIn("already in the list", screen.status.text())
+        self.assertIn("уже в списке", screen.status.text())
         handler({"ok": True, "competitors": [{}, {}]})
         self.assertEqual(host.refreshed, 1)
         self.assertIn("2", screen.status.text())

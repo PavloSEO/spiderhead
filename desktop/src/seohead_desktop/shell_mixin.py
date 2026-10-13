@@ -45,8 +45,7 @@ class ShellMixin:
     placeholder_pages = {}  # navigation row -> «Раздел готовится» page (replaced per window)
 
     def build_placeholder_pages(self):
-        """Methods opens the redirect generator; Link graph keeps its site-wide waiting state (GraphScreen)."""
-        from .screens.link_graph import LinkGraphScreen
+        """Methods opens the redirect generator; Link graph is GraphScreen (site-wide waiting state)."""
         from .ui.kit import StatePanel
         from .ui.workspace import VIEW_IDS
 
@@ -66,9 +65,6 @@ class ShellMixin:
         from .screens.crawler import CrawlerScreen
         from .screens.methods import MethodsWorkspace
 
-        # The link graph screen is kept for its own tests; the graph section is GraphScreen (below)
-        self.link_graph_screen = LinkGraphScreen(self)
-        self.link_graph_screen.hide()
         for view in ("crawler", "methods"):
             if view == "crawler":
                 page = CrawlerScreen(self)
@@ -341,7 +337,8 @@ class ShellMixin:
         cli = menu.addAction(icon("terminal"), "Командная строка")
         cli.setEnabled(False)
         cli.setToolTip(UNAVAILABLE)
-        menu.addAction(icon("help"), "Справка", self.show_help, "F1")
+        help_action = menu.addAction(icon("help"), tr("Справка"), self.show_help)
+        help_action.setShortcut(shortcuts.sequences(self.prefs).get("help", QKeySequence()))
         menu.setMinimumWidth(264)
         i18n.retranslate(menu)
         return menu
@@ -479,6 +476,10 @@ class ShellMixin:
         """Settings are a modal window over the application (sheet Settings), never a workspace tab."""
         SettingsDialog(self.prefs, self.settings_context(), self, section).exec_()
 
+    def shortcut_label(self, action_id):
+        """Key-cap text of the user's current binding for menus ('' when unassigned), so labels follow rebinding."""
+        return shortcuts.display(shortcuts.bindings(self.prefs).get(action_id, ""))
+
     def open_shortcuts(self):
         """Canvas «Shortcuts»: the active bindings as a modal sheet; editing and help are one click away."""
         sheet = ShortcutsSheet(self.prefs, self)
@@ -510,6 +511,9 @@ class ShellMixin:
             "stop_scan": self.cancel_active_work,
             "copy_url": self.copy_url_selection,
             "all_shortcuts": self.open_shortcuts,
+            "new_tab": self.new_workspace_tab,
+            "close_tab": lambda: self.close_workspace_tab(self._active_workspace_id),
+            "copy_tsv": lambda: self.screens["url"].copy_tsv(),
         }
         for old in getattr(self, "_bound_shortcuts", ()):
             old.setEnabled(False)

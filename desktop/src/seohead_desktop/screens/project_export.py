@@ -27,6 +27,7 @@ from PyQt5.QtWidgets import (
 )
 
 from ..i18n import tr, trf
+from ..ui import motion
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import StatePanel, no_project_panel
 from ..ui.presentation import short_run_id
@@ -44,8 +45,8 @@ DATASETS = (
 FORMATS = (
     ("csv", "CSV", "CSV: отдельный файл на каждый тип записи"),
     ("xlsx", "XLSX", "XLSX: книга Excel"),
-    ("json", "JSON", "JSON: построчно, для скриптов и агентов"),
-    ("xml", "XML", "XML: схема scan_export.v1"),
+    ("json", "JSON", "JSON: одна запись в строке, удобно для скриптов"),
+    ("xml", "XML", "XML: структурированный файл с описанием полей"),
 )
 
 
@@ -55,11 +56,13 @@ def dataset_count(record, scan):
         return tr(SHORT_UNAVAILABLE)
     if record == "pages" and scan is not None and scan_urls(scan) is not None:
         return trf("{n} URL", n=number(scan_urls(scan)))
-    return tr("Нет данных")
+    return tr("Число — после экспорта")
 
 
 def selected_scan(host):
     """The scan the page exports: the one the window selected, never a guess."""
+    if host.selected_scan_path is None:
+        return None
     return next(
         (row for row in host.scan_model.rows if row.get("path") == host.selected_scan_path), None
     )
@@ -68,6 +71,19 @@ def selected_scan(host):
 def scan_urls(scan):
     done = (((scan.get("evidence") or {}).get("frontier") or {}).get("counts") or {}).get("done")
     return done if type(done) is int else None
+
+
+def output_name(scan, dataset, fmt):
+    """Name of the file ``scan-export`` gets as ``--out``; CSV goes to ``<stem>.<record>.csv`` plus a manifest."""
+    return f"{dataset}_{short_run_id(scan.get('uuid'))}.{fmt}"
+
+
+def shown_name(scan, dataset, fmt):
+    """The file name the user sees: for CSV the core writes one file per record type next to a manifest."""
+    if fmt != "csv":
+        return output_name(scan, dataset, fmt)
+    record = dict((key, rec) for key, _i, _l, rec in DATASETS).get(dataset)
+    return output_name(scan, dataset, fmt).replace(".csv", f".{record}.csv")
 
 
 def card(title, icon, width=None):
@@ -103,6 +119,8 @@ class ProjExportScreen(Screen):
         super().__init__(host)
         self.dataset = "url"
         self.fmt = "xlsx"
+        self.folder_choice = None
+        self.folder_project = None
         self.job = CoreJob(host, self)
         self.job.done.connect(self._exported)
         self.job.failed.connect(self._export_failed)
@@ -175,8 +193,8 @@ class ProjExportScreen(Screen):
         self.format_group = QButtonGroup(self)
         self.format_group.setExclusive(True)
         self.format_buttons = {}
-        for index, (key, label, _hint) in enumerate(FORMATS):
-            button = self._segment(key, label)
+        for index, (key, label, hint) in enumerate(FORMATS):
+            button = self._segment(key, label, hint)
             self.format_buttons[key] = button
             segment_layout.addWidget(button, index // 2, index % 2)
         layout.addWidget(segment)
@@ -185,12 +203,13 @@ class ProjExportScreen(Screen):
         layout.addStretch(1)
         return frame
 
-    def _segment(self, key, label):
+    def _segment(self, key, label, hint):
         button = QToolButton()
         button.setProperty("segment", "true")
         button.setCheckable(True)
         button.setText(label)
         button.setAccessibleName(label)
+        button.setToolTip(tr(hint))
         button.clicked.connect(lambda _checked=False, value=key: self.pick_format(value))
         self.format_group.addButton(button)
         return button
@@ -205,10 +224,11 @@ class ProjExportScreen(Screen):
         row = QHBoxLayout()
         self.folder = QLineEdit()
         self.folder.setReadOnly(True)
-        self.folder_choice = None
         self.folder.setAccessibleName(tr("Папка экспорта"))
         row.addWidget(self.folder, 1)
-        browse = QPushButton("…")
+        browse = QPushButton()
+        browse.setIcon(material_icon("folder_open", "role:text_2"))
+        browse.setAccessibleName(tr("Выбрать папку"))
         browse.setToolTip(tr("Выбрать папку"))
         browse.clicked.connect(self.browse)
         row.addWidget(browse)
@@ -218,11 +238,16 @@ class ProjExportScreen(Screen):
         self.run = QPushButton(tr("Экспортировать"))
         self.run.setProperty("size", "lg")
         self.run.setProperty("role", "primary")
-        self.run.setIcon(material_icon("download"))
+        self.run.setIcon(material_icon("download", "role:on_primary"))
         self.run.clicked.connect(self.export)
         box.addWidget(self.run)
+        self.cancel_button = QPushButton(tr("Отмена"))
+        self.cancel_button.setVisible(False)
+        self.cancel_button.clicked.connect(self.cancel_export)
+        self.job.busyChanged.connect(self.cancel_button.setVisible)
+        box.addWidget(self.cancel_button)
         self.result = meta()
-        box.addWidget(self.result)
+        box.addWidget(motion.status_row(self.result, self.job))
         layout.addWidget(frame)
         layout.addStretch(1)
         return column
@@ -236,6 +261,11 @@ class ProjExportScreen(Screen):
         self.refresh()
 
     def refresh(self):
+        if self.folder_project != self.host.project_directory:
+            self.folder_project = self.host.project_directory
+            self.folder_choice = None  # a folder picked for one project is not offered for another
+        if not self.job.busy:
+            self.result.setText("")  # an old outcome describes the previous dataset or format
         if not self.project_open:
             self.scan_meta.setText("")
             self.stack.setCurrentWidget(self.no_project)
@@ -249,7 +279,7 @@ class ProjExportScreen(Screen):
         urls = scan_urls(scan)
         self.scan_meta.setText(
             trf(
-                "скан {run} · {count}",
+                "Скан {run} · {count}",
                 run=short_run_id(scan.get("uuid")),
                 count=trf("{n} URL", n=number(urls)) if urls is not None else tr("Нет данных"),
             )
@@ -263,9 +293,9 @@ class ProjExportScreen(Screen):
         for key, _label, _hint in FORMATS:
             self.format_buttons[key].setChecked(key == self.fmt)
         self.format_hint.setText(tr(next(hint for key, _label, hint in FORMATS if key == self.fmt)))
-        name = f"{self.dataset}_{short_run_id(scan.get('uuid'))}.{self.fmt}"
         self.folder.setText(self.folder_choice or f"{self.host.project_directory}/exports")
-        self.file_name.setText(f"{tr('Файл')}: {name}")
+        self.folder.setToolTip(self.folder.text())
+        self.file_name.setText(f"{tr('Файл')}: {shown_name(scan, self.dataset, self.fmt)}")
 
     def browse(self):
         chosen = QFileDialog.getExistingDirectory(
@@ -289,7 +319,7 @@ class ProjExportScreen(Screen):
         except OSError:
             self.result.setText(tr("Не удалось создать папку экспорта"))
             return
-        out = folder / f"{self.dataset}_{short_run_id(scan.get('uuid'))}.{self.fmt}"
+        out = folder / output_name(scan, self.dataset, self.fmt)
         if any(folder.glob(out.stem + ".*")):
             self.result.setText(tr("Файлы с таким именем уже есть: выберите другую папку"))
             return
@@ -310,13 +340,20 @@ class ProjExportScreen(Screen):
             out,
         )
 
+    def cancel_export(self):
+        self.job.cancel()
+        self.run.setEnabled(True)
+        self.result.setText(tr("Экспорт отменён"))
+
     def _exported(self, _token, payload):
         self.run.setEnabled(True)
         if payload.get("ok") is not True:
             self.result.setText(reason_text(payload))
             return
         files = payload.get("files") or []
-        self.result.setText(trf("Записано файлов: {n}", n=len(files)))
+        self.result.setText(
+            trf("Записано файлов: {n}", n=len(files)) if files else tr("Экспорт не создал файлов")
+        )
         self.result.setToolTip("\n".join(str(item) for item in files))
 
     def _export_failed(self, _token, reason):

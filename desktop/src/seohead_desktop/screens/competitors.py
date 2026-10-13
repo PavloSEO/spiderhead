@@ -27,6 +27,7 @@ from ..competitors import (
     DEFAULT_URL_CAP,
     MAX_URL_CAP,
     candidate_arguments,
+    candidate_text,
     competitor_rows,
     parse_candidates,
     scan_budget,
@@ -42,10 +43,28 @@ from .work import RowsModel, build_table, number, project_state
 ACTIVE_RUN_STATES = {"queued", "starting", "running", "stop_requested", "awaiting_core_status"}
 COLUMNS = (
     ("Сайт", lambda row: row["host"], None, lambda row: row["url"]),
-    ("Состояние", lambda row: row["state"], None, lambda row: row["candidate_state"]),
-    ("Сканов", lambda row: number(row["scan_count"]), None, None),
-    ("Последний скан", lambda row: row["latest_finished_at"] or "—", None, None),
+    (
+        "Состояние",
+        lambda row: tr(row["state"]),
+        None,
+        lambda row: tr(candidate_text(row["candidate_state"])),
+    ),
+    ("Сканы", lambda row: number(row["scan_count"]), None, None),
+    ("Последний скан", lambda row: _stamp(row["latest_finished_at"]), None, None),
 )
+
+
+def _stamp(value) -> str:
+    """ISO time from the core as ``dd.MM.yyyy HH:mm`` in local time; anything else is shown as it is."""
+    if not value:
+        return "—"
+    try:
+        moment = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return str(value)
+    if moment.tzinfo is not None:
+        moment = moment.astimezone()
+    return moment.strftime("%d.%m.%Y %H:%M")
 
 
 class CompetitorsScreen(Screen):
@@ -80,7 +99,7 @@ class CompetitorsScreen(Screen):
         layout.addLayout(intake)
 
         controls = QHBoxLayout()
-        controls.addWidget(QLabel(tr("URL на сайт")))
+        controls.addWidget(QLabel(tr("Страниц на конкурента")))
         self.cap = QSpinBox()
         self.cap.setRange(1, MAX_URL_CAP)
         self.cap.setValue(DEFAULT_URL_CAP)
@@ -97,7 +116,9 @@ class CompetitorsScreen(Screen):
         controls.addWidget(self.remove_button)
         layout.addLayout(controls)
 
-        self.table = build_table(self.model, badge_column=None, stretch=0)
+        self.table = build_table(
+            self.model, badge_column=None, stretch=0, fixed={1: 190, 2: 90, 3: 200}
+        )
         self.table.selectionModel().currentRowChanged.connect(lambda *_args: self._sync_actions())
         layout.addWidget(self.table, 1)
         self.status = QLabel()
@@ -136,9 +157,11 @@ class CompetitorsScreen(Screen):
         self._sync_actions()
         limit = self._limit()
         text = trf("Конкурентов: {n} из {limit}", n=number(len(rows)), limit=number(limit))
+        if not rows:
+            text = tr("Конкурентов пока нет: добавьте адреса выше или вставьте список из буфера.")
         error = host.screen_errors.get("competitors-add")
         if error:
-            text = tr("Ядро не приняло конкурентов") + ": " + error
+            text = tr("Сервис не принял конкурентов") + ": " + error
         self.status.setText(text)
 
     def _limit(self) -> int:
@@ -173,7 +196,7 @@ class CompetitorsScreen(Screen):
         host = self.host
         if not self._feature_available("seo_project_competitors_add"):
             self.status.setText(
-                tr("Эта версия ядра не поддерживает работу со списком конкурентов.")
+                tr("Эта версия движка не поддерживает работу со списком конкурентов.")
             )
             return False
         if not host.project_directory:
@@ -182,7 +205,7 @@ class CompetitorsScreen(Screen):
         parsed = parse_candidates(text, existing=self._known_urls(), limit=self._limit())
         if parsed["refused"]:
             details = "; ".join(
-                f"{token or '—'}: {reason}" for token, reason in parsed["refused"][:5]
+                f"{token or '—'}: {tr(reason)}" for token, reason in parsed["refused"][:5]
             )
             self.status.setText(tr("Не добавлено") + ": " + details)
         if not parsed["accepted"]:
@@ -212,7 +235,7 @@ class CompetitorsScreen(Screen):
     def remove_selected(self):
         if not self._feature_available("seo_project_competitors_remove"):
             self.status.setText(
-                tr("Эта версия ядра не поддерживает удаление конкурентов из списка.")
+                tr("Эта версия движка не поддерживает удаление конкурентов из списка.")
             )
             return
         index = self.table.currentIndex()
@@ -227,8 +250,8 @@ class CompetitorsScreen(Screen):
             width=520,
             parent=self,
         )
-        dialog.add_button("Cancel", "text", on_click=dialog.reject)
-        dialog.add_button("Remove from list", "destructive", icon="delete", on_click=dialog.accept)
+        dialog.add_button("Отмена", "text", on_click=dialog.reject)
+        dialog.add_button("Убрать из списка", "destructive", icon="delete", on_click=dialog.accept)
         if dialog.exec_() != QDialog.Accepted:
             return
         self.status.setText(tr("Убираем конкурента из списка…"))
@@ -241,8 +264,9 @@ class CompetitorsScreen(Screen):
         )
 
     def _removed(self, result):
+        self._sync_actions()
         if not isinstance(result, dict) or result.get("ok") is False:
-            self.status.setText(tr("Ядро не подтвердило удаление конкурента."))
+            self.status.setText(tr("Сервис не подтвердил удаление конкурента."))
             return
         self.status.setText(tr("Конкурент убран из списка; его данные сохранены."))
         self.host.refresh_project()
@@ -251,10 +275,17 @@ class CompetitorsScreen(Screen):
     def start_scans(self):
         host = self.host
         cap = valid_url_cap(self.cap.value())
-        if cap is None or not host.project_directory or not host.core_executable:
+        if not host.project_directory:
+            self.status.setText(tr("Сначала откройте локальный проект SEOHEAD"))
+            return
+        if not host.core_executable:
+            self.status.setText(tr("Не найден локальный сервис SEOHEAD: сканы не запущены"))
+            return
+        if cap is None:
+            self.status.setText(tr("Лимит адресов должен быть целым числом от 1 до 1000"))
             return
         if host.crawl_descriptor is None or not isinstance(host.current_project_uuid, str):
-            self.status.setText(tr("Ядро не вернуло конфигурацию скана"))
+            self.status.setText(tr("Сервис не вернул конфигурацию скана"))
             return
         manager = host.ensure_scan_manager()
         busy = {
@@ -268,7 +299,7 @@ class CompetitorsScreen(Screen):
                 preview_configuration(host.crawl_descriptor, draft)["overrides"].items()
             )
         except ValueError as exc:
-            self.status.setText(tr("Конфигурация скана отклонена ядром") + ": " + str(exc))
+            self.status.setText(tr("Конфигурация скана отклонена сервисом") + ": " + str(exc))
             return
         started, skipped, refused = 0, 0, []
         for row in self.model.rows:

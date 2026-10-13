@@ -33,14 +33,12 @@ from seohead_desktop import i18n, theming
 from seohead_desktop.app import MainWindow, load_theme
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.ui.components import TabConfigurationDialog, TabDeck
-from seohead_desktop.ui.crawl_configuration_dialog import CrawlConfigurationDialog
 from seohead_desktop.ui.help_guide import HelpGuideDialog
 from seohead_desktop.ui.tab_settings import TabSettingsDialog
 from seohead_desktop.ui.tabcatalogue import DETAIL_TABS, MAIN_TABS, RIGHT_TABS
 from seohead_desktop.ui.workspace import ActionFinder
 from tests._qt import sweep_widgets
 from tests._screens_core import open_qa
-from tests.test_crawl_configuration_dialog import descriptor as crawl_descriptor
 from tests.test_no_issue_numbers_in_ui import string_constants
 
 PACKAGE = Path(__file__).resolve().parents[1] / "src" / "seohead_desktop"
@@ -168,7 +166,6 @@ class WindowTests(unittest.TestCase):
             "tab configuration": TabConfigurationDialog(
                 MAIN_TABS, TabDeck(MAIN_TABS).visible_ids, window
             ),
-            "crawl configuration": CrawlConfigurationDialog(crawl_descriptor(), parent=window),
             "action finder": ActionFinder(window.action_registry(), window),
         }
         leaks = []

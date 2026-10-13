@@ -38,14 +38,18 @@ from .ui.work_monitor import RUN_LIMIT, bounded_observed_runs
 
 class ProjectMixin:
     def choose_project(self):
-        directory = QFileDialog.getExistingDirectory(self, "Открыть существующий проект SEOHEAD")
+        directory = QFileDialog.getExistingDirectory(
+            self, tr("Открыть существующий проект SEOHEAD")
+        )
         if directory:
             self.read_project(directory)
 
     def read_project(self, directory):
         if self._pending_note is not None:
             self.notice.show_error(
-                "Заметка сохраняется в текущий проект. Дождитесь подтверждения перед сменой проекта.",
+                tr(
+                    "Заметка сохраняется в текущий проект. Дождитесь подтверждения перед сменой проекта."
+                ),
                 "inbox-submit",
             )
             return
@@ -55,7 +59,9 @@ class ProjectMixin:
                 "shell.onboarding_done"
             ):  # first-run wizard owns the screen until it is passed
                 self.notice.show_error(
-                    "В выбранной папке нет project.json SEOHEAD. Выберите сохранённый проект через меню проекта.",
+                    tr(
+                        "В выбранной папке нет project.json SEOHEAD. Выберите сохранённый проект через меню проекта."
+                    ),
                     "project-open",
                 )
             return
@@ -201,7 +207,7 @@ class ProjectMixin:
         if not self.project_directory:
             self.statusBar().showMessage(tr("Сначала откройте локальный проект SEOHEAD"))
             return
-        self.cancel_requests()
+        self.cancel_reads()
         directory = self.project_directory
         self._reload_selected_scan = True
         self.statusBar().showMessage(tr("Обновление сохранённых проекций в фоне…"))

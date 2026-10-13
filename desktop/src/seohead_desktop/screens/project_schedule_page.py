@@ -134,7 +134,7 @@ class _SettingsPage(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(16)
-        self.header = PageHeader(self.title, self.subtitle)
+        self.header = PageHeader(self.title, tr(self.subtitle))
         self.header.title.setFixedHeight(28)
         self.header.meta.setMinimumHeight(19)
         self.header.layout().itemAt(0).layout().setSpacing(0)

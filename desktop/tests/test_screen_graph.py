@@ -11,7 +11,7 @@ from seohead_desktop import i18n
 from seohead_desktop.app import load_theme
 from seohead_desktop.qt import app as qt_app
 from seohead_desktop.screens.graph import GraphScreen, graph_arguments
-from seohead_desktop.screens.url_query import CoreJob
+from seohead_desktop.screens.url_query import PAGE, CoreJob
 from tests._qt import sweep_widgets
 
 
@@ -68,6 +68,17 @@ class GraphScreenTests(unittest.TestCase):
             screen._done(screen.token, {"ok": False, "reason_code": "cannot_read"})
         self.assertEqual(screen.table.rowCount(), 0)
         self.assertEqual(screen.kpis[0].number.text(), "Нет данных")
+
+    def test_a_failed_page_keeps_the_offset_and_offers_retry(self):
+        with patch.object(CoreJob, "start"):
+            screen = GraphScreen(self.host)
+            screen._done(screen.token, PAYLOAD)
+            screen.offset = PAGE
+            screen._failed(screen.token, "timeout")
+        self.assertEqual(screen.offset, PAGE)
+        self.assertTrue(screen.prev.isEnabled())
+        self.assertIsNotNone(screen.panel.itemAt(0).widget().action)
+        self.assertTrue(screen.table.isHidden())
 
     def test_without_a_scan_nothing_is_read(self):
         self.host.selected_scan_path = None

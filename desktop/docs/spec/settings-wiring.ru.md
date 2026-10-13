@@ -77,12 +77,9 @@ The historical filename is retained for compatibility with the settings document
 | `keys.close_tab` | Stored only | 5 | the action has no screen yet |
 | `keys.settings` | Applied | — | — |
 | `keys.stop_scan` | Applied | — | — |
-| `keys.pause_scan` | Stored only | 5 | the action has no screen yet |
-| `keys.recheck_url` | Stored only | 5 | the action has no screen yet |
 | `keys.find_in_table` | Applied | — | — |
 | `keys.expand_table` | Applied | — | — |
 | `keys.copy_tsv` | Stored only | 5 | the action has no screen yet |
-| `keys.columns` | Stored only | 5 | the action has no screen yet |
 | `keys.copy_url` | Applied | — | — |
 | `keys.help` | Applied | — | — |
 | `keys.all_shortcuts` | Stored only | 5 | the action has no screen yet |

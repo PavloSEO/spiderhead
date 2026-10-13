@@ -659,7 +659,7 @@ class DialogTests(DialogCase):
                 badge.text().startswith(ui("Недоступно в этой версии ядра")), badge.text()
             )
             self.assertNotRegex(badge.text(), r"\d")
-        self.assertEqual(rows["speed"], "2 req/s · 1 thr.")
+        self.assertEqual(rows["speed"], "2 req/s · 1 threads")
         self.assertEqual(rows["urls"], "1\u00a0500")
         self.assertEqual(rows["requests"], ui("без лимита"))
         self.assertEqual(rows["paid"], ui("нет"))

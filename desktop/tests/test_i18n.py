@@ -163,6 +163,33 @@ class DictionaryTests(unittest.TestCase):
                     set(PLACEHOLDER.findall(source)), set(PLACEHOLDER.findall(english))
                 )
 
+    def test_every_cyrillic_tr_literal_in_screens_and_ui_has_a_key(self):
+        dictionary = i18n._dictionary()
+        missing = []
+        for path in [
+            *sorted((PACKAGE / "screens").glob("*.py")),
+            *sorted((PACKAGE / "ui").rglob("*.py")),
+        ]:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+            for call in ast.walk(tree):
+                if not (
+                    isinstance(call, ast.Call)
+                    and isinstance(call.func, ast.Name)
+                    and call.func.id in {"tr", "trf"}
+                ):
+                    continue
+                for node in ast.walk(call.args[0]) if call.args else []:
+                    if (
+                        isinstance(node, ast.Constant)
+                        and isinstance(node.value, str)
+                        and CYRILLIC.search(node.value)
+                    ):
+                        if node.value not in dictionary:
+                            missing.append(
+                                f"{path.relative_to(PACKAGE).as_posix()}:{node.lineno}: {node.value[:60]}"
+                            )
+        self.assertEqual(missing, [])
+
     def test_english_texts_are_unique_so_the_way_back_is_unambiguous(self):
         raw = json.loads((PACKAGE / "i18n/en.json").read_text(encoding="utf-8"))
         seen = {}

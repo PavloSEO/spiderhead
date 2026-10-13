@@ -12,6 +12,9 @@ from .common import (  # noqa: F401
 )
 from .i18n import tr
 from .mcp_gateway import PersistentMcpGateway
+from .ui import motion
+
+WRITE_OPERATIONS = ("task-", "inbox-", "project-")
 
 
 class CommandsMixin:
@@ -42,30 +45,39 @@ class CommandsMixin:
         self.statusBar().showMessage(f"Локальный SEOHEAD MCP переподключается: {text}")
 
     def start_command(self, request_id, tool, arguments, handler):
+        """Return True when the request is submitted or queued, False when the core is unavailable or refused it."""
         gateway = self.ensure_mcp_gateway()
         if gateway is None:
-            return
+            return False
         operation = request_id.split(":", 1)[0]
         if operation in self.active_commands:
             # Keep one in-flight callback and only the latest pending intent per panel.
+            if operation in self.pending_commands:
+                self.statusBar().showMessage(tr("Предыдущий запрос в очереди заменён новым"))
             self.pending_commands[operation] = (request_id, tool, arguments, handler)
-            return
+            return True
         self.active_commands[operation] = request_id
         self.requests[request_id] = self.read_generation
         self.request_handlers[request_id] = handler
+        motion.activity.begin()
         try:
             gateway.submit(request_id, tool, arguments, self.read_generation)
         except (RuntimeError, ValueError) as exc:
             self.complete_command(request_id)
             self.statusBar().showMessage(str(exc))
-            return
+            return False
         self.cancel_button.setEnabled(True)
+        return True
 
     def complete_command(self, request_id):
-        self.requests.pop(request_id, None)
+        if self.requests.pop(request_id, None) is not None:
+            motion.activity.end()
         handler = self.request_handlers.pop(request_id, None)
         operation = request_id.split(":", 1)[0]
-        self.active_commands.pop(operation, None)
+        if self.active_commands.get(operation) != request_id:
+            # A reply for a read that was already dropped; the newer request owns the slot.
+            return None
+        self.active_commands.pop(operation)
         pending = self.pending_commands.pop(operation, None)
         if pending is not None:
             self.start_command(*pending)
@@ -150,6 +162,16 @@ class CommandsMixin:
         if kind:
             self.data_changed.emit(kind)
 
+    def cancel_reads(self):
+        """Drop in-flight and queued reads so a refresh replaces them; queued writes keep their callbacks."""
+        for operation in list(self.pending_commands):
+            if not operation.startswith(WRITE_OPERATIONS):
+                # First, so completing a read below cannot start its queued intent again.
+                self.pending_commands.pop(operation)
+        for request_id in list(self.requests):
+            if not request_id.startswith(WRITE_OPERATIONS):
+                self.complete_command(request_id)
+
     def cancel_requests(self):
         if self._pending_note is not None:
             self.notice.show_error(
@@ -159,6 +181,8 @@ class CommandsMixin:
             return
         if self.mcp_gateway is not None:
             self.mcp_gateway.cancel_generation(self.read_generation)
+        for _request in self.requests:
+            motion.activity.end()
         self.requests.clear()
         self.request_handlers.clear()
         self.active_commands.clear()
