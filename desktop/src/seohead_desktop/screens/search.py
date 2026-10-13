@@ -69,6 +69,17 @@ LANES = {
 }
 
 
+CORE_ERRORS = (("invalid CSS selector", "Селектор не читается как CSS"),)
+
+
+def core_error_text(reason):
+    """A known core failure in plain words; any other reason keeps a neutral wording (the raw text goes to the log)."""
+    for prefix, label in CORE_ERRORS:
+        if (reason or "").startswith(prefix):
+            return tr(label)
+    return tr("Ядро не вернуло результат")
+
+
 CHECK_QUERY = "Проверьте запрос, область поиска и селектор: результат поиска не получен."
 HINT_PROGRESS = "Сколько страниц уже просмотрено во время поиска"
 HINT_OCCURRENCES = "Число вхождений строки: на странице и во всём результате"
@@ -216,6 +227,7 @@ class SearchScreen(Screen):
         )
         regex = self.kind._buttons["regex"]
         regex.setEnabled(False)
+        regex.hide()
         regex.setToolTip(
             unavailable_tip("Регулярные выражения: поиск идёт только по буквальной строке")
         )
@@ -263,6 +275,7 @@ class SearchScreen(Screen):
         flags.addWidget(self.case_sensitive)
         self.only_ok = QCheckBox(tr("Только HTML 200"))
         self.only_ok.setEnabled(False)
+        self.only_ok.hide()
         self.only_ok.setToolTip(unavailable_tip("Отбор по коду ответа"))
         flags.addWidget(self.only_ok)
         flags.addWidget(waiting(HINT_STATUS))
@@ -274,7 +287,7 @@ class SearchScreen(Screen):
         self.more.setAccessibleName(tr("Ещё параметры поиска"))
         self.more.setPopupMode(QToolButton.InstantPopup)
         self.menu = QMenu(self.more)
-        self.not_contains = self.menu.addAction(tr("Не содержит строку"))
+        self.not_contains = self.menu.addAction(tr("Не содержит фразу"))
         self.not_contains.setCheckable(True)
         self.rendered = self.menu.addAction(tr("Искать в сохранённом DOM после JavaScript"))
         self.rendered.setCheckable(True)
@@ -714,7 +727,7 @@ class SearchScreen(Screen):
             return StatePanel(
                 "error",
                 "Поиск не выполнен",
-                f"{(reason or tr('Ядро не вернуло результат.')).rstrip('.')}. {tr(CHECK_QUERY)}",
+                f"{core_error_text(reason)}. {tr(CHECK_QUERY)}",
                 action=("Повторить", self.request_search),
             )
         if view == "cancelled":
@@ -749,6 +762,8 @@ class SearchScreen(Screen):
         )
         if not coverage.get("documents_selected"):
             return tr("В скане нет страниц, по которым можно искать.")
+        if not skipped:
+            return tr("В просмотренных документах строки нет.")
         return trf(
             "В просмотренных документах строки нет, но {n} не просмотрено (нет сохранённого HTML или не HTML): отсутствие во всём скане не подтверждено.",
             n=number(skipped),

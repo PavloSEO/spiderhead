@@ -36,7 +36,7 @@ SCOPES = (
     ("Элемент", "selector_markup"),
 )
 REPRESENTATIONS = (("Исходный HTML", "static"), ("Сохранённый DOM", "rendered"))
-MODES = (("Содержит строку", "contains"), ("Не содержит строку", "not_contains"))
+MODES = (("Содержит фразу", "contains"), ("Не содержит фразу", "not_contains"))
 REASONS = (
     ("non_html", "Документ не является HTML"),
     ("body_absent", "Тело страницы не сохранено"),

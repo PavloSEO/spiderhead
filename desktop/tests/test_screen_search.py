@@ -180,7 +180,8 @@ class SearchScreenTests(unittest.TestCase):
         self.screen.query.setText("x")
         self.feed({"state": "error", "reason": "invalid CSS selector", "rows": []})
         self.assertEqual(self.screen.view, "error")
-        self.assertIn("invalid CSS selector", " ".join(texts(self.screen.state_panel)))
+        self.assertIn("Селектор не читается как CSS", " ".join(texts(self.screen.state_panel)))
+        self.assertNotIn("invalid CSS selector", " ".join(texts(self.screen.state_panel)))
         self.screen.state_panel.action.click()
         self.assertEqual(self.host.content_search.calls[-1][0], "start")
 
