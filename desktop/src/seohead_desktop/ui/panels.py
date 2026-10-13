@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ..i18n import tr
 from .comparison_summary import ComparisonSummary
 from .components import PAGE_LIMIT, TabDeck, TablePanel, display_value, material_icon
 from .kit import waiting_badge
@@ -225,9 +226,9 @@ class ComparePanel(TablePanel):
         super().__init__(spec, parent)
         self.idle_when_cleared = True
         self.before = QComboBox()
-        self.before.setAccessibleName("До: исходный сохранённый скан")
+        self.before.setAccessibleName(tr("До: исходный сохранённый скан"))
         self.after = QComboBox()
-        self.after.setAccessibleName("После: новый сохранённый скан")
+        self.after.setAccessibleName(tr("После: новый сохранённый скан"))
         for combo in (self.before, self.after):
             combo.setMinimumContentsLength(22)
             combo.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
@@ -236,13 +237,15 @@ class ComparePanel(TablePanel):
         header_layout = QVBoxLayout(header)
         header_layout.setContentsMargins(0, 0, 0, 16)
         header_layout.setSpacing(16)
-        title = QLabel("Сравнение сканов")
+        title = QLabel(tr("Сравнение сканов"))
         title.setObjectName("sectionTitle")
         heading_row = QHBoxLayout()
         heading_row.addWidget(title, 1)
         header_layout.addLayout(heading_row)
         caption = QLabel(
-            "Выберите два сохранённых наблюдения. Исправление подтверждается отдельной проверкой ядра."
+            tr(
+                "Выберите два сохранённых наблюдения. Исправление подтверждается отдельной проверкой ядра."
+            )
         )
         caption.setObjectName("metadata")
         caption.setWordWrap(True)
@@ -250,11 +253,11 @@ class ComparePanel(TablePanel):
         title.setToolTip(caption.text())
         self.pair_toggle = QToolButton()
         self.pair_toggle.setCheckable(True)
-        self.pair_toggle.setText("Выбрать пару")
-        self.pair_toggle.setToolTip("Раскрыть выбор пары и повторное сравнение")
+        self.pair_toggle.setText(tr("Выбрать пару"))
+        self.pair_toggle.setToolTip(tr("Раскрыть выбор пары и повторное сравнение"))
         self.pair_toggle.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.pair_toggle.setIcon(material_icon("tune"))
-        self.pair_toggle.setAccessibleName("Раскрыть выбор пары и повторное сравнение")
+        self.pair_toggle.setAccessibleName(tr("Раскрыть выбор пары и повторное сравнение"))
         self.pair_toggle.hide()
         heading_row.addWidget(self.pair_toggle)
         self.pair_controls = QWidget()
@@ -266,24 +269,24 @@ class ComparePanel(TablePanel):
         chooser = QGridLayout()
         chooser.setColumnStretch(0, 1)
         chooser.setColumnStretch(2, 1)
-        for column, text, combo in ((0, "Было", self.before), (2, "Стало", self.after)):
+        for column, text, combo in ((0, tr("Было"), self.before), (2, tr("Стало"), self.after)):
             label = QLabel(text)
             label.setObjectName("comparisonStep")
             chooser.addWidget(label, 0, column)
             chooser.addWidget(combo, 1, column)
         self.swap = QToolButton()
         self.swap.setIcon(material_icon("swap_horiz"))
-        self.swap.setToolTip("Поменять местами: было и стало")
-        self.swap.setAccessibleName("Поменять местами: было и стало")
+        self.swap.setToolTip(tr("Поменять местами: было и стало"))
+        self.swap.setAccessibleName(tr("Поменять местами: было и стало"))
         self.swap.clicked.connect(self._swap_pair)
         chooser.addWidget(self.swap, 1, 1)
         pair_layout.addLayout(chooser)
         controls = QHBoxLayout()
-        self.comparison_status = QLabel("Выберите два разных скана")
+        self.comparison_status = QLabel(tr("Выберите два разных скана"))
         self.comparison_status.setObjectName("metadata")
         self.comparison_status.setWordWrap(True)
         controls.addWidget(self.comparison_status, 1)
-        self.compare_button = QPushButton("Сравнить сохранённые сканы")
+        self.compare_button = QPushButton(tr("Сравнить сохранённые сканы"))
         self.compare_button.setProperty("role", "primary")
         self.compare_button.setEnabled(False)
         controls.addWidget(self.compare_button)
@@ -294,7 +297,7 @@ class ComparePanel(TablePanel):
         self.comparison_summary.filterRequested.connect(self.apply_status_filter)
         header_layout.addWidget(self.comparison_summary)
         gaps = QHBoxLayout()
-        gap_label = QLabel("По сегментам сайта и KPI до/после")
+        gap_label = QLabel(tr("По сегментам сайта и KPI до/после"))
         gap_label.setObjectName("metadata")
         gaps.addWidget(gap_label, 1)
         gaps.addWidget(waiting_badge(938))
@@ -302,12 +305,12 @@ class ComparePanel(TablePanel):
         self.filter.currentIndexChanged.disconnect()
         self.filter.clear()
         for label, state in (
-            ("Все на странице", "all"),
-            ("Исправлено", "resolved"),
-            ("Сохранилось", "persisting"),
-            ("Изменилось", "changed"),
-            ("Нельзя подтвердить", "not_verifiable"),
-            ("Новые", "new"),
+            (tr("Все на странице"), "all"),
+            (tr("Исправлено"), "resolved"),
+            (tr("Сохранилось"), "persisting"),
+            (tr("Изменилось"), "changed"),
+            (tr("Нельзя подтвердить"), "not_verifiable"),
+            (tr("Новые"), "new"),
         ):
             self.filter.addItem(label, state)
         self.filter.currentIndexChanged.connect(
@@ -371,7 +374,7 @@ class ComparePanel(TablePanel):
                 selected_uuid = latest[1 if combo is self.before else 0].get("uuid")
             combo.blockSignals(True)
             combo.clear()
-            combo.addItem("Выберите сохранённый скан", None)
+            combo.addItem(tr("Выберите сохранённый скан"), None)
             for scan in scans:
                 label = f"{field_text('finished_at', scan.get('finished_at') or scan.get('created_at'))} · {short_run_id(scan.get('uuid')) or 'ID неизвестен'} · {state_text('partial' if scan.get('crawl_partial') or scan.get('corpus_partial') else scan.get('lifecycle'))}"
                 combo.addItem(label, dict(scan))
@@ -398,7 +401,7 @@ class ComparePanel(TablePanel):
         )
         self.compare_button.setEnabled(valid and self.state != "loading")
         if not valid:
-            self.comparison_status.setText("Нужны два разных сохранённых скана")
+            self.comparison_status.setText(tr("Нужны два разных сохранённых скана"))
 
     def set_summary(self, payload):
         state = payload.get("state")
@@ -407,9 +410,9 @@ class ComparePanel(TablePanel):
         self.comparison_status.setText(
             payload.get("reason")
             or (
-                "Сравнение сохранено · результаты ниже"
+                tr("Сравнение сохранено · результаты ниже")
                 if state == "ready"
-                else "Выберите два сохранённых скана"
+                else tr("Выберите два сохранённых скана")
             )
         )
         self.comparison_summary.set_payload(payload)

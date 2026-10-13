@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
+from ..i18n import tr
 from ..ui.kit import StatePanel
 from .base import Screen
 from .logs import PAGE_SIZE, LogRowsModel, join_arguments
@@ -45,11 +46,11 @@ class LogsCompareScreen(Screen):
         header.setProperty("page_bar", True)
         row = QHBoxLayout(header)
         row.setContentsMargins(20, 8, 16, 8)
-        self.title = QLabel("Logs × scan")
+        self.title = QLabel(tr("Logs × scan"))
         self.title.setProperty("text_style", "title")
         row.addWidget(self.title)
         row.addStretch(1)
-        self.back = QPushButton("Back to logs")
+        self.back = QPushButton(tr("Back to logs"))
         self.back.clicked.connect(lambda: host.show_screen("logs"))
         row.addWidget(self.back)
         root.addWidget(header)
@@ -62,13 +63,13 @@ class LogsCompareScreen(Screen):
             self.view.addItem(label, key)
         self.view.currentIndexChanged.connect(lambda _index: self.load(reset=True))
         bar.addWidget(self.view)
-        self.refresh_button = QPushButton("Compare")
+        self.refresh_button = QPushButton(tr("Compare"))
         self.refresh_button.clicked.connect(lambda: self.load(reset=True))
         bar.addWidget(self.refresh_button)
-        self.previous = QPushButton("Previous")
+        self.previous = QPushButton(tr("Previous"))
         self.previous.clicked.connect(lambda: self.load(offset=max(0, self.offset - PAGE_SIZE)))
         bar.addWidget(self.previous)
-        self.next = QPushButton("Next")
+        self.next = QPushButton(tr("Next"))
         self.next.clicked.connect(lambda: self.load(offset=self.offset + PAGE_SIZE))
         bar.addWidget(self.next)
         self.scan_label = QLabel()
@@ -88,8 +89,8 @@ class LogsCompareScreen(Screen):
         root.addWidget(self.table, 1)
         self.state = StatePanel(
             "empty",
-            "Choose retained logs and a scan",
-            "Log joins are read-only and require a complete native scan.",
+            tr("Choose retained logs and a scan"),
+            tr("Log joins are read-only and require a complete native scan."),
         )
         root.addWidget(self.state)
         self.state.hide()
@@ -102,15 +103,15 @@ class LogsCompareScreen(Screen):
         entry = getattr(self.host, "log_imports", {}).get(self.host.project_directory)
         scan = selected_scan(self.host)
         self.scan_label.setText(
-            scan.get("display_name") or scan.get("uuid") or "No scan selected"
+            scan.get("display_name") or scan.get("uuid") or tr("No scan selected")
             if scan
-            else "No scan selected"
+            else tr("No scan selected")
         )
         if not entry or not entry.get("source"):
-            self._show("Import a log from the Logs screen before comparing.")
+            self._show(tr("Import a log from the Logs screen before comparing."))
             return
         if not scan or not scan.get("path"):
-            self._show("Select a retained scan in the project header.")
+            self._show(tr("Select a retained scan in the project header."))
             return
         self.load(reset=True)
 
@@ -125,7 +126,7 @@ class LogsCompareScreen(Screen):
             self.offset = offset
         token = object()
         self._token = token
-        self.summary.setText("Reading the selected log and scan evidence…")
+        self.summary.setText(tr("Reading the selected log and scan evidence…"))
         self.job.start(
             join_arguments(entry["source"], scan["path"], self.view.currentData(), self.offset),
             token,
@@ -143,7 +144,7 @@ class LogsCompareScreen(Screen):
             )
             scan = selected_scan(self.host) or {}
             message = str(
-                payload.get("reason") or payload.get("error") or "Log/scan join unavailable."
+                payload.get("reason") or payload.get("error") or tr("Log/scan join unavailable.")
             )
             message = message.replace(source, "retained log").replace(
                 str(scan.get("path", "")), "selected scan"
