@@ -14,7 +14,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel
 
 from .. import theming
-from ..i18n import joined, tr, trf
+from ..i18n import Num, joined, tr, trf
 from ..ui.controls import polish
 from ..ui.icons import MaterialIconLabel
 from ..ui.presentation import short_run_id
@@ -124,9 +124,9 @@ def selected_scan(host):
 def megabytes(value):
     if not isinstance(value, (int, float)) or isinstance(value, bool):
         return None
-    return trf(
-        "{n} МБ", n=f"{value / 1_048_576:.1f}".replace(".", ",") if value >= 104_858 else "< 0,1"
-    )
+    if value < 104_858:
+        return trf("< {n} МБ", n=Num(0.1, 1))
+    return trf("{n} МБ", n=Num(value / 1_048_576, 1))
 
 
 class RunRow:
@@ -276,7 +276,7 @@ class RunRow:
             "stop_requested": "Остановка запрошена",
             "queued": "В очереди",
             "starting": "Запускается",
-            "awaiting_core_status": "Ожидание статуса ядра",
+            "awaiting_core_status": "Ожидание статуса движка",
             "failed": "Ошибка",
             "rejected": "Отклонён",
             "status_unavailable": "Статус не подтверждён",
@@ -319,7 +319,7 @@ class RunRow:
         if crawl is False and corpus is False:
             return tr("полный")
         if crawl is False and corpus is True:
-            return tr("обход полный · корпус неполный")
+            return tr("обход полный · контент неполный")
         return None
 
     @property
@@ -448,7 +448,7 @@ def events_text(row):
                 label=label,
             )
         )
-    return joined("\n", lines) if lines else tr("События ядра не получены")
+    return joined("\n", lines) if lines else tr("События движка не получены")
 
 
 class StatusBadge(QLabel):
