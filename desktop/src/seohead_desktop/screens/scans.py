@@ -31,7 +31,7 @@ from PyQt5.QtWidgets import (
 )
 
 from .. import i18n, theming
-from ..i18n import tr, trf
+from ..i18n import Num, tr, trf
 from ..ui import motion
 from ..ui.icons import MaterialIconLabel, material_icon
 from ..ui.kit import (
@@ -368,7 +368,15 @@ class RunAside(QFrame):
             grid.addWidget(self.cells[key], index // 3, index % 3)
         layout.addLayout(grid)
         self.live_pairs = Pairs(
-            ("Сейчас, запросов/с", "Лимит запросов/с", "Режим", "Диск запуска", "Связан с задачами")
+            (
+                "Сейчас, запросов/с",
+                "Осталось (оценка)",
+                "Лимит URL",
+                "Лимит запросов/с",
+                "Режим",
+                "Диск запуска",
+                "Связан с задачами",
+            )
         )
         layout.addWidget(self.live_pairs)
         caption = QLabel(tr("События").upper())
@@ -419,7 +427,14 @@ class RunAside(QFrame):
         line, self.done_badge, self.done_at = self._status_line()
         layout.addLayout(line)
         self.done_pairs = Pairs(
-            ("URL сохранено", "Полнота", "Источник", "Длительность", "Причина завершения")
+            (
+                "URL сохранено",
+                "Лимит URL",
+                "Полнота",
+                "Источник",
+                "Длительность",
+                "Причина завершения",
+            )
         )
         layout.addWidget(self.done_pairs)
         self.done_reason = QLabel()
@@ -513,14 +528,18 @@ class RunAside(QFrame):
         ):
             self.cells[key].set_value(value)
         rate_window = row.telemetry.get("rate_window_seconds")
-        rate = f"{row.rate:.1f}".replace(".", ",") if row.rate is not None else None
+        rate = str(Num(row.rate, 1)) if row.rate is not None else None
         if rate and isinstance(rate_window, (int, float)):
             rate = trf("{rate} · окно {window} с", rate=rate, window=f"{rate_window:.0f}")
         self.live_pairs.set("Сейчас, запросов/с", rate)
+        self.live_pairs.set(
+            "Осталось (оценка)", duration(row.eta_seconds) if row.eta_seconds else None
+        )
+        self.live_pairs.set("Лимит URL", row.limit_text)
         limit = row.collector.get("max_requests_per_second")
         self.live_pairs.set(
             "Лимит запросов/с",
-            f"{limit:g}".replace(".", ",") if isinstance(limit, (int, float)) else None,
+            str(Num(limit, 1)) if isinstance(limit, (int, float)) else None,
         )
         self.live_pairs.set("Режим", mode_text(row))
         self.live_pairs.set("Диск запуска", megabytes((row.scan or {}).get("disk_bytes")))
@@ -559,14 +578,14 @@ class RunAside(QFrame):
         self.done_badge.set_state(row.badge_kind, row.state_label(), row.badge_icon)
         self.done_at.setText(row.started_text or tr("Время начала не указано"))
         self.done_pairs.set("URL сохранено", row.urls_text)
+        self.done_pairs.set("Лимит URL", row.limit_text)
         self.done_pairs.set("Полнота", row.completeness)
         self.done_pairs.set("Источник", row.source if row.kind else None)
         seconds = (
             (row.finished - row.started).total_seconds() if row.started and row.finished else None
         )
         self.done_pairs.set("Длительность", duration(seconds))
-        reason = (row.run or {}).get("finish_reason") or (row.scan or {}).get("finish_reason")
-        self.done_pairs.set("Причина завершения", str(reason) if reason else None)
+        self.done_pairs.set("Причина завершения", row.outcome_text)
         status = (row.owned or {}).get("status_reason")
         self.done_reason.setText(status or "")
         self.done_reason.setVisible(bool(status))

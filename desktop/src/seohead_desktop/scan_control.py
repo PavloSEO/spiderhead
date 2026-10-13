@@ -281,6 +281,27 @@ class ScanControlMixin:
                 )
             selection.blockSignals(False)
 
+    OWNED_ACTIVE_STATES = frozenset({"queued", "starting", "running", "stop_requested"})
+
+    def cancel_label(self, active):
+        """Top-bar label: never a run id, empty when the bar is compact (icon only)."""
+        if self._narrow_chrome:
+            return ""
+        return tr("Остановить скан") if active else tr("Отменить чтение")
+
+    def sync_cancel_button(self, active):
+        """Update text, state and tooltip only on change, so a terminal run hides the button without flicker."""
+        button = self.cancel_button
+        text = self.cancel_label(active)
+        if button.text() != text:
+            button.setText(text)
+        tip = tr("Остановить выбранный скан") if active else tr("Отменить текущие чтения")
+        if button.toolTip() != tip:
+            button.setToolTip(tip)
+        wanted = bool(active or self.requests)
+        if button.isEnabled() != wanted:
+            button.setEnabled(wanted)
+
     def render_owned_run(self, detail):
         active = bool(detail) and detail.get("state") in {
             "queued",
@@ -291,15 +312,9 @@ class ScanControlMixin:
         self.stop_run_button.setEnabled(active)
         short_id = short_run_id((detail or {}).get("id"))
         self.stop_run_button.setText(
-            "Остановить " + short_id if active else "Остановить выбранный запуск"
+            tr("Остановить скан") if active else tr("Остановить выбранный запуск")
         )
-        self.cancel_button.setText(
-            "" if self._narrow_chrome else "Остановить " + short_id if active else "Отменить чтение"
-        )
-        self.cancel_button.setEnabled(active or bool(self.requests))
-        self.cancel_button.setToolTip(
-            "Цель управления: " + str((detail or {}).get("id") or "только текущие чтения")
-        )
+        self.sync_cancel_button(active)
         self.owned_target_caption.setText(
             f"Запуск этого окна: {short_id} · {state_text(detail.get('state'))}"
             if detail

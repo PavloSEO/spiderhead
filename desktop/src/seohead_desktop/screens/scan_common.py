@@ -129,6 +129,17 @@ def megabytes(value):
     return trf("{n} МБ", n=Num(value / 1_048_576, 1))
 
 
+FINISH_REASONS = {
+    "finished": "Все найденные URL обработаны",
+    "stopped_by_budget": "Достигнут лимит URL",
+    "request_limit": "Достигнут лимит запросов",
+    "duration_limit": "Достигнут лимит времени",
+    "storage_backpressure": "Остановлен: мало места на диске",
+    "errors": "Остановлен из-за ошибок",
+    "interrupted": "Прерван",
+}
+
+
 class RunRow:
     """One line of the run table: a run observed by the core, a run of this window, or a saved scan without a run."""
 
@@ -326,6 +337,56 @@ class RunRow:
     def started_text(self):
         return clock(self.started)
 
+    @property
+    def limit(self):
+        """Requested URL limit: what the core echoed, else what this window passed to it (0 = unlimited)."""
+        for value in (self.collector.get("max_urls"), (self.owned or {}).get("max_urls")):
+            if isinstance(value, int) and not isinstance(value, bool):
+                return value
+        return None
+
+    @property
+    def limit_text(self):
+        limit = self.limit
+        if limit is None:
+            return None
+        return trf("{n} URL", n=number(limit)) if limit > 0 else tr("без лимита URL")
+
+    @property
+    def eta_seconds(self):
+        left = (self.queued or 0) + (self.inflight or 0)
+        if self.rate and self.rate > 0 and left and self.group == "live":
+            return left / self.rate
+        return None
+
+    def progress_text(self, brief=False):
+        """«done / found URL · speed · ETA»: only the parts the core measured; ``brief`` drops queue and limit."""
+        if self.fetched is None:
+            return None
+        parts = [
+            trf("{done} / {total} URL", done=number(self.fetched), total=number(self.found))
+            if self.found
+            else trf("{done} URL", done=number(self.fetched))
+        ]
+        if self.queued is not None and not brief:
+            parts.append(trf("в очереди {n}", n=number(self.queued)))
+        if self.rate is not None:
+            parts.append(trf("{n} URL/с", n=Num(self.rate, 1)))
+        eta = duration(self.eta_seconds) if self.eta_seconds else None
+        if eta:
+            parts.append(trf("осталось ~{time}", time=eta))
+        if self.limit and not brief:
+            parts.append(trf("лимит {n}", n=number(self.limit)))
+        return joined(" · ", parts)
+
+    @property
+    def outcome_text(self):
+        """Why a finished run ended, in words: the core's finish reason, else this window's status note."""
+        reason = (self.run or {}).get("finish_reason") or (self.scan or {}).get("finish_reason")
+        if reason:
+            return tr(FINISH_REASONS.get(reason, str(reason)))
+        return (self.owned or {}).get("status_reason") or None
+
     def partial_resumable(self):
         scan = self.scan or {}
         return bool(scan.get("path")) and (
@@ -399,12 +460,11 @@ def active_scan_summary(host):
     done, total = (row.fetched, row.found) if row.found else (None, None)
     if row.group == "pending" and row.state != "running":
         text = tr("Скан запускается")
-    elif done is not None and total:
+    elif row.progress_text(brief=True) and total:
         text = trf(
-            "{kind} · {done} / {total} URL",
+            "{kind} · {progress}",
             kind=row.title.split(" · ")[0],
-            done=number(done),
-            total=number(total),
+            progress=row.progress_text(brief=True),
         )
     elif row.fetched is not None:
         text = trf(
@@ -425,9 +485,10 @@ def mode_text(row):
     parts = []
     if row.mode:
         parts.append(tr(row.mode))
-    limit = row.collector.get("max_urls")
-    if isinstance(limit, int) and not isinstance(limit, bool):
-        parts.append(trf("лимит {n} URL", n=number(limit)) if limit > 0 else tr("без лимита URL"))
+    if row.limit is not None:
+        parts.append(
+            trf("лимит {n} URL", n=number(row.limit)) if row.limit > 0 else tr("без лимита URL")
+        )
     return joined(" · ", parts) if parts else None
 
 

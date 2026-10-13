@@ -167,11 +167,19 @@ class RowTests(unittest.TestCase):
         )
         self.assertEqual(
             RunRow(run(), scan=scan(crawl_partial=False, corpus_partial=True)).completeness,
-            ui("обход полный · корпус неполный"),
+            ui("обход полный · контент неполный"),
         )
         self.assertEqual(RunRow(run(), scan=scan(crawl_partial=True)).completeness, ui("частичный"))
         self.assertIsNone(RunRow(run(state="failed")).completeness)  # no saved scan: «Нет данных»
         self.assertEqual(RunRow(live_run()).completeness, ui("идёт"))
+
+    def test_progress_limit_and_outcome_come_from_measured_data(self):
+        live = RunRow(live_run())
+        self.assertEqual(live.limit, 60)
+        self.assertEqual(live.eta_seconds, 13.0)
+        self.assertIn("лимит 60", live.progress_text())
+        stopped = RunRow(run(state="partial", finish_reason="stopped_by_budget"))
+        self.assertEqual(stopped.outcome_text, "Достигнут лимит URL")
 
     def test_navigation_card_uses_measured_counters_only(self):
         host = FakeHost()
@@ -181,7 +189,12 @@ class RowTests(unittest.TestCase):
         host.observed_runs = [live_run()]
         self.assertEqual(
             active_scan_summary(host),
-            {"text": "Скан · 5 / 18 URL", "done": 5, "total": 18, "stale": False},
+            {
+                "text": "Скан · 5 / 18 URL · 1,0 URL/с · осталось ~13 с",
+                "done": 5,
+                "total": 18,
+                "stale": False,
+            },
         )
         host.observed_runs = [stale_run()]
         summary = active_scan_summary(host)
@@ -250,8 +263,8 @@ class ScreenTests(Base):
         self.assertEqual(self.cell(failed_row, 4), "0")  # measured zero stays 0
         ok_row = 1 - failed_row
         self.assertEqual(self.cell(ok_row, 4), "20")
-        self.assertEqual(self.cell(ok_row, 6), ui("обход полный · корпус неполный"))
-        self.assertIn("2 запусков в загруженной странице", self.screen.header.meta.text())
+        self.assertEqual(self.cell(ok_row, 6), ui("обход полный · контент неполный"))
+        self.assertIn("2 запуска в загруженной странице", self.screen.header.meta.text())
 
     def test_live_run_is_selected_and_its_aside_shows_measured_counters(self):
         self.feed(runs=[run(), live_run()], scans=[scan()], owned=[owned()])
@@ -316,7 +329,7 @@ class ScreenTests(Base):
         self.host.calls.clear()
         self.feed(runs=[live_run()], owned=[])
         self.assertFalse(self.screen.aside.stop_button.isEnabled())
-        self.assertIn("в этой версии ядра", self.screen.aside.stop_button.toolTip())
+        self.assertIn("в этой версии", self.screen.aside.stop_button.toolTip())
         self.screen.aside.stop_button.click()
         self.assertEqual(self.host.calls, [])
 
@@ -451,7 +464,7 @@ class WindowIntegrationTests(unittest.TestCase):
         window.update_active_scan_card()
         card = window.navigation.card
         self.assertTrue(card.active)
-        self.assertEqual(card.text.text(), "Scan · 5 / 18 URL")
+        self.assertEqual(card.text.text(), "Scan · 5 / 18 URL · 1.0 URL/s · ~13 s left")
         self.assertEqual((card.bar.maximum(), card.bar.value()), (18, 5))
         window.observed_runs = [stale_run()]
         stale = live_run()

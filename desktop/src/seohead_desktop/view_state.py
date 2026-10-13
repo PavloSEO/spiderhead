@@ -25,7 +25,6 @@ from .i18n import tr
 from .ui import motion
 from .ui.presentation import (
     content_spacing,
-    short_run_id,
     theme_tokens,
 )
 from .ui.tab_settings import TabSettingsDialog
@@ -120,13 +119,13 @@ class ViewStateMixin:
             self.sync_picker(self.scan_picker, self.scan_button)
             self.source_badge.setVisible(not narrow)
             self.update_status_tail()
-            self.cancel_button.setText(
-                ""
-                if narrow
-                else "Остановить " + short_run_id(self.selected_managed_run_id)
-                if self.selected_managed_run_id
-                else "Отменить чтение"
+            manager = getattr(self, "scan_manager", None)
+            run = (
+                manager.detail(self.selected_managed_run_id)
+                if manager and self.selected_managed_run_id
+                else None
             )
+            self.sync_cancel_button(bool(run) and run.get("state") in self.OWNED_ACTIVE_STATES)
         compact = self.centralWidget().width() < theme_tokens()["layout"][
             "compact_breakpoint"
         ] and self.prefs.get("view.rail_when_narrow")
