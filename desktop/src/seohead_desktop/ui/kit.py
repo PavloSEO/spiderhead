@@ -94,6 +94,7 @@ class StatePanel(QFrame):
         super().__init__(parent)
         self.kind = kind
         self.setProperty("state_panel", kind)
+        self.setMaximumWidth(560)  # one reading width for every state panel
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 32, 24, 32)
         layout.setSpacing(8)
@@ -222,7 +223,7 @@ def waiting_badge(issue, hint=""):
     label.setProperty("waiting_issue", issue)
     hint = hint or ISSUE_HINTS.get(issue, "")
     label.setToolTip(
-        trf("{state}\n{soon}: {hint}", state=UNAVAILABLE, soon="Появится", hint=hint)
+        trf("{state}\n{soon}: {hint}", state=tr(UNAVAILABLE), soon=tr("Появится"), hint=tr(hint))
         if hint
         else tr(UNAVAILABLE)
     )
@@ -277,6 +278,7 @@ class PageHeader(QWidget):
         self.title.setProperty("text_style", "title")
         self.meta = QLabel(meta)
         self.meta.setProperty("text_style", "meta")
+        self.meta.setWordWrap(True)
         self.meta.setVisible(bool(meta))
         texts.addWidget(self.title)
         texts.addWidget(self.meta)

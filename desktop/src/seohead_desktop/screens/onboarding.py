@@ -481,7 +481,9 @@ class OnboardingScreen(Screen):
         self.connect_button.setProperty("role", "tonal")
         self.connect_button.setEnabled(bool(self.host.core_executable))
         self.connect_button.setToolTip(
-            "" if self.host.core_executable else tr("CLI ядра seohead не найден")
+            tr("Подключение — в Настройках → MCP-сервер. Запись в конфиг требует разрешения.")
+            if self.host.core_executable
+            else tr("CLI ядра seohead не найден")
         )
         self.connect_button.clicked.connect(self.connect_agent)
         line.addWidget(self.connect_button)
