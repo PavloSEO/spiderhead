@@ -4028,5 +4028,10 @@
  "Вес ресурсов, байт": "Resource weight, bytes",
  "Ядро не сохранило профиль": "The core did not save the profile",
  "Читаю страницу…": "Reading the page…",
- "Проблемы URL, задача, глубина кликов": "URL issues, task, click depth"
+ "Проблемы URL, задача, глубина кликов": "URL issues, task, click depth",
+ "Принимаем…": "Accepting…",
+ "Селектор не читается как CSS": "The selector is not valid CSS",
+ "Не содержит фразу": "Does not contain phrase",
+ "Содержит фразу": "Contains phrase",
+ "В просмотренных документах строки нет.": "The phrase is not in the documents checked."
 }
