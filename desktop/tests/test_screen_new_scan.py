@@ -667,8 +667,42 @@ class DialogTests(DialogCase):
         texts = " ".join(label.text() for label in dialog.findChildren(QPushButton))
         self.assertIn(ui("Сохранить как профиль"), texts)
         profile = dialog.findChild(QPushButton, "scanSaveProfile")
-        self.assertFalse(profile.isEnabled())
-        self.assertIn("in this core version", profile.toolTip())
+        self.assertTrue(profile.isEnabled())
+
+    def test_save_profile_hands_the_changed_settings_to_the_core(self):
+        import json
+        import stat
+        import tempfile
+        from pathlib import Path
+        from unittest import mock
+
+        from PyQt5.QtCore import QEventLoop, QTimer
+        from PyQt5.QtWidgets import QInputDialog, QMessageBox
+
+        with tempfile.TemporaryDirectory() as folder:
+            log, script = Path(folder) / "args.json", Path(folder) / "core"
+            script.write_text(
+                "#!/usr/bin/env python3\nimport json,sys\n"
+                f"open({str(log)!r},'w').write(json.dumps([sys.argv[1:], open(sys.argv[3]).read()]))\n"
+                "print(json.dumps({'profile': sys.argv[5]}))\n"
+            )
+            script.chmod(script.stat().st_mode | stat.S_IEXEC)
+            self.window.core_executable = str(script)
+            dialog = self.open()
+            with (
+                mock.patch.object(QInputDialog, "getText", return_value=("my-profile", True)),
+                mock.patch.object(QMessageBox, "information") as info,
+            ):
+                dialog.profile_button.click()
+                loop = QEventLoop()
+                dialog.profile_job.done.connect(lambda *_a: QTimer.singleShot(0, loop.quit))
+                QTimer.singleShot(5000, loop.quit)
+                loop.exec_()
+            arguments, config = json.loads(log.read_text())
+            self.assertEqual(arguments[0], "crawl-site")
+            self.assertEqual(arguments[arguments.index("--save-profile") + 1], "my-profile")
+            self.assertIn("limits", json.loads(config))
+            info.assert_called_once()
 
     def test_descriptor_states_loading_error_and_arrival(self):
         self.window.crawl_descriptor = None

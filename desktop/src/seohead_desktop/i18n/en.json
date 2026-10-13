@@ -4018,5 +4018,13 @@
  "сканируются только адреса http и https": "only http and https addresses are scanned",
  "текст слишком большой": "the text is too large",
  "у адреса нет полного имени хоста": "the address has no full host name",
- "уже в списке": "already in the list"
+ "уже в списке": "already in the list",
+ "Чтение сохранённого тела…": "Reading the saved body…",
+ "Показано начало: {n} знаков": "Showing the first {n} characters",
+ "Тело этой страницы не сохранено в скане": "The body of this page is not saved in the scan",
+ "Ресурсов всего": "Resources in total",
+ "Скрипты": "Scripts",
+ "Стили": "Styles",
+ "Вес ресурсов, байт": "Resource weight, bytes",
+ "Ядро не сохранило профиль": "The core did not save the profile"
 }

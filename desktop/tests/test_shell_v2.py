@@ -274,7 +274,8 @@ class ShellV2Tests(unittest.TestCase):
         self.assertIn(page, self.window.placeholder_pages.values())
         self.assertIsInstance(page, CrawlerScreen)
         self.assertEqual(
-            page.findChild(StatePanel).title.text(), ui("Введите адрес и нажмите «Старт»")
+            page.panel_host.findChild(StatePanel).title.text(),
+            ui("Введите адрес и нажмите «Старт»"),
         )
         self.assertNotRegex("\n".join(label.text() for label in page.findChildren(QLabel)), r"#\d")
 

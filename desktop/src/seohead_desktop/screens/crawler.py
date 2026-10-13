@@ -8,6 +8,7 @@ temporary folder that is removed on «Очистить», on the next crawl and 
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import shutil
@@ -17,18 +18,21 @@ import time
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from PyQt5.QtCore import QCoreApplication, QProcess, Qt, QTimer
+from PyQt5.QtCore import QCoreApplication, QProcess, Qt, QTimer, QUrl
+from PyQt5.QtGui import QColor, QDesktopServices, QFont, QGuiApplication, QKeySequence
 from PyQt5.QtWidgets import (
     QButtonGroup,
+    QComboBox,
     QFileDialog,
     QFrame,
-    QGridLayout,
     QHBoxLayout,
     QHeaderView,
     QLabel,
     QLineEdit,
+    QMenu,
     QPushButton,
-    QSizePolicy,
+    QScrollArea,
+    QShortcut,
     QSpinBox,
     QSplitter,
     QStackedWidget,
@@ -43,10 +47,22 @@ from .. import theming
 from ..i18n import tr, trf
 from ..project_create import normalize_target
 from ..ui.icons import MaterialIconLabel, material_icon
-from ..ui.kit import BadgeDelegate, StatePanel, style_table
+from ..ui.kit import BADGE_ROLE, BadgeDelegate, StatePanel, style_table
+from ..ui.menus import entry, fill_menu
 from .scan_common import number
-from .url import COLUMNS, UrlDelegate, UrlPageModel
-from .url_query import PAGE, CoreJob, index_badge, query_arguments, reason_text
+from .url import HOST_ROLE, PATH_ROLE, UrlDelegate, UrlPageModel
+from .url_card import UrlCard
+from .url_query import (
+    PAGE,
+    CoreJob,
+    count_arguments,
+    detail_arguments,
+    http_badge,
+    index_badge,
+    query_arguments,
+    reason_text,
+    split_url,
+)
 
 COMPACT_WIDTH = 1000  # below this the overview column is hidden
 REFRESH_MS = 3000  # the table follows a running crawl at this pace
@@ -57,75 +73,170 @@ PLACEHOLDERS = {
     "list": "Адреса через пробел или запятую",
     "sitemap": "Адрес sitemap.xml",
 }
-EMPTY_FILTER = "Всё"
-TAB_FILTERS = (
-    ("Всё", []),
-    ("HTML", [{"column": "content_type", "op": "contains", "value": "html"}]),
-    ("JavaScript", [{"column": "content_type", "op": "contains", "value": "javascript"}]),
-    ("CSS", [{"column": "content_type", "op": "contains", "value": "css"}]),
-    ("Изображения", [{"column": "content_type", "op": "contains", "value": "image/"}]),
-    ("Коды ответа", [{"column": "status_class", "op": "ne", "value": "2xx"}]),
-    ("Директивы", [{"column": "meta_robots", "op": "not_empty"}]),
+
+
+def _flt(column, op, value=None):
+    return {"column": column, "op": op, **({} if value is None else {"value": value})}
+
+
+def _type(text):
+    return [_flt("content_type", "contains", text)]
+
+
+ALL = ("All", "all", [])
+# tab -> (label, facet of the core counter or None, filters); a filter without a facet is counted by a query
+TABS = (
+    ("All", (ALL,)),
+    (
+        "Internal",
+        (
+            ALL,
+            ("HTML", None, _type("html")),
+            ("JavaScript", None, _type("javascript")),
+            ("CSS", None, _type("css")),
+            ("Image files", None, _type("image/")),
+        ),
+    ),
+    (
+        "Response Codes",
+        (
+            ALL,
+            ("No response", None, [_flt("status_class", "eq", "none")]),
+            ("Success (2xx)", "status_2xx", [_flt("status_class", "eq", "2xx")]),
+            ("Redirection (3xx)", "status_3xx", [_flt("status_class", "eq", "3xx")]),
+            ("Client error (4xx)", "status_4xx", [_flt("status_class", "eq", "4xx")]),
+            ("Server error (5xx)", "status_5xx", [_flt("status_class", "eq", "5xx")]),
+        ),
+    ),
+    (
+        "Page Titles",
+        (
+            ALL,
+            ("Missing", "title_missing", [_flt("title", "empty")]),
+            ("Duplicate", "title_duplicate", [_flt("title_duplicate", "eq", True)]),
+            ("Over 60 characters", "title_long", [_flt("title_length", "gt", 60)]),
+            (
+                "Below 30 characters",
+                "title_short",
+                [_flt("title_length", "lt", 30), _flt("title", "not_empty")],
+            ),
+        ),
+    ),
+    (
+        "Meta Description",
+        (
+            ALL,
+            ("Missing", None, [_flt("meta_description", "empty")]),
+            ("Over 160 characters", None, [_flt("meta_description_length", "gt", 160)]),
+        ),
+    ),
+    (
+        "H1",
+        (
+            ALL,
+            ("Missing", None, [_flt("h1", "empty")]),
+            ("Multiple", None, [_flt("h1_2", "not_empty")]),
+        ),
+    ),
+    ("Images", (ALL, ("Missing alt text", None, [_flt("images_missing_alt_attr", "gt", 0)]))),
+    (
+        "Canonicals",
+        (
+            ALL,
+            ("Missing", "canonical_missing", [_flt("canonical", "empty")]),
+            ("Self referencing", "canonical_self", [_flt("canonical_self", "eq", True)]),
+            ("Canonicalised", "canonical_other", [_flt("canonical_other", "eq", True)]),
+        ),
+    ),
+    (
+        "Directives",
+        (
+            ALL,
+            ("Any directive", None, [_flt("meta_robots", "not_empty")]),
+            ("noindex (meta robots)", None, [_flt("meta_robots", "contains", "noindex")]),
+            ("noindex (X-Robots-Tag)", None, [_flt("x_robots", "contains", "noindex")]),
+            ("nofollow (meta robots)", None, [_flt("meta_robots", "contains", "nofollow")]),
+        ),
+    ),
+    (
+        "Links",
+        (
+            ALL,
+            ("No outlinks", None, [_flt("outlinks", "eq", 0)]),
+            ("With inlinks", "with_inlinks", [_flt("inlinks", "gt", 0)]),
+            ("No inlinks", None, [_flt("inlinks", "eq", 0)]),
+        ),
+    ),
+    ("Hreflang", (ALL, ("Present", None, [_flt("has_hreflang", "eq", True)]))),
+    (
+        "Sitemap",
+        (
+            ALL,
+            ("In sitemap", "in_sitemap", [_flt("in_sitemap", "eq", True)]),
+            ("Not in sitemap", None, [_flt("in_sitemap", "eq", False)]),
+        ),
+    ),
 )
-# icon, label, depth, core facet (the counter), filters; a row without a facet is a heading
-OVERVIEW = (
-    ("folder", "Всё", 0, "all", []),
-    ("folder_open", "Коды ответа", 0, None, None),
-    (
-        "check_circle",
-        "2xx успешно",
-        1,
-        "status_2xx",
-        [{"column": "status_class", "op": "eq", "value": "2xx"}],
-    ),
-    (
-        "subdirectory_arrow_right",
-        "3xx редирект",
-        1,
-        "status_3xx",
-        [{"column": "status_class", "op": "eq", "value": "3xx"}],
-    ),
-    (
-        "warning",
-        "4xx ошибка клиента",
-        1,
-        "status_4xx",
-        [{"column": "status_class", "op": "eq", "value": "4xx"}],
-    ),
-    (
-        "error",
-        "5xx ошибка сервера",
-        1,
-        "status_5xx",
-        [{"column": "status_class", "op": "eq", "value": "5xx"}],
-    ),
-    ("folder_open", "Title", 0, None, None),
-    ("remove", "Отсутствует", 1, "title_missing", [{"column": "title", "op": "empty"}]),
-    (
-        "content_copy",
-        "Дубли",
-        1,
-        "title_duplicate",
-        [{"column": "title_duplicate", "op": "eq", "value": True}],
-    ),
-    (
-        "fit_width",
-        "Длиннее 60 знаков",
-        1,
-        "title_long",
-        [{"column": "title_length", "op": "gt", "value": 60}],
-    ),
-    ("folder_open", "Canonical", 0, None, None),
-    ("remove", "Отсутствует", 1, "canonical_missing", [{"column": "canonical", "op": "empty"}]),
-    (
-        "open_in_new",
-        "На другой URL",
-        1,
-        "canonical_other",
-        [{"column": "canonical_other", "op": "eq", "value": True}],
-    ),
+# key, header, right-aligned; every key is a column of ``scan-url-query``
+CRAWLER_COLUMNS = (
+    ("url", "Address", False),
+    ("status_code", "Status Code", True),
+    ("content_type", "Content Type", False),
+    ("indexable", "Indexability", False),
+    ("title", "Title", False),
+    ("title_length", "Title Length", True),
+    ("meta_description", "Meta Description", False),
+    ("meta_description_length", "Meta Description Length", True),
+    ("h1", "H1", False),
+    ("canonical", "Canonical", False),
+    ("meta_robots", "Meta Robots", False),
+    ("x_robots", "X-Robots-Tag", False),
+    ("redirect_url", "Redirect URL", False),
+    ("crawl_depth", "Crawl Depth", True),
+    ("inlinks", "Inlinks", True),
+    ("outlinks", "Outlinks", True),
+    ("external_outlinks", "External Outlinks", True),
+    ("word_count", "Word Count", True),
+    ("size_bytes", "Size (bytes)", True),
+    ("response_time", "Response Time (ms)", True),
+    ("resource_count", "Resources", True),
 )
-HIDDEN_COLUMNS = (6, 9)  # inlinks and issue count: not part of the core page answer
+COLUMN_TITLES = {key: title for key, title, _right in CRAWLER_COLUMNS}
+RIGHT = frozenset(key for key, _title, right in CRAWLER_COLUMNS if right)
+INT_KEYS = RIGHT - {"status_code", "response_time"}
+BASE_KEYS = (
+    "url",
+    "status_code",
+    "content_type",
+    "indexable",
+    "title",
+    "crawl_depth",
+    "inlinks",
+    "word_count",
+    "response_time",
+)
+TAB_KEYS = {  # a tab shows the columns of its topic first, as Screaming Frog does
+    "Page Titles": ("title", "title_length"),
+    "Meta Description": ("meta_description", "meta_description_length"),
+    "H1": ("h1",),
+    "Canonicals": ("canonical",),
+    "Directives": ("meta_robots", "x_robots"),
+    "Links": ("inlinks", "outlinks", "external_outlinks"),
+}
+NO_EXPORT_FIELDS = frozenset(
+    ("indexable", "inlinks", "title_length", "meta_description_length", "resource_count")
+)
+SEARCH_FIELDS = (
+    ("url", "Address"),
+    ("title", "Title"),
+    ("h1", "H1"),
+    ("meta_description", "Meta Description"),
+    ("canonical", "Canonical"),
+)
+# overview rows: (tab, entry) of TABS under a heading per tab
+OVERVIEW = tuple(
+    (t, e) for t, (_name, entries) in enumerate(TABS) if t for e in range(1, len(entries))
+)
 PROGRESS = re.compile(
     r"(\d+) fetched, (\d+) known .*?(?:([\d.]+) req/s|rate n/a)"
 )  # the core's own progress line
@@ -171,6 +282,81 @@ def _check_url(url):
         raise ValueError("Адрес должен начинаться с http:// или https:// и содержать домен")
 
 
+class CrawlerModel(UrlPageModel):
+    """The page of the core answer with the columns the user chose (``keys``, in display order)."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.keys = list(BASE_KEYS)
+
+    def set_keys(self, keys):
+        self.beginResetModel()
+        self.keys = list(keys)
+        self.endResetModel()
+
+    def columnCount(self, parent=None):
+        return 0 if parent is not None and parent.isValid() else len(self.keys)
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if orientation != Qt.Horizontal or not 0 <= section < len(self.keys):
+            return None
+        key = self.keys[section]
+        if role == Qt.DisplayRole:
+            return tr(COLUMN_TITLES[key])
+        if role == Qt.TextAlignmentRole:
+            return int((Qt.AlignRight if key in RIGHT else Qt.AlignLeft) | Qt.AlignVCenter)
+        return None
+
+    def cell_text(self, row, key):
+        if key in INT_KEYS:
+            value = row.get(key)
+            return number(value) if type(value) is int else None
+        return super().cell_text(row, key)
+
+    def data(self, index, role=Qt.DisplayRole):
+        if not index.isValid() or index.row() >= len(self.rows) or index.column() >= len(self.keys):
+            return None
+        row, key = self.rows[index.row()], self.keys[index.column()]
+        if role == HOST_ROLE:
+            return self.foreign_host(row.get("url")) if key == "url" else None
+        if role == PATH_ROLE:
+            return split_url(row.get("url"))[1] if key == "url" else None
+        text = self.cell_text(row, key)
+        if role == BADGE_ROLE and self.badges and key in ("status_code", "indexable"):
+            return (
+                http_badge(row.get("status_code"))
+                if key == "status_code"
+                else index_badge(row.get("status_code"), row.get("indexable"))
+            )
+        if role == Qt.DisplayRole:
+            return text if text is not None else tr("Нет данных")
+        if role == Qt.TextAlignmentRole:
+            return int((Qt.AlignRight if key in RIGHT else Qt.AlignLeft) | Qt.AlignVCenter)
+        if role == Qt.FontRole and text is None:
+            font = QFont()
+            font.setItalic(True)
+            return font
+        if role == Qt.ForegroundRole and text is None:
+            return QColor(theming.roles()["text_muted"])
+        if role == Qt.ToolTipRole and key in ("url", "title", "meta_description", "canonical"):
+            return row.get(key)
+        return None
+
+
+class _CardHost:
+    """What the URL card asks of its host: the core and the scan file of this screen (the crawl's temporary one)."""
+
+    def __init__(self, screen):
+        self._screen = screen
+
+    @property
+    def selected_scan_path(self):
+        return self._screen.scan_path
+
+    def __getattr__(self, name):
+        return getattr(self._screen.host, name)
+
+
 class CrawlerScreen(QWidget):
     """Board «Краулер»: toolbar, check tabs, results table, overview counters, details and the status strip."""
 
@@ -190,13 +376,36 @@ class CrawlerScreen(QWidget):
         self.revision = 0
         self.base_filters = []
         self.speed_value = None
-        self.counts = {}
+        self.counts = {}  # (tab, filter) -> exact number of rows
+        self.pending = []
+        self.counters = {}
+        self.sort = None
+        self.tab_index = 0
+        self.filter_index = 0
+        self.current_url = None
+        self.detail_data = None
         self.page_job = CoreJob(host, self)
         self.page_job.done.connect(self._page_done)
         self.page_job.failed.connect(self._page_failed)
         self.facet_job = CoreJob(host, self)
         self.facet_job.done.connect(self._facets_done)
         self.facet_job.failed.connect(lambda _token, _reason: None)
+        self.count_job = CoreJob(host, self)
+        self.count_job.done.connect(self._count_done)
+        self.count_job.failed.connect(lambda _token, _reason: self._count_next())
+        self.detail_job = CoreJob(host, self)
+        self.detail_job.done.connect(self._detail_done)
+        self.detail_job.failed.connect(
+            lambda token, text: (
+                self._render_detail("error", text)
+                if token == ("detail", self.current_url)
+                else None
+            )
+        )
+        self._select_timer = QTimer(self)
+        self._select_timer.setSingleShot(True)
+        self._select_timer.setInterval(120)
+        self._select_timer.timeout.connect(self._load_detail)
         self.export_job = CoreJob(host, self)
         self.export_job.done.connect(self._export_done)
         self.export_job.failed.connect(self._export_failed)
@@ -221,7 +430,12 @@ class CrawlerScreen(QWidget):
         main = QWidget()
         main.setLayout(self._main())
         splitter.addWidget(main)
-        splitter.addWidget(self._detail_pane())
+        self.card = UrlCard(_CardHost(self))
+        self.card.set_agent_visible(False)
+        self.card.back.hide()
+        self.card.expand_button.hide()
+        self.card.hide_requested.connect(self.card.hide)
+        splitter.addWidget(self.card)
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 1)
         body.addWidget(splitter, 1)
@@ -321,8 +535,8 @@ class CrawlerScreen(QWidget):
         self.tabs.setExpanding(False)
         self.tabs.setUsesScrollButtons(True)
         self.tabs.setElideMode(Qt.ElideNone)
-        for text, _filters in TAB_FILTERS:
-            self.tabs.addTab(tr(text))
+        for name, _entries in TABS:
+            self.tabs.addTab(tr(name))
         self.tabs.currentChanged.connect(self._tab_changed)
         return self.tabs
 
@@ -333,38 +547,54 @@ class CrawlerScreen(QWidget):
         filters = QHBoxLayout()
         filters.setContentsMargins(10, 8, 10, 8)
         filters.setSpacing(8)
-        self.filter_label = QLabel()
-        self.filter_label.setProperty("badge", "info")
-        self.filter_label.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        filters.addWidget(self.filter_label)
+        self.subfilter = QComboBox()
+        self.subfilter.setMinimumWidth(190)
+        self.subfilter.setToolTip(tr("Filter of the selected tab"))
+        self.subfilter.currentIndexChanged.connect(self._filter_changed)
+        filters.addWidget(self.subfilter)
+        self.search_field = QComboBox()
+        for key, title in SEARCH_FIELDS:
+            self.search_field.addItem(tr(title), key)
+        self.search_field.currentIndexChanged.connect(lambda _i: self._search.start())
+        filters.addWidget(self.search_field)
         self.search = QLineEdit()
-        self.search.setPlaceholderText(tr("Поиск в адресах…"))
+        self.search.setPlaceholderText(tr("Search in the table…"))
         self.search.setClearButtonEnabled(True)
         self.search.setMinimumWidth(120)
         self.search.setMaximumWidth(260)
         self.search.textChanged.connect(lambda _text: self._search.start())
+        self.search.installEventFilter(self)
         filters.addWidget(self.search, 1)
+        self.columns_button = QPushButton(tr("Columns"))
+        self.columns_button.setIcon(material_icon("view_column"))
+        self.columns_button.setToolTip(tr("Choose the columns of this tab"))
+        self.columns_button.clicked.connect(self._columns_menu)
+        filters.addWidget(self.columns_button)
         self.export = QPushButton(tr("Экспорт"))
         self.export.clicked.connect(self._export)
         filters.addWidget(self.export)
         column.addLayout(filters)
-        self.model = UrlPageModel(self)
+        self.model = CrawlerModel(self)
         self.table = style_table(QTableView(), "compact")
         self.table.setModel(self.model)
         self.table.setFrameShape(QFrame.NoFrame)
         self.table.setTextElideMode(Qt.ElideRight)
-        self.table.setItemDelegateForColumn(0, UrlDelegate(self.table))
-        badges = BadgeDelegate(self.table)
-        for index in (1, 3):
-            self.table.setItemDelegateForColumn(index, badges)
+        self.url_delegate = UrlDelegate(self.table)
+        self.badge_delegate = BadgeDelegate(self.table)
         header = self.table.horizontalHeader()
         header.setStretchLastSection(False)
-        header.setSectionResizeMode(0, QHeaderView.Stretch)
-        header.setSectionResizeMode(4, QHeaderView.Interactive)
-        self.table.setColumnWidth(4, 180)
-        for index in HIDDEN_COLUMNS:
-            self.table.setColumnHidden(index, True)
+        header.setSectionsMovable(True)
+        header.setSectionsClickable(True)
+        header.setSortIndicatorShown(True)
+        header.sectionClicked.connect(self._header_clicked)
+        header.sectionMoved.connect(lambda *_a: QTimer.singleShot(0, self._order_changed))
+        header.setContextMenuPolicy(Qt.CustomContextMenu)
+        header.customContextMenuRequested.connect(self._header_menu)
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table.customContextMenuRequested.connect(self._row_menu)
+        self.table.activated.connect(self._open_details)
         self.table.selectionModel().currentRowChanged.connect(self._row_changed)
+        QShortcut(QKeySequence.Copy, self.table, self.copy_url, context=Qt.WidgetShortcut)
         self.stack = QStackedWidget()
         self.stack.addWidget(self.table)
         self.panel_host = QWidget()
@@ -392,78 +622,75 @@ class CrawlerScreen(QWidget):
             "Введите адрес и нажмите «Старт»",
             "Краул без проекта сохраняет результат во временную папку до закрытия окна.",
         )
-        self._set_filter(0)
+        self._fill_subfilter()
+        self._apply_keys(self._keys_for(0))
         return column
 
-    def _detail_pane(self):
-        pane = QWidget()
-        column = QVBoxLayout(pane)
-        column.setContentsMargins(0, 0, 0, 0)
-        column.setSpacing(0)
-        self._details = QLabel(tr("Выберите адрес в таблице, чтобы увидеть сведения"))
-        self._details.setProperty("text_style", "meta")
-        self._details.setContentsMargins(16, 10, 16, 10)
-        column.addWidget(self._details)
-        grid_host = QWidget()
-        grid = QGridLayout(grid_host)
-        grid.setContentsMargins(16, 4, 16, 12)
-        grid.setHorizontalSpacing(24)
-        grid.setVerticalSpacing(8)
-        self._fields = {}
-        for column_index, keys in enumerate(
-            (("url", "status_code", "indexable"), ("title", "crawl_depth", "response_time"))
+    def eventFilter(self, watched, event):
+        if (
+            watched is self.search
+            and event.type() == event.KeyPress
+            and event.key() == Qt.Key_Escape
         ):
-            for row_index, key in enumerate(keys):
-                title = next(c[1] for c in COLUMNS if c[0] == key)
-                caption = QLabel(tr(title))
-                caption.setProperty("text_style", "meta")
-                value = QLabel()
-                value.setTextInteractionFlags(Qt.TextSelectableByMouse)
-                value.setWordWrap(True)
-                grid.addWidget(caption, row_index, column_index * 2)
-                grid.addWidget(value, row_index, column_index * 2 + 1)
-                self._fields[key] = value
-        grid.setColumnStretch(1, 1)
-        grid.setColumnStretch(3, 1)
-        grid.setRowStretch(3, 1)
-        column.addWidget(grid_host, 1)
-        return pane
+            self.table.setFocus()  # Escape returns from the search box to the rows
+            return True
+        return super().eventFilter(watched, event)
 
     def _overview(self):
         panel = QFrame()
         panel.setFixedWidth(300)
         panel.setProperty("role", "overview")
-        column = QVBoxLayout(panel)
-        column.setContentsMargins(0, 0, 0, 0)
-        column.setSpacing(0)
+        outer = QVBoxLayout(panel)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
         title = QLabel(tr("Обзор"))
         title.setProperty("text_style", "overline")
         title.setContentsMargins(12, 10, 12, 6)
-        column.addWidget(title)
+        outer.addWidget(title)
+        body = QWidget()
+        column = QVBoxLayout(body)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(0)
         self.counters = {}
-        for index, (icon_name, text, depth, facet, _filters) in enumerate(OVERVIEW):
-            button = QPushButton()
-            button.setFlat(True)
-            button.setStyleSheet("QPushButton { border: none; background: transparent; }")
-            button.setEnabled(facet is not None)
-            button.setCursor(Qt.PointingHandCursor if facet else Qt.ArrowCursor)
-            row = QHBoxLayout(button)
-            row.setContentsMargins(6 + depth * 16, 2, 10, 2)
-            row.setSpacing(6)
-            row.addWidget(MaterialIconLabel(icon_name, 16, color="role:text_muted"))
-            label = QLabel(tr(text))
-            label.setEnabled(True)
-            row.addWidget(label)
-            row.addStretch(1)
+        total = QLabel("—")
+        self.counters[(0, 0)] = total
+        column.addWidget(self._overview_row("folder", "All", 0, total, (0, 0)))
+        last = None
+        for t, e in OVERVIEW:
+            name, entries = TABS[t]
+            if t != last:
+                last = t
+                heading = QLabel(tr(name))
+                heading.setProperty("text_style", "meta")
+                heading.setContentsMargins(10, 10, 10, 2)
+                column.addWidget(heading)
             count = QLabel("—")
-            count.setProperty("text_style", "meta")
-            row.addWidget(count)
-            if facet:
-                button.clicked.connect(lambda _c, i=index: self._select_overview(i))
-                self.counters[facet] = count
-            column.addWidget(button)
+            self.counters[(t, e)] = count
+            column.addWidget(self._overview_row(None, entries[e][0], 1, count, (t, e)))
         column.addStretch(1)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidget(body)
+        outer.addWidget(scroll, 1)
         return panel
+
+    def _overview_row(self, icon_name, text, depth, count, key):
+        button = QPushButton()
+        button.setFlat(True)
+        button.setStyleSheet("QPushButton { border: none; background: transparent; }")
+        button.setCursor(Qt.PointingHandCursor)
+        row = QHBoxLayout(button)
+        row.setContentsMargins(6 + depth * 16, 2, 10, 2)
+        row.setSpacing(6)
+        if icon_name:
+            row.addWidget(MaterialIconLabel(icon_name, 16, color="role:text_muted"))
+        row.addWidget(QLabel(tr(text)))
+        row.addStretch(1)
+        count.setProperty("text_style", "meta")
+        row.addWidget(count)
+        button.clicked.connect(lambda _c, k=key: self._select_overview(*k))
+        return button
 
     def _status(self):
         bar = QFrame()
@@ -637,6 +864,10 @@ class CrawlerScreen(QWidget):
         self.page_job.cancel()
         self.facet_job.cancel()
         self.export_job.cancel()
+        self.count_job.cancel()
+        self.detail_job.cancel()
+        self._select_timer.stop()
+        self.pending = []
         if self.process is not None and self.process.state() != QProcess.NotRunning:
             self.process.kill()
             self.process.waitForFinished(500)
@@ -648,8 +879,7 @@ class CrawlerScreen(QWidget):
         self.offset = 0
         self.model.set_rows([])
         self.counts = {}
-        for facet, label in self.counters.items():
-            label.setText("—")
+        self._show_counts()
         self._clear_details()
         self.foot_text.setText("")
         self.prev.setEnabled(False)
@@ -678,8 +908,13 @@ class CrawlerScreen(QWidget):
         found = list(self.base_filters)
         text = self.search.text().strip()
         if text:
-            found.append({"column": "url", "op": "contains", "value": text})
+            found.append(
+                {"column": self.search_field.currentData(), "op": "contains", "value": text}
+            )
         return found
+
+    def query_keys(self):
+        return list(dict.fromkeys(("url_id", "url", "status_code", *self.model.keys)))
 
     def _reload(self, keep_page=False):
         if not self.scan_path or not Path(self.scan_path).is_file():
@@ -688,7 +923,14 @@ class CrawlerScreen(QWidget):
             self.offset = 0
         self.revision += 1
         try:
-            arguments = query_arguments(self.scan_path, filters=self.filters(), offset=self.offset)
+            arguments = query_arguments(
+                self.scan_path,
+                filters=self.filters(),
+                offset=self.offset,
+                columns=self.query_keys(),
+                sort=self.sort[0] if self.sort else None,
+                direction=self.sort[1] if self.sort else "asc",
+            )
         except ValueError as exc:
             return self._show_panel("partial", "Ошибка запроса", str(exc))
         self.page_job.start(arguments, self.revision)
@@ -736,7 +978,7 @@ class CrawlerScreen(QWidget):
         self.export.setEnabled(bool(self.total))
         if self.state not in ("running", "stopping") and type(payload.get("total")) is int:
             self._counters(self.speed_value, payload["total"], 0)
-        self._clear_details()
+        self._restore_selection()
 
     def _page_failed(self, token, reason):
         if token == self.revision and self.state != "running":
@@ -768,62 +1010,325 @@ class CrawlerScreen(QWidget):
         if token != self.scan_path:
             return
         facets = payload.get("facets") or {}
-        for facet, label in self.counters.items():
-            value = facets.get(facet)
-            label.setText(number(value) if type(value) is int else "—")
+        self.pending = []
+        for t, (_name, entries) in enumerate(TABS):
+            for e, (_label, facet, _filters) in enumerate(entries):
+                value = facets.get(facet or "")
+                if type(value) is int:
+                    self.counts[(t, e)] = value
+                elif e:
+                    self.pending.append((t, e))
+        if type(facets.get("all")) is int:
+            self.counts[(0, 0)] = facets["all"]
+            for t in range(1, len(TABS)):
+                self.counts[(t, 0)] = facets["all"]
+        self._show_counts()
+        self._count_next()
 
-    # ---- selection ------------------------------------------------------------------------------------------
+    def _count_next(self):
+        if not self.pending or not self.scan_path:
+            return
+        t, e = self.pending.pop(0)
+        self.count_job.start(
+            count_arguments(self.scan_path, filters=TABS[t][1][e][2]), (self.scan_path, t, e)
+        )
+
+    def _count_done(self, token, payload):
+        scan, t, e = token
+        if scan == self.scan_path and type(payload.get("filtered_total")) is int:
+            self.counts[(t, e)] = payload["filtered_total"]
+            self._show_counts()
+        self._count_next()
+
+    def _show_counts(self):
+        """Counts beside the overview rows and inside the filter list of the current tab."""
+        for key, label in self.counters.items():
+            value = self.counts.get(key)
+            label.setText(number(value) if value is not None else "—")
+        for e in range(self.subfilter.count()):
+            label = TABS[self.tab_index][1][e][0]
+            value = self.counts.get((self.tab_index, e))
+            self.subfilter.setItemText(
+                e, tr(label) + (f"  ({number(value)})" if value is not None else "")
+            )
+
+    # ---- tabs, filters, columns ------------------------------------------------------------------------------
+    def _fill_subfilter(self, index=0):
+        self.subfilter.blockSignals(True)
+        self.subfilter.clear()
+        for label, _facet, _filters in TABS[self.tab_index][1]:
+            self.subfilter.addItem(tr(label))
+        self.subfilter.setCurrentIndex(index)
+        self.subfilter.blockSignals(False)
+        self.filter_index = index
+        self.base_filters = list(TABS[self.tab_index][1][index][2])
+        self.subfilter.setVisible(self.subfilter.count() > 1)
+        self._show_counts()
+
     def _tab_changed(self, index):
-        if index >= 0:
-            self._set_filter(index)
-            self._reload()
-
-    def _set_filter(self, index):
-        label, filters = TAB_FILTERS[index]
-        self.base_filters = list(filters)
-        self.filter_label.setText(trf("Фильтр: {name}", name=tr(label)))
-
-    def _select_overview(self, index):
-        _icon, label, _depth, _facet, filters = OVERVIEW[index]
-        self.base_filters = list(filters or [])
-        self.filter_label.setText(trf("Фильтр: {name}", name=tr(label)))
-        self.tabs.blockSignals(True)
-        self.tabs.setCurrentIndex(0 if not filters else -1)
-        self.tabs.blockSignals(False)
+        if index < 0:
+            return
+        self.tab_index = index
+        self._fill_subfilter()
+        self._apply_keys(self._keys_for(index))
         self._reload()
 
-    def _row_changed(self, current, _previous):
-        row = (
-            self.model.rows[current.row()]
-            if current.isValid() and current.row() < len(self.model.rows)
-            else None
+    def _filter_changed(self, index):
+        if index < 0:
+            return
+        self.filter_index = index
+        self.base_filters = list(TABS[self.tab_index][1][index][2])
+        self._reload()
+
+    def _select_overview(self, t, e):
+        self.tab_index = t
+        self.tabs.blockSignals(True)
+        self.tabs.setCurrentIndex(t)
+        self.tabs.blockSignals(False)
+        self._fill_subfilter(e)
+        self._apply_keys(self._keys_for(t))
+        self._reload()
+
+    def _keys_for(self, tab):
+        """Saved columns of a tab, else its default set; the address always comes first."""
+        name = TABS[tab][0]
+        store = getattr(self.host, "settings", None)
+        keys = None
+        if store is not None:
+            try:
+                keys = json.loads(store.value(f"crawler/columns/{name}", "null"))
+            except (TypeError, ValueError):
+                keys = None
+        if not isinstance(keys, list) or not all(k in COLUMN_TITLES for k in keys):
+            keys = (
+                [*BASE_KEYS]
+                if name not in TAB_KEYS
+                else ["url", "status_code", "indexable", *TAB_KEYS[name]]
+            )
+        return ["url", *(k for k in dict.fromkeys(keys) if k != "url")]
+
+    def _apply_keys(self, keys, save=False):
+        header = self.table.horizontalHeader()
+        self.model.set_keys(keys)
+        for index, key in enumerate(keys):
+            self.table.setItemDelegateForColumn(
+                index,
+                self.url_delegate
+                if key == "url"
+                else self.badge_delegate
+                if key in ("status_code", "indexable")
+                else None,
+            )
+            header.setSectionResizeMode(
+                index, QHeaderView.Stretch if key == "url" else QHeaderView.Interactive
+            )
+            if key != "url":
+                self.table.setColumnWidth(index, 105 if key in RIGHT else 140)
+        if self.sort and self.sort[0] in keys:
+            header.setSortIndicator(
+                keys.index(self.sort[0]),
+                Qt.DescendingOrder if self.sort[1] == "desc" else Qt.AscendingOrder,
+            )
+        else:
+            header.setSortIndicator(-1, Qt.AscendingOrder)
+        if save:
+            store = getattr(self.host, "settings", None)
+            if store is not None:
+                store.setValue(f"crawler/columns/{TABS[self.tab_index][0]}", json.dumps(keys))
+
+    def _order_changed(self):
+        header = self.table.horizontalHeader()
+        keys = [self.model.keys[header.logicalIndex(v)] for v in range(len(self.model.keys))]
+        if keys != self.model.keys:
+            self._apply_keys(keys, save=True)
+
+    def _set_column(self, key, visible):
+        keys = [k for k in self.model.keys if k != key] if not visible else [*self.model.keys, key]
+        self._apply_keys(keys, save=True)
+        self._reload(keep_page=True)
+
+    def _columns_menu(self):
+        menu = QMenu(self.columns_button)
+        for key, title, _right in CRAWLER_COLUMNS:
+            action = menu.addAction(tr(title))
+            action.setCheckable(True)
+            action.setChecked(key in self.model.keys)
+            action.setEnabled(key != "url")
+            action.toggled.connect(lambda checked, k=key: self._set_column(k, checked))
+        menu.exec_(self.columns_button.mapToGlobal(self.columns_button.rect().bottomLeft()))
+
+    def _header_clicked(self, column):
+        key = self.model.keys[column]
+        descending = bool(self.sort and self.sort[0] == key and self.sort[1] == "asc")
+        self._sort_by(key, "desc" if descending else "asc")
+
+    def _sort_by(self, key, direction):
+        self.sort = (key, direction)
+        self.table.horizontalHeader().setSortIndicator(
+            self.model.keys.index(key),
+            Qt.DescendingOrder if direction == "desc" else Qt.AscendingOrder,
         )
-        if row is None:
+        self._reload()
+
+    def _header_menu(self, point):
+        header = self.table.horizontalHeader()
+        column = header.logicalIndexAt(point)
+        if column < 0:
+            return
+        key = self.model.keys[column]
+        menu = fill_menu(
+            QMenu(header),
+            [
+                entry("arrow_upward", "По возрастанию", lambda: self._sort_by(key, "asc")),
+                entry("arrow_downward", "По убыванию", lambda: self._sort_by(key, "desc")),
+                None,
+                entry(
+                    "visibility_off",
+                    "Скрыть колонку",
+                    lambda: self._set_column(key, False),
+                    enabled=key != "url",
+                ),
+                entry("view_column", "Columns", self._columns_menu),
+            ],
+        )
+        menu.exec_(header.mapToGlobal(point))
+
+    # ---- selection and rows ----------------------------------------------------------------------------------
+    def _row_url(self, row):
+        return (self.model.rows[row].get("url") or "") if 0 <= row < len(self.model.rows) else ""
+
+    def copy_url(self):
+        url = self._row_url(self.table.currentIndex().row())
+        if url:
+            QGuiApplication.clipboard().setText(url)
+
+    def _copy_row(self):
+        row = self.table.currentIndex().row()
+        if 0 <= row < len(self.model.rows):
+            QGuiApplication.clipboard().setText(
+                "\t".join(
+                    self.model.cell_text(self.model.rows[row], k) or "" for k in self.model.keys
+                )
+            )
+
+    def _show_links(self, direction):
+        self.card.select_tab("links")
+        self.card.links.set_direction(direction)
+
+    def _row_menu(self, point):
+        index = self.table.indexAt(point)
+        if not index.isValid():
+            return
+        self.table.selectRow(index.row())
+        url = self._row_url(index.row())
+        web = urlsplit(url).scheme in (
+            "http",
+            "https",
+        )  # crawled addresses are data: only web links leave the app
+        menu = fill_menu(
+            QMenu(self.table),
+            [
+                entry("info", "Подробности", self._open_details, "↵"),
+                entry(
+                    "open_in_new",
+                    "Открыть сайт в браузере",
+                    lambda: QDesktopServices.openUrl(QUrl(url)),
+                    enabled=web,
+                ),
+                None,
+                entry("content_copy", "Копировать URL", self.copy_url, "⌘C"),
+                entry("table_rows", "Copy row", self._copy_row),
+                None,
+                entry("arrow_back", "Show inlinks", lambda: self._show_links("in")),
+                entry("arrow_forward", "Show outlinks", lambda: self._show_links("out")),
+            ],
+        )
+        menu.exec_(self.table.viewport().mapToGlobal(point))
+
+    def _open_details(self, *_index):
+        self.card.show()
+        self.card.select_tab("info")
+        self.card.tabs.setFocus()
+
+    def _row_changed(self, current, _previous):
+        if not current.isValid() or current.row() >= len(self.model.rows):
+            return
+        url = self.model.rows[current.row()].get("url")
+        if url and url != self.current_url:
+            self.current_url = url
+            self.detail_data = None
+            self._render_detail("loading")
+            self._select_timer.start()
+
+    def _restore_selection(self):
+        """A refresh must not drop the row under inspection."""
+        rows = self.model.rows
+        found = next((i for i, r in enumerate(rows) if r.get("url") == self.current_url), None)
+        if found is None:
             return self._clear_details()
-        self._details.setText(trf("Выбрано: {url}", url=row.get("url") or ""))
-        for key, label in self._fields.items():
-            value = row.get(key)
-            if key == "indexable":
-                text = index_badge(row.get("status_code"), value)[1]
-            else:
-                text = self.model.cell_text(row, key)
-            label.setText(text if text is not None else tr("Нет данных"))
+        selection = self.table.selectionModel()
+        selection.blockSignals(True)
+        self.table.selectRow(found)
+        selection.blockSignals(False)
+
+    def _current_row(self):
+        return next(
+            (r for r in self.model.rows if r.get("url") == self.current_url),
+            {"url": self.current_url},
+        )
+
+    def _load_detail(self):
+        if self.current_url and self.scan_path:
+            self.detail_job.start(
+                detail_arguments(self.scan_path, self.current_url), ("detail", self.current_url)
+            )
+
+    def _detail_done(self, token, payload):
+        if token != ("detail", self.current_url):
+            return
+        if payload.get("ok") is not True:
+            self.detail_data = None
+            return self._render_detail("error", reason_text(payload))
+        self.detail_data = payload
+        self._render_detail("ready")
+
+    def _render_detail(self, state, text=""):
+        page = (self.detail_data or {}).get("page") if self.detail_data else None
+        row = self._current_row() if state != "none" else {}
+        if page:  # the answer fills what the chosen columns lack
+            row = {
+                **row,
+                **{
+                    k: v
+                    for k, v in page.items()
+                    if v is not None
+                    and k in ("status_code", "title", "word_count", "crawl_depth", "response_time")
+                },
+            }
+        self.card.render(row, page, self.detail_data, state, text)
 
     def _clear_details(self):
-        self._details.setText(tr("Выберите адрес в таблице, чтобы увидеть сведения"))
-        for label in self._fields.values():
-            label.setText("")
+        self.current_url = None
+        self.detail_data = None
+        self._select_timer.stop()
+        self._render_detail("none")
 
     # ---- export ---------------------------------------------------------------------------------------------
     def _export(self):
         if not self.scan_path or not self.total:
             return
         path, chosen = QFileDialog.getSaveFileName(
-            self, tr("Экспорт адресов"), "crawl.csv", "CSV (*.csv);;Excel (*.xlsx)"
+            self,
+            tr("Экспорт адресов"),
+            "crawl.csv",
+            "CSV (*.csv);;Excel (*.xlsx);;JSON (*.json)",
         )
         if not path:
             return
-        fmt = "xlsx" if path.lower().endswith(".xlsx") or "xlsx" in chosen else "csv"
+        fmt = next(
+            (f for f in ("xlsx", "json") if path.lower().endswith("." + f) or f in chosen.lower()),
+            "csv",
+        )
         if not path.lower().endswith("." + fmt):
             path += "." + fmt
         if Path(
@@ -833,20 +1338,21 @@ class CrawlerScreen(QWidget):
                 Path(path).unlink()
             except OSError:
                 return self._set_state(self.state, tr("Не удалось заменить существующий файл"))
-        arguments = [
-            "scan-url-query",
-            "--scan",
-            self.scan_path,
-            "--export",
-            path,
-            "--export-format",
-            fmt,
-        ]
-        filters = self.filters()
-        if filters:
-            import json
-
-            arguments += ["--filters", json.dumps(filters, ensure_ascii=False)]
+        keys = self.model.keys
+        if (
+            fmt == "json"
+        ):  # the chosen columns as ``--fields``; the file holds every page of the crawl
+            fields = ",".join(k for k in keys if k not in NO_EXPORT_FIELDS)
+            arguments = ["scan-export", "--scan", self.scan_path, "--out", path]
+            arguments += ["--format", "json", "--records", "pages", "--fields", f"pages={fields}"]
+        else:
+            arguments = ["scan-url-query", "--scan", self.scan_path, "--export", path]
+            arguments += ["--export-format", fmt, "--columns", ",".join(keys)]
+            if self.sort:
+                arguments += ["--sort", self.sort[0], "--direction", self.sort[1]]
+            filters = self.filters()
+            if filters:
+                arguments += ["--filters", json.dumps(filters, ensure_ascii=False)]
         self.export.setEnabled(False)
         self.export_job.start(arguments, path)
 
@@ -854,7 +1360,8 @@ class CrawlerScreen(QWidget):
         self.export.setEnabled(bool(self.total))
         if payload.get("ok") is not True:
             return self._set_state(self.state, reason_text(payload))
-        self._set_state(self.state, trf("Экспорт записан: {path}", path=Path(token).name))
+        name = Path((payload.get("files") or [token])[0]).name
+        self._set_state(self.state, trf("Экспорт записан: {path}", path=name))
 
     def _export_failed(self, _token, reason):
         self.export.setEnabled(bool(self.total))
