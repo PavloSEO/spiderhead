@@ -693,11 +693,50 @@ def _record_crawl_failure(project_root: Path, reason: str) -> None:
         record_failure(project_root, reason)
 
 
-def crawl_control(project: str, run_id: str, action: str) -> dict[str, Any]:
-    """Request a checkpointed pause or stop for an active native project crawl."""
-    from seohead.projects.run_control import request
+def crawl_control(
+    project: str,
+    run_id: str,
+    action: str,
+    rate: float | None = None,
+    concurrency: int | None = None,
+) -> dict[str, Any]:
+    """Pause, stop or change the rate of an active native project crawl.
 
+    ``set_rate`` takes ``rate`` in URLs per second and an optional ``concurrency``
+    ceiling; the crawl applies it between batches and records it as a scan event.
+    """
+    from seohead.projects.run_control import request, request_rate
+
+    if action == "set_rate":
+        if rate is None:
+            raise ValueError("set_rate requires rate (URLs per second)")
+        return request_rate(project, run_id, rate, concurrency)
+    if rate is not None or concurrency is not None:
+        raise ValueError("rate and concurrency apply only to action=set_rate")
     return request(project, run_id, action)
+
+
+class _ResumeRate:
+    """Hand a resumed crawl its politeness override once, at the first batch boundary."""
+
+    def __init__(self, downstream, rate: tuple[float, int | None]) -> None:
+        self.downstream = downstream
+        self._rate: tuple[float, int | None] | None = rate
+
+    def __call__(self, fetched: int, queued: int) -> None:
+        if self.downstream is not None:
+            self.downstream(fetched, queued)
+
+    def pending_rate(self) -> tuple[float, int | None] | None:
+        rate, self._rate = self._rate, None
+        return rate
+
+
+def resume_inputs_delay(scan_path: str) -> float:
+    """The stored ``speed.min_delay_seconds`` of a resumable scan."""
+    from seohead.mcp.scan_handlers import resume_inputs
+
+    return float(resume_inputs(scan_path)["settings"]["speed"]["min_delay_seconds"])
 
 
 def crawl_site(
@@ -788,9 +827,34 @@ def crawl_site(
     if sitemap_only and url is None:
         url = sitemap
     if resume is not None:
-        # ``is not None`` rather than truthiness: --min-delay 0 and --max-urls 0 are
-        # settings the caller stated, and silently accepting them here would let a
-        # resume run under a value it then refuses to apply.
+        # Politeness is the one thing an operator may change on resume: it decides
+        # how hard the site is hit, not what the crawl collects. It is applied as a
+        # live rate change and recorded as a scan event, so the fingerprint and the
+        # stored frontier stay those of the original crawl.
+        politeness = dict(overrides or {})
+        resume_delay = politeness.pop("speed.min_delay_seconds", min_delay)
+        resume_concurrency = politeness.pop("speed.concurrency", concurrency)
+        overrides = politeness or None
+        min_delay = concurrency = None
+        initial_rate = None
+        if resume_delay is not None or resume_concurrency is not None:
+            from seohead.projects.run_control import checked_rate
+
+            if resume_delay is not None and (
+                isinstance(resume_delay, bool)
+                or not isinstance(resume_delay, (int, float))
+                or resume_delay <= 0
+            ):
+                raise ValueError("a resume rate override needs a positive min_delay")
+            if resume_delay is None:
+                resume_delay = resume_inputs_delay(resume)
+            # A stored delay of 0 means "unpaced"; only the concurrency is checked then.
+            rate_check = 1.0 / resume_delay if resume_delay > 0 else 1.0
+            _delay, checked_concurrency = checked_rate(rate_check, resume_concurrency)
+            initial_rate = (float(resume_delay), checked_concurrency)
+        # ``is not None`` rather than truthiness: --max-urls 0 is a setting the
+        # caller stated, and silently accepting it here would let a resume run
+        # under a value it then refuses to apply.
         conflicting = [
             name
             for name, value in (
@@ -866,7 +930,13 @@ def crawl_site(
                     aggregate_max_requests_per_second=pacer.max_requests_per_second,
                     run_id=observer_run_id,
                 )
-                reporter = ControlledRunReporter(project_root, observed["id"], progress)
+                reporter = ControlledRunReporter(
+                    project_root,
+                    observed["id"],
+                    progress,
+                    pacer=pacer,
+                    initial_rate=initial_rate,
+                )
                 try:
                     result = resume_scan(
                         resume,
@@ -931,7 +1001,12 @@ def crawl_site(
 
         # Read the settings before resuming: the scan is finished once resume_scan returns.
         rate = rate_fields(resume_inputs(resume)["settings"])
-        resumed = resume_scan(resume, url=url, producer_build=producer_build, progress=progress)
+        resumed = resume_scan(
+            resume,
+            url=url,
+            producer_build=producer_build,
+            progress=progress if initial_rate is None else _ResumeRate(progress, initial_rate),
+        )
         return {**resumed, **rate}
 
     import os
@@ -1213,7 +1288,9 @@ def crawl_site(
                 )
                 from seohead.projects.run_control import ControlledRunReporter
 
-                reporter = ControlledRunReporter(project_root, observed["id"], progress)
+                reporter = ControlledRunReporter(
+                    project_root, observed["id"], progress, pacer=pacer
+                )
         if pacer is None:
             # Outside a project the schedule lives in the user state directory, so
             # concurrent crawls of one host still share one aggregate ceiling.

@@ -262,6 +262,24 @@ class Throttle:
         with self._lock:
             return self.server_errors >= limit
 
+    def set_rate(self, min_delay: float, concurrency: int | None = None) -> None:
+        """Apply an operator's live politeness change to the next dispatched request.
+
+        The delay starts at the new floor: the operator, not earlier adaptive
+        back-off, decides the pace from here. Adaptive back-off still applies
+        afterwards when the origin starts to struggle.
+        """
+        with self._lock:
+            self.min_delay = min_delay
+            self.delay = self.min_delay
+            if concurrency is not None:
+                self.max_concurrency = max(1, int(concurrency))
+                self.concurrency = (
+                    min(self.concurrency, self.max_concurrency)
+                    if self.adaptive
+                    else self.max_concurrency
+                )
+
     def snapshot_state(self) -> dict[str, float | int]:
         """Return the adaptive state persisted independently of circuit streaks.
 
@@ -314,15 +332,18 @@ class Throttle:
         consecutive_ok = state["consecutive_ok"]
         if type(delay) not in (int, float) or not math.isfinite(float(delay)):
             raise ValueError("throttle delay_seconds must be finite")
-        if type(concurrency) is not int or not 1 <= concurrency <= self.max_concurrency:
-            raise ValueError("throttle concurrency is outside configured bounds")
+        if type(concurrency) is not int or concurrency < 1:
+            raise ValueError("throttle concurrency must be a positive integer")
         if type(consecutive_ok) is not int or not 0 <= consecutive_ok < WIDEN_AFTER_CONSECUTIVE_OK:
             raise ValueError("throttle consecutive_ok is outside supported bounds")
-        if not self.min_delay <= float(delay) <= self.max_delay:
-            raise ValueError("throttle delay_seconds is outside configured bounds")
-        if not self.adaptive and concurrency != self.max_concurrency:
-            raise ValueError("non-adaptive throttle concurrency must equal its configured maximum")
+        if float(delay) < 0:
+            raise ValueError("throttle delay_seconds cannot be negative")
+        # A live operator rate change (``set_rate``) may have left the persisted
+        # state outside the configured bounds; a resume returns to the configured
+        # politeness rather than refusing the scan.
         with self._lock:
-            self.delay = float(delay)
-            self.concurrency = concurrency
+            self.delay = min(self.max_delay, max(self.min_delay, float(delay)))
+            self.concurrency = (
+                min(concurrency, self.max_concurrency) if self.adaptive else self.max_concurrency
+            )
             self._consecutive_ok = consecutive_ok
