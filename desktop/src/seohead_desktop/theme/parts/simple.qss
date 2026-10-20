@@ -1,0 +1,24 @@
+/* Simple mode crawler page: toolbar controls 36 px (control.lg), filter bar 32 px (control.md), own status strip */
+QFrame#simpleToolbar { background: $base; border: 0; border-bottom: 1px solid $divider; }
+QLabel#simpleBrand { font-size: ${font_control}px; font-weight: 500; }
+QFrame#simpleToolbar QLineEdit, QFrame#simpleToolbar QSpinBox { min-height: ${control_lg}px; max-height: ${control_lg}px; padding-top: 0; padding-bottom: 0; }
+QFrame#simpleToolbar QPushButton { min-height: ${control_lg}px; max-height: ${control_lg}px; font-size: ${font_control}px; font-weight: 500; }
+QToolButton#simpleGear { min-width: ${control_lg}px; min-height: ${control_lg}px; border: 0; border-radius: ${radius_control}px; background: transparent; }
+QToolButton#simpleGear:hover { background: $hover; }
+QToolButton#simpleGear:pressed, QToolButton#simpleGear:open { background: $pressed; }
+QToolButton#simpleGear::menu-indicator { image: none; width: 0; }
+QWidget#simpleCrawler QComboBox, QWidget#simpleCrawler QLineEdit#searchField { min-height: ${control_md}px; max-height: ${control_md}px; }
+QWidget#simpleCrawler QFrame#simpleToolbar QLineEdit { min-height: ${control_lg}px; max-height: ${control_lg}px; }
+QFrame#simpleNotice { border: 0; border-bottom: 1px solid $divider; }
+QFrame#simpleNotice[note="warn"] { background: $note_warn_bg; border-bottom-color: $note_warn_border; }
+QFrame#simpleNotice[note="error"] { background: $note_error_bg; border-bottom-color: $note_error_border; }
+QFrame#simpleStatus { background: $raised; border: 0; border-top: 1px solid $divider; min-height: ${layout_statusbar}px; max-height: ${layout_statusbar}px; }
+QFrame#simpleStatus QPushButton { min-height: 20px; max-height: 20px; padding: 0 8px; border: 0; border-radius: ${radius_badge}px; background: transparent; color: $primary; font-size: ${font_meta}px; font-weight: 500; }
+QFrame#simpleStatus QPushButton:disabled { color: $disabled_fg; }
+QPushButton#simpleErrors { background: $badge_err_bg; color: $badge_err_fg; }
+QProgressBar#simpleProgress { background: $outline; border: 0; border-radius: 3px; min-height: 6px; max-height: 6px; }
+QProgressBar#simpleProgress::chunk { background: $primary; border-radius: 3px; }
+QFrame#simpleOverview { background: $base; border: 0; border-left: 1px solid $divider; }
+QTreeWidget#simpleOverviewTree { border: 0; background: $base; }
+QTreeWidget#simpleOverviewTree::item { height: 24px; }
+QTreeWidget#simpleOverviewTree::item:selected { background: $selected; color: $on_selected; }

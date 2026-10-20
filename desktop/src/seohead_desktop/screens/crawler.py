@@ -361,6 +361,9 @@ class _CardHost:
 class CrawlerScreen(QWidget):
     """Board «Краулер»: toolbar, check tabs, results table, overview counters, details and the status strip."""
 
+    model_class = CrawlerModel
+    card_class = UrlCard
+
     def __init__(self, host=None, parent=None):
         super().__init__(parent)
         self.host = host
@@ -431,7 +434,7 @@ class CrawlerScreen(QWidget):
         main = QWidget()
         main.setLayout(self._main())
         splitter.addWidget(main)
-        self.card = UrlCard(_CardHost(self))
+        self.card = self.card_class(_CardHost(self))
         self.card.set_agent_visible(False)
         self.card.back.hide()
         self.card.expand_button.hide()
@@ -577,7 +580,7 @@ class CrawlerScreen(QWidget):
         self.export.clicked.connect(self._export)
         filters.addWidget(self.export)
         column.addLayout(filters)
-        self.model = CrawlerModel(self)
+        self.model = self.model_class(self)
         self.table = style_table(QTableView(), "compact")
         self.table.setModel(self.model)
         self.table.setFrameShape(QFrame.NoFrame)
@@ -779,9 +782,7 @@ class CrawlerScreen(QWidget):
         workdir = tempfile.mkdtemp(prefix="spiderhead-crawl-")
         scan_out = str(Path(workdir) / "crawl.sqlite")
         try:
-            arguments = crawl_arguments(
-                self.mode, self.address.text(), self.limit.value(), scan_out
-            )
+            arguments = self.crawl_arguments(scan_out)
         except ValueError as exc:
             shutil.rmtree(workdir, ignore_errors=True)
             return self._set_state("idle", tr(str(exc)))
@@ -802,6 +803,10 @@ class CrawlerScreen(QWidget):
         self._set_state("running")
         process.start(executable, arguments)
         self._refresh.start()
+
+    def crawl_arguments(self, scan_out):
+        """``crawl-site`` arguments of this screen's controls (subclasses add their own settings)."""
+        return crawl_arguments(self.mode, self.address.text(), self.limit.value(), scan_out)
 
     def _stop(self):
         process = self.process

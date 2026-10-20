@@ -289,8 +289,113 @@ class ShellMixin:
         if self.navigation.current_section() is None:
             self.navigation.select_section("url")
         self.update_display_widgets()
+        self.show_display_page()
         if remember:
             self.prefs.set("shell.display", mode)
+
+    def install_display_menus(self, view_menu):
+        """View › Display (⌥⌘1 / ⌥⌘2) and View › Theme, shared by the agent and the Simple menu bars."""
+        group = QActionGroup(self)
+        self.display_actions = {}
+        for mode, title, keys in (("simple", "Display: Simple", "Ctrl+Alt+1"), ("agent", "Display: With agent", "Ctrl+Alt+2")):
+            action = QAction(title, self)
+            action.setCheckable(True)
+            action.setShortcut(QKeySequence(keys))
+            action.triggered.connect(lambda _c=False, m=mode: self.set_display(m))
+            group.addAction(action)
+            self.addAction(action)
+            self.display_actions[mode] = action
+        self.add_display_items(view_menu)
+        self.agent_menus = list(self.menuBar().actions())
+        self.simple_menus = []
+        self._agent_shortcuts = set()
+
+    def add_display_items(self, menu):
+        menu.addSeparator()
+        for action in self.display_actions.values():
+            menu.addAction(action)
+        theme = menu.addMenu("Theme")
+        theme.aboutToShow.connect(lambda: self.fill_theme_items(theme))
+
+    def fill_theme_items(self, menu):
+        menu.clear()
+        current = self.prefs.get("view.theme")
+        group = QActionGroup(menu)
+        for value, title in (("light", "Light"), ("dark", "Dark"), ("system", "System"), ("hc", "High contrast")):
+            action = menu.addAction(title)
+            action.setCheckable(True)
+            action.setChecked(value == current)
+            group.addAction(action)
+            action.triggered.connect(lambda _c, v=value: self.prefs.set("view.theme", v))
+
+    def _toggle_agent_menu_keys(self, simple):
+        """Agent menu actions with keys are disabled while Simple mode shows and restored as they were."""
+        if simple:
+            saved = getattr(self, "_agent_menu_state", None) or {}
+            for top in self.agent_menus:
+                for action in self._menu_tree(top.menu()):
+                    if (
+                        not action.shortcut().isEmpty()
+                        and action not in saved
+                        and action not in self.display_actions.values()
+                    ):
+                        saved[action] = action.isEnabled()
+                        action.setEnabled(False)
+            self._agent_menu_state = saved
+        else:
+            for action, enabled in (getattr(self, "_agent_menu_state", None) or {}).items():
+                try:
+                    action.setEnabled(enabled)
+                except RuntimeError:
+                    pass
+            self._agent_menu_state = {}
+
+    @classmethod
+    def _menu_tree(cls, menu):
+        for action in menu.actions() if menu is not None else ():
+            if action.menu() is not None:
+                yield from cls._menu_tree(action.menu())
+            else:
+                yield action
+
+    def show_display_page(self):
+        """Simple mode is its own central page with its own menus and status strip; the agent display is untouched."""
+        if not hasattr(self, "display_actions"):
+            return  # the window is still being built
+        simple = self.display == "simple"
+        self.display_actions[self.display].setChecked(True)
+        if simple and self.simple_page is None:
+            from .screens.simple_crawler import SimpleCrawlerScreen
+
+            self.simple_page = SimpleCrawlerScreen(self)
+            self.mode_stack.addWidget(self.simple_page)
+            self.simple_menus = self.simple_page.build_menus(self.menuBar(), self)
+        if self.simple_page is None:
+            return
+        self.mode_stack.setCurrentWidget(self.simple_page if simple else self.workspace_widget)
+        self.statusBar().setVisible(not simple)
+        for action in self.agent_menus:
+            action.setVisible(not simple)
+        shared = set(self.display_actions.values())
+        for action in self.simple_menus:
+            action.setVisible(simple)
+            for item in self._menu_tree(action.menu()):
+                if item not in shared:
+                    item.setEnabled(simple)  # hidden menus must not keep their keys
+        self._toggle_agent_menu_keys(simple)
+        if simple:  # window-wide agent keys (⌘F, ⌘1…4, F6, …) must not fire over the Simple page
+            for shortcut in self.findChildren(QShortcut):
+                owner = shortcut.parent()
+                if shortcut.isEnabled() and not (owner is self.simple_page or self.simple_page.isAncestorOf(owner)):
+                    shortcut.setEnabled(False)
+                    self._agent_shortcuts.add(shortcut)
+        else:
+            for shortcut in self._agent_shortcuts:
+                try:
+                    shortcut.setEnabled(True)
+                except RuntimeError:  # replaced by apply_shortcuts meanwhile
+                    pass
+            self._agent_shortcuts = set()
 
     # Profile menu (bottom-left)
     def show_profile_menu(self):
@@ -530,6 +635,8 @@ class ShellMixin:
             shortcut = QShortcut(QKeySequence(f"Ctrl+{number}"), self)
             shortcut.activated.connect(lambda n=number: self.navigation.select_number(n))
             self._bound_shortcuts.append(shortcut)
+        if getattr(self, "display", None) == "simple":
+            self.show_display_page()  # new window keys stay off while the Simple page shows
 
     def apply_preference(self, key):
         if key.startswith("keys."):
