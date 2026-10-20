@@ -275,7 +275,6 @@ class ShellMixin:
         self.mode_label.setText(
             tr("Простой режим · агент и MCP выключены" if simple else "С агентом")
         )
-        self.simple_pill.setVisible(simple)
         self.agent_pill.setVisible(
             False
         )  # shown only from a real agent heartbeat (step 7); never claimed here
@@ -447,22 +446,6 @@ class ShellMixin:
         menu.setMinimumWidth(264)
         i18n.retranslate(menu)
         return menu
-
-    def show_display_menu(self):
-        """Chip «Простой режим ▾» (SHELL-CANON §2b): display switch and crawler entry."""
-        menu = QMenu(self)
-        group = QActionGroup(menu)
-        for mode, title in (("agent", "С агентом"), ("simple", "Простой режим")):
-            action = menu.addAction(title)
-            action.setCheckable(True)
-            action.setChecked(mode == self.display)
-            group.addAction(action)
-            action.triggered.connect(lambda _c, m=mode: self.set_display(m))
-        menu.addSeparator()
-        crawler = menu.addAction(icon("travel_explore"), "Быстрый краул без проекта")
-        crawler.triggered.connect(self.open_crawler)
-        i18n.retranslate(menu)
-        menu.exec_(self.simple_pill.mapToGlobal(QPoint(0, self.simple_pill.height() + 4)))
 
     def can_open_crawler(self):
         return True

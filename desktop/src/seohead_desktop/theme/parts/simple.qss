@@ -2,6 +2,11 @@
 QFrame#simpleToolbar { background: $base; border: 0; border-bottom: 1px solid $divider; }
 QLabel#simpleBrand { font-size: ${font_control}px; font-weight: 500; }
 QFrame#simpleToolbar QLineEdit, QFrame#simpleToolbar QSpinBox { min-height: ${control_lg}px; max-height: ${control_lg}px; padding-top: 0; padding-bottom: 0; }
+QFrame#simpleToolbar QSpinBox { padding-right: 26px; }
+QFrame#simpleToolbar QSpinBox::up-button { subcontrol-origin: border; subcontrol-position: top right; width: 24px; border: none; background: transparent; }
+QFrame#simpleToolbar QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 24px; border: none; background: transparent; }
+QFrame#simpleToolbar QSpinBox::up-arrow { image: url("$icon_root/chevron_up.svg"); width: 14px; height: 14px; }
+QFrame#simpleToolbar QSpinBox::down-arrow { image: url("$icon_root/chevron_down.svg"); width: 14px; height: 14px; }
 QFrame#simpleToolbar QPushButton { min-height: ${control_lg}px; max-height: ${control_lg}px; font-size: ${font_control}px; font-weight: 500; }
 QToolButton#simpleGear { min-width: ${control_lg}px; min-height: ${control_lg}px; border: 0; border-radius: ${radius_control}px; background: transparent; }
 QToolButton#simpleGear:hover { background: $hover; }

@@ -521,6 +521,7 @@ class LinksPage(QWidget):
         self.next.clicked.connect(lambda: self.reload(self.offset + 100))
         export = icon_button("download", "Экспорт ссылок", False)
         export.setToolTip(unavailable_tip("Экспорт ссылок"))
+        self.export = export
         for widget in (self.prev, self.next, export):
             bar.addWidget(widget)
         layout.addLayout(bar)

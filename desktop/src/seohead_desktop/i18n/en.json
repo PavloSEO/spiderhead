@@ -834,7 +834,6 @@
  "Сканы выполняет ядро seohead — то же, что в CLI и MCP. Окно приложения — только оболочка.": "Scans are run by the seohead core, the same as in the CLI and MCP. The app window is only a shell.",
  "Как вы будете работать": "How you will work",
  "Цель, задачи, входящие от агента. Агент читает сканы через MCP и предлагает задачи — вы подтверждаете.": "Goal, tasks and an inbox from the agent. The agent reads scans through MCP and proposes tasks; you confirm them.",
- "Скан, проблемы, задачи и отчёт. Без агента и без входящих. Переключить можно в любой момент.": "Scan, issues, tasks and report. No agent and no inbox. You can switch at any time.",
  "Агента можно подключить позже.": "The agent can be connected later.",
  "Подключение — в Настройках → Агент, когда оно станет доступно в этой сборке.": "Connection lives in Settings → Agent once it is available in this build.",
  "Первый запуск · {n} шага": "First run · {n} steps",
@@ -4028,5 +4027,6 @@
  "Вес ресурсов, байт": "Resource weight, bytes",
  "Ядро не сохранило профиль": "The core did not save the profile",
  "Читаю страницу…": "Reading the page…",
- "Проблемы URL, задача, глубина кликов": "URL issues, task, click depth"
+ "Проблемы URL, задача, глубина кликов": "URL issues, task, click depth",
+ "Классический краулер: адрес и «Старт», таблица URL с фильтрами и Overview. Без агента и MCP; переключиться можно в любой момент.": "A classic crawler: enter an address, press Start, read the URL table with filters and Overview. No agent and no MCP; you can switch at any time."
 }

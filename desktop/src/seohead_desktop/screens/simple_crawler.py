@@ -11,9 +11,10 @@ from __future__ import annotations
 import json
 import time
 from http import HTTPStatus
+from pathlib import Path
 
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QGuiApplication, QKeySequence
+from PyQt5.QtCore import QRectF, Qt, QTimer
+from PyQt5.QtGui import QGuiApplication, QKeySequence, QPainter
 from PyQt5.QtWidgets import (
     QAbstractItemView,
     QFrame,
@@ -36,11 +37,11 @@ from PyQt5.QtWidgets import (
     QWidgetAction,
 )
 
-from .. import i18n
+from .. import i18n, theming
 from ..ui import simple_catalogue as cat
 from ..ui.controls import Segmented
 from ..ui.icons import material_icon
-from ..ui.kit import BADGE_ROLE, BadgeDelegate
+from ..ui.kit import BADGE_ROLE, BadgeDelegate, StatePanel
 from .crawler import CrawlerModel, CrawlerScreen, crawl_arguments
 from .scan_common import number
 from .url_card import UrlCard
@@ -110,6 +111,9 @@ STATE_TEXT = {
 NOT_COLLECTED = "not collected"
 
 
+SPIDER_SVG = Path(__file__).resolve().parents[1] / "assets" / "brand" / "seohead-spider.svg"
+
+
 def status_text(code):
     if type(code) is not int:
         return None
@@ -119,6 +123,32 @@ def status_text(code):
         return HTTPStatus(code).phrase
     except ValueError:
         return None
+
+
+class SpiderMark(QWidget):
+    """The spider service mark stroked in the theme primary; repainted when the theme changes."""
+
+    def __init__(self, size=24, parent=None):
+        super().__init__(parent)
+        self.setFixedSize(size, size)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self._renderers = {}
+
+    def paintEvent(self, _event):
+        colour = theming.roles().get("primary", "#1565C0")
+        renderer = self._renderers.get(colour)
+        if renderer is None:
+            raw = SPIDER_SVG.read_bytes().replace(b"#0E1116", colour.encode())  # strokes and body; the red accent stays
+            from PyQt5.QtSvg import QSvgRenderer
+
+            renderer = QSvgRenderer(raw)
+            self._renderers[colour] = renderer
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        bounds = self.rect().adjusted(1, 1, -1, -1)  # the mark is 56x62: letterbox it inside the square
+        height = bounds.width() * 62 / 56
+        renderer.render(painter, QRectF(bounds.x(), bounds.y() + (bounds.height() - height) / 2, bounds.width(), height))
+        painter.end()
 
 
 class SimpleModel(CrawlerModel):
@@ -184,6 +214,12 @@ class SimpleCard(UrlCard):
         self.head.parentWidget().hide()
         for button in self.links.buttons.values():
             button.hide()  # Inlinks / Outlinks are tabs of the pane
+        bar = self.links.internal.layout().itemAt(0).layout()
+        bar.setContentsMargins(0, 0, 0, 0)  # the pane caption and tabs carry the context; the bar empties out
+        for name in ("search", "nofollow", "help", "prev", "next", "caption", "export"):
+            widget = getattr(self.links, name, None)
+            if widget is not None:
+                widget.hide()
 
     def resizeEvent(self, event):
         QFrame.resizeEvent(self, event)
@@ -230,14 +266,14 @@ class SimpleCrawlerScreen(CrawlerScreen):
     def _value(self, key, default=None):
         store = getattr(self.host, "settings", None)
         if store is None:
-            return getattr(self, "_memory", {}).get(key, default)
+            return getattr(self, "_memory", {}).get("simple/" + key, default)
         value = store.value("simple/" + key)
         return default if value is None else value
 
     def _store(self, key, value):
         store = getattr(self.host, "settings", None)
         if store is None:
-            self.__dict__.setdefault("_memory", {})[key] = value
+            self.__dict__.setdefault("_memory", {})["simple/" + key] = value
         else:
             store.setValue("simple/" + key, value)
 
@@ -276,10 +312,14 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self.toolbar_row2.setSpacing(12)
         column.addLayout(self.toolbar_row)
         column.addLayout(self.toolbar_row2)
+        brand_row = QHBoxLayout()
+        brand_row.setSpacing(6)
+        brand_row.addWidget(SpiderMark(24))
         brand = QLabel("SpiderHead")
         brand.setProperty("text_style", "control")
         brand.setObjectName("simpleBrand")
-        self.toolbar_row.addWidget(brand)
+        brand_row.addWidget(brand)
+        self.toolbar_row.addLayout(brand_row)
         self.address = QLineEdit()
         self.address.setObjectName("simpleAddress")
         self.address.setPlaceholderText("Enter a website URL, e.g. https://example.com/")
@@ -650,6 +690,7 @@ class SimpleCrawlerScreen(CrawlerScreen):
 
     # ---- state --------------------------------------------------------------------------------------------------
     def _set_state(self, state, note=""):
+        self.state_note = note
         self.state = state
         running = state in ("running", "stopping")
         self.state_badge.setText(STATE_TEXT[state])
@@ -704,8 +745,8 @@ class SimpleCrawlerScreen(CrawlerScreen):
 
     def _show_notice(self, state, note=""):
         notices = {
-            "stopped": ("warn", "Crawl stopped.", "The results are partial.", "Start a new crawl"),
-            "failed": ("error", "The crawl failed.", note, "Try again"),
+            "stopped": ("warn", "Crawl stopped.", self._stopped_text(), "Start a new crawl"),
+            "failed": ("error", "The crawl failed.", note or getattr(self, "state_note", ""), "Try again"),
             "nocore": (
                 "error",
                 "Crawler core not found.",
@@ -720,9 +761,24 @@ class SimpleCrawlerScreen(CrawlerScreen):
         kind, title, text, action = found
         self._note.setProperty("note", kind)
         self._polish(self._note)
-        self.notice_text.setText(f"<b>{title}</b> {text}")
+        self.notice_text.setText(f"<b>{title}</b> {text}".rstrip())
         self.notice_action.setText(action)
         self.notice_kind = state
+
+    def _stopped_text(self):
+        """How much of the site the stopped crawl covered, in the numbers the core last reported."""
+        if self.scan_path is None:
+            return "Nothing was kept from this attempt."
+        crawled = self.facets.get("all")
+        remaining = getattr(self, "last_remaining", None)
+        if type(crawled) is int and type(remaining) is int:
+            if remaining <= 0:
+                return f"All {number(crawled)} discovered URLs were crawled."
+            return (
+                f"You stopped it at {number(crawled)} URLs; {number(remaining)} were still queued,"
+                " so the results are partial."
+            )
+        return "The results are partial."
 
     def _notice_clicked(self):
         if getattr(self, "notice_kind", "") == "nocore":
@@ -815,6 +871,27 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self.finished_at = time.monotonic()
         super()._crawl_finished(process, code, status)
         self._tick()
+        if self.state == "failed":
+            reason = getattr(self, "state_note", "") or "The core exited with an error."
+            if self.scan_path is None:
+                reason += " Nothing was kept from this attempt."
+            self._show_panel(
+                "partial",
+                "The crawl failed",
+                reason,
+                action=("Try again", self._start_or_stop),
+                secondary=("Show log", self._show_log),
+            )
+        elif self.state == "stopped" and self.scan_path is None:
+            self._show_panel("empty", "Crawl stopped before the first address")
+
+    def _show_log(self):
+        tail = (getattr(self, "stderr", "") or "").strip()
+        QMessageBox.information(
+            self,
+            "Crawl log",
+            tail[-4000:] if tail else "The core wrote no log lines.",
+        )
 
     def clear_results(self):
         if self.state in ("running", "stopping"):
@@ -828,8 +905,27 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self._empty_panel()
         self._set_state("idle")
 
+    def _show_panel(self, kind, title, text="", action=None, secondary=None):
+        layout = self.panel_host.layout()
+        while layout.count():
+            widget = layout.takeAt(0).widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+        layout.addWidget(StatePanel(kind, title, text, action=action, secondary=secondary))
+        self.stack.setCurrentWidget(self.panel_host)
+
     def _empty_panel(self):
         if self.scan_path is None:
+            opener = getattr(self.host, "open_settings", None)
+            if self.state == "idle" and getattr(self.host, "core_executable", None) is None and opener:
+                return self._show_panel(
+                    "empty",
+                    "The crawler core is not available",
+                    "SpiderHead could not find its crawler core, so a crawl cannot start."
+                    " Choose the core in Settings › Core, or reinstall the app.",
+                    action=("Open Settings › Core", lambda: opener("core")),
+                )
             self._show_panel(
                 "empty",
                 "Enter a website URL and press Start",
@@ -1006,6 +1102,36 @@ class SimpleCrawlerScreen(CrawlerScreen):
             return
         self.has_more = bool(payload.get("has_more"))
         self._footer()
+        if not (payload.get("rows") or []) and self.scan_path and self.state not in ("running", "stopping"):
+            self._no_results_panel()
+
+    def _no_results_panel(self):
+        """The table is empty under the active filter and search: say which part matched and offer the way back."""
+        query = self.search.text().strip()
+        tab = cat.TABS[self.tab_index]
+        current = self.current_filter()
+        label = current.label if current else tab.title
+        text = f"{tab.title} › {label} has no URLs."
+        if query:
+            column = TITLES.get(self.search_field.currentData(), self.search_field.currentData())
+            known = self.node_counts.get((tab.id, current.id)) if current else None
+            has = f" has {number(known)} URLs, but none of them" if type(known) is int else " has URLs, but none of them"
+            text = f"{tab.title} › {label}{has} contains “{query}” in {column}."
+        self._show_panel(
+            "empty",
+            "No URLs match",
+            text,
+            action=("Clear search", self._clear_search) if query else None,
+            secondary=("Show all URLs", self._show_all) if query or (current and current.id != "all") else None,
+        )
+
+    def _clear_search(self):
+        self.search.clear()
+
+    def _show_all(self):
+        self._clear_search()
+        if self.subfilter.count():
+            self.subfilter.setCurrentIndex(0)
 
     def _footer(self):
         loaded, total = len(self.model.rows), self.total
@@ -1023,7 +1149,7 @@ class SimpleCrawlerScreen(CrawlerScreen):
     def _selection_label(self):
         selected = len(self.table.selectionModel().selectedRows())
         self.selected_label.setText(
-            f"Selected: {number(selected)} URL{'s' if selected != 1 else ''}" if self.model.rows else ""
+            f"Selected: {number(selected)} URL{'s' if selected != 1 else ''}" if selected else ""
         )
 
     def _maybe_more(self, value):
