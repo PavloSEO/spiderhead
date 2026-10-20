@@ -215,6 +215,48 @@ class SimpleCrawlerScreenTests(unittest.TestCase):
         self.assertEqual(status_text(404), "Not Found")
         self.assertEqual(status_text(0), "No response")
 
+    def test_tabs_can_be_hidden_and_restored_but_not_the_first_one(self):
+        import json as _json
+
+        self.assertTrue(all(self.screen.tabs.isTabVisible(i) for i in range(self.screen.tabs.count())))
+        self.screen._hide_tab(0)  # Internal stays: it is the default view
+        self.assertTrue(self.screen.tabs.isTabVisible(0))
+        sitemap = cat.TAB_INDEX["sitemap"]
+        self.screen.tabs.setCurrentIndex(sitemap)
+        self.screen._hide_tab(sitemap)
+        self.assertFalse(self.screen.tabs.isTabVisible(sitemap))
+        self.assertNotEqual(self.screen.tabs.currentIndex(), sitemap)  # moved off the hidden tab
+        self.assertEqual(
+            set(_json.loads(self.screen._memory["simple/tabs_hidden"])), {"sitemap"}
+        )
+        for index in range(len(cat.TABS)):  # the last visible tab never hides
+            if self.screen.tabs.isTabVisible(index):
+                self.screen._hide_tab(index)
+        visible_before = [i for i in range(len(cat.TABS)) if self.screen.tabs.isTabVisible(i)]
+        self.assertEqual(len(visible_before), 1)
+        self.screen._show_all_tabs()
+        self.assertTrue(all(self.screen.tabs.isTabVisible(i) for i in range(self.screen.tabs.count())))
+        self.assertEqual(self.screen._memory["simple/tabs_hidden"], "[]")
+
+    def test_overview_drill_down_reveals_a_hidden_tab(self):
+        import json as _json
+
+        images = cat.TAB_INDEX["images"]
+        self.screen._hide_tab(images)
+        self.assertFalse(self.screen.tabs.isTabVisible(images))
+        self.screen._select_overview(*cat.find("images", "missing_alt_pages"))
+        self.assertTrue(self.screen.tabs.isTabVisible(images))
+        self.assertEqual(self.screen.tab_index, images)
+        self.assertNotIn("images", _json.loads(self.screen._memory["simple/tabs_hidden"]))
+
+    def test_hidden_tabs_restore_from_settings(self):
+        import json as _json
+
+        self.screen._memory["simple/tabs_hidden"] = _json.dumps(["blocked"])
+        self.screen._check_tabs()
+        self.assertFalse(self.screen.tabs.isTabVisible(cat.TAB_INDEX["blocked"]))
+        self.assertTrue(self.screen.tabs.isTabVisible(cat.TAB_INDEX["internal"]))
+
 
 class SimpleDisplayTests(unittest.TestCase):
     """The window around the screen: menus rebuild per display, keys of the two displays stay apart."""

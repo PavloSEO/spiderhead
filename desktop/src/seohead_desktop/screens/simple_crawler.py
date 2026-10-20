@@ -411,7 +411,60 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self.tab_index = 0
         self.filter_index = 0
         self.tabs.currentChanged.connect(self._tab_changed)
+        # tabs a user does not need can be hidden from the tab strip (the Overview still reaches them)
+        self.tabs.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tabs.customContextMenuRequested.connect(self._tab_menu)
+        try:
+            hidden = set(json.loads(self._value("tabs_hidden", "[]") or "[]"))
+        except (TypeError, ValueError):
+            hidden = set()
+        for index, tab in enumerate(cat.TABS):
+            self.tabs.setTabVisible(index, tab.id not in hidden or tab.id == "internal")
         return self.tabs
+
+    def _hidden_ids(self):
+        return {
+            tab.id
+            for index, tab in enumerate(cat.TABS)
+            if not self.tabs.isTabVisible(index)
+        }
+
+    def _hide_tab(self, index):
+        if not 0 <= index < len(cat.TABS) or cat.TABS[index].id == "internal":
+            return  # the first tab always stays: it is the default view of the crawl
+        visible = [i for i in range(self.tabs.count()) if self.tabs.isTabVisible(i)]
+        if len(visible) <= 1:
+            return
+        if self.tabs.currentIndex() == index:
+            self.tabs.setCurrentIndex(next(i for i in visible if i != index))
+        self.tabs.setTabVisible(index, False)
+        self._store("tabs_hidden", json.dumps(sorted(self._hidden_ids())))
+
+    def _show_tab(self, index):
+        if 0 <= index < len(cat.TABS):
+            self.tabs.setTabVisible(index, True)
+            self._store("tabs_hidden", json.dumps(sorted(self._hidden_ids())))
+
+    def _show_all_tabs(self):
+        for index in range(self.tabs.count()):
+            self.tabs.setTabVisible(index, True)
+        self._store("tabs_hidden", "[]")
+
+    def _tab_menu(self, point):
+        menu = QMenu(self.tabs)
+        index = self.tabs.tabAt(point)
+        if 0 <= index < len(cat.TABS) and cat.TABS[index].id != "internal":
+            menu.addAction(f'Hide "{cat.TABS[index].title}"', lambda: self._hide_tab(index))
+        hidden = [i for i in range(len(cat.TABS)) if not self.tabs.isTabVisible(i)]
+        if hidden:
+            restore = menu.addMenu("Show hidden")
+            for i in hidden:
+                restore.addAction(cat.TABS[i].title, lambda i=i: self._show_tab(i))
+            menu.addSeparator()
+            menu.addAction("Show all tabs", self._show_all_tabs)
+        if not menu.actions():
+            return
+        menu.exec_(self.tabs.mapToGlobal(point))
 
     def _main(self):
         column = super()._main()
@@ -1003,6 +1056,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self._syncing = True
         try:
             self.tab_index = t
+            if not self.tabs.isTabVisible(t):  # a hidden tab reveals itself when Overview drills into it
+                self.tabs.setTabVisible(t, True)
+                self._store("tabs_hidden", json.dumps(sorted(self._hidden_ids())))
             self.tabs.blockSignals(True)
             self.tabs.setCurrentIndex(t)
             self.tabs.blockSignals(False)
