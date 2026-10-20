@@ -1031,6 +1031,11 @@ class IssuesScreen(Screen):
         peak = ranked[0][1]
         for check, count in ranked:
             line = QWidget()
+            line.setCursor(Qt.PointingHandCursor)
+            line.setToolTip(check)
+            line.mouseReleaseEvent = lambda event, c=check: (
+                self._select(c) if event.button() == Qt.LeftButton else None
+            )
             row = QHBoxLayout(line)
             row.setContentsMargins(0, 0, 0, 0)
             row.setSpacing(10)

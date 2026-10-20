@@ -4030,5 +4030,10 @@
  "Читаю страницу…": "Reading the page…",
  "Проблемы URL, задача, глубина кликов": "URL issues, task, click depth",
  "Краулер · проект «{name}»": "Crawler · project “{name}”",
- "Проект «{name}» открыт · данные краула во временной папке": "Project “{name}” is open · crawl data lives in a temporary folder"
+ "Проект «{name}» открыт · данные краула во временной папке": "Project “{name}” is open · crawl data lives in a temporary folder",
+ "Остановить {id}": "Stop {id}",
+ "Цель управления: {target}": "Control target: {target}",
+ "Проект перечитан. Загрузка сохранённого контекста…": "Project re-read. Loading saved context…",
+ "Выберите два сохранённых скана этого проекта.": "Select two saved scans of this project.",
+ "Часть настроек раздела сохраняется, но пока не применяется — наведите на строку.": "Some settings in this section are saved but not applied yet — hover a row for details."
 }

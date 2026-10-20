@@ -94,8 +94,20 @@ class ProjectMixin:
         self.stash_note_drafts()
         self._project_loading = False
         self.inbox_revision = None
-        self.clear_scan_selection("Выбран другой проект. Загрузка сохранённого контекста…")
-        self.comparison.clear("Выбран другой проект. Выберите два его сохранённых скана.")
+        changed = str(result.get("path") or "") != (self.project_directory or "")
+        context, compare = (
+            (
+                "Выбран другой проект. Загрузка сохранённого контекста…",
+                "Выбран другой проект. Выберите два его сохранённых скана.",
+            )
+            if changed
+            else (
+                "Проект перечитан. Загрузка сохранённого контекста…",
+                "Выберите два сохранённых скана этого проекта.",
+            )
+        )
+        self.clear_scan_selection(tr(context))
+        self.comparison.clear(tr(compare))
         self.project_panels.panel("compare").set_scans([])
         self.last_observer_signature = None
         self.observed_runs = []

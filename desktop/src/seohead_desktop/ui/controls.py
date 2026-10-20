@@ -178,6 +178,13 @@ class SettingRow(QFrame):
             self.control.setEnabled(False)
             self.control.setToolTip(reason)
 
+    def note_later(self, reason):
+        """mark_later without the per-row badge: sections with many such rows carry one shared notice."""
+        self.setToolTip(reason)
+        if self.control is not None:
+            self.control.setEnabled(False)
+            self.control.setToolTip(reason)
+
     def set_error(self, message):
         self._error.setText(tr(message) if message else "")
         self._error_box.setVisible(bool(message))

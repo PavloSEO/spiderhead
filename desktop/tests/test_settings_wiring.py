@@ -54,9 +54,13 @@ class WiringTests(unittest.TestCase):
         self.app.processEvents()
         self.assertFalse(rows["view.density"].later_badge.isVisible())
         self.assertFalse(rows["view.theme"].later_badge.isVisible())
-        self.assertTrue(rows["view.zoom"].later_badge.isVisible())
-        self.assertEqual(rows["view.zoom"].later_badge.text(), "Заработает позже")
-        self.assertIn("шаг 5", rows["view.zoom"].later_badge.toolTip())
+        # one section notice instead of a badge on most rows (#1386); the row keeps the reason on hover
+        self.assertFalse(rows["view.zoom"].later_badge.isVisible())
+        self.assertIn("шаг 5", rows["view.zoom"].toolTip())
+        self.assertFalse(rows["view.zoom"].control.isEnabled())
+        holder = dialog.stack.currentWidget().widget()
+        texts = [w.text() for w in holder.findChildren(type(rows["view.zoom"].title))]
+        self.assertTrue(any("наведите на строку" in text for text in texts), texts)
         dialog.close()
 
     def test_footer_does_not_claim_instant_effect(self):

@@ -149,7 +149,7 @@ class ChromeMixin:
         self.simple_pill.hide()
         layout.addWidget(self.agent_pill)
         layout.addWidget(self.simple_pill)
-        self.cancel_button = _HideWhenDisabled("Отменить чтение")
+        self.cancel_button = _HideWhenDisabled(tr("Отменить чтение"))
         self.cancel_button.setProperty("role", "danger")
         self.cancel_button.setIcon(icon("stop", theming.roles()["error"]))
         self.cancel_button.setAccessibleName(

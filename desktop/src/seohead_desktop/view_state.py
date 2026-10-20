@@ -21,7 +21,7 @@ from .common import (  # noqa: F401
     plain,
     scan_request_key,
 )
-from .i18n import tr
+from .i18n import tr, trf
 from .ui import motion
 from .ui.presentation import (
     content_spacing,
@@ -123,9 +123,9 @@ class ViewStateMixin:
             self.cancel_button.setText(
                 ""
                 if narrow
-                else "Остановить " + short_run_id(self.selected_managed_run_id)
+                else trf("Остановить {id}", id=short_run_id(self.selected_managed_run_id))
                 if self.selected_managed_run_id
-                else "Отменить чтение"
+                else tr("Отменить чтение")
             )
         compact = self.centralWidget().width() < theme_tokens()["layout"][
             "compact_breakpoint"
