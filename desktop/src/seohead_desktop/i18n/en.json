@@ -1103,7 +1103,7 @@
  "Счётчик недоступен": "Counter unavailable",
  "Фильтр по источнику": "Filter by source",
  "Запуски и сканы проекта": "Runs and scans of the project",
- "{n} запусков в загруженной странице · {k} идёт сейчас": "{n} runs in the loaded page · {k} running now",
+ "{n} запусков в загруженной странице · {k} идёт сейчас": "Runs in the loaded page: {n} · running now: {k}",
  "Фильтр и сортировка работают только в загруженной странице: показано {shown} из {total}": "Filter and sort work only on the loaded page: showing {shown} of {total}",
  "Обработано известных URL": "Known URLs processed",
  "Найдено": "Found",
@@ -4035,5 +4035,7 @@
  "Цель управления: {target}": "Control target: {target}",
  "Проект перечитан. Загрузка сохранённого контекста…": "Project re-read. Loading saved context…",
  "Выберите два сохранённых скана этого проекта.": "Select two saved scans of this project.",
- "Часть настроек раздела сохраняется, но пока не применяется — наведите на строку.": "Some settings in this section are saved but not applied yet — hover a row for details."
+ "Часть настроек раздела сохраняется, но пока не применяется — наведите на строку.": "Some settings in this section are saved but not applied yet — hover a row for details.",
+ "Импортируйте журнал доступа — кнопки оживут, когда появятся данные": "Import an access log first — the buttons wake up once there is data",
+ "Ядро не сообщает число строк до экспорта": "The core does not report the row count before the export"
 }

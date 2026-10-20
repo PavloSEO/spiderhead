@@ -56,7 +56,7 @@ def dataset_count(record, scan):
         return tr(SHORT_UNAVAILABLE)
     if record == "pages" and scan is not None and scan_urls(scan) is not None:
         return trf("{n} URL", n=number(scan_urls(scan)))
-    return tr("Число — после экспорта")
+    return tr("Ядро не сообщает число строк до экспорта")
 
 
 def selected_scan(host):
@@ -109,6 +109,28 @@ def meta(text=""):
     label.setProperty("text_style", "meta")
     label.setWordWrap(True)
     return label
+
+
+class _PathField(QLineEdit):
+    """Read-only path elided in the middle: the end of a deep path matters more than its head (#1385)."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.full_path = ""
+
+    def set_path(self, path):
+        self.full_path = path
+        self._elide()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._elide()
+
+    def _elide(self):
+        width = self.contentsRect().width() - 10
+        self.setText(self.fontMetrics().elidedText(self.full_path, Qt.ElideMiddle, max(width, 20)))
+        self.setCursorPosition(0)
+        self.setToolTip(self.full_path)
 
 
 class ProjExportScreen(Screen):
@@ -222,7 +244,7 @@ class ProjExportScreen(Screen):
         layout.setSpacing(16)
         frame, box = card("Куда сохранить", "folder")
         row = QHBoxLayout()
-        self.folder = QLineEdit()
+        self.folder = _PathField()
         self.folder.setReadOnly(True)
         self.folder.setAccessibleName(tr("Папка экспорта"))
         row.addWidget(self.folder, 1)
@@ -293,8 +315,7 @@ class ProjExportScreen(Screen):
         for key, _label, _hint in FORMATS:
             self.format_buttons[key].setChecked(key == self.fmt)
         self.format_hint.setText(tr(next(hint for key, _label, hint in FORMATS if key == self.fmt)))
-        self.folder.setText(self.folder_choice or f"{self.host.project_directory}/exports")
-        self.folder.setToolTip(self.folder.text())
+        self.folder.set_path(self.folder_choice or f"{self.host.project_directory}/exports")
         self.file_name.setText(f"{tr('Файл')}: {shown_name(scan, self.dataset, self.fmt)}")
 
     def browse(self):
@@ -313,7 +334,7 @@ class ProjExportScreen(Screen):
         record = dict((key, rec) for key, _i, _l, rec in DATASETS).get(self.dataset)
         if scan is None or record is None or not scan.get("path"):
             return
-        folder = Path(self.folder.text())
+        folder = Path(self.folder.full_path or self.folder.text())  # the field shows a middle-elided path
         try:
             folder.mkdir(parents=True, exist_ok=True)
         except OSError:

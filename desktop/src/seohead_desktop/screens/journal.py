@@ -307,7 +307,7 @@ class JournalScreen(Screen):
         header.setSectionResizeMode(QHeaderView.Interactive)
         header.setStretchLastSection(False)
         header.setSectionResizeMode(2, QHeaderView.Stretch)
-        for column, width in ((0, 110), (1, 236), (3, 110)):
+        for column, width in ((0, 132), (1, 236), (3, 110)):
             self.table.setColumnWidth(column, width)
         self.table.clicked.connect(lambda index: self.model.toggle(index.row()))
         self.stack.addWidget(self.table)

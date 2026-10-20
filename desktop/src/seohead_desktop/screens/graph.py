@@ -67,7 +67,7 @@ class GraphScreen(QWidget):
             stats.addWidget(kpi)
         body = QWidget()
         body_layout = QVBoxLayout(body)
-        body_layout.setContentsMargins(0, 0, 0, 0)
+        body_layout.setContentsMargins(0, 0, 20, 12)  # the standard right gutter of a page (#1376)
         body_layout.setSpacing(12)
         body_layout.addLayout(stats)
         self.table = style_table(QTableWidget(0, len(COLUMNS)), "compact")
@@ -160,7 +160,8 @@ class GraphScreen(QWidget):
         for row, node in enumerate(nodes):
             for column, (key, _title) in enumerate(COLUMNS):
                 value = node.get(key)
-                item = QTableWidgetItem("" if value is None else str(value))
+                text = number(value) if type(value) is int else str(value)
+                item = QTableWidgetItem("" if value is None else text)
                 if key != "url":
                     item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self.table.setItem(row, column, item)

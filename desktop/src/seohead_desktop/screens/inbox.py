@@ -340,7 +340,6 @@ class Composer(QFrame):
         self.chips = QHBoxLayout()
         self.chips.setSpacing(6)
         context_row.addLayout(self.chips, 1)
-        context_row.addWidget(waiting_badge(944))
         layout.addLayout(context_row)
         self.text = QPlainTextEdit()
         self.text.setPlaceholderText(tr("Заметка для текущего проекта"))

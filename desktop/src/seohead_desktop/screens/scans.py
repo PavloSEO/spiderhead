@@ -120,6 +120,8 @@ class RunModel(QAbstractTableModel):
                 return " · ".join(
                     part for part in (row.id, (row.owned or {}).get("status_reason")) if part
                 )
+            if column == 5 and row.started is not None:  # the full stamp with seconds
+                return row.started.astimezone().strftime("%d.%m.%Y %H:%M:%S")
             return text if text else tr("Нет данных")
         if role == Qt.ForegroundRole and column > 0 and not text:
             return QColor(theming.roles()["text_3"])
@@ -646,7 +648,7 @@ class ScansScreen(Screen):
         self.table.setAccessibleName(tr("Запуски и сканы проекта"))
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         self.table.horizontalHeader().setMinimumSectionSize(30)
-        for column, width in ((0, 30), (2, 116), (3, 124), (4, 74), (5, 118), (6, 150)):
+        for column, width in ((0, 30), (2, 116), (3, 124), (4, 74), (5, 132), (6, 150)):
             self.table.setColumnWidth(column, width)
         self.table.sortByColumn(5, Qt.DescendingOrder)
         self.table.selectionModel().currentRowChanged.connect(self._row_changed)
@@ -818,19 +820,27 @@ class ScansScreen(Screen):
         if not self.rows:
             self.header.set_meta("")
         else:
-            meta = trf("{n} запусков в загруженной странице · {k} идёт сейчас", n=total, k=running)
+            meta = trf(
+                "{n} запусков в загруженной странице · {k} идёт сейчас",
+                n=number(total),
+                k=number(running),
+            )
             self.header.set_meta(meta)
         self.foot_text.setText(
             trf(
                 "Фильтр и сортировка работают только в загруженной странице: показано {shown} из {total}",
-                shown=shown,
-                total=total,
+                shown=number(shown),
+                total=number(total),
             )
         )
         manager = self.host.scan_manager
         limit = getattr(manager, "max_parallel", None)
         self.foot_owned.setText(
-            trf("Запусков этого окна: {n} из {m}", n=manager.active_count, m=limit)
+            trf(
+                "Запусков этого окна: {n} из {m}",
+                n=number(manager.active_count),
+                m=number(limit),
+            )
             if manager is not None and limit
             else ""
         )
