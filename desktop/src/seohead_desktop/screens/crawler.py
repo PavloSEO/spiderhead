@@ -454,9 +454,21 @@ class CrawlerScreen(QWidget):
         super().resizeEvent(event)
         self.overview.setVisible(self.width() >= COMPACT_WIDTH)
 
+    def _project_name(self):
+        """Name of the open project, or "" when the app runs without one (the honest chip depends on it)."""
+        directory = getattr(self.host, "project_directory", None)
+        return Path(directory).name if directory else ""
+
+    def _sync_project_chip(self):
+        name = self._project_name()
+        self.project_chip.setText(
+            trf("Краулер · проект «{name}»", name=name) if name else tr("Краулер · без проекта")
+        )
+
     def showEvent(self, event):
         super().showEvent(event)
         self._sync_start()
+        self._sync_project_chip()  # the project may have opened since the toolbar was built
 
     def _toolbar(self):
         bar = QFrame()
@@ -464,9 +476,10 @@ class CrawlerScreen(QWidget):
         row = QHBoxLayout(bar)
         row.setContentsMargins(12, 8, 12, 8)
         row.setSpacing(8)
-        chip = QLabel(tr("Краулер · без проекта"))
-        chip.setProperty("badge", "info")
-        row.addWidget(chip)
+        self.project_chip = QLabel()
+        self.project_chip.setProperty("badge", "info")
+        row.addWidget(self.project_chip)
+        self._sync_project_chip()
         self.address = QLineEdit()
         self.address.setPlaceholderText(tr(PLACEHOLDERS["site"]))
         self.address.setMinimumWidth(40)
@@ -725,7 +738,15 @@ class CrawlerScreen(QWidget):
         self.state_badge.setText(tr(text))
         self.state_badge.style().unpolish(self.state_badge)
         self.state_badge.style().polish(self.state_badge)
-        self.status_note.setText(note or tr("Без проекта · данные краула во временной папке"))
+        project = self._project_name()
+        self.status_note.setText(
+            note
+            or (
+                trf("Проект «{name}» открыт · данные краула во временной папке", name=project)
+                if project
+                else tr("Без проекта · данные краула во временной папке")
+            )
+        )
         running = state in ("running", "stopping")
         self.start.setText(tr("Стоп" if running else "Старт"))
         self.start.setIcon(material_icon("stop" if running else "play_arrow"))
@@ -734,7 +755,8 @@ class CrawlerScreen(QWidget):
         self.limit.setEnabled(not running and self.mode != "list")
         self.start.setEnabled(state != "stopping")
         self._sync_start()
-        self._note.setVisible(self.scan_path is not None)
+        # the «create a project» advice is wrong when one is already open; the chip carries that state instead
+        self._note.setVisible(self.scan_path is not None and not self._project_name())
         self.export.setEnabled(self.scan_path is not None and bool(self.total))
         self.search.setEnabled(self.scan_path is not None)
 

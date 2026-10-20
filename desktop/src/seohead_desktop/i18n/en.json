@@ -4028,5 +4028,7 @@
  "Вес ресурсов, байт": "Resource weight, bytes",
  "Ядро не сохранило профиль": "The core did not save the profile",
  "Читаю страницу…": "Reading the page…",
- "Проблемы URL, задача, глубина кликов": "URL issues, task, click depth"
+ "Проблемы URL, задача, глубина кликов": "URL issues, task, click depth",
+ "Краулер · проект «{name}»": "Crawler · project “{name}”",
+ "Проект «{name}» открыт · данные краула во временной папке": "Project “{name}” is open · crawl data lives in a temporary folder"
 }

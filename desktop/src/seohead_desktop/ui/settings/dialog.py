@@ -32,7 +32,8 @@ class SettingsDialog(QDialog):
         self.context = context or SettingsContext()
         self.setWindowTitle("Настройки")
         self.setModal(True)
-        self.resize(1180, 780)
+        size = parent.size() if parent is not None else QSize(1180, 780)
+        self.resize(min(1180, max(640, size.width() - 40)), min(780, max(480, size.height() - 40)))
         self.setMinimumSize(640, 480)
         self._sections = sections()
         self._pages = {}
