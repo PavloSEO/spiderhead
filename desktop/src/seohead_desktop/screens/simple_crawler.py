@@ -48,7 +48,6 @@ from .url_card import UrlCard
 from .url_query import PAGE, CoreJob, count_arguments, query_arguments
 
 COMPACT_WIDTH = 1100  # metrics.layout.compact_breakpoint
-COUNT_WORKERS = 4
 DEFAULT_SPEED, DEFAULT_THREADS, DEFAULT_LIMIT = 2, 1, 200
 TITLES = {
     "page_ordinal": "#",
@@ -237,7 +236,7 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self.has_more = False
         self.facets = {}
         self.node_counts = {}
-        self.count_queue = []
+        self.count_batch = []
         self.counting = False
         self.errors = None
         super().__init__(host, parent)
@@ -245,12 +244,11 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self.more_job = CoreJob(host, self)
         self.more_job.done.connect(self._more_done)
         self.more_job.failed.connect(lambda _t, _r: setattr(self, "loading_more", False))
-        self.node_jobs = []
-        for _n in range(COUNT_WORKERS):  # each core call starts a process; four run side by side
-            job = CoreJob(host, self)
-            job.done.connect(self._node_done)
-            job.failed.connect(lambda token, _r: self._node_done(token, {}))
-            self.node_jobs.append(job)
+        self.counts_job = CoreJob(host, self)  # every node count in one batch call (#1553)
+        self.counts_job.done.connect(self._counts_done)
+        self.counts_job.failed.connect(
+            lambda token, _r: self._counts_done(token, {"ok": False, "counts": []})
+        )
         self.html_job = CoreJob(host, self)
         self.html_job.done.connect(self._html_facets_done)
         self._elapsed = QTimer(self)
@@ -1391,10 +1389,23 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self.html_job.start(
             [*count_arguments(self.scan_path, filters=cat.HTML_2XX), "--facets", "all"], self.scan_path
         )
-        self.count_queue = queue
-        self.counting = bool(queue)
-        for _n in range(COUNT_WORKERS):
-            self._next_count()
+        if queue and not self.counts_job.busy:
+            # one process answers every remaining node count (#1553): ~20 counters in ~1 s
+            # instead of four workers paying interpreter start-up per count
+            self.count_batch = [key for key, _item in queue]
+            self.counting = True
+            self.counts_job.start(
+                [
+                    "scan-url-counts",
+                    "--scan",
+                    self.scan_path,
+                    "--filter-sets",
+                    json.dumps([list(item.filters) for _key, item in queue]),
+                ],
+                self.scan_path,
+            )
+        elif not queue:
+            self.counting = False
 
     def _html_facets_done(self, token, payload):
         if token != self.scan_path:
@@ -1407,25 +1418,17 @@ class SimpleCrawlerScreen(CrawlerScreen):
                     self.node_counts[(tab.id, item.id)] = value
         self._show_counts()
 
-    def _next_count(self):
-        job = next((j for j in self.node_jobs if not j.busy), None)
-        if job is None:
+    def _counts_done(self, token, payload):
+        if token != self.scan_path or not getattr(self, "count_batch", None):
             return
-        if not self.count_queue or not self.scan_path:
-            if not any(j.busy for j in self.node_jobs):
-                self.counting = False
-                self._errors()
-                self._show_counts()
-            return
-        key, item = self.count_queue.pop(0)
-        job.start(count_arguments(self.scan_path, filters=item.filters), (self.scan_path, key))
-
-    def _node_done(self, token, payload):
-        scan, key = token
-        if scan == self.scan_path and type(payload.get("filtered_total")) is int:
-            self.node_counts[key] = payload["filtered_total"]
-            self._show_counts()
-        QTimer.singleShot(0, self._next_count)
+        batch, self.count_batch = self.count_batch, []
+        self.counting = False
+        if payload.get("ok") is True:
+            for key, answer in zip(batch, payload.get("counts") or (), strict=False):
+                if type(answer.get("filtered_total")) is int:
+                    self.node_counts[key] = answer["filtered_total"]
+        self._errors()
+        self._show_counts()
 
     def _errors(self):
         parts = [self.node_counts.get(key) for key in cat.ERROR_FILTERS]
@@ -1533,7 +1536,7 @@ class SimpleCrawlerScreen(CrawlerScreen):
     def _discard_results(self):
         super()._discard_results()
         if hasattr(self, "more_job"):
-            for job in (self.more_job, self.html_job, *self.node_jobs):
+            for job in (self.more_job, self.html_job, self.counts_job):
                 job.cancel()
-        self.count_queue, self.counting, self.has_more, self.loading_more = [], False, False, False
+        self.count_batch, self.counting, self.has_more, self.loading_more = [], False, False, False
 

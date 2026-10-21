@@ -75,7 +75,7 @@ def simple_state(window, state):
             and not page.page_job.busy
             and not page.facet_job.busy
             and not page.html_job.busy
-            and not any(job.busy for job in page.node_jobs)
+            and not page.counts_job.busy
             and len(page.model.rows) > 0
         ),
         timeout=120,
