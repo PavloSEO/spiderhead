@@ -183,7 +183,15 @@ class ShellMixin:
             widget.setContentsMargins(8, 0, 8, 0)
         self.busy = BusyIndicator(14)
         self.busy.hide()
-        motion.activity.changed.connect(lambda count: self.busy.setVisible(count > 0))
+
+        def show_busy(count):
+            try:
+                self.busy.setVisible(count > 0)
+            except RuntimeError:
+                # the window is being torn down while activity ticks keep arriving: stop hearing them
+                motion.activity.changed.disconnect(show_busy)
+
+        motion.activity.changed.connect(show_busy)
         bar.addPermanentWidget(self.busy)
         for widget in (
             self.source_badge,
