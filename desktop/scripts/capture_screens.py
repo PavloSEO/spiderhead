@@ -82,7 +82,10 @@ def simple_state(window, state):
     )
     if state in ("ready", ""):
         page.table.selectRow(0)
-        wait_until(lambda: not page.card.jobs_busy() if hasattr(page.card, "jobs_busy") else True, timeout=30)
+        wait_until(
+            lambda: not page.card.jobs_busy() if hasattr(page.card, "jobs_busy") else True,
+            timeout=30,
+        )
         return
     if state == "crawling":
         page._set_state("running")
@@ -106,6 +109,7 @@ def simple_state(window, state):
         wait_until(lambda: page.stack.currentWidget() is page.panel_host, timeout=30)
         return
     if state == "menu":
+
         def gear_popup():
             menu = page.gear.menu()
             page.fill_settings_menu(menu)
@@ -117,6 +121,7 @@ def simple_state(window, state):
         OPTIONS["popup"] = gear_popup
         return
     if state == "context":
+
         def row_popup():
             from PyQt5.QtCore import QPoint
 
@@ -623,7 +628,9 @@ def main(argv=None):
                 image.save(str(path))
             elif hasattr(widget, "render_image"):
                 widget.render_image(width, height, args.theme, args.lang).save(str(path))
-            elif name.startswith(("shell", "start", "url", "help", "logsbots", "semimport", "simple")):
+            elif name.startswith(
+                ("shell", "start", "url", "help", "logsbots", "semimport", "simple")
+            ):
                 # The offscreen screen is 800x600 and clamps top-level windows; render at the requested size instead.
                 widget.setAttribute(Qt.WA_DontShowOnScreen, True)
                 widget.resize(width, height)

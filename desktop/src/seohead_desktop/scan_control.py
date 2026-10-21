@@ -291,18 +291,21 @@ class ScanControlMixin:
         self.stop_run_button.setEnabled(active)
         short_id = short_run_id((detail or {}).get("id"))
         self.stop_run_button.setText(
-            trf("Остановить {id}", id=short_id)
-            if active
-            else tr("Остановить выбранный запуск")
+            trf("Остановить {id}", id=short_id) if active else tr("Остановить выбранный запуск")
         )
         self.cancel_button.setText(
             ""
             if self._narrow_chrome
-            else trf("Остановить {id}", id=short_id) if active else tr("Отменить чтение")
+            else trf("Остановить {id}", id=short_id)
+            if active
+            else tr("Отменить чтение")
         )
         self.cancel_button.setEnabled(active or bool(self.requests))
         self.cancel_button.setToolTip(
-            trf("Цель управления: {target}", target=(detail or {}).get("id") or tr("только текущие чтения"))
+            trf(
+                "Цель управления: {target}",
+                target=(detail or {}).get("id") or tr("только текущие чтения"),
+            )
         )
         self.owned_target_caption.setText(
             f"Запуск этого окна: {short_id} · {state_text(detail.get('state'))}"

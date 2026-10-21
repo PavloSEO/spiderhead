@@ -43,10 +43,34 @@ ALL_COLUMNS = (
     "url", "content_type", "status_code", "status_text", "indexable", "title", "title_length",
     "meta_description", "h1", "word_count", "crawl_depth", "inlinks", "response_time",
 )  # fmt: skip
-TITLE_COLUMNS = ("url", "status_code", "indexable", "title", "title_length", "h1", "inlinks", "crawl_depth")
-DESCRIPTION_COLUMNS = ("url", "indexable", "meta_description", "meta_description_length", "title", "inlinks")
+TITLE_COLUMNS = (
+    "url",
+    "status_code",
+    "indexable",
+    "title",
+    "title_length",
+    "h1",
+    "inlinks",
+    "crawl_depth",
+)
+DESCRIPTION_COLUMNS = (
+    "url",
+    "indexable",
+    "meta_description",
+    "meta_description_length",
+    "title",
+    "inlinks",
+)
 H1_COLUMNS = ("url", "indexable", "h1", "h1_2", "inlinks")
-CODE_COLUMNS = ("url", "content_type", "status_code", "status_text", "indexable", "inlinks", "response_time")
+CODE_COLUMNS = (
+    "url",
+    "content_type",
+    "status_code",
+    "status_text",
+    "indexable",
+    "inlinks",
+    "response_time",
+)
 ERROR_COLUMNS = ("url", "status_code", "status_text", "inlinks", "crawl_depth")
 LINKED_FIRST = ("inlinks", "desc")
 
@@ -102,13 +126,33 @@ TABS = (
                 DESCRIPTION_COLUMNS,
                 ("meta_description", "asc"),
             ),
-            Filter("h1_missing", "Missing H1", (*HTML_2XX, flt("h1", "empty")), H1_COLUMNS, LINKED_FIRST),
-            Filter("h1_multiple", "Multiple H1", (*HTML_2XX, flt("h1_2", "not_empty")), H1_COLUMNS, LINKED_FIRST),
+            Filter(
+                "h1_missing",
+                "Missing H1",
+                (*HTML_2XX, flt("h1", "empty")),
+                H1_COLUMNS,
+                LINKED_FIRST,
+            ),
+            Filter(
+                "h1_multiple",
+                "Multiple H1",
+                (*HTML_2XX, flt("h1_2", "not_empty")),
+                H1_COLUMNS,
+                LINKED_FIRST,
+            ),
             Filter(
                 "non_indexable",
                 "Non-indexable",
                 (flt("indexable", "eq", False),),
-                ("url", "status_code", "indexable", "meta_robots", "x_robots", "canonical", "inlinks"),
+                (
+                    "url",
+                    "status_code",
+                    "indexable",
+                    "meta_robots",
+                    "x_robots",
+                    "canonical",
+                    "inlinks",
+                ),
                 LINKED_FIRST,
             ),
             Filter(
@@ -133,7 +177,13 @@ TABS = (
         "Response Codes",
         (
             Filter("all", "All", (), CODE_COLUMNS, ("status_code", "desc"), facet="all"),
-            Filter("2xx", "Success (2xx)", (flt("status_class", "eq", "2xx"),), CODE_COLUMNS, facet="status_2xx"),
+            Filter(
+                "2xx",
+                "Success (2xx)",
+                (flt("status_class", "eq", "2xx"),),
+                CODE_COLUMNS,
+                facet="status_2xx",
+            ),
             Filter(
                 "3xx",
                 "Redirection (3xx)",
@@ -158,7 +208,13 @@ TABS = (
                 LINKED_FIRST,
                 facet="status_5xx",
             ),
-            Filter("none", "No response", (flt("status_class", "eq", "none"),), ERROR_COLUMNS, LINKED_FIRST),
+            Filter(
+                "none",
+                "No response",
+                (flt("status_class", "eq", "none"),),
+                ERROR_COLUMNS,
+                LINKED_FIRST,
+            ),
         ),
     ),
     Tab(
@@ -190,13 +246,28 @@ TABS = (
             Filter(
                 "other",
                 "Other 3xx",
-                (flt("status_class", "eq", "3xx"), flt("status_code", "not_in", [301, 302, 303, 307, 308])),
+                (
+                    flt("status_class", "eq", "3xx"),
+                    flt("status_code", "not_in", [301, 302, 303, 307, 308]),
+                ),
                 ("url", "status_code", "redirect_url", "final_url", "inlinks"),
                 LINKED_FIRST,
             ),
-            Filter("chain", "Redirect chain", reason="Redirect chains are only readable per URL (URL Details)."),
-            Filter("loop", "Redirect loop", reason="Redirect loops are only readable per URL (URL Details)."),
-            Filter("to_error", "Redirect to error", reason="The status of the final URL is not queryable yet."),
+            Filter(
+                "chain",
+                "Redirect chain",
+                reason="Redirect chains are only readable per URL (URL Details).",
+            ),
+            Filter(
+                "loop",
+                "Redirect loop",
+                reason="Redirect loops are only readable per URL (URL Details).",
+            ),
+            Filter(
+                "to_error",
+                "Redirect to error",
+                reason="The status of the final URL is not queryable yet.",
+            ),
         ),
     ),
     Tab(
@@ -307,7 +378,11 @@ TABS = (
                 ("url", "images_total", "images_missing_alt_attr", "inlinks"),
                 ("images_missing_alt_attr", "desc"),
             ),
-            Filter("per_image", "Per-image checks", reason="Images are not stored one row per image yet."),
+            Filter(
+                "per_image",
+                "Per-image checks",
+                reason="Images are not stored one row per image yet.",
+            ),
         ),
     ),
 )
@@ -328,7 +403,10 @@ def find(tab_id, filter_id):
 
 # Overview groups: (title, ((label, tab id, filter id, badge kind), ...)); a None filter id = not collected
 OVERVIEW = (
-    ("Summary", (("Crawled URLs", "internal", "all", "mut"), ("External", "external", None, "mut"))),
+    (
+        "Summary",
+        (("Crawled URLs", "internal", "all", "mut"), ("External", "external", None, "mut")),
+    ),
     (
         "Response Codes",
         (
@@ -355,7 +433,13 @@ OVERVIEW = (
             ("Duplicate", "internal", "description_duplicate", "mut"),
         ),
     ),
-    ("H1", (("Missing", "internal", "h1_missing", "err"), ("Multiple", "internal", "h1_multiple", "warn"))),
+    (
+        "H1",
+        (
+            ("Missing", "internal", "h1_missing", "err"),
+            ("Multiple", "internal", "h1_multiple", "warn"),
+        ),
+    ),
     (
         "Canonicals",
         (
@@ -364,7 +448,10 @@ OVERVIEW = (
             ("Non-indexable canonical", "canonicals", "non_indexable", "mut"),
         ),
     ),
-    ("Sitemap", (("In sitemap", "sitemap", "in", "mut"), ("Not in sitemap", "sitemap", "not_in", "warn"))),
+    (
+        "Sitemap",
+        (("In sitemap", "sitemap", "in", "mut"), ("Not in sitemap", "sitemap", "not_in", "warn")),
+    ),
     ("Blocked by Robots", (("Blocked URLs", "blocked", "blocked", "warn"),)),
     ("Images", (("Pages missing alt", "images", "missing_alt_pages", "warn"),)),
 )

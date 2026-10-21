@@ -93,7 +93,9 @@ RIGHT = frozenset(
 )
 INTS = RIGHT - {"response_time"}
 DERIVED = frozenset(("status_text",))  # computed here from status_code; never sent to the core
-TEXTS = frozenset(("title", "meta_description", "h1", "h1_2", "canonical", "meta_robots", "x_robots"))
+TEXTS = frozenset(
+    ("title", "meta_description", "h1", "h1_2", "canonical", "meta_robots", "x_robots")
+)
 DETAIL_TABS = (
     ("info", None, "URL Details"),
     ("links", "in", "Inlinks"),
@@ -140,16 +142,23 @@ class SpiderMark(QWidget):
         colour = theming.roles().get("primary", "#1565C0")
         renderer = self._renderers.get(colour)
         if renderer is None:
-            raw = SPIDER_SVG.read_bytes().replace(b"#0E1116", colour.encode())  # strokes and body; the red accent stays
+            raw = SPIDER_SVG.read_bytes().replace(
+                b"#0E1116", colour.encode()
+            )  # strokes and body; the red accent stays
             from PyQt5.QtSvg import QSvgRenderer
 
             renderer = QSvgRenderer(raw)
             self._renderers[colour] = renderer
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        bounds = self.rect().adjusted(1, 1, -1, -1)  # the mark is 56x62: letterbox it inside the square
+        bounds = self.rect().adjusted(
+            1, 1, -1, -1
+        )  # the mark is 56x62: letterbox it inside the square
         height = bounds.width() * 62 / 56
-        renderer.render(painter, QRectF(bounds.x(), bounds.y() + (bounds.height() - height) / 2, bounds.width(), height))
+        renderer.render(
+            painter,
+            QRectF(bounds.x(), bounds.y() + (bounds.height() - height) / 2, bounds.width(), height),
+        )
         painter.end()
 
 
@@ -192,11 +201,7 @@ class SimpleModel(CrawlerModel):
         return "" if text is None else str(text)
 
     def data(self, index, role=Qt.DisplayRole):
-        if (
-            role == Qt.TextAlignmentRole
-            and index.isValid()
-            and index.column() < len(self.keys)
-        ):
+        if role == Qt.TextAlignmentRole and index.isValid() and index.column() < len(self.keys):
             key = self.keys[index.column()]
             return int((Qt.AlignRight if key in RIGHT else Qt.AlignLeft) | Qt.AlignVCenter)
         if role == Qt.ToolTipRole and index.isValid() and index.row() < len(self.rows):
@@ -217,7 +222,9 @@ class SimpleCard(UrlCard):
         for button in self.links.buttons.values():
             button.hide()  # Inlinks / Outlinks are tabs of the pane
         bar = self.links.internal.layout().itemAt(0).layout()
-        bar.setContentsMargins(0, 0, 0, 0)  # the pane caption and tabs carry the context; the bar empties out
+        bar.setContentsMargins(
+            0, 0, 0, 0
+        )  # the pane caption and tabs carry the context; the bar empties out
         for name in ("search", "nofollow", "help", "prev", "next", "caption", "export"):
             widget = getattr(self.links, name, None)
             if widget is not None:
@@ -294,7 +301,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
             state = self._value("splitter/" + name)
             if state is not None:
                 splitter.restoreState(state)
-        self.set_overview_visible(str(self._value("overview_visible", "true")) != "false", save=False)
+        self.set_overview_visible(
+            str(self._value("overview_visible", "true")) != "false", save=False
+        )
         tab = cat.TAB_INDEX.get(str(self._value("tab", "internal")), 0)
         self.tabs.setCurrentIndex(tab)
         self.detail_tabs.setCurrentIndex(self._int("detail_tab", 1))
@@ -345,9 +354,13 @@ class SimpleCrawlerScreen(CrawlerScreen):
         spins = QHBoxLayout(self.spins)
         spins.setContentsMargins(0, 0, 0, 0)
         spins.setSpacing(12)
-        self.speed_box = self._spin(spins, "Speed", 1, 10, "URL/s", "Requests per second to the site")
+        self.speed_box = self._spin(
+            spins, "Speed", 1, 10, "URL/s", "Requests per second to the site"
+        )
         self.threads_box = self._spin(spins, "Threads", 1, 8, "", "Parallel requests at most")
-        self.limit = self._spin(spins, "Limit", 0, 1_000_000, "URLs", "How many URLs to crawl at most")
+        self.limit = self._spin(
+            spins, "Limit", 0, 1_000_000, "URLs", "How many URLs to crawl at most"
+        )
         self.limit.setSpecialValueText("No limit")
         self.limit.setGroupSeparatorShown(True)
         self.toolbar_row.addWidget(self.spins)
@@ -424,11 +437,7 @@ class SimpleCrawlerScreen(CrawlerScreen):
         return self.tabs
 
     def _hidden_ids(self):
-        return {
-            tab.id
-            for index, tab in enumerate(cat.TABS)
-            if not self.tabs.isTabVisible(index)
-        }
+        return {tab.id for index, tab in enumerate(cat.TABS) if not self.tabs.isTabVisible(index)}
 
     def _hide_tab(self, index):
         if not 0 <= index < len(cat.TABS) or cat.TABS[index].id == "internal":
@@ -576,7 +585,13 @@ class SimpleCrawlerScreen(CrawlerScreen):
         row.addWidget(self.progress)
         self.progress_text = QLabel()
         self.speed, self.crawled, self.remaining, self.elapsed_label = (QLabel() for _ in range(4))
-        for label in (self.progress_text, self.crawled, self.remaining, self.speed, self.elapsed_label):
+        for label in (
+            self.progress_text,
+            self.crawled,
+            self.remaining,
+            self.speed,
+            self.elapsed_label,
+        ):
             label.setProperty("text_style", "meta")
             row.addWidget(label)
         row.addStretch(1)
@@ -587,7 +602,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self.errors_button.setObjectName("simpleErrors")
         self.errors_button.setFlat(True)
         self.errors_button.setProperty("badge", "err")
-        self.errors_button.setToolTip("4xx, 5xx and no response. Opens Response Codes › All, sorted by status.")
+        self.errors_button.setToolTip(
+            "4xx, 5xx and no response. Opens Response Codes › All, sorted by status."
+        )
         self.errors_button.clicked.connect(self._open_errors)
         row.addWidget(self.errors_button)
         self.export_crawl = QPushButton("Export crawl…")
@@ -629,7 +646,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
         splitter.insertWidget(1, pane)
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 1)
-        splitter.splitterMoved.connect(lambda *_a: self._store("splitter/master", splitter.saveState()))
+        splitter.splitterMoved.connect(
+            lambda *_a: self._store("splitter/master", splitter.saveState())
+        )
         self.card.show()
         from PyQt5.QtWidgets import QSplitter
 
@@ -637,7 +656,8 @@ class SimpleCrawlerScreen(CrawlerScreen):
         body = next(
             root.itemAt(i).layout()
             for i in range(root.count())
-            if root.itemAt(i).layout() is not None and root.itemAt(i).layout().indexOf(splitter) >= 0
+            if root.itemAt(i).layout() is not None
+            and root.itemAt(i).layout().indexOf(splitter) >= 0
         )  # the body row holds the vertical splitter and Overview
         self.main_splitter = QSplitter(Qt.Horizontal)
         self.main_splitter.setChildrenCollapsible(False)
@@ -693,13 +713,21 @@ class SimpleCrawlerScreen(CrawlerScreen):
                 ("Copy Rows as TSV", self._copy_row, "Ctrl+Alt+C"),
                 ("Select All Rows", self.table.selectAll, "Ctrl+A"),
                 None,
-                ("Find in Table", lambda: (self.search.setFocus(), self.search.selectAll()), "Ctrl+F"),
+                (
+                    "Find in Table",
+                    lambda: (self.search.setFocus(), self.search.selectAll()),
+                    "Ctrl+F",
+                ),
             ],
         )
         menu(
             "Crawl",
             [
-                ("Start", lambda: self.state not in ("running", "stopping") and self._start_or_stop(), None),
+                (
+                    "Start",
+                    lambda: self.state not in ("running", "stopping") and self._start_or_stop(),
+                    None,
+                ),
                 ("Stop", self._stop, "Ctrl+."),
                 ("Clear Results", self.clear_results, None),
                 None,
@@ -708,7 +736,13 @@ class SimpleCrawlerScreen(CrawlerScreen):
         )
         view = menu(
             "View",
-            [("Show Overview", lambda: self.set_overview_visible(not self.overview_wanted), "Ctrl+Alt+O")],
+            [
+                (
+                    "Show Overview",
+                    lambda: self.set_overview_visible(not self.overview_wanted),
+                    "Ctrl+Alt+O",
+                )
+            ],
         )
         window.add_display_items(view)
         menu(
@@ -750,9 +784,13 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self.state_badge.setText(STATE_TEXT[state])
         self.state_badge.setProperty(
             "badge",
-            {"running": "info", "stopping": "warn", "done": "ok", "stopped": "warn", "failed": "err"}.get(
-                state, "mut"
-            ),
+            {
+                "running": "info",
+                "stopping": "warn",
+                "done": "ok",
+                "stopped": "warn",
+                "failed": "err",
+            }.get(state, "mut"),
         )
         self._polish(self.state_badge)
         self.start.setText("Stop" if running else "Start")
@@ -775,7 +813,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self._sync_start()
         if state in ("done", "stopped"):
             self.overview_caption.setText(
-                "Stopped · partial results" if state == "stopped" else "Crawl finished " + time.strftime("%H:%M")
+                "Stopped · partial results"
+                if state == "stopped"
+                else "Crawl finished " + time.strftime("%H:%M")
             )
         elif running:
             self.overview_caption.setText("Updating every 3 s")
@@ -800,7 +840,12 @@ class SimpleCrawlerScreen(CrawlerScreen):
     def _show_notice(self, state, note=""):
         notices = {
             "stopped": ("warn", "Crawl stopped.", self._stopped_text(), "Start a new crawl"),
-            "failed": ("error", "The crawl failed.", note or getattr(self, "state_note", ""), "Try again"),
+            "failed": (
+                "error",
+                "The crawl failed.",
+                note or getattr(self, "state_note", ""),
+                "Try again",
+            ),
             "nocore": (
                 "error",
                 "Crawler core not found.",
@@ -849,7 +894,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
         crawled = self.facets.get("all") if type(self.facets.get("all")) is int else fetched
         self.crawled.setText(f"Crawled {number(crawled) if crawled is not None else 0}")
         if self.state in ("running", "stopping"):
-            self.remaining.setText(f"Queued ≈{number(remaining)}" if remaining is not None else "Queued —")
+            self.remaining.setText(
+                f"Queued ≈{number(remaining)}" if remaining is not None else "Queued —"
+            )
             self.speed.setText(f"{speed} URL/s" if speed else "— URL/s")
             if crawled is not None and remaining is not None and crawled + remaining:
                 share = round(100 * crawled / (crawled + remaining))
@@ -909,7 +956,11 @@ class SimpleCrawlerScreen(CrawlerScreen):
         return answer == QMessageBox.Yes
 
     def _start_or_stop(self):
-        if self.state not in ("idle", "running", "stopping") and self.scan_path and not self.confirm_replace():
+        if (
+            self.state not in ("idle", "running", "stopping")
+            and self.scan_path
+            and not self.confirm_replace()
+        ):
             return
         if self.state not in ("running", "stopping"):
             self._store("crawl/speed", self.speed_box.value())
@@ -974,7 +1025,11 @@ class SimpleCrawlerScreen(CrawlerScreen):
     def _empty_panel(self):
         if self.scan_path is None:
             opener = getattr(self.host, "open_settings", None)
-            if self.state == "idle" and getattr(self.host, "core_executable", None) is None and opener:
+            if (
+                self.state == "idle"
+                and getattr(self.host, "core_executable", None) is None
+                and opener
+            ):
                 return self._show_panel(
                     "empty",
                     "The crawler core is not available",
@@ -1059,7 +1114,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self._syncing = True
         try:
             self.tab_index = t
-            if not self.tabs.isTabVisible(t):  # a hidden tab reveals itself when Overview drills into it
+            if not self.tabs.isTabVisible(
+                t
+            ):  # a hidden tab reveals itself when Overview drills into it
                 self.tabs.setTabVisible(t, True)
                 self._store("tabs_hidden", json.dumps(sorted(self._hidden_ids())))
             self.tabs.blockSignals(True)
@@ -1100,12 +1157,24 @@ class SimpleCrawlerScreen(CrawlerScreen):
         for index, key in enumerate(keys):
             header.setSectionResizeMode(index, QHeaderView.Interactive)
             width = (widths or {}).get(key) if isinstance(widths, dict) else None
-            default = 56 if key == "page_ordinal" else 300 if key == "url" else 110 if key in RIGHT else 160
-            self.table.setColumnWidth(index, width if type(width) is int and width > 20 else default)
+            default = (
+                56
+                if key == "page_ordinal"
+                else 300
+                if key == "url"
+                else 110
+                if key in RIGHT
+                else 160
+            )
+            self.table.setColumnWidth(
+                index, width if type(width) is int and width > 20 else default
+            )
         sort = self.sort[0] if self.sort else "page_ordinal"
         if sort in keys:
             descending = bool(self.sort and self.sort[1] == "desc")
-            header.setSortIndicator(keys.index(sort), Qt.DescendingOrder if descending else Qt.AscendingOrder)
+            header.setSortIndicator(
+                keys.index(sort), Qt.DescendingOrder if descending else Qt.AscendingOrder
+            )
         if save:
             self._save_columns()
 
@@ -1152,7 +1221,11 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self._reload(keep_page=True)
 
     def query_keys(self):
-        return list(dict.fromkeys(("url_id", "url", "status_code", *(k for k in self.model.keys if k not in DERIVED))))
+        return list(
+            dict.fromkeys(
+                ("url_id", "url", "status_code", *(k for k in self.model.keys if k not in DERIVED))
+            )
+        )
 
     # ---- rows ---------------------------------------------------------------------------------------------------
     def _page_done(self, token, payload):
@@ -1161,7 +1234,11 @@ class SimpleCrawlerScreen(CrawlerScreen):
             return
         self.has_more = bool(payload.get("has_more"))
         self._footer()
-        if not (payload.get("rows") or []) and self.scan_path and self.state not in ("running", "stopping"):
+        if (
+            not (payload.get("rows") or [])
+            and self.scan_path
+            and self.state not in ("running", "stopping")
+        ):
             self._no_results_panel()
 
     def _no_results_panel(self):
@@ -1174,14 +1251,20 @@ class SimpleCrawlerScreen(CrawlerScreen):
         if query:
             column = TITLES.get(self.search_field.currentData(), self.search_field.currentData())
             known = self.node_counts.get((tab.id, current.id)) if current else None
-            has = f" has {number(known)} URLs, but none of them" if type(known) is int else " has URLs, but none of them"
+            has = (
+                f" has {number(known)} URLs, but none of them"
+                if type(known) is int
+                else " has URLs, but none of them"
+            )
             text = f"{tab.title} › {label}{has} contains “{query}” in {column}."
         self._show_panel(
             "empty",
             "No URLs match",
             text,
             action=("Clear search", self._clear_search) if query else None,
-            secondary=("Show all URLs", self._show_all) if query or (current and current.id != "all") else None,
+            secondary=("Show all URLs", self._show_all)
+            if query or (current and current.id != "all")
+            else None,
         )
 
     def _clear_search(self):
@@ -1236,7 +1319,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
         if token != (self.revision, len(self.model.rows)) or payload.get("ok") is not True:
             return
         self.model.append_rows(payload.get("rows") or [])
-        self.has_more = bool(payload.get("has_more")) and len(self.model.rows) < (self.total or 0) + PAGE
+        self.has_more = (
+            bool(payload.get("has_more")) and len(self.model.rows) < (self.total or 0) + PAGE
+        )
         self._footer()
 
     def selected_rows(self):
@@ -1291,12 +1376,19 @@ class SimpleCrawlerScreen(CrawlerScreen):
         rows = self.selected_rows()
         if not rows:
             return
-        path, _chosen = QFileDialog.getSaveFileName(self, "Export selection", "selection.csv", "CSV (*.csv)")
+        path, _chosen = QFileDialog.getSaveFileName(
+            self, "Export selection", "selection.csv", "CSV (*.csv)"
+        )
         if not path:
             return
         import csv
 
-        with open(path if path.lower().endswith(".csv") else path + ".csv", "w", newline="", encoding="utf-8") as handle:
+        with open(
+            path if path.lower().endswith(".csv") else path + ".csv",
+            "w",
+            newline="",
+            encoding="utf-8",
+        ) as handle:
             writer = csv.writer(handle)
             writer.writerow([TITLES.get(k, k) for k in self.model.keys])
             for row in rows:
@@ -1392,7 +1484,8 @@ class SimpleCrawlerScreen(CrawlerScreen):
         if self.state in ("running", "stopping"):
             return
         self.html_job.start(
-            [*count_arguments(self.scan_path, filters=cat.HTML_2XX), "--facets", "all"], self.scan_path
+            [*count_arguments(self.scan_path, filters=cat.HTML_2XX), "--facets", "all"],
+            self.scan_path,
         )
         if queue and not self.counts_job.busy:
             # one process answers every remaining node count (#1553): ~20 counters in ~1 s
@@ -1441,7 +1534,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
         self._counters(self.speed_value, None, None)
 
     def _show_counts(self):
-        if not hasattr(self, "nodes"):  # the base screen fills its filter list before the Overview exists
+        if not hasattr(
+            self, "nodes"
+        ):  # the base screen fills its filter list before the Overview exists
             return
         scanned = self.scan_path is not None and (self.facets or self.node_counts)
         for (tab_id, filter_id), item in self.nodes.items():
@@ -1457,7 +1552,11 @@ class SimpleCrawlerScreen(CrawlerScreen):
                 continue
             value = self.node_counts.get((tab_id, filter_id))
             item.setText(1, number(value) if type(value) is int else "—")
-            item.setData(1, BADGE_ROLE, (kind, number(value)) if type(value) is int and kind != "mut" and value else None)
+            item.setData(
+                1,
+                BADGE_ROLE,
+                (kind, number(value)) if type(value) is int and kind != "mut" and value else None,
+            )
         tab = cat.TABS[self.tab_index]
         for e, item in enumerate(tab.filters):
             value = self.node_counts.get((tab.id, item.id))
@@ -1515,7 +1614,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
 
         from PyQt5.QtWidgets import QFileDialog
 
-        path, _chosen = QFileDialog.getSaveFileName(self, "Save crawl", "crawl.sqlite", "Crawl (*.sqlite)")
+        path, _chosen = QFileDialog.getSaveFileName(
+            self, "Save crawl", "crawl.sqlite", "Crawl (*.sqlite)"
+        )
         if path:
             shutil.copyfile(self.scan_path, path if path.endswith(".sqlite") else path + ".sqlite")
 
@@ -1544,4 +1645,3 @@ class SimpleCrawlerScreen(CrawlerScreen):
             for job in (self.more_job, self.html_job, self.counts_job):
                 job.cancel()
         self.count_batch, self.counting, self.has_more, self.loading_more = [], False, False, False
-

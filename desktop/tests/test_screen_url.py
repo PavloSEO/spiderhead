@@ -449,4 +449,6 @@ class PathTreeTests(unittest.TestCase):
         self.screen._set_view_mode("tree")
         self.screen.model.set_rows([])  # a filtered page with no rows stays honest
         self.screen._fill_path_tree()
-        self.assertEqual(self.screen.path_tree.topLevelItem(0).text(0), "No addresses match this condition")
+        self.assertEqual(
+            self.screen.path_tree.topLevelItem(0).text(0), "No addresses match this condition"
+        )

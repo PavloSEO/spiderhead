@@ -596,7 +596,10 @@ class UrlScreen(Screen):
         layout.insertWidget(0, self.group_dropdown)
         # Same dataset, two shapes: the flat page and a path tree over it (#1492)
         self.view_buttons = {}
-        for key, icon, label in (("list", "view_list", "Список"), ("tree", "account_tree", "Дерево")):
+        for key, icon, label in (
+            ("list", "view_list", "Список"),
+            ("tree", "account_tree", "Дерево"),
+        ):
             button = QToolButton()
             button.setProperty("pill", "group")
             button.setCheckable(True)
@@ -791,7 +794,7 @@ class UrlScreen(Screen):
             tree.addTopLevelItem(empty)
             return
         folders = {}
-        order = sorted(range(len(rows)), key=lambda index: (rows[index].get("url") or ""))
+        order = sorted(range(len(rows)), key=lambda index: rows[index].get("url") or "")
         for index in order:
             url = rows[index].get("url") or ""
             host, path = split_url(url)
@@ -822,7 +825,9 @@ class UrlScreen(Screen):
                 parent.addChild(leaf)
             leaf.setFlags(leaf.flags() | Qt.ItemIsSelectable)
             leaf.setToolTip(0, url)
-            leaf.setData(0, Qt.UserRole, index)  # the flat model's row: one selection for both views
+            leaf.setData(
+                0, Qt.UserRole, index
+            )  # the flat model's row: one selection for both views
         tree.expandToDepth(1)
 
     def _tree_picked(self, item, _column):

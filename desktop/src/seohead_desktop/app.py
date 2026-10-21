@@ -228,7 +228,9 @@ class MainWindow(
 
         workspace = QWidget()
         workspace.setObjectName("workspace")
-        self.workspace_widget = workspace  # the agent display; Simple mode is a sibling page of the stack
+        self.workspace_widget = (
+            workspace  # the agent display; Simple mode is a sibling page of the stack
+        )
         self.mode_stack = QStackedWidget()
         self.mode_stack.addWidget(workspace)
         self.setCentralWidget(self.mode_stack)

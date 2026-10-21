@@ -476,6 +476,7 @@ def test_temporary_ip_index_failure_is_result_data(tmp_path, monkeypatch):
 
 # ── Field-order and ident variants (#1534, #1535) ───────────────────────────
 
+
 def test_time_between_size_and_referer_keeps_agent_and_referer():
     """`status bytes time "referer" "user-agent"` must not fall back to prefix-only."""
     from seohead.checks.logs import _parse_apache
@@ -524,7 +525,7 @@ def test_single_ident_token_is_accepted_like_the_classic_two():
     )
     row = _parse_apache(line)
     assert row is not None and row["user_agent"] == "Googlebot/2.1"
-    single_common = "24.5.66.10 - [18/Mar/2024:00:02:09 +0000] \"GET /old HTTP/1.1\" 301 0"
+    single_common = '24.5.66.10 - [18/Mar/2024:00:02:09 +0000] "GET /old HTTP/1.1" 301 0'
     assert _parse_apache(single_common)["status"] == 301
     assert detect_format([line]) == "combined"
     assert detect_format([single_common]) == "common"

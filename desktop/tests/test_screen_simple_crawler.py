@@ -201,9 +201,7 @@ class SimpleCrawlerScreenTests(unittest.TestCase):
         )
         selection = QItemSelection()
         for row in (0, 2):
-            selection.select(
-                self.screen.model.index(row, 0), self.screen.model.index(row, 2)
-            )
+            selection.select(self.screen.model.index(row, 0), self.screen.model.index(row, 2))
         self.screen.table.selectionModel().select(
             selection, QItemSelectionModel.Select | QItemSelectionModel.Rows
         )
@@ -218,7 +216,9 @@ class SimpleCrawlerScreenTests(unittest.TestCase):
     def test_tabs_can_be_hidden_and_restored_but_not_the_first_one(self):
         import json as _json
 
-        self.assertTrue(all(self.screen.tabs.isTabVisible(i) for i in range(self.screen.tabs.count())))
+        self.assertTrue(
+            all(self.screen.tabs.isTabVisible(i) for i in range(self.screen.tabs.count()))
+        )
         self.screen._hide_tab(0)  # Internal stays: it is the default view
         self.assertTrue(self.screen.tabs.isTabVisible(0))
         sitemap = cat.TAB_INDEX["sitemap"]
@@ -226,16 +226,16 @@ class SimpleCrawlerScreenTests(unittest.TestCase):
         self.screen._hide_tab(sitemap)
         self.assertFalse(self.screen.tabs.isTabVisible(sitemap))
         self.assertNotEqual(self.screen.tabs.currentIndex(), sitemap)  # moved off the hidden tab
-        self.assertEqual(
-            set(_json.loads(self.screen._memory["simple/tabs_hidden"])), {"sitemap"}
-        )
+        self.assertEqual(set(_json.loads(self.screen._memory["simple/tabs_hidden"])), {"sitemap"})
         for index in range(len(cat.TABS)):  # the last visible tab never hides
             if self.screen.tabs.isTabVisible(index):
                 self.screen._hide_tab(index)
         visible_before = [i for i in range(len(cat.TABS)) if self.screen.tabs.isTabVisible(i)]
         self.assertEqual(len(visible_before), 1)
         self.screen._show_all_tabs()
-        self.assertTrue(all(self.screen.tabs.isTabVisible(i) for i in range(self.screen.tabs.count())))
+        self.assertTrue(
+            all(self.screen.tabs.isTabVisible(i) for i in range(self.screen.tabs.count()))
+        )
         self.assertEqual(self.screen._memory["simple/tabs_hidden"], "[]")
 
     def test_overview_drill_down_reveals_a_hidden_tab(self):
@@ -283,9 +283,7 @@ class SimpleDisplayTests(unittest.TestCase):
         self.assertFalse(self.window.statusBar().isVisibleTo(self.window))
         self.assertIsNotNone(self.window.simple_page)
         start = next(
-            b
-            for b in self.window.simple_page.findChildren(QPushButton)
-            if b.text() == "Start"
+            b for b in self.window.simple_page.findChildren(QPushButton) if b.text() == "Start"
         )
         self.assertTrue(start.isVisibleTo(self.window.simple_page))
         self.window.set_display("agent", remember=False)

@@ -304,7 +304,10 @@ class ShellMixin:
         """View › Display (⌥⌘1 / ⌥⌘2) and View › Theme, shared by the agent and the Simple menu bars."""
         group = QActionGroup(self)
         self.display_actions = {}
-        for mode, title, keys in (("simple", "Display: Simple", "Ctrl+Alt+1"), ("agent", "Display: With agent", "Ctrl+Alt+2")):
+        for mode, title, keys in (
+            ("simple", "Display: Simple", "Ctrl+Alt+1"),
+            ("agent", "Display: With agent", "Ctrl+Alt+2"),
+        ):
             action = QAction(title, self)
             action.setCheckable(True)
             action.setShortcut(QKeySequence(keys))
@@ -328,7 +331,12 @@ class ShellMixin:
         menu.clear()
         current = self.prefs.get("view.theme")
         group = QActionGroup(menu)
-        for value, title in (("light", "Light"), ("dark", "Dark"), ("system", "System"), ("hc", "High contrast")):
+        for value, title in (
+            ("light", "Light"),
+            ("dark", "Dark"),
+            ("system", "System"),
+            ("hc", "High contrast"),
+        ):
             action = menu.addAction(title)
             action.setCheckable(True)
             action.setChecked(value == current)
@@ -393,7 +401,9 @@ class ShellMixin:
         if simple:  # window-wide agent keys (⌘F, ⌘1…4, F6, …) must not fire over the Simple page
             for shortcut in self.findChildren(QShortcut):
                 owner = shortcut.parent()
-                if shortcut.isEnabled() and not (owner is self.simple_page or self.simple_page.isAncestorOf(owner)):
+                if shortcut.isEnabled() and not (
+                    owner is self.simple_page or self.simple_page.isAncestorOf(owner)
+                ):
                     shortcut.setEnabled(False)
                     self._agent_shortcuts.add(shortcut)
         else:

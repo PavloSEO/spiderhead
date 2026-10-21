@@ -169,9 +169,7 @@ class ShellV2Tests(unittest.TestCase):
         self.window.navigation.select_section("url")
         self.window._sync_legacy_panel_items()
         titles = [a.text() for a in self.window._screen_panel_actions if not a.isSeparator()]
-        self.assertEqual(
-            titles, [ui("Сводка запуска"), ui("Детали URL"), ui("Только таблица")]
-        )
+        self.assertEqual(titles, [ui("Сводка запуска"), ui("Детали URL"), ui("Только таблица")])
         screen = self.window.screens["url"]
         summary = self.window._screen_panel_actions[1]
         summary.trigger()
@@ -190,9 +188,7 @@ class ShellV2Tests(unittest.TestCase):
         self.assertFalse(self.window.screens["scans"].aside_hidden)
         self.window.navigation.select_section("issues")  # a screen without panels adds nothing
         self.window._sync_legacy_panel_items()
-        self.assertFalse(
-            [a for a in self.window._screen_panel_actions if not a.isSeparator()]
-        )
+        self.assertFalse([a for a in self.window._screen_panel_actions if not a.isSeparator()])
 
     def test_rail_and_wide_navigation_widths_come_from_tokens(self):
         layout = theming.metrics()["layout"]
@@ -205,7 +201,9 @@ class ShellV2Tests(unittest.TestCase):
         self.assertTrue(self.window.navigation.profile._texts.isVisibleTo(self.window.navigation))
 
     def test_top_bar_starts_with_the_panel_button_and_carries_no_brand(self):
-        top = self.window.findChild(QWidget, "topbar")  # the agent display's top bar (Simple has none)
+        top = self.window.findChild(
+            QWidget, "topbar"
+        )  # the agent display's top bar (Simple has none)
         first = top.layout().itemAt(0).widget()
         self.assertIs(first, self.window.nav_toggle)
         texts = [label.text() for label in top.findChildren(QLabel)]
@@ -214,7 +212,9 @@ class ShellV2Tests(unittest.TestCase):
         self.assertEqual(self.window.windowTitle(), "SpiderHead")
 
     def test_top_bar_height_and_labels(self):
-        top = self.window.findChild(QWidget, "topbar")  # the agent display's top bar (Simple has none)
+        top = self.window.findChild(
+            QWidget, "topbar"
+        )  # the agent display's top bar (Simple has none)
         self.assertEqual(top.height(), theming.metrics()["layout"]["topbar"])
         self.assertEqual(self.window.project_button.title.text(), ui("Проект не открыт"))
         self.assertEqual(self.window.scan_button.title.text(), ui("Нет сохранённых сканов"))

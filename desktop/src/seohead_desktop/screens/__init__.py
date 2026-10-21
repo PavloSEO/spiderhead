@@ -118,7 +118,9 @@ def sync_chrome(window):
         "Project settings" if settings else None, "settings"
     )
     simple = getattr(window, "simple_page", None) is not None and window.display == "simple"
-    window.statusBar().setVisible(not settings and not simple)  # Simple mode has its own status strip
+    window.statusBar().setVisible(
+        not settings and not simple
+    )  # Simple mode has its own status strip
     if settings:
         window.navigation.profile.hide()
     else:
