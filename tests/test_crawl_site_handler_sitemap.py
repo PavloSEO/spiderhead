@@ -635,7 +635,6 @@ def test_scan_path_resolves_relative_sitemap_lines_and_skips_schemeless(monkeypa
     from seohead.mcp import scan_sitemaps
 
     declared: list[str] = []
-    skipped: list[str] = []
 
     class Scan:
         _roots = []
