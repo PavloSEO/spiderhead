@@ -4046,5 +4046,7 @@
  "Сводка запуска": "Run summary",
  "Только таблица": "Table only",
  "Панель запуска": "Run panel",
- "Только данные": "Data only"
+ "Только данные": "Data only",
+ "Дерево": "Tree",
+ "Плоский список или дерево путей — данные и фильтры одни": "Flat list or path tree — one dataset, one set of filters"
 }
