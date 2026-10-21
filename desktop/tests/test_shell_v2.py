@@ -145,6 +145,24 @@ class ShellV2Tests(unittest.TestCase):
             for action in self.window._legacy_panel_actions:
                 self.assertFalse(action.isVisible(), f"{section}: {action.text()}")
 
+    def test_view_menu_binds_the_current_screen_own_panels(self):
+        self.window.navigation.select_section("url")
+        self.window._sync_legacy_panel_items()
+        titles = [a.text() for a in self.window._screen_panel_actions if not a.isSeparator()]
+        self.assertEqual(titles, [ui("Сводка запуска"), ui("Только таблица")])
+        screen = self.window.screens["url"]
+        summary = self.window._screen_panel_actions[1]
+        summary.trigger()
+        self.assertTrue(screen.summary_hidden)  # the menu really drives the screen's panel
+        self.assertFalse(summary.isChecked())
+        summary.trigger()
+        self.assertFalse(screen.summary_hidden)
+        self.window.navigation.select_section("scans")  # a screen without panels adds nothing
+        self.window._sync_legacy_panel_items()
+        self.assertFalse(
+            [a for a in self.window._screen_panel_actions if not a.isSeparator()]
+        )
+
     def test_rail_and_wide_navigation_widths_come_from_tokens(self):
         layout = theming.metrics()["layout"]
         self.window.set_navigation_compact(True)

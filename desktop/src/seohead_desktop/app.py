@@ -351,6 +351,8 @@ class MainWindow(
             self.restore_action,
         ]
         view_menu.aboutToShow.connect(self._sync_legacy_panel_items)
+        self._view_menu = view_menu
+        self._screen_panel_actions = []
         self._sync_legacy_panel_items()  # the default page is not the audit one: hide at once
         density_menu = view_menu.addMenu("Плотность таблиц")
         density_group = QActionGroup(self)

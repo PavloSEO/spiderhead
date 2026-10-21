@@ -869,6 +869,17 @@ class UrlScreen(Screen):
         self.summary_hidden = not visible
         self._layout_panels()
 
+    def panel_actions(self):
+        """This screen's own panels for the View menu: (title, is-shown, toggle) triples (D01 follow-up)."""
+        return (
+            (
+                "Сводка запуска",
+                lambda: not self.summary_hidden,
+                lambda: self._set_summary_visible(self.summary_hidden),
+            ),
+            ("Только таблица", lambda: self.focus_mode, self._toggle_focus),
+        )
+
     def _toggle_focus(self):
         self.focus_mode = not self.focus_mode
         self.focus_button.setIcon(

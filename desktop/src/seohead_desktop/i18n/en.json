@@ -4042,5 +4042,7 @@
  "Параметры краула": "Crawl parameters",
  "Правила скана": "Scan policy",
  "Импорт фраз": "Phrase import",
- "Отправка заметки": "Sending the note"
+ "Отправка заметки": "Sending the note",
+ "Сводка запуска": "Run summary",
+ "Только таблица": "Table only"
 }

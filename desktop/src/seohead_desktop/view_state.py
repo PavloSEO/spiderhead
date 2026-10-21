@@ -179,6 +179,38 @@ class ViewStateMixin:
         legacy = self.audit_workspace is not None and self.audit_workspace.isVisibleTo(self)
         for action in getattr(self, "_legacy_panel_actions", ()):
             action.setVisible(legacy)
+        self._sync_screen_panel_items()
+
+    def _sync_screen_panel_items(self):
+        """Rebuild the View-menu section from the current screen's own panels (D01 follow-up).
+
+        A screen exposes them as ``panel_actions()`` -> (title, is-shown, toggle) triples; screens
+        without the method simply contribute nothing.
+        """
+        view = getattr(self, "_view_menu", None)
+        if view is None:
+            return
+        for action in getattr(self, "_screen_panel_actions", ()):
+            view.removeAction(action)
+        actions = []
+        screen = getattr(self, "screens", {}).get(self.navigation.current_section())
+        factory = getattr(screen, "panel_actions", None)
+        if factory is not None:
+            actions.append(view.addSeparator())
+            for title, state, toggle in factory():
+                action = view.addAction(tr(title))
+                action.setCheckable(True)
+                action.setChecked(bool(state()))
+
+                def flip(_checked=False, toggle=toggle, action=action, state=state):
+                    toggle()
+                    action.blockSignals(True)
+                    action.setChecked(bool(state()))
+                    action.blockSignals(False)
+
+                action.toggled.connect(flip)
+                actions.append(action)
+        self._screen_panel_actions = actions
 
     def restore_panels(self):
         self._focus_mode = False
