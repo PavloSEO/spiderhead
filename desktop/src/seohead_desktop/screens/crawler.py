@@ -640,6 +640,15 @@ class CrawlerScreen(QWidget):
         )
         self._fill_subfilter()
         self._apply_keys(self._keys_for(0))
+        store = getattr(self.host, "settings", None)
+        tab = store.value("crawler/tab") if store is not None else None
+        if tab is not None:
+            try:
+                index = int(tab)
+            except (TypeError, ValueError):
+                index = 0
+            if 0 < index < self.tabs.count():  # the remembered tab restores its filter too (#1497)
+                self.tabs.setCurrentIndex(index)
         return column
 
     def eventFilter(self, watched, event):
@@ -1096,13 +1105,26 @@ class CrawlerScreen(QWidget):
         self.subfilter.setVisible(self.subfilter.count() > 1)
         self._show_counts()
 
+    def _filter_pref(self, tab):
+        """Filter remembered for a tab (#1497), or None; store is absent in offscreen tests."""
+        store = getattr(self.host, "settings", None)
+        value = store.value(f"crawler/filter/{tab}") if store is not None else None
+        if value is None:
+            return None
+        index = int(value)
+        return index if 0 <= index < len(TABS[tab][1]) else None
+
     def _tab_changed(self, index):
         if index < 0:
             return
         self.tab_index = index
-        self._fill_subfilter()
+        remembered = self._filter_pref(index)
+        self._fill_subfilter(remembered if remembered is not None else 0)
         self._apply_keys(self._keys_for(index))
         self._reload()
+        store = getattr(self.host, "settings", None)
+        if store is not None:
+            store.setValue("crawler/tab", index)
 
     def _filter_changed(self, index):
         if index < 0:
@@ -1110,6 +1132,9 @@ class CrawlerScreen(QWidget):
         self.filter_index = index
         self.base_filters = list(TABS[self.tab_index][1][index][2])
         self._reload()
+        store = getattr(self.host, "settings", None)
+        if store is not None:
+            store.setValue(f"crawler/filter/{self.tab_index}", index)
 
     def _select_overview(self, t, e):
         self.tab_index = t
@@ -1117,6 +1142,10 @@ class CrawlerScreen(QWidget):
         self.tabs.setCurrentIndex(t)
         self.tabs.blockSignals(False)
         self._fill_subfilter(e)
+        store = getattr(self.host, "settings", None)
+        if store is not None:  # a drill-down is a choice too: remember it (#1497)
+            store.setValue("crawler/tab", t)
+            store.setValue(f"crawler/filter/{t}", e)
         self._apply_keys(self._keys_for(t))
         self._reload()
 

@@ -154,6 +154,28 @@ class CrawlerScreenTests(unittest.TestCase):
         self.screen._set_column("canonical", False)
         self.assertNotIn("canonical", self.screen.model.keys)
 
+    def test_tab_and_filter_are_remembered_between_sessions(self):
+        class Store(dict):
+            def value(self, key, default=None):
+                return self.get(key, default)
+
+            def setValue(self, key, value):
+                self[key] = value
+
+        self.host.settings = Store()
+        resp = next(i for i, (name, _e) in enumerate(TABS) if name == "Response Codes")
+        self.screen.tabs.setCurrentIndex(resp)
+        self.screen.subfilter.setCurrentIndex(2)
+        self.assertEqual(self.host.settings["crawler/tab"], resp)
+        self.assertEqual(self.host.settings[f"crawler/filter/{resp}"], 2)
+        fresh = CrawlerScreen(self.host)  # a new session restores the tab and its filter (#1497)
+        try:
+            self.assertEqual(fresh.tab_index, resp)
+            self.assertEqual(fresh.filter_index, 2)
+        finally:
+            fresh.shutdown()
+            fresh.deleteLater()
+
     def test_header_click_sorts_by_the_core_column(self):
         self.screen._header_clicked(1)
         self.assertEqual(self.screen.sort, (self.screen.model.keys[1], "asc"))
