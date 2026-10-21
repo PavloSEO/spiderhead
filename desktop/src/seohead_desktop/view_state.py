@@ -174,6 +174,12 @@ class ViewStateMixin:
         self.sync_workspace_width()
         super().resizeEvent(event)
 
+    def _sync_legacy_panel_items(self):
+        """The View menu offers the audit-page panels only while that page is on screen (D01)."""
+        legacy = self.audit_workspace is not None and self.audit_workspace.isVisibleTo(self)
+        for action in getattr(self, "_legacy_panel_actions", ()):
+            action.setVisible(legacy)
+
     def restore_panels(self):
         self._focus_mode = False
         for action in self.panel_actions.values():

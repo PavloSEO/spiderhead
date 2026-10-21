@@ -136,6 +136,15 @@ class ShellV2Tests(unittest.TestCase):
     def test_top_bar_has_no_unavailable_badge(self):
         self.assertFalse(hasattr(self.window, "agent_gap"))
 
+    def test_legacy_panel_items_stay_hidden_off_the_audit_page(self):
+        # «Сводка», «Инспектор URL», focus mode and «Восстановить панели» toggle widgets of the
+        # legacy audit page; on every current screen they looked like working checkboxes that do
+        # nothing (D01), so the View menu hides them unless that page is on screen.
+        for section in ("url", "issues", "scans", "work", "crawler"):
+            self.window.navigation.select_section(section)
+            for action in self.window._legacy_panel_actions:
+                self.assertFalse(action.isVisible(), f"{section}: {action.text()}")
+
     def test_rail_and_wide_navigation_widths_come_from_tokens(self):
         layout = theming.metrics()["layout"]
         self.window.set_navigation_compact(True)
