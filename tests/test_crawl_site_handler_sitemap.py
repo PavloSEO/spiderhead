@@ -637,7 +637,8 @@ def test_scan_path_resolves_relative_sitemap_lines_and_skips_schemeless(monkeypa
     declared: list[str] = []
 
     class Scan:
-        _roots = []
+        def __init__(self):
+            self._roots = []
 
         def sitemap_roots(self):
             return list(self._roots)
