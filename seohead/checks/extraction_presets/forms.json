@@ -1,0 +1,38 @@
+{
+ "name": "forms",
+ "description": "Forms with their actions and methods, submit buttons and the input inventory.",
+ "rules": [
+  {
+   "id": "form-action",
+   "kind": "attribute",
+   "selector": "form@action",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 30
+  },
+  {
+   "id": "form-method",
+   "kind": "attribute",
+   "selector": "form@method",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 30
+  },
+  {
+   "id": "button-text",
+   "kind": "text",
+   "selector": "button, input[type=submit]",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 50
+  },
+  {
+   "id": "input-count",
+   "kind": "count",
+   "selector": "input,select,textarea",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}

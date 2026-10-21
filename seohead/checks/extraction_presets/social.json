@@ -1,0 +1,22 @@
+{
+ "name": "social",
+ "description": "Open Graph and Twitter Card tags with their content values.",
+ "rules": [
+  {
+   "id": "og",
+   "kind": "attribute",
+   "selector": "meta[property^=\"og:\"]@content",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 50
+  },
+  {
+   "id": "twitter",
+   "kind": "attribute",
+   "selector": "meta[name^=\"twitter:\"]@content",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 50
+  }
+ ]
+}

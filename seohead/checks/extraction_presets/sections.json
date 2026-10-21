@@ -1,0 +1,30 @@
+{
+ "name": "sections",
+ "description": "Section and article headlines: the h1-h3 inside semantic containers, for content inventory.",
+ "rules": [
+  {
+   "id": "article-headings",
+   "kind": "text",
+   "selector": "article h1, article h2, article h3",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "section-headings",
+   "kind": "text",
+   "selector": "section h1, section h2, section h3",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "article-count",
+   "kind": "count",
+   "selector": "article",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}
