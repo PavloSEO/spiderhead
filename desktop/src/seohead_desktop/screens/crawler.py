@@ -1120,7 +1120,7 @@ class CrawlerScreen(QWidget):
         self.tab_index = index
         remembered = self._filter_pref(index)
         self._fill_subfilter(remembered if remembered is not None else 0)
-        self._apply_keys(self._keys_for(index))
+        self._apply_keys(self._keys_for(index, self.filter_index))
         self._reload()
         store = getattr(self.host, "settings", None)
         if store is not None:
@@ -1131,6 +1131,7 @@ class CrawlerScreen(QWidget):
             return
         self.filter_index = index
         self.base_filters = list(TABS[self.tab_index][1][index][2])
+        self._apply_keys(self._keys_for(self.tab_index, index))  # each filter carries its own columns (#1491)
         self._reload()
         store = getattr(self.host, "settings", None)
         if store is not None:
@@ -1146,18 +1147,25 @@ class CrawlerScreen(QWidget):
         if store is not None:  # a drill-down is a choice too: remember it (#1497)
             store.setValue("crawler/tab", t)
             store.setValue(f"crawler/filter/{t}", e)
-        self._apply_keys(self._keys_for(t))
+        self._apply_keys(self._keys_for(t, e))
         self._reload()
 
-    def _keys_for(self, tab):
-        """Saved columns of a tab, else its default set; the address always comes first."""
+    def _keys_for(self, tab, flt=None):
+        """Saved columns of a (tab, filter) pair, else the tab's legacy set, else defaults (#1491)."""
         name = TABS[tab][0]
         store = getattr(self.host, "settings", None)
         keys = None
         if store is not None:
-            try:
-                keys = json.loads(store.value(f"crawler/columns/{name}", "null"))
-            except (TypeError, ValueError):
+            for key in (
+                f"crawler/columns/{name}/{self.filter_index if flt is None else flt}",
+                f"crawler/columns/{name}",  # configurations saved before filters got their own sets
+            ):
+                try:
+                    keys = json.loads(store.value(key, "null"))
+                except (TypeError, ValueError):
+                    keys = None
+                if isinstance(keys, list) and all(k in COLUMN_TITLES for k in keys):
+                    break
                 keys = None
         if not isinstance(keys, list) or not all(k in COLUMN_TITLES for k in keys):
             keys = (
@@ -1193,8 +1201,9 @@ class CrawlerScreen(QWidget):
             header.setSortIndicator(-1, Qt.AscendingOrder)
         if save:
             store = getattr(self.host, "settings", None)
-            if store is not None:
-                store.setValue(f"crawler/columns/{TABS[self.tab_index][0]}", json.dumps(keys))
+            if store is not None:  # manual adjustments persist per (tab, filter) pair (#1491)
+                name = TABS[self.tab_index][0]
+                store.setValue(f"crawler/columns/{name}/{self.filter_index}", json.dumps(keys))
 
     def _order_changed(self):
         header = self.table.horizontalHeader()
