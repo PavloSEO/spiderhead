@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QSize, Qt, QTimer
 from PyQt5.QtWidgets import (
     QDialog,
     QFrame,
@@ -165,22 +165,65 @@ class SettingsDialog(QDialog):
         self.show_section(section_id)
 
     def filter_sections(self, text):
-        """Hide sections with no match in their title or any row title; jump to the first match."""
+        """Hide sections with no match in their title or any row title or description; jump to the first hit row."""
         needle = text.strip().lower()
         first = None
+        first_row = None
         for module in self._sections:
             if module.ID not in self._pages:
                 self._build(module)
-            rows = [
-                r.title.text().lower() for r in self._pages[module.ID][1].findChildren(SettingRow)
+            rows = self._pages[module.ID][1].findChildren(SettingRow)
+            texts = [r.title.text().lower() for r in rows] + [
+                r.description.text().lower() for r in rows
             ]
             hit = (
                 not needle
                 or needle in i18n.tr(module.TITLE).lower()
-                or any(needle in r for r in rows)
+                or any(needle in row for row in texts)
             )
             self._nav[module.ID].setVisible(hit)
             if hit and first is None:
                 first = module.ID
+                first_row = next(
+                    (
+                        row
+                        for row in rows
+                        if needle in row.title.text().lower()
+                        or needle in row.description.text().lower()
+                    ),
+                    None,
+                )
         if needle and first and not self._nav[self.current_section()].isVisible():
             self.show_section(first)
+        if needle and first and first is self.current_section():
+            self._reveal_row(first_row)
+        elif not needle:
+            self._reveal_row(None)
+
+    def _reveal_row(self, row):
+        """Scroll the page to the row the search matched and highlight it briefly (#1500)."""
+        for page in self._pages.values():
+            for candidate in page[1].findChildren(SettingRow):
+                if candidate.property("search_hit"):
+                    candidate.setProperty("search_hit", False)
+                    self._repolish(candidate)
+        if row is None:
+            return
+        scroll = self._pages[self.current_section()][0]
+        scroll.ensureWidgetVisible(row, 0, 32)
+        row.setProperty("search_hit", True)
+        self._repolish(row)
+        QTimer.singleShot(2400, lambda: self._fade_hit(row))
+
+    def _fade_hit(self, row):
+        try:
+            if row.property("search_hit"):
+                row.setProperty("search_hit", False)
+                self._repolish(row)
+        except RuntimeError:  # the dialog closed while the highlight was pending
+            pass
+
+    @staticmethod
+    def _repolish(widget):
+        widget.style().unpolish(widget)
+        widget.style().polish(widget)
