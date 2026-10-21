@@ -106,6 +106,7 @@ include = ["seohead*"]
 "seohead.storage" = ["*.sql"]
 "seohead.sf.schema" = ["*.json"]
 "seohead.data" = ["*.json"]
+"seohead.checks" = ["extraction_presets/*.json"]
 "seohead.skills" = ["**/*.md", "**/*"]
 
 [tool.pytest.ini_options]

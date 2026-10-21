@@ -1,0 +1,30 @@
+{
+ "name": "inline-css",
+ "description": "Inline styles: every style attribute, their count, and how many <style> blocks the page carries.",
+ "rules": [
+  {
+   "id": "style-attr",
+   "kind": "attribute",
+   "selector": "[style]@style",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "style-attr-count",
+   "kind": "count",
+   "selector": "[style]",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "style-tag-count",
+   "kind": "count",
+   "selector": "style",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}

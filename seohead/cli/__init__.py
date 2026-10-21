@@ -257,6 +257,7 @@ COMMANDS = (
     "scan-evidence",
     "scan-extract",
     "custom-extract-sample",
+    "extraction-presets",
     "marketing-inventory",
     "scan-fragment-links",
     "scan-structured-blocks",
@@ -546,6 +547,12 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         "scan-requeue",
         "scan-import-urls",
     }:
+        if getattr(args, "preset", None):
+            if getattr(args, "input", None) and '"rules"' in str(args.input):
+                raise ValueError("use --preset or explicit rules, not both")
+            from seohead.checks.extraction_library import preset as extraction_preset
+
+            kw["rules"] = extraction_preset(args.preset)
         for name in (
             "input_path",
             "section",
@@ -2273,6 +2280,19 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
         sub.add_argument("--variant-key", help="exact retained HTTP variant key when required")
     if cmd == "scan-extract":
+        from seohead.checks.extraction_library import available
+
+        sub.add_argument(
+            "--preset",
+            choices=sorted(item["name"] for item in available()),
+            help="a shipped extraction rule set instead of hand-written rules",
+        )
+        sub.add_argument(
+            "--list-presets",
+            dest="list_presets",
+            action="store_true",
+            help="print every shipped preset with its description and exit",
+        )
         _source_flag(sub, "--url", help="optional exact logical URL")
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
         sub.add_argument("--limit", type=int)
@@ -4150,6 +4170,12 @@ def main(argv: list[str] | None = None) -> int:
         return semantics_main(raw[1:])
     argv, warnings = _rewrite_deprecated_scan_flags(argv)
     args = build_parser().parse_args(argv)
+    if getattr(args, "list_presets", False):
+        from seohead.checks.extraction_library import available
+
+        for item in available():
+            print(f"{item['name']}: {item['description']} ({item['rules']} rules)")
+        return 0
     for warning in warnings:
         print(f"warning: {warning}", file=sys.stderr)
     cmd = args.command

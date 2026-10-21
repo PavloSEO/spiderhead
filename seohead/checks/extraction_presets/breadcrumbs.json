@@ -1,0 +1,14 @@
+{
+ "name": "breadcrumbs",
+ "description": "Breadcrumb text from the common breadcrumb patterns.",
+ "rules": [
+  {
+   "id": "breadcrumbs",
+   "kind": "text",
+   "selector": "[itemprop=\"breadcrumb\"], .breadcrumb, .breadcrumbs, nav[aria-label*=\"readcrumb\" i]",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 10
+  }
+ ]
+}

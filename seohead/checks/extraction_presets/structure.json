@@ -1,0 +1,110 @@
+{
+ "name": "structure",
+ "description": "DOM inventory: how many divs, sections, articles and landmark elements the page carries.",
+ "rules": [
+  {
+   "id": "div-count",
+   "kind": "count",
+   "selector": "div",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "section-count",
+   "kind": "count",
+   "selector": "section",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "article-count",
+   "kind": "count",
+   "selector": "article",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "main-count",
+   "kind": "count",
+   "selector": "main",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "nav-count",
+   "kind": "count",
+   "selector": "nav",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "header-count",
+   "kind": "count",
+   "selector": "header",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "footer-count",
+   "kind": "count",
+   "selector": "footer",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "aside-count",
+   "kind": "count",
+   "selector": "aside",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "table-count",
+   "kind": "count",
+   "selector": "table",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "form-count",
+   "kind": "count",
+   "selector": "form",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "iframe-count",
+   "kind": "count",
+   "selector": "iframe",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "svg-count",
+   "kind": "count",
+   "selector": "svg",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "list-count",
+   "kind": "count",
+   "selector": "ul,ol",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}

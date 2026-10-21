@@ -5749,6 +5749,13 @@ def scan_inspect(
     )
 
 
+def extraction_presets() -> dict[str, Any]:
+    """List the shipped extraction rule sets usable as scan-extract preset names."""
+    from seohead.checks.extraction_library import available
+
+    return {"ok": True, "presets": available()}
+
+
 def scan_url_counts(
     input_path: str,
     filter_sets: list[list[dict[str, Any]]],
@@ -8605,6 +8612,7 @@ _RAW_HANDLERS = {
     "scan_body_read": scan_body_read,
     "scan_url_query": scan_url_query,
     "scan_url_counts": scan_url_counts,
+    "extraction_presets": extraction_presets,
     "scan_directory_tree": scan_directory_tree,
     "headers_analyze": headers_analyze,
     "scan_url_history": scan_url_history,
