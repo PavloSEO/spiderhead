@@ -463,8 +463,11 @@ class CrawlerScreen(QWidget):
         return Path(directory).name if directory else ""
 
     def _sync_project_chip(self):
+        chip = getattr(self, "project_chip", None)
+        if chip is None:  # subclasses with their own toolbar carry no project chip
+            return
         name = self._project_name()
-        self.project_chip.setText(
+        chip.setText(
             trf("Краулер · проект «{name}»", name=name) if name else tr("Краулер · без проекта")
         )
 

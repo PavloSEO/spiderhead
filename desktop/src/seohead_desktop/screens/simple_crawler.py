@@ -74,6 +74,9 @@ TITLES = {
     "final_url": "Final URL",
     "images_total": "Images",
     "images_missing_alt_attr": "Images Missing Alt",
+    "robots_blocked": "Robots",
+    "description_duplicate": "Duplicate Description",
+    "canonical_non_indexable": "Non-indexable Canonical",
 }
 RIGHT = frozenset(
     (
@@ -302,8 +305,8 @@ class SimpleCrawlerScreen(CrawlerScreen):
         bar.setProperty("role", "toolbar")
         bar.setObjectName("simpleToolbar")
         column = QVBoxLayout(bar)
-        column.setContentsMargins(12, 10, 12, 10)
-        column.setSpacing(10)
+        column.setContentsMargins(12, 8, 12, 8)
+        column.setSpacing(8)
         self.toolbar_row = QHBoxLayout()
         self.toolbar_row.setSpacing(12)
         self.toolbar_row2 = QHBoxLayout()
@@ -311,7 +314,7 @@ class SimpleCrawlerScreen(CrawlerScreen):
         column.addLayout(self.toolbar_row)
         column.addLayout(self.toolbar_row2)
         brand_row = QHBoxLayout()
-        brand_row.setSpacing(6)
+        brand_row.setSpacing(4)
         brand_row.addWidget(SpiderMark(24))
         brand = QLabel("SpiderHead")
         brand.setProperty("text_style", "control")
@@ -524,7 +527,7 @@ class SimpleCrawlerScreen(CrawlerScreen):
         outer.addLayout(head)
         self.overview_caption = QLabel("No crawl yet")
         self.overview_caption.setProperty("text_style", "meta")
-        self.overview_caption.setContentsMargins(12, 10, 12, 10)
+        self.overview_caption.setContentsMargins(12, 8, 12, 8)
         outer.addWidget(self.overview_caption)
         self.tree = QTreeWidget()
         self.tree.setObjectName("simpleOverviewTree")

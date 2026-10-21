@@ -98,7 +98,9 @@ TABS = (
             Filter(
                 "description_duplicate",
                 "Duplicate description",
-                reason="Duplicate descriptions are not detected by this version of the core.",
+                (*HTML_2XX, flt("description_duplicate", "eq", True)),
+                DESCRIPTION_COLUMNS,
+                ("meta_description", "asc"),
             ),
             Filter("h1_missing", "Missing H1", (*HTML_2XX, flt("h1", "empty")), H1_COLUMNS, LINKED_FIRST),
             Filter("h1_multiple", "Multiple H1", (*HTML_2XX, flt("h1_2", "not_empty")), H1_COLUMNS, LINKED_FIRST),
@@ -236,14 +238,24 @@ TABS = (
             Filter(
                 "non_indexable",
                 "Non-indexable canonical",
-                reason="The indexability of a canonical target is not joined by this version of the core.",
+                (flt("canonical_non_indexable", "eq", True),),
+                ("url", "indexable", "canonical", "inlinks"),
+                ("url", "asc"),
             ),
         ),
     ),
     Tab(
         "blocked",
         "Blocked by Robots",
-        reason="URLs blocked by robots.txt are recorded only as crawl decisions; no list is available yet.",
+        (
+            Filter(
+                "blocked",
+                "Blocked URLs",
+                (flt("robots_blocked", "eq", True),),
+                ("url", "status_code", "indexable", "inlinks"),
+                LINKED_FIRST,
+            ),
+        ),
     ),
     Tab(
         "sitemap",
@@ -353,7 +365,7 @@ OVERVIEW = (
         ),
     ),
     ("Sitemap", (("In sitemap", "sitemap", "in", "mut"), ("Not in sitemap", "sitemap", "not_in", "warn"))),
-    ("Blocked by Robots", (("Blocked URLs", "blocked", None, "mut"),)),
+    ("Blocked by Robots", (("Blocked URLs", "blocked", "blocked", "warn"),)),
     ("Images", (("Pages missing alt", "images", "missing_alt_pages", "warn"),)),
 )
 ERROR_FILTERS = (("response_codes", "4xx"), ("response_codes", "5xx"), ("response_codes", "none"))
