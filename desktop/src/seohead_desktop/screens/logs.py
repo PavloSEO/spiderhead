@@ -201,7 +201,7 @@ class LogsScreen(Screen):
         controls = QFrame()
         controls.setProperty("page_bar", True)
         row = QHBoxLayout(controls)
-        row.setContentsMargins(20, 6, 16, 6)
+        row.setContentsMargins(20, 4, 16, 4)
         row.setSpacing(8)
         self.import_button = QPushButton(tr("Import access log…"))
         self.import_button.setProperty("role", "primary")
@@ -241,6 +241,9 @@ class LogsScreen(Screen):
             self.next,
         ):
             button.setEnabled(False)
+            button.setToolTip(
+                tr("Импортируйте журнал доступа — кнопки оживут, когда появятся данные")
+            )
         root.addWidget(controls)
 
         self.summary = QLabel()
@@ -309,6 +312,8 @@ class LogsScreen(Screen):
         self.bots_button.setEnabled(True)
         self.join_button.setEnabled(True)
         self.refresh_button.setEnabled(True)
+        for button in (self.bots_button, self.join_button, self.refresh_button):
+            button.setToolTip("")
         self.load_page()
 
     def choose_log(self):

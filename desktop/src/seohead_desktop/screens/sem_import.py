@@ -93,7 +93,7 @@ class SemImportScreen(Screen):
         self.path = None
         self.pending = False
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 10, 16, 16)
+        layout.setContentsMargins(16, 8, 16, 16)
         layout.setSpacing(16)
         self.header = PageHeader(
             "Импорт фраз в ядро",
@@ -145,7 +145,7 @@ class SemImportScreen(Screen):
         card.setMaximumWidth(340)
         column = QVBoxLayout(card)
         column.setContentsMargins(16, 16, 16, 16)
-        column.setSpacing(10)
+        column.setSpacing(8)
         self.file_title = QLabel(tr("Файл не выбран"))
         self.file_title.setProperty("text_style", "section")
         self.file_title.setWordWrap(True)

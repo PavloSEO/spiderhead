@@ -96,7 +96,7 @@ def _section(title):
 def _note(kind, text):
     frame = _set(QFrame(), note=kind)
     layout = QHBoxLayout(frame)
-    layout.setContentsMargins(12, 10, 12, 10)
+    layout.setContentsMargins(12, 8, 12, 8)
     layout.addWidget(QLabel(text))
     return frame
 
@@ -104,7 +104,7 @@ def _note(kind, text):
 def _kpi(label, value):
     frame = _set(QFrame(), kpi=True)
     layout = QVBoxLayout(frame)
-    layout.setContentsMargins(14, 12, 14, 12)
+    layout.setContentsMargins(12, 12, 12, 12)
     layout.setSpacing(4)
     layout.addWidget(_set(QLabel(label), kpi_part="label"))
     layout.addWidget(_set(QLabel(value), kpi_part="value"))

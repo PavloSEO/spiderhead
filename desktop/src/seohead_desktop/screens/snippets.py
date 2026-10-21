@@ -54,7 +54,7 @@ class SnippetEditor(QWidget):
         self._temporary = None
         root = QVBoxLayout(self)
         root.setContentsMargins(16, 12, 16, 12)
-        root.setSpacing(10)
+        root.setSpacing(8)
         title = QLabel(tr("Snippet review"))
         title.setProperty("text_style", "title")
         root.addWidget(title)

@@ -27,6 +27,7 @@ The historical filename is retained for compatibility with the settings document
 | `view.reduce_motion` | Applied | — | — |
 | `view.mono_urls` | Applied | — | — |
 | `view.rail_when_narrow` | Applied | — | — |
+| `view.focus_mode` | Applied | — | — |
 | `view.status_badges` | Applied | — | — |
 | `scan.rate` | Applied | — | — |
 | `scan.url_limit` | Applied | — | — |

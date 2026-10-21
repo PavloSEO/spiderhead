@@ -38,7 +38,7 @@ class CanvasField(QFrame):
         self.setFixedHeight(metric("field_height"))
         box = QHBoxLayout(self)
         box.setContentsMargins(12, 0, 12, 0)
-        box.setSpacing(10)
+        box.setSpacing(8)
         box.addWidget(MaterialIconLabel(icon, 20, color=color))
         editor.setProperty("canvas_editor", True)
         editor.setMinimumHeight(0)
@@ -412,8 +412,8 @@ class ModeCard(QToolButton):
 
     def update_margins(self):
         compact = bool(self.property("compact"))
-        self.box.setContentsMargins(15, 13, 15, 13) if compact else self.box.setContentsMargins(
-            17, 17, 17, 17
+        self.box.setContentsMargins(12, 12, 12, 12) if compact else self.box.setContentsMargins(
+            16, 16, 16, 16
         )
         self.box.setAlignment(Qt.AlignTop)
 

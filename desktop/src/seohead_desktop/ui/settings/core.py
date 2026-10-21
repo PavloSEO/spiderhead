@@ -167,7 +167,7 @@ def _diagnostics(context):
 def _header_row(text, button):
     row = QWidget()
     layout = QHBoxLayout(row)
-    layout.setContentsMargins(0, 6, 0, 6)
+    layout.setContentsMargins(0, 4, 0, 4)
     layout.addWidget(text, 1)
     layout.addWidget(button)
     return row

@@ -60,7 +60,7 @@ class ScanSettingsDialog(QDialog):
             scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             wrap = QWidget()
             wrap_layout = QVBoxLayout(wrap)
-            wrap_layout.setContentsMargins(28, 20, 28, 20)
+            wrap_layout.setContentsMargins(24, 20, 24, 20)
             wrap_layout.addWidget(widget)
             scroll.setWidget(wrap)
             self.stack.addWidget(scroll)
@@ -126,7 +126,7 @@ class ScanSettingsDialog(QDialog):
         nav.setFixedWidth(232)
         self.nav_frame = nav
         layout = QVBoxLayout(nav)
-        layout.setContentsMargins(10, 14, 10, 12)
+        layout.setContentsMargins(8, 12, 8, 12)
         layout.setSpacing(2)
         self.nav = {}
         for page_id, title, glyph, _build in PAGES:
@@ -151,7 +151,7 @@ class ScanSettingsDialog(QDialog):
         aside.setObjectName("scanAside")
         aside.setFixedWidth(300)
         layout = QVBoxLayout(aside)
-        layout.setContentsMargins(18, 18, 18, 14)
+        layout.setContentsMargins(16, 16, 16, 12)
         layout.setSpacing(12)
         title = QLabel(tr("Сводка конфигурации"))
         title.setProperty("text_style", "control")
@@ -159,7 +159,7 @@ class ScanSettingsDialog(QDialog):
         card = QFrame()
         card.setProperty("note", "info")
         box = QVBoxLayout(card)
-        box.setContentsMargins(12, 10, 12, 10)
+        box.setContentsMargins(12, 8, 12, 8)
         caption = QLabel(tr("Границы нагрузки"))
         caption.setProperty("text_style", "meta")
         self.load = QLabel()

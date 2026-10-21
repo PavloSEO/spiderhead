@@ -67,7 +67,7 @@ class BacklinksScreen(Screen):
         foot = QFrame()
         foot.setProperty("table_head", True)
         foot_layout = QHBoxLayout(foot)
-        foot_layout.setContentsMargins(16, 6, 16, 6)
+        foot_layout.setContentsMargins(16, 4, 16, 4)
         foot_layout.setSpacing(8)
         self.foot_text = QLabel()
         self.foot_text.setProperty("text_style", "meta")

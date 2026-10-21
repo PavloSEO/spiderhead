@@ -457,9 +457,21 @@ class CrawlerScreen(QWidget):
         super().resizeEvent(event)
         self.overview.setVisible(self.width() >= COMPACT_WIDTH)
 
+    def _project_name(self):
+        """Name of the open project, or "" when the app runs without one (the honest chip depends on it)."""
+        directory = getattr(self.host, "project_directory", None)
+        return Path(directory).name if directory else ""
+
+    def _sync_project_chip(self):
+        name = self._project_name()
+        self.project_chip.setText(
+            trf("Краулер · проект «{name}»", name=name) if name else tr("Краулер · без проекта")
+        )
+
     def showEvent(self, event):
         super().showEvent(event)
         self._sync_start()
+        self._sync_project_chip()  # the project may have opened since the toolbar was built
 
     def _toolbar(self):
         bar = QFrame()
@@ -467,9 +479,10 @@ class CrawlerScreen(QWidget):
         row = QHBoxLayout(bar)
         row.setContentsMargins(12, 8, 12, 8)
         row.setSpacing(8)
-        chip = QLabel(tr("Краулер · без проекта"))
-        chip.setProperty("badge", "info")
-        row.addWidget(chip)
+        self.project_chip = QLabel()
+        self.project_chip.setProperty("badge", "info")
+        row.addWidget(self.project_chip)
+        self._sync_project_chip()
         self.address = QLineEdit()
         self.address.setPlaceholderText(tr(PLACEHOLDERS["site"]))
         self.address.setMinimumWidth(40)
@@ -516,8 +529,8 @@ class CrawlerScreen(QWidget):
         self._note = QFrame()
         self._note.setProperty("note", "info")
         row = QHBoxLayout(self._note)
-        row.setContentsMargins(12, 10, 12, 10)
-        row.setSpacing(10)
+        row.setContentsMargins(12, 8, 12, 8)
+        row.setSpacing(8)
         row.addWidget(
             MaterialIconLabel("info", 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop
         )
@@ -550,7 +563,7 @@ class CrawlerScreen(QWidget):
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(0)
         filters = QHBoxLayout()
-        filters.setContentsMargins(10, 8, 10, 8)
+        filters.setContentsMargins(8, 8, 8, 8)
         filters.setSpacing(8)
         self.subfilter = QComboBox()
         self.subfilter.setMinimumWidth(190)
@@ -630,6 +643,15 @@ class CrawlerScreen(QWidget):
         )
         self._fill_subfilter()
         self._apply_keys(self._keys_for(0))
+        store = getattr(self.host, "settings", None)
+        tab = store.value("crawler/tab") if store is not None else None
+        if tab is not None:
+            try:
+                index = int(tab)
+            except (TypeError, ValueError):
+                index = 0
+            if 0 < index < self.tabs.count():  # the remembered tab restores its filter too (#1497)
+                self.tabs.setCurrentIndex(index)
         return column
 
     def eventFilter(self, watched, event):
@@ -651,7 +673,7 @@ class CrawlerScreen(QWidget):
         outer.setSpacing(0)
         title = QLabel(tr("Обзор"))
         title.setProperty("text_style", "overline")
-        title.setContentsMargins(12, 10, 12, 6)
+        title.setContentsMargins(12, 8, 12, 4)
         outer.addWidget(title)
         body = QWidget()
         column = QVBoxLayout(body)
@@ -668,7 +690,7 @@ class CrawlerScreen(QWidget):
                 last = t
                 heading = QLabel(tr(name))
                 heading.setProperty("text_style", "meta")
-                heading.setContentsMargins(10, 10, 10, 2)
+                heading.setContentsMargins(8, 8, 8, 2)
                 column.addWidget(heading)
             count = QLabel("—")
             self.counters[(t, e)] = count
@@ -687,8 +709,8 @@ class CrawlerScreen(QWidget):
         button.setStyleSheet("QPushButton { border: none; background: transparent; }")
         button.setCursor(Qt.PointingHandCursor)
         row = QHBoxLayout(button)
-        row.setContentsMargins(6 + depth * 16, 2, 10, 2)
-        row.setSpacing(6)
+        row.setContentsMargins(4 + depth * 16, 2, 8, 2)
+        row.setSpacing(4)
         if icon_name:
             row.addWidget(MaterialIconLabel(icon_name, 16, color="role:text_muted"))
         row.addWidget(QLabel(tr(text)))
@@ -728,7 +750,15 @@ class CrawlerScreen(QWidget):
         self.state_badge.setText(tr(text))
         self.state_badge.style().unpolish(self.state_badge)
         self.state_badge.style().polish(self.state_badge)
-        self.status_note.setText(note or tr("Без проекта · данные краула во временной папке"))
+        project = self._project_name()
+        self.status_note.setText(
+            note
+            or (
+                trf("Проект «{name}» открыт · данные краула во временной папке", name=project)
+                if project
+                else tr("Без проекта · данные краула во временной папке")
+            )
+        )
         running = state in ("running", "stopping")
         self.start.setText(tr("Стоп" if running else "Старт"))
         self.start.setIcon(material_icon("stop" if running else "play_arrow"))
@@ -737,7 +767,8 @@ class CrawlerScreen(QWidget):
         self.limit.setEnabled(not running and self.mode != "list")
         self.start.setEnabled(state != "stopping")
         self._sync_start()
-        self._note.setVisible(self.scan_path is not None)
+        # the «create a project» advice is wrong when one is already open; the chip carries that state instead
+        self._note.setVisible(self.scan_path is not None and not self._project_name())
         self.export.setEnabled(self.scan_path is not None and bool(self.total))
         self.search.setEnabled(self.scan_path is not None)
 
@@ -1079,20 +1110,37 @@ class CrawlerScreen(QWidget):
         self.subfilter.setVisible(self.subfilter.count() > 1)
         self._show_counts()
 
+    def _filter_pref(self, tab):
+        """Filter remembered for a tab (#1497), or None; store is absent in offscreen tests."""
+        store = getattr(self.host, "settings", None)
+        value = store.value(f"crawler/filter/{tab}") if store is not None else None
+        if value is None:
+            return None
+        index = int(value)
+        return index if 0 <= index < len(TABS[tab][1]) else None
+
     def _tab_changed(self, index):
         if index < 0:
             return
         self.tab_index = index
-        self._fill_subfilter()
-        self._apply_keys(self._keys_for(index))
+        remembered = self._filter_pref(index)
+        self._fill_subfilter(remembered if remembered is not None else 0)
+        self._apply_keys(self._keys_for(index, self.filter_index))
         self._reload()
+        store = getattr(self.host, "settings", None)
+        if store is not None:
+            store.setValue("crawler/tab", index)
 
     def _filter_changed(self, index):
         if index < 0:
             return
         self.filter_index = index
         self.base_filters = list(TABS[self.tab_index][1][index][2])
+        self._apply_keys(self._keys_for(self.tab_index, index))  # each filter carries its own columns (#1491)
         self._reload()
+        store = getattr(self.host, "settings", None)
+        if store is not None:
+            store.setValue(f"crawler/filter/{self.tab_index}", index)
 
     def _select_overview(self, t, e):
         self.tab_index = t
@@ -1100,18 +1148,29 @@ class CrawlerScreen(QWidget):
         self.tabs.setCurrentIndex(t)
         self.tabs.blockSignals(False)
         self._fill_subfilter(e)
-        self._apply_keys(self._keys_for(t))
+        store = getattr(self.host, "settings", None)
+        if store is not None:  # a drill-down is a choice too: remember it (#1497)
+            store.setValue("crawler/tab", t)
+            store.setValue(f"crawler/filter/{t}", e)
+        self._apply_keys(self._keys_for(t, e))
         self._reload()
 
-    def _keys_for(self, tab):
-        """Saved columns of a tab, else its default set; the address always comes first."""
+    def _keys_for(self, tab, flt=None):
+        """Saved columns of a (tab, filter) pair, else the tab's legacy set, else defaults (#1491)."""
         name = TABS[tab][0]
         store = getattr(self.host, "settings", None)
         keys = None
         if store is not None:
-            try:
-                keys = json.loads(store.value(f"crawler/columns/{name}", "null"))
-            except (TypeError, ValueError):
+            for key in (
+                f"crawler/columns/{name}/{self.filter_index if flt is None else flt}",
+                f"crawler/columns/{name}",  # configurations saved before filters got their own sets
+            ):
+                try:
+                    keys = json.loads(store.value(key, "null"))
+                except (TypeError, ValueError):
+                    keys = None
+                if isinstance(keys, list) and all(k in COLUMN_TITLES for k in keys):
+                    break
                 keys = None
         if not isinstance(keys, list) or not all(k in COLUMN_TITLES for k in keys):
             keys = (
@@ -1147,8 +1206,9 @@ class CrawlerScreen(QWidget):
             header.setSortIndicator(-1, Qt.AscendingOrder)
         if save:
             store = getattr(self.host, "settings", None)
-            if store is not None:
-                store.setValue(f"crawler/columns/{TABS[self.tab_index][0]}", json.dumps(keys))
+            if store is not None:  # manual adjustments persist per (tab, filter) pair (#1491)
+                name = TABS[self.tab_index][0]
+                store.setValue(f"crawler/columns/{name}/{self.filter_index}", json.dumps(keys))
 
     def _order_changed(self):
         header = self.table.horizontalHeader()

@@ -109,6 +109,12 @@ COLUMNS: dict[str, Column] = {
         "AND trim(t.title)<>'' AND lower(t.title)=lower(p.title))",
         "bool",
     ),
+    "description_duplicate": Column(
+        "EXISTS (SELECT 1 FROM pages t WHERE t.url_id<>p.url_id "
+        "AND trim(t.meta_description)<>'' "
+        "AND lower(t.meta_description)=lower(p.meta_description))",
+        "bool",
+    ),
     "has_hreflang": Column(
         "CASE WHEN p.hreflang_json IS NULL THEN NULL "
         "ELSE p.hreflang_json NOT IN ('[]','{}','') END",
@@ -120,6 +126,18 @@ COLUMNS: dict[str, Column] = {
         "bool",
     ),
     "canonical_self": Column("(p.canonical<>'' AND p.canonical=u.url)", "bool"),
+    "robots_blocked": Column(
+        "EXISTS (SELECT 1 FROM context_items c WHERE c.kind='robots_blocked_url' "
+        "AND c.item_key='url:' || p.url_id)",
+        "bool",
+    ),
+    "canonical_non_indexable": Column(
+        "EXISTS (SELECT 1 FROM pages t JOIN urls tu ON tu.url_id=t.url_id "
+        "WHERE tu.url=p.canonical "
+        "AND COALESCE(t.status_code BETWEEN 200 AND 299 "
+        "AND instr(lower(t.meta_robots||','||t.x_robots),'noindex')=0, 0)=0)",
+        "bool",
+    ),
     "canonical_other": Column("(p.canonical<>'' AND p.canonical<>u.url)", "bool"),
     "resource_count": Column(
         "(SELECT COUNT(*) FROM resource_graph_occurrences r "
@@ -262,6 +280,18 @@ PRESETS: dict[str, tuple[str, tuple[dict[str, Any], ...]]] = {
     ),
     "in_sitemap": ("Sitemap: included", ({"column": "in_sitemap", "op": "eq", "value": True},)),
     "inlinks": ("Links: has inlinks", ({"column": "inlinks", "op": "gt", "value": 0},)),
+    "robots_blocked": (
+        "Robots: blocked by robots.txt",
+        ({"column": "robots_blocked", "op": "eq", "value": True},),
+    ),
+    "description_duplicate": (
+        "Descriptions: duplicate",
+        ({"column": "description_duplicate", "op": "eq", "value": True},),
+    ),
+    "canonical_non_indexable": (
+        "Canonicals: target is not indexable",
+        ({"column": "canonical_non_indexable", "op": "eq", "value": True},),
+    ),
 }
 # Physical pages columns the allow-list reads; a scan lacking one is a different schema version.
 _REQUIRED_PAGE_COLUMNS = frozenset(
@@ -881,6 +911,88 @@ def _int(value: Any, name: str, low: int, high: int) -> int:
     if type(value) is not int or not low <= value <= high:
         raise QueryError("invalid_" + name, f"{name} must be an integer {low}..{high}")
     return value
+
+
+MAX_BATCH_FILTER_SETS = 100
+COUNTS_FORMAT = "seohead.scan-url-counts.v1"
+
+
+def scan_url_counts(
+    input_path: str,
+    filter_sets: list[list[dict[str, Any]]],
+    *,
+    count_timeout_seconds: float = 30.0,
+) -> dict[str, Any]:
+    """Exact ``filtered_total`` of many filter sets over one scan, in one process (#1553).
+
+    One connection and one shared time budget: a dashboard asks for every counter in a
+    single CLI call instead of paying interpreter start-up per count.
+    """
+    started = time.monotonic()
+    try:
+        if type(filter_sets) is not list or not 1 <= len(filter_sets) <= MAX_BATCH_FILTER_SETS:
+            raise QueryError(
+                "invalid_filter_sets",
+                f"filter_sets must be a list of 1..{MAX_BATCH_FILTER_SETS} filter lists",
+            )
+        for filters in filter_sets:
+            if type(filters) is not list or len(filters) > MAX_FILTERS:
+                raise QueryError(
+                    "invalid_filter", f"each set must be a list of at most {MAX_FILTERS}"
+                )
+        answers: list[dict[str, Any]] = []
+        con, _source, _status_index = _open(input_path)
+        budget = _Budget(con)
+        try:
+            for filters in filter_sets:
+                conditions, params, needs_url = _where(filters)
+                where = (" WHERE " + conditions) if conditions else ""
+                join = " JOIN urls u ON u.url_id=p.url_id" if needs_url else ""
+                remaining = count_timeout_seconds - (time.monotonic() - started)
+                budget.start(max(0.0, remaining))
+                try:
+                    row = con.execute(
+                        f"SELECT COUNT(*) FROM pages p{join}{where}", params
+                    ).fetchone()
+                except sqlite3.OperationalError as exc:
+                    if "interrupt" not in str(exc).lower():
+                        raise
+                    answers.append({"filters": filters, "filtered_total": None})
+                    continue
+                answers.append(
+                    {"filters": filters, "filtered_total": int(row[0]) if row else 0}
+                )
+        finally:
+            con.set_progress_handler(None, 0)
+            con.close()
+        return {
+            "ok": True,
+            "format": COUNTS_FORMAT,
+            "scan": str(input_path),
+            "sets": len(answers),
+            "elapsed_ms": int((time.monotonic() - started) * 1000),
+            "counts": answers,
+        }
+    except QueryError as exc:
+        return {
+            "ok": False,
+            "format": COUNTS_FORMAT,
+            "state": exc.state,
+            "reason_code": exc.reason_code,
+            "error": str(exc),
+        }
+    except sqlite3.OperationalError as exc:
+        return {
+            "ok": False,
+            "format": COUNTS_FORMAT,
+            "state": "invalid",
+            "reason_code": "query_timeout"
+            if "interrupt" in str(exc).lower()
+            else "cannot_read",
+            "error": "query exceeded its time budget"
+            if "interrupt" in str(exc).lower()
+            else f"cannot read scan: {exc}",
+        }
 
 
 def scan_url_query(

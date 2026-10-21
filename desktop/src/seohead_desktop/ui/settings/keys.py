@@ -52,8 +52,8 @@ class KeyCapture(QFrame):
         layout.addLayout(self._caps)
         self._prompt = QWidget()
         prompt_layout = QHBoxLayout(self._prompt)
-        prompt_layout.setContentsMargins(6, 0, 6, 0)
-        prompt_layout.setSpacing(6)
+        prompt_layout.setContentsMargins(4, 0, 4, 0)
+        prompt_layout.setSpacing(4)
         self._prompt_icon = MaterialIconLabel(
             "radio_button_unchecked", 16, color=theming.roles()["on_selected"]
         )
@@ -166,13 +166,13 @@ class ShortcutRow(SettingRow):
         control = QWidget()
         layout = QHBoxLayout(control)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(6)
+        layout.setSpacing(4)
         for widget in (self.capture, self.replace_button, self.reset_button):
             layout.addWidget(widget)
         super().__init__(action.title, "", control)
         self.setProperty("setting_key", shortcuts.key(action.id))
         self.setProperty("shortcut", True)
-        self.layout().setContentsMargins(0, 6, 0, 6)
+        self.layout().setContentsMargins(0, 4, 0, 4)
         self._pending = None  # (portable, replaceable) of a recorded chord waiting for 'Заменить'
         if action.fixed:
             self.capture.setEnabled(False)

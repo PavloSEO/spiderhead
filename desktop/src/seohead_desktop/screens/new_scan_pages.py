@@ -146,7 +146,7 @@ class ChoiceCard(QToolButton):
             self.setProperty("compact", True)
             self.setToolTip(tr(text))
             row_layout = QHBoxLayout(self)
-            row_layout.setContentsMargins(10, 0, 10, 0)
+            row_layout.setContentsMargins(8, 0, 8, 0)
             row_layout.setSpacing(8)
             if glyph:
                 row_layout.addWidget(MaterialIconLabel(glyph, 18, color="role:primary"))
@@ -422,7 +422,7 @@ class Page(QWidget):
     def caption(self, text):
         label = QLabel(text)
         label.setProperty("text_style", "overline")
-        label.setContentsMargins(0, 18, 0, 6)
+        label.setContentsMargins(0, 16, 0, 4)
         self.body.addWidget(label)
         return label
 
@@ -458,7 +458,7 @@ def dense_text():
 
 def dense(item):
     """Settings rows of the scan window are 48 px, not 60 (design `.sc .set-row{padding:10px 0}`)."""
-    item.layout().setContentsMargins(0, 10, 0, 10)
+    item.layout().setContentsMargins(0, 8, 0, 8)
     item.title.setWordWrap(True)
     return item
 
@@ -854,11 +854,11 @@ def scope_page(draft, host):
     columns.setHorizontalSpacing(20)
     columns.setVerticalSpacing(0)
     left, right = QVBoxLayout(), QVBoxLayout()
-    left.setSpacing(6)
+    left.setSpacing(4)
     right.setSpacing(0)
     rules_caption = QLabel(tr("Правила regex"))
     rules_caption.setProperty("text_style", "overline")
-    rules_caption.setContentsMargins(0, 14, 0, 0)
+    rules_caption.setContentsMargins(0, 12, 0, 0)
     left.addWidget(rules_caption)
     model = RuleModel(draft)
     table = QTableView()
@@ -926,7 +926,7 @@ def scope_page(draft, host):
     left.addWidget(note)
     right_caption = QLabel(tr("Проверка правил"))
     right_caption.setProperty("text_style", "overline")
-    right_caption.setContentsMargins(0, 14, 0, 0)
+    right_caption.setContentsMargins(0, 12, 0, 0)
     right.addWidget(right_caption)
     waiting_row(
         page,
@@ -1448,7 +1448,7 @@ def storage_page(draft, host):
     card = QFrame()
     card.setProperty("card", "panel")
     box = QVBoxLayout(card)
-    box.setContentsMargins(14, 12, 14, 12)
+    box.setContentsMargins(12, 12, 12, 12)
     free_line = QLabel()
     free_line.setObjectName("scanDiskFree")
     bar = QFrame()
@@ -1471,7 +1471,7 @@ def storage_page(draft, host):
         label.setProperty("text_style", "meta")
     for dot, label in ((used_dot, used_label), (pause_dot, pause_label)):
         item = QHBoxLayout()
-        item.setSpacing(6)
+        item.setSpacing(4)
         item.addWidget(dot)
         item.addWidget(label)
         legend.addLayout(item)
@@ -1576,7 +1576,7 @@ def profiles_page(draft, host):
     state.setWordWrap(True)
     cards = {}
     layout = QHBoxLayout()
-    layout.setSpacing(10)
+    layout.setSpacing(8)
     definitions = {
         "core": ("Умолчания ядра", "встроенный", "Значения crawl-describe-settings без изменений"),
         "app": ("Умолчания приложения", "из настроек", "Настройки → Сканы по умолчанию"),

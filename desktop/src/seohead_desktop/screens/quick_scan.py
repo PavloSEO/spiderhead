@@ -109,8 +109,8 @@ class QuickScanBar(QFrame):
         cmd.setFixedHeight(32)
         cmd.setMinimumWidth(260)
         line = QHBoxLayout(cmd)
-        line.setContentsMargins(10, 0, 0, 0)
-        line.setSpacing(6)
+        line.setContentsMargins(8, 0, 0, 0)
+        line.setSpacing(4)
         line.addWidget(MaterialIconLabel("language", 18, color="role:text_2"))
         self.url = QLineEdit()
         self.url.setObjectName("quickScanUrl")
@@ -501,7 +501,7 @@ class ParamsPopover(QFrame):
         self.setProperty("card", "panel")
         self.setFixedWidth(280)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setContentsMargins(12, 8, 12, 8)
         layout.setSpacing(8)
         self.rps_edit, self._sync_rps = number_edit(
             draft, "rps", tr("Запросов в секунду"), 0, "quickScanPopRate"
@@ -552,7 +552,7 @@ class ParamsPopover(QFrame):
     @staticmethod
     def _line(title, control, help_text):
         row = QHBoxLayout()
-        row.setSpacing(6)
+        row.setSpacing(4)
         label = QLabel(title)
         row.addWidget(label)
         row.addWidget(HelpIcon(help_text))

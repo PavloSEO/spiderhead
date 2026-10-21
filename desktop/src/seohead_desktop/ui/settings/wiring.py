@@ -7,7 +7,7 @@ desktop/docs/spec/settings-wiring.ru.md (regenerate with scripts/gen_settings_wi
 
 from __future__ import annotations
 
-from ...i18n import trf
+from ...i18n import tr, trf
 
 # view.language is applied to the shell and the settings; the screens follow as they are rebuilt (roadmap step 5).
 APPLIED = {
@@ -20,6 +20,7 @@ APPLIED = {
     "view.density",
     "view.reduce_motion",
     "view.rail_when_narrow",
+    "view.focus_mode",
     "shell.display",
     "view.language",
     "shell.onboarding_done",
@@ -79,21 +80,37 @@ def status(key):
 
 
 def apply(page):
-    """Badge every row of a section page whose setting is stored but not applied yet."""
+    """Rows whose setting is stored but not applied yet say so on hover; the page carries one notice."""
+    from PyQt5.QtWidgets import QLabel
+
     from ..controls import SettingRow
 
+    later = []
     for row in page.findChildren(SettingRow):
         key = row.property("setting_key")
-        if key:
-            step, reason = status(key)
-            if step is not None:
-                row.mark_later(
-                    trf(
-                        "Настройка сохраняется, но пока ничего не меняет: {reason} (шаг {step})",
-                        reason=reason,
-                        step=step,
-                    )
-                )
+        if not key:
+            continue
+        step, reason = status(key)
+        if step is not None:
+            later.append((row, step, reason))
+    if not later:
+        return
+    for row, step, reason in later:
+        row.note_later(
+            trf(
+                "Настройка сохраняется, но пока ничего не меняет: {reason} (шаг {step})",
+                reason=reason,
+                step=step,
+            )
+        )
+    layout = page.layout()
+    if layout is not None:  # one notice per section instead of a badge on most rows
+        notice = QLabel(
+            tr("Часть настроек раздела сохраняется, но пока не применяется — наведите на строку.")
+        )
+        notice.setProperty("text_style", "meta")
+        notice.setWordWrap(True)
+        layout.insertWidget(0, notice)
 
 
 def all_keys(schema):

@@ -20,7 +20,7 @@ class FatalStatesScreen(Screen):
         super().__init__(host)
         self.setObjectName("fatalPage")
         root = QVBoxLayout(self)
-        root.setContentsMargins(40, 28, 40, 20)
+        root.setContentsMargins(40, 24, 40, 20)
         root.setSpacing(16)
         title = QLabel(tr("Фатальные состояния"))
         title.setProperty("text_style", "title")

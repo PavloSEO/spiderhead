@@ -84,7 +84,7 @@ class ChromeMixin:
         top.setFixedHeight(theming.metrics()["layout"]["topbar"])
         layout = QHBoxLayout(top)
         layout.setContentsMargins(8, 0, 12, 0)
-        layout.setSpacing(6)
+        layout.setSpacing(4)
         self.nav_toggle = icon_button("side_navigation", "Свернуть или развернуть навигацию")
         self.nav_toggle.clicked.connect(self.toggle_navigation)
         layout.addWidget(self.nav_toggle)
@@ -141,7 +141,7 @@ class ChromeMixin:
         self.agent_pill.setProperty("status_pill", "agent")
         self.agent_pill.hide()
         layout.addWidget(self.agent_pill)
-        self.cancel_button = _HideWhenDisabled("Отменить чтение")
+        self.cancel_button = _HideWhenDisabled(tr("Отменить чтение"))
         self.cancel_button.setProperty("role", "danger")
         self.cancel_button.setIcon(icon("stop", theming.roles()["error"]))
         self.cancel_button.setAccessibleName(

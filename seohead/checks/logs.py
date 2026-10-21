@@ -121,15 +121,19 @@ _COMPILED = tuple(
     (re.compile(p, re.IGNORECASE), name, family, sfx) for p, name, family, sfx in BOT_PATTERNS
 )
 
-# Combined is a superset of Common and must be checked first.
+# Combined is a superset of Common and must be checked first. One or two ident/user tokens
+# sit between the client IP and the timestamp (`IP - - [ts]` and the one-dash custom layout);
+# an optional time-taken token may follow the response size or the whole line.
 _COMBINED_RE = re.compile(
-    r'^(\S+)\s+\S+\s+\S+\s+\[([^\]]+)\]\s+"([A-Z!]+)\s+(\S+)(?:\s+[^"]*)?"'
-    r'\s+(\d{3})\s+(\S+)\s+"([^"]*)"\s+"([^"]*)"'
+    r'^(\S+)(?:\s+\S+){1,2}\s+\[([^\]]+)\]\s+"([A-Z!]+)\s+(\S+)(?:\s+[^"]*)?"'
+    r'\s+(\d{3})\s+(\S+)(?:\s+([\d.,]+))?\s+"([^"]*)"\s+"([^"]*)"(?:\s+([\d.,]+))?\s*$'
 )
 _COMMON_RE = re.compile(
-    r'^(\S+)\s+\S+\s+\S+\s+\[([^\]]+)\]\s+"([A-Z!]+)\s+(\S+)(?:\s+[^"]*)?"'
-    r"\s+(\d{3})\s+(\S+)"
+    r'^(\S+)(?:\s+\S+){1,2}\s+\[([^\]]+)\]\s+"([A-Z!]+)\s+(\S+)(?:\s+[^"]*)?"'
+    r"\s+(\d{3})\s+(\S+)(?:\s+([\d.,]+))?\s*$"
 )
+# How many ident/user tokens a line carries between the IP and the timestamp (#1535).
+_IDENTS_RE = re.compile(r"^\S+(\s+\S+)\s+\[")
 _TS_RE = re.compile(r"^(\d{2})/([A-Za-z]{3})/(\d{4}):(\d{2}):(\d{2}):(\d{2})\s*([+-]\d{4})?$")
 _MONTHS = {
     m: i
@@ -191,18 +195,21 @@ def parse_apache_timestamp(raw: str) -> datetime | None:
 
 def _parse_apache(line: str) -> dict[str, Any] | None:
     m = _COMBINED_RE.match(line)
-    referer = agent = None
+    referer = agent = between_time = trailing_time = None
     if m:
-        ip, ts, method, path, status, size, referer, agent = m.groups()
+        ip, ts, method, path, status, size, between_time, referer, agent, trailing_time = m.groups()
     else:
         m = _COMMON_RE.match(line)
         if not m:
             return None
-        ip, ts, method, path, status, size = m.groups()
+        ip, ts, method, path, status, size, trailing_time = m.groups()
     try:
         bytes_sent = int(size)
     except ValueError:
         bytes_sent = 0  # ``-`` means no response body size was recorded.
+    time_taken = next(
+        (float(value.replace(",", ".")) for value in (between_time, trailing_time) if value), None
+    )
     return {
         "ip": ip,
         "time": parse_apache_timestamp(ts),
@@ -210,6 +217,7 @@ def _parse_apache(line: str) -> dict[str, Any] | None:
         "path": path,
         "status": int(status),
         "bytes": bytes_sent,
+        "time_taken": time_taken,
         "referer": None if referer in (None, "", "-") else referer,
         "user_agent": None if agent in (None, "", "-") else agent,
     }

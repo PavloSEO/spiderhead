@@ -187,7 +187,7 @@ def note(kind, text):
     frame = QFrame()
     frame.setProperty("note", kind)
     layout = QHBoxLayout(frame)
-    layout.setContentsMargins(10, 8, 10, 8)
+    layout.setContentsMargins(8, 8, 8, 8)
     label = QLabel(text)
     label.setWordWrap(True)
     layout.addWidget(label)
@@ -215,7 +215,7 @@ class HeadersPage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.grid = QGridLayout(self)
-        self.grid.setContentsMargins(20, 14, 20, 14)
+        self.grid.setContentsMargins(20, 12, 20, 12)
         self.grid.setHorizontalSpacing(24)
         self.grid.setVerticalSpacing(14)
         self.columns = []
@@ -444,7 +444,7 @@ class LinksPage(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
         scope_row = QHBoxLayout()
-        scope_row.setContentsMargins(12, 6, 12, 0)
+        scope_row.setContentsMargins(12, 4, 12, 0)
         scope_row.setSpacing(8)
         self.scope_buttons = {}
         for key, label in (("int", "Внутренние"), ("ext", "Внешние")):
@@ -465,7 +465,7 @@ class LinksPage(QWidget):
         root.addWidget(self.internal, 1)
         external_body = QWidget()
         external_layout = QVBoxLayout(external_body)
-        external_layout.setContentsMargins(24, 14, 24, 14)
+        external_layout.setContentsMargins(24, 12, 24, 12)
         external_layout.addWidget(
             StatePanel(
                 "waiting",
@@ -479,7 +479,7 @@ class LinksPage(QWidget):
         self.external.hide()
         root.addWidget(self.external, 1)
         bar = QHBoxLayout()
-        bar.setContentsMargins(12, 6, 12, 6)
+        bar.setContentsMargins(12, 4, 12, 4)
         bar.setSpacing(8)
         self.buttons = {}
         for key in ("in", "out"):
@@ -637,7 +637,7 @@ class LinksPage(QWidget):
             "empty": "Ссылок нет",
         }[kind]
         panel = StatePanel(kind, title, text)
-        panel.layout().setContentsMargins(24, 6, 24, 6)
+        panel.layout().setContentsMargins(24, 4, 24, 4)
         self.state_layout.addWidget(panel)
         self.stack.setCurrentIndex(1)
 
@@ -739,14 +739,14 @@ class RedirectsPage(QWidget):
         self.job.done.connect(self._hop)
         self.job.failed.connect(self._failed)
         self.grid = QGridLayout(self)
-        self.grid.setContentsMargins(20, 14, 20, 14)
+        self.grid.setContentsMargins(20, 12, 20, 12)
         self.grid.setHorizontalSpacing(32)
         self.grid.setColumnStretch(0, 3)
         self.grid.setColumnStretch(1, 2)
         self.chain_box = QWidget()
         self.chain = QVBoxLayout(self.chain_box)
         self.chain.setContentsMargins(0, 0, 0, 0)
-        self.chain.setSpacing(6)
+        self.chain.setSpacing(4)
         self.side_box = QWidget()
         self.side = QVBoxLayout(self.side_box)
         self.side.setContentsMargins(0, 0, 0, 0)
@@ -958,7 +958,7 @@ class RedirectsPage(QWidget):
         frame.setProperty("card", "panel")
         layout = QHBoxLayout(frame)
         layout.setContentsMargins(12, 8, 12, 8)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
         kind, text = (
             http_badge(hop.status)
             if hop.known and hop.status is not None
@@ -989,8 +989,8 @@ class FactsPage(QWidget):
         self.job.done.connect(self._resources)
         title, text, issue = UNAVAILABLE[tab]
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 14, 20, 14)
-        layout.setSpacing(10)
+        layout.setContentsMargins(20, 12, 20, 12)
+        layout.setSpacing(8)
         head = QHBoxLayout()
         head.addWidget(section_label(title))
         head.addWidget(waiting_badge(issue))
@@ -1061,7 +1061,7 @@ class HtmlPage(QWidget):
         outer.setSpacing(0)
         bar = QHBoxLayout()
         bar.setContentsMargins(20, 8, 12, 8)
-        bar.setSpacing(10)
+        bar.setSpacing(8)
         self.mode = Segmented(
             (("static", tr("Исходный")), ("rendered", tr("После рендеринга JS"))),
             value="static",
@@ -1185,8 +1185,8 @@ class SchemaPage(QWidget):
         self.job.failed.connect(self._failed)
         title, text, issue = UNAVAILABLE["schema"]
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 14, 20, 14)
-        layout.setSpacing(10)
+        layout.setContentsMargins(20, 12, 20, 12)
+        layout.setSpacing(8)
         head = QHBoxLayout()
         head.addWidget(section_label(title))
         if issue is not None:
@@ -1474,7 +1474,7 @@ class UrlCard(QFrame):
         head.setProperty("table_head", True)
         head_layout = QHBoxLayout(head)
         head_layout.setContentsMargins(20, 8, 12, 8)
-        head_layout.setSpacing(10)
+        head_layout.setSpacing(8)
         self.head = UrlHead()
         self.head.note_requested.connect(self.note_requested.emit)
         head_layout.addWidget(self.head, 1)

@@ -21,7 +21,7 @@ from .common import (  # noqa: F401
     plain,
     scan_request_key,
 )
-from .i18n import tr
+from .i18n import tr, trf
 from .ui import motion
 from .ui.presentation import (
     content_spacing,
@@ -123,9 +123,9 @@ class ViewStateMixin:
             self.cancel_button.setText(
                 ""
                 if narrow
-                else "Остановить " + short_run_id(self.selected_managed_run_id)
+                else trf("Остановить {id}", id=short_run_id(self.selected_managed_run_id))
                 if self.selected_managed_run_id
-                else "Отменить чтение"
+                else tr("Отменить чтение")
             )
         compact = self.workspace_widget.width() < theme_tokens()["layout"][
             "compact_breakpoint"
@@ -173,6 +173,61 @@ class ViewStateMixin:
     def resizeEvent(self, event):
         self.sync_workspace_width()
         super().resizeEvent(event)
+
+    def _sync_legacy_panel_items(self):
+        """The View menu offers the audit-page panels only while that page is on screen (D01)."""
+        legacy = self.audit_workspace is not None and self.audit_workspace.isVisibleTo(self)
+        for action in getattr(self, "_legacy_panel_actions", ()):
+            action.setVisible(legacy)
+        self._sync_screen_panel_items()
+
+    def set_interface_focus(self, on):
+        """Data-only review mode (#1495): navigation and the top bar step aside, the data stays.
+
+        The state persists; screens keep hiding their own panels through their focus toggles.
+        """
+        self.navigation.setVisible(not on)
+        topbar = self.findChild(QWidget, "topbar")
+        if topbar is not None:
+            topbar.setVisible(not on)
+        action = getattr(self, "interface_focus_action", None)
+        if action is not None:
+            action.blockSignals(True)
+            action.setChecked(on)
+            action.blockSignals(False)
+        if hasattr(self, "prefs"):
+            self.prefs.set("view.focus_mode", on)
+
+    def _sync_screen_panel_items(self):
+        """Rebuild the View-menu section from the current screen's own panels (D01 follow-up).
+
+        A screen exposes them as ``panel_actions()`` -> (title, is-shown, toggle) triples; screens
+        without the method simply contribute nothing.
+        """
+        view = getattr(self, "_view_menu", None)
+        if view is None:
+            return
+        for action in getattr(self, "_screen_panel_actions", ()):
+            view.removeAction(action)
+        actions = []
+        screen = getattr(self, "screens", {}).get(self.navigation.current_section())
+        factory = getattr(screen, "panel_actions", None)
+        if factory is not None:
+            actions.append(view.addSeparator())
+            for title, state, toggle in factory():
+                action = view.addAction(tr(title))
+                action.setCheckable(True)
+                action.setChecked(bool(state()))
+
+                def flip(_checked=False, toggle=toggle, action=action, state=state):
+                    toggle()
+                    action.blockSignals(True)
+                    action.setChecked(bool(state()))
+                    action.blockSignals(False)
+
+                action.toggled.connect(flip)
+                actions.append(action)
+        self._screen_panel_actions = actions
 
     def restore_panels(self):
         self._focus_mode = False
@@ -237,9 +292,9 @@ class ViewStateMixin:
             search.selectAll()
 
     def focus_next_region(self):
+        # navigation + the current page; the old branch here steered F6 into the hidden legacy
+        # audit widgets and lost focus on every current screen (D04)
         areas = [self.navigation, self.pages.currentWidget()]
-        if self.pages.currentIndex() == 1:
-            areas = [self.navigation, self.table, self.inspector, self.overview]
         current = QApplication.focusWidget()
         index = (
             next(

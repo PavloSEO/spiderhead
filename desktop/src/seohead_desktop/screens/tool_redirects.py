@@ -170,8 +170,8 @@ class ToolRedirectsScreen(Screen):
         self.content = QWidget()
         self.scroll.setWidget(self.content)
         page = QVBoxLayout(self.content)
-        page.setContentsMargins(20, 14, 20, 12)
-        page.setSpacing(10)
+        page.setContentsMargins(20, 12, 20, 12)
+        page.setSpacing(8)
         page.addWidget(
             PageHeader(
                 "Генератор 301",
@@ -226,7 +226,7 @@ class ToolRedirectsScreen(Screen):
         right.setMaximumWidth(400)
         side = QVBoxLayout(right)
         side.setContentsMargins(0, 0, 0, 0)
-        side.setSpacing(10)
+        side.setSpacing(8)
         body.addWidget(right)
         self._build_side(side)
 

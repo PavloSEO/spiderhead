@@ -472,3 +472,59 @@ def test_temporary_ip_index_failure_is_result_data(tmp_path, monkeypatch):
     result = analyze_log(_write(tmp_path, COMBINED))
     assert result["ok"] is False
     assert "synthetic disk unavailable" in result["error"]
+
+
+# ── Field-order and ident variants (#1534, #1535) ───────────────────────────
+
+def test_time_between_size_and_referer_keeps_agent_and_referer():
+    """`status bytes time "referer" "user-agent"` must not fall back to prefix-only."""
+    from seohead.checks.logs import _parse_apache
+
+    line = (
+        '66.249.66.1 - - [18/Mar/2024:00:02:09 +0000] "GET /catalog/pumps HTTP/1.1" '
+        '200 5120 0.123 "https://example.test/pricing" '
+        '"Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"'
+    )
+    row = _parse_apache(line)
+    assert row is not None
+    assert row["user_agent"].startswith("Mozilla/5.0 (compatible; Googlebot")
+    assert row["referer"] == "https://example.test/pricing"
+    assert row["bytes"] == 5120
+    assert row["time_taken"] == 0.123
+
+
+def test_time_after_user_agent_and_no_time_layouts_both_parse():
+    from seohead.checks.logs import _parse_apache
+
+    trailing = (
+        '66.249.66.1 - - [18/Mar/2024:00:02:09 +0000] "GET /a HTTP/1.1" 200 5120 '
+        '"-" "Googlebot/2.1" 0.5'
+    )
+    row = _parse_apache(trailing)
+    assert row["user_agent"] == "Googlebot/2.1"
+    assert row["time_taken"] == 0.5
+    classic = (
+        '66.249.66.1 - - [18/Mar/2024:00:02:09 +0000] "GET /a HTTP/1.1" 200 5120 '
+        '"-" "Googlebot/2.1"'
+    )
+    row = _parse_apache(classic)
+    assert row["user_agent"] == "Googlebot/2.1"
+    assert row["time_taken"] is None
+    common_time = '24.5.66.10 - - [18/Mar/2024:00:02:09 +0000] "GET /b HTTP/1.1" 301 0 0.9\n'
+    row = _parse_apache(common_time.rstrip("\n"))
+    assert row["status"] == 301 and row["time_taken"] == 0.9
+
+
+def test_single_ident_token_is_accepted_like_the_classic_two():
+    from seohead.checks.logs import _parse_apache
+
+    line = (
+        "66.249.66.1 - [18/Mar/2024:00:02:09 +0000] "
+        '"GET /catalog/pumps HTTP/1.1" 200 5120 "-" "Googlebot/2.1"'
+    )
+    row = _parse_apache(line)
+    assert row is not None and row["user_agent"] == "Googlebot/2.1"
+    single_common = "24.5.66.10 - [18/Mar/2024:00:02:09 +0000] \"GET /old HTTP/1.1\" 301 0"
+    assert _parse_apache(single_common)["status"] == 301
+    assert detect_format([line]) == "combined"
+    assert detect_format([single_common]) == "common"

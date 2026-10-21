@@ -81,7 +81,7 @@ class CompetitorsScreen(Screen):
         root.addLayout(self.empty_holder)
         self.body = QWidget()
         layout = QVBoxLayout(self.body)
-        layout.setContentsMargins(24, 18, 24, 16)
+        layout.setContentsMargins(24, 16, 24, 16)
         layout.setSpacing(12)
         root.addWidget(self.body, 1)
 
