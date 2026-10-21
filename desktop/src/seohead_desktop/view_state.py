@@ -243,9 +243,9 @@ class ViewStateMixin:
             search.selectAll()
 
     def focus_next_region(self):
+        # navigation + the current page; the old branch here steered F6 into the hidden legacy
+        # audit widgets and lost focus on every current screen (D04)
         areas = [self.navigation, self.pages.currentWidget()]
-        if self.pages.currentIndex() == 1:
-            areas = [self.navigation, self.table, self.inspector, self.overview]
         current = QApplication.focusWidget()
         index = (
             next(

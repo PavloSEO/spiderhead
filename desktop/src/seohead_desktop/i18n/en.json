@@ -4037,5 +4037,10 @@
  "Выберите два сохранённых скана этого проекта.": "Select two saved scans of this project.",
  "Часть настроек раздела сохраняется, но пока не применяется — наведите на строку.": "Some settings in this section are saved but not applied yet — hover a row for details.",
  "Импортируйте журнал доступа — кнопки оживут, когда появятся данные": "Import an access log first — the buttons wake up once there is data",
- "Ядро не сообщает число строк до экспорта": "The core does not report the row count before the export"
+ "Ядро не сообщает число строк до экспорта": "The core does not report the row count before the export",
+ "Карточка URL": "URL card",
+ "Параметры краула": "Crawl parameters",
+ "Правила скана": "Scan policy",
+ "Импорт фраз": "Phrase import",
+ "Отправка заметки": "Sending the note"
 }

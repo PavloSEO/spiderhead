@@ -678,6 +678,8 @@ class UrlScreen(Screen):
             self.table.setColumnWidth(column, width)
         self.table.selectionModel().currentRowChanged.connect(self._row_changed)
         self.table.doubleClicked.connect(lambda _index: self._open_tab("info"))
+        enter = QShortcut(QKeySequence(Qt.Key_Return), self.table, lambda: self._open_tab("info"))
+        enter.setContext(Qt.WidgetShortcut)  # the row menu promises «Подробности … ↵» (D06)
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self._row_menu)
         self.table_stack.addWidget(self.table)
