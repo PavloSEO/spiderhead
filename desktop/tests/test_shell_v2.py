@@ -157,7 +157,16 @@ class ShellV2Tests(unittest.TestCase):
         self.assertFalse(summary.isChecked())
         summary.trigger()
         self.assertFalse(screen.summary_hidden)
-        self.window.navigation.select_section("scans")  # a screen without panels adds nothing
+        self.window.navigation.select_section("scans")  # the scans screen offers its run aside
+        self.window._sync_legacy_panel_items()
+        titles = [a.text() for a in self.window._screen_panel_actions if not a.isSeparator()]
+        self.assertEqual(titles, [ui("Панель запуска")])
+        run_panel = self.window._screen_panel_actions[1]
+        run_panel.trigger()
+        self.assertTrue(self.window.screens["scans"].aside_hidden)
+        run_panel.trigger()
+        self.assertFalse(self.window.screens["scans"].aside_hidden)
+        self.window.navigation.select_section("issues")  # a screen without panels adds nothing
         self.window._sync_legacy_panel_items()
         self.assertFalse(
             [a for a in self.window._screen_panel_actions if not a.isSeparator()]

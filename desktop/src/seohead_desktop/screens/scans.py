@@ -675,6 +675,7 @@ class ScansScreen(Screen):
         self.body.addWidget(left, 1)
         self.aside = RunAside(self)
         self.aside.setFixedWidth(400)
+        self.aside_hidden = False  # the user's View-menu choice; the comparison view overrides it
         self.body.addWidget(self.aside)
         self._timer = QTimer(self)
         self._timer.setInterval(1000)
@@ -786,7 +787,8 @@ class ScansScreen(Screen):
         self._ensure_selection()
         self._update_header()
         self.aside.set_row(self.current_row())
-        self.aside.setVisible(kind is None)
+        self._view_kind = kind
+        self.aside.setVisible(kind is None and not self.aside_hidden)
         if self.stack.currentIndex() == 1:
             self.monitor.refresh()
 
@@ -813,6 +815,20 @@ class ScansScreen(Screen):
         self._ensure_selection()
         self._update_header()
         self.aside.set_row(self.current_row())
+
+    def panel_actions(self):
+        """This screen's own panels for the View menu (D01 follow-up): the run aside."""
+        return (
+            (
+                "Панель запуска",
+                lambda: not self.aside_hidden,
+                lambda: self._set_aside_visible(self.aside_hidden),
+            ),
+        )
+
+    def _set_aside_visible(self, visible):
+        self.aside_hidden = not visible
+        self.aside.setVisible(visible and getattr(self, "_view_kind", None) is None)
 
     def _update_header(self):
         total, shown = len(self.rows), self.proxy.rowCount()
