@@ -883,7 +883,9 @@ class SimpleCrawlerScreen(CrawlerScreen):
             str(self.speed_box.value()),
             "--set",
             f"speed.concurrency={self.threads_box.value()}",
-        ]  # no sitemap auto-discovery: a relative «Sitemap:» line in robots.txt stops the whole crawl today
+            "--set",
+            "sitemaps.auto_discover=true",
+        ]  # robots.txt sitemap lines resolve against the site root since the #1552 fix
 
     def confirm_replace(self):
         """Start over finished results asks first; a crawl without a project is not saved anywhere else."""

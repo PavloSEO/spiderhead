@@ -625,3 +625,62 @@ def test_unstored_sitemap_seed_preserves_url_problem_findings(monkeypatch, tmp_p
     }
     assert problems[("SITEMAP_URL_NON_INDEXABLE", declared[3])]["reasons"] == ["non_canonical"]
     assert problems[("SITEMAP_URL_NON_INDEXABLE", declared[4])]["reasons"] == ["robots_blocked"]
+
+
+def test_scan_path_resolves_relative_sitemap_lines_and_skips_schemeless(monkeypatch, tmp_path):
+    """The native-scan seeding path resolves ``Sitemap: /sitemap.xml`` against the site
+    root instead of aborting, and skips lines with no http(s) scheme (#1552)."""
+    from urllib.parse import urlsplit
+
+    from seohead.mcp import scan_sitemaps
+
+    declared: list[str] = []
+    skipped: list[str] = []
+
+    class Scan:
+        _roots = []
+
+        def sitemap_roots(self):
+            return list(self._roots)
+
+        def read_context(self, kind):
+            assert kind == "robots_summary"
+            return {
+                "fetch_state": "fetched",
+                "parsed": {
+                    "sitemaps": ["/sitemap.xml", "https://example.test/other.xml", "ftp:/nope"]
+                },
+            }
+
+        def note_audit_unavailable(self, reason):
+            raise AssertionError("discovery must not bail: " + reason)
+
+        def declare_sitemap(self, url, source, ordinal):
+            assert urlsplit(url).scheme in ("http", "https")
+            declared.append(url)
+            self._roots.append({"url": url, "source": source, "sitemap_url_id": ordinal})
+
+        def write_sitemap_members(self, *args, **kwargs):
+            return None
+
+        def finish_sitemap(self, *args, **kwargs):
+            return None
+
+        def iter_sitemap_members(self, *args, **kwargs):
+            return iter(())
+
+        def interrupt(self, reason):
+            raise AssertionError("complete discovery must not interrupt: " + reason)
+
+    monkeypatch.setattr(scan_sitemaps, "capture_declared_roots", lambda *a, **k: [])
+    result: dict = {}
+    scan_sitemaps.load_sitemaps(
+        Scan(),
+        lambda urls: None,
+        settings={"sitemaps": {"auto_discover": True}},
+        result=result,
+        start_url="https://example.test/deep/page",
+    )
+    assert declared == ["https://example.test/sitemap.xml", "https://example.test/other.xml"]
+    assert result["skipped_sitemaps"] == ["ftp:/nope"]
+    assert result["sitemap_urls"] == declared
