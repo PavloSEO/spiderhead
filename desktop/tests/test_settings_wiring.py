@@ -90,7 +90,12 @@ class WiringTests(unittest.TestCase):
             self.assertEqual(dialog.current_section(), owner)  # the dialog jumped there (#1500)
             dialog.filter_sections("")
             self.assertFalse(
-                [r for p in dialog._pages.values() for r in p[1].findChildren(SettingRow) if r.property("search_hit")]
+                [
+                    r
+                    for p in dialog._pages.values()
+                    for r in p[1].findChildren(SettingRow)
+                    if r.property("search_hit")
+                ]
             )
         finally:
             dialog.close()

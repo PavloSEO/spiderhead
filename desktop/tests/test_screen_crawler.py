@@ -190,7 +190,9 @@ class CrawlerScreenTests(unittest.TestCase):
         )
         titles = next(i for i, (name, _e) in enumerate(TABS) if name == "Page Titles")
         self.screen.tabs.setCurrentIndex(titles)
-        self.assertIn("canonical", self.screen.model.keys)  # saved before filters had their own sets
+        self.assertIn(
+            "canonical", self.screen.model.keys
+        )  # saved before filters had their own sets
 
     def test_tab_and_filter_are_remembered_between_sessions(self):
         class Store(dict):

@@ -959,9 +959,7 @@ def scan_url_counts(
                         raise
                     answers.append({"filters": filters, "filtered_total": None})
                     continue
-                answers.append(
-                    {"filters": filters, "filtered_total": int(row[0]) if row else 0}
-                )
+                answers.append({"filters": filters, "filtered_total": int(row[0]) if row else 0})
         finally:
             con.set_progress_handler(None, 0)
             con.close()
@@ -986,9 +984,7 @@ def scan_url_counts(
             "ok": False,
             "format": COUNTS_FORMAT,
             "state": "invalid",
-            "reason_code": "query_timeout"
-            if "interrupt" in str(exc).lower()
-            else "cannot_read",
+            "reason_code": "query_timeout" if "interrupt" in str(exc).lower() else "cannot_read",
             "error": "query exceeded its time budget"
             if "interrupt" in str(exc).lower()
             else f"cannot read scan: {exc}",

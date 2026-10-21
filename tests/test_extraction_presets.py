@@ -38,7 +38,9 @@ def test_unknown_preset_names_every_shipped_one():
 
 
 def test_headings_preset_extracts_the_outline():
-    out = evaluate(html=HTML, parsed={"jsonld": []}, rules=preset("headings"), representation="static")
+    out = evaluate(
+        html=HTML, parsed={"jsonld": []}, rules=preset("headings"), representation="static"
+    )
     by_id = {row["id"]: row for row in out["rules"]}
     assert by_id["h1"]["value"] == ["Pumps"]
     assert by_id["h2"]["value"] == ["Centrifugal", "Article heading"]
@@ -53,7 +55,10 @@ def test_images_links_and_inline_css_presets_answer_the_common_questions():
             html=HTML, parsed={"jsonld": []}, rules=preset("images"), representation="static"
         )["rules"]
     }
-    assert images["img-alt"]["value"] == ["A pump", "", None][:2] or images["img-alt-empty"]["value"] == 1
+    assert (
+        images["img-alt"]["value"] == ["A pump", "", None][:2]
+        or images["img-alt-empty"]["value"] == 1
+    )
     assert images["img-count"]["value"] == 3
     links = {
         row["id"]: row

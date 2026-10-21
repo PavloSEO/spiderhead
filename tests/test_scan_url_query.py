@@ -625,9 +625,7 @@ def test_description_duplicate_column_flags_shared_descriptions(tmp_path):
     path = _scan(tmp_path)
     con = sqlite3.connect(path, timeout=10)
     try:
-        rows = con.execute(
-            "SELECT url_id FROM pages ORDER BY url_id LIMIT 3"
-        ).fetchall()
+        rows = con.execute("SELECT url_id FROM pages ORDER BY url_id LIMIT 3").fetchall()
         con.execute(
             "UPDATE pages SET meta_description='shared description' WHERE url_id IN (?,?)",
             (rows[0][0], rows[1][0]),
@@ -636,7 +634,8 @@ def test_description_duplicate_column_flags_shared_descriptions(tmp_path):
     finally:
         con.close()
     got = handlers.scan_url_query(
-        input_path=str(path), filters=[{"column": "description_duplicate", "op": "eq", "value": True}]
+        input_path=str(path),
+        filters=[{"column": "description_duplicate", "op": "eq", "value": True}],
     )
     assert got["ok"] is True and got["filtered_total"] == 2
     via_preset = handlers.scan_url_query(input_path=str(path), preset="description_duplicate")
@@ -656,9 +655,7 @@ def test_canonical_non_indexable_targets_are_filterable(tmp_path):
             "UPDATE pages SET canonical=?, meta_robots='', x_robots='' WHERE url_id=?",
             (rows[2][1], rows[0][0]),
         )
-        con.execute(
-            "UPDATE pages SET meta_robots='noindex, follow' WHERE url_id=?", (rows[2][0],)
-        )
+        con.execute("UPDATE pages SET meta_robots='noindex, follow' WHERE url_id=?", (rows[2][0],))
         con.commit()
     finally:
         con.close()

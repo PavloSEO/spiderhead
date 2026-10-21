@@ -334,7 +334,9 @@ class ProjExportScreen(Screen):
         record = dict((key, rec) for key, _i, _l, rec in DATASETS).get(self.dataset)
         if scan is None or record is None or not scan.get("path"):
             return
-        folder = Path(self.folder.full_path or self.folder.text())  # the field shows a middle-elided path
+        folder = Path(
+            self.folder.full_path or self.folder.text()
+        )  # the field shows a middle-elided path
         try:
             folder.mkdir(parents=True, exist_ok=True)
         except OSError:

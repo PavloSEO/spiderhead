@@ -1131,7 +1131,9 @@ class CrawlerScreen(QWidget):
             return
         self.filter_index = index
         self.base_filters = list(TABS[self.tab_index][1][index][2])
-        self._apply_keys(self._keys_for(self.tab_index, index))  # each filter carries its own columns (#1491)
+        self._apply_keys(
+            self._keys_for(self.tab_index, index)
+        )  # each filter carries its own columns (#1491)
         self._reload()
         store = getattr(self.host, "settings", None)
         if store is not None:
