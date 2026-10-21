@@ -877,6 +877,11 @@ class UrlScreen(Screen):
                 lambda: not self.summary_hidden,
                 lambda: self._set_summary_visible(self.summary_hidden),
             ),
+            (
+                "Детали URL",
+                lambda: not self.detail_hidden,
+                lambda: self._set_detail_visible(self.detail_hidden),
+            ),
             ("Только таблица", lambda: self.focus_mode, self._toggle_focus),
         )
 

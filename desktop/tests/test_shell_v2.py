@@ -149,7 +149,9 @@ class ShellV2Tests(unittest.TestCase):
         self.window.navigation.select_section("url")
         self.window._sync_legacy_panel_items()
         titles = [a.text() for a in self.window._screen_panel_actions if not a.isSeparator()]
-        self.assertEqual(titles, [ui("Сводка запуска"), ui("Только таблица")])
+        self.assertEqual(
+            titles, [ui("Сводка запуска"), ui("Детали URL"), ui("Только таблица")]
+        )
         screen = self.window.screens["url"]
         summary = self.window._screen_panel_actions[1]
         summary.trigger()
