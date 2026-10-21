@@ -4135,14 +4135,50 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         )
 
     @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_url_counts(
+        input_path: str,
+        filter_sets: list[list[dict[str, Any]]],
+        count_timeout_seconds: float = 30.0,
+    ) -> dict[str, Any]:
+        """Exact filtered counts of up to 100 filter sets over one saved scan in a single call."""
+        return _checked(
+            handlers.scan_url_counts(
+                input_path=input_path,
+                filter_sets=filter_sets,
+                count_timeout_seconds=count_timeout_seconds,
+            )
+        )
+
+    @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_extraction_presets() -> dict[str, Any]:
+        """List the shipped extraction rule sets usable as seo_scan_extract preset names."""
+        from seohead.checks.extraction_library import available as extraction_presets
+
+        return _checked({"ok": True, "presets": extraction_presets()})
+
+    @mcp.tool(annotations=read_files, structured_output=True)
     def seo_scan_extract(
         input_path: str,
-        rules: list[dict[str, Any]],
+        rules: list[dict[str, Any]] | None = None,
         url: str | None = None,
         representation: str = "static",
         limit: int = 100,
+        preset: str | None = None,
     ) -> dict[str, Any]:
-        """Run bounded data-only extraction rules on retained complete bodies, without network or writes."""
+        """Run bounded data-only extraction rules on retained complete bodies, without network or writes.
+
+        Either pass ``rules`` or name a shipped library ``preset`` (headings, images,
+        links, structure, inline-css, meta, social, json-ld, media, forms, tables,
+        breadcrumbs, sections, headings-outline-check); ``seo_extraction_presets`` lists them.
+        """
+        if preset is not None:
+            from seohead.checks.extraction_library import preset as load_preset
+
+            if rules:
+                raise ValueError("pass rules or preset, not both")
+            rules = load_preset(preset)
+        if not rules:
+            raise ValueError("extraction needs rules or a preset name")
         return _checked(
             handlers.scan_extract(
                 input_path=input_path,

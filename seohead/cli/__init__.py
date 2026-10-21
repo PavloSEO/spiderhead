@@ -257,6 +257,7 @@ COMMANDS = (
     "scan-evidence",
     "scan-extract",
     "custom-extract-sample",
+    "extraction-presets",
     "marketing-inventory",
     "scan-fragment-links",
     "scan-structured-blocks",
