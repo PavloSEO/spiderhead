@@ -129,6 +129,7 @@ TABS = (
             ALL,
             ("Missing", None, [_flt("meta_description", "empty")]),
             ("Over 160 characters", None, [_flt("meta_description_length", "gt", 160)]),
+            ("Duplicate", None, [_flt("description_duplicate", "eq", True)]),
         ),
     ),
     (
@@ -147,6 +148,7 @@ TABS = (
             ("Missing", "canonical_missing", [_flt("canonical", "empty")]),
             ("Self referencing", "canonical_self", [_flt("canonical_self", "eq", True)]),
             ("Canonicalised", "canonical_other", [_flt("canonical_other", "eq", True)]),
+            ("Non-indexable target", None, [_flt("canonical_non_indexable", "eq", True)]),
         ),
     ),
     (
@@ -157,6 +159,7 @@ TABS = (
             ("noindex (meta robots)", None, [_flt("meta_robots", "contains", "noindex")]),
             ("noindex (X-Robots-Tag)", None, [_flt("x_robots", "contains", "noindex")]),
             ("nofollow (meta robots)", None, [_flt("meta_robots", "contains", "nofollow")]),
+            ("Blocked by robots", None, [_flt("robots_blocked", "eq", True)]),
         ),
     ),
     (
