@@ -201,7 +201,7 @@ class LogsScreen(Screen):
         controls = QFrame()
         controls.setProperty("page_bar", True)
         row = QHBoxLayout(controls)
-        row.setContentsMargins(20, 6, 16, 6)
+        row.setContentsMargins(20, 4, 16, 4)
         row.setSpacing(8)
         self.import_button = QPushButton(tr("Import access log…"))
         self.import_button.setProperty("role", "primary")

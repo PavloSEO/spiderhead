@@ -227,7 +227,7 @@ class StageChain(QWidget):
             cell = QWidget()
             row = QHBoxLayout(cell)
             row.setContentsMargins(0, 0, 0, 0)
-            row.setSpacing(6)
+            row.setSpacing(4)
             row.addWidget(
                 MaterialIconLabel(
                     icon if measurable or done else "help",
@@ -288,9 +288,9 @@ class Composer(QFrame):
         self.references = []
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
         top = QHBoxLayout()
-        top.setSpacing(6)
+        top.setSpacing(4)
         self.kind_group = QButtonGroup(self)
         self.kind_buttons = {}
         for kind, icon, label in (
@@ -326,7 +326,7 @@ class Composer(QFrame):
         top.addStretch(1)
         layout.addLayout(top)
         context_row = QHBoxLayout()
-        context_row.setSpacing(6)
+        context_row.setSpacing(4)
         self.context_button = QToolButton()
         self.context_button.setProperty("pill", "group")
         self.context_button.setText(tr("Контекст"))
@@ -338,7 +338,7 @@ class Composer(QFrame):
         self.context_button.setMenu(self.context_menu)
         context_row.addWidget(self.context_button)
         self.chips = QHBoxLayout()
-        self.chips.setSpacing(6)
+        self.chips.setSpacing(4)
         context_row.addLayout(self.chips, 1)
         layout.addLayout(context_row)
         self.text = QPlainTextEdit()
@@ -542,7 +542,7 @@ class InboxScreen(Screen):
         self.status = QLabel()
         self.status.setProperty("text_style", "meta")
         self.status.setWordWrap(True)
-        self.status.setContentsMargins(12, 6, 12, 6)
+        self.status.setContentsMargins(12, 4, 12, 4)
         layout.addWidget(self.status)
         return pane
 

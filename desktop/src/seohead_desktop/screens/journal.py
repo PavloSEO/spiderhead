@@ -315,7 +315,7 @@ class JournalScreen(Screen):
         foot = QFrame()
         foot.setProperty("table_head", True)
         foot_layout = QHBoxLayout(foot)
-        foot_layout.setContentsMargins(16, 6, 16, 6)
+        foot_layout.setContentsMargins(16, 4, 16, 4)
         foot_layout.setSpacing(8)
         foot_layout.addWidget(MaterialIconLabel("warning", 18, color=theming.roles()["warning"]))
         self.foot_text = ElidedLabel()

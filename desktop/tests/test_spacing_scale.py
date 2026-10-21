@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src" / "seohead_desktop"
 SCALE = {0, 2, 4, 8, 12, 16, 20, 24, 32, 36, 40, 48, 56, 64, 72, 96, 110, 118, 132, 150, 220, 236, 260, 296}
-RATCHET = 222  # off-scale setContentsMargins/setSpacing calls at 2026-10-21
+RATCHET = 184  # off-scale setContentsMargins/setSpacing calls at 2026-10-21 (was 222)
 
 
 def off_scale_calls():
