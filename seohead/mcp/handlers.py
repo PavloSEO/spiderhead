@@ -253,14 +253,33 @@ def _seed_urls_from_sitemap(
 
     if sitemap:
         targets = [sitemap]
+        skipped: list[str] = []
     elif auto_discover:
+        from urllib.parse import urljoin, urlsplit, urlunsplit
+
         from seohead.checks.robots import check_robots
 
         options = {"request_gate": request_gate} if request_gate is not None else {}
         if proxy_route is not None:
             options["proxy_route"] = proxy_route
         checked = check_robots(url, **options)
-        targets = list(checked.get("sitemaps") or [])
+        # A robots.txt ``Sitemap:`` line may be relative (``Sitemap: /sitemap.xml``);
+        # it resolves against the crawled site root, and one that still does not
+        # make an absolute http(s) URL is skipped with a record, never an abort (#1552).
+        parts = urlsplit(url)
+        base = (
+            urlunsplit((parts.scheme, parts.netloc, "/", "", ""))
+            if parts.scheme and parts.netloc
+            else url
+        )
+        targets, skipped = [], []
+        for declared in checked.get("sitemaps") or []:
+            resolved = urljoin(base, str(declared).strip())
+            resolved_parts = urlsplit(resolved)
+            if resolved_parts.scheme in ("http", "https") and resolved_parts.netloc:
+                targets.append(resolved)
+            else:
+                skipped.append(str(declared))
         if throttle is not None and checked.get("ok") and isinstance(checked.get("groups"), list):
             from seohead.checks.robots import politeness_delay
 
@@ -272,8 +291,14 @@ def _seed_urls_from_sitemap(
                 throttle.delay = max(throttle.delay, asked)
     else:
         targets = []
+        skipped = []
     if not targets:
-        return {"sitemap_url": None, "sitemap_urls": [], "declared": []}
+        return {
+            "sitemap_url": None,
+            "sitemap_urls": [],
+            "declared": [],
+            "skipped_sitemaps": skipped,
+        }
     declared: list[str] = []
     seen: set[str] = set()
     for target in targets:
@@ -286,7 +311,12 @@ def _seed_urls_from_sitemap(
             if loc and loc not in seen:
                 seen.add(loc)
                 declared.append(loc)
-    return {"sitemap_url": targets[0], "sitemap_urls": targets, "declared": declared}
+    return {
+        "sitemap_url": targets[0],
+        "sitemap_urls": targets,
+        "declared": declared,
+        "skipped_sitemaps": skipped,
+    }
 
 
 def _run_render_escalation(
@@ -1451,6 +1481,10 @@ def crawl_site(
             "sitemap_urls": sitemap_seed["sitemap_urls"],
             "sitemap_seeded": len(result.seed_urls),
         }
+        if sitemap_seed.get("skipped_sitemaps"):
+            # Relative or otherwise unusable robots-declared sitemaps were skipped,
+            # not fatal (#1552): say so in the crawl's own coverage statement.
+            discovery["skipped_sitemaps"] = sitemap_seed["skipped_sitemaps"]
         if result.external_summary:
             # The external phase's own coverage statement: policy used,
             # per-outcome counts and why it stopped — kept distinct from the
