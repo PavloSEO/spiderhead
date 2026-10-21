@@ -132,6 +132,7 @@ COMMANDS = (
     "scan-body-read",
     "scan-findings-page",
     "scan-url-query",
+    "scan-url-counts",
     "scan-directory-tree",
     "scan-url-history",
     "scan-link-inspect",
@@ -321,6 +322,7 @@ _SCAN_PATH_COMMANDS = frozenset(
         "scan-url-detail",
         "scan-body-read",
         "scan-url-query",
+        "scan-url-counts",
         "scan-directory-tree",
         "scan-link-inspect",
         "headers-analyze",
@@ -579,6 +581,10 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
                 kw[name] = True
     elif cmd == "scan-content-search-page":
         for name in ("package", "offset", "limit", "status", "status_code"):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+    elif cmd == "scan-url-counts":
+        for name in ("input_path", "filter_sets", "count_timeout_seconds"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "scan-url-query":
@@ -2939,6 +2945,15 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--max-bytes", dest="max_bytes", type=int)
         sub.add_argument("--columns", type=lambda v: v.split(","), help="comma-separated columns")
         sub.add_argument("--total", action="store_true", help="include the table row count")
+    if cmd == "scan-url-counts":
+        sub.add_argument(
+            "--filter-sets",
+            dest="filter_sets",
+            type=_json_list,
+            required=True,
+            help="JSON list of filter lists; one exact count per set in one call",
+        )
+        sub.add_argument("--count-timeout-seconds", dest="count_timeout_seconds", type=float)
     if cmd == "scan-url-query":
         sub.add_argument("--filters", type=_json_list, help="JSON list of {column, op, value}")
         sub.add_argument("--sort")

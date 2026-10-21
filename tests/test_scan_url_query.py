@@ -562,3 +562,27 @@ def test_issue_filter_reaches_cli_and_mcp(scan_path, capsys):
     assert code == 0 and out["reason_code"] == "issue_index_missing"
     tool = build_server()._tool_manager.get_tool("seo_scan_url_query")
     assert {"issue_check", "issue_severity"} <= set(tool.parameters["properties"])
+
+
+def test_scan_url_counts_matches_single_queries_and_rejects_bad_sets(tmp_path):
+    """The batch counter returns exactly what one-off queries return, in one call (#1553)."""
+    from seohead.storage.url_query import scan_url_counts
+
+    path = _scan(tmp_path)
+    sets = [
+        [],
+        [{"column": "status_class", "op": "eq", "value": "2xx"}],
+        [{"column": "title", "op": "empty"}],
+        [{"column": "indexable", "op": "eq", "value": True}],
+    ]
+    batch = scan_url_counts(str(path), sets)
+    assert batch["ok"] is True and batch["sets"] == len(sets)
+    from seohead.storage.url_query import scan_url_query
+
+    for entry, one in zip(batch["counts"], sets):
+        alone = scan_url_query(str(path), filters=one, limit=1)
+        assert entry["filtered_total"] == alone["filtered_total"]
+    bad = scan_url_counts(str(path), [])
+    assert bad["ok"] is False and bad["reason_code"] == "invalid_filter_sets"
+    bad_op = scan_url_counts(str(path), [[{"column": "title", "op": "bogus"}]])
+    assert bad_op["ok"] is False and bad_op["reason_code"] == "invalid_filter"

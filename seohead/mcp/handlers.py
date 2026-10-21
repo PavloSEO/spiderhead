@@ -5749,6 +5749,17 @@ def scan_inspect(
     )
 
 
+def scan_url_counts(
+    input_path: str,
+    filter_sets: list[list[dict[str, Any]]],
+    count_timeout_seconds: float = 30.0,
+) -> dict[str, Any]:
+    """Exact filtered counts of many filter sets over one saved scan in one call (#1553)."""
+    from seohead.storage.url_query import scan_url_counts as core
+
+    return core(input_path, filter_sets, count_timeout_seconds=count_timeout_seconds)
+
+
 def scan_url_query(
     input_path: str,
     filters: list[dict[str, Any]] | None = None,
@@ -8593,6 +8604,7 @@ _RAW_HANDLERS = {
     "scan_url_detail": scan_url_detail,
     "scan_body_read": scan_body_read,
     "scan_url_query": scan_url_query,
+    "scan_url_counts": scan_url_counts,
     "scan_directory_tree": scan_directory_tree,
     "headers_analyze": headers_analyze,
     "scan_url_history": scan_url_history,
