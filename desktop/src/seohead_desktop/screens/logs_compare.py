@@ -57,7 +57,7 @@ class LogsCompareScreen(Screen):
         controls = QFrame()
         controls.setProperty("page_bar", True)
         bar = QHBoxLayout(controls)
-        bar.setContentsMargins(20, 6, 16, 6)
+        bar.setContentsMargins(20, 4, 16, 4)
         self.view = QComboBox()
         for key, label in VIEWS:
             self.view.addItem(label, key)

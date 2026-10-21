@@ -376,7 +376,7 @@ class Chip(QFrame):
         super().__init__(parent)
         self.setProperty("chip", "filter")
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 0, 2, 0)
+        layout.setContentsMargins(8, 0, 2, 0)
         layout.setSpacing(2)
         self.label = QLabel(text)
         layout.addWidget(self.label)
@@ -625,7 +625,7 @@ class UrlScreen(Screen):
         self.search.textChanged.connect(lambda _t: self._search_timer.start())
         layout.addWidget(self.search)
         self.chip_row = QHBoxLayout()
-        self.chip_row.setSpacing(6)
+        self.chip_row.setSpacing(4)
         layout.addLayout(self.chip_row)
         self.add_condition = QPushButton(tr("Условие"))
         self.add_condition.setProperty("size", "pill")
@@ -1241,7 +1241,7 @@ class UrlScreen(Screen):
             action=("Повторить", lambda: self._reload(keep_page=True)),
             secondary=("Диагностика", lambda: self.host.open_settings("core")),
         )
-        panel.layout().setContentsMargins(24, 6, 24, 6)
+        panel.layout().setContentsMargins(24, 4, 24, 4)
         panel.layout().setSpacing(4)
         note = QLabel(text)
         note.setProperty("text_style", "mono")

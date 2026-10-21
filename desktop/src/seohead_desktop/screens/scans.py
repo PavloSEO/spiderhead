@@ -207,7 +207,7 @@ class CounterCell(QFrame):
         super().__init__(parent)
         self.setProperty("card", "panel")
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 8, 10, 8)
+        layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(2)
         label = QLabel(tr(caption))
         label.setProperty("text_style", "meta")
@@ -246,8 +246,8 @@ def note_frame(kind, icon):
     frame = QFrame()
     frame.setProperty("note", kind)
     layout = QHBoxLayout(frame)
-    layout.setContentsMargins(12, 10, 12, 10)
-    layout.setSpacing(10)
+    layout.setContentsMargins(12, 8, 12, 8)
+    layout.setSpacing(8)
     layout.addWidget(MaterialIconLabel(icon, 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop)
     body = QLabel()
     body.setWordWrap(True)
@@ -312,7 +312,7 @@ class RunAside(QFrame):
         page = QWidget()
         layout = QVBoxLayout(page)
         layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(14)
+        layout.setSpacing(12)
         return page, layout
 
     def _status_line(self):
@@ -660,7 +660,7 @@ class ScansScreen(Screen):
         self.foot = QFrame()
         self.foot.setProperty("table_head", True)
         foot_layout = QHBoxLayout(self.foot)
-        foot_layout.setContentsMargins(16, 6, 16, 6)
+        foot_layout.setContentsMargins(16, 4, 16, 4)
         self.foot_text = QLabel()
         self.foot_text.setProperty("text_style", "meta")
         self.foot_text.setWordWrap(True)

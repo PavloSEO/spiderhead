@@ -77,7 +77,7 @@ class Segmented(QFrame):
         self.setProperty("segmented", True)
         self.setAccessibleName(accessible_name)
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(3, 3, 3, 3)
+        layout.setContentsMargins(2, 2, 2, 2)
         layout.setSpacing(2)
         self._group = QButtonGroup(self)
         self._group.setExclusive(True)
@@ -113,7 +113,7 @@ class SettingRow(QFrame):
             320
         )  # explicit: the row may shrink, its control then moves under the text
         grid = QGridLayout(self)
-        grid.setContentsMargins(0, 14, 0, 14)
+        grid.setContentsMargins(0, 12, 0, 12)
         grid.setHorizontalSpacing(24)
         text = QVBoxLayout()
         text.setSpacing(2)
@@ -202,8 +202,8 @@ class Note(QFrame):
         super().__init__(parent)
         self.setProperty("note", kind)
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(12, 10, 12, 10)
-        layout.setSpacing(10)
+        layout.setContentsMargins(12, 8, 12, 8)
+        layout.setSpacing(8)
         layout.addWidget(
             MaterialIconLabel(icon or self.ICONS[kind], 20, color=theming.roles()["text_2"]),
             0,

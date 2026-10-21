@@ -118,7 +118,7 @@ class GraphPage(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         bar = QHBoxLayout()
-        bar.setContentsMargins(12, 6, 12, 6)
+        bar.setContentsMargins(12, 4, 12, 4)
         bar.setSpacing(8)
         self.depth_label = QLabel()
         self.depth_label.setProperty("text_style", "meta")
@@ -194,7 +194,7 @@ class GraphPage(QWidget):
         self.panel_url.setProperty("text_style", "meta")
         layout.addWidget(self.panel_url)
         toggles = QHBoxLayout()
-        toggles.setSpacing(6)
+        toggles.setSpacing(4)
         self.dir_buttons = {}
         for direction in ("in", "out"):
             button = QToolButton()
@@ -209,7 +209,7 @@ class GraphPage(QWidget):
         self.rows_host = QWidget()
         self.rows_layout = QVBoxLayout(self.rows_host)
         self.rows_layout.setContentsMargins(0, 0, 0, 0)
-        self.rows_layout.setSpacing(6)
+        self.rows_layout.setSpacing(4)
         layout.addWidget(self.rows_host)
         self.open_button = QPushButton()
         self.open_button.clicked.connect(self._open_url)

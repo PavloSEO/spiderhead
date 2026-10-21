@@ -82,7 +82,7 @@ class HelpScreen(Screen):
         bar.setFixedHeight(52)
         layout = QHBoxLayout(bar)
         layout.setContentsMargins(24, 0, 24, 0)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
         layout.addWidget(MaterialIconLabel("help", 20, bar))
         layout.addWidget(_label("Справка", "title", wrap=False))
         self.crumb = _label("", "meta", wrap=False)

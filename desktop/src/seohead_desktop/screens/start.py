@@ -334,7 +334,7 @@ class NewProjectDialog(QDialog):
         self.setMinimumWidth(520)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 20, 24, 16)
-        layout.setSpacing(14)
+        layout.setSpacing(12)
         title = QLabel(tr("Новый проект"))
         title.setProperty("text_style", "dialog")
         hint = QLabel(tr("Папка, сайт и название"))

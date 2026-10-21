@@ -692,7 +692,7 @@ class IssuesScreen(Screen):
         holder = QWidget()
         self.list_layout = QVBoxLayout(holder)
         self.list_layout.setContentsMargins(0, 0, 0, 0)
-        self.list_layout.setSpacing(1)
+        self.list_layout.setSpacing(0)
         self.list_layout.addStretch(1)
         scroll.setWidget(holder)
         layout.addWidget(scroll, 1)

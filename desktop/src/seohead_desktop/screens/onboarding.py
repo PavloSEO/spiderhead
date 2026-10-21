@@ -201,7 +201,7 @@ class OnboardingScreen(Screen):
         box = QFrame()
         box.setProperty("onb_part", "footer")
         line = QHBoxLayout(box)
-        line.setContentsMargins(28, 12, 28, 12)
+        line.setContentsMargins(24, 12, 24, 12)
         line.setSpacing(8)
         self.counter = QLabel()
         self.counter.setProperty("text_style", "meta")
@@ -225,7 +225,7 @@ class OnboardingScreen(Screen):
     def _body(title, text=""):
         page = QWidget()
         layout = QVBoxLayout(page)
-        layout.setContentsMargins(28, 24, 28, 24)
+        layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
         heading = QLabel(tr(title))
         heading.setProperty("text_style", "title")

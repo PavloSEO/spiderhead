@@ -526,8 +526,8 @@ class CrawlerScreen(QWidget):
         self._note = QFrame()
         self._note.setProperty("note", "info")
         row = QHBoxLayout(self._note)
-        row.setContentsMargins(12, 10, 12, 10)
-        row.setSpacing(10)
+        row.setContentsMargins(12, 8, 12, 8)
+        row.setSpacing(8)
         row.addWidget(
             MaterialIconLabel("info", 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop
         )
@@ -560,7 +560,7 @@ class CrawlerScreen(QWidget):
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(0)
         filters = QHBoxLayout()
-        filters.setContentsMargins(10, 8, 10, 8)
+        filters.setContentsMargins(8, 8, 8, 8)
         filters.setSpacing(8)
         self.subfilter = QComboBox()
         self.subfilter.setMinimumWidth(190)
@@ -670,7 +670,7 @@ class CrawlerScreen(QWidget):
         outer.setSpacing(0)
         title = QLabel(tr("Обзор"))
         title.setProperty("text_style", "overline")
-        title.setContentsMargins(12, 10, 12, 6)
+        title.setContentsMargins(12, 8, 12, 4)
         outer.addWidget(title)
         body = QWidget()
         column = QVBoxLayout(body)
@@ -687,7 +687,7 @@ class CrawlerScreen(QWidget):
                 last = t
                 heading = QLabel(tr(name))
                 heading.setProperty("text_style", "meta")
-                heading.setContentsMargins(10, 10, 10, 2)
+                heading.setContentsMargins(8, 8, 8, 2)
                 column.addWidget(heading)
             count = QLabel("—")
             self.counters[(t, e)] = count
@@ -706,8 +706,8 @@ class CrawlerScreen(QWidget):
         button.setStyleSheet("QPushButton { border: none; background: transparent; }")
         button.setCursor(Qt.PointingHandCursor)
         row = QHBoxLayout(button)
-        row.setContentsMargins(6 + depth * 16, 2, 10, 2)
-        row.setSpacing(6)
+        row.setContentsMargins(4 + depth * 16, 2, 8, 2)
+        row.setSpacing(4)
         if icon_name:
             row.addWidget(MaterialIconLabel(icon_name, 16, color="role:text_muted"))
         row.addWidget(QLabel(tr(text)))

@@ -80,7 +80,7 @@ class SettingsDialog(QDialog):
         right.setContentsMargins(0, 0, 0, 0)
         right.setSpacing(0)
         header = QHBoxLayout()
-        header.setContentsMargins(36, 28, 36, 8)
+        header.setContentsMargins(36, 24, 36, 8)
         titles = QVBoxLayout()
         titles.setSpacing(4)
         self.section_title = QLabel()

@@ -74,7 +74,7 @@ def _header():
     head = QFrame()
     head.setProperty("table_head", True)
     layout = QHBoxLayout(head)
-    layout.setContentsMargins(0, 8, 0, 6)
+    layout.setContentsMargins(0, 8, 0, 4)
     layout.addWidget(_overline("Событие"), 1)
     layout.addWidget(_columns([_overline(label, Qt.AlignCenter) for _c, label in CHANNELS]))
     return head
@@ -102,7 +102,7 @@ def _event_row(store, event_id, title, description):
         cell_layout.addWidget(switch, 0, Qt.AlignCenter)
         cells.append(cell)
     row = keyed(SettingRow(title, description, _columns(cells)), "notify." + event_id)
-    row.layout().setContentsMargins(0, 7, 0, 7)
+    row.layout().setContentsMargins(0, 4, 0, 4)
     row.layout().setHorizontalSpacing(0)
     return row
 
@@ -112,7 +112,7 @@ def _quiet_period_row(store):
     box = QWidget()
     layout = QHBoxLayout(box)
     layout.setContentsMargins(0, 0, 0, 0)
-    layout.setSpacing(6)
+    layout.setSpacing(4)
     for index, (key, name) in enumerate(
         (("notify.quiet_from", "Начало"), ("notify.quiet_to", "Конец"))
     ):
@@ -150,7 +150,7 @@ def build_page(store, context):
         preview.setToolTip("Недоступно в этой сборке")
     preview_row = QWidget()
     preview_layout = QHBoxLayout(preview_row)
-    preview_layout.setContentsMargins(0, 10, 0, 0)
+    preview_layout.setContentsMargins(0, 8, 0, 0)
     preview_layout.addWidget(preview)
     preview_layout.addStretch(1)
 

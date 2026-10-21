@@ -186,7 +186,7 @@ class _RunCard(QPushButton):
         layout.addWidget(self.source, 0, 0)
         layout.addWidget(self.state, 0, 1, Qt.AlignRight)
         title_row = QHBoxLayout()
-        title_row.setSpacing(6)
+        title_row.setSpacing(4)
         title_row.addWidget(self.source_icon)
         title_row.addWidget(self.title, 1)
         layout.addLayout(title_row, 1, 0, 1, 2)

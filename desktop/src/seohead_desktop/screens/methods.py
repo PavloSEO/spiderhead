@@ -47,7 +47,7 @@ class MethodCatalogueScreen(QWidget):
         self._items = []
         root = QVBoxLayout(self)
         root.setContentsMargins(16, 12, 16, 12)
-        root.setSpacing(10)
+        root.setSpacing(8)
         header = QHBoxLayout()
         title = QLabel(tr("Methods and scenarios"))
         title.setProperty("text_style", "title")

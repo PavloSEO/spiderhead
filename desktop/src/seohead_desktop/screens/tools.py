@@ -123,7 +123,7 @@ class ToolsScreen(Screen):
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
 
         self.header = PageHeader(tr("Инструменты"))
         self.search = QLineEdit()

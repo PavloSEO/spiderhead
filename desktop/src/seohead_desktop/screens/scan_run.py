@@ -59,7 +59,7 @@ def card(title, issue=None):
     frame = QFrame()
     frame.setProperty("card", "panel")
     layout = QVBoxLayout(frame)
-    layout.setContentsMargins(14, 12, 14, 12)
+    layout.setContentsMargins(12, 12, 12, 12)
     layout.setSpacing(8)
     head = QHBoxLayout()
     caption = QLabel(tr(title).upper())
@@ -90,7 +90,7 @@ class ScanRunPage(Screen):
         bar.setProperty("page_bar", True)
         bar_layout = QHBoxLayout(bar)
         bar_layout.setContentsMargins(16, 8, 16, 8)
-        bar_layout.setSpacing(10)
+        bar_layout.setSpacing(8)
         self.back_button = QToolButton()
         self.back_button.setProperty("role", "icon")
         self.back_button.setIcon(material_icon("arrow_back"))
@@ -141,8 +141,8 @@ class ScanRunPage(Screen):
         self.banner = QFrame()
         self.banner.setProperty("note", "info")
         banner_layout = QHBoxLayout(self.banner)
-        banner_layout.setContentsMargins(12, 10, 12, 10)
-        banner_layout.setSpacing(10)
+        banner_layout.setContentsMargins(12, 8, 12, 8)
+        banner_layout.setSpacing(8)
         banner_layout.addWidget(
             MaterialIconLabel("memory", 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop
         )

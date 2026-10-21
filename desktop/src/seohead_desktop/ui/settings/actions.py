@@ -37,7 +37,7 @@ def action_button(text, context, action, icon=None, role=None, parent=None):
 def button_row(*buttons):
     holder = QWidget()
     layout = QHBoxLayout(holder)
-    layout.setContentsMargins(0, 10, 0, 10)
+    layout.setContentsMargins(0, 8, 0, 8)
     layout.setSpacing(8)
     for button in buttons:
         layout.addWidget(button)
@@ -57,7 +57,7 @@ def meta_label(text, rich=False, na=False):
     label.setWordWrap(True)
     if rich:
         label.setTextFormat(Qt.RichText)
-    label.setContentsMargins(0, 6, 0, 6)
+    label.setContentsMargins(0, 4, 0, 4)
     if na:
         label.setProperty("na", True)
     return label

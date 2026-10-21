@@ -92,8 +92,8 @@ def card(title, icon, width=None):
     if width is not None:
         frame.setFixedWidth(width)
     layout = QVBoxLayout(frame)
-    layout.setContentsMargins(16, 14, 16, 14)
-    layout.setSpacing(10)
+    layout.setContentsMargins(16, 12, 16, 12)
+    layout.setSpacing(8)
     heading = QHBoxLayout()
     heading.setSpacing(8)
     heading.addWidget(MaterialIconLabel(icon, 18, color="role:text_2"))
@@ -210,7 +210,7 @@ class ProjExportScreen(Screen):
         segment_layout = QGridLayout(
             segment
         )  # 2 x 2: four labels fit the 260 px column without eliding
-        segment_layout.setContentsMargins(3, 3, 3, 3)
+        segment_layout.setContentsMargins(2, 2, 2, 2)
         segment_layout.setSpacing(2)
         self.format_group = QButtonGroup(self)
         self.format_group.setExclusive(True)

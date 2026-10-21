@@ -70,7 +70,7 @@ def action_button(text, icon=None, role=None, size=None, enabled=True, tooltip=N
 def buttons_row(*buttons):
     row = QWidget()
     layout = QHBoxLayout(row)
-    layout.setContentsMargins(0, 10, 0, 6)
+    layout.setContentsMargins(0, 8, 0, 4)
     layout.setSpacing(8)
     for button in buttons:
         layout.addWidget(button)
@@ -84,14 +84,14 @@ def hint(text, rich=False):
     label.setWordWrap(True)
     if rich:
         label.setTextFormat(Qt.RichText)
-    label.setContentsMargins(0, 6, 0, 6)
+    label.setContentsMargins(0, 4, 0, 4)
     return label
 
 
 def no_data(text="Нет данных"):
     label = QLabel(text)
     label.setProperty("na", True)
-    label.setContentsMargins(0, 10, 0, 10)
+    label.setContentsMargins(0, 8, 0, 8)
     return label
 
 
@@ -101,7 +101,7 @@ def list_item(icon, title, sub="", *trailing, icon_color=None, title_mono=False,
     frame.setProperty("list_item", True)
     layout = QHBoxLayout(frame)
     layout.setContentsMargins(0, 8, 0, 8)
-    layout.setSpacing(10)
+    layout.setSpacing(8)
     layout.addWidget(
         MaterialIconLabel(icon, 18, color=icon_color or theming.roles()["text_3"]), 0, Qt.AlignTop
     )
@@ -142,7 +142,7 @@ def key_values(rows):
             cell = QFrame()
             cell.setProperty("kv_cell", True)
             cell_layout = QHBoxLayout(cell)
-            cell_layout.setContentsMargins(0, 3, 0, 3)
+            cell_layout.setContentsMargins(0, 2, 0, 2)
             cell_layout.addWidget(value)
             cell_layout.addStretch(1)
             grid.addWidget(cell, index, 1)
@@ -154,7 +154,7 @@ def terminal(command, lines):
     frame = QFrame()
     frame.setProperty("terminal", True)
     layout = QVBoxLayout(frame)
-    layout.setContentsMargins(14, 10, 14, 10)
+    layout.setContentsMargins(12, 8, 12, 8)
     body = QLabel(
         joined("<br>", [f"~ $ {escape(command)}", *(escape(line, quote=False) for line in lines)])
     )

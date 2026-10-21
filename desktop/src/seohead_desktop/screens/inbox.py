@@ -558,7 +558,7 @@ class InboxScreen(Screen):
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.detail = QWidget()
         self.detail_layout = QVBoxLayout(self.detail)
-        self.detail_layout.setContentsMargins(24, 18, 24, 12)
+        self.detail_layout.setContentsMargins(24, 16, 24, 12)
         self.detail_layout.setSpacing(12)
         self.scroll.setWidget(self.detail)
         layout.addWidget(self.scroll, 1)

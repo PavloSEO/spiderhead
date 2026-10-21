@@ -192,7 +192,7 @@ class TablePanel(QWidget):
         self.setObjectName("tablePanel")
         self.setAccessibleName(panel_title(spec))
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setContentsMargins(12, 8, 12, 8)
         layout.setSpacing(4)
         self.toolbar = QGridLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)

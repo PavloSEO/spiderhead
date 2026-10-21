@@ -310,7 +310,7 @@ class ShellMixin:
         menu = QMenu(self)
         header = QWidget()
         header_layout = QVBoxLayout(header)
-        header_layout.setContentsMargins(10, 8, 10, 6)
+        header_layout.setContentsMargins(8, 8, 8, 4)
         header_layout.setSpacing(2)
         name = QLabel(button.name.text())
         name.setProperty("text_style", "control")
@@ -322,7 +322,7 @@ class ShellMixin:
         menu.addSeparator()
         box = QWidget()
         box_layout = QVBoxLayout(box)
-        box_layout.setContentsMargins(10, 4, 10, 8)
+        box_layout.setContentsMargins(8, 4, 8, 8)
         label = QLabel("ОТОБРАЖЕНИЕ")
         label.setProperty("text_style", "overline")
         segmented = Segmented(

@@ -242,7 +242,7 @@ class Kpi(QFrame):
         super().__init__(parent)
         self.setProperty("kpi", True)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(4)
         self.caption = QLabel(tr(label))
         self.caption.setProperty("kpi_part", "label")
