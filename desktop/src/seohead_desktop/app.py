@@ -341,6 +341,14 @@ class MainWindow(
             "Развернуть таблицу / вернуть панели", self.toggle_focus_mode
         )
         self.restore_action = view_menu.addAction("Восстановить панели", self.restore_panels)
+        # Data-only review mode (#1495): the interface steps aside for the table; the screens'
+        # own panels answer to their toggles, this one clears the window chrome.
+        self.interface_focus_action = view_menu.addAction("Только данные")
+        self.interface_focus_action.setCheckable(True)
+        self.interface_focus_action.setShortcut(QKeySequence("Ctrl+Alt+D"))
+        self.interface_focus_action.toggled.connect(self.set_interface_focus)
+        if self.prefs.get("view.focus_mode"):
+            QTimer.singleShot(0, lambda: self.set_interface_focus(True))  # restore the session
         # The overview, the inspector and the focus mode belong to the audit page: on every other
         # screen these items toggled hidden legacy widgets and looked broken (D01). The menu only
         # shows them while that page is on screen.

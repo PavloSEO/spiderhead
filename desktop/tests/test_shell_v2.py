@@ -145,6 +145,20 @@ class ShellV2Tests(unittest.TestCase):
             for action in self.window._legacy_panel_actions:
                 self.assertFalse(action.isVisible(), f"{section}: {action.text()}")
 
+    def test_data_only_mode_hides_the_chrome_and_persists(self):
+        top = self.window.findChild(QWidget, "topbar")
+        self.window.set_interface_focus(True)
+        self.app.processEvents()
+        self.assertTrue(self.window.navigation.isHidden())
+        self.assertTrue(top.isHidden())
+        self.assertTrue(self.window.prefs.get("view.focus_mode"))
+        self.assertTrue(self.window.interface_focus_action.isChecked())
+        self.window.set_interface_focus(False)
+        self.app.processEvents()
+        self.assertFalse(self.window.navigation.isHidden())
+        self.assertFalse(top.isHidden())
+        self.assertFalse(self.window.prefs.get("view.focus_mode"))
+
     def test_view_menu_binds_the_current_screen_own_panels(self):
         self.window.navigation.select_section("url")
         self.window._sync_legacy_panel_items()

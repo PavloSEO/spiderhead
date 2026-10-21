@@ -181,6 +181,23 @@ class ViewStateMixin:
             action.setVisible(legacy)
         self._sync_screen_panel_items()
 
+    def set_interface_focus(self, on):
+        """Data-only review mode (#1495): navigation and the top bar step aside, the data stays.
+
+        The state persists; screens keep hiding their own panels through their focus toggles.
+        """
+        self.navigation.setVisible(not on)
+        topbar = self.findChild(QWidget, "topbar")
+        if topbar is not None:
+            topbar.setVisible(not on)
+        action = getattr(self, "interface_focus_action", None)
+        if action is not None:
+            action.blockSignals(True)
+            action.setChecked(on)
+            action.blockSignals(False)
+        if hasattr(self, "prefs"):
+            self.prefs.set("view.focus_mode", on)
+
     def _sync_screen_panel_items(self):
         """Rebuild the View-menu section from the current screen's own panels (D01 follow-up).
 

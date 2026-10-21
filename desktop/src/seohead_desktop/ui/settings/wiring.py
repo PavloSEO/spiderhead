@@ -20,6 +20,7 @@ APPLIED = {
     "view.density",
     "view.reduce_motion",
     "view.rail_when_narrow",
+    "view.focus_mode",
     "shell.display",
     "view.language",
     "shell.onboarding_done",

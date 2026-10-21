@@ -37,6 +37,7 @@ SCHEMA = (
     Setting("view.reduce_motion", False, bool),
     Setting("view.mono_urls", True, bool),
     Setting("view.rail_when_narrow", True, bool),
+    Setting("view.focus_mode", False, bool),
     Setting("view.status_badges", True, bool),
 )
 
