@@ -109,6 +109,12 @@ COLUMNS: dict[str, Column] = {
         "AND trim(t.title)<>'' AND lower(t.title)=lower(p.title))",
         "bool",
     ),
+    "description_duplicate": Column(
+        "EXISTS (SELECT 1 FROM pages t WHERE t.url_id<>p.url_id "
+        "AND trim(t.meta_description)<>'' "
+        "AND lower(t.meta_description)=lower(p.meta_description))",
+        "bool",
+    ),
     "has_hreflang": Column(
         "CASE WHEN p.hreflang_json IS NULL THEN NULL "
         "ELSE p.hreflang_json NOT IN ('[]','{}','') END",
@@ -123,6 +129,13 @@ COLUMNS: dict[str, Column] = {
     "robots_blocked": Column(
         "EXISTS (SELECT 1 FROM context_items c WHERE c.kind='robots_blocked_url' "
         "AND c.item_key='url:' || p.url_id)",
+        "bool",
+    ),
+    "canonical_non_indexable": Column(
+        "EXISTS (SELECT 1 FROM pages t JOIN urls tu ON tu.url_id=t.url_id "
+        "WHERE tu.url=p.canonical "
+        "AND COALESCE(t.status_code BETWEEN 200 AND 299 "
+        "AND instr(lower(t.meta_robots||','||t.x_robots),'noindex')=0, 0)=0)",
         "bool",
     ),
     "canonical_other": Column("(p.canonical<>'' AND p.canonical<>u.url)", "bool"),
@@ -270,6 +283,14 @@ PRESETS: dict[str, tuple[str, tuple[dict[str, Any], ...]]] = {
     "robots_blocked": (
         "Robots: blocked by robots.txt",
         ({"column": "robots_blocked", "op": "eq", "value": True},),
+    ),
+    "description_duplicate": (
+        "Descriptions: duplicate",
+        ({"column": "description_duplicate", "op": "eq", "value": True},),
+    ),
+    "canonical_non_indexable": (
+        "Canonicals: target is not indexable",
+        ({"column": "canonical_non_indexable", "op": "eq", "value": True},),
     ),
 }
 # Physical pages columns the allow-list reads; a scan lacking one is a different schema version.

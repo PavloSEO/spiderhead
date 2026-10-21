@@ -618,3 +618,55 @@ def test_robots_blocked_column_and_preset_list_blocked_urls(tmp_path):
         input_path=str(path), filters=[{"column": "robots_blocked", "op": "eq", "value": False}]
     )
     assert clean["filtered_total"] == blocked["total"] - 1
+
+
+def test_description_duplicate_column_flags_shared_descriptions(tmp_path):
+    """Pages sharing a description are one filter away (#1550)."""
+    path = _scan(tmp_path)
+    con = sqlite3.connect(path, timeout=10)
+    try:
+        rows = con.execute(
+            "SELECT url_id FROM pages ORDER BY url_id LIMIT 3"
+        ).fetchall()
+        con.execute(
+            "UPDATE pages SET meta_description='shared description' WHERE url_id IN (?,?)",
+            (rows[0][0], rows[1][0]),
+        )
+        con.commit()
+    finally:
+        con.close()
+    got = handlers.scan_url_query(
+        input_path=str(path), filters=[{"column": "description_duplicate", "op": "eq", "value": True}]
+    )
+    assert got["ok"] is True and got["filtered_total"] == 2
+    via_preset = handlers.scan_url_query(input_path=str(path), preset="description_duplicate")
+    assert via_preset["filtered_total"] == 2
+
+
+def test_canonical_non_indexable_targets_are_filterable(tmp_path):
+    """A canonical pointing at a noindex page is one filter away (#1551)."""
+    path = _scan(tmp_path)
+    con = sqlite3.connect(path, timeout=10)
+    try:
+        rows = con.execute(
+            "SELECT p.url_id, u.url FROM pages p JOIN urls u ON u.url_id=p.url_id "
+            "ORDER BY p.url_id LIMIT 3"
+        ).fetchall()
+        con.execute(
+            "UPDATE pages SET canonical=?, meta_robots='', x_robots='' WHERE url_id=?",
+            (rows[2][1], rows[0][0]),
+        )
+        con.execute(
+            "UPDATE pages SET meta_robots='noindex, follow' WHERE url_id=?", (rows[2][0],)
+        )
+        con.commit()
+    finally:
+        con.close()
+    got = handlers.scan_url_query(
+        input_path=str(path),
+        filters=[{"column": "canonical_non_indexable", "op": "eq", "value": True}],
+    )
+    assert got["ok"] is True and got["filtered_total"] == 1
+    assert got["rows"][0]["url"] == rows[0][1]
+    via_preset = handlers.scan_url_query(input_path=str(path), preset="canonical_non_indexable")
+    assert via_preset["filtered_total"] == 1
