@@ -856,13 +856,14 @@ class UrlScreen(Screen):
         index = self.table.currentIndex()
         if not index.isValid():
             return
+        row = self.rows[index.row()] if 0 <= index.row() < len(self.rows) else {}
         QApplication.clipboard().setText(
             "\t".join(
-                str(index.sibling(index.row(), column).data() or "")
-                for column in range(len(COLUMNS))
+                str(row.get(key) if row.get(key) is not None else "")
+                for column, (key, *_rest) in enumerate(COLUMNS)
                 if not self.table.isColumnHidden(column)
             )
-        )
+        )  # raw values: the visible «Нет данных» placeholder never belongs in a paste
 
     def _set_summary_visible(self, visible):
         self.summary_hidden = not visible
