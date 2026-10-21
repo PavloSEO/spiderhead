@@ -154,6 +154,7 @@ def import_logs(
             con.execute("PRAGMA temp_store=FILE")
             con.executescript(_SCHEMA)
             total = parsed = skipped = unknown_time = unknown_agent = 0
+            variants: dict[str, int] = {}
             truncated = False
             first_time = last_time = None
             file_count = 0
@@ -171,6 +172,11 @@ def import_logs(
                     fmt = detect_format(sample)
                     if fmt is None:
                         raise ValueError(f"Unrecognized log format in {source.name}")
+                    for s in sample:
+                        head = re.match(r"^\S+(.*?)\[", s.strip())
+                        if head:
+                            key = f"{fmt}-{1 + len(head.group(1).split())}-ident"
+                            variants[key] = variants.get(key, 0) + 1
                     parse = _IISParser().parse if fmt == "iis" else _parse_apache
                     batch = []
                     ips = []
@@ -283,6 +289,7 @@ def import_logs(
                 and not unknown_agent
                 and parsed > 0,
                 "files": {"imported": file_count, "selected": len(files)},
+                "log_format_variants": variants,  # e.g. combined-2-ident, combined-1-ident (#1535)
                 "timezone": "UTC; missing Apache offsets and IIS timestamps assume UTC",
                 "bot_identity": "user-agent claim; DNS verification is separate",
                 "created_at": datetime.now(timezone.utc).isoformat(),
