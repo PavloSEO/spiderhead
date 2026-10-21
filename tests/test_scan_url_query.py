@@ -586,3 +586,35 @@ def test_scan_url_counts_matches_single_queries_and_rejects_bad_sets(tmp_path):
     assert bad["ok"] is False and bad["reason_code"] == "invalid_filter_sets"
     bad_op = scan_url_counts(str(path), [[{"column": "title", "op": "bogus"}]])
     assert bad_op["ok"] is False and bad_op["reason_code"] == "invalid_filter"
+
+
+def test_robots_blocked_column_and_preset_list_blocked_urls(tmp_path):
+    """Blocked URLs are queryable like any row set: a bool column and a preset (#1549)."""
+    path = _scan(tmp_path)
+    con = sqlite3.connect(path, timeout=10)
+    try:
+        row = con.execute(
+            "SELECT u.url_id FROM urls u JOIN pages p ON p.url_id=u.url_id LIMIT 1"
+        ).fetchone()
+        con.execute(
+            "INSERT INTO context_items (kind, item_key, payload_json, payload_version, completeness, reason) VALUES (?,?,?,'scan_context.v1','complete','')",
+            (
+                "robots_blocked_url",
+                f"url:{row[0]}",
+                json.dumps({"url_id": row[0], "token": "*", "policy": "report_only"}),
+            ),
+        )
+        con.commit()
+    finally:
+        con.close()
+    blocked = handlers.scan_url_query(
+        input_path=str(path), filters=[{"column": "robots_blocked", "op": "eq", "value": True}]
+    )
+    assert blocked["ok"] is True
+    assert blocked["filtered_total"] == 1
+    via_preset = handlers.scan_url_query(input_path=str(path), preset="robots_blocked")
+    assert via_preset["ok"] is True and via_preset["filtered_total"] == 1
+    clean = handlers.scan_url_query(
+        input_path=str(path), filters=[{"column": "robots_blocked", "op": "eq", "value": False}]
+    )
+    assert clean["filtered_total"] == blocked["total"] - 1

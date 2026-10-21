@@ -120,6 +120,11 @@ COLUMNS: dict[str, Column] = {
         "bool",
     ),
     "canonical_self": Column("(p.canonical<>'' AND p.canonical=u.url)", "bool"),
+    "robots_blocked": Column(
+        "EXISTS (SELECT 1 FROM context_items c WHERE c.kind='robots_blocked_url' "
+        "AND c.item_key='url:' || p.url_id)",
+        "bool",
+    ),
     "canonical_other": Column("(p.canonical<>'' AND p.canonical<>u.url)", "bool"),
     "resource_count": Column(
         "(SELECT COUNT(*) FROM resource_graph_occurrences r "
@@ -262,6 +267,10 @@ PRESETS: dict[str, tuple[str, tuple[dict[str, Any], ...]]] = {
     ),
     "in_sitemap": ("Sitemap: included", ({"column": "in_sitemap", "op": "eq", "value": True},)),
     "inlinks": ("Links: has inlinks", ({"column": "inlinks", "op": "gt", "value": 0},)),
+    "robots_blocked": (
+        "Robots: blocked by robots.txt",
+        ({"column": "robots_blocked", "op": "eq", "value": True},),
+    ),
 }
 # Physical pages columns the allow-list reads; a scan lacking one is a different schema version.
 _REQUIRED_PAGE_COLUMNS = frozenset(
