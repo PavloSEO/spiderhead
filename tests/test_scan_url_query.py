@@ -579,7 +579,7 @@ def test_scan_url_counts_matches_single_queries_and_rejects_bad_sets(tmp_path):
     assert batch["ok"] is True and batch["sets"] == len(sets)
     from seohead.storage.url_query import scan_url_query
 
-    for entry, one in zip(batch["counts"], sets):
+    for entry, one in zip(batch["counts"], sets, strict=True):
         alone = scan_url_query(str(path), filters=one, limit=1)
         assert entry["filtered_total"] == alone["filtered_total"]
     bad = scan_url_counts(str(path), [])
