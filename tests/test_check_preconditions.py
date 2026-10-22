@@ -132,7 +132,11 @@ def test_silent_checks_are_named_so_the_gap_is_visible(tmp_path):
     # URL_INTERNAL_SEARCH reads the retained URL column on this export fixture;
     # its ordinary non-search URLs prove one additional clean, invoked check.
     assert "URL_INTERNAL_SEARCH" in silent
-    assert coverage["checks_silent"] <= 76
+    # 76 -> 77 when ROBOTS_BLOCKED_OUTLINK joined (#1486): it is computed from a
+    # native crawl's LinkEdge evidence and robots policy result, so this SF-export
+    # fixture cannot declare it either way -- silent by the same construction as
+    # the link-security checks above.
+    assert coverage["checks_silent"] <= 77
 
 
 def test_a_disabled_check_is_its_own_bucket_never_silent_or_clean(tmp_path):

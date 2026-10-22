@@ -2105,6 +2105,20 @@ def _audit_crawl_result(
                 else link_findings.outlinks_to_localhost(links)
             ):
                 ctx.add("OUTLINK_TO_LOCALHOST", target_url=item["target_url"], details=item)
+            # #1486: link edges are the only evidence connecting a page to a
+            # robots-disallowed target -- under "respect" the target never
+            # becomes a page row, so no target-side check can see it.
+            if settings["robots"]["policy"] == "ignore":
+                ctx.skip(
+                    "ROBOTS_BLOCKED_OUTLINK",
+                    "robots.policy is ignore: no URL was measured against robots.txt",
+                )
+            else:
+                blocked_urls = list(getattr(result, "robots_blocked", None) or [])
+                for item in link_findings.robots_blocked_outlinks(
+                    graph.iter_links() if graph else links, blocked_urls
+                ):
+                    ctx.add("ROBOTS_BLOCKED_OUTLINK", target_url=item["target_url"], details=item)
             crawl_host = (urlsplit(start_norm).hostname or "") if url else ""
             if crawl_host:
                 # Preserve the established owner for the mixed-state verdict.
@@ -2158,6 +2172,7 @@ def _audit_crawl_result(
         else:
             reason = "crawl-list input retains no link-edge evidence"
             ctx.skip("OUTLINK_TO_LOCALHOST", reason)
+            ctx.skip("ROBOTS_BLOCKED_OUTLINK", reason)
             ctx.skip("FOLLOW_AND_NOFOLLOW_INLINKS", reason)
             ctx.skip("INTERNAL_NOFOLLOW_OUTLINKS", reason)
             ctx.skip("HTTP_LINK_ON_HTTPS", reason)
