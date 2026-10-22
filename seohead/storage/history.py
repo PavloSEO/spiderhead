@@ -292,7 +292,7 @@ def _catalog(directory: str | Path) -> tuple[list[dict], list[dict]]:
     root = _directory(directory)
     # A project root points at its scans/ directory (as project-scans does), so
     # `scan-list --directory <project>` lists the real scans instead of none (#1401).
-    if not root.name == "scans" and (root / "project.json").is_file() and (root / "scans").is_dir():
+    if root.name != "scans" and (root / "project.json").is_file() and (root / "scans").is_dir():
         root = root / "scans"
     items, errors = [], []
     used = 0
