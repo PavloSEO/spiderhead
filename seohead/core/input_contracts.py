@@ -409,6 +409,13 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         _form("inline_html", "html"),
     ),
     _command(
+        "markdown-export",
+        "markdown_export",
+        _form("live_url", "url"),
+        _form("local_file", "urls_file", note="TXT, one URL per line"),
+        _form("live_url", "sitemap", note="Sitemap or sitemap index; a site root resolves via robots.txt"),
+    ),
+    _command(
         "boilerplate-report",
         "boilerplate_report",
         _form("inline_corpus", "pages"),

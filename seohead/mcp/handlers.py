@@ -4183,6 +4183,134 @@ def markdown_extract(
     }
 
 
+
+def markdown_export(
+    url: str | None = None,
+    urls_file: str | None = None,
+    sitemap: str | None = None,
+    out_dir: str = "markdown-export",
+    max_urls: int = 200,
+    delay: float = 0.5,
+) -> dict[str, Any]:
+    """Export pages as Markdown files under ``out_dir``: a site's sitemap, a URL list, or one URL.
+
+    Each page becomes ``<out_dir>/<url-path>.md`` (the home page -> ``index.md``) with a small
+    frontmatter header — title, meta description, final URL, status, export date — above the
+    same content-area Markdown ``markdown_extract`` produces (nav and footer excluded,
+    headings, lists and links kept). ``sitemap`` follows a sitemap index down to its urlsets
+    (a site root is resolved through robots.txt Sitemap directives); ``urls_file`` is one URL
+    per line, ``#`` comments allowed; ``url`` exports a single page. ``max_urls`` caps the
+    export and ``delay`` seconds space the requests. Returns counts and byte totals; up to
+    20 failures are listed with reasons, so a partial export is visible, not silent.
+    """
+    import re as _re
+    import time as _time
+    from datetime import datetime, timezone
+    from pathlib import Path as _Path
+
+    from seohead.checks import sitemap as sitemap_module
+
+    sources = [s for s in (url, urls_file, sitemap) if s]
+    if len(sources) != 1:
+        raise ValueError("exactly one of url, urls_file, sitemap is required")
+
+    sitemap_errors: list[dict[str, Any]] = []
+    if sitemap:
+        expanded = sitemap_module.crawl(sitemap)
+        sitemap_errors = expanded.get("errors", [])
+        targets = [e["loc"] for e in expanded.get("urls", [])]
+    elif urls_file:
+        targets = [
+            line.strip()
+            for line in _Path(urls_file).read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+    else:
+        targets = [url or ""]
+
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for t in targets:
+        if t.startswith(("http://", "https://")) and t not in seen:
+            seen.add(t)
+            ordered.append(t)
+    truncated = len(ordered) > max_urls
+    ordered = ordered[:max_urls]
+
+    from seohead.checks import markdown_extract as md_core
+
+    root = _Path(out_dir).expanduser()
+    root.mkdir(parents=True, exist_ok=True)
+
+    def _meta(html: str) -> tuple[str, str]:
+        title_m = _re.search(r"<title[^>]*>(.*?)</title>", html, _re.S | _re.I)
+        desc_m = _re.search(
+            r'<meta[^>]+name=["\']description["\'][^>]+content=["\']([^"\']*)', html, _re.I
+        ) or _re.search(
+            r'<meta[^>]+content=["\']([^"\']*)["\'][^>]+name=["\']description["\']', html, _re.I
+        )
+        def clean(value: str | None) -> str:
+            return _re.sub(r"\s+", " ", value or "").strip().replace('"', "'")
+
+        return clean(title_m.group(1) if title_m else ""), clean(desc_m.group(1) if desc_m else "")
+
+    def _relpath(page_url: str) -> _Path:
+        path = urlsplit(page_url).path.strip("/")
+        parts = [_re.sub(r"[^A-Za-z0-9._~-]+", "_", seg) or "_" for seg in path.split("/")] if path else ["index"]
+        rel = _Path(*parts)
+        return rel if rel.suffix == ".md" else rel.with_suffix(".md")
+
+    written = 0
+    total_bytes = 0
+    files: list[str] = []
+    failures: list[dict[str, Any]] = []
+    used: set[str] = set()
+    for i, target in enumerate(ordered):
+        if i:
+            _time.sleep(delay)
+        fetched = _require_fetched_html(target)
+        if not fetched.get("ok"):
+            failures.append({"url": target, "error": fetched.get("error") or f"HTTP {fetched.get('status_code')}"})
+            continue
+        title, description = _meta(fetched["html"])
+        body = md_core.extract_markdown(fetched["html"], None)["content_markdown"]
+        rel = _relpath(fetched.get("final_url") or target)
+        n = 2
+        while str(rel) in used:
+            rel = rel.with_name(f"{rel.stem}-{n}{rel.suffix}")
+            n += 1
+        used.add(str(rel))
+        dest = root / rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        frontmatter = (
+            "---\n"
+            f'title: "{title}"\n'
+            f'description: "{description}"\n'
+            f"url: {fetched.get('final_url') or target}\n"
+            f"status: {fetched.get('status_code')}\n"
+            f"exported: {datetime.now(timezone.utc).date().isoformat()}\n"
+            "---\n\n"
+        )
+        # Single lowercase tokens (zoom_in, expand_more…) are icon ligature names, not prose.
+        body = "\n".join(ln for ln in body.splitlines() if not _re.fullmatch(r"[a-z_]{2,24}", ln.strip()))
+        dest.write_text(frontmatter + body.rstrip() + "\n", encoding="utf-8")
+        written += 1
+        total_bytes += dest.stat().st_size
+        files.append(str(rel))
+    return {
+        "ok": written > 0,
+        "out_dir": str(root.resolve()),
+        "requested": len(ordered),
+        "written": written,
+        "failed": len(failures),
+        "bytes": total_bytes,
+        "files": files[:50],
+        "failures": failures[:20],
+        "sitemap_errors": sitemap_errors[:10],
+        "truncated": truncated,
+    }
+
+
 def log_scan(
     run: str | None = None, images_dir: str | None = None, max_per_rule: int = 20
 ) -> dict[str, Any]:
@@ -8570,6 +8698,7 @@ _RAW_HANDLERS = {
     "llms_txt_check": llms_txt_check,
     "citability_check": citability_check,
     "markdown_extract": markdown_extract,
+    "markdown_export": markdown_export,
     "boilerplate_report": boilerplate_report,
     "semantic_inputs": semantic_inputs,
     "semantic_similarity": semantic_similarity,

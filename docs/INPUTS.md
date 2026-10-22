@@ -76,6 +76,7 @@ and this decision makes no backend migration.
 | `llms-txt-check` | Live URL (`url`) | — |
 | `citability-check` | Live URL (`url`)<br>Inline text (`text`) | — |
 | `markdown-extract` | Live URL (`url`)<br>Inline HTML (`html`) | — |
+| `markdown-export` | Live URL (`url`)<br>Local file (`urls_file`)<br>Live URL (`sitemap`) | TXT, one URL per line; Sitemap or sitemap index; a site root resolves via robots.txt |
 | `boilerplate-report` | Inline corpus (`pages`)<br>Scan artifact (`scan`) | — |
 | `semantic-inputs` | Inline corpus (`items`)<br>Scan artifact (`scan`) | — |
 | `semantic-similarity` | Inline corpus (`items`); requires `embeddings, adapter, cache_path`<br>Scan artifact (`scan`); requires `embeddings, adapter, cache_path`<br>Inline JSON (`embeddings, adapter`)<br>Local file (`cache_path`)<br>Selector (`threshold, max_candidate_comparisons`) | Supplied normalized-vector evidence; no model is loaded or called.; Uses the retained semantic corpus and its recorded normalization policy.; Local SQLite embedding cache. |
