@@ -443,12 +443,23 @@ def _has_source_flag(args: argparse.Namespace) -> bool:
 
 
 def _load_input(raw: str | None, allow_stdin: bool = True) -> dict[str, Any]:
+    def parse(text: str) -> dict[str, Any]:
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"--input must be a JSON object (invalid JSON at position {exc.colno})"
+            ) from exc
+        if not isinstance(data, dict):
+            raise ValueError("--input must be a JSON object")
+        return data
+
     if raw:
-        return json.loads(raw)
+        return parse(raw)
     if allow_stdin and _stdin_has_data():
         data = sys.stdin.read().strip()
         if data:
-            return json.loads(data)
+            return parse(data)
     return {}
 
 
@@ -4528,6 +4539,26 @@ def main(argv: list[str] | None = None) -> int:
             kwargs["progress"] = comparison_progress
         try:
             result = handlers.HANDLERS[handler_name](**kwargs)
+        except TypeError as exc:
+            message = str(exc)
+            import inspect as _inspect
+            import re as _re
+
+            target = handlers.HANDLERS[handler_name]
+            accepted = list(_inspect.signature(target).parameters)
+            missing = _re.findall(r"missing 1 required positional argument: '([^']+)'", message)
+            if missing:
+                raise ValueError(
+                    f"{cmd} is missing a required option: --{missing[0].replace('_', '-')}"
+                    f" (accepted: {', '.join('--' + a.replace('_', '-') for a in accepted)})"
+                ) from exc
+            unexpected = _re.findall(r"got an unexpected keyword argument '([^']+)'", message)
+            if unexpected:
+                raise ValueError(
+                    f"{cmd} does not accept {unexpected[0]!r}"
+                    f" (accepted: {', '.join('--' + a.replace('_', '-') for a in accepted)})"
+                ) from exc
+            raise
         finally:
             # Closed whatever happened: an interrupted or failed crawl must not
             # leave the operator's shell prompt printed over half a progress
