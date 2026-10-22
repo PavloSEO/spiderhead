@@ -4152,9 +4152,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_extraction_presets() -> dict[str, Any]:
         """List the shipped extraction rule sets usable as seo_scan_extract preset names."""
-        from seohead.checks.extraction_library import available as extraction_presets
-
-        return _checked({"ok": True, "presets": extraction_presets()})
+        return _checked(handlers.extraction_presets())
 
     @mcp.tool(annotations=read_files, structured_output=True)
     def seo_scan_extract(
