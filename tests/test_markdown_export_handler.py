@@ -9,7 +9,6 @@ header above the body, and failures recorded instead of aborting the run.
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
 import pytest
 
