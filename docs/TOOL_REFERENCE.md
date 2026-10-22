@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**230 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **6 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **10 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 246 in total.
+**232 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **6 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **10 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 248 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -4232,6 +4232,34 @@ Read up to 100 indexed derived content-search records without rereading the scan
 
 Optional status or status_code filters the stream; offset then counts matching records.
 
+### `scan-url-counts`
+
+**Category:** `scan` · **Project-aware:** no
+
+MCP name: `seo_scan_url_counts`
+
+Exact filtered counts of up to 100 filter sets over one saved scan in a single call.
+
+| Argument | Type | Default |
+|---|---|---|
+| `input_path` | `str` | `required` |
+| `filter_sets` | `list[list[dict[str, Any]]]` | `required` |
+| `count_timeout_seconds` | `float` | `30.0` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `extraction-presets`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_extraction_presets`
+
+List the shipped extraction rule sets usable as seo_scan_extract preset names.
+
+Takes no arguments.
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
 ### `scan-extract`
 
 **Category:** `scan` · **Project-aware:** no
@@ -4243,12 +4271,19 @@ Run bounded data-only extraction rules on retained complete bodies, without netw
 | Argument | Type | Default |
 |---|---|---|
 | `input_path` | `str` | `required` |
-| `rules` | `list[dict[str, Any]]` | `required` |
+| `rules` | `list[dict[str, Any]] | None` | `None` |
 | `url` | `str | None` | `None` |
 | `representation` | `str` | `'static'` |
 | `limit` | `int` | `100` |
+| `preset` | `str | None` | `None` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+**Behavior and failure modes**
+
+Either pass ``rules`` or name a shipped library ``preset`` (headings, images,
+links, structure, inline-css, meta, social, json-ld, media, forms, tables,
+breadcrumbs, sections, headings-outline-check); ``seo_extraction_presets`` lists them.
 
 ### `scan-structured-blocks`
 

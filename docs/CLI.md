@@ -82,6 +82,8 @@ recorded process identity is no longer live.
 | `scan-list` | List saved SQLite scan metadata without loading retained bodies. | offline, read-only |
 | `scan-status` | Summarize frontier work and committed page outcomes; expose integrity state, damage scope, and checkpoint availability. | offline, read-only |
 | `scan-inspect` | Read a bounded, paginated table view from one saved scan. | offline, read-only |
+| `scan-url-counts` | Exact filtered counts of up to 100 filter sets over one saved scan in a single call — one connection and one shared time budget instead of one process per counter. | offline, read-only |
+| `extraction-presets` | The shipped extraction preset catalogue (name, description, rule count). | offline, read-only |
 | `scan-url-query` | Filter, sort and paginate the whole page table of one saved scan with total and filtered total. `--preset` applies a ready-made view; `--export PATH` writes all matching rows to a new CSV or XLSX file. | offline, read-only |
 | `scan-directory-tree` | Read a SQLite-backed bounded directory tree from retained page URLs; excess children fold into exact totals. | offline, read-only |
 | `headers-analyze` | Analyze redacted saved response headers and captured transport phases for one URL or a page of URLs; no live request. | offline, read-only |
