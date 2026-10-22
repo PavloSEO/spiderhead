@@ -4150,6 +4150,11 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         )
 
     @mcp.tool(annotations=read_files, structured_output=True)
+    def seo_scan_config_diff(before_path: str, after_path: str) -> dict[str, Any]:
+        """Diff the recorded crawl configurations of two saved scans, field by field, read-only."""
+        return _checked(handlers.scan_config_diff(before_path=before_path, after_path=after_path))
+
+    @mcp.tool(annotations=read_files, structured_output=True)
     def seo_extraction_presets() -> dict[str, Any]:
         """List the shipped extraction rule sets usable as seo_scan_extract preset names."""
         return _checked(handlers.extraction_presets())

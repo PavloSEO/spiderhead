@@ -5785,6 +5785,17 @@ def scan_url_counts(
     return core(input_path, filter_sets, count_timeout_seconds=count_timeout_seconds)
 
 
+def scan_config_diff(before_path: str, after_path: str) -> dict[str, Any]:
+    """Field-by-field diff of the recorded configurations of two saved scans (#1529).
+
+    Read-only: both scans' effective settings are read from their headers, the
+    sites are never re-read, and every difference shows both values.
+    """
+    from seohead.storage.config_diff import scan_config_diff as core
+
+    return core(before_path, after_path)
+
+
 def scan_url_query(
     input_path: str,
     filters: list[dict[str, Any]] | None = None,
@@ -8659,6 +8670,7 @@ _RAW_HANDLERS = {
     "scan_body_read": scan_body_read,
     "scan_url_query": scan_url_query,
     "scan_url_counts": scan_url_counts,
+    "scan_config_diff": scan_config_diff,
     "extraction_presets": extraction_presets,
     "scan_directory_tree": scan_directory_tree,
     "headers_analyze": headers_analyze,

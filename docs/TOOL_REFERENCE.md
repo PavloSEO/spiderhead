@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**232 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **6 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **10 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 248 in total.
+**233 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **6 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **10 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 249 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -4245,6 +4245,21 @@ Exact filtered counts of up to 100 filter sets over one saved scan in a single c
 | `input_path` | `str` | `required` |
 | `filter_sets` | `list[list[dict[str, Any]]]` | `required` |
 | `count_timeout_seconds` | `float` | `30.0` |
+
+**Cost** — network: no · writes files: no · idempotent: yes · spends money: no
+
+### `scan-config-diff`
+
+**Category:** `scan` · **Project-aware:** no
+
+MCP name: `seo_scan_config_diff`
+
+Diff the recorded crawl configurations of two saved scans, field by field, read-only.
+
+| Argument | Type | Default |
+|---|---|---|
+| `before_path` | `str` | `required` |
+| `after_path` | `str` | `required` |
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
