@@ -5,7 +5,7 @@ syntax, a non-http(s) scheme -- without a trace. These tests cover the three
 layers that make the drop visible when the crawl asks for it: the pure parser
 fact, its survival through the crawl record and the analyzer frame, and the
 registry check over it. The recording is opt-in
-(``discovery.hyperlinks.record_invalid_targets``), so off means the evidence
+(``discovery.record_invalid_targets``), so off means the evidence
 never existed, which is a skip, never a clean page.
 """
 
@@ -131,7 +131,7 @@ def test_invalid_link_target_skips_honestly_when_recording_was_off():
     assert "INVALID_LINK_TARGET" not in _fired(ctx)
     assert _skips(ctx, "INVALID_LINK_TARGET") == [
         "invalid link target recording was off for this crawl "
-        "(discovery.hyperlinks.record_invalid_targets)"
+        "(discovery.record_invalid_targets)"
     ]
 
 

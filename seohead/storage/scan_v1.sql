@@ -149,7 +149,7 @@ CREATE TABLE pages (
   heading_outline_json TEXT,
   -- Hrefs that could not become fetchable link targets, each {raw_href, reason}
   -- (issue #1530). Nullable: recording is opt-in
-  -- (discovery.hyperlinks.record_invalid_targets), and a crawl run without it
+  -- (discovery.record_invalid_targets), and a crawl run without it
   -- measured nothing here -- not the same as a page with no broken href.
   invalid_link_targets_json TEXT,
   -- The anchors this page wraps in an h1-h6, and the image links on it that

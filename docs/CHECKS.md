@@ -79,7 +79,7 @@ python scripts/generate_checks_reference.py
 
 | Check id | Severity | Evidence | Fires on | Fix |
 |---|---|---|---|---|
-| `INVALID_LINK_TARGET` | notice | crawl:invalid_link_targets | The page points at hrefs that cannot become fetchable link targets (unparsable syntax or a non-http(s) scheme) | Review each quoted href as written: a truncated or malformed URL passes no crawl equity and often signals a broken template; a non-http(s) scheme is only a finding when the link was meant to be a page. Recording is opt-in (discovery.hyperlinks.record_invalid_targets); rejected targets never enter the crawl. |
+| `INVALID_LINK_TARGET` | notice | crawl:invalid_link_targets | The page points at hrefs that cannot become fetchable link targets (unparsable syntax or a non-http(s) scheme) | Review each quoted href as written: a truncated or malformed URL passes no crawl equity and often signals a broken template; a non-http(s) scheme is only a finding when the link was meant to be a page. Recording is opt-in (discovery.record_invalid_targets); rejected targets never enter the crawl. |
 
 ## 7.E — canonical & directives
 

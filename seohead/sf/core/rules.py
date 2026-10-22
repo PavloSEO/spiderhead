@@ -800,7 +800,7 @@ def check_invalid_link_targets(ctx: AuditContext) -> None:
     Link parsing drops an unparsable or non-http(s) href silently: the page keeps
     no evidence that it points at something broken, and an operator cannot tell a
     truncated href from a missing one. When the crawl ran with
-    ``discovery.hyperlinks.record_invalid_targets``, the parser records each
+    ``discovery.record_invalid_targets``, the parser records each
     rejection (raw href + reason) and this check turns them into one finding per
     page. The finding never adds a frontier entry -- the targets are data.
     """
@@ -817,7 +817,7 @@ def check_invalid_link_targets(ctx: AuditContext) -> None:
             "INVALID_LINK_TARGET",
             reason
             or "invalid link target recording was off for this crawl "
-            "(discovery.hyperlinks.record_invalid_targets)",
+            "(discovery.record_invalid_targets)",
         )
         return
     for page in ctx.indexable_html_pages():

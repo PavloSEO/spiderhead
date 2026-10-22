@@ -179,7 +179,7 @@ class PageRecord:
     # Hrefs on this page that could not become fetchable link targets, each as
     # {"raw_href", "reason"} exactly as the parser rejected it (#1530). None —
     # not an empty list — when the crawl ran without
-    # discovery.hyperlinks.record_invalid_targets: "not measured" and "measured,
+    # discovery.record_invalid_targets: "not measured" and "measured,
     # none found" are different facts.
     invalid_link_targets: list[dict[str, str]] | None = None
     # The two link defects a page region cannot show: anchors wrapped in an

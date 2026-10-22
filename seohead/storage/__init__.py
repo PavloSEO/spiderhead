@@ -108,9 +108,7 @@ _LATE_PAGE_FIELDS = {
 # neither the required-field check below nor _legacy_fields_missing.
 # Absent-key tolerated fields: a pages.jsonl written before the field existed,
 # where absence is a recorded state (recording off / never parsed), not an error.
-_OPTIONAL_PAGE_RECORD_FIELDS = frozenset(
-    {"trust_signals", "duplicate_ids", "invalid_link_targets"}
-)
+_OPTIONAL_PAGE_RECORD_FIELDS = frozenset({"trust_signals", "duplicate_ids", "invalid_link_targets"})
 _PAGE_NONNEGATIVE_INTS = {
     "ajax_scheme_outlinks",
     "body_count",

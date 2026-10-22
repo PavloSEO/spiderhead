@@ -300,7 +300,7 @@ CHECKS: dict[str, dict[str, Any]] = {
         "fix": "Review each quoted href as written: a truncated or malformed URL passes no "
         "crawl equity and often signals a broken template; a non-http(s) scheme is only a "
         "finding when the link was meant to be a page. Recording is opt-in "
-        "(discovery.hyperlinks.record_invalid_targets); rejected targets never enter the "
+        "(discovery.record_invalid_targets); rejected targets never enter the "
         "crawl.",
     },
     # 7.E — canonical & directives
