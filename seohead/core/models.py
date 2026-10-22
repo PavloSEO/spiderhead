@@ -233,6 +233,17 @@ class _ParsedPageOptional(TypedDict, total=False):
     # are a separate bounded opt-in from the generic URL inventory.
     resource_declarations: list[ResourceDeclaration]
     resource_declarations_omitted: int
+    # Hrefs that could not become fetchable link targets (#1530), present only
+    # when the crawl asked for them — absence is "not measured", never "none
+    # found"; an empty list is a measured clean page.
+    invalid_link_targets: list[InvalidLinkTarget]
+
+
+class InvalidLinkTarget(TypedDict):
+    """One href the parser rejected, exactly as written plus the reason."""
+
+    raw_href: str
+    reason: str
 
 
 class ResourceDeclaration(TypedDict):

@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**280 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**281 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -74,6 +74,12 @@ python scripts/generate_checks_reference.py
 | `HEADING_BEFORE_H1` | notice | crawl:heading_outline | One or more headings appear before the page's first H1 in DOM order | Move the H1 above the headings that precede it, or demote those headings to plain text or a non-heading element. A parser reading the outline meets them before it meets the page's subject, and a snippet built from early page text quotes them instead of the page. |
 | `HEADING_IN_PAGE_CHROME` | notice | crawl:heading_outline | A heading sits in the page chrome (header, nav, sidebar or footer) rather than in the content | Mark template furniture up as what it is -- a menu label or a widget title is not a heading of this document, and repeating it on every page pushes the page's own headings down its outline. |
 | `HEADING_SKIP` | notice | crawl:heading_outline | Content headings change by more than one level in DOM order, skipping a level down or jumping back up past an open section | Use the adjacent heading level in both directions: an H4 that follows an H2 becomes H3, and a heading returning up the outline steps back one level at a time so each open section closes in order (H3 -> H2 closes one section and starts a sibling, which is correct nesting). |
+
+## 7.E — links the crawler could not follow at all
+
+| Check id | Severity | Evidence | Fires on | Fix |
+|---|---|---|---|---|
+| `INVALID_LINK_TARGET` | notice | crawl:invalid_link_targets | The page points at hrefs that cannot become fetchable link targets (unparsable syntax or a non-http(s) scheme) | Review each quoted href as written: a truncated or malformed URL passes no crawl equity and often signals a broken template; a non-http(s) scheme is only a finding when the link was meant to be a page. Recording is opt-in (discovery.record_invalid_targets); rejected targets never enter the crawl. |
 
 ## 7.E — canonical & directives
 

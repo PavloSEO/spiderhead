@@ -176,6 +176,12 @@ class PageRecord:
     # position rule matched -- unmeasured, not "content" (see
     # parser.heading_outline).
     heading_outline: list[dict[str, Any]] = field(default_factory=list)
+    # Hrefs on this page that could not become fetchable link targets, each as
+    # {"raw_href", "reason"} exactly as the parser rejected it (#1530). None —
+    # not an empty list — when the crawl ran without
+    # discovery.record_invalid_targets: "not measured" and "measured,
+    # none found" are different facts.
+    invalid_link_targets: list[dict[str, str]] | None = None
     # The two link defects a page region cannot show: anchors wrapped in an
     # h1-h6, and image links with no anchor text and no alt (#634). Both lists
     # inside are capped by the parser, so this costs a small constant per page
@@ -363,6 +369,11 @@ def _record_from_parsed(parsed: dict) -> dict[str, Any]:
         "hreflang": list(parsed.get("hreflang") or []),
         "amphtml": str(parsed.get("amphtml") or ""),
         "heading_outline": list(parsed.get("heading_outline") or []),
+        # None keeps the parser's not-measured meaning (#1530); the key is in
+        # parsed exactly when the crawl asked for invalid-target recording.
+        "invalid_link_targets": (
+            list(parsed["invalid_link_targets"]) if "invalid_link_targets" in parsed else None
+        ),
         "link_placement": parsed.get("link_placement") or empty_link_placement(),
         # Always a parsed dict here (a missing key would be a parser defect),
         # so the field above the default keeps its None-for-unmeasured meaning.

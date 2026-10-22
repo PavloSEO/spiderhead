@@ -291,6 +291,18 @@ CHECKS: dict[str, dict[str, Any]] = {
         "so each open section closes in order (H3 -> H2 closes one section and starts a "
         "sibling, which is correct nesting).",
     },
+    # 7.E — links the crawler could not follow at all
+    "INVALID_LINK_TARGET": {
+        "severity": "notice",
+        "source": "crawl:invalid_link_targets",
+        "message": "The page points at hrefs that cannot become fetchable link targets "
+        "(unparsable syntax or a non-http(s) scheme)",
+        "fix": "Review each quoted href as written: a truncated or malformed URL passes no "
+        "crawl equity and often signals a broken template; a non-http(s) scheme is only a "
+        "finding when the link was meant to be a page. Recording is opt-in "
+        "(discovery.record_invalid_targets); rejected targets never enter the "
+        "crawl.",
+    },
     # 7.E — canonical & directives
     "CANONICAL_MISSING": {
         "severity": "warning",

@@ -794,6 +794,49 @@ def check_heading_outline(ctx: AuditContext) -> None:
 _PLACEMENT_EVIDENCE_ITEMS = 5
 
 
+def check_invalid_link_targets(ctx: AuditContext) -> None:
+    """INVALID_LINK_TARGET — hrefs that could not become link targets (#1530).
+
+    Link parsing drops an unparsable or non-http(s) href silently: the page keeps
+    no evidence that it points at something broken, and an operator cannot tell a
+    truncated href from a missing one. When the crawl ran with
+    ``discovery.record_invalid_targets``, the parser records each
+    rejection (raw href + reason) and this check turns them into one finding per
+    page. The finding never adds a frontier entry -- the targets are data.
+    """
+    if not _has_column(ctx, "invalid_link_targets"):
+        ctx.skip("INVALID_LINK_TARGET", "no invalid link target evidence (native crawl only)")
+        return
+    # Measured over every page, findings only for indexable ones: a crawl whose
+    # one indexable page is also its only unmeasured page is a corpus question,
+    # not a verdict about the recording mode.
+    measured = any(_rec(page).get("invalid_link_targets") is not None for page in ctx.pages)
+    if not measured:
+        reason = _body_unavailable_reason(ctx.indexable_html_pages())
+        ctx.skip(
+            "INVALID_LINK_TARGET",
+            reason
+            or "invalid link target recording was off for this crawl "
+            "(discovery.record_invalid_targets)",
+        )
+        return
+    for page in ctx.indexable_html_pages():
+        targets = _rec(page).get("invalid_link_targets")
+        if not targets:
+            continue
+        ctx.add(
+            "INVALID_LINK_TARGET",
+            target_url=page.url,
+            details={
+                "count": len(targets),
+                "first_targets": [
+                    {"raw_href": item["raw_href"], "reason": item["reason"]}
+                    for item in targets[:_PLACEMENT_EVIDENCE_ITEMS]
+                ],
+            },
+        )
+
+
 def check_link_placement(ctx: AuditContext) -> None:
     """LINK_INSIDE_HEADING / IMAGE_LINK_WITHOUT_TEXT — where a page's anchors sit (#634).
 
@@ -4167,6 +4210,7 @@ ALL_CHECKS = [
     check_descriptions,
     check_headings,
     check_heading_outline,
+    check_invalid_link_targets,
     check_link_placement,
     check_canonical_directives,
     check_canonical_policy,

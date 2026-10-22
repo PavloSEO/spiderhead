@@ -84,12 +84,18 @@ _OPTION_KEYS = (
     "url_sources",
     "resource_declarations",
     "classify_links",
+    "invalid_link_targets",
 )
 
 # Options that default to False rather than True: each adds cost (a resolved
 # content root, a per-link ancestor walk) that most callers of parse_html
 # never need.
-_DEFAULT_OFF_OPTIONS = ("url_sources", "resource_declarations", "classify_links")
+_DEFAULT_OFF_OPTIONS = (
+    "url_sources",
+    "resource_declarations",
+    "classify_links",
+    "invalid_link_targets",
+)
 
 _DUPLICATE_ID_CAP = 20
 _DUPLICATE_ID_CHARS = 256
@@ -1435,13 +1441,28 @@ def _link_context(
 
 def _link_target(tag: Any, base_url: str, final_url: str) -> tuple[str, str, bool] | None:
     """Return the inexpensive facts needed to count a valid anchor observation."""
+    target, _ = _link_target_reason(tag, base_url, final_url)
+    return target
+
+
+# Why an anchor was not a fetchable link target (#1530). "" means the anchor
+# names no target at all -- no href, a pure in-page fragment, or markup inside
+# an inert container -- which is absence, not a defect, and is never recorded.
+_LINK_REASON_UNPARSABLE = "unparsable_syntax"
+_LINK_REASON_UNSUPPORTED_SCHEME = "unsupported_scheme"
+
+
+def _link_target_reason(
+    tag: Any, base_url: str, final_url: str
+) -> tuple[tuple[str, str, bool] | None, str]:
+    """``_link_target`` plus the reason a rejected href could not become a link."""
     if _has_ancestor(tag, _INERT_LINK_CONTAINERS):
-        return None
+        return None, ""
     href_raw = (cast("str | None", tag.get("href")) or "").strip()
     if not href_raw:
-        return None
+        return None, ""
     if href_raw.startswith("#"):
-        return None
+        return None, ""
     # A scheme other than http(s) -- mailto:, tel:, javascript:, and the same
     # family of non-fetchable contact/deep-link schemes (sms:, skype:,
     # whatsapp:, viber:, facetime:, intent:, market:, ...) -- is never a page
@@ -1451,14 +1472,14 @@ def _link_target(tag: Any, base_url: str, final_url: str) -> tuple[str, str, boo
     try:
         scheme = urlparse(href_raw).scheme.lower()
     except ValueError:
-        return None
+        return None, _LINK_REASON_UNPARSABLE
     if scheme and scheme not in ("http", "https"):
-        return None
+        return None, _LINK_REASON_UNSUPPORTED_SCHEME
     try:
         href = urljoin(base_url, href_raw)
     except ValueError:
-        return None
-    return href, href_raw, is_external(href, final_url)
+        return None, _LINK_REASON_UNPARSABLE
+    return (href, href_raw, is_external(href, final_url)), ""
 
 
 def _link_info(
@@ -1557,7 +1578,8 @@ def _extract_link_observations(
     content_area_config: dict[str, Any] | None = None,
     position_rules: Any = None,
     cap: int | None = None,
-) -> tuple[list[LinkInfo], dict[str, int] | None]:
+    record_invalid_targets: bool = False,
+) -> tuple[list[LinkInfo], dict[str, int] | None, list[dict[str, str]]]:
     """Collect ``<a href>`` links resolved against ``base_url``.
 
     ``base_url`` resolves the hrefs; ``final_url`` decides what counts as
@@ -1581,10 +1603,16 @@ def _extract_link_observations(
     on every page has a real per-link cost, and most callers never read it.
     When off, links carry no ``position`` key at all, which is what makes the
     absence visible rather than a silently empty string.
+
+    ``record_invalid_targets`` (off by default, #1530) additionally returns
+    the hrefs that could not become fetchable link targets — the raw attribute
+    value plus the reason — as the third tuple element. Dropped targets are
+    data, never crawl input: they still never enter ``links``.
     """
     links: list[LinkInfo] = []
     total = 0
     external_total = 0
+    invalid: list[dict[str, str]] = []
     content_root, rules = _link_context(
         soup,
         classify_links=classify_links and cap != 0,
@@ -1592,8 +1620,10 @@ def _extract_link_observations(
         position_rules=position_rules,
     )
     for tag in soup.find_all("a"):
-        target = _link_target(tag, base_url, final_url)
+        target, reason = _link_target_reason(tag, base_url, final_url)
         if target is None:
+            if record_invalid_targets and reason:
+                invalid.append({"raw_href": (tag.get("href") or "").strip(), "reason": reason})
             continue
         href, href_raw, external = target
         total += 1
@@ -1611,33 +1641,17 @@ def _extract_link_observations(
                 )
             )
     if cap is None:
-        return links, None
-    return links, {
-        "stored": len(links),
-        "total": total,
-        "external_total": external_total,
-        "omitted": total - len(links),
-    }
-
-
-def _extract_links(
-    soup: BeautifulSoup,
-    base_url: str,
-    final_url: str,
-    *,
-    classify_links: bool = False,
-    content_area_config: dict[str, Any] | None = None,
-    position_rules: Any = None,
-) -> list[LinkInfo]:
-    links, _ = _extract_link_observations(
-        soup,
-        base_url,
-        final_url,
-        classify_links=classify_links,
-        content_area_config=content_area_config,
-        position_rules=position_rules,
+        return links, None, invalid
+    return (
+        links,
+        {
+            "stored": len(links),
+            "total": total,
+            "external_total": external_total,
+            "omitted": total - len(links),
+        },
+        invalid,
     )
-    return links
 
 
 def _form_info(tag: Any, base_url: str, final_url: str) -> FormInfo:
@@ -2303,16 +2317,22 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
         content_config = options.get("content_area") if isinstance(options, dict) else None
         position_rules = options.get("link_position_rules") if isinstance(options, dict) else None
         if link_cap is None:
-            result["links"] = _extract_links(
+            links, _, invalid = _extract_link_observations(
                 soup,
                 base_url,
                 final_url,
                 classify_links=opts["classify_links"],
                 content_area_config=content_config,
                 position_rules=position_rules,
+                record_invalid_targets=opts["invalid_link_targets"],
             )
+            result["links"] = links
+            if opts["invalid_link_targets"]:
+                # Absent when off, like url_sources: an empty list would read as
+                # "this page has no broken href" -- a verdict nobody measured (#1530).
+                result["invalid_link_targets"] = invalid
         else:
-            links, observation = _extract_link_observations(
+            links, observation, invalid = _extract_link_observations(
                 soup,
                 base_url,
                 final_url,
@@ -2320,9 +2340,12 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
                 content_area_config=content_config,
                 position_rules=position_rules,
                 cap=link_cap,
+                record_invalid_targets=opts["invalid_link_targets"],
             )
             result["links"] = links
             result["link_observation"] = observation
+            if opts["invalid_link_targets"]:
+                result["invalid_link_targets"] = invalid
         # Not gated on classify_links, for the same reason heading_outline is not:
         # that flag exists because a crawl holds one classified entry per anchor,
         # and this holds an entry only for an anchor that is inside a heading or is

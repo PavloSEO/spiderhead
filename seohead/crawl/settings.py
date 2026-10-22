@@ -213,6 +213,14 @@ DEFAULTS: dict[str, Any] = {
         # the unrestricted second-origin crawl that made the old name a lie.
         "external": {"store": True, "crawl": False},
         "follow_nofollow": False,
+        # Off by default (#1530): hrefs that cannot become fetchable link
+        # targets (unparsable syntax, a non-http(s) scheme) are dropped
+        # silently unless this is on, and the page keeps no evidence that it
+        # points at something broken. With it on they are recorded per page as
+        # data -- raw href plus rejection reason -- and still never enter the
+        # frontier. A scalar like follow_nofollow: the store/crawl pairs above
+        # are per link-type outcomes, and this is neither.
+        "record_invalid_targets": False,
         # List mode only (no ``url``, only ``urls``): a redirect is recorded as
         # given -- the hop is never followed as a new page -- but a migration
         # audit needs to know where the chain actually ends, not just that a
@@ -525,6 +533,9 @@ RESULTS_AFFECTING: frozenset[str] = frozenset(
         "sitemaps.auto_discover",
         "discovery.hyperlinks.store",
         "discovery.hyperlinks.crawl",
+        # Whether dropped hrefs leave evidence decides whether the invalid-link
+        # check can run at all (#1530).
+        "discovery.record_invalid_targets",
         "discovery.redirects.crawl",
         "discovery.external.store",
         # Whether external destinations are checked at all, and the bounds the
@@ -755,6 +766,11 @@ DESCRIPTIONS: dict[str, str] = {
     ),
     "discovery.hyperlinks.store": "Keep discovered hyperlinks in the report.",
     "discovery.hyperlinks.crawl": "Request discovered hyperlinks (fetch them).",
+    "discovery.record_invalid_targets": (
+        "Record hrefs that cannot become fetchable link targets (unparsable syntax, a "
+        "non-http(s) scheme) per page, with the raw attribute value and the rejection "
+        "reason. Off by default; recorded targets are data and never enter the frontier."
+    ),
     "discovery.redirects.crawl": "Request discovered redirect targets (fetch them).",
     "discovery.external.store": "Keep discovered external links in the report.",
     "discovery.external.crawl": (
