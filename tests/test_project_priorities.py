@@ -79,7 +79,9 @@ def test_apply_publishes_v2_and_unchanged_reapply_preserves_bytes(project):
         "matched javascript-framework",
     )
     before = (project / "coverage.json").read_bytes()
-    repeated = project_priorities(str(project), full=True, apply=True, expected_revision=status["revision"])
+    repeated = project_priorities(
+        str(project), full=True, apply=True, expected_revision=status["revision"]
+    )
     assert repeated["applied"] is False
     assert (project / "coverage.json").read_bytes() == before
 
@@ -253,7 +255,9 @@ def test_packaged_policy_uses_saved_php_cms_and_publisher_facts(tmp_path, fact, 
     initialize_coverage(root)
 
     decision = next(
-        item for item in project_priorities(str(root), full=True)["decisions"] if item["id"] == item_id
+        item
+        for item in project_priorities(str(root), full=True)["decisions"]
+        if item["id"] == item_id
     )
 
     assert decision["after"] == {"priority": "P0", "priority_origin": "policy"}

@@ -1169,9 +1169,7 @@ class CrawlerScreen(QWidget):
             # pre-rename spelling (main's legacy tab names) — each older layer
             # keeps configurations saved before the newer keys existed.
             legacy = (
-                (f"crawler/columns/{LEGACY_TAB_NAMES[name]}",)
-                if name in LEGACY_TAB_NAMES
-                else ()
+                (f"crawler/columns/{LEGACY_TAB_NAMES[name]}",) if name in LEGACY_TAB_NAMES else ()
             )
             for key in (
                 f"crawler/columns/{name}/{self.filter_index if flt is None else flt}",

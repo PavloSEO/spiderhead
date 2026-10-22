@@ -88,8 +88,10 @@ def test_original_bytes_fields_occurrences_and_producer_survive(legacy_run, arti
                 None if stored_duplicate_ids is None else json.loads(stored_duplicate_ids)
             )
             for key in page:
-                if key == "head_not_first" or key == "transport_upgraded" or key.endswith(
-                    "_outside_head"
+                if (
+                    key == "head_not_first"
+                    or key == "transport_upgraded"
+                    or key.endswith("_outside_head")
                 ):
                     page[key] = None if page[key] is None else bool(page[key])
             actual.append(page)

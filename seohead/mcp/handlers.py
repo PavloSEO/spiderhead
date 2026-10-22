@@ -4235,7 +4235,6 @@ def markdown_extract(
     }
 
 
-
 def markdown_export(
     url: str | None = None,
     urls_file: str | None = None,
@@ -4301,6 +4300,7 @@ def markdown_export(
         ) or _re.search(
             r'<meta[^>]+content=["\']([^"\']*)["\'][^>]+name=["\']description["\']', html, _re.I
         )
+
         def clean(value: str | None) -> str:
             return _re.sub(r"\s+", " ", value or "").strip().replace('"', "'")
 
@@ -4308,7 +4308,11 @@ def markdown_export(
 
     def _relpath(page_url: str) -> _Path:
         path = urlsplit(page_url).path.strip("/")
-        parts = [_re.sub(r"[^A-Za-z0-9._~-]+", "_", seg) or "_" for seg in path.split("/")] if path else ["index"]
+        parts = (
+            [_re.sub(r"[^A-Za-z0-9._~-]+", "_", seg) or "_" for seg in path.split("/")]
+            if path
+            else ["index"]
+        )
         rel = _Path(*parts)
         return rel if rel.suffix == ".md" else rel.with_suffix(".md")
 
@@ -4322,7 +4326,12 @@ def markdown_export(
             _time.sleep(delay)
         fetched = _require_fetched_html(target)
         if not fetched.get("ok"):
-            failures.append({"url": target, "error": fetched.get("error") or f"HTTP {fetched.get('status_code')}"})
+            failures.append(
+                {
+                    "url": target,
+                    "error": fetched.get("error") or f"HTTP {fetched.get('status_code')}",
+                }
+            )
             continue
         title, description = _meta(fetched["html"])
         body = md_core.extract_markdown(fetched["html"], None)["content_markdown"]
@@ -4344,7 +4353,9 @@ def markdown_export(
             "---\n\n"
         )
         # Single lowercase tokens (zoom_in, expand_more…) are icon ligature names, not prose.
-        body = "\n".join(ln for ln in body.splitlines() if not _re.fullmatch(r"[a-z_]{2,24}", ln.strip()))
+        body = "\n".join(
+            ln for ln in body.splitlines() if not _re.fullmatch(r"[a-z_]{2,24}", ln.strip())
+        )
         dest.write_text(frontmatter + body.rstrip() + "\n", encoding="utf-8")
         written += 1
         total_bytes += dest.stat().st_size

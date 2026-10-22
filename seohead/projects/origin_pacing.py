@@ -85,7 +85,9 @@ class ProjectOriginPacer:
     def set_min_delay(self, min_delay_seconds: float) -> None:
         """Follow a live operator rate change with the same ceiling rule as at start."""
         rate = 1.0 / min_delay_seconds if min_delay_seconds > 0 else 0.0
-        self.max_requests_per_second = max(PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND, rate) if rate else 0.0
+        self.max_requests_per_second = (
+            max(PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND, rate) if rate else 0.0
+        )
         self.interval_seconds = (
             1.0 / self.max_requests_per_second if self.max_requests_per_second else 0.0
         )

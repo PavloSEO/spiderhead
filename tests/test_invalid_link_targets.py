@@ -130,8 +130,7 @@ def test_invalid_link_target_skips_honestly_when_recording_was_off():
     ctx = _run_crawl({"https://example.com/broken": _FakeResponse(_page("Broken", _BROKEN_LINKS))})
     assert "INVALID_LINK_TARGET" not in _fired(ctx)
     assert _skips(ctx, "INVALID_LINK_TARGET") == [
-        "invalid link target recording was off for this crawl "
-        "(discovery.record_invalid_targets)"
+        "invalid link target recording was off for this crawl (discovery.record_invalid_targets)"
     ]
 
 
