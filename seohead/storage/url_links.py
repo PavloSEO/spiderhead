@@ -61,6 +61,17 @@ _LINK_COLUMNS = (
 )
 
 
+def _with_anchor_source(con) -> str:
+    """The link column list, plus the anchor marker when this scan has it.
+
+    A scan written before #1518 has no ``anchor_source`` column; selecting it
+    there would fail the whole query, so the marker joins in only when present
+    and the row builders then report ``None`` -- unmeasured, not text-derived.
+    """
+    have = {row[1] for row in con.execute("PRAGMA table_info(links)")}
+    return _LINK_COLUMNS + (",l.anchor_source" if "anchor_source" in have else "")
+
+
 class LinksError(ScanError):
     """A refusal with a machine-readable ``reason_code``."""
 
@@ -242,6 +253,7 @@ def _out_item(ctx: _Ctx, row: sqlite3.Row, index: int) -> dict[str, Any]:
     url = row["dest_url"]
     scanned = row["page_url_id"] is not None
     status = row["page_status"]
+    keys = row.keys()
     if "#" in url:
         scanned, status = ctx.base_status(url)
     return {
@@ -251,6 +263,7 @@ def _out_item(ctx: _Ctx, row: sqlite3.Row, index: int) -> dict[str, Any]:
         "representation": row["evidence_representation"],
         "target_url": url,
         "anchor": row["anchor"],
+        "anchor_source": row["anchor_source"] if "anchor_source" in keys else None,
         **_flags(row),
         "internal": ctx.internal(url),
         "target_scanned": scanned,
@@ -264,6 +277,7 @@ def _out_item(ctx: _Ctx, row: sqlite3.Row, index: int) -> dict[str, Any]:
 
 def _in_item(ctx: _Ctx, row: sqlite3.Row, index: int) -> dict[str, Any]:
     url = row["src_url"]
+    keys = row.keys()
     return {
         "index": index,
         "link_id": row["link_id"],
@@ -272,6 +286,7 @@ def _in_item(ctx: _Ctx, row: sqlite3.Row, index: int) -> dict[str, Any]:
         "source_url": url,
         "target_url": row["dest_url"],
         "anchor": row["anchor"],
+        "anchor_source": row["anchor_source"] if "anchor_source" in keys else None,
         **_flags(row),
         "internal": ctx.internal(url),
         "source_status": row["page_status"],
@@ -437,9 +452,10 @@ def _page(ctx, result, ids, representation, req) -> None:
     flt_where = " AND ".join(where)
     py_filtering = link_type != "all" or status_class != "all" or needle or sort != "order"
 
+    columns = _with_anchor_source(ctx.con)
     if direction == "out":
         select = (
-            f"SELECT {_LINK_COLUMNS},d.url AS dest_url,p.url_id AS page_url_id,"
+            f"SELECT {columns},d.url AS dest_url,p.url_id AS page_url_id,"
             "p.status_code AS page_status FROM links l "
             "JOIN urls d ON d.url_id=l.destination_url_id "
             "LEFT JOIN pages p ON p.url_id=l.destination_url_id"
@@ -448,7 +464,7 @@ def _page(ctx, result, ids, representation, req) -> None:
         make = _out_item
     else:
         select = (
-            f"SELECT {_LINK_COLUMNS},s.url AS src_url,d.url AS dest_url,"
+            f"SELECT {columns},s.url AS src_url,d.url AS dest_url,"
             "p.status_code AS page_status FROM links l "
             "JOIN urls s ON s.url_id=l.source_url_id JOIN urls d ON d.url_id=l.destination_url_id "
             "LEFT JOIN pages p ON p.url_id=l.source_url_id"

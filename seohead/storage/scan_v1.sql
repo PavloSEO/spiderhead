@@ -192,6 +192,9 @@ CREATE TABLE links (
   evidence_representation TEXT NOT NULL CHECK (evidence_representation IN ('static','rendered','legacy_fragment','legacy_unknown')),
   ordinal INTEGER NOT NULL,
   anchor TEXT NOT NULL,
+  -- 'alt' when the anchor came from a wrapped image's alt, '' when from text
+  -- (or when the anchor says nothing) (issue #1518).
+  anchor_source TEXT NOT NULL,
   nofollow INTEGER NOT NULL CHECK (nofollow IN (0,1)),
   position TEXT NOT NULL,
   rel_json TEXT NOT NULL,

@@ -196,7 +196,7 @@ def test_local_date_filter_marks_unobserved_days_without_zero_filling():
         transport=send,
     )
     assert result["coverage"] == {
-        "requested_days": sorted(edges + [observed]),
+        "requested_days": sorted([*edges, observed]),
         "observed_days": [observed],
         "unobserved_days": sorted(edges),
         "state": "partial_or_unknown",

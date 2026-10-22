@@ -1495,15 +1495,27 @@ def _link_info(
     rel_attr: str | list[str] = tag.get("rel") or []
     rel_tokens = rel_attr.split() if isinstance(rel_attr, str) else list(rel_attr)
     rel_tokens = [token.lower() for token in rel_tokens]
+    text = collapse_whitespace(tag.get_text(" "))
     entry: LinkInfo = {
         "href": href,
         "raw_href": href_raw,
-        "text": collapse_whitespace(tag.get_text(" ")),
+        "text": text,
         "rel": " ".join(rel_tokens),
         "target": (cast("str | None", tag.get("target")) or "").strip(),
         "nofollow": "nofollow" in rel_tokens,
         "external": external,
     }
+    # An image-only link still names its destination when the image carries alt
+    # text (#1518): the alt becomes the anchor, marked so a reader can tell a
+    # text-derived anchor from an alt-derived one. A link with visible text
+    # keeps it, and a link with neither stays empty for the no-anchor checks.
+    if not text:
+        for img in tag.find_all("img"):
+            alt = collapse_whitespace(cast("str | None", img.get("alt")) or "")
+            if alt:
+                entry["text"] = alt
+                entry["anchor_source"] = "alt"
+                break
     if classify_links:
         from seohead.checks.link_position import classify_link
 

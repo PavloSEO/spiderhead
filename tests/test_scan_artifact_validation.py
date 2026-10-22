@@ -77,6 +77,10 @@ def test_original_bytes_fields_occurrences_and_producer_survive(legacy_run, arti
             )
             stored_chain = page.pop("canonical_chain_json")
             page["canonical_chain"] = [] if stored_chain is None else json.loads(stored_chain)
+            stored_invalid_targets = page.pop("invalid_link_targets_json")
+            page["invalid_link_targets"] = (
+                None if stored_invalid_targets is None else json.loads(stored_invalid_targets)
+            )
             stored_signals = page.pop("trust_signals_json")
             page["trust_signals"] = None if stored_signals is None else json.loads(stored_signals)
             stored_duplicate_ids = page.pop("duplicate_ids_json")
@@ -107,7 +111,15 @@ def test_original_bytes_fields_occurrences_and_producer_survive(legacy_run, arti
             links.append(
                 {
                     k: record[k]
-                    for k in ("source", "destination", "anchor", "position", "target", "raw_href")
+                    for k in (
+                        "source",
+                        "destination",
+                        "anchor",
+                        "anchor_source",
+                        "position",
+                        "target",
+                        "raw_href",
+                    )
                 }
                 | {"nofollow": bool(record["nofollow"]), "rel": json.loads(record["rel_json"])}
             )
@@ -400,6 +412,7 @@ def test_schema_maps_all_current_page_and_link_fields():
         "redirect_chain": "redirect_chain_json",
         "hreflang": "hreflang_json",
         "heading_outline": "heading_outline_json",
+        "invalid_link_targets": "invalid_link_targets_json",
         "link_placement": "link_placement_json",
         "canonical_chain": "canonical_chain_json",
         "trust_signals": "trust_signals_json",
@@ -419,7 +432,7 @@ def test_schema_maps_all_current_page_and_link_fields():
     }
     page_record_fields = {field.name for field in fields(PageRecord)}
     assert set(_LATE_PAGE_FIELDS) <= page_record_fields
-    assert len(page_record_fields - set(_LATE_PAGE_FIELDS) - transient) == 45
+    assert len(page_record_fields - set(_LATE_PAGE_FIELDS) - transient) == 46
     assert {
         name
         for name, annotation in get_type_hints(PageRecord).items()
@@ -429,6 +442,7 @@ def test_schema_maps_all_current_page_and_link_fields():
         "source",
         "destination",
         "anchor",
+        "anchor_source",
         "nofollow",
         "position",
         "rel",
