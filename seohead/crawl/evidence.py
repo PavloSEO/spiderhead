@@ -167,6 +167,19 @@ def _row(
         # objects rather than a string because there is no SF column to imitate --
         # an export has none of this, so the outline checks skip there.
         "Heading Outline": record.heading_outline,
+        # Native-crawl only (#1530): hrefs this page points at that could not
+        # become fetchable link targets, each {raw_href, reason}. None means the
+        # crawl ran without invalid-target recording, which the check reads as
+        # unmeasured rather than a clean page; [] is a measured clean page.
+        "Invalid Link Targets": record.invalid_link_targets,
+        # Native-crawl only (#1516): reading level over the retained content,
+        # carried under the export column names the analyzer's readability
+        # checks already read -- the same names, so a native crawl and an SF
+        # export feed one code path. None = unmeasured, never zero.
+        "Sentence Count": record.sentence_count,
+        "Average Words Per Sentence": record.avg_words_per_sentence,
+        "Flesch Reading Ease Score": record.flesch,
+        "Readability": record.readability or None,
         # Native-crawl only (#634): the anchors this page wraps in a heading and
         # the image links on it that name nothing. Carried as the parsed object
         # for the same reason the outline above is -- an export has no such

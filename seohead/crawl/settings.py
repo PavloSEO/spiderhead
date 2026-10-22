@@ -75,6 +75,21 @@ from typing import Any
 # per default record at both 67 and 68 fields; null adds no allocation. Two
 # distinct resource URLs in the populated JSON array add about 131 bytes per
 # record. Longer resource lists cost more; the native route streams this evidence.
+# Field 70 is the transport-upgrade marker (#1484), a bool that defaults False
+# and never allocates: the same instrument measured 2,539 bytes per default
+# 70-field record, within noise of the 69-field figure.
+# Fields 71-74 are the readability set (#1516): three nullable numbers (None
+# while the content area has nothing measurable) and the band string. The same
+# instrument measured 2,540 bytes per default 74-field record and no increment
+# for a populated band -- the numbers ride existing per-record slots.
+# Field 69 is the nullable rejected-href list (#1530). The same instrument measured
+# 2,540 bytes per default 69-field record (null adds no allocation, as before) and
+# about +247 bytes for a record carrying one rejected target -- a cost only a crawl
+# that opted into discovery.record_invalid_targets pays. LinkEdge gained its ninth
+# field the same way (#1518: anchor_source); the extra dataclass slot costs 8 bytes
+# per edge, and "alt" vs "" adds no further allocation. At the 50,000 x 150-link
+# figure above that is about +0.06 GiB for the marker, against the ~46 MiB the
+# raw_href family already costs.
 # Explicit native crawl admission; capacity still depends on independent request,
 # time, body, disk and renderer budgets. Admission is not a benchmark result.
 # Higher requests are refused, never silently clamped.
@@ -144,6 +159,12 @@ DEFAULTS: dict[str, Any] = {
         # Which discovered URLs count as internal. "host" is the conservative
         # reading; "registrable_domain" also accepts subdomains.
         "internal": "host",  # host | registrable_domain
+        # Stay below the start URL's path folder (#1481): a deep start URL
+        # walks only its own subtree, and links pointing above the folder are
+        # counted as unfollowed evidence (excluded under outside_start_folder)
+        # exactly like any other scope rejection. Refused for a start URL at
+        # the host root -- there is no folder to stay below.
+        "start_folder_only": False,
         # Regexes searched against the whole URL of every *discovered* link.
         # The start URL is always fetched: a crawl that filters out its own seed
         # would report an empty site rather than a configuration mistake.
@@ -213,6 +234,14 @@ DEFAULTS: dict[str, Any] = {
         # the unrestricted second-origin crawl that made the old name a lie.
         "external": {"store": True, "crawl": False},
         "follow_nofollow": False,
+        # Off by default (#1530): hrefs that cannot become fetchable link
+        # targets (unparsable syntax, a non-http(s) scheme) are dropped
+        # silently unless this is on, and the page keeps no evidence that it
+        # points at something broken. With it on they are recorded per page as
+        # data -- raw href plus rejection reason -- and still never enter the
+        # frontier. A scalar like follow_nofollow: the store/crawl pairs above
+        # are per link-type outcomes, and this is neither.
+        "record_invalid_targets": False,
         # List mode only (no ``url``, only ``urls``): a redirect is recorded as
         # given -- the hop is never followed as a new page -- but a migration
         # audit needs to know where the chain actually ends, not just that a
@@ -260,6 +289,12 @@ DEFAULTS: dict[str, Any] = {
         "user_agent": "",  # empty = SpiderHeadBot/<version>, resolved in load()
         "headers": {},
         "retry_on_timeout": 0,
+        # Off by default (#1484): upgrading every http URL to https before the
+        # request is a declaration that the hosts enforce transport security.
+        # On: no redirect hop is spent or recorded for the upgrade, the http
+        # and https spellings collapse into one page identity, and each page
+        # fetched this way is marked transport-upgraded.
+        "upgrade_to_https": False,
         # Empty is direct. Credentials may appear only in an env:VARIABLE URL.
         "proxy": "",
         "proxy_allow_private": False,
@@ -501,6 +536,9 @@ DEFAULTS: dict[str, Any] = {
 RESULTS_AFFECTING: frozenset[str] = frozenset(
     {
         "scope.internal",
+        # Narrowing to the start URL's folder removes whole paths from the
+        # crawl (#1481) -- a scope change, not a speed knob.
+        "scope.start_folder_only",
         "scope.include_patterns",
         "scope.exclude_patterns",
         "scope.include_extensions",
@@ -525,6 +563,9 @@ RESULTS_AFFECTING: frozenset[str] = frozenset(
         "sitemaps.auto_discover",
         "discovery.hyperlinks.store",
         "discovery.hyperlinks.crawl",
+        # Whether dropped hrefs leave evidence decides whether the invalid-link
+        # check can run at all (#1530).
+        "discovery.record_invalid_targets",
         "discovery.redirects.crawl",
         "discovery.external.store",
         # Whether external destinations are checked at all, and the bounds the
@@ -555,6 +596,9 @@ RESULTS_AFFECTING: frozenset[str] = frozenset(
         "http.user_agent",
         "http.headers",
         "http.retry_on_timeout",
+        # Upgrading http to https before the request changes which URL is
+        # fetched and collapses the two spellings into one page (#1484).
+        "http.upgrade_to_https",
         "http.proxy",
         "http.proxy_allow_private",
         "http.proxy_identity",
@@ -694,6 +738,11 @@ DESCRIPTIONS: dict[str, str] = {
         "github.io or vercel.app, only the audited tenant's own subdomain, never another "
         "tenant's, per seohead.recon.net.registrable_domain)."
     ),
+    "scope.start_folder_only": (
+        "Fetch only URLs at or below the start URL's path folder: links above the folder "
+        "count as unfollowed evidence (excluded under outside_start_folder). Refused for a "
+        "start URL at the host root."
+    ),
     "scope.include_patterns": "Regexes; a discovered link must match at least one to be followed.",
     "scope.exclude_patterns": "Regexes; a discovered link matching any of these is not followed.",
     "scope.include_extensions": (
@@ -755,6 +804,11 @@ DESCRIPTIONS: dict[str, str] = {
     ),
     "discovery.hyperlinks.store": "Keep discovered hyperlinks in the report.",
     "discovery.hyperlinks.crawl": "Request discovered hyperlinks (fetch them).",
+    "discovery.record_invalid_targets": (
+        "Record hrefs that cannot become fetchable link targets (unparsable syntax, a "
+        "non-http(s) scheme) per page, with the raw attribute value and the rejection "
+        "reason. Off by default; recorded targets are data and never enter the frontier."
+    ),
     "discovery.redirects.crawl": "Request discovered redirect targets (fetch them).",
     "discovery.external.store": "Keep discovered external links in the report.",
     "discovery.external.crawl": (
@@ -815,6 +869,12 @@ DESCRIPTIONS: dict[str, str] = {
         "Extra request headers to send with every fetch. With --set, pass a JSON object."
     ),
     "http.retry_on_timeout": "Number of retries after a request times out.",
+    "http.upgrade_to_https": (
+        "Fetch every http URL over https instead, before any request: no redirect hop "
+        "is recorded for the upgrade, the two spellings collapse into one page, and "
+        "each upgraded page is marked. Turn on only for hosts that enforce transport "
+        "security -- a host without https answers with connection errors."
+    ),
     "http.proxy": (
         "Explicit http:// forward proxy with host and port, or env:VARIABLE containing its URL "
         "and optional username/password. No ambient proxy variables are used by a native crawl."

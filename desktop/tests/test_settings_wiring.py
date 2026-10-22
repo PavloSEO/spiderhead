@@ -54,10 +54,51 @@ class WiringTests(unittest.TestCase):
         self.app.processEvents()
         self.assertFalse(rows["view.density"].later_badge.isVisible())
         self.assertFalse(rows["view.theme"].later_badge.isVisible())
-        self.assertTrue(rows["view.zoom"].later_badge.isVisible())
-        self.assertEqual(rows["view.zoom"].later_badge.text(), "Заработает позже")
-        self.assertIn("шаг 5", rows["view.zoom"].later_badge.toolTip())
+        # one section notice instead of a badge on most rows (#1386); the row keeps the reason on hover
+        self.assertFalse(rows["view.zoom"].later_badge.isVisible())
+        self.assertIn("шаг 5", rows["view.zoom"].toolTip())
+        self.assertFalse(rows["view.zoom"].control.isEnabled())
+        holder = dialog.stack.currentWidget().widget()
+        texts = [w.text() for w in holder.findChildren(type(rows["view.zoom"].title))]
+        self.assertTrue(any("наведите на строку" in text for text in texts), texts)
         dialog.close()
+
+    def test_search_matches_descriptions_and_jumps_to_the_row(self):
+        dialog = SettingsDialog(AppSettings(schema=full_schema()), SettingsContext())
+        try:
+            dialog.show_section("view")
+            rows = dialog._pages["view"][1].findChildren(SettingRow)
+            word = next(
+                w
+                for row in rows
+                for w in row.description.text().lower().split()
+                if len(w) >= 6 and w.isalpha()
+            )
+            dialog.filter_sections(word)
+            hits = [
+                row
+                for page in dialog._pages.values()
+                for row in page[1].findChildren(SettingRow)
+                if row.property("search_hit")
+            ]
+            self.assertTrue(hits, word)
+            owner = next(
+                section
+                for section, page in dialog._pages.items()
+                if hits[0] in page[1].findChildren(SettingRow)
+            )
+            self.assertEqual(dialog.current_section(), owner)  # the dialog jumped there (#1500)
+            dialog.filter_sections("")
+            self.assertFalse(
+                [
+                    r
+                    for p in dialog._pages.values()
+                    for r in p[1].findChildren(SettingRow)
+                    if r.property("search_hit")
+                ]
+            )
+        finally:
+            dialog.close()
 
     def test_footer_does_not_claim_instant_effect(self):
         dialog = SettingsDialog(AppSettings(schema=full_schema()), SettingsContext())

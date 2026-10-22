@@ -120,6 +120,8 @@ class RunModel(QAbstractTableModel):
                 return " · ".join(
                     part for part in (row.id, (row.owned or {}).get("status_reason")) if part
                 )
+            if column == 5 and row.started is not None:  # the full stamp with seconds
+                return row.started.astimezone().strftime("%d.%m.%Y %H:%M:%S")
             return text if text else tr("Нет данных")
         if role == Qt.ForegroundRole and column > 0 and not text:
             return QColor(theming.roles()["text_3"])
@@ -205,7 +207,7 @@ class CounterCell(QFrame):
         super().__init__(parent)
         self.setProperty("card", "panel")
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 8, 10, 8)
+        layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(2)
         label = QLabel(tr(caption))
         label.setProperty("text_style", "meta")
@@ -244,8 +246,8 @@ def note_frame(kind, icon):
     frame = QFrame()
     frame.setProperty("note", kind)
     layout = QHBoxLayout(frame)
-    layout.setContentsMargins(12, 10, 12, 10)
-    layout.setSpacing(10)
+    layout.setContentsMargins(12, 8, 12, 8)
+    layout.setSpacing(8)
     layout.addWidget(MaterialIconLabel(icon, 20, color=theming.roles()["text_2"]), 0, Qt.AlignTop)
     body = QLabel()
     body.setWordWrap(True)
@@ -310,7 +312,7 @@ class RunAside(QFrame):
         page = QWidget()
         layout = QVBoxLayout(page)
         layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(14)
+        layout.setSpacing(12)
         return page, layout
 
     def _status_line(self):
@@ -646,7 +648,7 @@ class ScansScreen(Screen):
         self.table.setAccessibleName(tr("Запуски и сканы проекта"))
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         self.table.horizontalHeader().setMinimumSectionSize(30)
-        for column, width in ((0, 30), (2, 116), (3, 124), (4, 74), (5, 118), (6, 150)):
+        for column, width in ((0, 30), (2, 116), (3, 124), (4, 74), (5, 132), (6, 150)):
             self.table.setColumnWidth(column, width)
         self.table.sortByColumn(5, Qt.DescendingOrder)
         self.table.selectionModel().currentRowChanged.connect(self._row_changed)
@@ -658,7 +660,7 @@ class ScansScreen(Screen):
         self.foot = QFrame()
         self.foot.setProperty("table_head", True)
         foot_layout = QHBoxLayout(self.foot)
-        foot_layout.setContentsMargins(16, 6, 16, 6)
+        foot_layout.setContentsMargins(16, 4, 16, 4)
         self.foot_text = QLabel()
         self.foot_text.setProperty("text_style", "meta")
         self.foot_text.setWordWrap(True)
@@ -673,6 +675,7 @@ class ScansScreen(Screen):
         self.body.addWidget(left, 1)
         self.aside = RunAside(self)
         self.aside.setFixedWidth(400)
+        self.aside_hidden = False  # the user's View-menu choice; the comparison view overrides it
         self.body.addWidget(self.aside)
         self._timer = QTimer(self)
         self._timer.setInterval(1000)
@@ -784,7 +787,8 @@ class ScansScreen(Screen):
         self._ensure_selection()
         self._update_header()
         self.aside.set_row(self.current_row())
-        self.aside.setVisible(kind is None)
+        self._view_kind = kind
+        self.aside.setVisible(kind is None and not self.aside_hidden)
         if self.stack.currentIndex() == 1:
             self.monitor.refresh()
 
@@ -812,25 +816,47 @@ class ScansScreen(Screen):
         self._update_header()
         self.aside.set_row(self.current_row())
 
+    def panel_actions(self):
+        """This screen's own panels for the View menu (D01 follow-up): the run aside."""
+        return (
+            (
+                "Панель запуска",
+                lambda: not self.aside_hidden,
+                lambda: self._set_aside_visible(self.aside_hidden),
+            ),
+        )
+
+    def _set_aside_visible(self, visible):
+        self.aside_hidden = not visible
+        self.aside.setVisible(visible and getattr(self, "_view_kind", None) is None)
+
     def _update_header(self):
         total, shown = len(self.rows), self.proxy.rowCount()
         running = sum(1 for row in self.rows if row.active)
         if not self.rows:
             self.header.set_meta("")
         else:
-            meta = trf("{n} запусков в загруженной странице · {k} идёт сейчас", n=total, k=running)
+            meta = trf(
+                "{n} запусков в загруженной странице · {k} идёт сейчас",
+                n=number(total),
+                k=number(running),
+            )
             self.header.set_meta(meta)
         self.foot_text.setText(
             trf(
                 "Фильтр и сортировка работают только в загруженной странице: показано {shown} из {total}",
-                shown=shown,
-                total=total,
+                shown=number(shown),
+                total=number(total),
             )
         )
         manager = self.host.scan_manager
         limit = getattr(manager, "max_parallel", None)
         self.foot_owned.setText(
-            trf("Запусков этого окна: {n} из {m}", n=manager.active_count, m=limit)
+            trf(
+                "Запусков этого окна: {n} из {m}",
+                n=number(manager.active_count),
+                m=number(limit),
+            )
             if manager is not None and limit
             else ""
         )

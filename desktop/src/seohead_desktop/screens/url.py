@@ -32,6 +32,8 @@ from PyQt5.QtWidgets import (
     QStyleOptionViewItem,
     QTableView,
     QToolButton,
+    QTreeWidget,
+    QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -374,7 +376,7 @@ class Chip(QFrame):
         super().__init__(parent)
         self.setProperty("chip", "filter")
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 0, 2, 0)
+        layout.setContentsMargins(8, 0, 2, 0)
         layout.setSpacing(2)
         self.label = QLabel(text)
         layout.addWidget(self.label)
@@ -592,6 +594,22 @@ class UrlScreen(Screen):
         self.group_dropdown.clicked.connect(self._show_group_menu)
         self.group_dropdown.hide()
         layout.insertWidget(0, self.group_dropdown)
+        # Same dataset, two shapes: the flat page and a path tree over it (#1492)
+        self.view_buttons = {}
+        for key, icon, label in (
+            ("list", "view_list", "Список"),
+            ("tree", "account_tree", "Дерево"),
+        ):
+            button = QToolButton()
+            button.setProperty("pill", "group")
+            button.setCheckable(True)
+            button.setChecked(key == "list")
+            button.setIcon(material_icon(icon))
+            button.setAccessibleName(tr(label))
+            button.setToolTip(tr(label))
+            button.clicked.connect(lambda _c=False, k=key: self._set_view_mode(k))
+            self.view_buttons[key] = button
+            layout.addWidget(button)
         self.groups_bar = bar
         return bar
 
@@ -610,7 +628,7 @@ class UrlScreen(Screen):
         self.search.textChanged.connect(lambda _t: self._search_timer.start())
         layout.addWidget(self.search)
         self.chip_row = QHBoxLayout()
-        self.chip_row.setSpacing(6)
+        self.chip_row.setSpacing(4)
         layout.addLayout(self.chip_row)
         self.add_condition = QPushButton(tr("Условие"))
         self.add_condition.setProperty("size", "pill")
@@ -650,6 +668,14 @@ class UrlScreen(Screen):
         layout.setSpacing(0)
         self.table_stack = QStackedWidget()
         layout.addWidget(self.table_stack, 1)
+        self.path_tree = QTreeWidget()
+        self.path_tree.setObjectName("urlPathTree")
+        self.path_tree.setHeaderHidden(True)
+        self.path_tree.setUniformRowHeights(True)
+        self.path_tree.setFrameShape(QFrame.NoFrame)
+        self.path_tree.setVisible(False)
+        self.path_tree.itemClicked.connect(self._tree_picked)
+        layout.addWidget(self.path_tree, 1)
         self.model = UrlPageModel(self)
         self.table = style_table(FitTable(), "compact")
         self.table.resized.connect(self._apply_columns)
@@ -678,6 +704,8 @@ class UrlScreen(Screen):
             self.table.setColumnWidth(column, width)
         self.table.selectionModel().currentRowChanged.connect(self._row_changed)
         self.table.doubleClicked.connect(lambda _index: self._open_tab("info"))
+        enter = QShortcut(QKeySequence(Qt.Key_Return), self.table, lambda: self._open_tab("info"))
+        enter.setContext(Qt.WidgetShortcut)  # the row menu promises «Подробности … ↵» (D06)
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self._row_menu)
         self.table_stack.addWidget(self.table)
@@ -743,6 +771,69 @@ class UrlScreen(Screen):
             self.card_forced = self.card_expanded = False
             self.bottom.set_expanded(False)
         self._layout_panels()
+
+    def _set_view_mode(self, mode):
+        """The dataset as a flat page or a path tree over the same rows and filters (#1492)."""
+        self.view_mode = mode
+        for key, button in self.view_buttons.items():
+            button.blockSignals(True)
+            button.setChecked(key == mode)
+            button.blockSignals(False)
+        if mode == "tree":
+            self._fill_path_tree()
+        self.path_tree.setVisible(mode == "tree")
+        self.table_stack.setVisible(mode != "tree")
+
+    def _fill_path_tree(self):
+        tree = self.path_tree
+        tree.clear()
+        rows = self.model.rows
+        if not rows:
+            empty = QTreeWidgetItem([tr("Нет адресов по этому условию")])
+            empty.setFlags(Qt.NoItemFlags)
+            tree.addTopLevelItem(empty)
+            return
+        folders = {}
+        order = sorted(range(len(rows)), key=lambda index: rows[index].get("url") or "")
+        for index in order:
+            url = rows[index].get("url") or ""
+            host, path = split_url(url)
+            path = path or "/"
+            parts = [part for part in path.split("/") if part]
+            directory = path.endswith("/") or not parts
+            host_node = folders.get(host)
+            if host_node is None:
+                host_node = QTreeWidgetItem([host or url])
+                host_node.setFlags(Qt.ItemIsEnabled)
+                tree.addTopLevelItem(host_node)
+                folders[host] = host_node
+            parent = host_node
+            depth_end = len(parts) if directory else len(parts) - 1
+            for depth in range(max(depth_end, 0)):
+                key = f"{host}/{'/'.join(parts[: depth + 1])}"
+                node = folders.get(key)
+                if node is None:
+                    node = QTreeWidgetItem([parts[depth]])
+                    node.setFlags(Qt.ItemIsEnabled)
+                    parent.addChild(node)
+                    folders[key] = node
+                parent = node
+            if not parts or directory:
+                leaf = host_node if not parts else parent  # a directory URL is its own folder node
+            else:
+                leaf = QTreeWidgetItem([parts[-1]])
+                parent.addChild(leaf)
+            leaf.setFlags(leaf.flags() | Qt.ItemIsSelectable)
+            leaf.setToolTip(0, url)
+            leaf.setData(
+                0, Qt.UserRole, index
+            )  # the flat model's row: one selection for both views
+        tree.expandToDepth(1)
+
+    def _tree_picked(self, item, _column):
+        row = item.data(0, Qt.UserRole)
+        if type(row) is int:
+            self.table.selectRow(row)
 
     def _open_tab(self, tab):
         """Open the URL card on a tab (double click, a chip of the right-hand details, the row menu)."""
@@ -854,17 +945,34 @@ class UrlScreen(Screen):
         index = self.table.currentIndex()
         if not index.isValid():
             return
+        row = self.rows[index.row()] if 0 <= index.row() < len(self.rows) else {}
         QApplication.clipboard().setText(
             "\t".join(
-                str(index.sibling(index.row(), column).data() or "")
-                for column in range(len(COLUMNS))
+                str(row.get(key) if row.get(key) is not None else "")
+                for column, (key, *_rest) in enumerate(COLUMNS)
                 if not self.table.isColumnHidden(column)
             )
-        )
+        )  # raw values: the visible «Нет данных» placeholder never belongs in a paste
 
     def _set_summary_visible(self, visible):
         self.summary_hidden = not visible
         self._layout_panels()
+
+    def panel_actions(self):
+        """This screen's own panels for the View menu: (title, is-shown, toggle) triples (D01 follow-up)."""
+        return (
+            (
+                "Сводка запуска",
+                lambda: not self.summary_hidden,
+                lambda: self._set_summary_visible(self.summary_hidden),
+            ),
+            (
+                "Детали URL",
+                lambda: not self.detail_hidden,
+                lambda: self._set_detail_visible(self.detail_hidden),
+            ),
+            ("Только таблица", lambda: self.focus_mode, self._toggle_focus),
+        )
 
     def _toggle_focus(self):
         self.focus_mode = not self.focus_mode
@@ -1076,6 +1184,8 @@ class UrlScreen(Screen):
                 )
             )
         self.rows = payload.get("rows") or []
+        if getattr(self, "view_mode", "list") == "tree":
+            self._fill_path_tree()  # the tree follows the same filtered page as the table (#1492)
         self.total = payload.get("total") if type(payload.get("total")) is int else None
         self.filtered = (
             payload.get("filtered_total")
@@ -1136,7 +1246,7 @@ class UrlScreen(Screen):
             action=("Повторить", lambda: self._reload(keep_page=True)),
             secondary=("Диагностика", lambda: self.host.open_settings("core")),
         )
-        panel.layout().setContentsMargins(24, 6, 24, 6)
+        panel.layout().setContentsMargins(24, 4, 24, 4)
         panel.layout().setSpacing(4)
         note = QLabel(text)
         note.setProperty("text_style", "mono")

@@ -166,6 +166,7 @@ def project_priorities(
     policy: dict[str, Any] | None = None,
     apply: bool = False,
     expected_revision: int | None = None,
+    full: bool = False,
 ) -> dict[str, Any]:
     """Preview or explicitly persist offline priority decisions from saved project facts."""
     if type(apply) is not bool:
@@ -173,7 +174,7 @@ def project_priorities(
     root, project = _load(directory)
     document = _read(root, project)
     if document is None:
-        raise ValueError("initialize the checklist first")
+        raise ValueError("initialize the checklist first: run project-checklist-init")
     if apply and type(expected_revision) is not int:
         raise ValueError("expected_revision must be an integer when apply=true")
     if not apply and expected_revision is not None and type(expected_revision) is not int:
@@ -191,6 +192,18 @@ def project_priorities(
         "decisions": decisions,
         "checklist": coverage_status(directory),
     }
+    if not full:
+        # The default answer is bounded (#1398): counts, the changed decisions and the
+        # item ids; the full per-check decision list is one --full away.
+        changed = [d for d in decisions if d["before"] != d["after"]]
+        result["decision_counts"] = {
+            "total": len(decisions),
+            "changed": len(changed),
+            "unchanged": len(decisions) - len(changed),
+        }
+        result["changed_decisions"] = changed
+        result["item_ids"] = receipt["item_ids"]
+        del result["decisions"]
     if not apply:
         return result
     with _transaction(directory, expected_revision) as (_, locked_project, writable):

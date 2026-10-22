@@ -10,9 +10,9 @@
     "crawl_partial": false,
     "crawl_finish_reason": null,
     "health_score_scope": null,
-    "health_score_basis": "96 of 280 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_basis": "96 of 282 checks could run; the score is not comparable to a run with full evidence",
     "check_coverage": {
-      "checks_total": 280,
+      "checks_total": 282,
       "checks_fired": 20,
       "checks_skipped": 184,
       "checks_disabled": 0,

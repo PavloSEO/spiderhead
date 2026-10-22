@@ -18,7 +18,7 @@ from .common import (  # noqa: F401
     scan_request_key,
 )
 from .crawl_configuration import preview_configuration
-from .i18n import tr
+from .i18n import tr, trf
 from .scan_manager import LocalScanManager
 from .ui.presentation import (
     readable_record,
@@ -291,14 +291,21 @@ class ScanControlMixin:
         self.stop_run_button.setEnabled(active)
         short_id = short_run_id((detail or {}).get("id"))
         self.stop_run_button.setText(
-            "Остановить " + short_id if active else "Остановить выбранный запуск"
+            trf("Остановить {id}", id=short_id) if active else tr("Остановить выбранный запуск")
         )
         self.cancel_button.setText(
-            "" if self._narrow_chrome else "Остановить " + short_id if active else "Отменить чтение"
+            ""
+            if self._narrow_chrome
+            else trf("Остановить {id}", id=short_id)
+            if active
+            else tr("Отменить чтение")
         )
         self.cancel_button.setEnabled(active or bool(self.requests))
         self.cancel_button.setToolTip(
-            "Цель управления: " + str((detail or {}).get("id") or "только текущие чтения")
+            trf(
+                "Цель управления: {target}",
+                target=(detail or {}).get("id") or tr("только текущие чтения"),
+            )
         )
         self.owned_target_caption.setText(
             f"Запуск этого окна: {short_id} · {state_text(detail.get('state'))}"

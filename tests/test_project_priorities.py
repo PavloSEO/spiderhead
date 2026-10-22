@@ -33,7 +33,7 @@ def project(tmp_path):
 def test_preview_reads_b_v1_without_mutating_it(project):
     path = project / "coverage.json"
     before = path.read_bytes()
-    preview = project_priorities(str(project))
+    preview = project_priorities(str(project), full=True)
 
     decision = next(
         item for item in preview["decisions"] if item["id"] == "skill:workflow/js-render-check"
@@ -49,7 +49,7 @@ def test_packaged_baseline_applies_without_saved_facts(tmp_path):
     create_project(root, "https://example.test/")
     initialize_coverage(root)
 
-    preview = project_priorities(str(root))
+    preview = project_priorities(str(root), full=True)
     critical = next(
         item for item in preview["decisions"] if item["id"] == "check:CANONICAL_MISSING"
     )
@@ -64,7 +64,7 @@ def test_packaged_baseline_applies_without_saved_facts(tmp_path):
 
 def test_apply_publishes_v2_and_unchanged_reapply_preserves_bytes(project):
     revision = coverage_status(project)["revision"]
-    result = project_priorities(str(project), apply=True, expected_revision=revision)
+    result = project_priorities(str(project), full=True, apply=True, expected_revision=revision)
     assert result["applied"] is True
     saved = json.loads((project / "coverage.json").read_text())
     assert (saved["format"], saved["version"]) == ("seohead.coverage.v2", 2)
@@ -79,7 +79,9 @@ def test_apply_publishes_v2_and_unchanged_reapply_preserves_bytes(project):
         "matched javascript-framework",
     )
     before = (project / "coverage.json").read_bytes()
-    repeated = project_priorities(str(project), apply=True, expected_revision=status["revision"])
+    repeated = project_priorities(
+        str(project), full=True, apply=True, expected_revision=status["revision"]
+    )
     assert repeated["applied"] is False
     assert (project / "coverage.json").read_bytes() == before
 
@@ -89,7 +91,7 @@ def test_operator_priority_survives_policy_application(project):
     update_item(project, {"id": "skill:workflow/js-render-check", "priority": "P1"}, revision)
     revision = coverage_status(project)["revision"]
 
-    project_priorities(str(project), apply=True, expected_revision=revision)
+    project_priorities(str(project), full=True, apply=True, expected_revision=revision)
 
     row = next(
         item
@@ -192,7 +194,7 @@ def test_apply_refuses_stale_revision_and_malformed_policy_without_writing(proje
     path = project / "coverage.json"
     before = path.read_bytes()
     with pytest.raises(ValueError, match="revision conflict"):
-        project_priorities(str(project), apply=True, expected_revision=999)
+        project_priorities(str(project), full=True, apply=True, expected_revision=999)
     with pytest.raises(ValueError, match="unknown catalogue item"):
         project_priorities(
             str(project),
@@ -253,7 +255,9 @@ def test_packaged_policy_uses_saved_php_cms_and_publisher_facts(tmp_path, fact, 
     initialize_coverage(root)
 
     decision = next(
-        item for item in project_priorities(str(root))["decisions"] if item["id"] == item_id
+        item
+        for item in project_priorities(str(root), full=True)["decisions"]
+        if item["id"] == item_id
     )
 
     assert decision["after"] == {"priority": "P0", "priority_origin": "policy"}

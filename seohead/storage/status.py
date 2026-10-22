@@ -51,9 +51,21 @@ def scan_status(input_path: str, *, full_validation: bool = False) -> dict[str, 
             if isinstance(exc, sqlite3.Error)
             else "scan artifact cannot be read"
         )
+        not_a_database = "not a database" in str(exc) or "file is not a database" in str(exc)
+        if missing or not_a_database or not isinstance(exc, (sqlite3.Error, ScanError)):
+            # A missing file or a non-database is a one-line refusal (#1402); the full
+            # damaged-integrity payload is reserved for files that are real scan databases.
+            return {
+                "ok": False,
+                "error": "scan artifact is missing"
+                if missing
+                else ("not a scan database" if not_a_database else reason),
+                "state": "unavailable" if missing else "not_a_scan_database",
+                "path": str(path),
+            }
         return {
             "ok": False,
-            "error": "scan artifact is missing" if missing else reason,
+            "error": reason,
             "source": {"scan_uuid": scan_uuid} if scan_uuid else None,
             "frontier": {
                 "state": "unavailable",
@@ -65,7 +77,7 @@ def scan_status(input_path: str, *, full_validation: bool = False) -> dict[str, 
             "validation": "not_checked",
             "integrity": {
                 "state": integrity_state,
-                "checked_at": checked_at if not missing else None,
+                "checked_at": checked_at,
                 "damaged_pages": None,
                 "affected_scan_ids": (
                     [scan_uuid] if scan_uuid and integrity_state == "damaged" else []

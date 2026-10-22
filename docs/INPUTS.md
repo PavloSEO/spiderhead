@@ -212,6 +212,9 @@ and this decision makes no backend migration.
 | `scan-url-detail` | Scan artifact (`input_path`)<br>Selector (`url, body_offset, body_length, max_body_bytes`) | Exact retained native URL; bounded source HTML and redacted query values. |
 | `scan-body-read` | Scan artifact (`input_path`)<br>Selector (`url, representation, variant_key, offset, length, max_decoded_bytes`) | Exact retained URL; body output is bounded and read-only. |
 | `scan-findings-page` | Project directory (`project`)<br>Selector (`scan_uuid, offset, limit, query, url, sort, descending`) | — |
+| `scan-url-counts` | Scan artifact (`input_path`) | — |
+| `scan-config-diff` | Scan artifact (`before_path`)<br>Scan artifact (`after_path`) | — |
+| `extraction-presets` | No direct input | — |
 | `scan-url-query` | Scan artifact (`scan`) | — |
 | `scan-directory-tree` | Scan artifact (`input_path`) | Retained URL paths only; no network access. |
 | `headers-analyze` | Scan artifact (`input_path`) | Reads saved redacted response headers only. |

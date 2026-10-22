@@ -136,6 +136,54 @@ class ShellV2Tests(unittest.TestCase):
     def test_top_bar_has_no_unavailable_badge(self):
         self.assertFalse(hasattr(self.window, "agent_gap"))
 
+    def test_legacy_panel_items_stay_hidden_off_the_audit_page(self):
+        # «Сводка», «Инспектор URL», focus mode and «Восстановить панели» toggle widgets of the
+        # legacy audit page; on every current screen they looked like working checkboxes that do
+        # nothing (D01), so the View menu hides them unless that page is on screen.
+        for section in ("url", "issues", "scans", "work", "crawler"):
+            self.window.navigation.select_section(section)
+            for action in self.window._legacy_panel_actions:
+                self.assertFalse(action.isVisible(), f"{section}: {action.text()}")
+
+    def test_data_only_mode_hides_the_chrome_and_persists(self):
+        top = self.window.findChild(QWidget, "topbar")
+        self.window.set_interface_focus(True)
+        self.app.processEvents()
+        self.assertTrue(self.window.navigation.isHidden())
+        self.assertTrue(top.isHidden())
+        self.assertTrue(self.window.prefs.get("view.focus_mode"))
+        self.assertTrue(self.window.interface_focus_action.isChecked())
+        self.window.set_interface_focus(False)
+        self.app.processEvents()
+        self.assertFalse(self.window.navigation.isHidden())
+        self.assertFalse(top.isHidden())
+        self.assertFalse(self.window.prefs.get("view.focus_mode"))
+
+    def test_view_menu_binds_the_current_screen_own_panels(self):
+        self.window.navigation.select_section("url")
+        self.window._sync_legacy_panel_items()
+        titles = [a.text() for a in self.window._screen_panel_actions if not a.isSeparator()]
+        self.assertEqual(titles, [ui("Сводка запуска"), ui("Детали URL"), ui("Только таблица")])
+        screen = self.window.screens["url"]
+        summary = self.window._screen_panel_actions[1]
+        summary.trigger()
+        self.assertTrue(screen.summary_hidden)  # the menu really drives the screen's panel
+        self.assertFalse(summary.isChecked())
+        summary.trigger()
+        self.assertFalse(screen.summary_hidden)
+        self.window.navigation.select_section("scans")  # the scans screen offers its run aside
+        self.window._sync_legacy_panel_items()
+        titles = [a.text() for a in self.window._screen_panel_actions if not a.isSeparator()]
+        self.assertEqual(titles, [ui("Панель запуска")])
+        run_panel = self.window._screen_panel_actions[1]
+        run_panel.trigger()
+        self.assertTrue(self.window.screens["scans"].aside_hidden)
+        run_panel.trigger()
+        self.assertFalse(self.window.screens["scans"].aside_hidden)
+        self.window.navigation.select_section("issues")  # a screen without panels adds nothing
+        self.window._sync_legacy_panel_items()
+        self.assertFalse([a for a in self.window._screen_panel_actions if not a.isSeparator()])
+
     def test_rail_and_wide_navigation_widths_come_from_tokens(self):
         layout = theming.metrics()["layout"]
         self.window.set_navigation_compact(True)

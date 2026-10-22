@@ -50,7 +50,7 @@ from seohead.crawl.spider import LinkEdge
 # per record.
 # 67 -> 68 for render-blocking JSON (#1022), paired over 8,000 distinct URLs on
 # Python 3.14: null adds no allocation, two distinct resource URLs add about 131 bytes.
-FIELD_COUNTS_THE_CEILING_WAS_COMPUTED_AGAINST = {LinkEdge: 8, PageRecord: 68}
+FIELD_COUNTS_THE_CEILING_WAS_COMPUTED_AGAINST = {LinkEdge: 9, PageRecord: 74}
 
 
 def test_both_crawlers_read_the_same_ceiling() -> None:

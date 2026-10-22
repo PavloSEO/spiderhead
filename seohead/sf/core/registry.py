@@ -53,6 +53,19 @@ CHECKS: dict[str, dict[str, Any]] = {
         "message": "Live page is blocked by robots.txt despite receiving internal links",
         "fix": "robots.txt blocks crawling, not indexing, so link discovery is lost. Make the URL crawlable with a more specific Allow rule than the matching Disallow, and control indexing with canonical or noindex. A common case is pagination such as /blog?page=N blocked by Disallow: /*?.",
     },
+    # The source-page half of the same problem (#1486): under a robots policy that
+    # respects Disallow, a blocked target is never fetched and never becomes a page
+    # row, so IMPORTANT_URL_BLOCKED_BY_ROBOTS above cannot see it. The link edge is
+    # the only evidence connecting the two.
+    "ROBOTS_BLOCKED_OUTLINK": {
+        "severity": "notice",
+        "source": "crawl:robots_policy",
+        "message": "The page links to URLs the crawl's robots policy kept out of the crawl",
+        "fix": "Review the Disallow rules that hid the quoted targets: a rule broad enough "
+        "to block an internal link target removes that section from every robots-respecting "
+        "crawler. Confirm each blocked target is intentionally excluded, or narrow the rule "
+        "so the pages can be crawled and indexed on their own merits.",
+    },
     "ROBOTS_BLOCKS_RESOURCES": {
         "severity": "notice",
         "source": "sitemap",
@@ -284,9 +297,24 @@ CHECKS: dict[str, dict[str, Any]] = {
     "HEADING_SKIP": {
         "severity": "notice",
         "source": "crawl:heading_outline",
-        "message": "Content headings skip one or more levels in DOM order",
-        "fix": "Use the next heading level after the preceding content heading; for example, "
-        "change an H4 that follows an H2 to H3 unless it begins a new top-level section.",
+        "message": "Content headings change by more than one level in DOM order, skipping a "
+        "level down or jumping back up past an open section",
+        "fix": "Use the adjacent heading level in both directions: an H4 that follows an H2 "
+        "becomes H3, and a heading returning up the outline steps back one level at a time "
+        "so each open section closes in order (H3 -> H2 closes one section and starts a "
+        "sibling, which is correct nesting).",
+    },
+    # 7.E — links the crawler could not follow at all
+    "INVALID_LINK_TARGET": {
+        "severity": "notice",
+        "source": "crawl:invalid_link_targets",
+        "message": "The page points at hrefs that cannot become fetchable link targets "
+        "(unparsable syntax or a non-http(s) scheme)",
+        "fix": "Review each quoted href as written: a truncated or malformed URL passes no "
+        "crawl equity and often signals a broken template; a non-http(s) scheme is only a "
+        "finding when the link was meant to be a page. Recording is opt-in "
+        "(discovery.record_invalid_targets); rejected targets never enter the "
+        "crawl.",
     },
     # 7.E — canonical & directives
     "CANONICAL_MISSING": {

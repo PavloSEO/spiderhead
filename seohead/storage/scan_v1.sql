@@ -147,6 +147,22 @@ CREATE TABLE pages (
   -- heading. Nullable, because a scan written before headings were recorded
   -- in order has no outline to state, which is not an empty outline.
   heading_outline_json TEXT,
+  -- 1 when the URL entered the crawl over http:// and was fetched over https://
+  -- without a redirect hop, under http.upgrade_to_https (issue #1484).
+  transport_upgraded INTEGER NOT NULL CHECK (transport_upgraded IN (0,1)),
+  -- Reading level over the retained content area (issue #1516): Flesch Reading
+  -- Ease, its inputs and the derived band (checks.readability, version
+  -- flesch-reading-ease.v1). NULL when the area was not retained or holds no
+  -- word with a letter -- unmeasured, never zero.
+  sentence_count INTEGER,
+  avg_words_per_sentence REAL,
+  flesch REAL,
+  readability TEXT,
+  -- Hrefs that could not become fetchable link targets, each {raw_href, reason}
+  -- (issue #1530). Nullable: recording is opt-in
+  -- (discovery.record_invalid_targets), and a crawl run without it
+  -- measured nothing here -- not the same as a page with no broken href.
+  invalid_link_targets_json TEXT,
   -- The anchors this page wraps in an h1-h6, and the image links on it that
   -- name nothing. Nullable, because a scan written before link placement was
   -- recorded measured neither, which is not the same as finding none.
@@ -187,6 +203,9 @@ CREATE TABLE links (
   evidence_representation TEXT NOT NULL CHECK (evidence_representation IN ('static','rendered','legacy_fragment','legacy_unknown')),
   ordinal INTEGER NOT NULL,
   anchor TEXT NOT NULL,
+  -- 'alt' when the anchor came from a wrapped image's alt, '' when from text
+  -- (or when the anchor says nothing) (issue #1518).
+  anchor_source TEXT NOT NULL,
   nofollow INTEGER NOT NULL CHECK (nofollow IN (0,1)),
   position TEXT NOT NULL,
   rel_json TEXT NOT NULL,

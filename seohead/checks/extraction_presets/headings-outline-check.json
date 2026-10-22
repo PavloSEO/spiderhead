@@ -1,0 +1,30 @@
+{
+ "name": "headings-outline-check",
+ "description": "Quick hierarchy sanity: first h1, all h2s, and whether more than one h1 exists.",
+ "rules": [
+  {
+   "id": "first-h1",
+   "kind": "text",
+   "selector": "h1",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 1
+  },
+  {
+   "id": "all-h2",
+   "kind": "text",
+   "selector": "h2",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "h1-count",
+   "kind": "count",
+   "selector": "h1",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}

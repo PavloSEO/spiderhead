@@ -104,6 +104,11 @@ class LinkEdge:
     rel: tuple[str, ...] = ()
     target: str = ""
     raw_href: str = ""
+    # "alt" when the anchor text came from the alt of a wrapped image rather
+    # than visible text (#1518); "" otherwise (text-derived, or an anchor that
+    # says nothing). One short string constant per edge, never a second
+    # URL-shaped value, so it costs nothing next to the fields above.
+    anchor_source: str = ""
 
 
 @dataclass
@@ -180,6 +185,42 @@ def _canonical_key(url: str) -> str:
     """Identity for de-duplication: fragment dropped, nothing else rewritten."""
     parts = urlsplit(url)
     return urlunsplit((parts.scheme, parts.netloc, parts.path or "/", parts.query, ""))
+
+
+def upgrade_transport(url: str) -> str:
+    """https for an http URL (#1484), unchanged for anything else.
+
+    The caller opted in with http.upgrade_to_https, declaring the host enforces
+    transport security: the upgrade happens before any request, so no redirect
+    hop is spent or recorded, and the http/https spellings collapse into one
+    page identity.
+    """
+    return "https://" + url[len("http://") :] if url.startswith("http://") else url
+
+
+def _compose_target_normalization(
+    *,
+    upgrade: Callable[[str], str] | None,
+    upgraded_urls: set[str],
+    tracking: Callable[[str], str] | None,
+) -> Callable[[str], str] | None:
+    """One normalize_target for apply_document_links (#1484).
+
+    Upgrade first (the scheme decides identity), tracking parameters second;
+    every rewritten http target is remembered so its page can be marked.
+    """
+    if upgrade is None and tracking is None:
+        return None
+
+    def normalize(url: str) -> str:
+        if upgrade is not None:
+            upgraded = upgrade(url)
+            if upgraded != url:
+                upgraded_urls.add(upgraded)
+            url = upgraded
+        return tracking(url) if tracking is not None else url
+
+    return normalize
 
 
 def normalize_get_parameters(url: str) -> str:
@@ -452,6 +493,9 @@ def apply_document_links(
                 anchor=(link.get("text") or "")[:200],
                 nofollow=nofollow,
                 position=link.get("position") or "",
+                # Ungated unlike rel/target/raw_href: one constant string, not a
+                # second URL per edge (#1518).
+                anchor_source=link.get("anchor_source") or "",
             )
             if capture_link_attributes:
                 edge.rel = tuple((link.get("rel") or "").split())
@@ -516,12 +560,19 @@ class Scope:
     exclude_hosts: frozenset[str] = frozenset()
     segments: tuple[SegmentRule, ...] = ()
     segments_only: frozenset[str] = frozenset()
+    # "Stay below the start URL's folder" (#1481): when on, only paths at or
+    # below the folder the start URL sits in may be fetched. The folder itself
+    # is bound per crawl by ``anchored_to`` -- the config carries the intent,
+    # the start URL supplies the boundary.
+    start_folder_only: bool = False
+    start_folder: str = ""
 
     @classmethod
     def from_config(cls, scope: dict[str, Any] | None) -> Scope:
         scope = scope or {}
         return cls(
             internal=scope.get("internal", "host"),
+            start_folder_only=bool(scope.get("start_folder_only", False)),
             include_patterns=tuple(re.compile(p) for p in scope.get("include_patterns") or ()),
             exclude_patterns=tuple(re.compile(p) for p in scope.get("exclude_patterns") or ()),
             include_extensions=frozenset(
@@ -575,6 +626,26 @@ class Scope:
             return registrable_domain(host) == registrable_domain(start_host)
         return host == start_host
 
+    def anchored_to(self, start_url: str) -> Scope:
+        """Bind the start-folder rule to this crawl's start URL (#1481).
+
+        The folder is the directory the start URL sits in -- the parent path
+        segment, not the URL itself: a crawl started at ``/blog/post`` stays
+        within ``/blog/``, one started at ``/blog/`` stays within ``/blog/``
+        too. A start URL at the host root has no folder to stay below, so the
+        toggle is refused there rather than silently scoping to everything.
+        """
+        path = urlsplit(start_url).path or "/"
+        folder = path[: path.rfind("/") + 1] or "/"
+        if folder == "/":
+            raise ValueError(
+                "scope.start_folder_only requires a start URL with a non-root path: "
+                "the host root has no folder to stay below"
+            )
+        from dataclasses import replace
+
+        return replace(self, start_folder=folder)
+
     def rejection(self, url: str, start_host: str) -> str:
         """The rule that rejects this URL, or "" when it may be fetched."""
         if not self.is_internal(url, start_host):
@@ -586,6 +657,11 @@ class Scope:
             return "excluded_by_pattern"
         if self.include_patterns and not any(p.search(url) for p in self.include_patterns):
             return "not_included_by_pattern"
+        if self.start_folder_only and self.start_folder:
+            path = urlsplit(url).path or "/"
+            folder = self.start_folder.rstrip("/")
+            if not (path == folder or path.startswith(self.start_folder)):
+                return "outside_start_folder"
         if self.segments_only and self.segment_for(url) not in self.segments_only:
             return "outside_segment"
         suffix = PurePosixPath(urlsplit(url).path).suffix
@@ -781,6 +857,7 @@ def crawl_site(
     store_external_links: bool = True,
     crawl_redirects: bool = True,
     capture_link_attributes: bool = False,
+    record_invalid_targets: bool = False,
     crawl_external_links: bool = False,
     external_policy: dict[str, Any] | None = None,
     external_path: str | None = None,
@@ -789,6 +866,7 @@ def crawl_site(
     spool_evidence: bool = False,
     proxy_route: Any = None,
     normalize_tracking_parameters: bool = True,
+    upgrade_to_https: bool = False,
 ) -> SpiderResult:
     """Crawl one host breadth-first from ``start_url``, within ``scope``.
 
@@ -885,12 +963,22 @@ def crawl_site(
     start = normalize_url(start_url)
     if normalize_tracking_parameters:
         start = normalize_get_parameters(start)
+    # URLs this crawl fetched over https because they entered as http (#1484);
+    # membership is what marks the page record.
+    upgraded_urls: set[str] = set()
+    if upgrade_to_https:
+        upgraded = upgrade_transport(start)
+        if upgraded != start:
+            upgraded_urls.add(upgraded)
+        start = upgraded
     host = (urlsplit(start).hostname or "").lower() if start else ""
     # normalize_url is lenient — it turns "not a url" into "https://not a url" —
     # so the host is checked here rather than trusted.
     if not start or not host or " " in host or "." not in host:
         raise ValueError(f"not a crawlable URL: {start_url!r}")
     rules = scope if isinstance(scope, Scope) else Scope.from_config(scope)
+    if rules.start_folder_only:
+        rules = rules.anchored_to(start)
     if max_urls == 0:
         raise ValueError("an unlimited URL population requires a native SQLite site scan")
     limit = checked_url_budget(max_urls, materialized=not spool_evidence)
@@ -900,15 +988,19 @@ def crawl_site(
     max_concurrency = max(1, int(concurrency))
     if state_path:
         crawl_state.ensure_safe_dir(os.path.dirname(os.path.abspath(state_path)) or ".")
-    parse_options = (
-        {
+    # None keeps every parser default; each opt-in flag below builds the dict so
+    # only what was asked for is measured (#1530 rides the same shape as
+    # classify_links).
+    parse_options = None
+    if record_invalid_targets:
+        parse_options = {"invalid_link_targets": True}
+    if classify_links:
+        parse_options = {
+            **(parse_options or {}),
             "classify_links": True,
             "link_position_rules": link_position_rules,
             "content_area": content_area_config,
         }
-        if classify_links
-        else None
-    )
 
     result = SpiderResult(spooled_evidence=spool_evidence)
     if dispatch_gate is None:
@@ -1129,6 +1221,11 @@ def crawl_site(
             seed = (seed or "").strip()
             if not seed:
                 continue
+            if upgrade_to_https:
+                upgraded_seed = upgrade_transport(seed)
+                if upgraded_seed != seed:
+                    upgraded_urls.add(upgraded_seed)
+                seed = upgraded_seed
             if normalize_tracking_parameters:
                 seed = normalize_get_parameters(seed)
             # Checked against ``seen`` before the rejection rules run, and
@@ -1236,7 +1333,13 @@ def crawl_site(
                 reject=exclude,
                 mark_link_partial=lambda omitted: exclude("link_observations_limit"),
                 normalize_target=(
-                    normalize_get_parameters if normalize_tracking_parameters else None
+                    _compose_target_normalization(
+                        upgrade=upgrade_transport if upgrade_to_https else None,
+                        upgraded_urls=upgraded_urls,
+                        tracking=(
+                            normalize_get_parameters if normalize_tracking_parameters else None
+                        ),
+                    )
                 ),
             )
 
@@ -1373,6 +1476,7 @@ def crawl_site(
                         cache=cache,
                         wait=dispatch_gate.wait_turn,
                         response_filter=rules.response_media_rejection,
+                        transport_upgraded=url in upgraded_urls,
                     )
                 except KeyboardInterrupt:
                     # Not processed: put it back so a resume retries it rather
@@ -1410,6 +1514,7 @@ def crawl_site(
                     parse_options=parse_options,
                     cache=cache,
                     wait=gate.wait_turn,
+                    transport_upgraded=url in upgraded_urls,
                     response_filter=rules.response_media_rejection,
                 )
                 return url, depth, record, parsed

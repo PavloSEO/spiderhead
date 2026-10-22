@@ -133,6 +133,8 @@ COMMANDS = (
     "scan-body-read",
     "scan-findings-page",
     "scan-url-query",
+    "scan-url-counts",
+    "scan-config-diff",
     "scan-directory-tree",
     "scan-url-history",
     "scan-link-inspect",
@@ -257,6 +259,7 @@ COMMANDS = (
     "scan-evidence",
     "scan-extract",
     "custom-extract-sample",
+    "extraction-presets",
     "marketing-inventory",
     "scan-fragment-links",
     "scan-structured-blocks",
@@ -323,6 +326,7 @@ _SCAN_PATH_COMMANDS = frozenset(
         "scan-url-detail",
         "scan-body-read",
         "scan-url-query",
+        "scan-url-counts",
         "scan-directory-tree",
         "scan-link-inspect",
         "headers-analyze",
@@ -442,12 +446,23 @@ def _has_source_flag(args: argparse.Namespace) -> bool:
 
 
 def _load_input(raw: str | None, allow_stdin: bool = True) -> dict[str, Any]:
+    def parse(text: str) -> dict[str, Any]:
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"--input must be a JSON object (invalid JSON at position {exc.colno})"
+            ) from exc
+        if not isinstance(data, dict):
+            raise ValueError("--input must be a JSON object")
+        return data
+
     if raw:
-        return json.loads(raw)
+        return parse(raw)
     if allow_stdin and _stdin_has_data():
         data = sys.stdin.read().strip()
         if data:
-            return json.loads(data)
+            return parse(data)
     return {}
 
 
@@ -546,6 +561,12 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         "scan-requeue",
         "scan-import-urls",
     }:
+        if getattr(args, "preset", None):
+            if getattr(args, "input", None) and '"rules"' in str(args.input):
+                raise ValueError("use --preset or explicit rules, not both")
+            from seohead.checks.extraction_library import preset as extraction_preset
+
+            kw["rules"] = extraction_preset(args.preset)
         for name in (
             "input_path",
             "section",
@@ -583,6 +604,15 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         for name in ("package", "offset", "limit", "status", "status_code"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "scan-url-counts":
+        for name in ("input_path", "filter_sets", "count_timeout_seconds"):
+            if getattr(args, name, None) is not None:
+                kw[name] = getattr(args, name)
+    elif cmd == "scan-config-diff":
+        for name in ("before_path", "after_path"):
+            value = getattr(args, name, None)
+            if value:
+                kw[name] = value
     elif cmd == "scan-url-query":
         for name in (
             "input_path",
@@ -654,6 +684,22 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "scan-findings-page":
+        if getattr(args, "scan_file", None):
+            if kw.get("project") or getattr(args, "scan_uuid", None):
+                raise ValueError("use --scan or --project + --scan-uuid, not both")
+            import sqlite3
+            from pathlib import Path as _P
+
+            scan_file = _P(args.scan_file)
+            con = sqlite3.connect(f"file:{scan_file}?mode=ro", uri=True)
+            try:
+                row = con.execute("SELECT scan_uuid FROM scan WHERE singleton=1").fetchone()
+            finally:
+                con.close()
+            if not row or not isinstance(row[0], str):
+                raise ValueError(f"not a retained scan file: {scan_file}")
+            kw["project"] = str(scan_file.parent.parent)
+            kw["scan_uuid"] = row[0]
         for name in (
             "project",
             "scan_uuid",
@@ -919,6 +965,10 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         if cmd == "project-progress":
             kw["limit"] = args.limit
             kw["offset"] = args.offset
+        if cmd == "project-priorities" and getattr(args, "full", False):
+            kw["full"] = True
+        if cmd == "project-checklist-init" and getattr(args, "full", False):
+            kw["full"] = True
         if cmd == "project-settings-proposals":
             kw["limit"] = args.limit
             kw["offset"] = args.offset
@@ -1154,6 +1204,8 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             value = getattr(args, name, None)
             if value is not None:
                 kw[name] = value
+        if cmd == "project-scans" and getattr(args, "full", False):
+            kw["full"] = True
         if getattr(args, "where", None) is not None:
             kw["where"] = json.loads(args.where)
         if getattr(args, "columns", None) is not None:
@@ -2277,6 +2329,19 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
         sub.add_argument("--variant-key", help="exact retained HTTP variant key when required")
     if cmd == "scan-extract":
+        from seohead.checks.extraction_library import available
+
+        sub.add_argument(
+            "--preset",
+            choices=sorted(item["name"] for item in available()),
+            help="a shipped extraction rule set instead of hand-written rules",
+        )
+        sub.add_argument(
+            "--list-presets",
+            dest="list_presets",
+            action="store_true",
+            help="print every shipped preset with its description and exit",
+        )
         _source_flag(sub, "--url", help="optional exact logical URL")
         sub.add_argument("--representation", choices=("static", "rendered", "legacy_fragment"))
         sub.add_argument("--limit", type=int)
@@ -2961,6 +3026,28 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--max-bytes", dest="max_bytes", type=int)
         sub.add_argument("--columns", type=lambda v: v.split(","), help="comma-separated columns")
         sub.add_argument("--total", action="store_true", help="include the table row count")
+    if cmd == "scan-url-counts":
+        sub.add_argument(
+            "--filter-sets",
+            dest="filter_sets",
+            type=_json_list,
+            required=True,
+            help="JSON list of filter lists; one exact count per set in one call",
+        )
+        sub.add_argument("--count-timeout-seconds", dest="count_timeout_seconds", type=float)
+    if cmd == "scan-config-diff":
+        sub.add_argument(
+            "--before",
+            dest="before_path",
+            required=True,
+            help="path to the earlier saved scan whose settings are the diff base",
+        )
+        sub.add_argument(
+            "--after",
+            dest="after_path",
+            required=True,
+            help="path to the later saved scan whose settings are compared against the base",
+        )
     if cmd == "scan-url-query":
         sub.add_argument("--filters", type=_json_list, help="JSON list of {column, op, value}")
         sub.add_argument("--sort")
@@ -3028,6 +3115,12 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--max-decoded-bytes", dest="max_decoded_bytes", type=int)
     if cmd == "scan-findings-page":
         _source_flag(sub, "--project", help="project directory whose retained scan is read")
+        _source_flag(
+            sub,
+            "--scan",
+            dest="scan_file",
+            help="retained scan file; its project and uuid resolve automatically",
+        )
         sub.add_argument("--scan-uuid")
         sub.add_argument("--offset", type=int)
         sub.add_argument("--limit", type=int)
@@ -3282,6 +3375,24 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "project-progress":
         sub.add_argument("--limit", type=int, default=20, help="items per page (1..100)")
         sub.add_argument("--offset", type=int, default=0, help="zero-based item offset")
+    if cmd == "project-scans":
+        sub.add_argument(
+            "--full",
+            action="store_true",
+            help="include inode/storage detail and the full evidence projection per scan",
+        )
+    if cmd == "project-priorities":
+        sub.add_argument(
+            "--full",
+            action="store_true",
+            help="include the complete per-check decision list (default: counts and changed decisions)",
+        )
+    if cmd == "project-checklist-init":
+        sub.add_argument(
+            "--full",
+            action="store_true",
+            help="include the complete item list (default: status and counts)",
+        )
     if cmd == "remediation-create":
         sub.add_argument(
             "--path", required=True, help="new ledger.v1 SQLite path; never overwrites"
@@ -3479,7 +3590,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             help="complete project dataset",
         )
         sub.add_argument("--format", dest="fmt", choices=("json", "csv", "xlsx"), required=True)
-        _source_flag(sub, "--output", required=True, help="new filename under project reports/")
+        _source_flag(
+            sub, "--output", required=True, help="new filename, or a path inside <project>/reports/"
+        )
         _source_flag(sub, "--compare-manifest", help="compare.v2 manifest for dataset=compare")
         sub.add_argument("--job-id", help="optional caller-generated UUID for later cancellation")
     if cmd in {"project-export-status", "project-export-cancel"}:
@@ -3602,9 +3715,13 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
     if cmd == "project-task-detail":
-        sub.add_argument("--item-id", help="exact checklist item identifier")
+        sub.add_argument("--task-id", dest="item_id", help="exact task identifier")
+        sub.add_argument(
+            "--item-id", dest="item_id", help="same identifier (checklist item spelling)"
+        )
     if cmd == "project-task-comment":
-        sub.add_argument("--item-id", help="exact custom task identifier")
+        sub.add_argument("--task-id", dest="item_id", help="exact task identifier")
+        sub.add_argument("--item-id", dest="item_id", help="same identifier (custom task spelling)")
         sub.add_argument("--expected-revision", type=int)
         sub.add_argument("--actor", help="person or agent adding the comment")
         _source_flag(sub, "--text", help="comment text")
@@ -3908,8 +4025,43 @@ artifact paths are project-relative and must lie under scans/ or reports/.
 """
 
 
+def _command_help(cmd: str) -> str:
+    """One concise description per command from its handler's docstring (#1392).
+
+    Falls back to the humanized command name only when a handler has no docstring;
+    the fallback never matches the forbidden `run ... tool` pattern.
+    """
+    handler = handlers.HANDLERS.get(cmd.replace("-", "_"))
+    doc = (handler.__doc__ or "") if handler is not None else ""
+    if doc:
+        summary = doc.strip().partition(chr(10) * 2)[0]
+        if summary and not summary.lower().startswith("run "):
+            return summary[:88]
+    return cmd.replace("-", " ").capitalize() + "."
+
+
+class _SuggestingParser(argparse.ArgumentParser):
+    """Invalid command: one line, up to three close matches, a pointer to --help (#1393)."""
+
+    def error(self, message: str):
+        if message.startswith("argument <command>: invalid choice:"):
+            import difflib
+
+            quoted = message.split("invalid choice:", 1)[1].strip()
+            wanted = quoted.split(" ", 1)[0].strip("'\"")
+            choices = (
+                [action for group in self._subparsers._group_actions for action in group.choices]
+                if getattr(self, "_subparsers", None)
+                else []
+            )
+            near = difflib.get_close_matches(wanted, choices, n=3, cutoff=0.5)
+            hint = f" (did you mean: {', '.join(near)}?)" if near else ""
+            self.exit(2, f"seohead: unknown command {wanted!r}{hint}\nsee `seohead --help`\n")
+        super().error(message)
+
+
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="seohead", description="Headless Python SEO toolkit.")
+    p = _SuggestingParser(prog="seohead", description="Headless Python SEO toolkit.")
     p.add_argument("--version", action="version", version=f"seohead {__version__}")
     subs = p.add_subparsers(dest="command", metavar="<command>")
     version = subs.add_parser("version", help="core version, formats and commands")
@@ -3947,7 +4099,7 @@ def build_parser() -> argparse.ArgumentParser:
             epilog = WORKFLOW_START_HELP_NOTE
         sp = subs.add_parser(
             cmd,
-            help=f"run the {cmd} tool",
+            help=_command_help(cmd),
             epilog=epilog,
             formatter_class=argparse.RawDescriptionHelpFormatter
             if cmd == "workflow-start"
@@ -3981,12 +4133,12 @@ def build_parser() -> argparse.ArgumentParser:
         "import-urls",
     ):
         cmd = "scan-" + action
-        sp = scan_subs.add_parser(action, help=f"run {cmd}")
+        sp = scan_subs.add_parser(action, help=_command_help(cmd))
         _add_flags(sp, cmd)
     logs = subs.add_parser("logs", help="local retained access-log evidence")
     logs_subs = logs.add_subparsers(dest="logs_command", metavar="<action>", required=True)
     for action in ("import", "summary", "join", "bots"):
-        sp = logs_subs.add_parser(action, help=f"run logs-{action}")
+        sp = logs_subs.add_parser(action, help=_command_help("logs-" + action))
         _add_flags(sp, "logs-" + action)
     project = subs.add_parser("project", help="local project workspace")
     project_subs = project.add_subparsers(dest="project_command", metavar="<action>", required=True)
@@ -4042,7 +4194,7 @@ def build_parser() -> argparse.ArgumentParser:
         cmd = "project-" + action
         sp = project_subs.add_parser(
             action,
-            help=f"run {cmd}",
+            help=_command_help(cmd),
             epilog=CHECKLIST_RECORD_HELP_NOTE if cmd == "project-checklist-record" else None,
             formatter_class=argparse.RawDescriptionHelpFormatter,
         )
@@ -4157,6 +4309,12 @@ def main(argv: list[str] | None = None) -> int:
         return semantics_main(raw[1:])
     argv, warnings = _rewrite_deprecated_scan_flags(argv)
     args = build_parser().parse_args(argv)
+    if getattr(args, "list_presets", False):
+        from seohead.checks.extraction_library import available
+
+        for item in available():
+            print(f"{item['name']}: {item['description']} ({item['rules']} rules)")
+        return 0
     for warning in warnings:
         print(f"warning: {warning}", file=sys.stderr)
     cmd = args.command
@@ -4437,6 +4595,26 @@ def main(argv: list[str] | None = None) -> int:
             kwargs["progress"] = comparison_progress
         try:
             result = handlers.HANDLERS[handler_name](**kwargs)
+        except TypeError as exc:
+            message = str(exc)
+            import inspect as _inspect
+            import re as _re
+
+            target = handlers.HANDLERS[handler_name]
+            accepted = list(_inspect.signature(target).parameters)
+            missing = _re.findall(r"missing 1 required positional argument: '([^']+)'", message)
+            if missing:
+                raise ValueError(
+                    f"{cmd} is missing a required option: --{missing[0].replace('_', '-')}"
+                    f" (accepted: {', '.join('--' + a.replace('_', '-') for a in accepted)})"
+                ) from exc
+            unexpected = _re.findall(r"got an unexpected keyword argument '([^']+)'", message)
+            if unexpected:
+                raise ValueError(
+                    f"{cmd} does not accept {unexpected[0]!r}"
+                    f" (accepted: {', '.join('--' + a.replace('_', '-') for a in accepted)})"
+                ) from exc
+            raise
         finally:
             # Closed whatever happened: an interrupted or failed crawl must not
             # leave the operator's shell prompt printed over half a progress

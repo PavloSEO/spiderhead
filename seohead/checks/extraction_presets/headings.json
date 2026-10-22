@@ -1,0 +1,62 @@
+{
+ "name": "headings",
+ "description": "Every heading with its level: h1-h6 texts plus the total heading count.",
+ "rules": [
+  {
+   "id": "h1",
+   "kind": "text",
+   "selector": "h1",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "h2",
+   "kind": "text",
+   "selector": "h2",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "h3",
+   "kind": "text",
+   "selector": "h3",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "h4",
+   "kind": "text",
+   "selector": "h4",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "h5",
+   "kind": "text",
+   "selector": "h5",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "h6",
+   "kind": "text",
+   "selector": "h6",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "heading-count",
+   "kind": "count",
+   "selector": "h1,h2,h3,h4,h5,h6",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}

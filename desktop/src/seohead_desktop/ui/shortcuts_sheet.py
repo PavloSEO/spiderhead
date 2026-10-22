@@ -109,7 +109,7 @@ class ShortcutsSheet(QDialog):
         outer.addWidget(self._header())
         self.grid_host = QWidget()
         self.grid = QGridLayout(self.grid_host)
-        self.grid.setContentsMargins(24, 18, 24, 18)
+        self.grid.setContentsMargins(24, 16, 24, 16)
         self.grid.setHorizontalSpacing(28)
         self.grid.setVerticalSpacing(20)
         self.grid.setAlignment(Qt.AlignTop)

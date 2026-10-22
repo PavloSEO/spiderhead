@@ -1,0 +1,38 @@
+{
+ "name": "media",
+ "description": "Embedded media: images, iframes, videos and source elements with their URLs.",
+ "rules": [
+  {
+   "id": "img-src",
+   "kind": "attribute",
+   "selector": "img@src",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "iframe-src",
+   "kind": "attribute",
+   "selector": "iframe@src",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 50
+  },
+  {
+   "id": "video-src",
+   "kind": "attribute",
+   "selector": "video@src",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 50
+  },
+  {
+   "id": "source-src",
+   "kind": "attribute",
+   "selector": "source@src",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}

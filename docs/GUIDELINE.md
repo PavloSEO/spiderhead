@@ -19,7 +19,7 @@ If you know what you want, the other three layers are faster:
 
 **It is a crawler and an analysis layer.** It fetches a site the way a search engine's crawler
 would — one host, at a rate you choose, honouring robots.txt by default — records what came
-back, and applies 280 checks to that evidence. Then a set of specialised tools answer questions
+back, and applies 282 checks to that evidence. Then a set of specialised tools answer questions
 the crawl raised: does JavaScript change what a crawler sees, is the structured data a connected
 graph, how heavy are the images really.
 
@@ -160,7 +160,7 @@ Four words mean four different things and are constantly confused:
 - **silent** — the check *was invoked* and found nothing. This is the good one. `checks_silent_ids`
   names the population; a check no code path ever calls is a defect, not a silent one.
 
-A health score computed from 16 of 280 checks is not a health score. The audit says so in
+A health score computed from 16 of 282 checks is not a health score. The audit says so in
 `health_score_basis`, and where coverage is too low the score is withheld rather than averaged
 out of whatever happened to be available. **Report that sentence next to the score, always.**
 

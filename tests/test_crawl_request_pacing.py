@@ -212,3 +212,33 @@ def test_one_gate_covers_seed_discovery_spider_and_post_audit_sitemap_rechecks(
         (12.0, "audit robots"),
         (15.0, "audit sitemap"),
     ]
+
+
+def test_relative_and_unusable_sitemap_lines_resolve_or_skip(monkeypatch):
+    """robots.txt ``Sitemap: /sitemap.xml`` resolves against the site root; a line that
+    still has no scheme is skipped with a record instead of aborting the crawl (#1552)."""
+    fetched: list[str] = []
+
+    def seed_robots(_url, **_kwargs):
+        return {
+            "ok": True,
+            "groups": [],
+            "sitemaps": ["/sitemap.xml", "https://example.test/other.xml", "ftp:/nope", "junk"],
+        }
+
+    def seed_sitemap(url, **_kwargs):
+        fetched.append(url)
+        return {"urls": [{"loc": f"https://example.test/from-{url.rsplit('/', 1)[1]}"}]}
+
+    monkeypatch.setattr("seohead.checks.robots.check_robots", seed_robots)
+    monkeypatch.setattr("seohead.checks.sitemap.crawl", seed_sitemap)
+    from seohead.mcp import handlers
+
+    seeded = handlers._seed_urls_from_sitemap("https://example.test/deep/page", None, True)
+    assert seeded["sitemap_urls"] == [
+        "https://example.test/sitemap.xml",
+        "https://example.test/other.xml",
+        "https://example.test/junk",  # bare relative words resolve against the root too
+    ]
+    assert seeded["skipped_sitemaps"] == ["ftp:/nope"]
+    assert seeded["declared"][-1] == "https://example.test/from-junk"

@@ -90,8 +90,8 @@ def _license_row(name, license_name):
 def _header(version):
     box = QWidget()
     layout = QVBoxLayout(box)
-    layout.setContentsMargins(0, 10, 0, 6)
-    layout.setSpacing(6)
+    layout.setContentsMargins(0, 8, 0, 4)
+    layout.setSpacing(4)
     logo = QLabel()
     logo.setPixmap(
         brand.render(brand.lockup_path(), 240)

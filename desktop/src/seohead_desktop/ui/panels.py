@@ -477,7 +477,7 @@ class AuditWorkspace(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         controls = QHBoxLayout()
-        controls.setContentsMargins(12, 6, 12, 6)
+        controls.setContentsMargins(12, 4, 12, 4)
         heading = QLabel("Аудит сохранённых данных")
         heading.setObjectName("sectionCaption")
         controls.addWidget(heading, 1)

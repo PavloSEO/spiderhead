@@ -48,7 +48,7 @@ class ModalDialog(QDialog):
         root.setSpacing(0)
 
         header = QHBoxLayout()
-        header.setContentsMargins(24, 18, 16, 14)
+        header.setContentsMargins(24, 16, 16, 12)
         header.setSpacing(12)
         header.addWidget(self._icon_tile(icon, tone), 0, Qt.AlignTop)
         texts = QVBoxLayout()
@@ -77,13 +77,13 @@ class ModalDialog(QDialog):
 
         self.body = QVBoxLayout()
         self.body.setContentsMargins(24, 4, 24, 16)
-        self.body.setSpacing(14)
+        self.body.setSpacing(12)
         root.addLayout(self.body)
 
         footer = QFrame()
         footer.setObjectName("modalFooter")
         self.footer = QHBoxLayout(footer)
-        self.footer.setContentsMargins(24, 14, 24, 14)
+        self.footer.setContentsMargins(24, 12, 24, 12)
         self.footer.setSpacing(8)
         self.hint = QLabel()
         self.hint.setProperty("text_style", "meta")

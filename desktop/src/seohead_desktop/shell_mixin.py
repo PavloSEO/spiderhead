@@ -183,7 +183,15 @@ class ShellMixin:
             widget.setContentsMargins(8, 0, 8, 0)
         self.busy = BusyIndicator(14)
         self.busy.hide()
-        motion.activity.changed.connect(lambda count: self.busy.setVisible(count > 0))
+
+        def show_busy(count):
+            try:
+                self.busy.setVisible(count > 0)
+            except RuntimeError:
+                # the window is being torn down while activity ticks keep arriving: stop hearing them
+                motion.activity.changed.disconnect(show_busy)
+
+        motion.activity.changed.connect(show_busy)
         bar.addPermanentWidget(self.busy)
         for widget in (
             self.source_badge,
@@ -302,7 +310,7 @@ class ShellMixin:
         menu = QMenu(self)
         header = QWidget()
         header_layout = QVBoxLayout(header)
-        header_layout.setContentsMargins(10, 8, 10, 6)
+        header_layout.setContentsMargins(8, 8, 8, 4)
         header_layout.setSpacing(2)
         name = QLabel(button.name.text())
         name.setProperty("text_style", "control")
@@ -314,7 +322,7 @@ class ShellMixin:
         menu.addSeparator()
         box = QWidget()
         box_layout = QVBoxLayout(box)
-        box_layout.setContentsMargins(10, 4, 10, 8)
+        box_layout.setContentsMargins(8, 4, 8, 8)
         label = QLabel("ОТОБРАЖЕНИЕ")
         label.setProperty("text_style", "overline")
         segmented = Segmented(

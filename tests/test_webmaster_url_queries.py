@@ -167,30 +167,38 @@ def test_local_date_filter_marks_unobserved_days_without_zero_filling():
                     ]
                 }
             )
+        from datetime import date, timedelta
+
+        observed = (date.today() - timedelta(days=1)).isoformat()
         return json.dumps(
             {
                 "text_indicator_to_statistics": [
                     {
                         "text_indicator": {"value": "pump"},
-                        "statistics": [{"date": "2026-10-02", "field": "IMPRESSIONS", "value": 1}],
+                        "statistics": [{"date": observed, "field": "IMPRESSIONS", "value": 1}],
                     }
                 ]
             }
         )
 
+    from datetime import date, timedelta
+
+    today = date.today()
+    observed = (today - timedelta(days=1)).isoformat()  # inside the provider's rolling window
+    edges = [today.isoformat(), (today - timedelta(days=2)).isoformat()]
     result = wm.url_queries(
         "h",
         url="https://example.test/a",
-        start_date="2026-10-01",
-        end_date="2026-10-03",
+        start_date=edges[1],
+        end_date=edges[0],
         token="t",
         user_id="7",
         transport=send,
     )
     assert result["coverage"] == {
-        "requested_days": ["2026-10-01", "2026-10-02", "2026-10-03"],
-        "observed_days": ["2026-10-02"],
-        "unobserved_days": ["2026-10-01", "2026-10-03"],
+        "requested_days": sorted([*edges, observed]),
+        "observed_days": [observed],
+        "unobserved_days": sorted(edges),
         "state": "partial_or_unknown",
     }
 

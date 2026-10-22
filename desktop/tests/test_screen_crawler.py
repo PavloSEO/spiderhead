@@ -1,3 +1,4 @@
+import json
 import os
 import unittest
 from pathlib import Path
@@ -145,7 +146,7 @@ class CrawlerScreenTests(unittest.TestCase):
         self.assertIn("title_length", self.screen.model.keys)
         self.screen._set_column("canonical", True)
         self.assertEqual(self.screen.model.keys[-1], "canonical")
-        self.assertIn("canonical", self.host.settings["crawler/columns/Titles"])
+        self.assertIn("canonical", self.host.settings["crawler/columns/Titles/0"])
         self.screen.tabs.setCurrentIndex(0)
         self.assertEqual(self.screen.model.keys, list(BASE_KEYS))
         self.screen.tabs.setCurrentIndex(titles)
@@ -153,6 +154,67 @@ class CrawlerScreenTests(unittest.TestCase):
         self.assertTrue(all(key in COLUMN_TITLES for key in self.screen.model.keys))
         self.screen._set_column("canonical", False)
         self.assertNotIn("canonical", self.screen.model.keys)
+
+    def test_each_filter_carries_its_own_columns(self):
+        class Store(dict):
+            def value(self, key, default=None):
+                return self.get(key, default)
+
+            def setValue(self, key, value):
+                self[key] = value
+
+        self.host.settings = Store()
+        titles = next(i for i, (name, _e) in enumerate(TABS) if name == "Titles")
+        self.screen.tabs.setCurrentIndex(titles)
+        self.screen.subfilter.setCurrentIndex(0)
+        self.screen._set_column("canonical", True)
+        self.assertIn("canonical", self.screen.model.keys)
+        self.screen.subfilter.setCurrentIndex(1)  # another filter: its own column set (#1491)
+        self.assertNotIn("canonical", self.screen.model.keys)
+        self.screen._set_column("h1", True)
+        self.assertIn("h1", self.host.settings["crawler/columns/Titles/1"])
+        self.screen.subfilter.setCurrentIndex(0)
+        self.assertIn("canonical", self.screen.model.keys)  # the first set survived the switch
+        self.assertNotIn("h1", self.screen.model.keys)
+
+    def test_legacy_tab_columns_still_apply_until_a_pair_is_saved(self):
+        class Store(dict):
+            def value(self, key, default=None):
+                return self.get(key, default)
+
+            def setValue(self, key, value):
+                self[key] = value
+
+        self.host.settings = Store(
+            {"crawler/columns/Page Titles": json.dumps(["url", "status_code", "canonical"])}
+        )
+        titles = next(i for i, (name, _e) in enumerate(TABS) if name == "Titles")
+        self.screen.tabs.setCurrentIndex(titles)
+        self.assertIn(
+            "canonical", self.screen.model.keys
+        )  # saved before the rename and before filters had their own sets
+
+    def test_tab_and_filter_are_remembered_between_sessions(self):
+        class Store(dict):
+            def value(self, key, default=None):
+                return self.get(key, default)
+
+            def setValue(self, key, value):
+                self[key] = value
+
+        self.host.settings = Store()
+        resp = next(i for i, (name, _e) in enumerate(TABS) if name == "Responses")
+        self.screen.tabs.setCurrentIndex(resp)
+        self.screen.subfilter.setCurrentIndex(2)
+        self.assertEqual(self.host.settings["crawler/tab"], resp)
+        self.assertEqual(self.host.settings[f"crawler/filter/{resp}"], 2)
+        fresh = CrawlerScreen(self.host)  # a new session restores the tab and its filter (#1497)
+        try:
+            self.assertEqual(fresh.tab_index, resp)
+            self.assertEqual(fresh.filter_index, 2)
+        finally:
+            fresh.shutdown()
+            fresh.deleteLater()
 
     def test_columns_saved_under_a_former_tab_name_still_apply(self):
         self.host.settings = {"crawler/columns/Page Titles": '["url", "word_count"]'}

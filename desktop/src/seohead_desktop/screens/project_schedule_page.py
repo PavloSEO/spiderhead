@@ -322,7 +322,7 @@ class SchedulePage(_SettingsPage):
         self.enabled_frame = QFrame()
         self.enabled_frame.setProperty("schedule_enabled", True)
         enabled_box = QHBoxLayout(self.enabled_frame)
-        enabled_box.setContentsMargins(16, 8, 10, 8)
+        enabled_box.setContentsMargins(16, 8, 8, 8)
         enabled_box.setSpacing(12)
         enabled_box.addWidget(QLabel(tr("Enabled")))
         enabled_box.addWidget(self.enabled)
@@ -376,7 +376,7 @@ class SchedulePage(_SettingsPage):
         self.month_widget.setObjectName("scheduleCalendar")
         grid = QGridLayout(self.month_widget)
         grid.setContentsMargins(0, 0, 0, 0)
-        grid.setSpacing(6)
+        grid.setSpacing(4)
         self.month_buttons = {}
         for day in range(1, 32):
             button = CalendarDay(str(day))
@@ -475,7 +475,7 @@ class SchedulePage(_SettingsPage):
         self.next_calendar.setFixedHeight(17)
         date_box.addWidget(self.next_run)
         date_box.addWidget(self.next_calendar)
-        row.setContentsMargins(0, 9, 0, 9)
+        row.setContentsMargins(0, 8, 0, 8)
         row.addLayout(date_box)
         detail = QVBoxLayout()
         detail.addWidget(self.next_host)
@@ -861,7 +861,7 @@ class CrawlPage(_SettingsPage):
         self.sitemap_url.setPlaceholderText("https://example.test/sitemap.xml")
         self.sitemap_url.setAccessibleName("Sitemap address")
         self.urls_row = meta("Key URLs · one per line")
-        self.urls_row.setContentsMargins(0, 6, 0, 0)
+        self.urls_row.setContentsMargins(0, 4, 0, 0)
         self.urls_row.setFixedHeight(26)
         self.urls = QPlainTextEdit()
         self.urls.setAccessibleName("Key URLs")
@@ -1054,7 +1054,7 @@ class CrawlPage(_SettingsPage):
         self.requests.setSingleStep(500)
         self.requests.setAccessibleName("Requests in total")
         limits = QHBoxLayout()
-        limits.setSpacing(10)
+        limits.setSpacing(8)
         for title, control in (
             ("URL limit per scan", self.budget),
             ("Requests in total", self.requests),
@@ -1062,7 +1062,7 @@ class CrawlPage(_SettingsPage):
             frame = QFrame()
             frame.setProperty("canvas_component", "mini")
             column = QVBoxLayout(frame)
-            column.setContentsMargins(14, 12, 14, 12)
+            column.setContentsMargins(12, 12, 12, 12)
             column.setSpacing(2)
             label = meta(title)
             if control is self.budget:
@@ -1082,7 +1082,7 @@ class CrawlPage(_SettingsPage):
             holder = QWidget()
             row = QHBoxLayout(holder)
             row.setContentsMargins(0, 0, 0, 0)
-            row.setSpacing(10)
+            row.setSpacing(8)
             row.addWidget(
                 MaterialIconLabel("check_circle", 18, color="role:canvas_success", filled=True)
             )

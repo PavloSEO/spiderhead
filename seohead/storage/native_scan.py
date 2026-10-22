@@ -48,6 +48,7 @@ from seohead.storage import (
     _has_negative_page_counts,
     _heading_outline,
     _insert,
+    _invalid_link_targets,
     _link_placement,
     _objects,
     _runtime,
@@ -92,6 +93,7 @@ _LINK_KEYS = {
     "source",
     "destination",
     "anchor",
+    "anchor_source",
     "nofollow",
     "position",
     "rel",
@@ -107,6 +109,7 @@ _PAGE_JSON_SOURCES = {
     "redirect_chain_json": "redirect_chain",
     "hreflang_json": "hreflang",
     "heading_outline_json": "heading_outline",
+    "invalid_link_targets_json": "invalid_link_targets",
     "link_placement_json": "link_placement",
     "trust_signals_json": "trust_signals",
     "duplicate_ids_json": "duplicate_ids",
@@ -117,6 +120,11 @@ _OPTIONAL_PAGE_SOURCES = {
     "status_code",
     "response_time",
     "text_ratio",
+    "invalid_link_targets",
+    "sentence_count",
+    "avg_words_per_sentence",
+    "flesch",
+    "readability",
     "title_outside_head",
     "meta_description_outside_head",
     "canonical_outside_head",
@@ -2466,6 +2474,8 @@ class NativeScan:
                     )
                 if name == "heading_outline_json":
                     _heading_outline(value)
+                if name == "invalid_link_targets_json" and value is not None:
+                    _invalid_link_targets(value)
                 if name == "link_placement_json" and value is not None:
                     _link_placement(value)
                 if name == "trust_signals_json" and value is not None:
@@ -2502,7 +2512,11 @@ class NativeScan:
 
     def _write_observations(self, lease, document_id, representation, links, forms):
         for ordinal, item in enumerate(links):
-            if set(item) != _LINK_KEYS:
+            # anchor_source may be absent (#1518): a caller built before the
+            # marker has no marker to give, and "" -- text-derived or silent --
+            # is that caller's truth. Every other key stays mandatory.
+            keys = set(item)
+            if not keys <= _LINK_KEYS or not keys >= _LINK_KEYS - {"anchor_source"}:
                 raise ScanError("link input must have exactly the LinkEdge fields")
             if item["source"] != lease.url:
                 raise ScanError("link source differs from page lease")
@@ -2518,6 +2532,8 @@ class NativeScan:
                         "raw_href",
                     )
                 )
+                or item.get("anchor_source", "") not in ("", "alt")
+                or type(item.get("anchor_source", "")) is not str
                 or not item["destination"]
                 or type(item["nofollow"]) is not bool
                 or not isinstance(item["rel"], (tuple, list))
@@ -2531,6 +2547,7 @@ class NativeScan:
                 "evidence_representation": representation,
                 "ordinal": ordinal,
                 "anchor": item["anchor"],
+                "anchor_source": item.get("anchor_source", ""),
                 "nofollow": int(item["nofollow"]),
                 "position": item["position"],
                 "rel_json": _dump(list(item["rel"])),

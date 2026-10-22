@@ -227,8 +227,8 @@ class VitalsPage(QWidget):
         self.job.failed.connect(self._failed)
         self._token = None
         root = QVBoxLayout(self)
-        root.setContentsMargins(16, 14, 16, 14)
-        root.setSpacing(10)
+        root.setContentsMargins(16, 12, 16, 12)
+        root.setSpacing(8)
         title = QLabel("Core Web Vitals")
         title.setProperty("text_style", "title")
         root.addWidget(title)

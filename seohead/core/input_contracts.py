@@ -413,7 +413,11 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         "markdown_export",
         _form("live_url", "url"),
         _form("local_file", "urls_file", note="TXT, one URL per line"),
-        _form("live_url", "sitemap", note="Sitemap or sitemap index; a site root resolves via robots.txt"),
+        _form(
+            "live_url",
+            "sitemap",
+            note="Sitemap or sitemap index; a site root resolves via robots.txt",
+        ),
     ),
     _command(
         "boilerplate-report",
@@ -1427,6 +1431,14 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
             "descending",
         ),
     ),
+    _command("scan-url-counts", "scan_url_counts", _form("scan_artifact", "input_path")),
+    _command(
+        "scan-config-diff",
+        "scan_config_diff",
+        _form("scan_artifact", "before_path"),
+        _form("scan_artifact", "after_path"),
+    ),
+    _command("extraction-presets", "extraction_presets", _form("no_input")),
     _command("scan-url-query", "scan_url_query", _form("scan_artifact", "input_path")),
     _command(
         "scan-directory-tree",

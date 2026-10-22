@@ -9,7 +9,6 @@ header above the body, and failures recorded instead of aborting the run.
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
 import pytest
 
@@ -63,7 +62,9 @@ def test_urls_file_drives_the_batch_and_failures_are_kept(monkeypatch, tmp_path)
         monkeypatch,
         {
             "https://x.test/": _fetched(PAGE, "https://x.test/"),
-            "https://x.test/blog/canonical-url": _fetched(PAGE, "https://x.test/blog/canonical-url"),
+            "https://x.test/blog/canonical-url": _fetched(
+                PAGE, "https://x.test/blog/canonical-url"
+            ),
             "https://x.test/missing": {"ok": False, "error": "boom"},
         },
     )

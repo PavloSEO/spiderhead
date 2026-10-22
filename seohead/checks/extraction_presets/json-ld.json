@@ -1,0 +1,22 @@
+{
+ "name": "json-ld",
+ "description": "Structured data: every JSON-LD block as text plus the @type of each block.",
+ "rules": [
+  {
+   "id": "jsonld-blocks",
+   "kind": "text",
+   "selector": "script[type=\"application/ld+json\"]",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 20
+  },
+  {
+   "id": "jsonld-types",
+   "kind": "structured",
+   "selector": "/@type",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 20
+  }
+ ]
+}

@@ -378,3 +378,77 @@ class UrlTests(UrlBase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PathTreeTests(unittest.TestCase):
+    """The dataset as a flat page or a path tree over the same rows (#1492)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = qt_app()
+        load_theme(cls.app, "light")
+
+    def setUp(self):
+        sweep_widgets()
+        i18n.set_language("en")
+        self.screen = UrlScreen(FakeHost())
+        self.screen.model.set_rows(
+            [
+                {"url": "https://a.test/catalog/stoly/stol-1/", "status_code": 200},
+                {"url": "https://a.test/catalog/stoly/", "status_code": 200},
+                {"url": "https://a.test/blog/post-1", "status_code": 200},
+                {"url": "https://a.test/", "status_code": 200},
+                {"url": "https://b.test/catalog/", "status_code": 301},
+            ]
+        )
+
+    def tearDown(self):
+        self.screen.deleteLater()
+        sweep_widgets()
+
+    def _leaf(self, label):
+        def find(item):
+            if item.text(0) == label and item.data(0, Qt.UserRole) is not None:
+                return item
+            for index in range(item.childCount()):
+                found = find(item.child(index))
+                if found is not None:
+                    return found
+            return None
+
+        for index in range(self.screen.path_tree.topLevelItemCount()):
+            found = find(self.screen.path_tree.topLevelItem(index))
+            if found is not None:
+                return found
+        return None
+
+    def test_tree_groups_hosts_and_paths_and_shares_selection_with_the_table(self):
+        self.screen._set_view_mode("tree")
+        self.assertTrue(self.screen.path_tree.isVisibleTo(self.screen.table_box))
+        self.assertTrue(self.screen.table_stack.isHidden())
+        hosts = [
+            self.screen.path_tree.topLevelItem(index).text(0)
+            for index in range(self.screen.path_tree.topLevelItemCount())
+        ]
+        self.assertEqual(hosts, ["a.test", "b.test"])
+        self.assertEqual(
+            self.screen.path_tree.topLevelItem(0).data(0, Qt.UserRole), 3
+        )  # the site root is its host node
+        leaf = self._leaf("stol-1")
+        self.assertIsNotNone(leaf)
+        self.screen._tree_picked(leaf, 0)
+        self.assertEqual(
+            self.screen.table.currentIndex().row(), 0
+        )  # the tree drives the same model selection
+
+    def test_switching_back_keeps_the_page_and_the_choice_follows_new_pages(self):
+        self.screen._set_view_mode("tree")
+        self.screen._set_view_mode("list")
+        self.assertFalse(self.screen.path_tree.isVisibleTo(self.screen.table_box))
+        self.assertFalse(self.screen.table_stack.isHidden())
+        self.screen._set_view_mode("tree")
+        self.screen.model.set_rows([])  # a filtered page with no rows stays honest
+        self.screen._fill_path_tree()
+        self.assertEqual(
+            self.screen.path_tree.topLevelItem(0).text(0), "No addresses match this condition"
+        )

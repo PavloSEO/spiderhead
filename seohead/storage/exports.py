@@ -100,6 +100,10 @@ def _page_rows(con, *, url: str | None = None) -> Iterable[dict[str, Any]]:
             elif name == "heading_outline_json":
                 if value is not None:
                     page["heading_outline"] = json.loads(value)
+            elif name == "invalid_link_targets_json":
+                # Always present, null when recording was off (#1530): matches
+                # the PageRecord the crawl wrote, so export == what was recorded.
+                page["invalid_link_targets"] = json.loads(value) if value is not None else None
             elif name == "link_placement_json":
                 if value is not None:
                     page["link_placement"] = json.loads(value)
@@ -128,10 +132,14 @@ def _link_rows(con) -> Iterable[dict[str, Any]]:
         "JOIN urls AS d ON d.url_id = l.destination_url_id "
         "ORDER BY l.link_id"
     ):
+        keys = record.keys()
         yield {
             "source": record["source"],
             "destination": record["destination"],
             "anchor": record["anchor"],
+            # Absent in a scan written before the marker (#1518): the export
+            # then omits the key, and the importer reads that as "".
+            **({"anchor_source": record["anchor_source"]} if "anchor_source" in keys else {}),
             "nofollow": bool(record["nofollow"]),
             "position": record["position"],
             "rel": json.loads(record["rel_json"]),

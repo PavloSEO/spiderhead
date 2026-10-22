@@ -166,7 +166,7 @@ class OverviewPage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         grid = QGridLayout(self)
-        grid.setContentsMargins(20, 14, 20, 14)
+        grid.setContentsMargins(20, 12, 20, 12)
         grid.setHorizontalSpacing(32)
         grid.setColumnStretch(0, 5)
         grid.setColumnStretch(1, 4)
@@ -276,7 +276,7 @@ class SnippetPage(QWidget):
         self.title = ""
         self.description = ""
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 14, 20, 14)
+        layout.setContentsMargins(20, 12, 20, 12)
         self.pairs = Pairs(("Title", "Длина title", "Description", "Длина description"))
         layout.addWidget(self.pairs)
         self.edit_button = QPushButton("Prepare review task…")
@@ -366,10 +366,10 @@ class UrlSideDetail(QFrame):
         root.setSpacing(0)
         head = QWidget()
         head_layout = QVBoxLayout(head)
-        head_layout.setContentsMargins(16, 12, 12, 10)
-        head_layout.setSpacing(6)
+        head_layout.setContentsMargins(16, 12, 12, 8)
+        head_layout.setSpacing(4)
         top = QHBoxLayout()
-        top.setSpacing(6)
+        top.setSpacing(4)
         self.http = StatusBadge()
         self.index = StatusBadge()
         self.http.hide()
@@ -420,7 +420,7 @@ class UrlSideDetail(QFrame):
         chips = QWidget()
         chip_grid = QGridLayout(chips)
         chip_grid.setContentsMargins(16, 8, 16, 8)
-        chip_grid.setSpacing(6)
+        chip_grid.setSpacing(4)
         for slot, (tab, label) in enumerate(
             (
                 ("hdr", "Заголовки"),
@@ -617,12 +617,12 @@ class RunSummary(QFrame):
 
     def _overview(self):
         layout = QVBoxLayout()
-        layout.setContentsMargins(16, 14, 16, 14)
+        layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(16)
         self.partial = QFrame()
         self.partial.setProperty("note", "warn")
         partial_layout = QHBoxLayout(self.partial)
-        partial_layout.setContentsMargins(10, 8, 10, 8)
+        partial_layout.setContentsMargins(8, 8, 8, 8)
         partial_layout.addWidget(
             MaterialIconLabel("warning", 18, color="role:warning"), 0, Qt.AlignTop
         )
@@ -676,8 +676,8 @@ class RunSummary(QFrame):
 
     def _issues(self):
         layout = QVBoxLayout()
-        layout.setContentsMargins(16, 14, 16, 14)
-        layout.setSpacing(10)
+        layout.setContentsMargins(16, 12, 16, 12)
+        layout.setSpacing(8)
         layout.addWidget(section_label("Находки по важности"))
         self.severity = Pairs(("Критичные", "Важные", "Советы"))
         layout.addWidget(self.severity)
@@ -698,7 +698,7 @@ class RunSummary(QFrame):
 
     def _time(self):
         layout = QVBoxLayout()
-        layout.setContentsMargins(16, 14, 16, 14)
+        layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(8)
         layout.addWidget(section_label("Время ответа"))
         self.time_rows = {}

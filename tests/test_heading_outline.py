@@ -258,6 +258,47 @@ def test_heading_skip_does_not_flag_a_legitimate_level_drop():
     assert "HEADING_SKIP" not in _fired(ctx)
 
 
+def test_heading_skip_fires_on_the_issue_1545_fixture_and_nothing_else():
+    """#1545 acceptance: h1 -> h3 and h2 -> h4 are exactly the flagged URLs."""
+    h1_to_h3 = _CLEAN_PAGE.replace(
+        "<h2>A real section</h2>", "<h3>A subsection with no parent</h3>"
+    )
+    h2_to_h4 = _CLEAN_PAGE.replace(
+        "<h2>A real section</h2>", "<h2>A real section</h2><h4>A skipped subsection</h4>"
+    )
+    ctx = _run_crawl(
+        {
+            "https://example.com/jump-from-h1": _FakeResponse(h1_to_h3),
+            "https://example.com/jump-from-h2": _FakeResponse(h2_to_h4),
+            "https://example.com/clean": _FakeResponse(_CLEAN_PAGE),
+        }
+    )
+    assert _fired(ctx).get("HEADING_SKIP", set()) == {
+        "https://example.com/jump-from-h1",
+        "https://example.com/jump-from-h2",
+    }
+
+
+def test_heading_skip_fires_on_a_jump_back_up_past_an_open_section():
+    """#1545: H4 -> H2 steps past the open H3 section; one-level returns stay clean."""
+    back_up = _CLEAN_PAGE.replace(
+        "<h2>A real section</h2>",
+        "<h2>A real section</h2><h3>A detail</h3><h4>Another detail</h4><h2>Next section</h2>",
+    )
+    ctx = _run_crawl({"https://example.com/back-up": _FakeResponse(back_up)})
+    assert _details(ctx, "HEADING_SKIP", "https://example.com/back-up") == {
+        "count": 1,
+        "first_jumps": [
+            {
+                "from_level": 4,
+                "from_text": "Another detail",
+                "to_level": 2,
+                "to_text": "Next section",
+            }
+        ],
+    }
+
+
 def test_one_finding_per_page_rather_than_one_per_chrome_heading():
     ctx = _run_crawl({"https://example.com/bad": _FakeResponse(_BAD_PAGE)})
     assert len([i for i in ctx.issues if i.check == "HEADING_IN_PAGE_CHROME"]) == 1

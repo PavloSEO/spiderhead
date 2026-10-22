@@ -176,6 +176,24 @@ class PageRecord:
     # position rule matched -- unmeasured, not "content" (see
     # parser.heading_outline).
     heading_outline: list[dict[str, Any]] = field(default_factory=list)
+    # Hrefs on this page that could not become fetchable link targets, each as
+    # {"raw_href", "reason"} exactly as the parser rejected it (#1530). None —
+    # not an empty list — when the crawl ran without
+    # discovery.record_invalid_targets: "not measured" and "measured,
+    # none found" are different facts.
+    invalid_link_targets: list[dict[str, str]] | None = None
+    # The URL entered the crawl over http:// and was fetched over https://
+    # without a redirect hop, under http.upgrade_to_https (#1484). False is
+    # both "not upgraded" and "upgrade off" -- the setting is on the run, not
+    # the page; what the page records is what happened to it.
+    transport_upgraded: bool = False
+    # Reading level over the retained content area (#1516), as
+    # checks.readability.reading_ease computes it. None — never zero — when the
+    # area was not retained or holds no word with a letter: unmeasured.
+    sentence_count: int | None = None
+    avg_words_per_sentence: float | None = None
+    flesch: float | None = None
+    readability: str = ""
     # The two link defects a page region cannot show: anchors wrapped in an
     # h1-h6, and image links with no anchor text and no alt (#634). Both lists
     # inside are capped by the parser, so this costs a small constant per page
@@ -283,6 +301,12 @@ class CrawlResult:
     robots_blocked: list[str] = field(default_factory=list)
 
 
+def _upgrade_transport(url: str) -> str:
+    """https for an http URL (#1484) -- same rule as crawl.spider.upgrade_transport,
+    restated here because spider imports this module and not the other way round."""
+    return "https://" + url[len("http://") :] if url.startswith("http://") else url
+
+
 def _text_of(value: Any) -> str:
     return "" if value is None else str(value)
 
@@ -363,6 +387,17 @@ def _record_from_parsed(parsed: dict) -> dict[str, Any]:
         "hreflang": list(parsed.get("hreflang") or []),
         "amphtml": str(parsed.get("amphtml") or ""),
         "heading_outline": list(parsed.get("heading_outline") or []),
+        # None keeps the parser's not-measured meaning (#1530); the key is in
+        # parsed exactly when the crawl asked for invalid-target recording.
+        "invalid_link_targets": (
+            list(parsed["invalid_link_targets"]) if "invalid_link_targets" in parsed else None
+        ),
+        # Reading level over the content area (#1516); the parser's None
+        # (nothing measurable retained) stays None, and "" band means the same.
+        "sentence_count": (r := parsed.get("readability") or {}).get("sentence_count"),
+        "avg_words_per_sentence": r.get("avg_words_per_sentence"),
+        "flesch": r.get("flesch"),
+        "readability": r.get("readability") or "",
         "link_placement": parsed.get("link_placement") or empty_link_placement(),
         # Always a parsed dict here (a missing key would be a parser defect),
         # so the field above the default keeps its None-for-unmeasured meaning.
@@ -494,6 +529,7 @@ def fetch_one(
     capture_observer: Callable[[Any], None] | None = None,
     capture_max_bytes: int | None = None,
     response_filter: Callable[[str], str] | None = None,
+    transport_upgraded: bool = False,
 ) -> tuple[PageRecord, dict[str, Any] | None]:
     """Fetch and parse one URL. Returns the record and the parsed document.
 
@@ -528,6 +564,9 @@ def fetch_one(
     than only once every attempt in this call has already failed (#196).
     """
     record = PageRecord(url=url)
+    # #1484: the caller upgraded an http URL to https before this call; the
+    # marker belongs to the record, not the caller's bookkeeping.
+    record.transport_upgraded = transport_upgraded
     observed_protocol: str | None = None
     capture_started = None
     response = None
@@ -944,6 +983,9 @@ def fetch_one(
         )
         record.cache_status = "miss"
     parsed = _apply_body(record, url, body, parse_options, max_response_bytes, wire_size)
+    # #1484: set after body application -- the parse merge carries no key for
+    # transport, so nothing below can overwrite the caller's fact.
+    record.transport_upgraded = transport_upgraded
     return record, parsed
 
 
@@ -1202,6 +1244,7 @@ def collect_urls(
     resolve_canonical_destination: bool = False,
     proxy_route: Any = None,
     spool: Any = None,
+    upgrade_to_https: bool = False,
 ) -> CrawlResult:
     """Fetch an explicit list of URLs in the order given.
 
@@ -1353,8 +1396,15 @@ def collect_urls(
 
                 # http.headers goes on every request; a credential is bound to one host.
                 extra_headers = headers_for_url(url)
+                fetched_url, was_upgraded = (
+                    (_upgrade_transport(url), True)
+                    if upgrade_to_https and url.startswith("http://")
+                    else (url, False)
+                )
+                url = fetched_url
                 record, _ = fetch_one(
                     url,
+                    transport_upgraded=was_upgraded,
                     client=client,
                     fetcher=fetcher,
                     throttle=throttle,

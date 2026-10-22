@@ -153,7 +153,10 @@ class PresentationTests(unittest.TestCase):
         self.window.set_navigation_compact(False)
         self.window.set_reduced_motion(False)
         self.window.toggle_navigation()
-        QTest.qWait(160)
+        for _ in range(40):  # the collapse animates; a fixed wait flakes under suite load
+            if self.window.navigation.width() == 64:
+                break
+            QTest.qWait(50)
         self.assertEqual(self.window.navigation.width(), 64)
         self.window.set_reduced_motion(True)
         self.window.toggle_navigation()

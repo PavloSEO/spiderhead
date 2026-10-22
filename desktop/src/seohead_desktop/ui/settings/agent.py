@@ -84,8 +84,8 @@ class ProjectRow(QFrame):
         self.name = project["name"]
         self.setProperty("list_row", True)
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 6, 0, 6)
-        layout.setSpacing(10)
+        layout.setContentsMargins(0, 4, 0, 4)
+        layout.setSpacing(8)
         self.checkbox = CheckBox(self.name, self.name in allowed(store))
         self.checkbox.toggled.connect(lambda on: self._save(store, on))
         layout.addWidget(self.checkbox)
@@ -160,7 +160,7 @@ def _log_row(entry):
     row.setProperty("list_row", True)
     layout = QHBoxLayout(row)
     layout.setContentsMargins(0, 8, 0, 8)
-    layout.setSpacing(10)
+    layout.setSpacing(8)
     time = QLabel(entry.get("time", ""))
     time.setProperty("text_style", "mono")
     time.setFixedWidth(40)
@@ -254,5 +254,5 @@ def build_page(store, context):
             "Границы агента.<br>Права работают в ядре, а не в окне: CLI и любой MCP-клиент получают те же ограничения.",
         ),
     ]
-    right[-1].setContentsMargins(0, 14, 0, 0)
+    right[-0].setContentsMargins(0, 12, 0, 0)
     return page(column_stack(left, right))

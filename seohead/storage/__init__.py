@@ -59,6 +59,7 @@ _CAPABILITIES = (
 )
 _PAGE_BOOLS = {
     "head_not_first",
+    "transport_upgraded",
     "title_outside_head",
     "meta_description_outside_head",
     "canonical_outside_head",
@@ -106,7 +107,22 @@ _LATE_PAGE_FIELDS = {
 # is refused. A page whose body was never parsed has no trust-signal evidence
 # (issue #823), which is exactly the recorded fact; it must therefore feed
 # neither the required-field check below nor _legacy_fields_missing.
-_OPTIONAL_PAGE_RECORD_FIELDS = frozenset({"trust_signals", "duplicate_ids"})
+# Absent-key tolerated fields: a pages.jsonl written before the field existed,
+# where absence is a recorded state (recording off / never parsed), not an error.
+# transport_upgraded rides here too (#1484): a JSONL written before the field
+# upgraded nothing, and False is that JSONL's truth.
+_OPTIONAL_PAGE_RECORD_FIELDS = frozenset(
+    {
+        "trust_signals",
+        "duplicate_ids",
+        "invalid_link_targets",
+        "transport_upgraded",
+        "sentence_count",
+        "avg_words_per_sentence",
+        "flesch",
+        "readability",
+    }
+)
 _PAGE_NONNEGATIVE_INTS = {
     "ajax_scheme_outlinks",
     "body_count",
@@ -166,6 +182,25 @@ def _heading_outline(value: Any) -> None:
         raise ScanError(
             "heading_outline must be an ordered list of level/text/region objects, "
             "level between 1 and 6"
+        )
+
+
+def _invalid_link_targets(value: Any) -> None:
+    """Validate one page's rejected-href evidence (#1530).
+
+    ``None`` never reaches here -- a crawl that did not opt into recording stores
+    SQL NULL, and every caller keeps that distinction (see PageRecord).
+    """
+    if not isinstance(value, list) or any(
+        not isinstance(item, dict)
+        or set(item) != {"raw_href", "reason"}
+        or type(item["raw_href"]) is not str
+        or item["reason"] not in ("unparsable_syntax", "unsupported_scheme")
+        for item in value
+    ):
+        raise ScanError(
+            "invalid_link_targets must be a list of raw_href/reason objects, "
+            "reason unparsable_syntax or unsupported_scheme"
         )
 
 
@@ -555,6 +590,7 @@ def _import_pages(con, source: Path, limitations: list[str], inputs: list[dict])
             "redirect_chain_json",
             "hreflang_json",
             "heading_outline_json",
+            "invalid_link_targets_json",
             "link_placement_json",
             "trust_signals_json",
             "duplicate_ids_json",
@@ -565,6 +601,7 @@ def _import_pages(con, source: Path, limitations: list[str], inputs: list[dict])
         "redirect_chain",
         "hreflang",
         "heading_outline",
+        "invalid_link_targets",
         "link_placement",
         "trust_signals",
         "duplicate_ids",
@@ -591,6 +628,23 @@ def _import_pages(con, source: Path, limitations: list[str], inputs: list[dict])
         if outline is not None:
             _heading_outline(outline)
         row["heading_outline_json"] = None if outline is None else _dump(outline)
+        # Absent key (a JSONL written before the field): recording was off, which
+        # is NULL, never an empty list.
+        invalid_targets = row.pop("invalid_link_targets", None)
+        if invalid_targets is not None:
+            _invalid_link_targets(invalid_targets)
+        row["invalid_link_targets_json"] = (
+            None if invalid_targets is None else _dump(invalid_targets)
+        )
+        # Absent key (a JSONL written before #1484): nothing was upgraded; the
+        # shared _PAGE_BOOLS loop below validates and converts the present form.
+        row.setdefault("transport_upgraded", False)
+        # Reading level (#1516): absent (a JSONL written before the field) is
+        # NULL -- unmeasured, never zero.
+        row.setdefault("sentence_count", None)
+        row.setdefault("avg_words_per_sentence", None)
+        row.setdefault("flesch", None)
+        row.setdefault("readability", None)
         placement = row.pop("link_placement")
         if placement is not None:
             _link_placement(placement)
@@ -652,11 +706,16 @@ def _import_pages(con, source: Path, limitations: list[str], inputs: list[dict])
 
 def _import_links(con, source: Path, limitations: list[str], inputs: list[dict]) -> None:
     for record in _jsonl(source / "links.jsonl", limitations, inputs):
-        if set(record) != _LINK_FIELDS:
+        # anchor_source is optional (#1518): a links.jsonl written before the
+        # field has no marker, and "" (text-derived or silent) is its truth.
+        if not set(record) <= _LINK_FIELDS | {"anchor_source"} or not set(record) >= _LINK_FIELDS:
             raise ScanError(
                 f"links.jsonl: fields differ from scan.v1: {sorted(set(record) ^ _LINK_FIELDS)}"
             )
         row = dict(record)
+        if row.get("anchor_source") not in (None, "", "alt"):
+            raise ScanError("links.anchor_source: expected '' or 'alt'")
+        row.setdefault("anchor_source", "")
         source_id = _url(con, row.pop("source"))
         row["source_url_id"] = source_id
         row["destination_url_id"] = _url(con, row.pop("destination"))

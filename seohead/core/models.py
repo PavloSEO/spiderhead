@@ -47,6 +47,9 @@ class _LinkInfoOptional(TypedDict, total=False):
     # Only present when the caller opts in via options["classify_links"]=True
     # (off by default) — see parser.parse_html / tools/link_position.py.
     position: str
+    # Only "alt": the anchor text came from the alt of an image the link wraps,
+    # not from visible text (#1518). Absent means text-derived (or empty).
+    anchor_source: str
 
 
 class LinkInfo(_LinkInfoOptional):
@@ -233,6 +236,17 @@ class _ParsedPageOptional(TypedDict, total=False):
     # are a separate bounded opt-in from the generic URL inventory.
     resource_declarations: list[ResourceDeclaration]
     resource_declarations_omitted: int
+    # Hrefs that could not become fetchable link targets (#1530), present only
+    # when the crawl asked for them — absence is "not measured", never "none
+    # found"; an empty list is a measured clean page.
+    invalid_link_targets: list[InvalidLinkTarget]
+
+
+class InvalidLinkTarget(TypedDict):
+    """One href the parser rejected, exactly as written plus the reason."""
+
+    raw_href: str
+    reason: str
 
 
 class ResourceDeclaration(TypedDict):

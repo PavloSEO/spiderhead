@@ -327,6 +327,7 @@ def project_checklist_init(
     template: dict | None = None,
     expected_revision: int | None = None,
     plan: dict | None = None,
+    full: bool = False,
 ) -> dict[str, Any]:
     """Create or reconcile a project's local checklist without running any item."""
     try:
@@ -337,6 +338,12 @@ def project_checklist_init(
         _action_log(directory, "checklist-init", "denied", type(exc).__name__)
         raise
     _action_log(directory, "checklist-init", "applied", f"revision={result.get('revision')}")
+    if not full and isinstance(result, dict) and "items" in result:
+        # The default answer is bounded (#1398): status and counts; the item list is
+        # one --full (or findings-view / checklist-page) away.
+        summary = {k: v for k, v in result.items() if k != "items"}
+        summary["item_count"] = len(result["items"])
+        return summary
     return result
 
 
@@ -566,8 +573,11 @@ def project_priorities(
     policy: dict | None = None,
     apply: bool = False,
     expected_revision: int | None = None,
+    full: bool = False,
 ) -> dict[str, Any]:
     """Preview or explicitly apply an offline priority policy."""
     from seohead.projects.priorities import project_priorities as core
 
-    return core(directory, policy=policy, apply=apply, expected_revision=expected_revision)
+    return core(
+        directory, policy=policy, apply=apply, expected_revision=expected_revision, full=full
+    )

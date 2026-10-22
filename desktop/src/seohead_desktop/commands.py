@@ -16,6 +16,21 @@ from .ui import motion
 
 WRITE_OPERATIONS = ("task-", "inbox-", "project-")
 
+# request-id prefix -> the operation name a person reads in the status bar (D09)
+REQUEST_TITLES = (
+    ("url-page", "Таблица URL"),
+    ("url-detail", "Карточка URL"),
+    ("crawl-settings", "Параметры краула"),
+    ("scan-policy", "Правила скана"),
+    ("project-open", "Чтение проекта"),
+    ("providers", "Источники данных"),
+    ("semimport", "Импорт фраз"),
+    ("inbox-submit", "Отправка заметки"),
+    ("observer", "Наблюдение"),
+    ("tasks", "Задачи"),
+    ("competitors", "Конкуренты"),
+)
+
 
 class CommandsMixin:
     screen_errors = {}  # operation -> last core error text; replaced (never mutated) so screens can show an honest error state
@@ -145,7 +160,16 @@ class CommandsMixin:
                 reason=text,
                 source="Retained URL detail unavailable",
             )
-        self.statusBar().showMessage(f"{request_id}: {text}")
+        # The status bar speaks in operation names; the raw id stays in the notice details (D09)
+        title = next(
+            (
+                name
+                for prefix, name in REQUEST_TITLES
+                if request_id == prefix or request_id.startswith(prefix + ":")
+            ),
+            request_id,
+        )
+        self.statusBar().showMessage(f"{tr(title)}: {text}")
         self.notice.show_error(f"Не удалось получить данные. {text}", request_id)
         kind = {
             "tasks": "tasks",

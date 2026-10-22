@@ -264,7 +264,7 @@ class HelpGuideDialog(QDialog):
         content = QWidget()
         layout = QVBoxLayout(content)
         layout.setContentsMargins(8, 8, 12, 8)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
         scroll.setWidget(content)
         self.tabs.addTab(scroll, title)
         return layout

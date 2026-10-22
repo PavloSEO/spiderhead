@@ -10,3 +10,4 @@ QFrame[set_row="true"] QLabel[kbd_prompt] { color: $on_selected; font-size: ${fo
 QFrame[set_row="true"][conflict="true"] { background: $error_hover; }
 /* board: action names are body text (400), not control weight */
 QFrame[shortcut="true"] QLabel[text_style="control"] { font-size: ${font_body}px; font-weight: 400; }
+QFrame[set_row="true"][search_hit="true"] { background: $selected; border-radius: 8px; }

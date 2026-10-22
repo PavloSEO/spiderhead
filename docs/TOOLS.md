@@ -16,8 +16,8 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 `{"ok": false, "error": "..."}` instead of raising. An unreachable site is
 data, not an accident.
 
-The current registry has 230 commands and 246 callable tools,
-with 280 audit checks. These are inventories, not coverage on every input.
+The current registry has 234 commands and 250 callable tools,
+with 282 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
 ## Generated command inventory
@@ -60,11 +60,11 @@ and inputs remain in the nearby route sections and generated tool reference.
 `regions-tree` · `remediation-cases` · `remediation-create` · `remediation-ingest` · `remediation-recheck` ·
 `remediation-record-verification` · `remediation-report` · `remediation-summary` · `remediation-transition` ·
 `render-check` · `report-build` · `robots-check` · `scan-body-diff` · `scan-body-read` · `scan-content-search`
-· `scan-content-search-page` · `scan-directory-tree` · `scan-evidence` · `scan-export` · `scan-extract` ·
+· `extraction-presets` · `scan-content-search-page` · `scan-directory-tree` · `scan-evidence` · `scan-export` · `scan-extract` ·
 `scan-findings-page` · `scan-fragment-links` · `scan-graph` · `scan-import-urls` · `scan-inspect` ·
 `scan-link-inspect` · `scan-list` · `scan-navigation` · `scan-pin` · `scan-prune` · `scan-reanalyze` ·
 `scan-rendered-routes` · `scan-requeue` · `scan-sitemap-generate` · `scan-snapshot` · `scan-status` ·
-`scan-structured-blocks` · `scan-url-detail` · `scan-url-history` · `scan-url-query` · `scenario-list` ·
+`scan-structured-blocks` · `scan-url-detail` · `scan-url-history` · `scan-url-counts` · `scan-config-diff` · `scan-url-query` · `scenario-list` ·
 `scenario-show` · `schedule-install` · `schedule-run-due` · `schedule-set` · `schedule-show` ·
 `schedule-uninstall` · `schema-build` · `schema-check` · `security-check` · `segment-diff` · `semantic-inputs`
 · `semantic-similarity` · `serp-fetch` · `site-audit` · `sitemap-crawl` · `skill-list` · `skill-show` ·
@@ -552,6 +552,10 @@ without deleting its scan. The exact arguments and defaults are in the generated
 | `scan-url-detail` | Reads one exact native URL's bounded source HTML window, redacted request/response headers, redirect chain and forms. Query values and sensitive headers are redacted; the body window carries raw and decoded hashes. Legacy and Screaming Frog sources name this evidence as unavailable. | — |
 | `scan-body-read` | Reads one bounded retained static/rendered HTML window by exact URL, with document identity, raw-body SHA-256, decoded-text SHA-256 and encoding. Ambiguous HTTP variants require an explicit variant key; unavailable bodies remain named. | — |
 | `scan-findings-page` | Reads one sorted and filtered page of saved findings. An optional exact URL selector returns findings for that URL; it never runs checks. | — |
+| `scan-url-counts` | Exact `filtered_total` counts of up to 100 filter sets over one saved scan in a single call — one connection and one shared time budget instead of one process per counter. Each set uses the same allow-listed filters as `scan-url-query`; a set that blows the budget returns `null` rather than failing the batch. Answers the `seohead.scan-url-counts.v1` format with per-set filters, counts and elapsed time. | — |
+| `scan-config-diff` | Field-by-field diff of the recorded crawl configurations of two saved scans (`--before` / `--after`): changed settings with both values, added, removed, an `identical` flag, over the manifest's dotted setting paths. Read-only — both scans' headers, never the sites. | — |
+| `extraction-presets` | The shipped extraction preset catalogue (name, description, rule count) — the same list `scan-extract --list-presets` prints and `seo_extraction_presets` serves over MCP. | — |
+| `scan-extract` | Closed declarative extraction rules over captured documents (text, attribute, structured JSON-LD pointers, presence, count; bounded, data-only). Beyond hand-written rules, `--preset <name>` loads a shipped library set — headings, images (src/alt/empty/missing), links (href/anchor/rel/nofollow/external), structure (div/section/article/landmark inventory), inline-css, meta, social (og/twitter), json-ld (blocks and @type), media, forms, tables, breadcrumbs, sections, headings-outline-check — and `--list-presets` prints them. 404/resource findings stay with the findings commands, which see response codes. | — |
 | `scan-url-query` | Server-side filter, sort and pagination over the whole `pages` table of one saved scan (up to 200 rows per call) with projected columns and allow-listed filters. It reports exact/capped/unavailable totals and facets, scan coverage, and the `seohead.scan-url-query.v1` format. `filtered_total` becomes null with `filtered_total_state: capped` when its count budget is exceeded. Indexed sort keys are `url`, `status_code`, `page_ordinal` and `url_id`; another sort needs a filter leaving at most 100,000 rows or returns `reason_code: sort_not_indexed`. It exposes shortest click depth, inlinks, duplicate titles, canonical, hreflang, sitemap membership, resource counts/bytes and captured DNS/connect/TLS/TTFB/download timing with explicit measurement states. `--include-check-counts` adds exact whole-scan severity and per-check states. Finished scan.v2 captures and offline reanalysis attempt an optional indexed URL-query projection at finalization. Reads use it only when its scan UUID, evidence revision, capabilities and start URL still match; missing or stale projections fall back to the bounded query path. Older scans remain read-only and are not migrated. On the synthetic finished-scan 1M-page shared-HTML/image fixture, the real projection producer completed in 6.36 s at 400.7 MB peak RSS. Five-run query medians were 5.23–43.38 ms for 100-row resource-column pages, 60.81 ms for the 100-row image filter, and 5.38 ms for all facets, within the 200/300 ms budgets; the 100 image rows were exact. This validates the synthetic saved-query path, not a live 1M-URL crawl. Inlinks and sitemap facets were explicitly unavailable, so the facet response was partial. | — |
 | `scan-directory-tree` | Counts retained same-origin URLs at each path ancestor through a temporary SQLite index. Depth, children, output nodes and bytes are bounded; omitted branches carry exact child/page totals. | — |
 | `headers-analyze` | Reads redacted response headers and captured transport phases from a saved scan, pages results and reports security-header findings. DNS duration remains unavailable because the current HTTPX trace does not expose a separate resolver event. Missing measurements stay unavailable; it never sends a request. | — |
@@ -956,7 +960,7 @@ assignment or by the audit's already validated segment rules. It records
 assignment provenance and keeps candidate, declared, confirmed, and unassigned
 states separate; it does not infer a shared implementation from repeated findings.
 
-**280 checks**: 12 critical, 133 warnings, 135 notices. Sources: SF exports,
+**282 checks**: 12 critical, 133 warnings, 137 notices. Sources: SF exports,
 derived metrics, inlink exports, the sitemap module, and heuristics.
 
 Native scans with retained bodies evaluate DOM depth/node count and content-area exact/near
@@ -1024,8 +1028,7 @@ turns on automatically for crawl modes (`--crawl`, `--crawl-list`, `--load-crawl
 `--sitemap` is given; pass `--no-live-recheck` to keep it off.
 
 **MCP.** The same set under the `seo_*` names plus the `sf_*` audit tools and the
-`seo_semantics_*` semantic-core tools (231 + 6 + 10). Their stage, import/export, cluster, landing and
-insight contracts are documented in [SEMANTICS.md](SEMANTICS.md):
+`seo_semantics_*` semantic-core tools (234 + 6 + 10). Their stage, import/export, cluster, landing andinsight contracts are documented in [SEMANTICS.md](SEMANTICS.md):
 
 ```bash
 seohead mcp        # stdio
@@ -1033,7 +1036,7 @@ seohead mcp        # stdio
 
 ## Where to go next
 - [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — every tool's arguments, types, defaults, cost, and failure modes, generated from the MCP definitions
-- [CHECKS.md](CHECKS.md) — the 280 checks the SF crawl audit runs, generated from the registry
+- [CHECKS.md](CHECKS.md) — the 282 checks the SF crawl audit runs, generated from the registry
 - [ARCHITECTURE.md](ARCHITECTURE.md) — layers, invariants, where new code goes
 - [SKILLS.md](SKILLS.md) — which skill drives which tool
 - [DECISIONS.md](DECISIONS.md) — why it was decided this way and not another

@@ -253,14 +253,33 @@ def _seed_urls_from_sitemap(
 
     if sitemap:
         targets = [sitemap]
+        skipped: list[str] = []
     elif auto_discover:
+        from urllib.parse import urljoin, urlsplit, urlunsplit
+
         from seohead.checks.robots import check_robots
 
         options = {"request_gate": request_gate} if request_gate is not None else {}
         if proxy_route is not None:
             options["proxy_route"] = proxy_route
         checked = check_robots(url, **options)
-        targets = list(checked.get("sitemaps") or [])
+        # A robots.txt ``Sitemap:`` line may be relative (``Sitemap: /sitemap.xml``);
+        # it resolves against the crawled site root, and one that still does not
+        # make an absolute http(s) URL is skipped with a record, never an abort (#1552).
+        parts = urlsplit(url)
+        base = (
+            urlunsplit((parts.scheme, parts.netloc, "/", "", ""))
+            if parts.scheme and parts.netloc
+            else url
+        )
+        targets, skipped = [], []
+        for declared in checked.get("sitemaps") or []:
+            resolved = urljoin(base, str(declared).strip())
+            resolved_parts = urlsplit(resolved)
+            if resolved_parts.scheme in ("http", "https") and resolved_parts.netloc:
+                targets.append(resolved)
+            else:
+                skipped.append(str(declared))
         if throttle is not None and checked.get("ok") and isinstance(checked.get("groups"), list):
             from seohead.checks.robots import politeness_delay
 
@@ -272,8 +291,14 @@ def _seed_urls_from_sitemap(
                 throttle.delay = max(throttle.delay, asked)
     else:
         targets = []
+        skipped = []
     if not targets:
-        return {"sitemap_url": None, "sitemap_urls": [], "declared": []}
+        return {
+            "sitemap_url": None,
+            "sitemap_urls": [],
+            "declared": [],
+            "skipped_sitemaps": skipped,
+        }
     declared: list[str] = []
     seen: set[str] = set()
     for target in targets:
@@ -286,7 +311,12 @@ def _seed_urls_from_sitemap(
             if loc and loc not in seen:
                 seen.add(loc)
                 declared.append(loc)
-    return {"sitemap_url": targets[0], "sitemap_urls": targets, "declared": declared}
+    return {
+        "sitemap_url": targets[0],
+        "sitemap_urls": targets,
+        "declared": declared,
+        "skipped_sitemaps": skipped,
+    }
 
 
 def _run_render_escalation(
@@ -1499,6 +1529,7 @@ def crawl_site(
             store_external_links=settings["discovery"]["external"]["store"],
             crawl_redirects=settings["discovery"]["redirects"]["crawl"],
             capture_link_attributes=settings["link_attributes"]["capture"],
+            record_invalid_targets=settings["discovery"]["record_invalid_targets"],
             crawl_external_links=settings["discovery"]["external"]["crawl"],
             external_policy=settings["external_checks"],
             external_path=(
@@ -1509,6 +1540,7 @@ def crawl_site(
             spool_evidence=True,
             proxy_route=proxy_route,
             normalize_tracking_parameters=settings["scope"]["normalize_tracking_parameters"],
+            upgrade_to_https=settings["http"]["upgrade_to_https"],
         )
         discovery = {
             "mode": "spider",
@@ -1528,6 +1560,10 @@ def crawl_site(
             "sitemap_urls": sitemap_seed["sitemap_urls"],
             "sitemap_seeded": len(result.seed_urls),
         }
+        if sitemap_seed.get("skipped_sitemaps"):
+            # Relative or otherwise unusable robots-declared sitemaps were skipped,
+            # not fatal (#1552): say so in the crawl's own coverage statement.
+            discovery["skipped_sitemaps"] = sitemap_seed["skipped_sitemaps"]
         if result.external_summary:
             # The external phase's own coverage statement: policy used,
             # per-outcome counts and why it stopped — kept distinct from the
@@ -1547,6 +1583,7 @@ def crawl_site(
             out_path=pages_resume_path,
             cache=cache,
             proxy_route=proxy_route,
+            upgrade_to_https=settings["http"]["upgrade_to_https"],
         )
         discovery = {
             "mode": "list",
@@ -2147,6 +2184,20 @@ def _audit_crawl_result(
                 else link_findings.outlinks_to_localhost(links)
             ):
                 ctx.add("OUTLINK_TO_LOCALHOST", target_url=item["target_url"], details=item)
+            # #1486: link edges are the only evidence connecting a page to a
+            # robots-disallowed target -- under "respect" the target never
+            # becomes a page row, so no target-side check can see it.
+            if settings["robots"]["policy"] == "ignore":
+                ctx.skip(
+                    "ROBOTS_BLOCKED_OUTLINK",
+                    "robots.policy is ignore: no URL was measured against robots.txt",
+                )
+            else:
+                blocked_urls = list(getattr(result, "robots_blocked", None) or [])
+                for item in link_findings.robots_blocked_outlinks(
+                    graph.iter_links() if graph else links, blocked_urls
+                ):
+                    ctx.add("ROBOTS_BLOCKED_OUTLINK", target_url=item["target_url"], details=item)
             crawl_host = (urlsplit(start_norm).hostname or "") if url else ""
             if crawl_host:
                 # Preserve the established owner for the mixed-state verdict.
@@ -2200,6 +2251,7 @@ def _audit_crawl_result(
         else:
             reason = "crawl-list input retains no link-edge evidence"
             ctx.skip("OUTLINK_TO_LOCALHOST", reason)
+            ctx.skip("ROBOTS_BLOCKED_OUTLINK", reason)
             ctx.skip("FOLLOW_AND_NOFOLLOW_INLINKS", reason)
             ctx.skip("INTERNAL_NOFOLLOW_OUTLINKS", reason)
             ctx.skip("HTTP_LINK_ON_HTTPS", reason)
@@ -4183,7 +4235,6 @@ def markdown_extract(
     }
 
 
-
 def markdown_export(
     url: str | None = None,
     urls_file: str | None = None,
@@ -4249,6 +4300,7 @@ def markdown_export(
         ) or _re.search(
             r'<meta[^>]+content=["\']([^"\']*)["\'][^>]+name=["\']description["\']', html, _re.I
         )
+
         def clean(value: str | None) -> str:
             return _re.sub(r"\s+", " ", value or "").strip().replace('"', "'")
 
@@ -4256,7 +4308,11 @@ def markdown_export(
 
     def _relpath(page_url: str) -> _Path:
         path = urlsplit(page_url).path.strip("/")
-        parts = [_re.sub(r"[^A-Za-z0-9._~-]+", "_", seg) or "_" for seg in path.split("/")] if path else ["index"]
+        parts = (
+            [_re.sub(r"[^A-Za-z0-9._~-]+", "_", seg) or "_" for seg in path.split("/")]
+            if path
+            else ["index"]
+        )
         rel = _Path(*parts)
         return rel if rel.suffix == ".md" else rel.with_suffix(".md")
 
@@ -4270,7 +4326,12 @@ def markdown_export(
             _time.sleep(delay)
         fetched = _require_fetched_html(target)
         if not fetched.get("ok"):
-            failures.append({"url": target, "error": fetched.get("error") or f"HTTP {fetched.get('status_code')}"})
+            failures.append(
+                {
+                    "url": target,
+                    "error": fetched.get("error") or f"HTTP {fetched.get('status_code')}",
+                }
+            )
             continue
         title, description = _meta(fetched["html"])
         body = md_core.extract_markdown(fetched["html"], None)["content_markdown"]
@@ -4292,7 +4353,9 @@ def markdown_export(
             "---\n\n"
         )
         # Single lowercase tokens (zoom_in, expand_more…) are icon ligature names, not prose.
-        body = "\n".join(ln for ln in body.splitlines() if not _re.fullmatch(r"[a-z_]{2,24}", ln.strip()))
+        body = "\n".join(
+            ln for ln in body.splitlines() if not _re.fullmatch(r"[a-z_]{2,24}", ln.strip())
+        )
         dest.write_text(frontmatter + body.rstrip() + "\n", encoding="utf-8")
         written += 1
         total_bytes += dest.stat().st_size
@@ -5920,6 +5983,35 @@ def scan_inspect(
     )
 
 
+def extraction_presets() -> dict[str, Any]:
+    """List the shipped extraction rule sets usable as scan-extract preset names."""
+    from seohead.checks.extraction_library import available
+
+    return {"ok": True, "presets": available()}
+
+
+def scan_url_counts(
+    input_path: str,
+    filter_sets: list[list[dict[str, Any]]],
+    count_timeout_seconds: float = 30.0,
+) -> dict[str, Any]:
+    """Exact filtered counts of many filter sets over one saved scan in one call (#1553)."""
+    from seohead.storage.url_query import scan_url_counts as core
+
+    return core(input_path, filter_sets, count_timeout_seconds=count_timeout_seconds)
+
+
+def scan_config_diff(before_path: str, after_path: str) -> dict[str, Any]:
+    """Field-by-field diff of the recorded configurations of two saved scans (#1529).
+
+    Read-only: both scans' effective settings are read from their headers, the
+    sites are never re-read, and every difference shows both values.
+    """
+    from seohead.storage.config_diff import scan_config_diff as core
+
+    return core(before_path, after_path)
+
+
 def scan_url_query(
     input_path: str,
     filters: list[dict[str, Any]] | None = None,
@@ -7037,10 +7129,13 @@ def project_checklist_init(
     template: dict | None = None,
     expected_revision: int | None = None,
     plan: dict | None = None,
+    full: bool = False,
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_checklist_init as core
 
-    return core(directory, template=template, expected_revision=expected_revision, plan=plan)
+    return core(
+        directory, template=template, expected_revision=expected_revision, plan=plan, full=full
+    )
 
 
 def project_checklist_update(directory: str, item: dict, expected_revision: int) -> dict[str, Any]:
@@ -7125,10 +7220,13 @@ def project_priorities(
     policy: dict | None = None,
     apply: bool = False,
     expected_revision: int | None = None,
+    full: bool = False,
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_priorities as core
 
-    return core(directory, policy=policy, apply=apply, expected_revision=expected_revision)
+    return core(
+        directory, policy=policy, apply=apply, expected_revision=expected_revision, full=full
+    )
 
 
 def project_policy(
@@ -7287,6 +7385,14 @@ def project_export(
 
 
 def project_export_status(directory: str, job_id: str) -> dict[str, Any]:
+    import uuid as _uuid
+
+    try:  # a clear message instead of the raw hex-decode error (#1396)
+        _uuid.UUID(job_id)
+    except (ValueError, AttributeError, TypeError) as exc:
+        raise ValueError(
+            f"job_id must be a UUID, as returned by project-export; got {job_id!r}"
+        ) from exc
     from seohead.mcp.project_handlers import project_export_status as core
 
     return core(directory=directory, job_id=job_id)
@@ -7825,11 +7931,20 @@ def project_checklist_page(
     )
 
 
-def project_task_detail(directory: str, item_id: str) -> dict[str, Any]:
-    """Read one project task definition, evidence and bounded history."""
+def project_task_detail(
+    directory: str, item_id: str | None = None, task_id: str | None = None
+) -> dict[str, Any]:
+    """Read one project task definition, evidence and bounded history.
+
+    ``task_id`` is the canonical name of the same identifier (#1405); ``item_id``
+    stays as the accepted alias.
+    """
     from seohead.projects.observer import task_detail as core
 
-    return core(directory=directory, item_id=item_id)
+    chosen = task_id or item_id
+    if not chosen:
+        raise ValueError("pass the task identifier as task_id (item_id is the accepted alias)")
+    return core(directory=directory, item_id=chosen)
 
 
 def project_task_comment(
@@ -7852,11 +7967,17 @@ def project_task_comment(
     )
 
 
-def project_scans(directory: str, offset: int = 0, limit: int = 20) -> dict[str, Any]:
-    """Read a bounded page of retained project scans with evidence metadata."""
+def project_scans(
+    directory: str, offset: int = 0, limit: int = 20, full: bool = False
+) -> dict[str, Any]:
+    """Read a bounded page of retained project scans with evidence metadata.
+
+    The default row is compact (uuid, state, sizes, times); full=True restores
+    the inode/storage detail and the complete evidence projection.
+    """
     from seohead.projects.observer import scans_page as core
 
-    return core(directory=directory, offset=offset, limit=limit)
+    return core(directory=directory, offset=offset, limit=limit, full=full)
 
 
 def bi_export(
@@ -8765,6 +8886,9 @@ _RAW_HANDLERS = {
     "scan_url_detail": scan_url_detail,
     "scan_body_read": scan_body_read,
     "scan_url_query": scan_url_query,
+    "scan_url_counts": scan_url_counts,
+    "scan_config_diff": scan_config_diff,
+    "extraction_presets": extraction_presets,
     "scan_directory_tree": scan_directory_tree,
     "headers_analyze": headers_analyze,
     "scan_url_history": scan_url_history,

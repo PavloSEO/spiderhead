@@ -211,6 +211,9 @@ class WorkspaceMixin:
         )
         label = self.project_picker.currentText() if self.project_directory else "Новая вкладка"
         title = label  # the project name only: no scan id, no lifecycle
+        self.setWindowTitle(
+            f"{label} — SpiderHead" if self.project_directory else "SpiderHead"
+        )  # the window carries the project name too (quick win 9)
         self.workspace_tabs.update_title(
             self._active_workspace_id,
             title,

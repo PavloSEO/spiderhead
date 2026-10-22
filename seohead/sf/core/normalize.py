@@ -57,6 +57,9 @@ INTERNAL_FIELD_MAP: dict[str, list[str]] = {
     # Native-crawl only (#632): the h1-h6 outline in DOM order -- a list of
     # {level, text, region} objects, not a cell an export could hold.
     "heading_outline": ["Heading Outline"],
+    # Native-crawl only (#1530): hrefs rejected by link parsing, each
+    # {raw_href, reason}; None means recording was off, never "none found".
+    "invalid_link_targets": ["Invalid Link Targets"],
     # Native-crawl only (#634): where this page's own anchors sit -- the ones
     # inside a heading, and the image links that name nothing.
     "link_placement": ["Link Placement"],

@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**280 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**282 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -22,6 +22,12 @@ python scripts/generate_checks_reference.py
 | `BLOCKED_BY_ROBOTS` | warning | SF:Response Codes:Blocked by Robots.txt | URL is blocked by robots.txt | Confirm that the block is intentional; pages intended for indexing should remain crawlable. |
 | `NON_INDEXABLE_LINKED` | notice | SF-derived | Internally linked page is non-indexable | Decide whether the page should be indexable; otherwise remove unnecessary internal links and account for crawl-budget impact. |
 | `IMPORTANT_URL_BLOCKED_BY_ROBOTS` | warning | SF-derived | Live page is blocked by robots.txt despite receiving internal links | robots.txt blocks crawling, not indexing, so link discovery is lost. Make the URL crawlable with a more specific Allow rule than the matching Disallow, and control indexing with canonical or noindex. A common case is pagination such as /blog?page=N blocked by Disallow: /*?. |
+
+## the only evidence connecting the two.
+
+| Check id | Severity | Evidence | Fires on | Fix |
+|---|---|---|---|---|
+| `ROBOTS_BLOCKED_OUTLINK` | notice | crawl:robots_policy | The page links to URLs the crawl's robots policy kept out of the crawl | Review the Disallow rules that hid the quoted targets: a rule broad enough to block an internal link target removes that section from every robots-respecting crawler. Confirm each blocked target is intentionally excluded, or narrow the rule so the pages can be crawled and indexed on their own merits. |
 | `ROBOTS_BLOCKS_RESOURCES` | notice | sitemap | robots.txt blocks JavaScript or CSS resources required for rendering | Do not block .js, .css, or _next/static resources in robots.txt; otherwise Google may render the page incompletely. |
 | `URL_INTERNAL_SEARCH` | notice | SF-derived | URL is a recognized internal search route | Review whether internal search results should be linked or indexable; apply the intended crawl and indexing policy. |
 | `INTERNAL_LINK_NO_ANCHOR` | warning | crawl:retained_links | Internal hyperlink has empty anchor text | Add descriptive text to the internal link, or provide an accessible label for an intentional image or icon link. |
@@ -73,7 +79,13 @@ python scripts/generate_checks_reference.py
 | `H2_TOO_LONG` | notice | SF-derived | H2 exceeds the configured length threshold | Shorten the H2 while retaining what it introduces. |
 | `HEADING_BEFORE_H1` | notice | crawl:heading_outline | One or more headings appear before the page's first H1 in DOM order | Move the H1 above the headings that precede it, or demote those headings to plain text or a non-heading element. A parser reading the outline meets them before it meets the page's subject, and a snippet built from early page text quotes them instead of the page. |
 | `HEADING_IN_PAGE_CHROME` | notice | crawl:heading_outline | A heading sits in the page chrome (header, nav, sidebar or footer) rather than in the content | Mark template furniture up as what it is -- a menu label or a widget title is not a heading of this document, and repeating it on every page pushes the page's own headings down its outline. |
-| `HEADING_SKIP` | notice | crawl:heading_outline | Content headings skip one or more levels in DOM order | Use the next heading level after the preceding content heading; for example, change an H4 that follows an H2 to H3 unless it begins a new top-level section. |
+| `HEADING_SKIP` | notice | crawl:heading_outline | Content headings change by more than one level in DOM order, skipping a level down or jumping back up past an open section | Use the adjacent heading level in both directions: an H4 that follows an H2 becomes H3, and a heading returning up the outline steps back one level at a time so each open section closes in order (H3 -> H2 closes one section and starts a sibling, which is correct nesting). |
+
+## 7.E — links the crawler could not follow at all
+
+| Check id | Severity | Evidence | Fires on | Fix |
+|---|---|---|---|---|
+| `INVALID_LINK_TARGET` | notice | crawl:invalid_link_targets | The page points at hrefs that cannot become fetchable link targets (unparsable syntax or a non-http(s) scheme) | Review each quoted href as written: a truncated or malformed URL passes no crawl equity and often signals a broken template; a non-http(s) scheme is only a finding when the link was meant to be a page. Recording is opt-in (discovery.record_invalid_targets); rejected targets never enter the crawl. |
 
 ## 7.E — canonical & directives
 

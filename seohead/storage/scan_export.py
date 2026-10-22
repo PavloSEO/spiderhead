@@ -111,6 +111,7 @@ PAGE_FIELDS_SCAN = (
     "hreflang_outside_head",
     "hreflang",
     "heading_outline",
+    "invalid_link_targets",
     "link_placement",
     "canonical_chain",
     "final_canonical",

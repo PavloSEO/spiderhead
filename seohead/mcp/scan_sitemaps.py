@@ -44,7 +44,21 @@ def load_sitemaps(
         # between root transactions. Exact retries are idempotent.
         # This set is bounded by the selected-root cap, never the graph or its URL members.
         selected_keys: set[str] = set()
-        for url in robots["parsed"]["sitemaps"]:
+        from urllib.parse import urljoin, urlsplit, urlunsplit
+
+        base = start_url or ""
+        base_parts = urlsplit(base)
+        if base_parts.scheme and base_parts.netloc:
+            base = urlunsplit((base_parts.scheme, base_parts.netloc, "/", "", ""))
+        for declared in robots["parsed"]["sitemaps"]:
+            # A robots.txt ``Sitemap:`` line may be relative (``Sitemap: /sitemap.xml``):
+            # resolve it against the crawled site root; a line that still carries no
+            # http(s) scheme is skipped, never an abort (#1552).
+            url = urljoin(base, str(declared).strip()) if base else str(declared).strip()
+            resolved = urlsplit(url)
+            if resolved.scheme not in ("http", "https") or not resolved.netloc:
+                result.setdefault("skipped_sitemaps", []).append(str(declared))
+                continue
             key = normalize_url(url)
             if key in selected_keys:
                 continue
