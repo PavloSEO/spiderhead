@@ -203,7 +203,7 @@ def test_documented_product_counts_match_the_registries():
     assert len(COMMANDS) == len(HANDLERS)
     assert len(_sf_tool_names()) == 6
     assert CHECKS
-    assert len(TECHNICAL_SKILLS) == 25
+    assert len(TECHNICAL_SKILLS) == 26
     assert len(PACKAGED_SKILLS) == 8
     assert (
         str(len(COMMANDS)) in provenance

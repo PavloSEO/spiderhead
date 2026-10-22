@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**230 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **6 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **10 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 246 in total.
+**231 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **6 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **10 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 247 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -257,15 +257,22 @@ or already finished is refused by name before the first request.
 
 MCP name: `seo_crawl_control`
 
-Request a native project crawl to checkpoint and pause or stop by its run ID.
+Pause, stop or change the rate of a running native project crawl by its run ID.
 
 | Argument | Type | Default |
 |---|---|---|
 | `project` | `str` | `required` |
 | `run_id` | `str` | `required` |
-| `action` | `Literal['pause', 'stop']` | `required` |
+| `action` | `Literal['pause', 'stop', 'set_rate']` | `required` |
+| `rate` | `float | None` | `None` |
+| `concurrency` | `int | None` | `None` |
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+``set_rate`` takes ``rate`` in URLs per second (and an optional ``concurrency``);
+the crawl applies it at the next batch and records it as a scan event.
 
 ### `crawl-describe-settings`
 
@@ -735,6 +742,25 @@ Render a page as Markdown in two scopes. content_markdown strips navigation and 
 | `url` | `str` | `''` |
 | `html` | `str` | `''` |
 | `content_area` | `dict[str, Any] | None` | `None` |
+
+**Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
+### `markdown-export`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_markdown_export`
+
+Export pages as Markdown files: a site's sitemap, a URL list, or one URL. Each page becomes <out-dir>/<url-path>.md (home -> index.md) with frontmatter (title, description, final URL, status, export date) above the content-area Markdown seo_markdown_extract produces -- nav and footer excluded, headings, lists and links kept. sitemap follows a sitemap index down to its urlsets (a site root is resolved through robots.txt Sitemap directives); urls_file holds one URL per line. max_urls caps the run, delay seconds space the requests. The summary lists counts, byte totals and up to 20 failures, so a partial export stays visible.
+
+| Argument | Type | Default |
+|---|---|---|
+| `url` | `str` | `''` |
+| `urls_file` | `str` | `''` |
+| `sitemap` | `str` | `''` |
+| `out_dir` | `str` | `'markdown-export'` |
+| `max_urls` | `int` | `200` |
+| `delay` | `float` | `0.5` |
 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 

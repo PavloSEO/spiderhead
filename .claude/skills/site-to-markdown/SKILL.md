@@ -6,10 +6,10 @@ description: >-
   toolkit's markdown-export over a sitemap (site root or sitemap URL; indexes are followed), a
   URL list file, or a single URL, into an output folder the caller names. Use it to hand a whole
   site to a model or a translation batch, to snapshot content before a redesign, or to build the
-  Markdown mirrors an AI-ready site serves for Accept: text/markdown. Triggers on: "выгрузи сайт
-  в markdown", "нарежь сайт в md", "site to markdown", "export pages as markdown", "markdown
-  export", "all pages as .md files", "подготовь контент сайта для модели", "markdown mirror of
-  the site", "custom extraction to markdown".
+  Markdown mirrors an AI-ready site serves for Accept: text/markdown. Triggers on: "site to
+  markdown", "export pages as markdown", "markdown export", "all pages as .md files", "prepare
+  the site content for a model", "markdown mirror of the site", "custom extraction to
+  markdown", "slice the site into md files".
 ---
 
 # Site → Markdown export
