@@ -6884,10 +6884,11 @@ def project_checklist_init(
     template: dict | None = None,
     expected_revision: int | None = None,
     plan: dict | None = None,
+    full: bool = False,
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_checklist_init as core
 
-    return core(directory, template=template, expected_revision=expected_revision, plan=plan)
+    return core(directory, template=template, expected_revision=expected_revision, plan=plan, full=full)
 
 
 def project_checklist_update(directory: str, item: dict, expected_revision: int) -> dict[str, Any]:
@@ -6972,10 +6973,13 @@ def project_priorities(
     policy: dict | None = None,
     apply: bool = False,
     expected_revision: int | None = None,
+    full: bool = False,
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_priorities as core
 
-    return core(directory, policy=policy, apply=apply, expected_revision=expected_revision)
+    return core(
+        directory, policy=policy, apply=apply, expected_revision=expected_revision, full=full
+    )
 
 
 def project_policy(

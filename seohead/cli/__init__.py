@@ -930,6 +930,10 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         if cmd == "project-progress":
             kw["limit"] = args.limit
             kw["offset"] = args.offset
+        if cmd == "project-priorities" and getattr(args, "full", False):
+            kw["full"] = True
+        if cmd == "project-checklist-init" and getattr(args, "full", False):
+            kw["full"] = True
         if cmd == "project-settings-proposals":
             kw["limit"] = args.limit
             kw["offset"] = args.offset
@@ -3295,6 +3299,18 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "project-progress":
         sub.add_argument("--limit", type=int, default=20, help="items per page (1..100)")
         sub.add_argument("--offset", type=int, default=0, help="zero-based item offset")
+    if cmd == "project-priorities":
+        sub.add_argument(
+            "--full",
+            action="store_true",
+            help="include the complete per-check decision list (default: counts and changed decisions)",
+        )
+    if cmd == "project-checklist-init":
+        sub.add_argument(
+            "--full",
+            action="store_true",
+            help="include the complete item list (default: status and counts)",
+        )
     if cmd == "remediation-create":
         sub.add_argument(
             "--path", required=True, help="new ledger.v1 SQLite path; never overwrites"

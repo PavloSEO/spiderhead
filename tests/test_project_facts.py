@@ -66,7 +66,7 @@ def test_detection_records_stack_facts_that_priorities_then_read(project):
     initialize_coverage(project)
     decision = next(
         row
-        for row in project_priorities(str(project))["decisions"]
+        for row in project_priorities(str(project), full=True)["decisions"]
         if row["id"] == "skill:workflow/js-render-check"
     )
     assert decision["after"] == {"priority": "P0", "priority_origin": "policy"}
