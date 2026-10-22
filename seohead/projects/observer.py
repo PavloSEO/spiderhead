@@ -1238,7 +1238,7 @@ def task_detail(directory: str | Path, *, item_id: str) -> dict:
     view = coverage_status(root, _verify_evidence=False)
     row = next((item for item in view.get("items", []) if item["id"] == local_id), None)
     if row is None:
-        raise ValueError("checklist item is unavailable")
+        raise ValueError(f"task {item_id!r} is unavailable in this checklist")
     document = _read(root, project)
     saved = (document or {}).get("items", {}).get(local_id, {})
     records = saved.get("records", [])

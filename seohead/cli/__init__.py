@@ -3655,9 +3655,15 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
     if cmd == "project-task-detail":
-        sub.add_argument("--item-id", help="exact checklist item identifier")
+        sub.add_argument("--task-id", dest="item_id", help="exact task identifier")
+        sub.add_argument(
+            "--item-id", dest="item_id", help="same identifier (checklist item spelling)"
+        )
     if cmd == "project-task-comment":
-        sub.add_argument("--item-id", help="exact custom task identifier")
+        sub.add_argument("--task-id", dest="item_id", help="exact task identifier")
+        sub.add_argument(
+            "--item-id", dest="item_id", help="same identifier (custom task spelling)"
+        )
         sub.add_argument("--expected-revision", type=int)
         sub.add_argument("--actor", help="person or agent adding the comment")
         _source_flag(sub, "--text", help="comment text")

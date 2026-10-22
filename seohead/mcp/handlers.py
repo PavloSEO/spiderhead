@@ -7686,11 +7686,18 @@ def project_checklist_page(
     )
 
 
-def project_task_detail(directory: str, item_id: str) -> dict[str, Any]:
-    """Read one project task definition, evidence and bounded history."""
+def project_task_detail(directory: str, item_id: str | None = None, task_id: str | None = None) -> dict[str, Any]:
+    """Read one project task definition, evidence and bounded history.
+
+    ``task_id`` is the canonical name of the same identifier (#1405); ``item_id``
+    stays as the accepted alias.
+    """
     from seohead.projects.observer import task_detail as core
 
-    return core(directory=directory, item_id=item_id)
+    chosen = task_id or item_id
+    if not chosen:
+        raise ValueError("pass the task identifier as task_id (item_id is the accepted alias)")
+    return core(directory=directory, item_id=chosen)
 
 
 def project_task_comment(
