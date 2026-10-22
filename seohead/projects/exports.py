@@ -1044,8 +1044,25 @@ def start_export(
         raise ProjectExportError("format must be json, csv, or xlsx")
     if (dataset == "compare") != (compare_manifest is not None):
         raise ProjectExportError("compare_manifest is required only for compare exports")
+    if isinstance(output, str) and "/" in output.strip("/").replace("\\", "/"):
+        # A path inside <project>/reports/ is accepted by resolving it to its bare name (#1404);
+        # anything outside reports/ still refuses.
+        candidate = Path(output.strip())
+        parts = candidate.parts
+        if "reports" not in parts:
+            raise ProjectExportError(
+                "output must be a new filename directly under reports/ (a bare name),"
+                " or a path inside <project>/reports/"
+            )
+        output = parts[parts.index("reports") + 1 :]
+        if len(output) != 1:
+            raise ProjectExportError("output must be a new filename directly under reports/")
+        output = output[0]
     if not isinstance(output, str) or Path(output).name != output or output.startswith("."):
-        raise ProjectExportError("output must be a new filename directly under reports/")
+        raise ProjectExportError(
+            "output must be a new filename directly under reports/ (a bare name),"
+            " or a path inside <project>/reports/"
+        )
     output = (
         output
         if Path(output).suffix
