@@ -44,7 +44,7 @@ from seohead.core.tabular import neutralize_formula as neutralize_formula
 
 FORMATS = ("xlsx", "docx", "csv", "md", "json", "pdf")
 
-# The SF Analyzer audit.json contract's own version marker (seohead/sf/core/models.py
+# The Export Analyzer audit.json contract's own version marker (seohead/sf/core/models.py
 # AuditResult.to_json). Only this exact value is accepted: a document declaring any
 # other schema_version has not been reviewed against these writers and must be
 # refused rather than rendered as if it matched (#338).
@@ -154,7 +154,7 @@ def _detect_kind(document: dict[str, Any]) -> tuple[str | None, str | None]:
         if marker != _SF_AUDIT_SCHEMA_VERSION:
             return None, (
                 f"unsupported or missing 'schema_version' marker {marker!r}; "
-                f"SF Analyzer audits require exactly {_SF_AUDIT_SCHEMA_VERSION!r}"
+                f"Export Analyzer audits require exactly {_SF_AUDIT_SCHEMA_VERSION!r}"
             )
         invalid = [
             name
@@ -170,7 +170,7 @@ def _detect_kind(document: dict[str, Any]) -> tuple[str | None, str | None]:
         if invalid:
             return (
                 None,
-                f"SF Analyzer audit has invalid or missing container(s): {', '.join(invalid)}",
+                f"Export Analyzer audit has invalid or missing container(s): {', '.join(invalid)}",
             )
         return "sf-audit", None
     return None, None
@@ -211,7 +211,7 @@ def _normalize_sf_page(page: dict[str, Any]) -> dict[str, Any]:
 
 
 def _normalize_sf_audit(document: dict[str, Any]) -> dict[str, Any]:
-    """Reshape an SF Analyzer ``audit.json`` into the flat site-audit contract.
+    """Reshape an Export Analyzer ``audit.json`` into the flat site-audit contract.
 
     Every field copied here is real evidence already present in ``document``;
     none is computed or guessed, matching the module contract above.
@@ -464,7 +464,7 @@ def _build_audit_v2_report(
         return {
             "ok": False,
             "error": f"unsupported or missing 'schema_version' marker {header.get('schema_version')!r}; "
-            f"SF Analyzer audits require exactly {_SF_AUDIT_SCHEMA_VERSION!r}",
+            f"Export Analyzer audits require exactly {_SF_AUDIT_SCHEMA_VERSION!r}",
         }
     invalid = [
         name for name, expected in required.items() if not isinstance(header.get(name), expected)
@@ -472,7 +472,7 @@ def _build_audit_v2_report(
     if invalid or not {"/issues", "/pages"}.issubset(reader.collections):
         return {
             "ok": False,
-            "error": "SF Analyzer audit.v2 has invalid or missing containers: "
+            "error": "Export Analyzer audit.v2 has invalid or missing containers: "
             + ", ".join(
                 invalid
                 + [name for name in ("issues", "pages") if f"/{name}" not in reader.collections]
@@ -720,7 +720,7 @@ def _build_report(
             "error": marker_error
             or (
                 "audit document schema not recognized: expected 'findings' "
-                "(seohead.site-audit/1) or 'issues'+'pages' (SF Analyzer audit.json); "
+                "(seohead.site-audit/1) or 'issues'+'pages' (Export Analyzer audit.json); "
                 f"got top-level keys {sorted(document.keys())!r}"
             ),
         }

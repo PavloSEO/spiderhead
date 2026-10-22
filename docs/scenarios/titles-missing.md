@@ -69,8 +69,8 @@ not reported clean:
 A browser closes `<head>` at the first element that does not belong there — an invalid tag
 sitting between the title and the rest of the metadata — and reads everything after that point
 from `<body>` instead, silently. The title still exists; it is just read from the wrong place.
-Step 1's crawl records this per page automatically, and neither a plain Screaming Frog export
-nor `sf run --exports-dir` on its own can raise it: Screaming Frog has no notion of it either.
+Step 1's crawl records this per page automatically; a crawler export analysed with
+`sf run --exports-dir` cannot raise it, because the export does not record where the element sits.
 
 ## What comes out
 

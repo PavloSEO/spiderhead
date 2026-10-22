@@ -259,7 +259,7 @@ class AuditResult:
         header = {
             "schema_version": "2.0",
             "tool": {
-                "name": "SF Analyzer",
+                "name": "Export Analyzer",
                 "version": __version__,
                 "generated_by": "SEOHead",
             },

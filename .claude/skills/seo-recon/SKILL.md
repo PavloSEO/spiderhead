@@ -1,7 +1,7 @@
 ---
 name: seo-recon
 description: >-
-  Investigate the domain and site infrastructure using data Screaming Frog does not
+  Investigate the domain and site infrastructure using data a page crawl does not
   provide: domain age and registration, DNS records, hosting and ASN by IP, server
   location, TLS certificate, CDN and cache operation detection, CMS/framework/stack,
   analytics, and pixels. Use when asked "what hosting provider does this site use,"

@@ -337,6 +337,9 @@ bundled Schema.org vocabulary keeps its original CC BY-SA terms. See
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), [PROVENANCE.md](docs/legal/PROVENANCE.md),
 [TRADEMARKS.md](docs/legal/TRADEMARKS.md) and [CITATION.cff](CITATION.cff).
 
+Screaming Frog and SEO Spider are trademarks of Screaming Frog Ltd. SpiderHead is independent and
+not affiliated with or endorsed by Screaming Frog Ltd; the name is used only to describe compatibility.
+
 ---
 
 <p align="center"><sub><img src="docs/assets/spiderhead-mark.svg" alt="" width="20" height="20" align="absmiddle"> Made with SpiderHead</sub></p>

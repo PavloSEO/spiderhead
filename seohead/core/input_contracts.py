@@ -1462,7 +1462,7 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
         _form(
             "scan_artifact",
             "input_path",
-            note="Also accepts an SF Analyzer audit.json document; links are unavailable there.",
+            note="Also accepts an Export Analyzer audit.json document; links are unavailable there.",
         ),
         _form(
             "selector",

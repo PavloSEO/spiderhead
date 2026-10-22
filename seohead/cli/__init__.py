@@ -3090,7 +3090,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             "--scan",
             dest="input_path",
             metavar="FILE",
-            help="scan.v1 SQLite artifact or SF Analyzer audit.json to export",
+            help="scan.v1 SQLite artifact or Export Analyzer audit.json to export",
         )
         sub.add_argument(
             "--out",
