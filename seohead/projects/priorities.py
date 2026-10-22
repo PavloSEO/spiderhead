@@ -174,7 +174,7 @@ def project_priorities(
     root, project = _load(directory)
     document = _read(root, project)
     if document is None:
-        raise ValueError("initialize the checklist first")
+        raise ValueError("initialize the checklist first: run project-checklist-init")
     if apply and type(expected_revision) is not int:
         raise ValueError("expected_revision must be an integer when apply=true")
     if not apply and expected_revision is not None and type(expected_revision) is not int:

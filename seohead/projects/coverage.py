@@ -1210,7 +1210,7 @@ def update_item(directory: str | Path, item: dict, expected_revision: int) -> di
     catalogue = load_catalogue()
     with _transaction(directory, expected_revision) as (_, project, document):
         if document["revision"] == 0:
-            raise ValueError("initialize the checklist first")
+            raise ValueError("initialize the checklist first: run project-checklist-init")
         _promote_v4(document)
         _materialize_builtin(document, item.get("id"), project)
         previous = (
@@ -1243,7 +1243,7 @@ def append_task_comment(
     _task_comment_shape(entry)
     with _transaction(directory, expected_revision) as (_, _project, document):
         if document["revision"] == 0:
-            raise ValueError("initialize the checklist first")
+            raise ValueError("initialize the checklist first: run project-checklist-init")
         _promote_v4(document)
         item = document["items"].get(item_id)
         if item is None or item["definition"]["kind"] != "custom":

@@ -3937,8 +3937,28 @@ artifact paths are project-relative and must lie under scans/ or reports/.
 """
 
 
+class _SuggestingParser(argparse.ArgumentParser):
+    """Invalid command: one line, up to three close matches, a pointer to --help (#1393)."""
+
+    def error(self, message: str):
+        if message.startswith("argument <command>: invalid choice:"):
+            import difflib
+
+            quoted = message.split("invalid choice:", 1)[1].strip()
+            wanted = quoted.split(" ", 1)[0].strip("'\"")
+            choices = [
+                action
+                for group in self._subparsers._group_actions
+                for action in group.choices
+            ] if getattr(self, "_subparsers", None) else []
+            near = difflib.get_close_matches(wanted, choices, n=3, cutoff=0.5)
+            hint = f" (did you mean: {', '.join(near)}?)" if near else ""
+            self.exit(2, f"seohead: unknown command {wanted!r}{hint}\nsee `seohead --help`\n")
+        super().error(message)
+
+
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="seohead", description="Headless Python SEO toolkit.")
+    p = _SuggestingParser(prog="seohead", description="Headless Python SEO toolkit.")
     p.add_argument("--version", action="version", version=f"seohead {__version__}")
     subs = p.add_subparsers(dest="command", metavar="<command>")
     version = subs.add_parser("version", help="core version, formats and commands")
