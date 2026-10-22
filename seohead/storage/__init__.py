@@ -112,7 +112,16 @@ _LATE_PAGE_FIELDS = {
 # transport_upgraded rides here too (#1484): a JSONL written before the field
 # upgraded nothing, and False is that JSONL's truth.
 _OPTIONAL_PAGE_RECORD_FIELDS = frozenset(
-    {"trust_signals", "duplicate_ids", "invalid_link_targets", "transport_upgraded"}
+    {
+        "trust_signals",
+        "duplicate_ids",
+        "invalid_link_targets",
+        "transport_upgraded",
+        "sentence_count",
+        "avg_words_per_sentence",
+        "flesch",
+        "readability",
+    }
 )
 _PAGE_NONNEGATIVE_INTS = {
     "ajax_scheme_outlinks",
@@ -630,6 +639,12 @@ def _import_pages(con, source: Path, limitations: list[str], inputs: list[dict])
         # Absent key (a JSONL written before #1484): nothing was upgraded; the
         # shared _PAGE_BOOLS loop below validates and converts the present form.
         row.setdefault("transport_upgraded", False)
+        # Reading level (#1516): absent (a JSONL written before the field) is
+        # NULL -- unmeasured, never zero.
+        row.setdefault("sentence_count", None)
+        row.setdefault("avg_words_per_sentence", None)
+        row.setdefault("flesch", None)
+        row.setdefault("readability", None)
         placement = row.pop("link_placement")
         if placement is not None:
             _link_placement(placement)

@@ -2414,6 +2414,11 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
         result["content_text"] = content_text
         result["content_area_strategy"] = strategy
         result["word_count"] = len(content_text.split())
+        # Reading level over the same retained content (#1516): None when the
+        # area holds no word with a letter -- unmeasured, never zero.
+        from seohead.checks.readability import reading_ease
+
+        result["readability"] = reading_ease(content_text)
         # Scoped to content_text, not the whole document -- see count_lorem_ipsum.
         result["lorem_ipsum_count"] = count_lorem_ipsum(content_text)
         result["frames"] = extract_frames(
@@ -2429,6 +2434,7 @@ def parse_html(html: str, final_url: str, options: dict[str, Any] | None = None)
         result["content_text"] = ""
         result["content_area_strategy"] = None
         result["word_count"] = 0
+        result["readability"] = None
         result["lorem_ipsum_count"] = 0
         result["frames"] = []
 

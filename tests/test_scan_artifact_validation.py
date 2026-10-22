@@ -434,7 +434,7 @@ def test_schema_maps_all_current_page_and_link_fields():
     }
     page_record_fields = {field.name for field in fields(PageRecord)}
     assert set(_LATE_PAGE_FIELDS) <= page_record_fields
-    assert len(page_record_fields - set(_LATE_PAGE_FIELDS) - transient) == 47
+    assert len(page_record_fields - set(_LATE_PAGE_FIELDS) - transient) == 51
     assert {
         name
         for name, annotation in get_type_hints(PageRecord).items()

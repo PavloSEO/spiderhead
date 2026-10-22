@@ -150,6 +150,14 @@ CREATE TABLE pages (
   -- 1 when the URL entered the crawl over http:// and was fetched over https://
   -- without a redirect hop, under http.upgrade_to_https (issue #1484).
   transport_upgraded INTEGER NOT NULL CHECK (transport_upgraded IN (0,1)),
+  -- Reading level over the retained content area (issue #1516): Flesch Reading
+  -- Ease, its inputs and the derived band (checks.readability, version
+  -- flesch-reading-ease.v1). NULL when the area was not retained or holds no
+  -- word with a letter -- unmeasured, never zero.
+  sentence_count INTEGER,
+  avg_words_per_sentence REAL,
+  flesch REAL,
+  readability TEXT,
   -- Hrefs that could not become fetchable link targets, each {raw_href, reason}
   -- (issue #1530). Nullable: recording is opt-in
   -- (discovery.record_invalid_targets), and a crawl run without it

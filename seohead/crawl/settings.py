@@ -78,6 +78,10 @@ from typing import Any
 # Field 70 is the transport-upgrade marker (#1484), a bool that defaults False
 # and never allocates: the same instrument measured 2,539 bytes per default
 # 70-field record, within noise of the 69-field figure.
+# Fields 71-74 are the readability set (#1516): three nullable numbers (None
+# while the content area has nothing measurable) and the band string. The same
+# instrument measured 2,540 bytes per default 74-field record and no increment
+# for a populated band -- the numbers ride existing per-record slots.
 # Field 69 is the nullable rejected-href list (#1530). The same instrument measured
 # 2,540 bytes per default 69-field record (null adds no allocation, as before) and
 # about +247 bytes for a record carrying one rejected target -- a cost only a crawl
