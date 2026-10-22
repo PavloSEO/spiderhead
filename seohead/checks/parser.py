@@ -1635,7 +1635,8 @@ def _extract_link_observations(
         target, reason = _link_target_reason(tag, base_url, final_url)
         if target is None:
             if record_invalid_targets and reason:
-                invalid.append({"raw_href": (tag.get("href") or "").strip(), "reason": reason})
+                raw = (cast("str | None", tag.get("href")) or "").strip()
+                invalid.append({"raw_href": raw, "reason": reason})
             continue
         href, href_raw, external = target
         total += 1
