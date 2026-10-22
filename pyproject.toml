@@ -12,7 +12,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Pavel Barushka" }]
 keywords = [
-    "seo", "seo-tools", "technical-seo", "screaming-frog", "audit",
+    "seo", "seo-tools", "technical-seo", "audit",
     "sitemap", "robots-txt", "broken-links", "hreflang", "redirects",
     "cdn", "cloudflare", "whois", "technology-detection", "backlink-checker",
     "schema-org", "geo", "aeo", "mcp", "model-context-protocol", "cli",

@@ -209,7 +209,7 @@ importer-version field because `scan.v1` has no such column.
 `scan export` (also the flat `scan-export` form and the `seo_scan_export` MCP
 tool) serializes retained scan data — not a report — under the versioned
 `scan_export.v1` contract. It is a read-only, offline operation that accepts a
-validated `scan.v1` SQLite artifact or an SF Analyzer `audit.json` document
+validated `scan.v1` SQLite artifact or an Export Analyzer `audit.json` document
 (`schema_version` "2.0"). Site-audit reports are refused: they are rendered
 output, not retained evidence. The three-file `export-run` output above is a
 different, legacy round-trip format and is unchanged.

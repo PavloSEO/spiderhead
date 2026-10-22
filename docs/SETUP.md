@@ -135,7 +135,7 @@ seohead crawl-enrich --audit ./report/audit.json --external-csv ./gsc.csv --out-
 seohead crawl-site --urls-file ./not-observed.txt --out-dir ./orphan-audit
 ```
 
-This is not Screaming Frog parity. Checks whose evidence a native crawl cannot produce —
+This is not parity with commercial crawlers. Checks whose evidence a native crawl cannot produce —
 near-duplicates, readability, pixel widths, link score — are reported as **skipped**, never
 as clean, and `summary.check_coverage` states how much of the registry ran. Redirect chain
 and loop detection are the exception: they are resolved from the crawl's own per-URL

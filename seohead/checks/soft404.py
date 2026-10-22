@@ -5,8 +5,8 @@ different: the server returns **200 OK** for a nonexistent URL, often with a
 templated "nothing found" page. Search engines can treat these responses as
 low-value pages eligible for indexing.
 
-Screaming Frog does not detect this through a normal crawl because it requests
-known URLs rather than inventing nonexistent ones. The check therefore needs
+A normal crawl does not detect this because it requests known URLs rather
+than inventing nonexistent ones. The check therefore needs
 active probes, like the reconnaissance modules.
 
 The algorithm creates two deterministic nonexistent URLs from the origin's

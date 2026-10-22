@@ -24,7 +24,7 @@ def artifact(legacy_run, tmp_path):
 
 
 def _document() -> dict:
-    """A minimal, synthetic SF Analyzer audit document with hostile text."""
+    """A minimal, synthetic Export Analyzer audit document with hostile text."""
     return {
         "schema_version": "2.0",
         "tool": {"name": "seohead-sf-analyzer", "version": "test"},

@@ -1,7 +1,7 @@
 """Normalize an explicitly mapped third-party crawl CSV bundle.
 
 The returned document remains foreign crawl evidence. It is not a native
-``scan.v1`` artifact, an SF Analyzer audit, or a claim that missing fields
+``scan.v1`` artifact, an Export Analyzer audit, or a claim that missing fields
 were measured cleanly.
 """
 

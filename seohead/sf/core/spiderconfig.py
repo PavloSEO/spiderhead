@@ -16,6 +16,10 @@ Their values immediately follow ``TC_ENDBLOCKDATA TC_NULL`` (``b"xp"``), which
 terminates the class descriptor. The patch changes exactly nine bytes and
 nothing else, preserving the stream structure so SF can read its own file.
 
+Interoperability only: the module edits a config file the user created with their own licensed
+copy of SF and never ships one. The class and field names above are the ones written in plain
+text inside that serialized file itself.
+
 An explicit limitation: this code does not modify ``mMaxThreads``. That integer
 is one of roughly ten primitive fields in another class, and its offset cannot
 be determined without parsing that descriptor fully. Guessing an offset could

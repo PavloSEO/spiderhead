@@ -3720,7 +3720,7 @@ def crawl_import(manifest_path: str | None = None) -> dict[str, Any]:
     """Read an explicitly mapped third-party CSV crawl bundle offline.
 
     The result keeps source identity and field coverage under
-    ``third_party_crawl.v1``. It is not a native scan or an SF Analyzer audit.
+    ``third_party_crawl.v1``. It is not a native scan or an Export Analyzer audit.
     """
     if not isinstance(manifest_path, str) or not manifest_path.strip():
         return {"ok": False, "error": "manifest_path must be a non-empty local path"}

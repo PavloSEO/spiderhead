@@ -996,7 +996,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         or silently serves 200/3xx (which pollutes the index with junk pages). Sends two
         deterministic probes (sha256 of origin, at ordinary root paths) and applies strict
         AND-logic: both 2xx/3xx -> soft-404 confirmed (warning); both 404/410 -> pass;
-        anything else -> unknown. Screaming Frog cannot see this — it crawls known URLs,
+        anything else -> unknown. A normal crawl cannot see this — it requests known URLs,
         not invented ones, so this needs an active request."""
         return _checked(handlers.soft404_check(url=url))
 
@@ -1259,7 +1259,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         pdf_policy: Literal["overview-v1"] | None = None,
     ) -> dict[str, Any]:
         """Turn an audit document into a file: xlsx, docx, csv, md, json or pdf. Pass the dict
-        returned by seo_site_audit, an SF Analyzer audit.json from sf_audit_run (or a
+        returned by seo_site_audit, an Export Analyzer audit.json from sf_audit_run (or a
         path to either one's JSON, or a validated scan.v1 SQLite artifact) — both audit
         schemas are recognized and normalized before
         rendering. xlsx has four sheets with filters and a live Excel chart — for work;
@@ -1296,7 +1296,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
     def seo_facts_export(sites: list[dict[str, Any]]) -> dict[str, Any]:
         """Build one comparable facts table (schema facts.v1) across several sites from
         crawl/site audits you already produced. Each site is
-        {label, crawl_audit?, site_audit?} -- crawl_audit is an SF Analyzer audit.json
+        {label, crawl_audit?, site_audit?} -- crawl_audit is an Export Analyzer audit.json
         (dict or path), site_audit is a seo_site_audit document (dict or path), both
         optional but at least one is needed for real facts; a site with neither still
         gets a full row of unavailable facts, named. Reads documents only: zero network

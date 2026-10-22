@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/PavloSEO/seohead-tools/schema/audit.schema.json",
-  "title": "SF Analyzer audit.json",
+  "title": "Export Analyzer audit.json",
   "type": "object",
   "required": ["schema_version", "tool", "run", "summary", "issues", "pages", "groups"],
   "properties": {

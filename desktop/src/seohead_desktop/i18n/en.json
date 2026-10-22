@@ -993,7 +993,6 @@
  "Таблица URL": "URL table view",
  "Фильтры, детали, экспорт": "Filters, details, export",
  "Быстрый краул": "Quick crawl",
- "Без проекта, как Screaming Frog": "Without a project, like Screaming Frog",
  "Задача из проблемы": "Task from an issue",
  "Сканы · {n}": "Scans · {n}",
  "Скан": "Scan",
@@ -4028,5 +4027,17 @@
  "Вес ресурсов, байт": "Resource weight, bytes",
  "Ядро не сохранило профиль": "The core did not save the profile",
  "Читаю страницу…": "Reading the page…",
- "Проблемы URL, задача, глубина кликов": "URL issues, task, click depth"
+ "Проблемы URL, задача, глубина кликов": "URL issues, task, click depth",
+ "Ответы и индексация": "Responses & indexing",
+ "Title и description": "Titles & descriptions",
+ "Canonical и директивы": "Canonicals & directives",
+ "Мобильная версия": "Mobile version",
+ "Структура HTML": "HTML structure",
+ "Изображения страницы": "Page images",
+ "Похожие страницы": "Similar pages",
+ "Папки": "Folders",
+ "Важность": "Severity",
+ "Без проекта: введите URL и запустите": "Without a project: enter a URL and start",
+ "Screaming Frog и SEO Spider — товарные знаки Screaming Frog Ltd. SpiderHead — независимый проект, не связан с Screaming Frog Ltd и не одобрен ею; название используется только для описания совместимости.": "Screaming Frog and SEO Spider are trademarks of Screaming Frog Ltd. SpiderHead is an independent project, not affiliated with or endorsed by Screaming Frog Ltd; the name is used only to describe compatibility.",
+ "Заголовки H1–H6": "Headings"
 }
