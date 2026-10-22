@@ -1,8 +1,8 @@
 # Native tab and panel contracts
 
 This change prepares reusable Qt Widgets and a runnable offline component gallery.
-It does not connect all panels to the core, implement an analyzer, or claim parity
-with every Screaming Frog release. The working application adapter remains owned
+It does not connect all panels to the core or implement an analyzer; the tab set follows
+the audit areas of SpiderHead's own check registry. The working application adapter remains owned
 by `app.py` / `mcp_gateway.py`; the new widgets accept projections and emit intents.
 
 ## Design skeleton
@@ -49,35 +49,35 @@ the adapter must actually supply before the widget can claim measured data.
 | Pane / IDs | Widget and behavior | Required projection / boundary |
 |---|---|---|
 | Main: `internal` | URL table, MIME selector, paging, selection | Normalized retained `scan-inspect --table pages` page: `url`, `status`, `type`, `indexability`, `title`, `issues`; missing extra columns stay unknown |
-| Main: `external` | Address / content type / response / depth / inlinks | Retained external link/resource projection; never copy internal rows as external evidence |
-| Main: `security` | Response/indexability/directives; security filter catalogue | Retained security findings plus allowed response headers |
-| Main: `response_codes` | HTTP / response time / redirect table; internal/external filter families | Retained response and redirect evidence; JavaScript/robots filters require their own coverage |
-| Main: `url` | Address / encoding / length / hash / canonical | Core URL findings; fragments and internal search require supported evidence |
-| Main: `page_titles`, `meta_description`, `meta_keywords` | Occurrence/value/length tables; duplicate/threshold/head-position filters | Retained extracted values and analyzer findings; pixel widths never estimated by Qt |
-| Main: `h1`, `h2` | Heading occurrence/value/length tables | Retained heading evidence and analyzer findings |
-| Main: `content` | Word/sentence/readability/duplicate/language table | Retained complete analysis; a missing language run is unavailable |
-| Main: `images` | MIME/size/inlinks/dimensions table | Retained image occurrence/resource evidence, including missing-vs-empty alt |
-| Main: `canonicals`, `pagination`, `directives`, `hreflang` | Reference/directive tables and all observed filter families | Core graph/directive findings and provenance; repeated values are retained lists, not fabricated numbered fields |
+| Main: `external` | URL / content type / response / depth / inlinks | Retained external link/resource projection; never copy internal rows as external evidence |
+| Main: `response_codes` | Responses & indexing: HTTP / indexability / response time | Retained response evidence; robots and indexability filters require their own coverage |
+| Main: `redirects` | Redirect kind / target / final URL / hops table | Retained redirect evidence; chains and loops come from the core, not from the page |
 | Main: `links` | Inlink/outlink/depth/score table | Retained link graph; counts cannot be inferred from a page of links |
-| Main: `amp` | AMP response/content/canonical table | Retained AMP evidence; validation has no implicit network fallback |
-| Main: `structured_data` | Types/errors/warnings table | Retained extraction and validation; eligibility for rich results is not inferred |
+| Main: `page_titles` | Title and meta description values, lengths and widths | Retained extracted values and analyzer findings; pixel widths never estimated by Qt |
+| Main: `headings` | H1/H2 value, length and count table; outline filters | Retained heading evidence and analyzer findings |
+| Main: `canonicals`, `pagination`, `hreflang` | Canonical, robots-directive, series and alternate tables | Core graph/directive findings and provenance; repeated values are retained lists, not fabricated numbered fields |
+| Main: `content` | Word/readability/similarity/language table | Retained complete analysis; a missing language run is unavailable |
+| Main: `images` | MIME/size/dimensions/usage table | Retained image occurrence/resource evidence, including missing-vs-empty alt |
+| Main: `structured_data` | Types/formats/errors/warnings table | Retained extraction and validation; eligibility for rich results is not inferred |
+| Main: `mobile`, `rendering` | Viewport and raw-versus-rendered tables | Retained mobile layout and rendering evidence; unavailable without a rendered crawl |
+| Main: `url`, `performance`, `security` | URL hygiene, response/size/DOM, transport and header tables | Core URL, performance and security findings plus allowed response headers |
 | Main: `sitemaps` | Sitemap URL/response/indexability table | Retained sitemap reconciliation and completeness |
-| Main: `validation` | HTML structural finding table | Retained HTML validation output |
+| Main: `validation` | HTML structure finding table, including AMP findings | Retained HTML validation output |
 | Lower: `url_details` | Name/value table | Only fields from the actual selected record; absent fields remain unknown |
-| Lower: `inlinks`, `outlinks`, `resources` | From/to/anchor/rel/follow/path/origin table | Direction-aware retained link/resource query |
-| Lower: `image_details` | Occurrence / alt / dimensions / savings table | Retained image measurements; no invented thumbnails or savings |
-| Lower: `serp_snippet` | Editable local title/description preview, reset | Retained fields; edits affect only the preview, and actual search appearance is explicitly unmeasured |
-| Lower: `view_source` | Read-only plain text with find and 65,536-character cap | Retained source supplied by adapter; no HTML or JavaScript execution |
+| Lower: `inlinks`, `outlinks` | Source/destination/anchor/rel/follow/placement table; outlinks also list resources | Direction-aware retained link/resource query |
 | Lower: `http_headers`, `cookies` | Metadata tables | Retained redacted request/response headers and cookie metadata |
-| Lower: `duplicate_details` | URL / match / similarity / indexability table | Retained duplicate analysis |
-| Lower: `structured_data_details` | Property/value/validation/severity/details | Retained schema validation |
-| Lower: `spelling_grammar_details` | Text/type/detail/suggestions/section/address | Retained language-check evidence |
+| Lower: `view_source` | Read-only plain text with find and 65,536-character cap | Retained source supplied by adapter; no HTML or JavaScript execution |
+| Lower: `serp_snippet` | Editable local title/description preview, reset | Retained fields; edits affect only the preview, and actual search appearance is explicitly unmeasured |
+| Lower: `image_details` | Image / alt / dimensions / savings table | Retained image measurements; no invented thumbnails or savings |
+| Lower: `structured_data_details` | Property/value/check/severity/details | Retained schema validation |
+| Lower: `duplicate_details` | URL / similar page / similarity / indexability table | Retained duplicate analysis |
+| Lower: `spelling_grammar_details` | Text/kind/explanation/suggestions/area/URL | Retained language-check evidence |
 | Right: `overview` | Category / URL count / percentage table | Core aggregates and scope, never a percentage calculated from the loaded page |
-| Right: `issues` | Finding/type/priority/URL/% table | Retained findings; issue selection emits a semantic intent |
-| Right: `site_structure` | Path / URLs / indexable / non-indexable table | Bounded core structure projection; hierarchy/chart rendering is a later enhancement |
+| Right: `issues` | Check/severity/URL/share table | Retained findings; issue selection emits a semantic intent |
+| Right: `site_structure` | Folder / URLs / indexable / non-indexable table | Bounded core structure projection; hierarchy/chart rendering is a later enhancement |
 | Right: `response_times` | Timing-bucket/count/% table | Core histogram; chart rendering is a later enhancement |
-| Right: `api` | Provider/state/reason/observed-at table | Existing readiness projection; opening the tab makes no provider request |
 | Right: `spelling_grammar` | Top-error/count/coverage/language/sample table | Bounded retained error projection |
+| Right: `api` | Provider/state/reason/observed-at table | Existing readiness projection; opening the tab makes no provider request |
 | Project: `work`, `tasks` | State/dependency/reason tables, task selection | `project-progress`, `project-checklist-page`, `project-task-detail` |
 | Project: `scans` | Source/lifecycle/finished/partial table, scan selection | Trusted `project-scans` items; preserve UUID and trusted path in selection payload |
 | Project: `reanalyze` | Retained-scan selection table | Selection/preview only; execution belongs to the core adapter and its explicit action |

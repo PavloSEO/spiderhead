@@ -104,9 +104,9 @@ class CrawlerScreenTests(unittest.TestCase):
         self.assertIn("http", self.screen.status_note.text())
 
     def test_tab_filter_and_overview_feed_the_core_query(self):
-        resp = next(i for i, (name, _e) in enumerate(TABS) if name == "Response Codes")
+        resp = next(i for i, (name, _e) in enumerate(TABS) if name == "Responses")
         self.screen.tabs.setCurrentIndex(resp)
-        self.screen.subfilter.setCurrentIndex(3)  # Redirection (3xx)
+        self.screen.subfilter.setCurrentIndex(3)  # 3xx redirect
         self.assertEqual(self.screen.filters(), TABS[resp][1][3][2])
         self.screen.search_field.setCurrentIndex(1)
         self.screen.search.setText("shop")
@@ -140,12 +140,12 @@ class CrawlerScreenTests(unittest.TestCase):
 
         self.host.settings = Store()
         self.assertEqual(self.screen.model.keys, list(BASE_KEYS))
-        titles = next(i for i, (name, _e) in enumerate(TABS) if name == "Page Titles")
+        titles = next(i for i, (name, _e) in enumerate(TABS) if name == "Titles")
         self.screen.tabs.setCurrentIndex(titles)
         self.assertIn("title_length", self.screen.model.keys)
         self.screen._set_column("canonical", True)
         self.assertEqual(self.screen.model.keys[-1], "canonical")
-        self.assertIn("canonical", self.host.settings["crawler/columns/Page Titles"])
+        self.assertIn("canonical", self.host.settings["crawler/columns/Titles"])
         self.screen.tabs.setCurrentIndex(0)
         self.assertEqual(self.screen.model.keys, list(BASE_KEYS))
         self.screen.tabs.setCurrentIndex(titles)
@@ -154,13 +154,19 @@ class CrawlerScreenTests(unittest.TestCase):
         self.screen._set_column("canonical", False)
         self.assertNotIn("canonical", self.screen.model.keys)
 
+    def test_columns_saved_under_a_former_tab_name_still_apply(self):
+        self.host.settings = {"crawler/columns/Page Titles": '["url", "word_count"]'}
+        self.host.settings = type("Store", (dict,), {"value": dict.get})(self.host.settings)
+        titles = next(i for i, (name, _e) in enumerate(TABS) if name == "Titles")
+        self.assertEqual(self.screen._keys_for(titles), ["url", "word_count"])
+
     def test_header_click_sorts_by_the_core_column(self):
         self.screen._header_clicked(1)
         self.assertEqual(self.screen.sort, (self.screen.model.keys[1], "asc"))
         self.screen._header_clicked(1)
         self.assertEqual(self.screen.sort[1], "desc")
 
-    def test_url_card_has_the_screaming_frog_detail_tabs(self):
+    def test_url_card_has_the_detail_tabs(self):
         names = [
             self.screen.card.tabs.tabText(i).split("  ")[0]
             for i in range(self.screen.card.tabs.count())
