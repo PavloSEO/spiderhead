@@ -261,9 +261,10 @@ def test_supplied_facts_cannot_claim_detection_provenance(project):
         )
 
 
-def test_a_call_that_records_nothing_is_refused(project):
-    with pytest.raises(ValueError, match="supply facts, request detection"):
-        project_facts(str(project))
+def test_no_input_lists_the_saved_facts(project):
+    result = project_facts(str(project))
+    assert result["ok"] is True and result["state"] == "saved"
+    assert isinstance(result["facts"], list) and result["count"] == len(result["facts"])
 
 
 def test_detection_requires_its_injected_tools(project):
