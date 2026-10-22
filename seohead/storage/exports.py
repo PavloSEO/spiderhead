@@ -131,10 +131,14 @@ def _link_rows(con) -> Iterable[dict[str, Any]]:
         "JOIN urls AS d ON d.url_id = l.destination_url_id "
         "ORDER BY l.link_id"
     ):
+        keys = record.keys()
         yield {
             "source": record["source"],
             "destination": record["destination"],
             "anchor": record["anchor"],
+            # Absent in a scan written before the marker (#1518): the export
+            # then omits the key, and the importer reads that as "".
+            **({"anchor_source": record["anchor_source"]} if "anchor_source" in keys else {}),
             "nofollow": bool(record["nofollow"]),
             "position": record["position"],
             "rel": json.loads(record["rel_json"]),

@@ -104,6 +104,11 @@ class LinkEdge:
     rel: tuple[str, ...] = ()
     target: str = ""
     raw_href: str = ""
+    # "alt" when the anchor text came from the alt of a wrapped image rather
+    # than visible text (#1518); "" otherwise (text-derived, or an anchor that
+    # says nothing). One short string constant per edge, never a second
+    # URL-shaped value, so it costs nothing next to the fields above.
+    anchor_source: str = ""
 
 
 @dataclass
@@ -452,6 +457,9 @@ def apply_document_links(
                 anchor=(link.get("text") or "")[:200],
                 nofollow=nofollow,
                 position=link.get("position") or "",
+                # Ungated unlike rel/target/raw_href: one constant string, not a
+                # second URL per edge (#1518).
+                anchor_source=link.get("anchor_source") or "",
             )
             if capture_link_attributes:
                 edge.rel = tuple((link.get("rel") or "").split())

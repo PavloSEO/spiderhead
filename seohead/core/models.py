@@ -47,6 +47,9 @@ class _LinkInfoOptional(TypedDict, total=False):
     # Only present when the caller opts in via options["classify_links"]=True
     # (off by default) — see parser.parse_html / tools/link_position.py.
     position: str
+    # Only "alt": the anchor text came from the alt of an image the link wraps,
+    # not from visible text (#1518). Absent means text-derived (or empty).
+    anchor_source: str
 
 
 class LinkInfo(_LinkInfoOptional):

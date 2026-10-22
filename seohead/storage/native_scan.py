@@ -93,6 +93,7 @@ _LINK_KEYS = {
     "source",
     "destination",
     "anchor",
+    "anchor_source",
     "nofollow",
     "position",
     "rel",
@@ -2507,7 +2508,11 @@ class NativeScan:
 
     def _write_observations(self, lease, document_id, representation, links, forms):
         for ordinal, item in enumerate(links):
-            if set(item) != _LINK_KEYS:
+            # anchor_source may be absent (#1518): a caller built before the
+            # marker has no marker to give, and "" -- text-derived or silent --
+            # is that caller's truth. Every other key stays mandatory.
+            keys = set(item)
+            if not keys <= _LINK_KEYS or not keys >= _LINK_KEYS - {"anchor_source"}:
                 raise ScanError("link input must have exactly the LinkEdge fields")
             if item["source"] != lease.url:
                 raise ScanError("link source differs from page lease")
@@ -2523,6 +2528,8 @@ class NativeScan:
                         "raw_href",
                     )
                 )
+                or item.get("anchor_source", "") not in ("", "alt")
+                or type(item.get("anchor_source", "")) is not str
                 or not item["destination"]
                 or type(item["nofollow"]) is not bool
                 or not isinstance(item["rel"], (tuple, list))
@@ -2536,6 +2543,7 @@ class NativeScan:
                 "evidence_representation": representation,
                 "ordinal": ordinal,
                 "anchor": item["anchor"],
+                "anchor_source": item.get("anchor_source", ""),
                 "nofollow": int(item["nofollow"]),
                 "position": item["position"],
                 "rel_json": _dump(list(item["rel"])),

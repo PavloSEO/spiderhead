@@ -683,11 +683,16 @@ def _import_pages(con, source: Path, limitations: list[str], inputs: list[dict])
 
 def _import_links(con, source: Path, limitations: list[str], inputs: list[dict]) -> None:
     for record in _jsonl(source / "links.jsonl", limitations, inputs):
-        if set(record) != _LINK_FIELDS:
+        # anchor_source is optional (#1518): a links.jsonl written before the
+        # field has no marker, and "" (text-derived or silent) is its truth.
+        if not set(record) <= _LINK_FIELDS | {"anchor_source"} or not set(record) >= _LINK_FIELDS:
             raise ScanError(
                 f"links.jsonl: fields differ from scan.v1: {sorted(set(record) ^ _LINK_FIELDS)}"
             )
         row = dict(record)
+        if row.get("anchor_source") not in (None, "", "alt"):
+            raise ScanError("links.anchor_source: expected '' or 'alt'")
+        row.setdefault("anchor_source", "")
         source_id = _url(con, row.pop("source"))
         row["source_url_id"] = source_id
         row["destination_url_id"] = _url(con, row.pop("destination"))
