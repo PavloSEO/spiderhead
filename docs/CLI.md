@@ -126,6 +126,7 @@ recorded process identity is no longer live.
 | `soft404-check` | Detect soft-404: whether the site returns an honest 404/410 for non-existent URLs, or silently serves 200/3xx (which pollutes the index with junk pages). | network |
 | `mirror-check` | Audit host consolidation across HTTP/HTTPS, `www`, index.php/index.html, case, and trailing-slash variants. | network |
 | `markdown-extract` | Render a page as Markdown in two scopes. | network |
+| `markdown-export` | Whole-site Markdown export into a directory: `sitemap` (indexes followed), `urls_file` or one `url`; one `.md` per URL with frontmatter above content-area Markdown. |
 | `asset-weight-check` | Fetch a page's linked CSS/JS and report delivery problems: render-blocking resources in <head>, oversized files, duplicate libraries bundled more than once (by… | network |
 
 ## Infrastructure, security and recon
