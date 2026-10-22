@@ -1,4 +1,4 @@
-"""SF Analyzer — machine-readable SEO audit from Screaming Frog crawls.
+"""Export Analyzer — machine-readable SEO audit from crawler exports.
 
 Public surface: :func:`seohead.sf.core.audit.run_audit`, which both the CLI and
 the MCP server build on, and the report writers in :mod:`seohead.sf.reporters`.

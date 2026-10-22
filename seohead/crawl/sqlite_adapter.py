@@ -498,6 +498,7 @@ def crawl_to_scan(
     timeouts = server_errors = max_depth = 0
     elapsed_before = 0.0
     robots_delay = None
+    robots_floor = 0.0
     partial = False
     finish_reason = "finished"
     limitations = ["browser-network response capture is unavailable"]
@@ -687,6 +688,7 @@ def crawl_to_scan(
             )
         asked_delay = politeness_delay(cast(ParsedRobots, robots), robots_token)
         if asked_delay is not None:
+            robots_floor = asked_delay
             robots_delay = max(throttle.min_delay, asked_delay)
             if asked_delay > throttle.min_delay:
                 throttle.min_delay = asked_delay
@@ -780,6 +782,23 @@ def crawl_to_scan(
                 )
             if progress is not None:
                 progress(counts["pages"], counts["queued"] + counts["inflight"])
+                pending_rate = getattr(progress, "pending_rate", None)
+                rate = pending_rate() if callable(pending_rate) else None
+                if rate is not None:
+                    # Between batches no request is in flight, so the new pace
+                    # governs every request after this point. robots.txt
+                    # Crawl-delay stays a floor the operator cannot go under.
+                    previous_ms = round(throttle.min_delay * 1000)
+                    throttle.set_rate(max(rate[0], robots_floor), rate[1])
+                    emit_event(
+                        "throttle",
+                        {
+                            "delay_ms": round(throttle.min_delay * 1000),
+                            "previous_delay_ms": previous_ms,
+                            "concurrency": throttle.max_concurrency,
+                            "state": "operator_rate",
+                        },
+                    )
             if limit and counts["pages"] >= limit:
                 emit_event("budget", {"kind": "urls", "limit": limit, "used": counts["pages"]})
                 if counts["queued"] or counts["inflight"]:

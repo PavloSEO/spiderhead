@@ -195,7 +195,7 @@
           "bytes": 21954,
           "path": "cohorts-0001.csv",
           "rows": 30,
-          "sha256": "a6c11e393be8e341caf0bf8b7388c5c5b7606b65ad0b00075edc767bf660be8e"
+          "sha256": "ea9d2415653ad453e33570afe53aa010fc341db820a0d6ed56b055e5d5edbca7"
         }
       ],
       "primary_key": [
@@ -209,7 +209,7 @@
       "state": "available"
     },
     "coverage": {
-      "bytes": 66625,
+      "bytes": 66713,
       "coverage": {},
       "fields": [
         {
@@ -278,10 +278,10 @@
       "partition_count": 1,
       "partitions": [
         {
-          "bytes": 66625,
+          "bytes": 66713,
           "path": "coverage-0001.csv",
           "rows": 279,
-          "sha256": "23dacda1f45550d7c4a1e29c7655ab8e5fac877c15e6f5b2e729fcf79ebe95e3"
+          "sha256": "b8c12d4c737458b034bf938d42228f3285940ba8620e34cba70f1e25958f4698"
         }
       ],
       "primary_key": [
@@ -557,7 +557,7 @@
           "bytes": 29360,
           "path": "findings-0001.csv",
           "rows": 25,
-          "sha256": "c447101f74581c2f2303e4c4caae11ede830fd6f00e478b0be4c13cb4edf872f"
+          "sha256": "ab2ac72bf94ee878a5fa7f9d022067bc4489145103948cc39a4368cdb58ed2ea"
         }
       ],
       "primary_key": [
@@ -1147,7 +1147,7 @@
           "bytes": 40469,
           "path": "metrics-0001.csv",
           "rows": 16,
-          "sha256": "d24f2c377c1333c490b4c01b6e3597f718424c23114adbcea3c9008c2ef56c13"
+          "sha256": "bd4d1c618104c71c067d1b4edd0cd4e6c20871a78efee722eb5127eb5259c45f"
         }
       ],
       "primary_key": [
@@ -1590,7 +1590,7 @@
           "bytes": 12289,
           "path": "pages-0001.csv",
           "rows": 6,
-          "sha256": "5e972b7c955503a881aa0cdde73096bfb564051807275393fd4417924d292bc9"
+          "sha256": "0b8ec0f13322b94c477a9c30571a3e3011b1660e1b9db851681acb442c5f9396"
         }
       ],
       "primary_key": [
@@ -1660,7 +1660,7 @@
           "bytes": 834,
           "path": "group-groups-0001.csv",
           "rows": 3,
-          "sha256": "5a79bd31240520006bb8736f5098f414f096d5419de9015e8fffe829b2a7f99e"
+          "sha256": "c6873b5eb80aa4484d10d9ccceb271d6898138a5fc2fdbd9f4462293be05d1c0"
         }
       ],
       "row_count": 3
@@ -1702,22 +1702,22 @@
           "bytes": 589,
           "path": "group-members-0001.csv",
           "rows": 7,
-          "sha256": "862b38b53b98a859d8aee6fb6d4011ec40d775abb520cce01ba3a9d53a822bee"
+          "sha256": "a7a25aea4ee1c6c50184b16673683995e24e487ee61530f76e5c4c6fdd9e4b22"
         }
       ],
       "row_count": 7
     },
     "publication": "local companion; not included in the six published datasets",
-    "run_id": "audit:480cd5ead5fa3f0f68183594",
-    "sha256": "975f05f4c383ccf508adcd67a3c14620ff8a02e99626e6007fb54b391660c15f",
-    "source_audit_sha256": "480cd5ead5fa3f0f68183594cd9688febfff137f4c2e225cfc31cc93ddf82d87"
+    "run_id": "audit:c70f0bed079667c8c8556ef1",
+    "sha256": "dcb56290463005356eddcf6c339b37e11e0d1b6ed256b04783cb84520d25eda5",
+    "source_audit_sha256": "c70f0bed079667c8c8556ef169114b9ecd692a046d81c8f03a33fbe7761a52ad"
   },
   "input": {
-    "bytes": 65333,
+    "bytes": 65381,
     "kind": "sf-audit",
     "name": "audit.json",
     "schema": "2.0",
-    "sha256": "480cd5ead5fa3f0f68183594cd9688febfff137f4c2e225cfc31cc93ddf82d87"
+    "sha256": "c70f0bed079667c8c8556ef169114b9ecd692a046d81c8f03a33fbe7761a52ad"
   },
   "metrics_dimension_columns": {},
   "provider_sources": [
@@ -1913,7 +1913,7 @@
     "projection_index_cache_bytes": 2097152
   },
   "run": {
-    "audit_sha256": "480cd5ead5fa3f0f68183594cd9688febfff137f4c2e225cfc31cc93ddf82d87",
+    "audit_sha256": "c70f0bed079667c8c8556ef169114b9ecd692a046d81c8f03a33fbe7761a52ad",
     "check_skips": {
       "A11Y_FORM_LABEL_MISSING": "document-bound markup evidence requires a retained native crawl",
       "A11Y_HEADING_ORDER": "document-bound markup evidence requires a retained native crawl",
@@ -1938,8 +1938,8 @@
       "AMP_NON_INDEXABLE_CANONICAL": "no amphtml Link Element column in Internal:All",
       "ASSET_SHORT_CACHE": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
       "BODY_MIME_MISMATCH": "export-only analysis retains no per-URL response bodies; a native retained scan is required",
-      "BODY_MISSING": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
-      "BODY_MULTIPLE": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
+      "BODY_MISSING": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "BODY_MULTIPLE": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
       "BOUNCE_RATE_ABOVE_70": "no validated project selected for provider bindings and retained history",
       "BROKEN_BOOKMARK": "export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan",
       "BROKEN_EXTERNAL_LINK": "export inlinks_5xx not available",
@@ -1947,13 +1947,13 @@
       "CANONICAL_MISMATCH": "requires retained native rendered evidence",
       "CANONICAL_MULTIPLE": "no Canonical Link Element 2 column in Internal:All",
       "CANONICAL_ONLY_IN_RENDERED_HTML": "requires retained native rendered evidence",
-      "CANONICAL_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
+      "CANONICAL_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
       "CONTENT_IN_IFRAME": "no iframe inventory in this evidence",
       "DEEP_CLICK_DEPTH": "no all_inlinks export (needed for the complete internal edge list)",
       "DEEP_DISCOVERY_PATH": "no all_inlinks export (needed for the complete internal edge list)",
       "DESC_MULTIPLE": "no meta description count evidence (native crawl only)",
-      "DESC_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
-      "DIRECTIVES_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
+      "DESC_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "DIRECTIVES_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
       "DOM_TOO_DEEP": "stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest",
       "DOM_TOO_MANY_NODES": "stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest",
       "DUPLICATED_JS": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
@@ -1983,9 +1983,9 @@
       "HEADING_BEFORE_H1": "no heading outline evidence (native crawl only)",
       "HEADING_IN_PAGE_CHROME": "no heading outline evidence (native crawl only)",
       "HEADING_SKIP": "no heading outline evidence (native crawl only)",
-      "HEAD_MISSING": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
-      "HEAD_MULTIPLE": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
-      "HEAD_NOT_FIRST": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
+      "HEAD_MISSING": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "HEAD_MULTIPLE": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "HEAD_NOT_FIRST": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
       "HEAVY_PAGE_WEIGHT": "not fully measured by this native crawl: runtime response weight is absent or bounded; captured HTML alone is a lower bound",
       "HREFLANG_BROKEN_TARGET": "missing export: all_hreflang",
       "HREFLANG_ERROR": "missing export: hreflang",
@@ -1997,7 +1997,7 @@
       "HREFLANG_MULTIPLE_ENTRIES": "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
       "HREFLANG_NOINDEX_TARGET": "no all_hreflang declaration export",
       "HREFLANG_NOT_CANONICAL": "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
-      "HREFLANG_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
+      "HREFLANG_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
       "HREFLANG_UNLINKED_TARGET": "no all_hreflang export (export Bulk Export → Links → All Hreflang to enable)",
       "HTTP1_ONLY": "no HTTP Version column in Internal:All",
       "HTTP_REFRESH_REDIRECT": "no Refresh response header evidence (native crawl only)",
@@ -2015,7 +2015,7 @@
       "INTERNALLY_LINKED_ROBOTS_BLOCKED": "this check requires retained native scan evidence",
       "INTERNAL_LINK_NO_ANCHOR": "this check requires retained native scan evidence",
       "INTERNAL_LINK_TO_REDIRECT": "export inlinks_3xx not available",
-      "INVALID_HEAD_ELEMENT": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
+      "INVALID_HEAD_ELEMENT": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
       "JS_EXECUTION_TIME": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
       "LAYOUT_SHIFT_CULPRITS": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
       "LCP_DISCOVERY": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
@@ -2092,7 +2092,7 @@
       "STRUCTURED_DATA_SCHEMA_WARNING": "document-bound markup evidence requires a retained native crawl",
       "TITLE_LOW_SEMANTIC_RELEVANCE": "no semantic embedding adapter is selected",
       "TITLE_MULTIPLE": "no titles_multiple export (export this SF filter to enable)",
-      "TITLE_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)",
+      "TITLE_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
       "TITLE_TEMPLATED": "too few titles to assess templating",
       "UNLINKED_PAGINATION_SERIES": "no rel=\"next\" column in Internal:All",
       "UNMINIFIED_CSS_JS": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
@@ -2105,12 +2105,12 @@
     "crawl_state": "unknown",
     "finished_at": "2026-10-12T00:00:43Z",
     "input_mode": "parse-exports",
-    "run_id": "audit:480cd5ead5fa3f0f68183594",
-    "source_bytes": 65333,
+    "run_id": "audit:c70f0bed079667c8c8556ef1",
+    "source_bytes": 65381,
     "source_kind": "sf-audit",
     "source_name": "audit.json",
     "source_schema": "2.0",
-    "source_sha256": "480cd5ead5fa3f0f68183594cd9688febfff137f4c2e225cfc31cc93ddf82d87",
+    "source_sha256": "c70f0bed079667c8c8556ef169114b9ecd692a046d81c8f03a33fbe7761a52ad",
     "started_at": null,
     "summary": {
       "asset_measurements": {

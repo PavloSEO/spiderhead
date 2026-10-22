@@ -468,7 +468,7 @@ def detail_factory(spec, parent):
 
 
 class AuditWorkspace(QWidget):
-    """SF-like organization with SEOHEAD native styling and explicit adapters."""
+    """Main table, URL detail and summary decks with SEOHEAD native styling and explicit adapters."""
 
     intent_requested = pyqtSignal(str, object)
 

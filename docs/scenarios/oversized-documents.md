@@ -61,8 +61,8 @@ names the tag that forced `<head>` to close early, and `HEAD_NOT_FIRST` covers b
 "`<head>` not first in `<html>`" and "`<body>` preceding `<html>`" from the published catalogue —
 after a browser recovers from either shape of broken markup, both collapse into the same
 resolved fact. None of this needs a separate step: it comes from the parse tree step 1's crawl
-already built, and — unlike `LARGE_HTML` — neither Screaming Frog's own crawl nor a plain export
-from it can raise any of these; the fact only exists where the parse tree was actually built.
+already built, and — unlike `LARGE_HTML` — an analysed crawler export cannot raise any of
+these; the fact only exists where the parse tree was actually built.
 
 **6. Separate the document from what it loads.**
 

@@ -42,7 +42,7 @@ arbitrary plugin runtime or autonomous code rewriting.
 
 ### One local interface for an agent
 
-The CLI and MCP server share the same 233 handlers, and six additional Screaming Frog-specific
+The CLI and MCP server share the same 234 handlers, and six additional Screaming Frog-specific
 MCP tools cover crawl audits and bounded snippet review. A registration test prevents a command
 from existing in only one interface.
 

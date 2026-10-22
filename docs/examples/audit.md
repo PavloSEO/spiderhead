@@ -342,17 +342,17 @@ These measurements come from retained, project-bound provider history. Registere
 | No <meta name=viewport> tag with width or an initial-scale of at least 1 | no Viewport column (needs a native seohead crawl or Custom Extraction in SF) |
 | A <link rel=alternate media=...> declaration names no URL | no rel=alternate media evidence (native crawl only) |
 | HTML response is served uncompressed above the size where gzip/br would help | no Content-Encoding column (needs a native seohead crawl or Custom Extraction in SF) |
-| The <title> element is outside <head> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
-| The meta description is outside <head> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
-| The canonical link is outside <head> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
-| A robots-directive meta tag is outside <head> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
-| An hreflang alternate link is outside <head> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
-| Document has no <head> element | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
-| Document has more than one <head> element | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
-| Document has no <body> element | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
-| Document has more than one <body> element | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
-| An element the head content model does not allow is written inside <head> | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
-| <head> is not the first element under <html> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own) |
+| The <title> element is outside <head> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
+| The meta description is outside <head> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
+| The canonical link is outside <head> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
+| A robots-directive meta tag is outside <head> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
+| An hreflang alternate link is outside <head> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
+| Document has no <head> element | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
+| Document has more than one <head> element | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
+| Document has no <body> element | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
+| Document has more than one <body> element | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
+| An element the head content model does not allow is written inside <head> | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
+| <head> is not the first element under <html> once the parser resolves the document | no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits) |
 | HTML id value is repeated in the parsed document | no duplicate-id evidence (native crawl only) |
 | og:title is missing, so social previews may not render correctly | no Open Graph columns in Internal:All (enable OG extraction in SF) |
 | Redirect chain contains two or more hops | no redirect data (Internal:All has no Redirect URL column) |

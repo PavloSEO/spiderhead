@@ -198,7 +198,7 @@ def _load_document(path_or_doc: Any, label: str, field: str) -> tuple[dict[str, 
         raise ValueError(
             marker_error
             or f"{field} for site {label!r} does not match a recognized audit schema "
-            f"({_SITE_AUDIT_SCHEMA!r} or SF Analyzer {_SF_AUDIT_SCHEMA_VERSION!r})"
+            f"({_SITE_AUDIT_SCHEMA!r} or Export Analyzer {_SF_AUDIT_SCHEMA_VERSION!r})"
         )
     if kind == "site-audit":
         doc_domain = normalize_domain(str(document.get("domain") or ""))

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Thin wrapper around the SF Analyzer CLI for the skill.
+# Thin wrapper around the Export Analyzer CLI for the skill.
 # Usage:
 #   run_audit.sh exports   <exports_dir>       [out_dir] [profile]
 #   run_audit.sh seospider <file.seospider>    [out_dir] [profile]

@@ -14,7 +14,7 @@ same CLI/MCP contracts the agents use.
 | Path | What it is |
 |---|---|
 | `src/seohead_desktop/app.py` | Main window: top bars, navigation, pages and signal wiring |
-| `src/seohead_desktop/ui/` | Reusable widgets: `components.py` (buttons, badges, panels), `workspace_tabs.py` (workspace tabs), `tabcatalogue.py` (SF-style tab/column contracts), `work_monitor.py` (scan observer), `content_search_panel.py`, `comparison_summary.py`, `help_guide.py`, `icons.py` (Material Symbols registry), `gallery.py` (component gallery for screenshots) |
+| `src/seohead_desktop/ui/` | Reusable widgets: `components.py` (buttons, badges, panels), `workspace_tabs.py` (workspace tabs), `tabcatalogue.py` (tab, filter and column catalogue), `work_monitor.py` (scan observer), `content_search_panel.py`, `comparison_summary.py`, `help_guide.py`, `icons.py` (Material Symbols registry), `gallery.py` (component gallery for screenshots) |
 | `src/seohead_desktop/theme/` | `tokens.json` (single source of colours, sizes, density, motion) → `theme.qss` |
 | `src/seohead_desktop/models.py` | Qt table models (no widget per cell) |
 | `src/seohead_desktop/mcp_gateway.py` | Talks to the core over local stdio MCP; allow-list of tools the app may call |
@@ -54,7 +54,7 @@ repository — inside the monorepo the core is `..`; updating that flow is part 
 ## Native presentation
 
 Two modes — **Projects** (work with an AI agent: goals, tasks, inbox, scans, compare
-"before/after", reports to developers/SEO/content) and **Crawler** (Screaming-Frog-like, no
+"before/after", reports to developers/SEO/content) and **Crawler** (quick crawl without a
 project, enter URL → Start). One 52 px top bar, workspace tabs, 200/64 px navigation with a
 profile/settings button bottom-left, honest data states ("not measured" ≠ "0"), 17 statuses,
 3 themes (light, dark, high contrast), RU/EN, local MCP server switch shared with the CLI

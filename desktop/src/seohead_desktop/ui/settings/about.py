@@ -149,6 +149,10 @@ def build_page(store, context):
         group_label("Лицензии"),
         *(_license_row(*item) for item in LICENSES),
         button_row(action_button("Полный текст NOTICE", context, "open_notice")),
+        meta_label(
+            "Screaming Frog и SEO Spider — товарные знаки Screaming Frog Ltd. SpiderHead — независимый проект, "
+            "не связан с Screaming Frog Ltd и не одобрен ею; название используется только для описания совместимости."
+        ),
         group_label("Ссылки"),
         button_row(
             action_button("Руководство", context, "open_guide", icon="menu_book"),

@@ -957,7 +957,7 @@ def test_sf_run_then_report_build_renders_the_real_totals(tmp_path, monkeypatch)
 
 
 def test_report_build_refuses_a_document_matching_neither_schema(tmp_path):
-    """Neither ``findings`` (site-audit) nor ``issues``+``pages`` (SF Analyzer): this is
+    """Neither ``findings`` (site-audit) nor ``issues``+``pages`` (Export Analyzer): this is
     not a document either renderer contract in this package produces, so it must be
     refused loudly rather than rendered as an empty, confident report (#151).
     """

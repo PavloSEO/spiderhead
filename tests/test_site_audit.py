@@ -475,11 +475,11 @@ def test_missing_key_security_headers_are_warnings_not_notices():
     assert classify("missing content-security-policy — restrict script sources") == "warning"
 
 
-# ── SF Analyzer audit.json -> report contract (#220, #225) ──────────────────
+# ── Export Analyzer audit.json -> report contract (#220, #225) ──────────────────
 
 SF_AUDIT = {
     "schema_version": "2.0",
-    "tool": {"name": "SF Analyzer", "version": "3.0"},
+    "tool": {"name": "Export Analyzer", "version": "3.0"},
     "run": {"project": "example.test", "generated_at": "2026-09-05T00:00:00Z"},
     "summary": {
         "totals": {"urls_crawled": 1, "issues_total": 1},

@@ -4,7 +4,7 @@
 `third_party_crawl.v1` document. It does not crawl, change its inputs, or write a
 native SQLite scan. The result keeps the source product and export identity and
 reports coverage for each normalized field. It is not `scan.v1`, `audit.json`, or
-an SF Analyzer export, and it cannot be passed to `sf run` as one.
+an Export Analyzer export, and it cannot be passed to `sf run` as one.
 
 ## Manifest
 

@@ -413,10 +413,26 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
 
     @mcp.tool(annotations=create_files, structured_output=True)
     def seo_crawl_control(
-        project: str, run_id: str, action: Literal["pause", "stop"]
+        project: str,
+        run_id: str,
+        action: Literal["pause", "stop", "set_rate"],
+        rate: float | None = None,
+        concurrency: int | None = None,
     ) -> dict[str, Any]:
-        """Request a native project crawl to checkpoint and pause or stop by its run ID."""
-        return _checked(handlers.crawl_control(project=project, run_id=run_id, action=action))
+        """Pause, stop or change the rate of a running native project crawl by its run ID.
+
+        ``set_rate`` takes ``rate`` in URLs per second (and an optional ``concurrency``);
+        the crawl applies it at the next batch and records it as a scan event.
+        """
+        return _checked(
+            handlers.crawl_control(
+                project=project,
+                run_id=run_id,
+                action=action,
+                rate=rate,
+                concurrency=concurrency,
+            )
+        )
 
     @mcp.tool(annotations=pure, structured_output=True)
     def seo_crawl_describe_settings() -> dict[str, Any]:
@@ -791,6 +807,34 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
             handlers.markdown_extract(url=url or None, html=html or None, content_area=content_area)
         )
 
+    @mcp.tool(annotations=fetch, structured_output=True)
+    def seo_markdown_export(
+        url: str = "",
+        urls_file: str = "",
+        sitemap: str = "",
+        out_dir: str = "markdown-export",
+        max_urls: int = 200,
+        delay: float = 0.5,
+    ) -> dict[str, Any]:
+        """Export pages as Markdown files: a site's sitemap, a URL list, or one URL. Each
+        page becomes <out-dir>/<url-path>.md (home -> index.md) with frontmatter (title,
+        description, final URL, status, export date) above the content-area Markdown
+        seo_markdown_extract produces -- nav and footer excluded, headings, lists and
+        links kept. sitemap follows a sitemap index down to its urlsets (a site root is
+        resolved through robots.txt Sitemap directives); urls_file holds one URL per
+        line. max_urls caps the run, delay seconds space the requests. The summary lists
+        counts, byte totals and up to 20 failures, so a partial export stays visible."""
+        return _checked(
+            handlers.markdown_export(
+                url=url or None,
+                urls_file=urls_file or None,
+                sitemap=sitemap or None,
+                out_dir=out_dir,
+                max_urls=max_urls,
+                delay=delay,
+            )
+        )
+
     @mcp.tool(annotations=pure, structured_output=True)
     def seo_boilerplate_report(
         pages: list[dict] | None = None, scan: str | None = None
@@ -952,7 +996,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         or silently serves 200/3xx (which pollutes the index with junk pages). Sends two
         deterministic probes (sha256 of origin, at ordinary root paths) and applies strict
         AND-logic: both 2xx/3xx -> soft-404 confirmed (warning); both 404/410 -> pass;
-        anything else -> unknown. Screaming Frog cannot see this — it crawls known URLs,
+        anything else -> unknown. A normal crawl cannot see this — it requests known URLs,
         not invented ones, so this needs an active request."""
         return _checked(handlers.soft404_check(url=url))
 
@@ -1215,7 +1259,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         pdf_policy: Literal["overview-v1"] | None = None,
     ) -> dict[str, Any]:
         """Turn an audit document into a file: xlsx, docx, csv, md, json or pdf. Pass the dict
-        returned by seo_site_audit, an SF Analyzer audit.json from sf_audit_run (or a
+        returned by seo_site_audit, an Export Analyzer audit.json from sf_audit_run (or a
         path to either one's JSON, or a validated scan.v1 SQLite artifact) — both audit
         schemas are recognized and normalized before
         rendering. xlsx has four sheets with filters and a live Excel chart — for work;
@@ -1252,7 +1296,7 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
     def seo_facts_export(sites: list[dict[str, Any]]) -> dict[str, Any]:
         """Build one comparable facts table (schema facts.v1) across several sites from
         crawl/site audits you already produced. Each site is
-        {label, crawl_audit?, site_audit?} -- crawl_audit is an SF Analyzer audit.json
+        {label, crawl_audit?, site_audit?} -- crawl_audit is an Export Analyzer audit.json
         (dict or path), site_audit is a seo_site_audit document (dict or path), both
         optional but at least one is needed for real facts; a site with neither still
         gets a full row of unavailable facts, named. Reads documents only: zero network

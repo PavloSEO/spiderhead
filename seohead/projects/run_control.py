@@ -1,4 +1,4 @@
-"""Cooperative pause/stop requests for durable native crawl runs."""
+"""Cooperative pause/stop and live rate requests for durable native crawl runs."""
 
 from __future__ import annotations
 
@@ -11,6 +11,9 @@ from seohead.projects.workspace import open_project
 
 _NAME = ".run-control.sqlite"
 _ACTIONS = frozenset({"pause", "stop"})
+# A hard ceiling for operator-set rates: above it the crawl is a load test.
+MAX_RATE = 50.0
+MAX_CONCURRENCY = 32
 
 
 class RunControlInterrupt(KeyboardInterrupt):
@@ -26,13 +29,38 @@ class RunControlInterrupt(KeyboardInterrupt):
 class ControlledRunReporter:
     """Add one-shot control polling to the existing run-observation reporter."""
 
-    def __init__(self, directory: str | Path, run_id: str, downstream=None) -> None:
+    def __init__(
+        self,
+        directory: str | Path,
+        run_id: str,
+        downstream=None,
+        *,
+        pacer=None,
+        initial_rate: tuple[float, int | None] | None = None,
+    ) -> None:
         from seohead.projects.run_observation import NativeRunReporter
 
         self.directory = str(directory)
         self.run_id = run_id
         self.reporter = NativeRunReporter(directory, run_id, downstream)
         self.control_action: str | None = None
+        self.pacer = pacer
+        self._initial_rate = initial_rate
+
+    def pending_rate(self) -> tuple[float, int | None] | None:
+        """Return ``(min_delay_seconds, concurrency)`` once per new operator rate request.
+
+        The crawl loop calls this between batches, where no request is in flight.
+        """
+        rate, self._initial_rate = self._initial_rate, None
+        if rate is None:
+            try:
+                rate = consume_rate(self.directory, self.run_id)
+            except (OSError, sqlite3.Error, ValueError):
+                return None
+        if rate is not None and self.pacer is not None:
+            self.pacer.set_min_delay(rate[0])
+        return rate
 
     def __getattr__(self, name: str):
         return getattr(self.reporter, name)
@@ -85,6 +113,10 @@ def _connect(root: Path) -> sqlite3.Connection:
         "CREATE TABLE IF NOT EXISTS requests (run_id TEXT PRIMARY KEY, action TEXT NOT NULL, "
         "requested_at TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'pending')"
     )
+    con.execute(
+        "CREATE TABLE IF NOT EXISTS rates (run_id TEXT PRIMARY KEY, min_delay REAL NOT NULL, "
+        "concurrency INTEGER, requested_at TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'pending')"
+    )
     columns = {str(row[1]) for row in con.execute("PRAGMA table_info(requests)")}
     if "state" not in columns:
         con.execute("ALTER TABLE requests ADD COLUMN state TEXT NOT NULL DEFAULT 'pending'")
@@ -123,10 +155,8 @@ def _inactive_request_receipt(root: Path, run_id: str, action: str) -> bool:
             raise
 
 
-def request(directory: str | Path, run_id: str, action: str) -> dict[str, str]:
-    """Queue a one-shot pause/stop at the next durable crawl boundary."""
-    if not isinstance(action, str) or action not in _ACTIONS:
-        raise ValueError("action must be pause or stop")
+def _active_root(directory: str | Path, run_id: str) -> Path:
+    """Return the project root when ``run_id`` is a live native crawl writing its scan."""
     if not isinstance(run_id, str) or not run_id or len(run_id) > 64:
         raise ValueError("run_id must be non-empty text no longer than 64 characters")
     root = _project_root(directory)
@@ -159,9 +189,84 @@ def request(directory: str | Path, run_id: str, action: str) -> dict[str, str]:
             raise ValueError("native crawl scan is not running")
     finally:
         scan.close()
+    return root
+
+
+def _stamp() -> str:
     from datetime import datetime, timezone
 
-    stamp = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def checked_rate(rate: float | None, concurrency: int | None) -> tuple[float, int | None]:
+    """Validate an operator rate in URLs/second; return ``(min_delay_seconds, concurrency)``."""
+    import math
+
+    if isinstance(rate, bool) or not isinstance(rate, (int, float)) or not math.isfinite(rate):
+        raise ValueError("rate must be a number of URLs per second")
+    if not 0 < rate <= MAX_RATE:
+        raise ValueError(f"rate must be above 0 and at most {MAX_RATE:g} URLs per second")
+    if concurrency is not None and (
+        isinstance(concurrency, bool)
+        or not isinstance(concurrency, int)
+        or not 1 <= concurrency <= MAX_CONCURRENCY
+    ):
+        raise ValueError(f"concurrency must be an integer from 1 to {MAX_CONCURRENCY}")
+    return 1.0 / float(rate), concurrency
+
+
+def request_rate(
+    directory: str | Path, run_id: str, rate: float, concurrency: int | None = None
+) -> dict[str, object]:
+    """Queue a live rate change; a newer request replaces one not yet applied."""
+    min_delay, concurrency = checked_rate(rate, concurrency)
+    root = _active_root(directory, run_id)
+    with closing(_connect(root)) as con:
+        con.execute(
+            "INSERT INTO rates(run_id,min_delay,concurrency,requested_at,state) "
+            "VALUES(?,?,?,?,'pending') ON CONFLICT(run_id) DO UPDATE SET "
+            "min_delay=excluded.min_delay, concurrency=excluded.concurrency, "
+            "requested_at=excluded.requested_at, state='pending'",
+            (run_id, min_delay, concurrency, _stamp()),
+        )
+    return {
+        "ok": True,
+        "run_id": run_id,
+        "state": "rate_requested",
+        "max_urls_per_second": float(rate),
+        "concurrency": concurrency,
+    }
+
+
+def consume_rate(directory: str | Path, run_id: str) -> tuple[float, int | None] | None:
+    """Consume the pending rate change for ``run_id``, if any."""
+    root = _project_root(directory)
+    if not (root / _NAME).exists():
+        return None
+    with closing(_connect(root)) as con:
+        con.execute("BEGIN IMMEDIATE")
+        try:
+            row = con.execute(
+                "SELECT min_delay, concurrency FROM rates WHERE run_id=? AND state='pending'",
+                (run_id,),
+            ).fetchone()
+            if row is not None:
+                con.execute("UPDATE rates SET state='applied' WHERE run_id=?", (run_id,))
+            con.execute("COMMIT")
+        except BaseException:
+            con.execute("ROLLBACK")
+            raise
+    return None if row is None else (float(row[0]), None if row[1] is None else int(row[1]))
+
+
+def request(directory: str | Path, run_id: str, action: str) -> dict[str, str]:
+    """Queue a one-shot pause/stop at the next durable crawl boundary."""
+    if not isinstance(action, str) or action not in _ACTIONS:
+        raise ValueError("action must be pause or stop")
+    root = _active_root(directory, run_id)
+    from seohead.projects.run_observation import MAX_RUNS, status
+
+    stamp = _stamp()
     with closing(_connect(root)) as con:
         try:
             con.execute("BEGIN IMMEDIATE")

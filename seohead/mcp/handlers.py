@@ -723,11 +723,50 @@ def _record_crawl_failure(project_root: Path, reason: str) -> None:
         record_failure(project_root, reason)
 
 
-def crawl_control(project: str, run_id: str, action: str) -> dict[str, Any]:
-    """Request a checkpointed pause or stop for an active native project crawl."""
-    from seohead.projects.run_control import request
+def crawl_control(
+    project: str,
+    run_id: str,
+    action: str,
+    rate: float | None = None,
+    concurrency: int | None = None,
+) -> dict[str, Any]:
+    """Pause, stop or change the rate of an active native project crawl.
 
+    ``set_rate`` takes ``rate`` in URLs per second and an optional ``concurrency``
+    ceiling; the crawl applies it between batches and records it as a scan event.
+    """
+    from seohead.projects.run_control import request, request_rate
+
+    if action == "set_rate":
+        if rate is None:
+            raise ValueError("set_rate requires rate (URLs per second)")
+        return request_rate(project, run_id, rate, concurrency)
+    if rate is not None or concurrency is not None:
+        raise ValueError("rate and concurrency apply only to action=set_rate")
     return request(project, run_id, action)
+
+
+class _ResumeRate:
+    """Hand a resumed crawl its politeness override once, at the first batch boundary."""
+
+    def __init__(self, downstream, rate: tuple[float, int | None]) -> None:
+        self.downstream = downstream
+        self._rate: tuple[float, int | None] | None = rate
+
+    def __call__(self, fetched: int, queued: int) -> None:
+        if self.downstream is not None:
+            self.downstream(fetched, queued)
+
+    def pending_rate(self) -> tuple[float, int | None] | None:
+        rate, self._rate = self._rate, None
+        return rate
+
+
+def resume_inputs_delay(scan_path: str) -> float:
+    """The stored ``speed.min_delay_seconds`` of a resumable scan."""
+    from seohead.mcp.scan_handlers import resume_inputs
+
+    return float(resume_inputs(scan_path)["settings"]["speed"]["min_delay_seconds"])
 
 
 def crawl_site(
@@ -818,9 +857,34 @@ def crawl_site(
     if sitemap_only and url is None:
         url = sitemap
     if resume is not None:
-        # ``is not None`` rather than truthiness: --min-delay 0 and --max-urls 0 are
-        # settings the caller stated, and silently accepting them here would let a
-        # resume run under a value it then refuses to apply.
+        # Politeness is the one thing an operator may change on resume: it decides
+        # how hard the site is hit, not what the crawl collects. It is applied as a
+        # live rate change and recorded as a scan event, so the fingerprint and the
+        # stored frontier stay those of the original crawl.
+        politeness = dict(overrides or {})
+        resume_delay = politeness.pop("speed.min_delay_seconds", min_delay)
+        resume_concurrency = politeness.pop("speed.concurrency", concurrency)
+        overrides = politeness or None
+        min_delay = concurrency = None
+        initial_rate = None
+        if resume_delay is not None or resume_concurrency is not None:
+            from seohead.projects.run_control import checked_rate
+
+            if resume_delay is not None and (
+                isinstance(resume_delay, bool)
+                or not isinstance(resume_delay, (int, float))
+                or resume_delay <= 0
+            ):
+                raise ValueError("a resume rate override needs a positive min_delay")
+            if resume_delay is None:
+                resume_delay = resume_inputs_delay(resume)
+            # A stored delay of 0 means "unpaced"; only the concurrency is checked then.
+            rate_check = 1.0 / resume_delay if resume_delay > 0 else 1.0
+            _delay, checked_concurrency = checked_rate(rate_check, resume_concurrency)
+            initial_rate = (float(resume_delay), checked_concurrency)
+        # ``is not None`` rather than truthiness: --max-urls 0 is a setting the
+        # caller stated, and silently accepting it here would let a resume run
+        # under a value it then refuses to apply.
         conflicting = [
             name
             for name, value in (
@@ -896,7 +960,13 @@ def crawl_site(
                     aggregate_max_requests_per_second=pacer.max_requests_per_second,
                     run_id=observer_run_id,
                 )
-                reporter = ControlledRunReporter(project_root, observed["id"], progress)
+                reporter = ControlledRunReporter(
+                    project_root,
+                    observed["id"],
+                    progress,
+                    pacer=pacer,
+                    initial_rate=initial_rate,
+                )
                 try:
                     result = resume_scan(
                         resume,
@@ -961,7 +1031,12 @@ def crawl_site(
 
         # Read the settings before resuming: the scan is finished once resume_scan returns.
         rate = rate_fields(resume_inputs(resume)["settings"])
-        resumed = resume_scan(resume, url=url, producer_build=producer_build, progress=progress)
+        resumed = resume_scan(
+            resume,
+            url=url,
+            producer_build=producer_build,
+            progress=progress if initial_rate is None else _ResumeRate(progress, initial_rate),
+        )
         return {**resumed, **rate}
 
     import os
@@ -1243,7 +1318,9 @@ def crawl_site(
                 )
                 from seohead.projects.run_control import ControlledRunReporter
 
-                reporter = ControlledRunReporter(project_root, observed["id"], progress)
+                reporter = ControlledRunReporter(
+                    project_root, observed["id"], progress, pacer=pacer
+                )
         if pacer is None:
             # Outside a project the schedule lives in the user state directory, so
             # concurrent crawls of one host still share one aggregate ceiling.
@@ -3695,7 +3772,7 @@ def crawl_import(manifest_path: str | None = None) -> dict[str, Any]:
     """Read an explicitly mapped third-party CSV crawl bundle offline.
 
     The result keeps source identity and field coverage under
-    ``third_party_crawl.v1``. It is not a native scan or an SF Analyzer audit.
+    ``third_party_crawl.v1``. It is not a native scan or an Export Analyzer audit.
     """
     if not isinstance(manifest_path, str) or not manifest_path.strip():
         return {"ok": False, "error": "manifest_path must be a non-empty local path"}
@@ -4155,6 +4232,134 @@ def markdown_extract(
         "final_url": fetched["final_url"],
         "status_code": fetched["status_code"],
         **md_core.extract_markdown(fetched["html"], content_area),
+    }
+
+
+
+def markdown_export(
+    url: str | None = None,
+    urls_file: str | None = None,
+    sitemap: str | None = None,
+    out_dir: str = "markdown-export",
+    max_urls: int = 200,
+    delay: float = 0.5,
+) -> dict[str, Any]:
+    """Export pages as Markdown files under ``out_dir``: a site's sitemap, a URL list, or one URL.
+
+    Each page becomes ``<out_dir>/<url-path>.md`` (the home page -> ``index.md``) with a small
+    frontmatter header — title, meta description, final URL, status, export date — above the
+    same content-area Markdown ``markdown_extract`` produces (nav and footer excluded,
+    headings, lists and links kept). ``sitemap`` follows a sitemap index down to its urlsets
+    (a site root is resolved through robots.txt Sitemap directives); ``urls_file`` is one URL
+    per line, ``#`` comments allowed; ``url`` exports a single page. ``max_urls`` caps the
+    export and ``delay`` seconds space the requests. Returns counts and byte totals; up to
+    20 failures are listed with reasons, so a partial export is visible, not silent.
+    """
+    import re as _re
+    import time as _time
+    from datetime import datetime, timezone
+    from pathlib import Path as _Path
+
+    from seohead.checks import sitemap as sitemap_module
+
+    sources = [s for s in (url, urls_file, sitemap) if s]
+    if len(sources) != 1:
+        raise ValueError("exactly one of url, urls_file, sitemap is required")
+
+    sitemap_errors: list[dict[str, Any]] = []
+    if sitemap:
+        expanded = sitemap_module.crawl(sitemap)
+        sitemap_errors = expanded.get("errors", [])
+        targets = [e["loc"] for e in expanded.get("urls", [])]
+    elif urls_file:
+        targets = [
+            line.strip()
+            for line in _Path(urls_file).read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+    else:
+        targets = [url or ""]
+
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for t in targets:
+        if t.startswith(("http://", "https://")) and t not in seen:
+            seen.add(t)
+            ordered.append(t)
+    truncated = len(ordered) > max_urls
+    ordered = ordered[:max_urls]
+
+    from seohead.checks import markdown_extract as md_core
+
+    root = _Path(out_dir).expanduser()
+    root.mkdir(parents=True, exist_ok=True)
+
+    def _meta(html: str) -> tuple[str, str]:
+        title_m = _re.search(r"<title[^>]*>(.*?)</title>", html, _re.S | _re.I)
+        desc_m = _re.search(
+            r'<meta[^>]+name=["\']description["\'][^>]+content=["\']([^"\']*)', html, _re.I
+        ) or _re.search(
+            r'<meta[^>]+content=["\']([^"\']*)["\'][^>]+name=["\']description["\']', html, _re.I
+        )
+        def clean(value: str | None) -> str:
+            return _re.sub(r"\s+", " ", value or "").strip().replace('"', "'")
+
+        return clean(title_m.group(1) if title_m else ""), clean(desc_m.group(1) if desc_m else "")
+
+    def _relpath(page_url: str) -> _Path:
+        path = urlsplit(page_url).path.strip("/")
+        parts = [_re.sub(r"[^A-Za-z0-9._~-]+", "_", seg) or "_" for seg in path.split("/")] if path else ["index"]
+        rel = _Path(*parts)
+        return rel if rel.suffix == ".md" else rel.with_suffix(".md")
+
+    written = 0
+    total_bytes = 0
+    files: list[str] = []
+    failures: list[dict[str, Any]] = []
+    used: set[str] = set()
+    for i, target in enumerate(ordered):
+        if i:
+            _time.sleep(delay)
+        fetched = _require_fetched_html(target)
+        if not fetched.get("ok"):
+            failures.append({"url": target, "error": fetched.get("error") or f"HTTP {fetched.get('status_code')}"})
+            continue
+        title, description = _meta(fetched["html"])
+        body = md_core.extract_markdown(fetched["html"], None)["content_markdown"]
+        rel = _relpath(fetched.get("final_url") or target)
+        n = 2
+        while str(rel) in used:
+            rel = rel.with_name(f"{rel.stem}-{n}{rel.suffix}")
+            n += 1
+        used.add(str(rel))
+        dest = root / rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        frontmatter = (
+            "---\n"
+            f'title: "{title}"\n'
+            f'description: "{description}"\n'
+            f"url: {fetched.get('final_url') or target}\n"
+            f"status: {fetched.get('status_code')}\n"
+            f"exported: {datetime.now(timezone.utc).date().isoformat()}\n"
+            "---\n\n"
+        )
+        # Single lowercase tokens (zoom_in, expand_more…) are icon ligature names, not prose.
+        body = "\n".join(ln for ln in body.splitlines() if not _re.fullmatch(r"[a-z_]{2,24}", ln.strip()))
+        dest.write_text(frontmatter + body.rstrip() + "\n", encoding="utf-8")
+        written += 1
+        total_bytes += dest.stat().st_size
+        files.append(str(rel))
+    return {
+        "ok": written > 0,
+        "out_dir": str(root.resolve()),
+        "requested": len(ordered),
+        "written": written,
+        "failed": len(failures),
+        "bytes": total_bytes,
+        "files": files[:50],
+        "failures": failures[:20],
+        "sitemap_errors": sitemap_errors[:10],
+        "truncated": truncated,
     }
 
 
@@ -8603,6 +8808,7 @@ _RAW_HANDLERS = {
     "llms_txt_check": llms_txt_check,
     "citability_check": citability_check,
     "markdown_extract": markdown_extract,
+    "markdown_export": markdown_export,
     "boilerplate_report": boilerplate_report,
     "semantic_inputs": semantic_inputs,
     "semantic_similarity": semantic_similarity,

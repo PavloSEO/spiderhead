@@ -89,10 +89,10 @@ class ComponentTests(unittest.TestCase):
             widget.deleteLater()
         self.app.processEvents()
 
-    def test_catalogue_covers_observed_panes_with_unique_ids(self):
-        self.assertEqual((len(MAIN_TABS), len(DETAIL_TABS), len(RIGHT_TABS)), (21, 12, 6))
+    def test_catalogue_covers_every_pane_with_unique_ids(self):
+        self.assertEqual((len(MAIN_TABS), len(DETAIL_TABS), len(RIGHT_TABS)), (20, 11, 6))
         self.assertEqual(len(ALL_TABS), len(TAB_BY_ID))
-        self.assertEqual(len(ALL_TABS), 54)
+        self.assertEqual(len(ALL_TABS), 52)
         self.assertTrue(all(tab.columns and tab.filters and tab.evidence for tab in ALL_TABS))
 
     def test_model_bounded_generator_and_atomic_rejection(self):
@@ -192,7 +192,7 @@ class ComponentTests(unittest.TestCase):
         self.assertEqual(dialog.result(), QDialog.Rejected)
         self.assertIn("хотя бы одну", dialog.feedback.text())
         dialog.show_all()
-        self.assertEqual(len(dialog.visible_ids), 21)
+        self.assertEqual(len(dialog.visible_ids), len(MAIN_TABS))
         dialog.reject()
         self.assertEqual(deck.visible_ids[0], "images")
         with self.assertRaises(ValueError):
@@ -323,7 +323,7 @@ class ComponentTests(unittest.TestCase):
                 self.assertEqual(owner.panel(spec.id).state, "ready")
                 owner.set_page(spec.id, [], state="unavailable", reason="No retained evidence")
                 self.assertEqual(owner.panel(spec.id).model.rowCount(), 0)
-        self.assertEqual(len(audit.findChildren(QTableView)), 39)
+        self.assertEqual(len(audit.findChildren(QTableView)), 37)
         self.assertEqual(len(projects.findChildren(QTableView)), 15)
 
     def test_audit_workspace_desktop_and_compact_keep_operable_tables(self):

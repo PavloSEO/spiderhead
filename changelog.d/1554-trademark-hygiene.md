@@ -1,0 +1,1 @@
+- Third-party product names now appear only where they describe compatibility: a trademark and non-affiliation notice was added, the export analyzer is called Export Analyzer, and report reasons and docs describe what an export lacks instead of making claims about another product.
