@@ -133,6 +133,7 @@ COMMANDS = (
     "scan-findings-page",
     "scan-url-query",
     "scan-url-counts",
+    "scan-config-diff",
     "scan-directory-tree",
     "scan-url-history",
     "scan-link-inspect",
@@ -605,6 +606,11 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         for name in ("input_path", "filter_sets", "count_timeout_seconds"):
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
+    elif cmd == "scan-config-diff":
+        for name in ("before_path", "after_path"):
+            value = getattr(args, name, None)
+            if value:
+                kw[name] = value
     elif cmd == "scan-url-query":
         for name in (
             "input_path",
@@ -3007,6 +3013,19 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             help="JSON list of filter lists; one exact count per set in one call",
         )
         sub.add_argument("--count-timeout-seconds", dest="count_timeout_seconds", type=float)
+    if cmd == "scan-config-diff":
+        sub.add_argument(
+            "--before",
+            dest="before_path",
+            required=True,
+            help="path to the earlier saved scan whose settings are the diff base",
+        )
+        sub.add_argument(
+            "--after",
+            dest="after_path",
+            required=True,
+            help="path to the later saved scan whose settings are compared against the base",
+        )
     if cmd == "scan-url-query":
         sub.add_argument("--filters", type=_json_list, help="JSON list of {column, op, value}")
         sub.add_argument("--sort")
