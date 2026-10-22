@@ -16,7 +16,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 `{"ok": false, "error": "..."}` instead of raising. An unreachable site is
 data, not an accident.
 
-The current registry has 230 commands and 246 callable tools,
+The current registry has 232 commands and 248 callable tools,
 with 280 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
