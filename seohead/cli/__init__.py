@@ -3984,6 +3984,21 @@ artifact paths are project-relative and must lie under scans/ or reports/.
 """
 
 
+def _command_help(cmd: str) -> str:
+    """One concise description per command from its handler's docstring (#1392).
+
+    Falls back to the humanized command name only when a handler has no docstring;
+    the fallback never matches the forbidden `run ... tool` pattern.
+    """
+    handler = handlers.HANDLERS.get(cmd.replace("-", "_"))
+    doc = (handler.__doc__ or "") if handler is not None else ""
+    if doc:
+        summary = doc.strip().partition(chr(10) * 2)[0]
+        if summary and not summary.lower().startswith("run "):
+            return summary[:88]
+    return cmd.replace("-", " ").capitalize() + "."
+
+
 class _SuggestingParser(argparse.ArgumentParser):
     """Invalid command: one line, up to three close matches, a pointer to --help (#1393)."""
 
@@ -4043,7 +4058,7 @@ def build_parser() -> argparse.ArgumentParser:
             epilog = WORKFLOW_START_HELP_NOTE
         sp = subs.add_parser(
             cmd,
-            help=f"run the {cmd} tool",
+            help=_command_help(cmd),
             epilog=epilog,
             formatter_class=argparse.RawDescriptionHelpFormatter
             if cmd == "workflow-start"
@@ -4077,12 +4092,12 @@ def build_parser() -> argparse.ArgumentParser:
         "import-urls",
     ):
         cmd = "scan-" + action
-        sp = scan_subs.add_parser(action, help=f"run {cmd}")
+        sp = scan_subs.add_parser(action, help=_command_help(cmd))
         _add_flags(sp, cmd)
     logs = subs.add_parser("logs", help="local retained access-log evidence")
     logs_subs = logs.add_subparsers(dest="logs_command", metavar="<action>", required=True)
     for action in ("import", "summary", "join", "bots"):
-        sp = logs_subs.add_parser(action, help=f"run logs-{action}")
+        sp = logs_subs.add_parser(action, help=_command_help("logs-" + action))
         _add_flags(sp, "logs-" + action)
     project = subs.add_parser("project", help="local project workspace")
     project_subs = project.add_subparsers(dest="project_command", metavar="<action>", required=True)
@@ -4138,7 +4153,7 @@ def build_parser() -> argparse.ArgumentParser:
         cmd = "project-" + action
         sp = project_subs.add_parser(
             action,
-            help=f"run {cmd}",
+            help=_command_help(cmd),
             epilog=CHECKLIST_RECORD_HELP_NOTE if cmd == "project-checklist-record" else None,
             formatter_class=argparse.RawDescriptionHelpFormatter,
         )
