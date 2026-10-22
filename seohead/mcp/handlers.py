@@ -1463,6 +1463,7 @@ def crawl_site(
             spool_evidence=True,
             proxy_route=proxy_route,
             normalize_tracking_parameters=settings["scope"]["normalize_tracking_parameters"],
+            upgrade_to_https=settings["http"]["upgrade_to_https"],
         )
         discovery = {
             "mode": "spider",
@@ -1505,6 +1506,7 @@ def crawl_site(
             out_path=pages_resume_path,
             cache=cache,
             proxy_route=proxy_route,
+            upgrade_to_https=settings["http"]["upgrade_to_https"],
         )
         discovery = {
             "mode": "list",

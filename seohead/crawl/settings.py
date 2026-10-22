@@ -75,6 +75,9 @@ from typing import Any
 # per default record at both 67 and 68 fields; null adds no allocation. Two
 # distinct resource URLs in the populated JSON array add about 131 bytes per
 # record. Longer resource lists cost more; the native route streams this evidence.
+# Field 70 is the transport-upgrade marker (#1484), a bool that defaults False
+# and never allocates: the same instrument measured 2,539 bytes per default
+# 70-field record, within noise of the 69-field figure.
 # Field 69 is the nullable rejected-href list (#1530). The same instrument measured
 # 2,540 bytes per default 69-field record (null adds no allocation, as before) and
 # about +247 bytes for a record carrying one rejected target -- a cost only a crawl
@@ -282,6 +285,12 @@ DEFAULTS: dict[str, Any] = {
         "user_agent": "",  # empty = SpiderHeadBot/<version>, resolved in load()
         "headers": {},
         "retry_on_timeout": 0,
+        # Off by default (#1484): upgrading every http URL to https before the
+        # request is a declaration that the hosts enforce transport security.
+        # On: no redirect hop is spent or recorded for the upgrade, the http
+        # and https spellings collapse into one page identity, and each page
+        # fetched this way is marked transport-upgraded.
+        "upgrade_to_https": False,
         # Empty is direct. Credentials may appear only in an env:VARIABLE URL.
         "proxy": "",
         "proxy_allow_private": False,
@@ -583,6 +592,9 @@ RESULTS_AFFECTING: frozenset[str] = frozenset(
         "http.user_agent",
         "http.headers",
         "http.retry_on_timeout",
+        # Upgrading http to https before the request changes which URL is
+        # fetched and collapses the two spellings into one page (#1484).
+        "http.upgrade_to_https",
         "http.proxy",
         "http.proxy_allow_private",
         "http.proxy_identity",
@@ -853,6 +865,12 @@ DESCRIPTIONS: dict[str, str] = {
         "Extra request headers to send with every fetch. With --set, pass a JSON object."
     ),
     "http.retry_on_timeout": "Number of retries after a request times out.",
+    "http.upgrade_to_https": (
+        "Fetch every http URL over https instead, before any request: no redirect hop "
+        "is recorded for the upgrade, the two spellings collapse into one page, and "
+        "each upgraded page is marked. Turn on only for hosts that enforce transport "
+        "security -- a host without https answers with connection errors."
+    ),
     "http.proxy": (
         "Explicit http:// forward proxy with host and port, or env:VARIABLE containing its URL "
         "and optional username/password. No ambient proxy variables are used by a native crawl."

@@ -263,6 +263,7 @@ def _document_batch(
     scope: Scope,
     start_host: str,
     settings: dict[str, Any],
+    target_normalization: Callable[[str], str] | None = None,
 ) -> _DocumentBatch:
     """Use the shared helper; this module never reparses HTML or recreates links."""
     batch = _DocumentBatch()
@@ -325,9 +326,7 @@ def _document_batch(
         record_edge=record_edge,
         reject=reject,
         mark_link_partial=mark_partial,
-        normalize_target=(
-            normalize_get_parameters if settings["scope"]["normalize_tracking_parameters"] else None
-        ),
+        normalize_target=target_normalization,
     )
     forms, omitted = form_edges(parsed, source_url)
     batch.forms.extend(dataclasses.asdict(form) for form in forms)
@@ -455,6 +454,22 @@ def crawl_to_scan(
     scope = Scope.from_config(settings["scope"])
     if scope.start_folder_only:
         scope = scope.anchored_to(start)
+    # #1484: http URLs the crawl fetches over https, seed and discovered alike.
+    upgraded_urls: set[str] = set()
+    from seohead.crawl.spider import _compose_target_normalization, upgrade_transport
+
+    target_normalization = _compose_target_normalization(
+        upgrade=upgrade_transport if settings["http"]["upgrade_to_https"] else None,
+        upgraded_urls=upgraded_urls,
+        tracking=(
+            normalize_get_parameters if settings["scope"]["normalize_tracking_parameters"] else None
+        ),
+    )
+    if settings["http"]["upgrade_to_https"]:
+        upgraded_start = upgrade_transport(start)
+        if upgraded_start != start:
+            upgraded_urls.add(upgraded_start)
+            start = upgraded_start
     throttle = Throttle(
         min_delay=settings["speed"]["min_delay_seconds"],
         max_delay=settings["speed"]["max_delay_seconds"],
@@ -855,6 +870,7 @@ def crawl_to_scan(
                     cache=None,
                     wait=gate.wait_turn,
                     response_filter=scope.response_media_rejection,
+                    transport_upgraded=lease.url in upgraded_urls,
                     **capture_options,
                 )
                 return lease, result, captures
@@ -1028,6 +1044,7 @@ def crawl_to_scan(
                             scope=scope,
                             start_host=host,
                             settings=settings,
+                            target_normalization=target_normalization,
                         )
                         batch.links.extend(links_batch.links)
                         batch.forms.extend(links_batch.forms)

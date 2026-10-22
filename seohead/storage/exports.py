@@ -103,9 +103,7 @@ def _page_rows(con, *, url: str | None = None) -> Iterable[dict[str, Any]]:
             elif name == "invalid_link_targets_json":
                 # Always present, null when recording was off (#1530): matches
                 # the PageRecord the crawl wrote, so export == what was recorded.
-                page["invalid_link_targets"] = (
-                    json.loads(value) if value is not None else None
-                )
+                page["invalid_link_targets"] = json.loads(value) if value is not None else None
             elif name == "link_placement_json":
                 if value is not None:
                     page["link_placement"] = json.loads(value)

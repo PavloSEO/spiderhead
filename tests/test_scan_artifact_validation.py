@@ -88,7 +88,9 @@ def test_original_bytes_fields_occurrences_and_producer_survive(legacy_run, arti
                 None if stored_duplicate_ids is None else json.loads(stored_duplicate_ids)
             )
             for key in page:
-                if key == "head_not_first" or key.endswith("_outside_head"):
+                if key == "head_not_first" or key == "transport_upgraded" or key.endswith(
+                    "_outside_head"
+                ):
                     page[key] = None if page[key] is None else bool(page[key])
             actual.append(page)
         assert actual == expected
@@ -432,7 +434,7 @@ def test_schema_maps_all_current_page_and_link_fields():
     }
     page_record_fields = {field.name for field in fields(PageRecord)}
     assert set(_LATE_PAGE_FIELDS) <= page_record_fields
-    assert len(page_record_fields - set(_LATE_PAGE_FIELDS) - transient) == 46
+    assert len(page_record_fields - set(_LATE_PAGE_FIELDS) - transient) == 47
     assert {
         name
         for name, annotation in get_type_hints(PageRecord).items()

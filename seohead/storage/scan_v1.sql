@@ -147,6 +147,9 @@ CREATE TABLE pages (
   -- heading. Nullable, because a scan written before headings were recorded
   -- in order has no outline to state, which is not an empty outline.
   heading_outline_json TEXT,
+  -- 1 when the URL entered the crawl over http:// and was fetched over https://
+  -- without a redirect hop, under http.upgrade_to_https (issue #1484).
+  transport_upgraded INTEGER NOT NULL CHECK (transport_upgraded IN (0,1)),
   -- Hrefs that could not become fetchable link targets, each {raw_href, reason}
   -- (issue #1530). Nullable: recording is opt-in
   -- (discovery.record_invalid_targets), and a crawl run without it

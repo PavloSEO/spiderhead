@@ -34,6 +34,9 @@ _TRANSPORT_FIELDS = {
     "cache_status",
     "final_url",
     "final_canonical",
+    # A fetch-time fact (#1484): replay copies it from the stored page, exactly
+    # like the other transport observations.
+    "transport_upgraded",
 }
 
 
@@ -80,6 +83,8 @@ def _parse_limit(config: dict[str, Any]) -> int:
 def _record(row: sqlite3.Row) -> PageRecord:
     """Keep only static transport/discovery facts before parsing a retained body."""
     values = {name: row[name] for name in _TRANSPORT_FIELDS}
+    # SQLite hands the #1484 marker back as 0/1; the record contract is bool.
+    values["transport_upgraded"] = bool(values["transport_upgraded"])
     values["redirect_chain"] = json.loads(row["redirect_chain_json"])
     # The canonical walk (#21) is a bounded set of *extra* fetches list mode made at
     # crawl time; reanalysis only reparses the retained body, so it cannot repeat
