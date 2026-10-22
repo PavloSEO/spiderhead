@@ -199,7 +199,23 @@ def project_facts(
     root, project = _load(directory)
     supplied = _supplied(facts) if facts is not None else []
     if not supplied and not detect:
-        raise ValueError("supply facts, request detection, or read the project with project-open")
+        # No input asked for the saved facts (#1400): an empty list for a new project is
+        # the honest answer, same contract as the other project read commands.
+        raw = project["facts"]
+        saved = (
+            sorted(
+                raw,
+                key=lambda fact: str(fact.get("name", "")),
+            )
+            if isinstance(raw, list)
+            else []
+        )
+        return {
+            "ok": True,
+            "state": "saved",
+            "facts": saved,
+            "count": len(saved),
+        }
     detection = (
         _detect(tools or {}, project["site"]["target"])
         if detect

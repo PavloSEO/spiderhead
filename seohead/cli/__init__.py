@@ -3508,7 +3508,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             help="complete project dataset",
         )
         sub.add_argument("--format", dest="fmt", choices=("json", "csv", "xlsx"), required=True)
-        _source_flag(sub, "--output", required=True, help="new filename under project reports/")
+        _source_flag(sub, "--output", required=True, help="new filename, or a path inside <project>/reports/")
         _source_flag(sub, "--compare-manifest", help="compare.v2 manifest for dataset=compare")
         sub.add_argument("--job-id", help="optional caller-generated UUID for later cancellation")
     if cmd in {"project-export-status", "project-export-cancel"}:

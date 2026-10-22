@@ -165,11 +165,10 @@ def test_status_refuses_unknown_or_unsupported_artifacts_without_rewriting(
 
 def test_status_rejects_missing_artifact(tmp_path):
     result = scan_status(str(tmp_path / "missing.sqlite"))
-    assert result["integrity"] == {
-        "state": "not_checked",
-        "checked_at": None,
-        "damaged_pages": None,
-        "affected_scan_ids": [],
-        "reason": "missing_file",
+    # A missing file is a one-line refusal (#1402); no integrity payload is invented.
+    assert result == {
+        "ok": False,
+        "error": "scan artifact is missing",
+        "state": "unavailable",
+        "path": str(tmp_path / "missing.sqlite"),
     }
-    assert result["checkpoint_available"] is None
