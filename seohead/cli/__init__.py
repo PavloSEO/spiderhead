@@ -674,9 +674,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             scan_file = _P(args.scan_file)
             con = sqlite3.connect(f"file:{scan_file}?mode=ro", uri=True)
             try:
-                row = con.execute(
-                    "SELECT scan_uuid FROM scan WHERE singleton=1"
-                ).fetchone()
+                row = con.execute("SELECT scan_uuid FROM scan WHERE singleton=1").fetchone()
             finally:
                 con.close()
             if not row or not isinstance(row[0], str):
@@ -3532,7 +3530,9 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             help="complete project dataset",
         )
         sub.add_argument("--format", dest="fmt", choices=("json", "csv", "xlsx"), required=True)
-        _source_flag(sub, "--output", required=True, help="new filename, or a path inside <project>/reports/")
+        _source_flag(
+            sub, "--output", required=True, help="new filename, or a path inside <project>/reports/"
+        )
         _source_flag(sub, "--compare-manifest", help="compare.v2 manifest for dataset=compare")
         sub.add_argument("--job-id", help="optional caller-generated UUID for later cancellation")
     if cmd in {"project-export-status", "project-export-cancel"}:
@@ -3655,9 +3655,13 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     }:
         _source_flag(sub, "--directory", help="validated local project workspace")
     if cmd == "project-task-detail":
-        sub.add_argument("--item-id", help="exact checklist item identifier")
+        sub.add_argument("--task-id", dest="item_id", help="exact task identifier")
+        sub.add_argument(
+            "--item-id", dest="item_id", help="same identifier (checklist item spelling)"
+        )
     if cmd == "project-task-comment":
-        sub.add_argument("--item-id", help="exact custom task identifier")
+        sub.add_argument("--task-id", dest="item_id", help="exact task identifier")
+        sub.add_argument("--item-id", dest="item_id", help="same identifier (custom task spelling)")
         sub.add_argument("--expected-revision", type=int)
         sub.add_argument("--actor", help="person or agent adding the comment")
         _source_flag(sub, "--text", help="comment text")
@@ -3970,11 +3974,11 @@ class _SuggestingParser(argparse.ArgumentParser):
 
             quoted = message.split("invalid choice:", 1)[1].strip()
             wanted = quoted.split(" ", 1)[0].strip("'\"")
-            choices = [
-                action
-                for group in self._subparsers._group_actions
-                for action in group.choices
-            ] if getattr(self, "_subparsers", None) else []
+            choices = (
+                [action for group in self._subparsers._group_actions for action in group.choices]
+                if getattr(self, "_subparsers", None)
+                else []
+            )
             near = difflib.get_close_matches(wanted, choices, n=3, cutoff=0.5)
             hint = f" (did you mean: {', '.join(near)}?)" if near else ""
             self.exit(2, f"seohead: unknown command {wanted!r}{hint}\nsee `seohead --help`\n")
