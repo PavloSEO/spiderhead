@@ -453,6 +453,8 @@ def crawl_to_scan(
     if not host:
         raise ValueError("SQLite scan collection requires a crawlable start URL")
     scope = Scope.from_config(settings["scope"])
+    if scope.start_folder_only:
+        scope = scope.anchored_to(start)
     throttle = Throttle(
         min_delay=settings["speed"]["min_delay_seconds"],
         max_delay=settings["speed"]["max_delay_seconds"],

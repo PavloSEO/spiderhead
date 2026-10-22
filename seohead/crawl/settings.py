@@ -75,6 +75,14 @@ from typing import Any
 # per default record at both 67 and 68 fields; null adds no allocation. Two
 # distinct resource URLs in the populated JSON array add about 131 bytes per
 # record. Longer resource lists cost more; the native route streams this evidence.
+# Field 69 is the nullable rejected-href list (#1530). The same instrument measured
+# 2,540 bytes per default 69-field record (null adds no allocation, as before) and
+# about +247 bytes for a record carrying one rejected target -- a cost only a crawl
+# that opted into discovery.record_invalid_targets pays. LinkEdge gained its ninth
+# field the same way (#1518: anchor_source); the extra dataclass slot costs 8 bytes
+# per edge, and "alt" vs "" adds no further allocation. At the 50,000 x 150-link
+# figure above that is about +0.06 GiB for the marker, against the ~46 MiB the
+# raw_href family already costs.
 # Explicit native crawl admission; capacity still depends on independent request,
 # time, body, disk and renderer budgets. Admission is not a benchmark result.
 # Higher requests are refused, never silently clamped.
@@ -144,6 +152,12 @@ DEFAULTS: dict[str, Any] = {
         # Which discovered URLs count as internal. "host" is the conservative
         # reading; "registrable_domain" also accepts subdomains.
         "internal": "host",  # host | registrable_domain
+        # Stay below the start URL's path folder (#1481): a deep start URL
+        # walks only its own subtree, and links pointing above the folder are
+        # counted as unfollowed evidence (excluded under outside_start_folder)
+        # exactly like any other scope rejection. Refused for a start URL at
+        # the host root -- there is no folder to stay below.
+        "start_folder_only": False,
         # Regexes searched against the whole URL of every *discovered* link.
         # The start URL is always fetched: a crawl that filters out its own seed
         # would report an empty site rather than a configuration mistake.
@@ -509,6 +523,9 @@ DEFAULTS: dict[str, Any] = {
 RESULTS_AFFECTING: frozenset[str] = frozenset(
     {
         "scope.internal",
+        # Narrowing to the start URL's folder removes whole paths from the
+        # crawl (#1481) -- a scope change, not a speed knob.
+        "scope.start_folder_only",
         "scope.include_patterns",
         "scope.exclude_patterns",
         "scope.include_extensions",
@@ -704,6 +721,11 @@ DESCRIPTIONS: dict[str, str] = {
         "'registrable_domain' (also accepts subdomains -- on a shared hosting suffix such as "
         "github.io or vercel.app, only the audited tenant's own subdomain, never another "
         "tenant's, per seohead.recon.net.registrable_domain)."
+    ),
+    "scope.start_folder_only": (
+        "Fetch only URLs at or below the start URL's path folder: links above the folder "
+        "count as unfollowed evidence (excluded under outside_start_folder). Refused for a "
+        "start URL at the host root."
     ),
     "scope.include_patterns": "Regexes; a discovered link must match at least one to be followed.",
     "scope.exclude_patterns": "Regexes; a discovered link matching any of these is not followed.",
