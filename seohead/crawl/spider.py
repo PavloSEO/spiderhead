@@ -524,12 +524,19 @@ class Scope:
     exclude_hosts: frozenset[str] = frozenset()
     segments: tuple[SegmentRule, ...] = ()
     segments_only: frozenset[str] = frozenset()
+    # "Stay below the start URL's folder" (#1481): when on, only paths at or
+    # below the folder the start URL sits in may be fetched. The folder itself
+    # is bound per crawl by ``anchored_to`` -- the config carries the intent,
+    # the start URL supplies the boundary.
+    start_folder_only: bool = False
+    start_folder: str = ""
 
     @classmethod
     def from_config(cls, scope: dict[str, Any] | None) -> Scope:
         scope = scope or {}
         return cls(
             internal=scope.get("internal", "host"),
+            start_folder_only=bool(scope.get("start_folder_only", False)),
             include_patterns=tuple(re.compile(p) for p in scope.get("include_patterns") or ()),
             exclude_patterns=tuple(re.compile(p) for p in scope.get("exclude_patterns") or ()),
             include_extensions=frozenset(
@@ -583,6 +590,26 @@ class Scope:
             return registrable_domain(host) == registrable_domain(start_host)
         return host == start_host
 
+    def anchored_to(self, start_url: str) -> Scope:
+        """Bind the start-folder rule to this crawl's start URL (#1481).
+
+        The folder is the directory the start URL sits in -- the parent path
+        segment, not the URL itself: a crawl started at ``/blog/post`` stays
+        within ``/blog/``, one started at ``/blog/`` stays within ``/blog/``
+        too. A start URL at the host root has no folder to stay below, so the
+        toggle is refused there rather than silently scoping to everything.
+        """
+        path = urlsplit(start_url).path or "/"
+        folder = path[: path.rfind("/") + 1] or "/"
+        if folder == "/":
+            raise ValueError(
+                "scope.start_folder_only requires a start URL with a non-root path: "
+                "the host root has no folder to stay below"
+            )
+        from dataclasses import replace
+
+        return replace(self, start_folder=folder)
+
     def rejection(self, url: str, start_host: str) -> str:
         """The rule that rejects this URL, or "" when it may be fetched."""
         if not self.is_internal(url, start_host):
@@ -594,6 +621,11 @@ class Scope:
             return "excluded_by_pattern"
         if self.include_patterns and not any(p.search(url) for p in self.include_patterns):
             return "not_included_by_pattern"
+        if self.start_folder_only and self.start_folder:
+            path = urlsplit(url).path or "/"
+            folder = self.start_folder.rstrip("/")
+            if not (path == folder or path.startswith(self.start_folder)):
+                return "outside_start_folder"
         if self.segments_only and self.segment_for(url) not in self.segments_only:
             return "outside_segment"
         suffix = PurePosixPath(urlsplit(url).path).suffix
@@ -900,6 +932,8 @@ def crawl_site(
     if not start or not host or " " in host or "." not in host:
         raise ValueError(f"not a crawlable URL: {start_url!r}")
     rules = scope if isinstance(scope, Scope) else Scope.from_config(scope)
+    if rules.start_folder_only:
+        rules = rules.anchored_to(start)
     if max_urls == 0:
         raise ValueError("an unlimited URL population requires a native SQLite site scan")
     limit = checked_url_budget(max_urls, materialized=not spool_evidence)
