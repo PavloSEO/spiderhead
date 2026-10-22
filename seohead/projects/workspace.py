@@ -306,6 +306,31 @@ def open_project(directory: str | Path, *, expected_site: str | None = None) -> 
     }
 
 
+def _compact_scan(item: dict[str, Any]) -> dict[str, Any]:
+    """A status row without inode/storage detail (#1397); project-status stays a summary."""
+    keep = (
+        "uuid",
+        "lifecycle",
+        "finish_reason",
+        "crawl_partial",
+        "corpus_partial",
+        "pinned",
+        "host",
+        "bytes",
+        "disk_bytes",
+        "created_at",
+        "finished_at",
+        "source_kind",
+        "parent_scan_uuid",
+        "evidence_revision",
+        "path",
+        "mtime_ns",
+        "config_fingerprint",
+    )
+    compact = {key: value for key, value in item.items() if key in keep}
+    return compact
+
+
 def project_status(
     directory: str | Path, *, _coverage_views: dict | None = None, _verify_evidence: bool = True
 ) -> dict[str, Any]:
@@ -350,7 +375,7 @@ def project_status(
             "template_references": document["template_references"],
             "profile_references": document["profile_references"],
         },
-        "scans": scans,
+        "scans": {**scans, "items": [_compact_scan(item) for item in scans["items"]]},
         "summary": {
             "running_scan": running_scan,
             "open_tasks": _open_tasks(views[str(root)]),

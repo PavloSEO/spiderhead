@@ -7722,11 +7722,17 @@ def project_task_comment(
     )
 
 
-def project_scans(directory: str, offset: int = 0, limit: int = 20) -> dict[str, Any]:
-    """Read a bounded page of retained project scans with evidence metadata."""
+def project_scans(
+    directory: str, offset: int = 0, limit: int = 20, full: bool = False
+) -> dict[str, Any]:
+    """Read a bounded page of retained project scans with evidence metadata.
+
+    The default row is compact (uuid, state, sizes, times); full=True restores
+    the inode/storage detail and the complete evidence projection.
+    """
     from seohead.projects.observer import scans_page as core
 
-    return core(directory=directory, offset=offset, limit=limit)
+    return core(directory=directory, offset=offset, limit=limit, full=full)
 
 
 def bi_export(
