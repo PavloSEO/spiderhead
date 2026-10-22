@@ -665,6 +665,24 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             if getattr(args, name, None) is not None:
                 kw[name] = getattr(args, name)
     elif cmd == "scan-findings-page":
+        if getattr(args, "scan_file", None):
+            if kw.get("project") or getattr(args, "scan_uuid", None):
+                raise ValueError("use --scan or --project + --scan-uuid, not both")
+            import sqlite3
+            from pathlib import Path as _P
+
+            scan_file = _P(args.scan_file)
+            con = sqlite3.connect(f"file:{scan_file}?mode=ro", uri=True)
+            try:
+                row = con.execute(
+                    "SELECT scan_uuid FROM scan WHERE singleton=1"
+                ).fetchone()
+            finally:
+                con.close()
+            if not row or not isinstance(row[0], str):
+                raise ValueError(f"not a retained scan file: {scan_file}")
+            kw["project"] = str(scan_file.parent.parent)
+            kw["scan_uuid"] = row[0]
         for name in (
             "project",
             "scan_uuid",
@@ -3045,6 +3063,12 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--max-decoded-bytes", dest="max_decoded_bytes", type=int)
     if cmd == "scan-findings-page":
         _source_flag(sub, "--project", help="project directory whose retained scan is read")
+        _source_flag(
+            sub,
+            "--scan",
+            dest="scan_file",
+            help="retained scan file; its project and uuid resolve automatically",
+        )
         sub.add_argument("--scan-uuid")
         sub.add_argument("--offset", type=int)
         sub.add_argument("--limit", type=int)
