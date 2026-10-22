@@ -284,9 +284,12 @@ CHECKS: dict[str, dict[str, Any]] = {
     "HEADING_SKIP": {
         "severity": "notice",
         "source": "crawl:heading_outline",
-        "message": "Content headings skip one or more levels in DOM order",
-        "fix": "Use the next heading level after the preceding content heading; for example, "
-        "change an H4 that follows an H2 to H3 unless it begins a new top-level section.",
+        "message": "Content headings change by more than one level in DOM order, skipping a "
+        "level down or jumping back up past an open section",
+        "fix": "Use the adjacent heading level in both directions: an H4 that follows an H2 "
+        "becomes H3, and a heading returning up the outline steps back one level at a time "
+        "so each open section closes in order (H3 -> H2 closes one section and starts a "
+        "sibling, which is correct nesting).",
     },
     # 7.E — canonical & directives
     "CANONICAL_MISSING": {

@@ -748,10 +748,14 @@ def check_heading_outline(ctx: AuditContext) -> None:
         # Keeping both out prevents a modal or masthead widget from producing a
         # false H2 -> H4 report about the page itself.
         content_outline = [h for h in outline if h.get("region") == "content"]
+        # Both directions count (#1545): skipping a level down (H2 -> H4) and
+        # jumping back up more than one level (H4 -> H2) both step past an open
+        # section of the outline. A one-level return (H3 -> H2) closes the
+        # current section and starts a sibling -- correct nesting, never flagged.
         jumps = [
             (previous, current)
             for previous, current in itertools.pairwise(content_outline)
-            if current["level"] > previous["level"] + 1
+            if abs(current["level"] - previous["level"]) > 1
         ]
         if jumps:
             ctx.add(
