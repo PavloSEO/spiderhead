@@ -175,6 +175,7 @@ def _parse_options(
         "content_area": content_area_config,
         "max_link_observations": MAX_LINK_OBSERVATIONS,
         "max_form_observations": MAX_FORM_OBSERVATIONS,
+        "invalid_link_targets": settings["discovery"]["hyperlinks"]["record_invalid_targets"],
     }
     if "resources" in settings:
         options.update(resource_declarations=True, max_resource_declarations=MAX_LINK_OBSERVATIONS)

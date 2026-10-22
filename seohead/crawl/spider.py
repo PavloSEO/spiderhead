@@ -781,6 +781,7 @@ def crawl_site(
     store_external_links: bool = True,
     crawl_redirects: bool = True,
     capture_link_attributes: bool = False,
+    record_invalid_targets: bool = False,
     crawl_external_links: bool = False,
     external_policy: dict[str, Any] | None = None,
     external_path: str | None = None,
@@ -900,15 +901,19 @@ def crawl_site(
     max_concurrency = max(1, int(concurrency))
     if state_path:
         crawl_state.ensure_safe_dir(os.path.dirname(os.path.abspath(state_path)) or ".")
-    parse_options = (
-        {
+    # None keeps every parser default; each opt-in flag below builds the dict so
+    # only what was asked for is measured (#1530 rides the same shape as
+    # classify_links).
+    parse_options = None
+    if record_invalid_targets:
+        parse_options = {"invalid_link_targets": True}
+    if classify_links:
+        parse_options = {
+            **(parse_options or {}),
             "classify_links": True,
             "link_position_rules": link_position_rules,
             "content_area": content_area_config,
         }
-        if classify_links
-        else None
-    )
 
     result = SpiderResult(spooled_evidence=spool_evidence)
     if dispatch_gate is None:

@@ -1452,6 +1452,7 @@ def crawl_site(
             store_external_links=settings["discovery"]["external"]["store"],
             crawl_redirects=settings["discovery"]["redirects"]["crawl"],
             capture_link_attributes=settings["link_attributes"]["capture"],
+            record_invalid_targets=settings["discovery"]["hyperlinks"]["record_invalid_targets"],
             crawl_external_links=settings["discovery"]["external"]["crawl"],
             external_policy=settings["external_checks"],
             external_path=(
