@@ -7134,6 +7134,14 @@ def project_export(
 
 
 def project_export_status(directory: str, job_id: str) -> dict[str, Any]:
+    import uuid as _uuid
+
+    try:  # a clear message instead of the raw hex-decode error (#1396)
+        _uuid.UUID(job_id)
+    except (ValueError, AttributeError, TypeError) as exc:
+        raise ValueError(
+            f"job_id must be a UUID, as returned by project-export; got {job_id!r}"
+        ) from exc
     from seohead.mcp.project_handlers import project_export_status as core
 
     return core(directory=directory, job_id=job_id)

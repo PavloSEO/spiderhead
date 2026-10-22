@@ -534,12 +534,32 @@ def _scan_url_detail(
             }
         url_row = con.execute("SELECT url_id,url FROM urls WHERE url=?", (url,)).fetchone()
         if url_row is None:
+            # What a person needs next: the scan's hosts and a same-path variant, so a
+            # trailing-slash or normalization miss is obvious instead of a bare miss (#1403).
+            hosts = sorted(
+                {
+                    row_[0].split("//", 1)[-1].split("/", 1)[0]
+                    for row_ in con.execute(
+                        "SELECT DISTINCT u.url FROM urls u "
+                        "JOIN pages p ON p.url_id=u.url_id LIMIT 500"
+                    )
+                    if "//" in row_[0]
+                }
+            )[:5]
+            variant = con.execute(
+                "SELECT url FROM urls WHERE url=? LIMIT 1",
+                (url.rstrip("/") if url.endswith("/") else url + "/",),
+            ).fetchone()
             return {
                 "ok": True,
                 "state": "not_found",
                 "source": source,
                 "url": _detail_url(url),
                 "validation": validation,
+                "hint": {
+                    "scan_hosts": hosts,
+                    "variant_present": variant[0] if variant else None,
+                },
             }
         page = con.execute(
             "SELECT p.*,u.url FROM pages p JOIN urls u USING(url_id) WHERE p.url_id=?",

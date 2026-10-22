@@ -117,7 +117,13 @@ def doctor(
         "chromium": {
             "state": "available" if browser else "unavailable",
             "executable": Path(browser).name if browser else None,
-            "reason": None if browser else "no supported Chromium executable is on PATH",
+            "reason": (
+                None
+                if browser
+                else "no supported Chromium executable is on PATH;"
+                " rendered pages need it — install one (e.g."
+                " `playwright install chromium`, or a Chrome/Chromium/Edge binary on PATH)"
+            ),
         },
         "screaming_frog": {
             "state": "available" if sf_path else "unavailable",
