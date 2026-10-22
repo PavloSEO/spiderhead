@@ -6888,7 +6888,9 @@ def project_checklist_init(
 ) -> dict[str, Any]:
     from seohead.mcp.project_handlers import project_checklist_init as core
 
-    return core(directory, template=template, expected_revision=expected_revision, plan=plan, full=full)
+    return core(
+        directory, template=template, expected_revision=expected_revision, plan=plan, full=full
+    )
 
 
 def project_checklist_update(directory: str, item: dict, expected_revision: int) -> dict[str, Any]:
