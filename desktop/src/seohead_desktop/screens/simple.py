@@ -285,7 +285,7 @@ class SimpleScreen(Screen):
             QuickAction(
                 "travel_explore",
                 "Быстрый краул",
-                "Без проекта, как Screaming Frog",
+                "Без проекта: введите URL и запустите",
                 enabled=crawler,
             ),
         ]
