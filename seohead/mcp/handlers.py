@@ -7686,7 +7686,9 @@ def project_checklist_page(
     )
 
 
-def project_task_detail(directory: str, item_id: str | None = None, task_id: str | None = None) -> dict[str, Any]:
+def project_task_detail(
+    directory: str, item_id: str | None = None, task_id: str | None = None
+) -> dict[str, Any]:
     """Read one project task definition, evidence and bounded history.
 
     ``task_id`` is the canonical name of the same identifier (#1405); ``item_id``
