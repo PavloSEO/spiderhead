@@ -1305,18 +1305,51 @@ def task_detail(directory: str | Path, *, item_id: str) -> dict:
 checklist_detail = task_detail
 
 
-def scans_page(directory: str | Path, *, offset: int = 0, limit: int = 20) -> dict:
-    """Browse every retained scan without recomputing checklist coverage."""
+def scans_page(
+    directory: str | Path, *, offset: int = 0, limit: int = 20, full: bool = False
+) -> dict:
+    """Browse every retained scan without recomputing checklist coverage.
+
+    The default row is compact (#1397) — uuid, lifecycle, host, sizes and times;
+    inode/storage detail and the full capability set arrive with ``full=True``.
+    """
     from seohead.storage.history import list_scans
 
     _pagination(0, offset, limit)
     root, _project = _load(directory)
     page = list_scans(root / "scans", offset=offset, limit=limit)
+    items = []
+    for row in page["items"]:
+        item = dict(row, evidence=_scan_evidence(row))
+        if not full:
+            # The evidence block is the heaviest part of a row (the full audit
+            # projection); compact mode keeps only its state (#1397).
+            if isinstance(item.get("evidence"), dict):
+                item["evidence"] = {"state": item["evidence"].get("state")}
+            keep = {
+                "uuid",
+                "lifecycle",
+                "finish_reason",
+                "crawl_partial",
+                "corpus_partial",
+                "pinned",
+                "start_url",
+                "host",
+                "bytes",
+                "disk_bytes",
+                "created_at",
+                "finished_at",
+                "source_kind",
+                "parent_scan_uuid",
+                "evidence_revision",
+            }
+            item = {key: value for key, value in item.items() if key in keep or key == "evidence"}
+        items.append(item)
     return {
         "ok": True,
         "total": page["total"],
         "errors": page["errors"],
-        "items": [dict(row, evidence=_scan_evidence(row)) for row in page["items"]],
+        "items": items,
         "pagination": _pagination(page["total"], offset, limit),
     }
 

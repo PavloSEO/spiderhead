@@ -1185,6 +1185,8 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
             value = getattr(args, name, None)
             if value is not None:
                 kw[name] = value
+        if cmd == "project-scans" and getattr(args, "full", False):
+            kw["full"] = True
         if getattr(args, "where", None) is not None:
             kw["where"] = json.loads(args.where)
         if getattr(args, "columns", None) is not None:
@@ -3321,6 +3323,12 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "project-progress":
         sub.add_argument("--limit", type=int, default=20, help="items per page (1..100)")
         sub.add_argument("--offset", type=int, default=0, help="zero-based item offset")
+    if cmd == "project-scans":
+        sub.add_argument(
+            "--full",
+            action="store_true",
+            help="include inode/storage detail and the full evidence projection per scan",
+        )
     if cmd == "project-priorities":
         sub.add_argument(
             "--full",
