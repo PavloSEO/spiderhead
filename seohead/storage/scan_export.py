@@ -4,7 +4,7 @@
 module exports the retained scan data itself — page, link and finding records
 plus run statistics, provenance and explicit coverage — under a stable,
 field-selectable data contract. It accepts a validated ``scan.v1`` SQLite
-artifact or an SF Analyzer ``audit.json`` document (``schema_version`` "2.0"),
+artifact or an Export Analyzer ``audit.json`` document (``schema_version`` "2.0"),
 streams record iterators from the validated storage readers instead of building
 a second in-memory copy of the scan, and refuses to leave a plausible partial
 artifact behind when serialization or publication fails.
@@ -132,7 +132,7 @@ PAGE_FIELDS_SCAN = (
     "final_url",
 )
 
-# The page record an SF Analyzer audit.json carries (schema 2.0); an audit
+# The page record an Export Analyzer audit.json carries (schema 2.0); an audit
 # document retains no link records at all.
 PAGE_FIELDS_DOCUMENT = (
     "url",
@@ -438,12 +438,12 @@ def _document_source(document: Mapping[str, Any], label: str) -> _Source:
     if kind == "site-audit":
         raise ScanError(
             "site-audit documents are rendered reports, not retained scan data; "
-            "scan export requires an SF Analyzer audit.json or a scan.v1 artifact"
+            "scan export requires an Export Analyzer audit.json or a scan.v1 artifact"
         )
     if kind != "sf-audit":
         raise ScanError(
             error
-            or "unrecognized input: expected an SF Analyzer audit.json "
+            or "unrecognized input: expected an Export Analyzer audit.json "
             "(schema_version '2.0') or a scan.v1 artifact"
         )
     run = document.get("run") if isinstance(document.get("run"), Mapping) else {}

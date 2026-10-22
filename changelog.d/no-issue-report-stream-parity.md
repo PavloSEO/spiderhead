@@ -6,4 +6,4 @@
   materializing their collection, and missing run URLs use the same first-page fallback.
 - Label PDF audit provenance independently of the shared audit schema: native crawler,
   Screaming Frog exports or an explicitly identified SF collector, and unknown collector.
-  A native audit using the SF Analyzer schema no longer receives a Screaming Frog heading.
+  A native audit using the Export Analyzer schema no longer receives a Screaming Frog heading.

@@ -386,13 +386,13 @@ time, so two branches never edit this file and can never conflict over it (#638)
   because the extra per-edge data measured roughly +50% on a synthetic 3387-page,
   150-link-per-page crawl — about +95 bytes/edge, +46 MiB total, `raw_href` alone accounting
   for most of it. Registry grows from 121 to 127 checks.
-- Fix `report-build` silently rendering a zero-findings report for an SF Analyzer
+- Fix `report-build` silently rendering a zero-findings report for an Export Analyzer
   `audit.json` (#151). The documented recipe — `sf run --tasks` piped into
   `report-build --format docx`/`xlsx`/`csv`/`md` — read `findings`/flat page keys, which
   the SF schema does not use (findings live under `issues`, page facts under
   `pages[].metrics`); the mismatch produced a confident `0/0/0/0` summary for an audit
   that found real critical issues, with no findings sections at all. `build_report` now
-  recognizes both the native `seohead.site-audit/1` shape and the SF Analyzer shape,
+  recognizes both the native `seohead.site-audit/1` shape and the Export Analyzer shape,
   normalizing the latter into the flat contract the four human-facing writers already
   understand before rendering. `--format json` is untouched — it already relayed the
   original document correctly, which is what proved the data was never missing. A
@@ -714,7 +714,7 @@ time, so two branches never edit this file and can never conflict over it (#638)
 ## 3.0.0 — first public snapshot
 
 - One Python package with 42 shared CLI/MCP tools.
-- Five additional Screaming Frog MCP tools and a 96-check crawl analyzer.
+- Five MCP tools for crawler exports and a 96-check crawl analyzer.
 - Domain, CDN, technology, security, mirror, regional, bot, and backlink reconnaissance.
 - Schema.org validation and connected graph generation.
 - Bounded sitemap-based site evidence and XLSX, DOCX, CSV, Markdown, and JSON reports.

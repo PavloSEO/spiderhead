@@ -11,7 +11,7 @@ description: >-
   crawl SEO audit.
 ---
 
-# SF Analyzer — SEO Audit from Screaming Frog
+# Export Analyzer — SEO Audit from Screaming Frog
 
 Converts a single Screaming Frog crawl (19.x) into two machine-readable reports:
 `audit.json` (a contract for downstream analysis/LLMs) and `audit.md` (for humans).

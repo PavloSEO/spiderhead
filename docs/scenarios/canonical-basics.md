@@ -52,9 +52,8 @@ the parsed tree, which step 2's crawl already resolved, tells the difference:
 }
 ```
 
-The same canonical in a clean `<head>` never fires this. Neither Screaming Frog's own crawl nor
-a plain export from it can raise it either — the fact only exists where the parse tree was
-actually built.
+The same canonical in a clean `<head>` never fires this. An analysed crawler export cannot
+raise it — the fact only exists where the parse tree was actually built.
 
 Native retained scans also preserve raw canonical `rel` and `href`, together with
 `hreflang`, `lang`, `media` and `type` attributes. `CANONICAL_INVALID_ATTRIBUTE` reports

@@ -12513,7 +12513,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "d5126fe2d096ed6e958a9c7039c037e068dd143a539d08aa5488dab94fbcc33a",
+        "source_hash": "b2b08e6883b9a0e1f3239709657e97d76cc1110168c2992976562fdcb66d7122",
         "title": "Scenario 9 \u2014 Canonical basics: the defects that are a typo, not a strategy"
       },
       "definitions": [
@@ -12533,7 +12533,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "d5126fe2d096ed6e958a9c7039c037e068dd143a539d08aa5488dab94fbcc33a",
+            "source_hash": "b2b08e6883b9a0e1f3239709657e97d76cc1110168c2992976562fdcb66d7122",
             "title": "Scenario 9 \u2014 Canonical basics: the defects that are a typo, not a strategy"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -13877,7 +13877,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "1f7b8ba4adf9907e16b876b26dad82ac7590db9d892ee77715d6e23e16fd7b6a",
+        "source_hash": "2b237022a84aa060ff8d09d6228b55c7459b4af96c0f856943bc476097b62a6e",
         "title": "Scenario 52 \u2014 Oversized documents, and the responses the crawler had to truncate"
       },
       "definitions": [
@@ -13897,7 +13897,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "1f7b8ba4adf9907e16b876b26dad82ac7590db9d892ee77715d6e23e16fd7b6a",
+            "source_hash": "2b237022a84aa060ff8d09d6228b55c7459b4af96c0f856943bc476097b62a6e",
             "title": "Scenario 52 \u2014 Oversized documents, and the responses the crawler had to truncate"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -14933,7 +14933,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "737a04706964b236c71e037e986347df4193a2fc29a595d7864f653ad8ab4168",
+        "source_hash": "62bb147c8716bfc3d6545915c3fa08049b7d5a064eb35084ae2586853e4d0992",
         "title": "Scenario 16 \u2014 Titles that are missing, doubled or shared: one list, ordered by blast radius"
       },
       "definitions": [
@@ -14953,7 +14953,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "737a04706964b236c71e037e986347df4193a2fc29a595d7864f653ad8ab4168",
+            "source_hash": "62bb147c8716bfc3d6545915c3fa08049b7d5a064eb35084ae2586853e4d0992",
             "title": "Scenario 16 \u2014 Titles that are missing, doubled or shared: one list, ordered by blast radius"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -15769,7 +15769,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "074548ddf554810f07de7a2996694d47a70a08122dfed80ab0fd4f1fc865ed25",
+        "source_hash": "8f95ecf9811b72bdc36945d0accab84bac7aefb7b601675282e7f564dd18a0b1",
         "title": "heading-outline"
       },
       "definitions": [
@@ -15789,7 +15789,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "074548ddf554810f07de7a2996694d47a70a08122dfed80ab0fd4f1fc865ed25",
+            "source_hash": "8f95ecf9811b72bdc36945d0accab84bac7aefb7b601675282e7f564dd18a0b1",
             "title": "heading-outline"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -16121,7 +16121,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "113accc867ac2dab22da0404844ac6f8a3b6564e67449f264bdd6c40810fb7d9",
+        "source_hash": "1784652707a038ce1e6d0980c54ed8fb90b34b6bbd4b2abb34e05673e5c5559c",
         "title": "seo-recon"
       },
       "definitions": [
@@ -16141,7 +16141,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "113accc867ac2dab22da0404844ac6f8a3b6564e67449f264bdd6c40810fb7d9",
+            "source_hash": "1784652707a038ce1e6d0980c54ed8fb90b34b6bbd4b2abb34e05673e5c5559c",
             "title": "seo-recon"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -16165,7 +16165,7 @@
           "template": null,
           "urls": []
         },
-        "source_hash": "27aae8de64e14f01b7b728f2fbee913493bbc3127330213e0050f059f9448f7e",
+        "source_hash": "0d2fead25298a68457cd5ff8ce2636711664cf58e799e224397282f028480295",
         "title": "sf-analyzer"
       },
       "definitions": [
@@ -16185,7 +16185,7 @@
               "template": null,
               "urls": []
             },
-            "source_hash": "27aae8de64e14f01b7b728f2fbee913493bbc3127330213e0050f059f9448f7e",
+            "source_hash": "0d2fead25298a68457cd5ff8ce2636711664cf58e799e224397282f028480295",
             "title": "sf-analyzer"
           },
           "observed_at": "2026-09-09T00:00:00Z"
@@ -16457,6 +16457,50 @@
       ],
       "records": []
     },
+    "skill:workflow/site-to-markdown": {
+      "definition": {
+        "dependencies": [],
+        "enabled": true,
+        "execution_kind": "manual",
+        "id": "skill:workflow/site-to-markdown",
+        "kind": "skill",
+        "operation": null,
+        "order": 374,
+        "priority": "P1",
+        "priority_origin": "default",
+        "scope": {
+          "site": "https://example.test/",
+          "template": null,
+          "urls": []
+        },
+        "source_hash": "f2e951e3d3911cb64ced1d6f671dcb2768791ba2ddebfbb5448e46ec58a2f636",
+        "title": "site-to-markdown"
+      },
+      "definitions": [
+        {
+          "definition": {
+            "dependencies": [],
+            "enabled": true,
+            "execution_kind": "manual",
+            "id": "skill:workflow/site-to-markdown",
+            "kind": "skill",
+            "operation": null,
+            "order": 374,
+            "priority": "P1",
+            "priority_origin": "default",
+            "scope": {
+              "site": "https://example.test/",
+              "template": null,
+              "urls": []
+            },
+            "source_hash": "f2e951e3d3911cb64ced1d6f671dcb2768791ba2ddebfbb5448e46ec58a2f636",
+            "title": "site-to-markdown"
+          },
+          "observed_at": "2026-09-09T00:00:00Z"
+        }
+      ],
+      "records": []
+    },
     "skill:workflow/tech-audit": {
       "definition": {
         "dependencies": [],
@@ -16465,7 +16509,7 @@
         "id": "skill:workflow/tech-audit",
         "kind": "skill",
         "operation": null,
-        "order": 374,
+        "order": 375,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -16485,7 +16529,7 @@
             "id": "skill:workflow/tech-audit",
             "kind": "skill",
             "operation": null,
-            "order": 374,
+            "order": 375,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {
@@ -16509,7 +16553,7 @@
         "id": "skill:workflow/traffic-report",
         "kind": "skill",
         "operation": null,
-        "order": 375,
+        "order": 376,
         "priority": "P1",
         "priority_origin": "default",
         "scope": {
@@ -16529,7 +16573,7 @@
             "id": "skill:workflow/traffic-report",
             "kind": "skill",
             "operation": null,
-            "order": 375,
+            "order": 376,
             "priority": "P1",
             "priority_origin": "default",
             "scope": {

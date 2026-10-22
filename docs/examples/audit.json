@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "tool": {
-    "name": "SF Analyzer",
+    "name": "Export Analyzer",
     "version": "3.0.0",
     "generated_by": "SEOHead"
   },
@@ -496,47 +496,47 @@
       },
       {
         "id": "TITLE_OUTSIDE_HEAD",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "DESC_OUTSIDE_HEAD",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "CANONICAL_OUTSIDE_HEAD",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "DIRECTIVES_OUTSIDE_HEAD",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "HREFLANG_OUTSIDE_HEAD",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "HEAD_MISSING",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "HEAD_MULTIPLE",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "BODY_MISSING",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "BODY_MULTIPLE",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "INVALID_HEAD_ELEMENT",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "HEAD_NOT_FIRST",
-        "reason": "no element-position evidence (needs a native seohead crawl; Screaming Frog has no notion of this on its own)"
+        "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
       },
       {
         "id": "DUPLICATE_ID",

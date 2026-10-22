@@ -1,8 +1,11 @@
-"""Panel contracts observed in SF 19.8 and explicit SEOHEAD projections.
+"""SpiderHead's desktop panel catalogue: the main table, URL detail and summary panes.
 
-The catalogue describes presentation, not implemented analyzer capabilities.
-An adapter must supply rows, coverage, and supported filters for each panel.
-Reference thresholds are the inspected SF configuration, never SEOHEAD defaults.
+Main tabs follow the audit areas of the core check registry (``CHECKS``): responses and
+indexing, links, titles, headings, canonicals, content, images, markup, mobile, rendering, URL
+hygiene, performance, security and sitemaps. Filter labels name the condition a core check
+reports; length and size limits are the project's configured audit thresholds, so labels carry
+no fixed numbers. The catalogue describes presentation, not implemented analyzer capabilities:
+an adapter must supply rows, coverage and supported filters for each panel.
 """
 
 import re
@@ -36,17 +39,19 @@ def _tab(id, title, pane, columns, filters="All", evidence="", intent="select_re
     )
 
 
-URL = "url=Address"
-HTTP = URL + "|type=Content Type|status=Status Code|status_text=Status"
-INDEX = "indexability=Indexability|indexability_status=Indexability Status"
-CANONICAL = "canonical=Canonical Link Element 1|http_canonical=HTTP Canonical"
-ROBOTS = "meta_robots=Meta Robots 1|x_robots_tag=X-Robots-Tag 1"
-PAGINATION = 'next_url=rel="next" 1|prev_url=rel="prev" 1|http_next=HTTP rel="next" 1|http_prev=HTTP rel="prev" 1'
-MIME_FILTERS = "All|HTML|JavaScript|CSS|Images|PDF|Flash|Other|Unknown"
+URL = "url=URL"
+HTTP = URL + "|type=Content type|status=HTTP status|status_text=Status text"
+INDEX = "indexability=Indexable|indexability_status=Indexability reason"
+CANONICAL = "canonical=Canonical URL|http_canonical=Canonical in HTTP header"
+ROBOTS = "meta_robots=Meta robots|x_robots_tag=X-Robots-Tag"
+PAGINATION = "next_url=Next page|prev_url=Previous page"
+MIME_FILTERS = (
+    "All|HTML pages|Scripts|Stylesheets|Images|PDF documents|Fonts|Other types|Unknown type"
+)
 LINK_COLUMNS = (
-    "type=Type|from_url=From|to_url=To|anchor_text=Anchor Text|alt=Alt Text|follow=Follow|"
-    "target=Target|rel=Rel|status=Status Code|status_text=Status|path_type=Path Type|"
-    "link_path=Link Path|position=Link Position|origin=Link Origin"
+    "type=Link type|from_url=Source|to_url=Destination|anchor_text=Anchor|alt=Image alt|"
+    "follow=Followed|rel=rel|target=Target attribute|status=HTTP status|status_text=Status text|"
+    "position=Placement|origin=Found in|path_type=Path form|link_path=DOM path"
 )
 NATIVE = "Bounded retained scan-inspect pages; additional fields require retained evidence."
 FINDINGS = (
@@ -64,7 +69,7 @@ MAIN_TABS = (
         HTTP
         + "|"
         + INDEX
-        + "|title=Title 1|issues=Findings|crawl_depth=Crawl Depth|inlinks=Inlinks|outlinks=Outlinks",
+        + "|title=Title|issues=Findings|crawl_depth=Crawl depth|inlinks=Inlinks|outlinks=Outlinks",
         MIME_FILTERS,
         NATIVE,
         "select_url",
@@ -73,173 +78,31 @@ MAIN_TABS = (
         "external",
         "External",
         "main",
-        HTTP + "|crawl_depth=Crawl Depth|inlinks=Inlinks",
+        HTTP + "|crawl_depth=Crawl depth|inlinks=Inlinks",
         MIME_FILTERS,
         LINKS,
         "select_url",
     ),
     _tab(
-        "security",
-        "Security",
-        "main",
-        HTTP + "|http_version=HTTP Version|" + INDEX + "|" + CANONICAL + "|" + ROBOTS,
-        "All|HTTP URLs|HTTPS URLs|Mixed Content|Form URL Insecure|Form on HTTP URL|Unsafe Cross-Origin Links|"
-        "Protocol-Relative Resource Links|Missing HSTS Header|Missing Content-Security-Policy Header|"
-        "Missing X-Content-Type-Options Header|Missing X-Frame-Options Header|Missing Secure Referrer-Policy Header|Bad Content Type",
-        "Retained security findings and response headers; response headers are dynamic columns.",
-        "select_url",
-    ),
-    _tab(
         "response_codes",
-        "Response Codes",
+        "Responses & indexing",
         "main",
-        HTTP
-        + "|"
-        + INDEX
-        + "|inlinks=Inlinks|response_time=Response Time|redirect_url=Redirect URL|redirect_type=Redirect Type",
-        "All|Blocked by Robots.txt|Blocked Resource|No Response|Success (2xx)|Redirection (3xx)|"
-        "Redirection (JavaScript)|Redirection (Meta Refresh)|Client Error (4xx)|Server Error (5xx)|"
-        "Internal All|Internal Blocked by Robots.txt|Internal Blocked Resource|Internal No Response|"
-        "Internal Success (2xx)|Internal Redirection (3xx)|Internal Redirection (JavaScript)|"
-        "Internal Redirection (Meta Refresh)|Internal Redirect Chain|Internal Redirect Loop|"
-        "Internal Client Error (4xx)|Internal Server Error (5xx)|External All|External Blocked by Robots.txt|"
-        "External Blocked Resource|External No Response|External Success (2xx)|External Redirection (3xx)|"
-        "External Redirection (JavaScript)|External Redirection (Meta Refresh)|External Client Error (4xx)|External Server Error (5xx)",
+        HTTP + "|" + INDEX + "|inlinks=Inlinks|response_time=Response time, s",
+        "All|Indexable|Not indexable|Blocked by robots.txt|Linked but blocked by robots.txt|"
+        "No response|2xx success|3xx redirect|4xx client error|5xx server error|"
+        "Linked page is not indexable|Internal search route",
         NATIVE,
         "select_url",
     ),
     _tab(
-        "url",
-        "URL",
+        "redirects",
+        "Redirects",
         "main",
-        HTTP
-        + "|"
-        + INDEX
-        + "|hash=Hash|length=Length|canonical=Canonical Link Element 1|encoded_url=URL Encoded Address",
-        "All|Non ASCII Characters|Underscores|Uppercase|Multiple Slashes|Repetitive Path|Contains Space|"
-        "Internal Search|Parameters|Broken Bookmark|GA Tracking Parameters|Over 115 Characters",
-        FINDINGS,
-        "select_url",
-    ),
-    _tab(
-        "page_titles",
-        "Page Titles",
-        "main",
-        URL
-        + "|occurrences=Occurrences|title=Title 1|title_length=Title 1 Length|title_pixels=Title 1 Pixel Width|"
-        + INDEX,
-        "All|Missing|Duplicate|Over 60 Characters|Below 30 Characters|Over 561 Pixels|Below 200 Pixels|Same as H1|Multiple|Outside <head>",
-        FINDINGS,
-        "select_url",
-    ),
-    _tab(
-        "meta_description",
-        "Meta Description",
-        "main",
-        URL
-        + "|occurrences=Occurrences|description=Meta Description 1|description_length=Meta Description 1 Length|description_pixels=Meta Description 1 Pixel Width|"
-        + INDEX,
-        "All|Missing|Duplicate|Over 155 Characters|Below 70 Characters|Over 985 Pixels|Below 400 Pixels|Multiple|Outside <head>",
-        FINDINGS,
-        "select_url",
-    ),
-    _tab(
-        "meta_keywords",
-        "Meta Keywords",
-        "main",
-        URL
-        + "|occurrences=Occurrences|meta_keywords=Meta Keywords 1|meta_keywords_length=Meta Keywords 1 Length|"
-        + INDEX,
-        "All|Missing|Duplicate|Multiple",
-        FINDINGS,
-        "select_url",
-    ),
-    _tab(
-        "h1",
-        "H1",
-        "main",
-        URL + "|occurrences=Occurrences|h1=H1-1|h1_length=H1-1 Length|" + INDEX,
-        "All|Missing|Duplicate|Over 70 Characters|Multiple|Alt Text in H1|Non-Sequential",
-        FINDINGS,
-        "select_url",
-    ),
-    _tab(
-        "h2",
-        "H2",
-        "main",
-        URL
-        + "|occurrences=Occurrences|h2=H2-1|h2_length=H2-1 Length|h2_second=H2-2|h2_second_length=H2-2 Length|"
-        + INDEX,
-        "All|Missing|Duplicate|Over 70 Characters|Multiple|Non-Sequential",
-        FINDINGS,
-        "select_url",
-    ),
-    _tab(
-        "content",
-        "Content",
-        "main",
-        URL
-        + "|word_count=Word Count|sentence_count=Sentence Count|words_per_sentence=Average Words Per Sentence|reading_ease=Flesch Reading Ease Score|readability=Readability|closest_match=Closest Similarity Match|near_duplicates=No. Near Duplicates|language_errors=Total Language Errors|spelling_errors=Spelling Errors|grammar_errors=Grammar Errors|language=Language|hash=Hash|"
-        + INDEX,
-        "All|Exact Duplicates|Near Duplicates|Low Content Pages|Soft 404 Pages|Spelling Errors|Grammar Errors|Readability Difficult|Readability Very Difficult|Lorem Ipsum Placeholder",
-        FINDINGS,
-        "select_url",
-    ),
-    _tab(
-        "images",
-        "Images",
-        "main",
-        URL
-        + "|type=Content Type|size=Size|image_inlinks=IMG Inlinks|"
-        + INDEX
-        + "|dimensions=Dimensions",
-        "All|Over 100 KB|Missing Alt Text|Missing Alt Attribute|Alt Text Over 100 Characters|Incorrectly Sized Images|Missing Size Attributes|Background Images",
-        LINKS,
-        "select_url",
-    ),
-    _tab(
-        "canonicals",
-        "Canonicals",
-        "main",
-        URL
-        + "|occurrences=Occurrences|"
-        + INDEX
-        + "|"
-        + CANONICAL
-        + "|"
-        + ROBOTS
-        + "|"
-        + PAGINATION,
-        "All|Contains Canonical|Self Referencing|Canonicalised|Missing|Multiple|Multiple Conflicting|Non-Indexable Canonical|Canonical Is Relative|Unlinked|Outside <head>",
-        FINDINGS,
-        "select_url",
-    ),
-    _tab(
-        "pagination",
-        "Pagination",
-        "main",
-        URL + "|" + INDEX + "|" + PAGINATION + "|" + CANONICAL + "|" + ROBOTS,
-        "All|Contains Pagination|First Page|Paginated 2+ Pages|Pagination URL Not in Anchor Tag|Non-200 Pagination URLs|Unlinked Pagination URLs|Non-Indexable|Multiple Pagination URLs|Pagination Loop|Sequence Error",
-        FINDINGS,
-        "select_url",
-    ),
-    _tab(
-        "directives",
-        "Directives",
-        "main",
-        URL + "|occurrences=Occurrences|" + ROBOTS + "|meta_refresh=Meta Refresh 1|" + CANONICAL,
-        "All|Index|Noindex|Follow|Nofollow|None|NoArchive|NoSnippet|Max-Snippet|Max-Image-Preview|Max-Video-Preview|NoODP|NoYDIR|NoImageIndex|NoTranslate|Unavailable_After|Refresh|Outside <head>",
-        FINDINGS,
-        "select_url",
-    ),
-    _tab(
-        "hreflang",
-        "Hreflang",
-        "main",
-        URL
-        + "|title=Title 1|occurrences=Occurrences|html_hreflang=HTML hreflang|http_hreflang=HTTP hreflang|sitemap_hreflang=Sitemap hreflang|"
-        + INDEX,
-        "All|Contains hreflang|Non-200 hreflang URLs|Unlinked hreflang URLs|Missing Return Links|Non-Canonical Return Links|Inconsistent Language & Region Return Links|Noindex Return Links|Incorrect Language & Region Codes|Multiple Entries|Missing Self Reference|Not Using Canonical|Missing X-Default|Missing|Outside <head>",
+        URL + "|status=HTTP status|redirect_type=Redirect kind|redirect_url=Redirect target|"
+        "final_url=Final URL|hops=Hops|inlinks=Inlinks",
+        "All|Permanent redirect|Temporary redirect where permanent is expected|Meta refresh|"
+        "Refresh header|JavaScript redirect|Two or more hops|Redirect loop|Internal link to a redirect|"
+        "External link to a redirect",
         FINDINGS,
         "select_url",
     ),
@@ -250,32 +113,167 @@ MAIN_TABS = (
         URL
         + "|"
         + INDEX
-        + "|crawl_depth=Crawl Depth|link_score=Link Score|inlinks=Inlinks|unique_inlinks=Unique Inlinks|unique_js_inlinks=Unique JS Inlinks|percent_total=% of Total|outlinks=Outlinks|unique_outlinks=Unique Outlinks|unique_js_outlinks=Unique JS Outlinks|external_outlinks=External Outlinks|unique_external_outlinks=Unique External Outlinks|unique_external_js_outlinks=Unique External JS Outlinks",
-        "All|Pages With High Crawl Depth|Pages Without Internal Outlinks|Internal Nofollow Outlinks|Internal Outlinks With No Anchor Text|Non-Descriptive Anchor Text In Internal Outlinks|Pages With High External Outlinks|Pages With High Internal Outlinks|Follow & Nofollow Internal Inlinks To Page|Internal Nofollow Inlinks Only|Outlinks To Localhost|Non-Indexable Page Inlinks Only",
+        + "|crawl_depth=Crawl depth|link_score=Link score|inlinks=Inlinks|unique_inlinks=Unique inlinks|"
+        "outlinks=Outlinks|unique_outlinks=Unique outlinks|external_outlinks=External outlinks",
+        "All|Internal link to a 4xx page|Internal link to a 5xx page|Broken external link|"
+        "Empty anchor text|Generic anchor text|Image link without text|Nofollow internal link|"
+        "Only nofollow inlinks|Only inlinks from non-indexable pages|Linked only from page chrome|"
+        "No internal outlinks|Too many outlinks|Too many external outlinks|Too deep from the start URL|"
+        "Low link score|Orphan page|Link to localhost",
         LINKS,
         "select_url",
     ),
     _tab(
-        "amp",
-        "AMP",
+        "page_titles",
+        "Titles & descriptions",
         "main",
-        HTTP
-        + "|"
-        + INDEX
-        + "|title=Title 1|title_length=Title 1 Length|title_pixels=Title 1 Pixel Width|h1=H1-1|h1_length=H1-1 Length|canonical=Canonical Link Element 1|size=Size|word_count=Word Count|text_ratio=Text Ratio|crawl_depth=Crawl Depth|link_score=Link Score|response_time=Response Time",
-        "All|Non-200 Response|Missing Non-AMP Return Link|Missing Canonical to Non-AMP|Non-Indexable Canonical|Indexable|Non-Indexable|Missing <html amp> Tag|Missing/Invalid <!doctype html> Tag|Missing <head> Tag|Missing <body> Tag|Missing Canonical|Missing/Invalid <meta charset> Tag|Missing/Invalid <meta viewport> Tag|Missing/Invalid AMP Script|Missing/Invalid AMP Boilerplate|Contains Disallowed HTML|Other Validation Errors",
+        URL + "|title=Title|title_length=Title length|title_pixels=Title width, px|"
+        "description=Meta description|description_length=Description length|"
+        "description_pixels=Description width, px|" + INDEX,
+        "All|Title missing|Title duplicated|Title too long|Title shorter than recommended|"
+        "Same text as the H1|Several title elements|Templated title|Title set by JavaScript|"
+        "Description missing|Description duplicated|Description too long|"
+        "Description shorter than recommended|Several meta descriptions|Description set by JavaScript|"
+        "Obsolete meta keywords present",
         FINDINGS,
         "select_url",
     ),
     _tab(
-        "structured_data",
-        "Structured Data",
+        "headings",
+        "Headings",
+        "main",
+        URL + "|h1=H1|h1_length=H1 length|h1_count=H1 count|h2=First H2|h2_count=H2 count|" + INDEX,
+        "All|H1 missing|H1 duplicated|H1 too long|Several H1 headings|H1 is only image alt text|"
+        "H2 missing|H2 duplicated|H2 too long|Heading before the H1|Heading level skipped|"
+        "Heading in page chrome|Link inside a heading",
+        FINDINGS,
+        "select_url",
+    ),
+    _tab(
+        "canonicals",
+        "Canonicals & directives",
+        "main",
+        URL + "|" + INDEX + "|" + CANONICAL + "|" + ROBOTS + "|meta_refresh=Meta refresh",
+        "All|Canonical to itself|Canonical to another URL|Canonical missing|Several canonicals|"
+        "Canonical to a non-indexable URL|Canonical to a redirect|Canonical to an error page|"
+        "Relative canonical URL|Canonical chain|Canonical to another origin|Canonical not linked|"
+        "Canonical differs after rendering|Noindex|Nofollow|Snippet or archive controls|"
+        "Obsolete robots directive",
+        FINDINGS,
+        "select_url",
+    ),
+    _tab(
+        "pagination",
+        "Pagination",
+        "main",
+        URL + "|" + INDEX + "|" + PAGINATION + "|" + CANONICAL,
+        "All|Part of a paginated series|Series not linked|Pagination URL without an anchor|"
+        "Non-indexable page in a series|Several next or previous links|Broken sequence|Pagination loop|"
+        "Canonical against the pagination policy",
+        FINDINGS,
+        "select_url",
+    ),
+    _tab(
+        "content",
+        "Content",
+        "main",
+        URL + "|word_count=Word count|text_ratio=Text ratio, %|reading_ease=Readability score|"
+        "words_per_sentence=Words per sentence|closest_match=Most similar page|similarity=Similarity|"
+        "language=Language|spelling_errors=Spelling errors|grammar_errors=Grammar errors|" + INDEX,
+        "All|Thin content|Low text-to-HTML ratio|Exact duplicate|Near duplicate|Hard to read|"
+        "Long sentences|Spelling errors|Grammar errors|Placeholder text|Content inside an iframe|"
+        "Possible soft 404",
+        FINDINGS,
+        "select_url",
+    ),
+    _tab(
+        "images",
+        "Images",
         "main",
         URL
-        + "|errors=Errors|warnings=Warnings|total_types=Total Types|unique_types=Unique Types|types=Types|"
+        + "|type=Content type|size=Size|dimensions=Width × height|image_inlinks=Used on pages|"
         + INDEX,
-        "All|Contains Structured Data|Missing|Parse Errors|Validation Errors|Validation Warnings|Microdata URLs|JSON-LD URLs|RDFa URLs",
+        "All|Alt text missing|No alt attribute|Alt text too long|Larger than the size limit|"
+        "Broken image|No width or height attributes|Served larger than displayed|Upscaled in the layout",
+        LINKS,
+        "select_url",
+    ),
+    _tab(
+        "structured_data",
+        "Structured data",
+        "main",
+        URL + "|types=Types|formats=Formats|errors=Errors|warnings=Warnings|" + INDEX,
+        "All|Has structured data|No structured data|JSON-LD does not parse|Schema errors|"
+        "Schema warnings|Rich result property missing|Open Graph missing",
         "Retained schema extraction/validation evidence; do not infer rich-result eligibility.",
+        "select_url",
+    ),
+    _tab(
+        "hreflang",
+        "Hreflang",
+        "main",
+        URL
+        + "|html_hreflang=In HTML|http_hreflang=In HTTP header|sitemap_hreflang=In sitemap|"
+        + INDEX,
+        "All|Has hreflang|Target returns an error|Target not linked|Target is noindex|"
+        "Target is not canonical|No return link|Return link disagrees|Invalid language or region code|"
+        "Same code listed twice|No self reference|No x-default",
+        FINDINGS,
+        "select_url",
+    ),
+    _tab(
+        "mobile",
+        "Mobile",
+        "main",
+        URL + "|viewport=Viewport|" + INDEX,
+        "All|Viewport missing|Content wider than the screen|Text too small|Tap targets too small|"
+        "Separate mobile URL",
+        FINDINGS,
+        "select_url",
+    ),
+    _tab(
+        "rendering",
+        "JavaScript rendering",
+        "main",
+        URL + "|title=Title|h1=H1|canonical=Canonical URL|" + INDEX,
+        "All|Title only after rendering|Description only after rendering|H1 only after rendering|"
+        "Canonical only after rendering|Noindex only in raw HTML|Blocked render resources|"
+        "Console errors",
+        FINDINGS,
+        "select_url",
+    ),
+    _tab(
+        "url",
+        "URL",
+        "main",
+        HTTP + "|" + INDEX + "|length=Length|canonical=Canonical URL",
+        "All|Longer than the limit|Query parameters|Tracking parameters|Session ID|Non-ASCII characters|"
+        "Uppercase letters|Underscores|Spaces|Repeated slashes|Repeated path segment|"
+        "Inconsistent trailing slash|Broken fragment link",
+        FINDINGS,
+        "select_url",
+    ),
+    _tab(
+        "performance",
+        "Performance",
+        "main",
+        URL + "|response_time=Response time, s|html_size=HTML size|page_weight=Page weight|"
+        "dom_nodes=DOM nodes|dom_depth=DOM depth|http_version=HTTP version",
+        "All|Slow response|Large HTML|Heavy page|Too many DOM nodes|DOM too deep|No compression|"
+        "Render-blocking resources|Short cache lifetime|HTTP/1.1 only",
+        FINDINGS,
+        "select_url",
+    ),
+    _tab(
+        "security",
+        "Security",
+        "main",
+        HTTP + "|http_version=HTTP version|" + INDEX,
+        "All|Served over HTTP|Mixed content|HTTP link on an HTTPS page|Form submits over HTTP|"
+        "Form on an HTTP page|Cross-origin link without noopener|Protocol-relative link|No HSTS|"
+        "No Content-Security-Policy|No X-Content-Type-Options|No X-Frame-Options|No Referrer-Policy|"
+        "Security header sent twice|Declared content type mismatch",
+        "Retained security findings and response headers; response headers are dynamic columns.",
         "select_url",
     ),
     _tab(
@@ -283,80 +281,91 @@ MAIN_TABS = (
         "Sitemaps",
         "main",
         HTTP + "|" + INDEX,
-        "All|URLs in Sitemap|URLs not in Sitemap|Orphan URLs|Non-Indexable URLs in Sitemap|URLs in Multiple Sitemaps|XML Sitemap with over 50k URLs|XML Sitemap over 50MB",
+        "All|Listed in a sitemap|Indexable but not listed|Listed but not linked|Listed URL redirects|"
+        "Listed URL returns an error|Listed URL is not indexable|Listed URL is not canonical|"
+        "Listed URL blocked by robots.txt|Listed in several sitemaps|Stale lastmod|"
+        "Sitemap over the URL limit|Sitemap over the size limit",
         "Retained sitemap reconciliation; scope and completeness are required.",
         "select_url",
     ),
     _tab(
         "validation",
-        "Validation",
+        "HTML structure",
         "main",
         HTTP + "|" + INDEX,
-        "All|Invalid HTML Elements in Head|<body> Element Preceding <html>|<head> Not First In <html> Element|Missing <head> Tag|Multiple <head> Tags|Missing <body> Tag|Multiple <body> Tags|HTML Document Over 15MB",
+        "All|Head missing|Several head elements|Body missing|Several body elements|Head not first|"
+        "Invalid element in head|Tags outside the head|Doctype missing|Charset missing|Duplicate IDs|"
+        "AMP version problem|AMP markup invalid",
         FINDINGS,
         "select_url",
     ),
 )
 
 DETAIL_TABS = (
-    _tab("url_details", "URL Details", "detail", "name=Name|value=Value", evidence=NATIVE),
+    _tab("url_details", "Facts", "detail", "name=Name|value=Value", evidence=NATIVE),
     _tab("inlinks", "Inlinks", "detail", LINK_COLUMNS, "All|Internal|External", LINKS),
-    _tab("outlinks", "Outlinks", "detail", LINK_COLUMNS, "All|Internal|External", LINKS),
     _tab(
-        "image_details",
-        "Image Details",
+        "outlinks",
+        "Outlinks",
         "detail",
-        "from_url=From|to_url=To|alt=Alt Text|real_dimensions=Real Dimensions (WxH)|attribute_dimensions=Dimensions in Attributes (WxH)|display_dimensions=Display Dimensions (WxH)|potential_savings=Potential Savings|path_type=Path Type|link_path=Link Path|position=Link Position|origin=Link Origin",
-        evidence=LINKS,
-    ),
-    _tab("resources", "Resources", "detail", LINK_COLUMNS, "All|Internal|External", LINKS),
-    _tab(
-        "serp_snippet",
-        "SERP Snippet",
-        "detail",
-        URL + "|title=Title|description=Description",
-        evidence="Retained title/description preview; actual search appearance is not measured.",
-    ),
-    _tab(
-        "view_source",
-        "View Source",
-        "detail",
-        "source=HTML source",
-        evidence="Bounded retained source text only; never executes HTML/JavaScript.",
+        LINK_COLUMNS,
+        "All|Internal|External|Hyperlinks|Resources",
+        LINKS,
     ),
     _tab(
         "http_headers",
-        "HTTP Headers",
+        "HTTP headers",
         "detail",
-        "direction=Direction|name=Header Name|value=Header Value",
+        "direction=Direction|name=Header|value=Value",
         evidence="Retained request/response header allowlist; credentials and cookies stay redacted.",
     ),
     _tab(
         "cookies",
         "Cookies",
         "detail",
-        "name=Cookie Name|value=Cookie Value|domain=Domain|path=Path|expires=Expiration Time|secure=Secure|http_only=HttpOnly|same_site=SameSite|url=Address",
+        "name=Name|value=Value|domain=Domain|path=Path|expires=Expires|secure=Secure|http_only=HttpOnly|same_site=SameSite|url=URL",
         evidence="Retained redacted cookie metadata only; never echo session values.",
     ),
     _tab(
-        "duplicate_details",
-        "Duplicate Details",
+        "view_source",
+        "Source HTML",
         "detail",
-        URL + "|near_duplicate_url=Near Duplicate Address|similarity=Similarity|" + INDEX,
-        evidence=FINDINGS,
+        "source=HTML source",
+        evidence="Bounded retained source text only; never executes HTML/JavaScript.",
+    ),
+    _tab(
+        "serp_snippet",
+        "Search preview",
+        "detail",
+        URL + "|title=Title|description=Description",
+        evidence="Retained title/description preview; actual search appearance is not measured.",
+    ),
+    _tab(
+        "image_details",
+        "Page images",
+        "detail",
+        "to_url=Image|alt=Alt text|real_dimensions=Intrinsic size|attribute_dimensions=Size in attributes|display_dimensions=Displayed size|potential_savings=Possible saving|position=Placement|origin=Found in",
+        evidence=LINKS,
     ),
     _tab(
         "structured_data_details",
-        "Structured Data Details",
+        "Structured data",
         "detail",
-        "property=Property|value=Value|validation_type=Validation Type|severity=Issue Severity|details=Details",
+        "property=Property|value=Value|validation_type=Check|severity=Severity|details=Details",
         evidence="Retained schema validation; nested values stay inspectable plain text.",
     ),
     _tab(
-        "spelling_grammar_details",
-        "Spelling & Grammar Details",
+        "duplicate_details",
+        "Similar pages",
         "detail",
-        "text=Text|error_type=Error Type|detail=Detail|suggestions=Suggestions|section=Page Section|url=Address",
+        URL + "|near_duplicate_url=Similar page|similarity=Similarity|" + INDEX,
+        evidence=FINDINGS,
+    ),
+    _tab(
+        "spelling_grammar_details",
+        "Language check",
+        "detail",
+        "text=Text|error_type=Kind|detail=Explanation|suggestions=Suggestions|section=Page area|url=URL",
         evidence="Retained language-check evidence; unavailable without a compatible source.",
     ),
 )
@@ -364,47 +373,47 @@ DETAIL_TABS = (
 RIGHT_TABS = (
     _tab(
         "overview",
-        "Overview",
+        "Summary",
         "right",
-        "name=Category / filter|urls=URLs|percent=% of Total",
+        "name=Category|urls=URLs|percent=Share of URLs",
         evidence="Core aggregates with measured coverage, never counts from a bounded page.",
     ),
     _tab(
         "issues",
-        "Issues",
+        "Findings",
         "right",
-        "title=Issue Name|kind=Issue Type|priority=Issue Priority|urls=URLs|percent=% of Total",
-        "All|Issues|Warnings|Opportunities",
+        "title=Check|kind=Severity|urls=URLs|percent=Share of URLs",
+        "All|Critical|Warning|Notice",
         FINDINGS,
         "select_issue",
     ),
     _tab(
         "site_structure",
-        "Site Structure",
+        "Folders",
         "right",
-        "path=Path|urls=URLs|indexable=Indexable|non_indexable=Non-Indexable",
+        "path=Folder|urls=URLs|indexable=Indexable|non_indexable=Not indexable",
         evidence="Bounded core structure projection; no synthetic tree totals.",
     ),
     _tab(
         "response_times",
-        "Response Times",
+        "Response time",
         "right",
-        "bucket=Response Time (In Seconds)|urls=URLs|percent=% of Total",
+        "bucket=Seconds|urls=URLs|percent=Share of URLs",
         evidence="Core aggregate response-time histogram; unavailable for absent timings.",
     ),
     _tab(
+        "spelling_grammar",
+        "Language",
+        "right",
+        "text=Text|error_type=Kind|count=Occurrences|urls=URLs|coverage=Coverage|detail=Explanation|language=Language|url=Example URL",
+        evidence="Bounded retained top-error projection; not a live language-check run.",
+    ),
+    _tab(
         "api",
-        "API",
+        "Data sources",
         "right",
         "provider=Provider|state=State|reason=Reason|observed_at=Observed at",
         evidence="Provider readiness projection; opening this tab does not connect or spend.",
-    ),
-    _tab(
-        "spelling_grammar",
-        "Spelling & Grammar",
-        "right",
-        "text=Text (Top 100)|error_type=Error Type|count=Error Count|urls=URLs Affected|coverage=Coverage|detail=Error Detail|language=Language|url=Sample URL",
-        evidence="Bounded retained top-error projection; not a live language-check run.",
     ),
 )
 

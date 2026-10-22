@@ -3139,7 +3139,7 @@ def check_render_blocking(ctx: AuditContext) -> None:
 # A browser closes <head> at the first element that does not belong there, and
 # everything after that point is read from <body> instead — a canonical or a
 # robots directive placed there silently stops applying, while the source text
-# still looks fine. Screaming Frog has no notion of this at all: the signal
+# still looks fine. Crawler exports do not carry this at all: the signal
 # exists only where seohead.checks.parser.parse_html resolved the tree (see its
 # module docstring for what was verified against lxml directly), so — like the
 # static Lighthouse audits just above — these need a native seohead crawl.
@@ -3170,8 +3170,8 @@ _SKELETON_CHECKS = (
 _SKELETON_FIELDS = ("head_count", "body_count", "head_not_first", "invalid_head_elements")
 
 _NO_POSITION_EVIDENCE = (
-    "no element-position evidence (needs a native seohead crawl; Screaming Frog has no "
-    "notion of this on its own)"
+    "no element-position evidence (needs a native seohead crawl; crawler exports do not "
+    "record where an element sits)"
 )
 
 

@@ -2,8 +2,7 @@
 name: heading-outline
 description: >-
   Builds the complete H1–H6 heading structure of each page in DOM order and checks
-  the hierarchy, which Screaming Frog cannot do (SF sees only H1/H2 and catches only
-  "missing/multiple H1"). It parses live HTML and checks for exactly one H1, no skipped
+  the hierarchy, which a crawler export holding only H1/H2 columns cannot show. It parses live HTML and checks for exactly one H1, no skipped
   levels (H2→H4), and that the H1 comes before other headings.
   Use when asked to "check headings," inspect the "heading structure," verify the
   "H1 H2 H3 hierarchy," build a "page outline," or inspect the "Hx structure." Triggers:

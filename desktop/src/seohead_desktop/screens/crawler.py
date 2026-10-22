@@ -95,36 +95,36 @@ TABS = (
             ("HTML", None, _type("html")),
             ("JavaScript", None, _type("javascript")),
             ("CSS", None, _type("css")),
-            ("Image files", None, _type("image/")),
+            ("Images", None, _type("image/")),
         ),
     ),
     (
-        "Response Codes",
+        "Responses",
         (
             ALL,
             ("No response", None, [_flt("status_class", "eq", "none")]),
-            ("Success (2xx)", "status_2xx", [_flt("status_class", "eq", "2xx")]),
-            ("Redirection (3xx)", "status_3xx", [_flt("status_class", "eq", "3xx")]),
-            ("Client error (4xx)", "status_4xx", [_flt("status_class", "eq", "4xx")]),
-            ("Server error (5xx)", "status_5xx", [_flt("status_class", "eq", "5xx")]),
+            ("2xx success", "status_2xx", [_flt("status_class", "eq", "2xx")]),
+            ("3xx redirect", "status_3xx", [_flt("status_class", "eq", "3xx")]),
+            ("4xx client error", "status_4xx", [_flt("status_class", "eq", "4xx")]),
+            ("5xx server error", "status_5xx", [_flt("status_class", "eq", "5xx")]),
         ),
     ),
     (
-        "Page Titles",
+        "Titles",
         (
             ALL,
-            ("Missing", "title_missing", [_flt("title", "empty")]),
-            ("Duplicate", "title_duplicate", [_flt("title_duplicate", "eq", True)]),
-            ("Over 60 characters", "title_long", [_flt("title_length", "gt", 60)]),
+            ("Title missing", "title_missing", [_flt("title", "empty")]),
+            ("Title duplicated", "title_duplicate", [_flt("title_duplicate", "eq", True)]),
+            ("Longer than 60 characters", "title_long", [_flt("title_length", "gt", 60)]),
             (
-                "Below 30 characters",
+                "Shorter than 30 characters",
                 "title_short",
                 [_flt("title_length", "lt", 30), _flt("title", "not_empty")],
             ),
         ),
     ),
     (
-        "Meta Description",
+        "Descriptions",
         (
             ALL,
             ("Missing", None, [_flt("meta_description", "empty")]),
@@ -136,11 +136,11 @@ TABS = (
         "H1",
         (
             ALL,
-            ("Missing", None, [_flt("h1", "empty")]),
-            ("Multiple", None, [_flt("h1_2", "not_empty")]),
+            ("H1 missing", None, [_flt("h1", "empty")]),
+            ("Several H1 headings", None, [_flt("h1_2", "not_empty")]),
         ),
     ),
-    ("Images", (ALL, ("Missing alt text", None, [_flt("images_missing_alt_attr", "gt", 0)]))),
+    ("Images", (ALL, ("Alt text missing", None, [_flt("images_missing_alt_attr", "gt", 0)]))),
     (
         "Canonicals",
         (
@@ -152,10 +152,10 @@ TABS = (
         ),
     ),
     (
-        "Directives",
+        "Robots directives",
         (
             ALL,
-            ("Any directive", None, [_flt("meta_robots", "not_empty")]),
+            ("Any meta robots", None, [_flt("meta_robots", "not_empty")]),
             ("noindex (meta robots)", None, [_flt("meta_robots", "contains", "noindex")]),
             ("noindex (X-Robots-Tag)", None, [_flt("x_robots", "contains", "noindex")]),
             ("nofollow (meta robots)", None, [_flt("meta_robots", "contains", "nofollow")]),
@@ -171,38 +171,38 @@ TABS = (
             ("No inlinks", None, [_flt("inlinks", "eq", 0)]),
         ),
     ),
-    ("Hreflang", (ALL, ("Present", None, [_flt("has_hreflang", "eq", True)]))),
+    ("Hreflang", (ALL, ("Has hreflang", None, [_flt("has_hreflang", "eq", True)]))),
     (
         "Sitemap",
         (
             ALL,
-            ("In sitemap", "in_sitemap", [_flt("in_sitemap", "eq", True)]),
-            ("Not in sitemap", None, [_flt("in_sitemap", "eq", False)]),
+            ("Listed in a sitemap", "in_sitemap", [_flt("in_sitemap", "eq", True)]),
+            ("Not listed", None, [_flt("in_sitemap", "eq", False)]),
         ),
     ),
 )
 # key, header, right-aligned; every key is a column of ``scan-url-query``
 CRAWLER_COLUMNS = (
-    ("url", "Address", False),
-    ("status_code", "Status Code", True),
-    ("content_type", "Content Type", False),
-    ("indexable", "Indexability", False),
+    ("url", "URL", False),
+    ("status_code", "HTTP status", True),
+    ("content_type", "Content type", False),
+    ("indexable", "Indexable", False),
     ("title", "Title", False),
-    ("title_length", "Title Length", True),
-    ("meta_description", "Meta Description", False),
-    ("meta_description_length", "Meta Description Length", True),
+    ("title_length", "Title length", True),
+    ("meta_description", "Meta description", False),
+    ("meta_description_length", "Description length", True),
     ("h1", "H1", False),
     ("canonical", "Canonical", False),
-    ("meta_robots", "Meta Robots", False),
+    ("meta_robots", "Meta robots", False),
     ("x_robots", "X-Robots-Tag", False),
-    ("redirect_url", "Redirect URL", False),
-    ("crawl_depth", "Crawl Depth", True),
+    ("redirect_url", "Redirect target", False),
+    ("crawl_depth", "Crawl depth", True),
     ("inlinks", "Inlinks", True),
     ("outlinks", "Outlinks", True),
-    ("external_outlinks", "External Outlinks", True),
-    ("word_count", "Word Count", True),
-    ("size_bytes", "Size (bytes)", True),
-    ("response_time", "Response Time (ms)", True),
+    ("external_outlinks", "External outlinks", True),
+    ("word_count", "Word count", True),
+    ("size_bytes", "Size, bytes", True),
+    ("response_time", "Response time, ms", True),
     ("resource_count", "Resources", True),
 )
 COLUMN_TITLES = {key: title for key, title, _right in CRAWLER_COLUMNS}
@@ -219,22 +219,29 @@ BASE_KEYS = (
     "word_count",
     "response_time",
 )
-TAB_KEYS = {  # a tab shows the columns of its topic first, as Screaming Frog does
-    "Page Titles": ("title", "title_length"),
-    "Meta Description": ("meta_description", "meta_description_length"),
+TAB_KEYS = {  # a tab puts the columns of its topic right after the URL and status
+    "Titles": ("title", "title_length"),
+    "Descriptions": ("meta_description", "meta_description_length"),
     "H1": ("h1",),
     "Canonicals": ("canonical",),
-    "Directives": ("meta_robots", "x_robots"),
+    "Robots directives": ("meta_robots", "x_robots"),
     "Links": ("inlinks", "outlinks", "external_outlinks"),
+}
+# saved column sets of renamed tabs: new name -> name the setting was stored under before
+LEGACY_TAB_NAMES = {
+    "Responses": "Response Codes",
+    "Titles": "Page Titles",
+    "Descriptions": "Meta Description",
+    "Robots directives": "Directives",
 }
 NO_EXPORT_FIELDS = frozenset(
     ("indexable", "inlinks", "title_length", "meta_description_length", "resource_count")
 )
 SEARCH_FIELDS = (
-    ("url", "Address"),
+    ("url", "URL"),
     ("title", "Title"),
     ("h1", "H1"),
-    ("meta_description", "Meta Description"),
+    ("meta_description", "Meta description"),
     ("canonical", "Canonical"),
 )
 # overview rows: (tab, entry) of TABS under a heading per tab
@@ -1169,9 +1176,16 @@ class CrawlerScreen(QWidget):
         store = getattr(self.host, "settings", None)
         keys = None
         if store is not None:
+            # Filter-scoped sets first (#1491), then the tab's own key, then the
+            # pre-rename spelling (main's legacy tab names) — each older layer
+            # keeps configurations saved before the newer keys existed.
+            legacy = (
+                (f"crawler/columns/{LEGACY_TAB_NAMES[name]}",) if name in LEGACY_TAB_NAMES else ()
+            )
             for key in (
                 f"crawler/columns/{name}/{self.filter_index if flt is None else flt}",
-                f"crawler/columns/{name}",  # configurations saved before filters got their own sets
+                f"crawler/columns/{name}",
+                *legacy,
             ):
                 try:
                     keys = json.loads(store.value(key, "null"))
@@ -1179,7 +1193,6 @@ class CrawlerScreen(QWidget):
                     keys = None
                 if isinstance(keys, list) and all(k in COLUMN_TITLES for k in keys):
                     break
-                keys = None
         if not isinstance(keys, list) or not all(k in COLUMN_TITLES for k in keys):
             keys = (
                 [*BASE_KEYS]

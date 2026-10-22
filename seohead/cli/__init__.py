@@ -76,6 +76,7 @@ COMMANDS = (
     "llms-txt-check",
     "citability-check",
     "markdown-extract",
+    "markdown-export",
     "boilerplate-report",
     "semantic-inputs",
     "semantic-similarity",
@@ -307,6 +308,7 @@ URL_COMMANDS = (
     "llms-txt-check",
     "citability-check",
     "markdown-extract",
+    "markdown-export",
     "social-meta-check",
     "soft404-check",
     "render-check",
@@ -794,7 +796,7 @@ def _build_kwargs(cmd: str, args: argparse.Namespace) -> tuple[str, dict[str, An
         if overrides:
             kw["overrides"] = overrides
     elif cmd == "crawl-control":
-        for name in ("project", "run_id", "action"):
+        for name in ("project", "run_id", "action", "rate", "concurrency"):
             value = getattr(args, name, None)
             if value is not None:
                 kw[name] = value
@@ -2115,6 +2117,14 @@ def _crawl_progress(kwargs: dict[str, Any]) -> CrawlProgress | None:
             # different one are refused by the handler rather than applied.
             from seohead.mcp.scan_handlers import resume_inputs
 
+            # Reloading a large frontier can take minutes before the first
+            # progress line; say so instead of looking hung.
+            size_mb = Path(resume).stat().st_size / 1_000_000
+            print(
+                f"resuming {resume} ({size_mb:.0f} MB): loading the stored frontier...",
+                file=sys.stderr,
+                flush=True,
+            )
             resolved = resume_inputs(resume)["settings"]
         else:
             resolved = _resolved_crawl_settings(kwargs)
@@ -2412,7 +2422,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             sub,
             "--resume",
             metavar="FILE",
-            help="resume stored URL/settings; no crawl overrides",
+            help="resume stored URL/settings; only rate overrides (--max-urls-per-second, --min-delay)",
         )
         sub.add_argument(
             "--producer-build", metavar="SHA", help="original source build for SQLite capture"
@@ -2476,7 +2486,19 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
     if cmd == "crawl-control":
         _source_flag(sub, "--project", help="project containing the active crawl")
         _source_flag(sub, "--run-id", dest="run_id", help="active project run ID")
-        sub.add_argument("--action", choices=("pause", "stop"), required=True)
+        sub.add_argument("--action", choices=("pause", "stop", "set_rate"), required=True)
+        sub.add_argument(
+            "--rate",
+            type=float,
+            metavar="N",
+            help="set_rate: new maximum URLs per second for the running crawl",
+        )
+        sub.add_argument(
+            "--concurrency",
+            type=int,
+            metavar="N",
+            help="set_rate: optional new concurrency ceiling",
+        )
     if cmd == "compare-crawls":
         sub.add_argument(
             "--compression",
@@ -3161,7 +3183,7 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
             "--scan",
             dest="input_path",
             metavar="FILE",
-            help="scan.v1 SQLite artifact or SF Analyzer audit.json to export",
+            help="scan.v1 SQLite artifact or Export Analyzer audit.json to export",
         )
         sub.add_argument(
             "--out",

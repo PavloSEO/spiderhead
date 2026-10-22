@@ -6,7 +6,7 @@ Generated from the MCP tool definitions in `seohead/mcp/mcp_server.py`, `seohead
 python scripts/generate_tool_reference.py
 ```
 
-**233 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **6 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **10 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 249 in total.
+**234 core tools** (`seohead <command>` / `seo_<command>` on the MCP server) plus **6 crawl-audit tools** (`sf_<command>`, driven by `seohead sf ...`) plus **10 semantic-core tools** (`seo_semantics_*`, driven by `seohead semantics <stage>`) — 250 in total.
 
 Every tool shares one contract: JSON in, JSON out. A target that could not be reached comes back as `{"ok": false, "error": "..."}` instead of raising, so an unreachable site is data, not a crash.
 
@@ -257,15 +257,22 @@ or already finished is refused by name before the first request.
 
 MCP name: `seo_crawl_control`
 
-Request a native project crawl to checkpoint and pause or stop by its run ID.
+Pause, stop or change the rate of a running native project crawl by its run ID.
 
 | Argument | Type | Default |
 |---|---|---|
 | `project` | `str` | `required` |
 | `run_id` | `str` | `required` |
-| `action` | `Literal['pause', 'stop']` | `required` |
+| `action` | `Literal['pause', 'stop', 'set_rate']` | `required` |
+| `rate` | `float | None` | `None` |
+| `concurrency` | `int | None` | `None` |
 
 **Cost** — network: no · writes files: yes · idempotent: no · spends money: no
+
+**Behavior and failure modes**
+
+``set_rate`` takes ``rate`` in URLs per second (and an optional ``concurrency``);
+the crawl applies it at the next batch and records it as a scan event.
 
 ### `crawl-describe-settings`
 
@@ -738,6 +745,25 @@ Render a page as Markdown in two scopes. content_markdown strips navigation and 
 
 **Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
 
+### `markdown-export`
+
+**Category:** `other` · **Project-aware:** no
+
+MCP name: `seo_markdown_export`
+
+Export pages as Markdown files: a site's sitemap, a URL list, or one URL. Each page becomes <out-dir>/<url-path>.md (home -> index.md) with frontmatter (title, description, final URL, status, export date) above the content-area Markdown seo_markdown_extract produces -- nav and footer excluded, headings, lists and links kept. sitemap follows a sitemap index down to its urlsets (a site root is resolved through robots.txt Sitemap directives); urls_file holds one URL per line. max_urls caps the run, delay seconds space the requests. The summary lists counts, byte totals and up to 20 failures, so a partial export stays visible.
+
+| Argument | Type | Default |
+|---|---|---|
+| `url` | `str` | `''` |
+| `urls_file` | `str` | `''` |
+| `sitemap` | `str` | `''` |
+| `out_dir` | `str` | `'markdown-export'` |
+| `max_urls` | `int` | `200` |
+| `delay` | `float` | `0.5` |
+
+**Cost** — network: yes · writes files: no · idempotent: yes · spends money: no
+
 ### `boilerplate-report`
 
 **Category:** `other` · **Project-aware:** no
@@ -890,7 +916,7 @@ Check OpenGraph and Twitter Card tags against the minimum needed for a link prev
 
 MCP name: `seo_soft404_check`
 
-Detect soft-404: whether the site returns an honest 404/410 for non-existent URLs, or silently serves 200/3xx (which pollutes the index with junk pages). Sends two deterministic probes (sha256 of origin, at ordinary root paths) and applies strict AND-logic: both 2xx/3xx -> soft-404 confirmed (warning); both 404/410 -> pass; anything else -> unknown. Screaming Frog cannot see this — it crawls known URLs, not invented ones, so this needs an active request.
+Detect soft-404: whether the site returns an honest 404/410 for non-existent URLs, or silently serves 200/3xx (which pollutes the index with junk pages). Sends two deterministic probes (sha256 of origin, at ordinary root paths) and applies strict AND-logic: both 2xx/3xx -> soft-404 confirmed (warning); both 404/410 -> pass; anything else -> unknown. A normal crawl cannot see this — it requests known URLs, not invented ones, so this needs an active request.
 
 | Argument | Type | Default |
 |---|---|---|
@@ -1100,7 +1126,7 @@ Run the whole live toolkit over one site and return a single audit document (sch
 
 MCP name: `seo_report_build`
 
-Turn an audit document into a file: xlsx, docx, csv, md, json or pdf. Pass the dict returned by seo_site_audit, an SF Analyzer audit.json from sf_audit_run (or a path to either one's JSON, or a validated scan.v1 SQLite artifact) — both audit schemas are recognized and normalized before rendering. xlsx has four sheets with filters and a live Excel chart — for work; docx is prose with headings — for the client; csv writes separate findings, scope-evidence, and page tables for a tracker, listed under outputs; md is for reading and for git; pdf is a localized offline Chromium printout (en or ru). PDF requires the optional `pdf` dependencies and a local Chrome, Edge or Chromium. The generators compute nothing and reach no network: what is not in the JSON does not appear in the report. A document matching neither schema is refused with ok: false naming the mismatch, never rendered as an empty report. Pass project to include validated checklist coverage, reasons, scope and measurements in a human report. Optional view applies one saved finding view; it leaves health, evidence, coverage and source scan untouched. offset pages through the stable sorted view. This never makes a network request.
+Turn an audit document into a file: xlsx, docx, csv, md, json or pdf. Pass the dict returned by seo_site_audit, an Export Analyzer audit.json from sf_audit_run (or a path to either one's JSON, or a validated scan.v1 SQLite artifact) — both audit schemas are recognized and normalized before rendering. xlsx has four sheets with filters and a live Excel chart — for work; docx is prose with headings — for the client; csv writes separate findings, scope-evidence, and page tables for a tracker, listed under outputs; md is for reading and for git; pdf is a localized offline Chromium printout (en or ru). PDF requires the optional `pdf` dependencies and a local Chrome, Edge or Chromium. The generators compute nothing and reach no network: what is not in the JSON does not appear in the report. A document matching neither schema is refused with ok: false naming the mismatch, never rendered as an empty report. Pass project to include validated checklist coverage, reasons, scope and measurements in a human report. Optional view applies one saved finding view; it leaves health, evidence, coverage and source scan untouched. offset pages through the stable sorted view. This never makes a network request.
 
 | Argument | Type | Default |
 |---|---|---|
@@ -1129,7 +1155,7 @@ materialized inputs reject the policy. PDF and companion directory must be new.
 
 MCP name: `seo_facts_export`
 
-Build one comparable facts table (schema facts.v1) across several sites from crawl/site audits you already produced. Each site is {label, crawl_audit?, site_audit?} -- crawl_audit is an SF Analyzer audit.json (dict or path), site_audit is a seo_site_audit document (dict or path), both optional but at least one is needed for real facts; a site with neither still gets a full row of unavailable facts, named. Reads documents only: zero network requests, zero paid calls. Every leaf is a fact with one of five states -- measured, absent (a true 0/[]), partial (bounded, e.g. a crawl that stopped early), unavailable (the source did not answer), or not_requested (this tool never asks, as for Google/Yandex index counts: no configured provider returns a result count) -- plus an is_not line saying what it must not be read as. This tool computes no score, rank, ratio or winner: it exports operands, not quotients, so a language model can compare the sites itself. Refuses before doing any work when a document's own domain does not match the label it is filed under, or when two labels resolve to the exact same domain; two subdomains of one registrable domain are allowed, only noted.
+Build one comparable facts table (schema facts.v1) across several sites from crawl/site audits you already produced. Each site is {label, crawl_audit?, site_audit?} -- crawl_audit is an Export Analyzer audit.json (dict or path), site_audit is a seo_site_audit document (dict or path), both optional but at least one is needed for real facts; a site with neither still gets a full row of unavailable facts, named. Reads documents only: zero network requests, zero paid calls. Every leaf is a fact with one of five states -- measured, absent (a true 0/[]), partial (bounded, e.g. a crawl that stopped early), unavailable (the source did not answer), or not_requested (this tool never asks, as for Google/Yandex index counts: no configured provider returns a result count) -- plus an is_not line saying what it must not be read as. This tool computes no score, rank, ratio or winner: it exports operands, not quotients, so a language model can compare the sites itself. Refuses before doing any work when a document's own domain does not match the label it is filed under, or when two labels resolve to the exact same domain; two subdomains of one registrable domain are allowed, only noted.
 
 | Argument | Type | Default |
 |---|---|---|

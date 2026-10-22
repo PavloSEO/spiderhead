@@ -32,7 +32,7 @@ _PAYLOAD_KEYS = {
     "request": {"queue_ordinal", "url_id", "attempt", "method", "state"},
     "retry": {"queue_ordinal", "url_id", "attempt", "reason", "delay_ms"},
     "cache": {"queue_ordinal", "url_id", "state"},
-    "throttle": {"delay_ms", "concurrency", "state"},
+    "throttle": {"delay_ms", "concurrency", "state", "previous_delay_ms"},
     "render": {"url_id", "representation", "state"},
     "circuit": {"kind", "state", "streak"},
     "budget": {"kind", "limit", "used"},
