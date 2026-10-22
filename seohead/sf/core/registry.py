@@ -53,6 +53,19 @@ CHECKS: dict[str, dict[str, Any]] = {
         "message": "Live page is blocked by robots.txt despite receiving internal links",
         "fix": "robots.txt blocks crawling, not indexing, so link discovery is lost. Make the URL crawlable with a more specific Allow rule than the matching Disallow, and control indexing with canonical or noindex. A common case is pagination such as /blog?page=N blocked by Disallow: /*?.",
     },
+    # The source-page half of the same problem (#1486): under a robots policy that
+    # respects Disallow, a blocked target is never fetched and never becomes a page
+    # row, so IMPORTANT_URL_BLOCKED_BY_ROBOTS above cannot see it. The link edge is
+    # the only evidence connecting the two.
+    "ROBOTS_BLOCKED_OUTLINK": {
+        "severity": "notice",
+        "source": "crawl:robots_policy",
+        "message": "The page links to URLs the crawl's robots policy kept out of the crawl",
+        "fix": "Review the Disallow rules that hid the quoted targets: a rule broad enough "
+        "to block an internal link target removes that section from every robots-respecting "
+        "crawler. Confirm each blocked target is intentionally excluded, or narrow the rule "
+        "so the pages can be crawled and indexed on their own merits.",
+    },
     "ROBOTS_BLOCKS_RESOURCES": {
         "severity": "notice",
         "source": "sitemap",

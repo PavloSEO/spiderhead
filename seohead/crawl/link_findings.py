@@ -4,8 +4,10 @@ Sibling to ``linkgraph.py``: pure, and never imports ``seohead.sf``. Two finding
 only what a crawl always records (``LinkEdge.destination``, ``.nofollow``, ``FormEdge``);
 two need ``LinkEdge.rel``/``.target``/``.raw_href``, which only exist when the crawl was run
 with ``link_attributes.capture`` on — see that setting's own docstring in
-``crawl/spider.py`` for why it defaults off. Each such function is a plain filter over the
-edge/form list; the caller (``seohead.mcp.handlers``) decides when the data exists to ask.
+``crawl/spider.py`` for why it defaults off. One needs the robots policy's blocked list,
+which the crawl records regardless of whether the policy kept the URLs out. Each function is
+a plain filter over the edge/form list; the caller (``seohead.mcp.handlers``) decides when
+the data exists to ask.
 """
 
 from __future__ import annotations
@@ -61,6 +63,39 @@ def outlinks_to_localhost(links: list[LinkEdge]) -> list[dict[str, Any]]:
         if _is_localhost(urlsplit(edge.destination).hostname or ""):
             out.append({"target_url": edge.source, "destination": edge.destination})
     return out
+
+
+# How many blocked targets one finding quotes back (#1486) -- the same shape as
+# the placement evidence caps: enough to recognise the blocked section, short
+# of pasting a whole hidden sitemap into one row.
+_BLOCKED_TARGET_ITEMS = 5
+
+
+def robots_blocked_outlinks(
+    links: Iterable[LinkEdge], blocked: Iterable[str]
+) -> list[dict[str, Any]]:
+    """Edges pointing at URLs the crawl's robots policy keeps out (#1486).
+
+    Under ``respect`` a disallowed target is never fetched, so it never becomes
+    a page row and the target-side blocked checks cannot see it: the link edge
+    is the only evidence connecting a source page to a hidden destination. One
+    finding per source page, naming both URLs. Internal and external edges
+    count alike -- the finding is about what the page points at, and the target
+    is not fetched either way.
+    """
+    blocked_set = set(blocked)
+    by_source: dict[str, list[str]] = defaultdict(list)
+    for edge in links:
+        if edge.destination in blocked_set:
+            by_source[edge.source].append(edge.destination)
+    return [
+        {
+            "target_url": source,
+            "count": len(targets),
+            "blocked_targets": sorted(set(targets))[:_BLOCKED_TARGET_ITEMS],
+        }
+        for source, targets in by_source.items()
+    ]
 
 
 def unsafe_cross_origin_links(links: list[LinkEdge]) -> list[dict[str, Any]]:
