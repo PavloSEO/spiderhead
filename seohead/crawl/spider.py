@@ -187,6 +187,42 @@ def _canonical_key(url: str) -> str:
     return urlunsplit((parts.scheme, parts.netloc, parts.path or "/", parts.query, ""))
 
 
+def upgrade_transport(url: str) -> str:
+    """https for an http URL (#1484), unchanged for anything else.
+
+    The caller opted in with http.upgrade_to_https, declaring the host enforces
+    transport security: the upgrade happens before any request, so no redirect
+    hop is spent or recorded, and the http/https spellings collapse into one
+    page identity.
+    """
+    return "https://" + url[len("http://") :] if url.startswith("http://") else url
+
+
+def _compose_target_normalization(
+    *,
+    upgrade: Callable[[str], str] | None,
+    upgraded_urls: set[str],
+    tracking: Callable[[str], str] | None,
+) -> Callable[[str], str] | None:
+    """One normalize_target for apply_document_links (#1484).
+
+    Upgrade first (the scheme decides identity), tracking parameters second;
+    every rewritten http target is remembered so its page can be marked.
+    """
+    if upgrade is None and tracking is None:
+        return None
+
+    def normalize(url: str) -> str:
+        if upgrade is not None:
+            upgraded = upgrade(url)
+            if upgraded != url:
+                upgraded_urls.add(upgraded)
+            url = upgraded
+        return tracking(url) if tracking is not None else url
+
+    return normalize
+
+
 def normalize_get_parameters(url: str) -> str:
     """Drop utm_* and fbclid fields without rewriting any other raw query text."""
     parts = urlsplit(url)
@@ -830,6 +866,7 @@ def crawl_site(
     spool_evidence: bool = False,
     proxy_route: Any = None,
     normalize_tracking_parameters: bool = True,
+    upgrade_to_https: bool = False,
 ) -> SpiderResult:
     """Crawl one host breadth-first from ``start_url``, within ``scope``.
 
@@ -926,6 +963,14 @@ def crawl_site(
     start = normalize_url(start_url)
     if normalize_tracking_parameters:
         start = normalize_get_parameters(start)
+    # URLs this crawl fetched over https because they entered as http (#1484);
+    # membership is what marks the page record.
+    upgraded_urls: set[str] = set()
+    if upgrade_to_https:
+        upgraded = upgrade_transport(start)
+        if upgraded != start:
+            upgraded_urls.add(upgraded)
+        start = upgraded
     host = (urlsplit(start).hostname or "").lower() if start else ""
     # normalize_url is lenient — it turns "not a url" into "https://not a url" —
     # so the host is checked here rather than trusted.
@@ -1176,6 +1221,11 @@ def crawl_site(
             seed = (seed or "").strip()
             if not seed:
                 continue
+            if upgrade_to_https:
+                upgraded_seed = upgrade_transport(seed)
+                if upgraded_seed != seed:
+                    upgraded_urls.add(upgraded_seed)
+                seed = upgraded_seed
             if normalize_tracking_parameters:
                 seed = normalize_get_parameters(seed)
             # Checked against ``seen`` before the rejection rules run, and
@@ -1283,7 +1333,13 @@ def crawl_site(
                 reject=exclude,
                 mark_link_partial=lambda omitted: exclude("link_observations_limit"),
                 normalize_target=(
-                    normalize_get_parameters if normalize_tracking_parameters else None
+                    _compose_target_normalization(
+                        upgrade=upgrade_transport if upgrade_to_https else None,
+                        upgraded_urls=upgraded_urls,
+                        tracking=(
+                            normalize_get_parameters if normalize_tracking_parameters else None
+                        ),
+                    )
                 ),
             )
 
@@ -1420,6 +1476,7 @@ def crawl_site(
                         cache=cache,
                         wait=dispatch_gate.wait_turn,
                         response_filter=rules.response_media_rejection,
+                        transport_upgraded=url in upgraded_urls,
                     )
                 except KeyboardInterrupt:
                     # Not processed: put it back so a resume retries it rather
@@ -1457,6 +1514,7 @@ def crawl_site(
                     parse_options=parse_options,
                     cache=cache,
                     wait=gate.wait_turn,
+                    transport_upgraded=url in upgraded_urls,
                     response_filter=rules.response_media_rejection,
                 )
                 return url, depth, record, parsed

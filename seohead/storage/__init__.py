@@ -59,6 +59,7 @@ _CAPABILITIES = (
 )
 _PAGE_BOOLS = {
     "head_not_first",
+    "transport_upgraded",
     "title_outside_head",
     "meta_description_outside_head",
     "canonical_outside_head",
@@ -108,7 +109,11 @@ _LATE_PAGE_FIELDS = {
 # neither the required-field check below nor _legacy_fields_missing.
 # Absent-key tolerated fields: a pages.jsonl written before the field existed,
 # where absence is a recorded state (recording off / never parsed), not an error.
-_OPTIONAL_PAGE_RECORD_FIELDS = frozenset({"trust_signals", "duplicate_ids", "invalid_link_targets"})
+# transport_upgraded rides here too (#1484): a JSONL written before the field
+# upgraded nothing, and False is that JSONL's truth.
+_OPTIONAL_PAGE_RECORD_FIELDS = frozenset(
+    {"trust_signals", "duplicate_ids", "invalid_link_targets", "transport_upgraded"}
+)
 _PAGE_NONNEGATIVE_INTS = {
     "ajax_scheme_outlinks",
     "body_count",
@@ -622,6 +627,9 @@ def _import_pages(con, source: Path, limitations: list[str], inputs: list[dict])
         row["invalid_link_targets_json"] = (
             None if invalid_targets is None else _dump(invalid_targets)
         )
+        # Absent key (a JSONL written before #1484): nothing was upgraded; the
+        # shared _PAGE_BOOLS loop below validates and converts the present form.
+        row.setdefault("transport_upgraded", False)
         placement = row.pop("link_placement")
         if placement is not None:
             _link_placement(placement)
