@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-12T00:00:43Z
+- **Generated:** 2026-10-22T18:51:26Z
 
 ## Health summary
 
-> **No health score.** only 96 of 282 checks could run (34% coverage); too little evidence to score.
+> **No health score.** only 97 of 282 checks could run (34% coverage); too little evidence to score.
 
-_96 of 282 checks could run; the score is not comparable to a run with full evidence_
+_97 of 282 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 184 skipped, 76 silent, 0 disabled (of 282 total)
+- Checks: **20 fired**, 185 skipped, 77 silent, 0 disabled (of 282 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -290,7 +290,8 @@ These measurements come from retained, project-bound provider history. Registere
 | The H1 has no text of its own; its only content is an image's alt attribute | no H1 alt-text evidence (native crawl only) |
 | One or more headings appear before the page's first H1 in DOM order | no heading outline evidence (native crawl only) |
 | A heading sits in the page chrome (header, nav, sidebar or footer) rather than in the content | no heading outline evidence (native crawl only) |
-| Content headings skip one or more levels in DOM order | no heading outline evidence (native crawl only) |
+| Content headings change by more than one level in DOM order, skipping a level down or jumping back up past an open section | no heading outline evidence (native crawl only) |
+| The page points at hrefs that cannot become fetchable link targets (unparsable syntax or a non-http(s) scheme) | no invalid link target evidence (native crawl only) |
 | A heading on the page is, or contains, a link to somewhere else | no link-placement evidence (native crawl only) |
 | An image link carries no anchor text and no alt text, so nothing says where it goes | no link-placement evidence (native crawl only) |
 | Obsolete meta keywords element is present | no Meta Keywords 1 column in Internal:All |

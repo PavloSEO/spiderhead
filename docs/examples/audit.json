@@ -11,7 +11,7 @@
     "source": null,
     "exports_dir": "docs/examples/exports",
     "sf_version_detected": null,
-    "generated_at": "2026-10-12T00:00:43Z",
+    "generated_at": "2026-10-22T18:51:26Z",
     "profile": "full",
     "exports_used": [
       "internal_all",
@@ -289,6 +289,10 @@
       {
         "id": "HEADING_SKIP",
         "reason": "no heading outline evidence (native crawl only)"
+      },
+      {
+        "id": "INVALID_LINK_TARGET",
+        "reason": "no invalid link target evidence (native crawl only)"
       },
       {
         "id": "LINK_INSIDE_HEADING",
@@ -842,10 +846,10 @@
     "check_coverage": {
       "checks_total": 282,
       "checks_fired": 20,
-      "checks_skipped": 184,
+      "checks_skipped": 185,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
-      "checks_silent": 76,
+      "checks_silent": 77,
       "checks_silent_ids": [
         "BAD_REDIRECT_TYPE",
         "BLOCKED_BY_ROBOTS",
@@ -901,6 +905,7 @@
         "PAGINATION_NONINDEXABLE",
         "PLACEHOLDER_MARKER",
         "PROTOCOL_RELATIVE_LINK",
+        "ROBOTS_BLOCKED_OUTLINK",
         "SERVER_ERROR_5XX",
         "SITEMAP_ORPHAN",
         "TITLE_EQUALS_H1",
@@ -924,10 +929,10 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.343
+      "coverage": 0.344
     },
-    "health_score_reason": "only 96 of 282 checks could run (34% coverage); too little evidence to score",
-    "health_score_basis": "96 of 282 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_reason": "only 97 of 282 checks could run (34% coverage); too little evidence to score",
+    "health_score_basis": "97 of 282 checks could run; the score is not comparable to a run with full evidence",
     "internal_linking": {
       "measured": false,
       "reason": "no all_inlinks export (needed for the complete internal edge list)"
