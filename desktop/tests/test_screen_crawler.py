@@ -203,7 +203,7 @@ class CrawlerScreenTests(unittest.TestCase):
                 self[key] = value
 
         self.host.settings = Store()
-        resp = next(i for i, (name, _e) in enumerate(TABS) if name == "Response Codes")
+        resp = next(i for i, (name, _e) in enumerate(TABS) if name == "Responses")
         self.screen.tabs.setCurrentIndex(resp)
         self.screen.subfilter.setCurrentIndex(2)
         self.assertEqual(self.host.settings["crawler/tab"], resp)
