@@ -187,6 +187,13 @@ class PageRecord:
     # both "not upgraded" and "upgrade off" -- the setting is on the run, not
     # the page; what the page records is what happened to it.
     transport_upgraded: bool = False
+    # Reading level over the retained content area (#1516), as
+    # checks.readability.reading_ease computes it. None — never zero — when the
+    # area was not retained or holds no word with a letter: unmeasured.
+    sentence_count: int | None = None
+    avg_words_per_sentence: float | None = None
+    flesch: float | None = None
+    readability: str = ""
     # The two link defects a page region cannot show: anchors wrapped in an
     # h1-h6, and image links with no anchor text and no alt (#634). Both lists
     # inside are capped by the parser, so this costs a small constant per page
@@ -385,6 +392,12 @@ def _record_from_parsed(parsed: dict) -> dict[str, Any]:
         "invalid_link_targets": (
             list(parsed["invalid_link_targets"]) if "invalid_link_targets" in parsed else None
         ),
+        # Reading level over the content area (#1516); the parser's None
+        # (nothing measurable retained) stays None, and "" band means the same.
+        "sentence_count": (r := parsed.get("readability") or {}).get("sentence_count"),
+        "avg_words_per_sentence": r.get("avg_words_per_sentence"),
+        "flesch": r.get("flesch"),
+        "readability": r.get("readability") or "",
         "link_placement": parsed.get("link_placement") or empty_link_placement(),
         # Always a parsed dict here (a missing key would be a parser defect),
         # so the field above the default keeps its None-for-unmeasured meaning.

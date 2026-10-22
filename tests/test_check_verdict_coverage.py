@@ -106,7 +106,6 @@ KNOWN_UNCOVERED: frozenset[str] = frozenset(
         "ORPHAN_PAGE",
         "OUTLINK_TO_LOCALHOST",
         "PROTOCOL_RELATIVE_LINK",
-        "READABILITY_DIFFICULT",
         "SCHEMA_VALIDATION_ERROR",
         "SITEMAP_STALE_LASTMOD",
         "SITEMAP_TOO_LARGE",
