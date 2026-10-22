@@ -1420,6 +1420,8 @@ COMMAND_CONTRACTS: tuple[CommandContract, ...] = (
             "descending",
         ),
     ),
+    _command("scan-url-counts", "scan_url_counts", _form("scan_artifact", "input_path")),
+    _command("extraction-presets", "extraction_presets", _form("no_input")),
     _command("scan-url-query", "scan_url_query", _form("scan_artifact", "input_path")),
     _command(
         "scan-directory-tree",
