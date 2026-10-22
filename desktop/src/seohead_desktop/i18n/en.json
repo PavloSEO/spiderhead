@@ -4059,5 +4059,7 @@
  "Панель запуска": "Run panel",
  "Только данные": "Data only",
  "Дерево": "Tree",
- "Плоский список или дерево путей — данные и фильтры одни": "Flat list or path tree — one dataset, one set of filters"
+ "Плоский список или дерево путей — данные и фильтры одни": "Flat list or path tree — one dataset, one set of filters",
+ "Без проекта, как Screaming Frog": "Without a project, like Screaming Frog",
+ "Классический краулер: адрес и «Старт», таблица URL с фильтрами и Overview. Без агента и MCP; переключиться можно в любой момент.": "A classic crawler: enter an address, press Start, read the URL table with filters and Overview. No agent and no MCP; you can switch at any time."
 }

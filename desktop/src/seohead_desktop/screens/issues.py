@@ -240,6 +240,8 @@ CHECK_NAMES = {
     "SITEMAP_URL_NON_CANONICAL": "Адрес в sitemap указывает на другой канонический адрес",
     "SITEMAP_URL_BLOCKED_ROBOTS": "Адрес из sitemap закрыт robots.txt",
     "INTERNALLY_LINKED_ROBOTS_BLOCKED": "На адрес есть внутренние ссылки, но robots.txt его закрывает",
+    "ROBOTS_BLOCKED_OUTLINK": "Страница ссылается на адрес, закрытый robots.txt",
+    "INVALID_LINK_TARGET": "На странице есть битые href: адрес не собирается в ссылку",
     "SEMANTIC_SIMILARITY_CANDIDATE": "Страницы похожи по тематике, нужна проверка",
     "TITLE_LOW_SEMANTIC_RELEVANCE": "Title слабо связан с текстом страницы, нужна проверка",
     "H1_LOW_SEMANTIC_RELEVANCE": "H1 слабо связан с текстом страницы, нужна проверка",

@@ -391,6 +391,10 @@ class ScanControlMixin:
             )
 
     def closeEvent(self, event):
+        page = getattr(self, "simple_page", None)
+        if page is not None and page.state in ("running", "stopping") and not page.confirm_quit():
+            event.ignore()
+            return
         if self._pending_note is not None:
             event.ignore()
             self.notice.show_error(

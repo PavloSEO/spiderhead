@@ -127,8 +127,9 @@ TABS = (
         "Descriptions",
         (
             ALL,
-            ("Description missing", None, [_flt("meta_description", "empty")]),
-            ("Longer than 160 characters", None, [_flt("meta_description_length", "gt", 160)]),
+            ("Missing", None, [_flt("meta_description", "empty")]),
+            ("Over 160 characters", None, [_flt("meta_description_length", "gt", 160)]),
+            ("Duplicate", None, [_flt("description_duplicate", "eq", True)]),
         ),
     ),
     (
@@ -144,9 +145,10 @@ TABS = (
         "Canonicals",
         (
             ALL,
-            ("Canonical missing", "canonical_missing", [_flt("canonical", "empty")]),
-            ("Canonical to itself", "canonical_self", [_flt("canonical_self", "eq", True)]),
-            ("Canonical to another URL", "canonical_other", [_flt("canonical_other", "eq", True)]),
+            ("Missing", "canonical_missing", [_flt("canonical", "empty")]),
+            ("Self referencing", "canonical_self", [_flt("canonical_self", "eq", True)]),
+            ("Canonicalised", "canonical_other", [_flt("canonical_other", "eq", True)]),
+            ("Non-indexable target", None, [_flt("canonical_non_indexable", "eq", True)]),
         ),
     ),
     (
@@ -157,6 +159,7 @@ TABS = (
             ("noindex (meta robots)", None, [_flt("meta_robots", "contains", "noindex")]),
             ("noindex (X-Robots-Tag)", None, [_flt("x_robots", "contains", "noindex")]),
             ("nofollow (meta robots)", None, [_flt("meta_robots", "contains", "nofollow")]),
+            ("Blocked by robots", None, [_flt("robots_blocked", "eq", True)]),
         ),
     ),
     (
@@ -368,6 +371,9 @@ class _CardHost:
 class CrawlerScreen(QWidget):
     """Board «Краулер»: toolbar, check tabs, results table, overview counters, details and the status strip."""
 
+    model_class = CrawlerModel
+    card_class = UrlCard
+
     def __init__(self, host=None, parent=None):
         super().__init__(parent)
         self.host = host
@@ -438,7 +444,7 @@ class CrawlerScreen(QWidget):
         main = QWidget()
         main.setLayout(self._main())
         splitter.addWidget(main)
-        self.card = UrlCard(_CardHost(self))
+        self.card = self.card_class(_CardHost(self))
         self.card.set_agent_visible(False)
         self.card.back.hide()
         self.card.expand_button.hide()
@@ -467,8 +473,11 @@ class CrawlerScreen(QWidget):
         return Path(directory).name if directory else ""
 
     def _sync_project_chip(self):
+        chip = getattr(self, "project_chip", None)
+        if chip is None:  # subclasses with their own toolbar carry no project chip
+            return
         name = self._project_name()
-        self.project_chip.setText(
+        chip.setText(
             trf("Краулер · проект «{name}»", name=name) if name else tr("Краулер · без проекта")
         )
 
@@ -597,7 +606,7 @@ class CrawlerScreen(QWidget):
         self.export.clicked.connect(self._export)
         filters.addWidget(self.export)
         column.addLayout(filters)
-        self.model = CrawlerModel(self)
+        self.model = self.model_class(self)
         self.table = style_table(QTableView(), "compact")
         self.table.setModel(self.model)
         self.table.setFrameShape(QFrame.NoFrame)
@@ -817,9 +826,7 @@ class CrawlerScreen(QWidget):
         workdir = tempfile.mkdtemp(prefix="spiderhead-crawl-")
         scan_out = str(Path(workdir) / "crawl.sqlite")
         try:
-            arguments = crawl_arguments(
-                self.mode, self.address.text(), self.limit.value(), scan_out
-            )
+            arguments = self.crawl_arguments(scan_out)
         except ValueError as exc:
             shutil.rmtree(workdir, ignore_errors=True)
             return self._set_state("idle", tr(str(exc)))
@@ -840,6 +847,10 @@ class CrawlerScreen(QWidget):
         self._set_state("running")
         process.start(executable, arguments)
         self._refresh.start()
+
+    def crawl_arguments(self, scan_out):
+        """``crawl-site`` arguments of this screen's controls (subclasses add their own settings)."""
+        return crawl_arguments(self.mode, self.address.text(), self.limit.value(), scan_out)
 
     def _stop(self):
         process = self.process

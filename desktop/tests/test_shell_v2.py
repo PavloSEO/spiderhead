@@ -98,13 +98,19 @@ class ShellV2Tests(unittest.TestCase):
         self.assertEqual(
             self.window.pages.currentIndex(), 4
         )  # «Работа» is the simple task list in Simple
-        self.assertTrue(self.window.simple_pill.isVisibleTo(self.window))
+        # Simple display: its own central page, the window status bar is the agent one and stays hidden
+        self.assertIsNotNone(self.window.simple_page)
+        self.assertIs(self.window.mode_stack.currentWidget(), self.window.simple_page)
+        self.assertFalse(self.window.statusBar().isVisibleTo(self.window))
+        self.assertFalse(self.window.findChild(QWidget, "topbar").isVisibleTo(self.window))
         self.assertEqual(self.window.prefs.get("shell.display"), "simple")
         self.assertEqual(self.window.mode_label.text(), ui("Простой режим · агент и MCP выключены"))
         self.assertEqual(
             self.window.navigation.profile.mode_line.text(), ui("Простой режим · MCP выкл.")
         )  # SideNav sheet profile line
         self.window.set_display("agent")
+        self.assertIs(self.window.mode_stack.currentWidget(), self.window.workspace_widget)
+        self.assertTrue(self.window.statusBar().isVisibleTo(self.window))
         self.assertEqual(
             self.window.navigation.profile.mode_line.text(), ui("С агентом · MCP вкл.")
         )
@@ -195,7 +201,9 @@ class ShellV2Tests(unittest.TestCase):
         self.assertTrue(self.window.navigation.profile._texts.isVisibleTo(self.window.navigation))
 
     def test_top_bar_starts_with_the_panel_button_and_carries_no_brand(self):
-        top = self.window.findChild(type(self.window.centralWidget()), "topbar")
+        top = self.window.findChild(
+            QWidget, "topbar"
+        )  # the agent display's top bar (Simple has none)
         first = top.layout().itemAt(0).widget()
         self.assertIs(first, self.window.nav_toggle)
         texts = [label.text() for label in top.findChildren(QLabel)]
@@ -204,7 +212,9 @@ class ShellV2Tests(unittest.TestCase):
         self.assertEqual(self.window.windowTitle(), "SpiderHead")
 
     def test_top_bar_height_and_labels(self):
-        top = self.window.findChild(type(self.window.centralWidget()), "topbar")
+        top = self.window.findChild(
+            QWidget, "topbar"
+        )  # the agent display's top bar (Simple has none)
         self.assertEqual(top.height(), theming.metrics()["layout"]["topbar"])
         self.assertEqual(self.window.project_button.title.text(), ui("Проект не открыт"))
         self.assertEqual(self.window.scan_button.title.text(), ui("Нет сохранённых сканов"))

@@ -451,7 +451,7 @@ class OnboardingScreen(Screen):
         self.option_simple = Option(
             "person",
             "Простой",
-            "Скан, проблемы, задачи и отчёт. Без агента и без входящих. Переключить можно в любой момент.",
+            "Классический краулер: адрес и «Старт», таблица URL с фильтрами и Overview. Без агента и MCP; переключиться можно в любой момент.",
         )
         grid.addWidget(self.option_agent, 0, 0)
         grid.addWidget(self.option_simple, 0, 1)

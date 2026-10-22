@@ -36,6 +36,117 @@ OPTIONS = {}
 SEMIMPORT_SAMPLE = (
     Path(__file__).resolve().parents[1] / "tests" / "core_fixtures" / "semimport_sample.csv"
 )
+SIMPLE_SCAN = (
+    Path(__file__).resolve().parents[1] / "tests" / "core_fixtures" / "simple-qa-scan.sqlite"
+)
+
+
+def simple_state(window, state):
+    """Put the Simple display into one capture state on the offline QA scan (no network).
+
+    Data states (ready and everything derived from it) read the fixture scan through the real core CLI;
+    nocore/failed/empty are pure UI states, and menu/context leave a popup for main() to composite.
+    """
+    from seohead_desktop.ui import simple_catalogue as cat
+
+    page = window.simple_page
+    if state == "nocore":
+        return  # the screen was built without a core: notice + panel already say it
+    if state == "failed":
+        page._set_state("failed", "Connection refused by 127.0.0.1 port 8000.")
+        page._show_panel(
+            "partial",
+            "The crawl failed",
+            "Connection refused by 127.0.0.1 port 8000. Nothing was kept from this attempt.",
+            action=("Try again", page._start_or_stop),
+            secondary=("Show log", page._show_log),
+        )
+        return
+    scan = OPTIONS.get("scan") or (SIMPLE_SCAN if SIMPLE_SCAN.is_file() else None)
+    if scan is None:
+        raise SystemExit("simple:<state> needs the offline QA scan: pass --scan PATH")
+    page.scan_path = str(scan)
+    page._set_state("done")
+    page._apply_current()
+    page._read_facets()
+    wait_until(
+        lambda: (
+            not page.counting
+            and not page.page_job.busy
+            and not page.facet_job.busy
+            and not page.html_job.busy
+            and not page.counts_job.busy
+            and len(page.model.rows) > 0
+        ),
+        timeout=120,
+    )
+    if state in ("ready", ""):
+        page.table.selectRow(0)
+        wait_until(
+            lambda: not page.card.jobs_busy() if hasattr(page.card, "jobs_busy") else True,
+            timeout=30,
+        )
+        return
+    if state == "crawling":
+        page._set_state("running")
+        page._counters(2.4, 12, 8)
+        return
+    if state == "stopped":
+        page._set_state("stopped")
+        return
+    if state == "drilldown":
+        page._select_overview(*cat.find("response_codes", "4xx"))
+        wait_until(lambda: page.state not in ("running",) and len(page.model.rows) > 0, timeout=30)
+        page.table.selectRow(0)
+        page.detail_tabs.setCurrentIndex(1)  # Inlinks
+        wait_until(lambda: not page.card.links.job.busy, timeout=30)
+        return
+    if state == "notcollected":
+        page.tabs.setCurrentIndex(cat.TAB_INDEX["external"])
+        return
+    if state == "noresults":
+        page.search.setText("pricing")
+        wait_until(lambda: page.stack.currentWidget() is page.panel_host, timeout=30)
+        return
+    if state == "menu":
+
+        def gear_popup():
+            menu = page.gear.menu()
+            page.fill_settings_menu(menu)
+            menu.adjustSize()
+            point = page.gear.mapTo(window, page.gear.rect().bottomLeft())
+            menu.move(window.mapToGlobal(point))
+            return menu, point.x(), point.y()
+
+        OPTIONS["popup"] = gear_popup
+        return
+    if state == "context":
+
+        def row_popup():
+            from PyQt5.QtCore import QPoint
+
+            captured = {}
+            import PyQt5.QtWidgets as widgets
+
+            original = widgets.QMenu.exec_
+
+            def quiet_exec(self, *args, **kwargs):
+                captured["menu"] = self
+
+            widgets.QMenu.exec_ = quiet_exec
+            try:
+                page._row_menu(QPoint(8, 28))
+            finally:
+                widgets.QMenu.exec_ = original
+            menu = captured["menu"]
+            menu.adjustSize()
+            point = page.table.viewport().mapTo(window, QPoint(8, 28))
+            menu.move(window.mapToGlobal(point))
+            return menu, point.x(), point.y()
+
+        OPTIONS["popup"] = row_popup
+        return
+    raise SystemExit(f"unknown simple state: {state}")
 
 
 def open_project(window, directory, timeout=60):
@@ -365,6 +476,22 @@ def build(name, width, height, store, theme="light", lang="ru"):
         ):  # --check CODE: open one check's evidence table
             window.screens["issues"]._select(OPTIONS["check"])
         return window
+    if kind == "simple":
+        # The Simple display in one capture state: empty | crawling | ready | drilldown | notcollected
+        # | noresults | stopped | failed | nocore | menu | context. Data states read the offline QA scan.
+        from seohead_desktop.app import MainWindow
+
+        window = MainWindow(persistent=False)
+        window.prefs.set("view.theme", theme)
+        window.prefs.set("view.language", lang)
+        window.prefs.set("shell.onboarding_done", True)
+        window.core_executable = OPTIONS.get("core") or window.core_executable
+        if arg == "nocore":
+            window.core_executable = None
+        window.set_display("simple", remember=False)
+        window.show_startup_workspace()
+        simple_state(window, arg or "empty")
+        return window
     if kind == "help":
         # «Справка по разделам» (menu → show_screen("help")); ``help:<view>`` selects the guide section of that view.
         from seohead_desktop.app import MainWindow
@@ -457,6 +584,11 @@ def main(argv=None):
         "--check",
         help="shell:issues only: select this finding check (e.g. DESC_MISSING) before the capture",
     )
+    parser.add_argument(
+        "--scan",
+        type=Path,
+        help="simple:<state> only: offline scan sqlite to read (default: tests/core_fixtures/simple-qa-scan.sqlite)",
+    )
     args = parser.parse_args(argv)
     if args.project is None and os.environ.get("SEOHEAD_QA_PROJECT"):
         args.project = Path(os.environ["SEOHEAD_QA_PROJECT"])
@@ -469,6 +601,7 @@ def main(argv=None):
         project=args.project,
         display=args.display,
         check=args.check,
+        scan=args.scan,
         core=args.core or (str(default_core) if default_core.exists() else None),
     )
     os.environ.setdefault("SEOHEAD_ALLOW_PRIVATE_HOSTS", "crawl.localhost,127.0.0.1")
@@ -495,7 +628,9 @@ def main(argv=None):
                 image.save(str(path))
             elif hasattr(widget, "render_image"):
                 widget.render_image(width, height, args.theme, args.lang).save(str(path))
-            elif name.startswith(("shell", "start", "url", "help", "logsbots", "semimport")):
+            elif name.startswith(
+                ("shell", "start", "url", "help", "logsbots", "semimport", "simple")
+            ):
                 # The offscreen screen is 800x600 and clamps top-level windows; render at the requested size instead.
                 widget.setAttribute(Qt.WA_DontShowOnScreen, True)
                 widget.resize(width, height)
@@ -505,6 +640,18 @@ def main(argv=None):
                 app.processEvents()
                 image = QPixmap(width, height)
                 widget.render(image)
+                popup = OPTIONS.pop("popup", None)
+                if popup is not None:  # simple:menu / simple:context: the open menu over the window
+                    from PyQt5.QtGui import QPainter
+
+                    menu, x, y = popup()
+                    menu.setAttribute(Qt.WA_DontShowOnScreen, True)
+                    menu.show()
+                    app.processEvents()
+                    painter = QPainter(image)
+                    painter.drawPixmap(x, y, menu.grab())
+                    painter.end()
+                    menu.close()
                 image.save(str(path))
             else:
                 widget.show()

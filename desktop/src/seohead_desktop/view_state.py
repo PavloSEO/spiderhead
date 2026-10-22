@@ -127,10 +127,10 @@ class ViewStateMixin:
                 if self.selected_managed_run_id
                 else tr("Отменить чтение")
             )
-        compact = self.centralWidget().width() < theme_tokens()["layout"][
+        compact = self.workspace_widget.width() < theme_tokens()["layout"][
             "compact_breakpoint"
         ] and self.prefs.get("view.rail_when_narrow")
-        rail = self.centralWidget().width() < 900 and bool(
+        rail = self.workspace_widget.width() < 900 and bool(
             self.prefs.get("view.rail_when_narrow")
         )  # below 900 px: icon rail
         if rail != getattr(self, "_rail", None):
@@ -166,7 +166,7 @@ class ViewStateMixin:
             and event.type() == QEvent.Resize
         ):
             self.fit_url_columns()
-        if watched is self.centralWidget() and event.type() == QEvent.Resize:
+        if watched is self.workspace_widget and event.type() == QEvent.Resize:
             self.sync_workspace_width()
         return super().eventFilter(watched, event)
 

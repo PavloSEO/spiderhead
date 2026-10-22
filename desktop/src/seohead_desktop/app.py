@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QMainWindow,
     QShortcut,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -227,7 +228,13 @@ class MainWindow(
 
         workspace = QWidget()
         workspace.setObjectName("workspace")
-        self.setCentralWidget(workspace)
+        self.workspace_widget = (
+            workspace  # the agent display; Simple mode is a sibling page of the stack
+        )
+        self.mode_stack = QStackedWidget()
+        self.mode_stack.addWidget(workspace)
+        self.setCentralWidget(self.mode_stack)
+        self.simple_page = None
         shell = QVBoxLayout(workspace)
         shell.setContentsMargins(0, 0, 0, 0)
         shell.setSpacing(0)
@@ -477,6 +484,8 @@ class MainWindow(
             QTimer.singleShot(0, self.restore_workspace_layout)
         QTimer.singleShot(0, lambda: keep_on_screen(self))
         self.apply_language()
+        self.install_display_menus(view_menu)
+        self.show_display_page()
 
 
 # Loaders keep updating the legacy models; screens subscribe to the change notification.
