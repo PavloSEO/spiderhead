@@ -53,7 +53,5 @@ def test_documented_sf_flags_appear_in_the_subcommand_help():
         if subcommand not in help_by_subcommand:
             help_by_subcommand[subcommand] = _sf_help([subcommand])
         used = {token for token in argv[2:] if flag_re.match(token)}
-        missing = {
-            flag for flag in used if flag not in help_by_subcommand[subcommand]
-        }
+        missing = {flag for flag in used if flag not in help_by_subcommand[subcommand]}
         assert not missing, f"`{subcommand}` help hides flags the documentation uses: {missing}"

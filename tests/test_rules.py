@@ -344,9 +344,7 @@ def test_low_text_ratio_threshold_is_configurable(tmp_path):
         writer = csv.writer(handle)
         writer.writerow(headers)
         writer.writerow(row)
-    res = run_audit(
-        input_mode="parse-exports", exports_dir=str(d), config=cfg, log=lambda m: None
-    )
+    res = run_audit(input_mode="parse-exports", exports_dir=str(d), config=cfg, log=lambda m: None)
     assert "LOW_TEXT_RATIO" not in checks_in(res), "5 percent is above a 2 percent line"
 
 

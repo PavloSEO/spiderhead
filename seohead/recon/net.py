@@ -108,6 +108,7 @@ def waf_block_reason(response: Any) -> str | None:
             return f"challenge body: {marker}"
     return None
 
+
 _DOMAIN_RE = re.compile(
     r"^(?=.{1,253}$)(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))*"
     r"\.(?!-)[a-z0-9-]*[a-z][a-z0-9-]*(?<!-)$"

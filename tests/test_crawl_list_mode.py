@@ -411,7 +411,7 @@ def test_text_ratio_ignores_inline_script_and_style_bytes():
         "<html><head><title>t</title>"
         f"<style>{'body{{color:red}}' * 3000}</style>"  # ~42 KB of inline CSS
         f"<script>{'/*hydration data*/' * 5000}</script>"  # ~100 KB of inline code
-        "<script type=\"application/ld+json\">{\"@type\":\"WebPage\"}</script>"
+        '<script type="application/ld+json">{"@type":"WebPage"}</script>'
         "</head><body><p>" + words + "</p></body></html>"
     )
     assert len(body.encode()) > 100_000, "fixture must be genuinely script-dominated"
