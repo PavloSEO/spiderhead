@@ -193,6 +193,45 @@ def test_product_with_name_and_offers_is_eligible():
     assert rr["missing_required_any_of"] == []
 
 
+# Issue #1413: the software-app feature requires offers (with price) plus a
+# rating or a review, so offers alone must not look eligible.
+
+
+def test_software_application_with_offers_but_no_rating_or_review_not_eligible():
+    html = _ld(
+        '{"@type":"SoftwareApplication","name":"App",'
+        '"offers":{"@type":"Offer","price":0,"priceCurrency":"USD"}}'
+    )
+    r = schema.check_schema(html=html)
+    rr = next(x for x in r["rich_results"] if x["type"] == "SoftwareApplication")
+    assert rr["eligible"] is False
+    assert rr["missing_required_any_of"] == ["aggregateRating", "review"]
+
+
+def test_software_application_with_offers_and_rating_is_eligible():
+    html = _ld(
+        '{"@type":"SoftwareApplication","name":"App",'
+        '"offers":{"@type":"Offer","price":0,"priceCurrency":"USD"},'
+        '"aggregateRating":{"@type":"AggregateRating","ratingValue":4.6,'
+        '"ratingCount":9}}'
+    )
+    r = schema.check_schema(html=html)
+    rr = next(x for x in r["rich_results"] if x["type"] == "SoftwareApplication")
+    assert rr["eligible"] is True
+    assert rr["missing_required_any_of"] == []
+
+
+def test_software_application_without_offers_reports_missing_required():
+    html = _ld(
+        '{"@type":"SoftwareApplication","name":"App",'
+        '"review":{"@type":"Review","author":{"@type":"Person","name":"Ada"}}}'
+    )
+    r = schema.check_schema(html=html)
+    rr = next(x for x in r["rich_results"] if x["type"] == "SoftwareApplication")
+    assert rr["eligible"] is False
+    assert rr["missing_required"] == ["offers"]
+
+
 def test_eligible_rich_result_carries_a_no_guarantee_disclaimer():
     # Issue #253/#255: a structural "eligible" verdict must never read as a promise
     # that Google will actually display the rich result.

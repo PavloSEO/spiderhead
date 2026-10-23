@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-10",
+  "version": "2026-10-23",
   "rules": {
     "Article": {
       "google_feature": "Article",
@@ -142,13 +142,16 @@
     },
     "SoftwareApplication": {
       "required": [
-        "name"
+        "name",
+        "offers"
+      ],
+      "required_any": [
+        "aggregateRating",
+        "review"
       ],
       "recommended": [
         "applicationCategory",
-        "operatingSystem",
-        "offers",
-        "aggregateRating"
+        "operatingSystem"
       ]
     },
     "Service": {
