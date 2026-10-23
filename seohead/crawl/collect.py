@@ -18,6 +18,7 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import re
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import asdict, dataclass, field
@@ -422,6 +423,25 @@ def _jsonld_counts(_html: str, parsed: dict) -> tuple[int, int]:
     return len(valid) + len(invalid), len(valid)
 
 
+# Script and style blocks, JSON-LD and application/json data blocks included (they
+# are script-typed). Code and data transport, not markup a reader sees: a framework
+# page carrying 100 KB of hydration JSON is not a low-text page (#1412).
+_SCRIPT_STYLE_BLOCKS_RE = re.compile(
+    r"(?is)<(script|style)\b[^>]*/>|<(script|style)\b[^>]*>.*?</\2\s*>"
+)
+
+
+def _markup_only_bytes(html: str) -> int:
+    """Length of the HTML with script and style blocks removed (#1412).
+
+    ``text_ratio`` divides visible text by this, not by the full response size:
+    dividing by the wire size made the ratio a function of how much inline code
+    a template ships, and LOW_TEXT_RATIO fired on 353 of 374 pages of a site
+    whose flagged pages carried 1300-2800 words.
+    """
+    return len(_SCRIPT_STYLE_BLOCKS_RE.sub("", html).encode("utf-8", "ignore"))
+
+
 def _apply_body(
     record: PageRecord,
     url: str,
@@ -471,8 +491,12 @@ def _apply_body(
     # Percent, not a fraction: the analyzer's threshold is a percentage and
     # the export format this projects onto uses percent too (20.0, 15.0).
     # Emitting 0.6 here made LOW_TEXT_RATIO fire on every crawled page,
-    # since 0.6 < 10 always.
-    record.text_ratio = round(text_len / record.size_bytes * 100, 2) if record.size_bytes else None
+    # since 0.6 < 10 always. The denominator is the markup without script
+    # and style blocks (#1412), not ``record.size_bytes``: that one stays the
+    # wire size every other check measures against, and dividing text by it
+    # made the ratio a measure of inline code volume instead of content.
+    markup_len = _markup_only_bytes(body)
+    record.text_ratio = round(text_len / markup_len * 100, 2) if markup_len else None
     return parsed
 
 

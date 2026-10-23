@@ -1155,7 +1155,16 @@ def check_content(ctx: AuditContext) -> None:
         ratio = rec.get("text_ratio")
         if ratio is not None:
             has_text_ratio = True
-            if ratio < t["low_text_ratio_pct"]:
+            # A page whose word count already clears the thin-content line is not
+            # missing copy, whatever its ratio says: the ratio measures markup
+            # overhead per unit of text, and a template heavy enough to push it
+            # under the line fired LOW_TEXT_RATIO on 1300-2800-word pages (#1412).
+            # The same threshold THIN_CONTENT uses, deliberately -- a second,
+            # ratio-only word floor would let the two checks disagree about
+            # whether the same page has content.
+            if ratio < t["low_text_ratio_pct"] and not (
+                wc is not None and wc >= t["thin_content_words"]
+            ):
                 low_ratio.append((page.url, ratio))
         near = rec.get("near_duplicates")
         sim = rec.get("closest_similarity")
@@ -4175,6 +4184,17 @@ def check_native_exports(ctx: AuditContext) -> None:
     from .normalize import find_column, normalize_value
 
     native = native_check_ids(ctx)
+    # MISSING_HSTS_ON_REDIRECT_HOP has no SF-export counterpart: the redirect hops of
+    # the host variants are judged only by the native scan's opt-in probe (#1414),
+    # which the audit handler runs and speaks for on every crawl with a start URL.
+    # An exports audit (no stored scan, no start URL) has no way to measure it, so
+    # it states that instead of staying silent.
+    if ctx.scan_con is None and not ctx.start_url:
+        ctx.skip(
+            "MISSING_HSTS_ON_REDIRECT_HOP",
+            "host-variant redirect hops are a native-scan probe "
+            "(analysis.redirect_hop_hsts_probe); an SF export cannot measure them",
+        )
     for key, check_id in _NATIVE_EXPORT_CHECKS.items():
         if check_id in native:
             continue

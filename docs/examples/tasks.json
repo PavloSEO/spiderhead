@@ -3,18 +3,18 @@
   "source": {
     "project": "example.com",
     "site_name": "example.com",
-    "generated_at": "2026-10-22T18:51:26Z",
+    "generated_at": "2026-10-23T17:56:11Z",
     "health_score": null,
     "crawl_valid": true,
     "crawl_invalid_reason": null,
     "crawl_partial": false,
     "crawl_finish_reason": null,
     "health_score_scope": null,
-    "health_score_basis": "97 of 282 checks could run; the score is not comparable to a run with full evidence",
+    "health_score_basis": "97 of 283 checks could run; the score is not comparable to a run with full evidence",
     "check_coverage": {
-      "checks_total": 282,
+      "checks_total": 283,
       "checks_fired": 20,
-      "checks_skipped": 185,
+      "checks_skipped": 186,
       "checks_disabled": 0,
       "checks_disabled_ids": [],
       "checks_silent": 77,
@@ -97,7 +97,7 @@
         "URL_UPPERCASE",
         "YMYL_REVIEW_CANDIDATE"
       ],
-      "coverage": 0.344
+      "coverage": 0.343
     }
   },
   "pipeline": {
@@ -558,8 +558,8 @@
       "priority": "P3",
       "severity": "notice",
       "effort": "low",
-      "title": "Low text-to-HTML ratio — 1 page",
-      "fix_hint": "Increase the proportion of meaningful visible content or reduce unnecessary markup.",
+      "title": "Low text-to-HTML ratio (a native crawl measures text against markup without script, style and JSON data blocks; pages above the thin-content word threshold are never reported) — 1 page",
+      "fix_hint": "Increase the proportion of meaningful visible content or reduce unnecessary markup; a page with enough words is not missing copy, only carrying a heavy template.",
       "source": "SF-derived",
       "affected_count": 1,
       "occurrences": 1,

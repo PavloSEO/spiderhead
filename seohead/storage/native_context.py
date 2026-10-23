@@ -264,6 +264,11 @@ def validate_context(
 
         validate_target_probe(item, payload)
         return
+    if item["kind"] == "redirect_hop_probe":
+        from ..crawl.security_headers import validate_redirect_hop_probe
+
+        validate_redirect_hop_probe(item, payload)
+        return
     if item["kind"] == "resource_commit":
         if (
             not isinstance(payload, dict)

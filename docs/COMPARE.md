@@ -170,4 +170,4 @@ inputs or options cannot reuse that package.
 Use `compare-report --manifest compare/compare.json --out-file comparison.md` to
 write a new Markdown summary. It reports aggregate deltas, primary-segment counts,
 per-check counts and bounded caveats; it includes no page URLs. The report
-is limited to 64 KiB and 282 checks, and an existing destination is refused.
+is limited to 64 KiB and 283 checks, and an existing destination is refused.

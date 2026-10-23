@@ -1,14 +1,14 @@
 # SEO audit — example.com
 
-- **Generated:** 2026-10-22T18:51:26Z
+- **Generated:** 2026-10-23T17:56:11Z
 
 ## Health summary
 
-> **No health score.** only 97 of 282 checks could run (34% coverage); too little evidence to score.
+> **No health score.** only 97 of 283 checks could run (34% coverage); too little evidence to score.
 
-_97 of 282 checks could run; the score is not comparable to a run with full evidence_
+_97 of 283 checks could run; the score is not comparable to a run with full evidence_
 
-- Checks: **20 fired**, 185 skipped, 77 silent, 0 disabled (of 282 total)
+- Checks: **20 fired**, 186 skipped, 77 silent, 0 disabled (of 283 total)
 
 - URLs crawled: **6** (HTML: 4, indexable: 4)
 - Total issues: **25**
@@ -165,13 +165,13 @@ Each check below describes more than half the crawled pages. That can be true --
 
 > _How to fix:_ Reduce bytes per word by extracting styles and scripts, removing embedded base64 assets, and simplifying markup.
 
-### Low text-to-HTML ratio (1)
+### Low text-to-HTML ratio (a native crawl measures text against markup without script, style and JSON data blocks; pages above the thin-content word threshold are never reported) (1)
 
 | URL | Details |
 |---|---|
 | https://example.com/page-b | Text ratio: 8.0, Threshold: 10 |
 
-> _How to fix:_ Increase the proportion of meaningful visible content or reduce unnecessary markup.
+> _How to fix:_ Increase the proportion of meaningful visible content or reduce unnecessary markup; a page with enough words is not missing copy, only carrying a heavy template.
 
 ### No indexable About page was found in the crawl's scope (1)
 
@@ -358,6 +358,7 @@ These measurements come from retained, project-bound provider history. Registere
 | og:title is missing, so social previews may not render correctly | no Open Graph columns in Internal:All (enable OG extraction in SF) |
 | Redirect chain contains two or more hops | no redirect data (Internal:All has no Redirect URL column) |
 | Redirect loop detected | no redirect data (Internal:All has no Redirect URL column) |
+| A redirect hop between the host variants of the start URL answers without HSTS | host-variant redirect hops are a native-scan probe (analysis.redirect_hop_hsts_probe); an SF export cannot measure them |
 | Multiple <title> elements | no titles_multiple export (export this SF filter to enable) |
 | Internal link points to a 5xx URL | export inlinks_5xx not available |
 | External link points to a 4xx or 5xx URL | export inlinks_5xx not available |

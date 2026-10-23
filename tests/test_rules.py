@@ -301,10 +301,53 @@ def test_low_text_ratio_stays_silent_when_column_present_and_above_threshold(tmp
 
 def test_low_text_ratio_still_fires_when_column_present_and_below_threshold(tmp_path):
     headers = [*_BASE_COLS, "Title 1", "Meta Description 1", "H1-1", "Word Count", "Text Ratio"]
-    row = [_URL, "text/html", "200", "Indexable", _URL, "x" * 30, "d" * 80, "Heading", "500", "5"]
+    # Word count under the thin-content line: the only page a low ratio can still fault.
+    row = [_URL, "text/html", "200", "Indexable", _URL, "x" * 30, "d" * 80, "Heading", "50", "5"]
     res = _audit_with(tmp_path, headers, row)
     assert _URL in {i.target_url for i in issues_of(res, "LOW_TEXT_RATIO")}
     assert "LOW_TEXT_RATIO" not in {s.id for s in res.skipped}
+
+
+# --------------------------------------------------------------------------
+# #1412 — a low ratio on a page that is not thin is template overhead, not
+# missing copy; the finding is suppressed above the thin-content word line.
+# --------------------------------------------------------------------------
+def test_low_text_ratio_suppressed_when_word_count_clears_the_thin_line(tmp_path):
+    headers = [*_BASE_COLS, "Title 1", "Meta Description 1", "H1-1", "Word Count", "Text Ratio"]
+    row = [
+        _URL,
+        "text/html",
+        "200",
+        "Indexable",
+        _URL,
+        "x" * 30,
+        "d" * 80,
+        "Heading",
+        "2171",
+        "3.7",
+    ]
+    res = _audit_with(tmp_path, headers, row)
+    assert "LOW_TEXT_RATIO" not in checks_in(res)
+    assert "LOW_TEXT_RATIO" not in {s.id for s in res.skipped}, "the ratio was measured"
+
+
+def test_low_text_ratio_threshold_is_configurable(tmp_path):
+    from seohead.sf.config import load_config
+
+    headers = [*_BASE_COLS, "Title 1", "Meta Description 1", "H1-1", "Word Count", "Text Ratio"]
+    row = [_URL, "text/html", "200", "Indexable", _URL, "x" * 30, "d" * 80, "Heading", "50", "5"]
+    cfg = load_config(None)
+    cfg["thresholds"]["low_text_ratio_pct"] = 2
+    d = tmp_path / "exports"
+    d.mkdir()
+    with open(d / "internal_all.csv", "w", encoding="utf-8-sig", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(headers)
+        writer.writerow(row)
+    res = run_audit(
+        input_mode="parse-exports", exports_dir=str(d), config=cfg, log=lambda m: None
+    )
+    assert "LOW_TEXT_RATIO" not in checks_in(res), "5 percent is above a 2 percent line"
 
 
 def test_canonical_multiple_verdict_distinguishes_two_declarations_from_one(tmp_path):

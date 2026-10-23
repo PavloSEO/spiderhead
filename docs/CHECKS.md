@@ -6,7 +6,7 @@ Generated from `seohead/sf/core/registry.py` — do not edit by hand. Regenerate
 python scripts/generate_checks_reference.py
 ```
 
-**282 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
+**283 checks.** Severity, evidence and fix all come from the same `CHECKS` dict the rule engine reads, so this table cannot say something the engine disagrees with.
 
 - **Fires on** — what the check id means, in the registry's own words.
 - **Evidence** — the `source` tag: which export or module has to be present for the check to run at all; its absence is why a check comes back `skipped` instead of a silent pass.
@@ -106,7 +106,7 @@ python scripts/generate_checks_reference.py
 |---|---|---|---|---|
 | `THIN_CONTENT` | warning | SF-derived | Thin content (low word count) | Add substantial, useful content or exclude the page from indexing when it has no standalone search value. |
 | `CONTENT_IN_IFRAME` | warning | crawl:content_frames | The page's content sits inside an iframe and is not attributed to this URL | Serve the framed copy in the page's own HTML. A search engine attributes an iframe's text to the framed document, not to the page that frames it, so the copy exists and earns this URL nothing. |
-| `LOW_TEXT_RATIO` | notice | SF-derived | Low text-to-HTML ratio | Increase the proportion of meaningful visible content or reduce unnecessary markup. |
+| `LOW_TEXT_RATIO` | notice | SF-derived | Low text-to-HTML ratio (a native crawl measures text against markup without script, style and JSON data blocks; pages above the thin-content word threshold are never reported) | Increase the proportion of meaningful visible content or reduce unnecessary markup; a page with enough words is not missing copy, only carrying a heavy template. |
 | `DUPLICATE_BY_HASH` | warning | SF-derived | Exact duplicate content (identical hash) | Consolidate duplicates with canonicalization or rewrite them to serve distinct search intent. |
 | `NEAR_DUPLICATE` | warning | SF-derived | Near-duplicate content | Differentiate the pages with substantive content or consolidate them into one canonical page. |
 | `SEMANTIC_SIMILARITY_CANDIDATE` | notice | heuristic:explicit_embedding_adapter | Pages have adapter-measured topical similarity; review candidate | Review intent and useful internal linking. Semantic similarity alone does not prove duplicate content or cannibalization. |
@@ -334,6 +334,7 @@ python scripts/generate_checks_reference.py
 |---|---|---|---|---|
 | `MIXED_CONTENT` | warning | SF:Security:Mixed Content | Mixed content: HTTPS page loads resources over HTTP | Serve every page resource over HTTPS and update its URL accordingly. |
 | `MISSING_HSTS` | notice | SF:Security:Missing HSTS Header | HSTS header is missing | Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready. |
+| `MISSING_HSTS_ON_REDIRECT_HOP` | notice | crawl:security_headers | A redirect hop between the host variants of the start URL answers without HSTS | Send Strict-Transport-Security on every redirect response, including the www and http hosts a browser can arrive on; an upgrade hop without it leaves the first plain-HTTP request unprotected. |
 | `STRUCTURED_DATA_MISSING` | notice | SF:Structured Data:Missing | Structured data is missing | Add relevant, accurate Schema.org markup that reflects visible page content. |
 | `OG_MISSING` | notice | SF:Social:Open Graph | og:title is missing, so social previews may not render correctly | Add og:title, og:image, and og:url; at minimum, provide og:title and og:image for a useful preview. |
 | `IMG_BROKEN` | warning | crawl:images | Image URL answered with an HTTP error, so the browser shows nothing | Restore the file, or update the reference in the page template or CMS to a URL that answers 200. |

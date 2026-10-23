@@ -153,9 +153,10 @@ def test_mixed_content_is_measured_per_https_page_from_the_resource_graph():
 
 
 def test_site_wide_text_ratio_defect_is_one_finding_with_the_page_count():
+    # Word counts under the thin-content line: above it a low ratio is suppressed (#1412).
     rows = [
-        _page(f"https://e.test/{n}", **{"Text Ratio": 4.0, "Word Count": 900}) for n in range(3)
-    ] + [_page("https://e.test/ok", **{"Text Ratio": 40.0, "Word Count": 900})]
+        _page(f"https://e.test/{n}", **{"Text Ratio": 4.0, "Word Count": 90}) for n in range(3)
+    ] + [_page("https://e.test/ok", **{"Text Ratio": 40.0, "Word Count": 90})]
     ctx = _ctx(rows)
     rules.check_content(ctx)
     low = [i for i in ctx.issues if i.check == "LOW_TEXT_RATIO"]
@@ -166,7 +167,7 @@ def test_site_wide_text_ratio_defect_is_one_finding_with_the_page_count():
 
 
 def test_one_page_text_ratio_defect_keeps_its_own_row():
-    ctx = _ctx([_page("https://e.test/", **{"Text Ratio": 4.0, "Word Count": 900})])
+    ctx = _ctx([_page("https://e.test/", **{"Text Ratio": 4.0, "Word Count": 90})])
     rules.check_content(ctx)
     low = [i for i in ctx.issues if i.check == "LOW_TEXT_RATIO"]
     assert [i.target_url for i in low] == ["https://e.test/"]

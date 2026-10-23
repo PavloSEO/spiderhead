@@ -4536,6 +4536,12 @@ Read one bounded page of saved findings, optionally for one exact URL.
 
 **Cost** — network: no · writes files: no · idempotent: yes · spends money: no
 
+**Behavior and failure modes**
+
+Grouped findings answer for every member URL of their group: a URL lookup
+returns them marked ``via_group``, and each summary carries ``affected_urls``
+(the group size) beside the finding counts.
+
 ### `scan-url-history`
 
 **Category:** `scan` · **Project-aware:** yes
