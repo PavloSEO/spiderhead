@@ -11,6 +11,14 @@ Three seconds apart, with a browser user agent, recording what came back:
 curl -s -o /dev/null -w '%{http_code} -> %{redirect_url}\n' -A 'Mozilla/5.0' https://example.com/page
 ```
 
+The browser user agent is a diagnostic comparison — "is this answer specific to our crawler" —
+not a way to keep crawling a site that just blocked it.
+
+A 403 or 429 with WAF markers (`cf-mitigated`, `server: cloudflare`, `Retry-After`, a challenge
+body) is a block, not a finding about the site, and the toolkit does not bypass it: no UA
+spoofing, no proxies, no challenge solving. Respect `Retry-After`, lower the rate, ask the site's
+owner for an allowlist, or verify from a supplied export or Search Console data.
+
 Rate-limit yourself here too. Verification that hammers a host you have just finished crawling
 is the same mistake twice.
 

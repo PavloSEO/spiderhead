@@ -9,6 +9,8 @@ native crawler's own robots fetch.
 
 from __future__ import annotations
 
+import pytest
+
 from seohead.mcp import handlers
 from seohead.recon import net
 
@@ -68,6 +70,26 @@ def test_a_404_robots_response_is_treated_as_no_restrictions(monkeypatch):
     assert result["ok"] is True
     assert result["status_code"] == 404
     assert all(bot["status"] == "allowed_default" for bot in result["bots"])
+
+
+@pytest.mark.parametrize("code", [401, 403])
+def test_a_denied_robots_response_makes_no_allowed_claims(monkeypatch, code):
+    """#1364: a WAF-refused robots.txt must not become 'allowed by default'.
+
+    The server refused to serve the rules, so the file may exist and every
+    per-bot verdict would be a permission claim without evidence.
+    """
+    _serve(monkeypatch, _Response(code, "<html>Access denied</html>"))
+
+    result = handlers.ai_bots_check(url="https://site.invalid/path")
+
+    assert result["ok"] is False
+    assert result["status_code"] == code
+    assert result["robots_url"] == "https://site.invalid/robots.txt"
+    assert "access denied" in result["error"]
+    # No per-bot verdicts and no summary exist to quote as "allowed".
+    assert "bots" not in result
+    assert "summary" not in result
 
 
 def test_explicit_robots_text_bypasses_the_http_status_branch_entirely(monkeypatch):
