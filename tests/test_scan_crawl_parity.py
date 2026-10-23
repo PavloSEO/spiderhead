@@ -107,6 +107,7 @@ def _scan_records(path):
                     "trust_signals": "trust_signals_json",
                     "duplicate_ids": "duplicate_ids_json",
                     "canonical_chain": "canonical_chain_json",
+                    "invalid_link_targets": "invalid_link_targets_json",
                 }.get(field.name, field.name)
                 value = row[source]
                 if source in {"link_placement_json", "trust_signals_json", "duplicate_ids_json"}:
@@ -118,6 +119,7 @@ def _scan_records(path):
                     "hreflang_json",
                     "heading_outline_json",
                     "canonical_chain_json",
+                    "invalid_link_targets_json",
                 }:
                     value = json.loads(value) if value is not None else []
                 elif field.name in bools and value is not None:
