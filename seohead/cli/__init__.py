@@ -2233,7 +2233,14 @@ def _add_flags(sub: argparse.ArgumentParser, cmd: str) -> None:
         sub.add_argument("--ip", help="IP address or subnet filter")
     if cmd in ("log-analyze", "logs-bots"):
         sub.add_argument(
-            "--verify-bots", action="store_true", help="explicit bounded DNS verification"
+            "--verify-bots",
+            action="store_true",
+            help=(
+                "explicit bounded DNS verification against official suffixes; Google: "
+                "*.googlebot.com (common crawlers), *.google.com (AdsBot, Mediapartners, "
+                "APIs-Google, Google-InspectionTool), *.gae.googleusercontent.com "
+                "(user-triggered fetchers only)"
+            ),
         )
         sub.add_argument("--max-dns", type=int, help="maximum DNS checks, 0..100; plus one canary")
     if cmd == "logs-bots":
@@ -4227,7 +4234,9 @@ def build_parser() -> argparse.ArgumentParser:
     leaf = scenario_actions.add_parser("show")
     _add_flags(leaf, "scenario-show")
     leaf.add_argument("playbook_name", nargs="?")
-    sf = subs.add_parser("sf", help="Screaming Frog crawl audit (run | tasks | doctor)")
+    sf = subs.add_parser(
+        "sf", help="Screaming Frog crawl audit (run | tasks | doctor | save-config | snippet-edits)"
+    )
     sf.add_argument(
         "sf_args", nargs=argparse.REMAINDER, help="arguments forwarded to the sf-analyzer CLI"
     )
@@ -4307,6 +4316,11 @@ def main(argv: list[str] | None = None) -> int:
         from seohead.semantics.cli import main as semantics_main
 
         return semantics_main(raw[1:])
+    if raw[:1] == ["sf"]:
+        # The crawl-audit subsystem owns its parser, including its own --help (#1406).
+        from seohead.sf.cli import main as sf_main
+
+        return sf_main(raw[1:])
     argv, warnings = _rewrite_deprecated_scan_flags(argv)
     args = build_parser().parse_args(argv)
     if getattr(args, "list_presets", False):
@@ -4419,11 +4433,6 @@ def main(argv: list[str] | None = None) -> int:
             signal.signal(signal.SIGINT, prior_sigint)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0 if result.get("ok") else 1
-    if cmd == "sf":
-        # The crawl-audit subsystem owns its parser; preserve and forward its argument tail.
-        from seohead.sf.cli import main as sf_main
-
-        return sf_main(args.sf_args)
     if cmd == "mcp":
         if args.action:
             from seohead.mcp import mcp_control
