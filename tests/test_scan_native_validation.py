@@ -327,3 +327,11 @@ def test_page_budget_refuses_oversized_record_before_serialization(tmp_path, mon
         with pytest.raises(ScanError, match="byte limit"):
             scan.commit_page(lease, record, runtime=_runtime())
         assert scan.con.execute("SELECT COUNT(*) FROM pages").fetchone()[0] == 0
+
+
+def test_config_extension_vocabulary_is_declared_in_one_place():
+    """The writer's defaults and the reader's validator must name the same keys."""
+    from seohead.storage.native_context import CONFIG_EXTENSION_PATHS
+    from seohead.storage.native_scan import _CONFIG_EXTENSION_DEFAULTS
+
+    assert set(CONFIG_EXTENSION_PATHS) == set(_CONFIG_EXTENSION_DEFAULTS)

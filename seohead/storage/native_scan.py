@@ -85,6 +85,9 @@ _CONFIG_EXTENSION_DEFAULTS = {
     "rendering.actions": [],
     "rendering.presets": [],
     "rendering.artifacts.screenshot_mode": "full_page",
+    # The redirect-hop HSTS probe (#1414) landed after the frozen header's
+    # setting vocabulary: an older reader must not see the key at all.
+    "analysis.redirect_hop_hsts_probe": False,
 }
 _CONFIG_EXTENSION_SCHEMA = "native_config_extension.v1"
 _BODY_TABLES = ("bodies", "responses", "documents", "resource_refs")

@@ -6,6 +6,21 @@ from typing import Any
 
 from . import ScanError, _insert
 
+# Settings that live in the native_config_extension context item instead of the
+# frozen config header, so an older reader never meets a key it does not know.
+# seohead.storage.native_scan._CONFIG_EXTENSION_DEFAULTS mirrors these names
+# with their legacy defaults; a test pins the two sets together.
+CONFIG_EXTENSION_PATHS = (
+    "scope.normalize_tracking_parameters",
+    "http.auth",
+    "http.auth_acknowledged",
+    "http.zstd",
+    "rendering.actions",
+    "rendering.presets",
+    "rendering.artifacts.screenshot_mode",
+    "analysis.redirect_hop_hsts_probe",
+)
+
 
 def _validate_extraction_rule_evidence(con: Any, item: dict[str, Any], payload: Any) -> None:
     """Validate closed rule results and bind their envelope to one document."""
@@ -66,15 +81,9 @@ def validate_context(
     from . import sitemaps
 
     if item["kind"] == "native_config_extension":
-        fields = {
-            "scope.normalize_tracking_parameters",
-            "http.auth",
-            "http.auth_acknowledged",
-            "http.zstd",
-            "rendering.actions",
-            "rendering.presets",
-            "rendering.artifacts.screenshot_mode",
-        }
+        # The vocabulary seohead.storage.native_scan._CONFIG_EXTENSION_DEFAULTS
+        # also declares (with values); a test pins the two sets together.
+        fields = set(CONFIG_EXTENSION_PATHS)
         fingerprint = payload.get("effective_fingerprint") if isinstance(payload, dict) else None
         if (
             item["item_key"] != "run"

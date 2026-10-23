@@ -2450,7 +2450,8 @@ def _audit_crawl_result(
     # variants, not by stored page responses. One finding per site, naming every hop
     # that answered without the header. Offline reanalysis never re-probes: it re-judges
     # the observation retained in the scan.
-    if not settings["analysis"]["redirect_hop_hsts_probe"]:
+    # A header recorded before the setting existed carries no key: absent is off.
+    if not settings["analysis"].get("redirect_hop_hsts_probe", False):
         ctx.skip(
             security_headers.REDIRECT_HOP_CHECK,
             "opt-in probe disabled; enable analysis.redirect_hop_hsts_probe",

@@ -1159,6 +1159,7 @@ def test_native_asset_thresholds_keep_frozen_header_and_roundtrip(tmp_path, reso
     header_expected["rendering"].pop("actions")
     header_expected["rendering"].pop("presets")
     header_expected["rendering"]["artifacts"].pop("screenshot_mode")
+    header_expected["analysis"].pop("redirect_hop_hsts_probe")
     path = tmp_path / "scan.sqlite"
     with NativeScan.create(path, **metadata) as scan:
         header = dict(scan.con.execute("SELECT * FROM scan").fetchone())
