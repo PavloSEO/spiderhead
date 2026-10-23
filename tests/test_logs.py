@@ -456,7 +456,9 @@ def test_gcp_vm_ptr_is_fake_with_a_reason_naming_the_suffix(monkeypatch):
     )
     result = verify_bot_rdns("34.178.163.194", GOOGLE_CRAWLERS)
     assert result["verified"] is False
-    assert "bc.googleusercontent.com" in result["reason"]
+    # The full PTR hostname, exactly: the suffix alone is what a sloppy check
+    # would accept and what an impersonator relies on.
+    assert result["hostname"] == "194.163.178.34.bc.googleusercontent.com"
     assert "Google Cloud VM" in result["reason"]
 
 

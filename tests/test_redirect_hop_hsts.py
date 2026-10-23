@@ -18,6 +18,7 @@ import socket
 import threading
 from collections.abc import Iterator
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
 
 import pytest
 
@@ -130,7 +131,9 @@ def test_a_www_redirect_without_hsts_fires_the_finding_exactly_once(tmp_path):
     assert found[0]["target_url"] == start
     missing = found[0]["details"]["missing_hops"]
     assert [hop["status"] for hop in missing] == [301]
-    assert missing[0]["url"].startswith("http://www.site.localhost")
+    # Compare the parsed host, not a URL prefix: an exact name is the claim.
+    assert urlsplit(missing[0]["url"]).hostname == "www.site.localhost"
+    assert missing[0]["url"].startswith("http://")
     assert found[0]["details"]["hops_measured"] >= 1
 
 
