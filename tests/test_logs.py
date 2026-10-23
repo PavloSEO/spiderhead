@@ -8,7 +8,9 @@ from datetime import timezone
 import pytest
 
 from seohead.checks.logs import (
-    GOOGLE,
+    GOOGLE_CRAWLERS,
+    GOOGLE_FETCHERS,
+    GOOGLE_SPECIAL,
     _findings,
     _section,
     analyze_log,
@@ -278,7 +280,7 @@ def test_dns_deadline_does_not_change_global_socket_timeout(monkeypatch):
     monkeypatch.setattr(socket, "gethostbyaddr", blocked)
     old = socket.getdefaulttimeout()
     try:
-        result = verify_bot_rdns("192.0.2.99", GOOGLE, timeout=0.01)
+        result = verify_bot_rdns("192.0.2.99", GOOGLE_CRAWLERS, timeout=0.01)
         assert result["verified"] is None
         assert "deadline" in result["reason"]
         assert socket.getdefaulttimeout() == old
@@ -291,9 +293,9 @@ def test_ipv6_forward_confirmation_and_suffix_boundary(monkeypatch):
     monkeypatch.setattr(
         socket, "getaddrinfo", lambda *args: [(None, None, None, None, ("2001:db8::1", 0, 0, 0))]
     )
-    assert verify_bot_rdns("2001:db8::1", GOOGLE)["forward_match"] is True
+    assert verify_bot_rdns("2001:db8::1", GOOGLE_CRAWLERS)["forward_match"] is True
     monkeypatch.setattr(socket, "gethostbyaddr", lambda ip: ("evilgooglebot.com", [], [ip]))
-    assert verify_bot_rdns("2001:db8::1", GOOGLE)["verified"] is False
+    assert verify_bot_rdns("2001:db8::1", GOOGLE_CRAWLERS)["verified"] is False
 
 
 def test_max_lines_does_not_consume_the_rest_of_the_file():
@@ -366,7 +368,7 @@ def test_verify_bot_rdns_forward_lookup_unavailable_is_not_a_mismatch(monkeypatc
 
     monkeypatch.setattr(socket, "gethostbyname_ex", raise_forward)
 
-    result = verify_bot_rdns("66.249.66.1", GOOGLE)
+    result = verify_bot_rdns("66.249.66.1", GOOGLE_CRAWLERS)
     assert result["verified"] is None
     assert "forward" in result["reason"].lower()
     assert "unavailable" in result["reason"].lower()
@@ -400,9 +402,62 @@ def test_verify_bot_rdns_real_mismatch_still_flags(monkeypatch):
         lambda hostname: (hostname, [], ["9.9.9.9"]),
     )
 
-    result = verify_bot_rdns("1.2.3.4", GOOGLE)
+    result = verify_bot_rdns("1.2.3.4", GOOGLE_CRAWLERS)
     assert result["verified"] is False
     assert "does not resolve back to" in result["reason"]
+
+
+# ── Per-family Google suffix tables (#1532) ──────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    ("user_agent", "suffixes"),
+    [
+        ("Googlebot/2.1", GOOGLE_CRAWLERS),
+        ("Googlebot-Image/1.0", GOOGLE_CRAWLERS),
+        ("GoogleOther", GOOGLE_CRAWLERS),
+        ("Google-Extended", GOOGLE_CRAWLERS),
+        ("AdsBot-Google", GOOGLE_SPECIAL),
+        ("Mediapartners-Google", GOOGLE_SPECIAL),
+        ("APIs-Google", GOOGLE_SPECIAL),
+        ("Google-InspectionTool", GOOGLE_SPECIAL),
+        ("FeedFetcher-Google", GOOGLE_FETCHERS),
+    ],
+)
+def test_google_bots_verify_against_their_own_family_suffix(user_agent, suffixes):
+    """#1532: the official suffix table is per crawler family, not one shared tuple."""
+    assert detect_bot(user_agent)["rdns_suffixes"] == list(suffixes)
+
+
+def test_each_google_family_suffix_verifies_only_within_its_family(monkeypatch):
+    """A PTR hostname from every official family verifies; another family's does not."""
+    ptrs = {
+        GOOGLE_CRAWLERS: "crawl-66-249-66-1.googlebot.com",
+        GOOGLE_SPECIAL: "rate-limited-proxy-66-249-66-1.google.com",
+        GOOGLE_FETCHERS: "66-249-66-1.gae.googleusercontent.com",
+    }
+    monkeypatch.setattr(socket, "gethostbyname_ex", lambda host: (host, [], ["66.249.66.1"]))
+    for family, hostname in ptrs.items():
+        monkeypatch.setattr(socket, "gethostbyaddr", lambda ip, h=hostname: (h, [], [ip]))
+        assert verify_bot_rdns("66.249.66.1", family)["verified"] is True
+    monkeypatch.setattr(
+        socket, "gethostbyaddr", lambda ip: ("rate-limited-proxy-66-249-66-1.google.com", [], [ip])
+    )
+    assert verify_bot_rdns("66.249.66.1", GOOGLE_CRAWLERS)["verified"] is False
+
+
+def test_gcp_vm_ptr_is_fake_with_a_reason_naming_the_suffix(monkeypatch):
+    """#1532: ``*.bc.googleusercontent.com`` is a Google Cloud VM's reverse DNS, so a
+    Googlebot claim from it is an impersonator, not a merely unchecked row."""
+    monkeypatch.setattr(
+        socket,
+        "gethostbyaddr",
+        lambda ip: ("194.163.178.34.bc.googleusercontent.com", [], [ip]),
+    )
+    result = verify_bot_rdns("34.178.163.194", GOOGLE_CRAWLERS)
+    assert result["verified"] is False
+    assert "bc.googleusercontent.com" in result["reason"]
+    assert "Google Cloud VM" in result["reason"]
 
 
 def test_gzip_log_is_read_by_content_not_extension(tmp_path):
@@ -452,9 +507,9 @@ def test_stalled_dns_workers_are_bounded_across_calls(monkeypatch):
 
     monkeypatch.setattr(socket, "gethostbyaddr", blocked)
     try:
-        first = verify_bot_rdns("192.0.2.1", GOOGLE, timeout=0.01)
+        first = verify_bot_rdns("192.0.2.1", GOOGLE_CRAWLERS, timeout=0.01)
         assert first["verified"] is None and "deadline" in first["reason"]
-        second = verify_bot_rdns("192.0.2.2", GOOGLE, timeout=0.01)
+        second = verify_bot_rdns("192.0.2.2", GOOGLE_CRAWLERS, timeout=0.01)
         assert second["verified"] is None and "capacity" in second["reason"]
     finally:
         event.set()
