@@ -185,6 +185,23 @@ def _page_tool_failed(tool: str, result: dict[str, Any]) -> bool:
     return result.get("ok") is False or (tool == "parse" and _parse_results_unavailable(result))
 
 
+def _page_not_measured_reason(facts: dict[str, Any]) -> str | None:
+    """Say why a completed response is still not evidence about the URL (#1365).
+
+    A status >= 400 means the body is the server's error page, and a
+    ``blocked_by_waf`` marker (#1363) means it is the edge's challenge page:
+    either way every finding extracted from that body would describe the block,
+    not the requested URL. Returns ``None`` for a page that was measured.
+    """
+    blocked = facts.get("blocked_by_waf")
+    if blocked:
+        return f"blocked_by_waf ({blocked})"
+    status = facts.get("status_code")
+    if isinstance(status, int) and not isinstance(status, bool) and status >= 400:
+        return f"HTTP {status}"
+    return None
+
+
 def _page_row(url: str, results: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """Build one normalized page row for the Excel and Word reports."""
     parsed = results.get("parse") or {}
@@ -215,7 +232,7 @@ def _page_row(url: str, results: dict[str, dict[str, Any]]) -> dict[str, Any]:
             issues.append(f"{tool}: {rows[0]['error'] or 'no response received'}")
         for finding in (data.get("findings") or [])[:5]:
             issues.append(str(finding))
-    return {
+    row = {
         "url": url,
         "status": facts.get("status_code") or facts.get("status"),
         "title": (facts.get("title") or "")[:300],
@@ -229,6 +246,17 @@ def _page_row(url: str, results: dict[str, dict[str, Any]]) -> dict[str, Any]:
         "social_missing": len(social.get("missing") or []),
         "issues": issues,
     }
+    # An error or block body is not the requested page: the row stays (with its
+    # status) so the audit states what was requested and what came back, but
+    # nothing extracted from that body may count as a finding (#1365).
+    not_measured = _page_not_measured_reason(facts)
+    if not_measured:
+        row["measured"] = False
+        row["not_measured_reason"] = not_measured
+        row["issues"] = []
+    else:
+        row["measured"] = True
+    return row
 
 
 def audit_site(
@@ -490,6 +518,10 @@ def audit_site(
         for text in data.get("findings") or []:
             findings.append({"source": tool, "severity": classify(str(text)), "text": str(text)})
     for page in pages:
+        if page.get("measured") is False:
+            # Nothing an error or block body produced may reach the totals
+            # (#1365); the row itself is accounted for in pages_not_measured.
+            continue
         for text in page.get("issues", []):
             text_str = str(text)
             severity = classify(text_str)
@@ -509,9 +541,13 @@ def audit_site(
 
     # Duplicate titles become visible only after pages are assembled; no isolated
     # page tool can detect them. This cross-page step caught duplicate titles in
-    # the very first production audit.
+    # the very first production audit. Unmeasured pages stay out: their titles
+    # belong to error or challenge bodies, so "the same title" would be a false
+    # warning about pages that were never seen (#1365).
     titles: dict[str, list[str]] = {}
     for page in pages:
+        if page.get("measured") is False:
+            continue
         title = (page.get("title") or "").strip()
         if title:
             titles.setdefault(title, []).append(page["url"])
@@ -552,6 +588,19 @@ def audit_site(
         level: sum(1 for f in findings if f["severity"] == level)
         for level in ("critical", "warning", "notice")
     }
+    # Requested pages the audit could not measure — error responses and
+    # bot-protection blocks (#1363/#1365). Every page the audit selected stays
+    # in ``pages`` and in ``pages_checked``; this list is the subset whose body
+    # was not evidence about the URL, so reports can say so up front.
+    pages_not_measured = [
+        {
+            "url": page.get("url"),
+            "status": page.get("status"),
+            "reason": page.get("not_measured_reason"),
+        }
+        for page in pages
+        if page.get("measured") is False
+    ]
     if crux_evidence is None:
         cwv_state = "not_requested"
     elif not cwv_assessments or all(a["overall"] == "unavailable" for a in cwv_assessments):
@@ -576,6 +625,7 @@ def audit_site(
         "field_cwv": cwv_assessments,
         "summary": {
             "pages_checked": len(pages),
+            "pages_not_measured": pages_not_measured,
             "findings_total": len(findings),
             "findings_by_severity": by_severity,
             "tools_run": sorted(

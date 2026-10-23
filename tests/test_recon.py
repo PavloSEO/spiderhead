@@ -520,3 +520,58 @@ def test_http_client_still_accepts_ordinary_kwargs():
     client, _ = http_client(5.0, headers={"X-Test": "1"})
     assert client.headers.get("x-test") == "1"
     client.close()
+
+
+# ── WAF block classification (#1363) ──────────────────────────────────────────
+
+
+class _FakeResponse:
+    """Just the two surfaces waf_block_reason reads: status and headers."""
+
+    def __init__(self, status_code, headers=None, text=""):
+        self.status_code = status_code
+        self.headers = headers or {}
+        self.text = text
+
+
+def test_cf_mitigated_403_is_a_named_block():
+    from seohead.recon.net import BLOCKED_BY_WAF, waf_block_reason
+
+    response = _FakeResponse(403, {"cf-mitigated": "challenge"})
+    assert waf_block_reason(response) == "cf-mitigated: challenge"
+    assert BLOCKED_BY_WAF == "blocked_by_waf"
+
+
+def test_cloudflare_edge_429_is_a_block_even_without_the_mitigation_header():
+    from seohead.recon.net import waf_block_reason
+
+    response = _FakeResponse(429, {"server": "cloudflare"})
+    assert waf_block_reason(response) == "cloudflare edge"
+
+
+def test_challenge_body_markers_are_detected_from_the_snippet():
+    from seohead.recon.net import waf_block_reason
+
+    body = "<html><body>Please wait... <title>Just a moment...</title>" + "x" * 9000
+    assert waf_block_reason(_FakeResponse(403, {}, body)) == "challenge body: just a moment..."
+    # Only the first bytes are inspected, so a marker below the sniff window
+    # is not evidence the classifier promises to find.
+    far = "y" * 9000 + "cdn-cgi/challenge-platform"
+    assert waf_block_reason(_FakeResponse(403, {}, far)) is None
+
+
+def test_a_plain_origin_403_stays_a_regular_error():
+    """No markers, no block: the origin refused this URL, not this client."""
+    from seohead.recon.net import waf_block_reason
+
+    body = "<html><head><title>403 Forbidden</title></head><body>Forbidden</body></html>"
+    assert waf_block_reason(_FakeResponse(403, {"server": "nginx"}, body)) is None
+
+
+def test_a_2xx_is_never_a_block_and_only_403_429_can_be():
+    from seohead.recon.net import waf_block_reason
+
+    served = _FakeResponse(200, {"server": "cloudflare"}, "cdn-cgi/challenge-platform")
+    assert waf_block_reason(served) is None
+    assert waf_block_reason(_FakeResponse(404, {"cf-mitigated": "challenge"})) is None
+    assert waf_block_reason(_FakeResponse(500, {"server": "cloudflare"})) is None

@@ -49,6 +49,65 @@ DOH_ENDPOINTS = (
 )
 RDAP_BOOTSTRAP = "https://rdap.org"
 
+# Result state a fetch carries when the edge refused the client instead of the
+# site answering (issue #1363). Detection and honest reporting only: this
+# toolkit never spoofs identifiers, proxies requests, or solves challenges to
+# get past bot protection. The operator's paths are an allowlist for the
+# crawler or auditing a supplied export.
+BLOCKED_BY_WAF = "blocked_by_waf"
+
+# ``cf-mitigated`` values that mean Cloudflare itself answered with a block.
+_CF_MITIGATED_STATES = frozenset({"challenge", "block", "managed"})
+
+# Stable literals a challenge body carries and a normal error page does not.
+_CHALLENGE_BODY_MARKERS = (
+    "cdn-cgi/challenge-platform",
+    "cf_chl_",  # challenge bootstrap options (cf_chl_opt and friends)
+    "cf-browser-verification",
+    "attention required! | cloudflare",
+    "just a moment...",
+    "checking your browser before accessing",
+    "enable javascript and cookies to continue",
+)
+
+# Only this much of a body is inspected: every marker sits near the top of a
+# challenge document, and reading megabytes to classify a block is waste.
+_CHALLENGE_SNIFF_BYTES = 8192
+
+
+def waf_block_reason(response: Any) -> str | None:
+    """Classify a 403/429 response as a bot-protection block, or return ``None``.
+
+    Returns a short reason string (``"cf-mitigated: challenge"``,
+    ``"cloudflare edge"``, ``"challenge body: just a moment..."``) when the
+    status is 403/429 and the response carries WAF markers — the
+    ``cf-mitigated`` header, a Cloudflare edge ``server`` header, or a known
+    challenge body. A plain 403 from the origin stays a regular error, and a
+    2xx response is never a block. Callers record the reason on the fetch
+    result as ``blocked_by_waf`` and report it instead of auditing the block
+    page body; see :data:`BLOCKED_BY_WAF`.
+    """
+    status = getattr(response, "status_code", None)
+    if status not in (403, 429):
+        return None
+    headers = getattr(response, "headers", None) or {}
+    mitigated = str(headers.get("cf-mitigated", "")).strip().lower()
+    if mitigated in _CF_MITIGATED_STATES:
+        return f"cf-mitigated: {mitigated}"
+    if str(headers.get("server", "")).strip().lower() == "cloudflare":
+        return "cloudflare edge"
+    try:
+        # A streamed response that was never read has no body to inspect; that
+        # is "no body evidence", not "not blocked" — but the two header checks
+        # above already covered every case where headers prove the block.
+        snippet = str(response.text or "")[:_CHALLENGE_SNIFF_BYTES].lower()
+    except Exception:
+        snippet = ""
+    for marker in _CHALLENGE_BODY_MARKERS:
+        if marker in snippet:
+            return f"challenge body: {marker}"
+    return None
+
 _DOMAIN_RE = re.compile(
     r"^(?=.{1,253}$)(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))*"
     r"\.(?!-)[a-z0-9-]*[a-z][a-z0-9-]*(?<!-)$"

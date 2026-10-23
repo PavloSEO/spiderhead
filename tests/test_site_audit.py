@@ -614,3 +614,151 @@ def test_xlsx_pages_sheet_has_description_length(tmp_path):
     row = dict(zip(headers, [cell.value for cell in ws[2]], strict=True))
     assert row["Description Length"] == 159
     assert classify("missing permissions-policy — camera access") == "notice"
+
+
+# ── error and blocked pages are not measured, not audited (#1363/#1365) ───────
+
+BLOCKED_PARSE = {
+    "count": 1,
+    "results": [
+        {
+            "url": "https://example.test/blocked",
+            "status_code": 403,
+            "ok": False,
+            "title": "Just a moment...",
+            "blocked_by_waf": "cf-mitigated: challenge",
+            "word_count": 30,
+        }
+    ],
+}
+
+ERROR_PARSE = {
+    "count": 1,
+    "results": [
+        {
+            "url": "https://example.test/gone",
+            "status_code": 410,
+            "ok": False,
+            "title": "410 Gone",
+        }
+    ],
+}
+
+
+def test_blocked_page_row_contributes_no_findings():
+    row = _page_row(
+        "https://example.test/blocked",
+        {
+            "parse": BLOCKED_PARSE,
+            "schema_check": {
+                "ok": True,
+                "findings": ["The page contains no JSON-LD blocks"],
+            },
+        },
+    )
+    assert row["measured"] is False
+    assert row["not_measured_reason"] == "blocked_by_waf (cf-mitigated: challenge)"
+    assert row["status"] == 403
+    assert row["issues"] == []
+
+
+def test_plain_error_page_row_is_not_measured_either():
+    row = _page_row("https://example.test/gone", {"parse": ERROR_PARSE})
+    assert row["measured"] is False
+    assert row["not_measured_reason"] == "HTTP 410"
+    assert row["issues"] == []
+
+
+def test_a_served_page_is_still_measured_with_its_findings():
+    row = _page_row(
+        "https://example.test/p",
+        {
+            "parse": PARSE_RESULT,
+            "schema_check": {
+                "ok": True,
+                "findings": ["The page contains no JSON-LD blocks"],
+            },
+        },
+    )
+    assert row["measured"] is True
+    assert "not_measured_reason" not in row
+    assert any("no JSON-LD" in issue for issue in row["issues"])
+
+
+def _blocked_and_served_audit():
+    """Two requested pages: one WAF-blocked 403, one healthy 200; no site tools."""
+
+    def fake_parse(url: str) -> dict:
+        if url.endswith("/blocked"):
+            return BLOCKED_PARSE
+        return {
+            "count": 1,
+            "results": [
+                {
+                    "url": url,
+                    "status_code": 200,
+                    "ok": True,
+                    "title": "Shared title",
+                    "meta_description": "served page",
+                    "word_count": 640,
+                }
+            ],
+        }
+
+    def fake_schema_check(url: str) -> dict:
+        if url.endswith("/blocked"):
+            return {
+                "ok": True,
+                "findings": [
+                    "The page returned HTTP 403: what follows "
+                    "describes the error page, not the requested URL",
+                    "The page contains no JSON-LD blocks",
+                ],
+            }
+        return {"ok": True, "findings": []}
+
+    tools = {
+        **handlers.HANDLERS,
+        "parse": fake_parse,
+        "schema_check": fake_schema_check,
+        "social_meta_check": lambda url: {"ok": True, "missing": []},
+    }
+    return audit_site(
+        "https://example.test/",
+        urls=["https://example.test/blocked", "https://example.test/served"],
+        skip=list(SITE_TOOLS),
+        tools=tools,
+    )
+
+
+def test_blocked_page_counts_nowhere_and_is_listed_as_not_measured():
+    result = _blocked_and_served_audit()
+    assert result["summary"]["pages_checked"] == 2
+    not_measured = result["summary"]["pages_not_measured"]
+    assert not_measured == [
+        {
+            "url": "https://example.test/blocked",
+            "status": 403,
+            "reason": "blocked_by_waf (cf-mitigated: challenge)",
+        }
+    ]
+    # Nothing extracted from the challenge body may reach the findings totals,
+    # and the block page's title must not fabricate a duplicate-title warning
+    # against the one page that was actually measured.
+    assert result["findings"] == []
+    assert result["summary"]["findings_by_severity"] == {"critical": 0, "warning": 0, "notice": 0}
+    blocked = next(p for p in result["pages"] if p["url"].endswith("/blocked"))
+    served = next(p for p in result["pages"] if p["url"].endswith("/served"))
+    assert blocked["measured"] is False and blocked["issues"] == []
+    assert served["measured"] is True
+
+
+def test_markdown_header_names_the_pages_that_could_not_be_measured(tmp_path):
+    result = _blocked_and_served_audit()
+    target = tmp_path / "r.md"
+    build_report(result, fmt="md", path=str(target))
+    text = target.read_text(encoding="utf-8")
+    assert "1 of 2 requested pages could not be measured" in text
+    assert "https://example.test/blocked" in text
+    assert "blocked_by_waf (cf-mitigated: challenge)" in text
+    assert "status 403" in text
