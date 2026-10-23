@@ -174,6 +174,202 @@ def test_v2_pages_and_details_never_materialize_graph_or_cache_large_issue_set(
     assert observer.findings_page(root, query="no-match")["counts"]["matched"] == 0
 
 
+_GROUPED_MEMBERS = [f"https://example.test/grouped-{index}" for index in range(5)]
+_GROUPED_ISSUE = {
+    "id": "1",
+    "check": "LOW_TEXT_RATIO",
+    "severity": "warning",
+    "source": "native",
+    "message": "Text ratio is below the threshold",
+    "target_url": _GROUPED_MEMBERS[0],
+    "occurrences_count": 5,
+    "group_id": "GRP-LOWTE-0001",
+}
+_GROUPED_GROUP = {
+    "group_id": "GRP-LOWTE-0001",
+    "check": "LOW_TEXT_RATIO",
+    "value": None,
+    "urls": _GROUPED_MEMBERS,
+    "count": 5,
+}
+
+
+def _grouped_v2_scan(root) -> None:
+    """One grouped finding over five URLs, stored in an audit.v2 companion."""
+    path = root / "scans" / "grouped.sqlite"
+    binding = _scan(path)
+    write_audit_v2(
+        path,
+        {
+            "schema_version": "2.0",
+            "run": {"source": "https://example.test/"},
+            "issues": [],
+            "pages": [],
+            "groups": [],
+        },
+        {
+            "/issues": [_GROUPED_ISSUE],
+            "/groups": [_GROUPED_GROUP],
+        },
+        binding,
+    )
+
+
+def _grouped_legacy_scan(root) -> None:
+    """The same single grouped finding, stored in the bounded legacy audit slot."""
+    from seohead.crawl.collect import PageRecord
+    from seohead.crawl.settings import manifest
+    from seohead.storage.native_scan import NativeScan
+    from tests.test_scan_native import _metadata, _runtime
+
+    path = root / "scans" / "grouped.sqlite"
+    meta = _metadata()
+    with NativeScan.create(path, **meta) as scan:
+        for url in _GROUPED_MEMBERS:
+            scan.enqueue([(url, 0)])
+            lease = scan.claim(1)[0]
+            scan.commit_page(
+                lease,
+                vars(
+                    PageRecord(
+                        url=lease.url,
+                        content_type="text/html",
+                        title="synthetic",
+                        crawl_depth=0,
+                    )
+                ),
+                runtime=_runtime(),
+            )
+        scan.save_audit(
+            {
+                "schema_version": "2.0",
+                "tool": {"name": "seohead", "version": meta["writer_version"]},
+                "run": {
+                    "input_mode": "crawl",
+                    "source": "https://example.test/",
+                    "generated_at": "2026-10-23T00:00:00Z",
+                    "crawl_config": manifest(meta["config"]),
+                    "crawl_partial": False,
+                    "scan_uuid": scan.con.execute(
+                        "SELECT scan_uuid FROM scan WHERE singleton=1"
+                    ).fetchone()[0],
+                },
+                "summary": {
+                    "totals": {},
+                    "by_severity": {"critical": 0, "warning": 1, "notice": 0},
+                    "by_check": {"LOW_TEXT_RATIO": 1},
+                    "health_score": 100,
+                },
+                "issues": [_GROUPED_ISSUE],
+                "pages": [
+                    {"url": url, "status_code": 200, "metrics": {"representation": "static"}}
+                    for url in _GROUPED_MEMBERS
+                ],
+                "groups": [_GROUPED_GROUP],
+            }
+        )
+        assert scan.finish_capture("grouped finding fixture")
+
+
+def _grouped_v2_rev2_scan(root) -> None:
+    """The same grouped finding in an audit.v2 companion at storage revision 2.
+
+    Revision 2 kept whole member arrays in the group rows and had no
+    ``group_members`` table; retained scans written before the revision 3
+    upgrade must answer the same lookup questions.
+    """
+    import sqlite3
+
+    from seohead.storage.audit_v2 import (
+        APPLICATION_ID,
+        _digest_item,
+        _digest_start,
+        audit_v2_path,
+    )
+
+    path = root / "scans" / "grouped.sqlite"
+    binding = _scan(path)
+
+    def encode(value):
+        return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+    rows = [
+        ("/groups", 0, encode(_GROUPED_GROUP)),
+        ("/issues", 0, encode(_GROUPED_ISSUE)),
+    ]
+    header = {
+        "schema_version": "2.0",
+        "run": {"source": "https://example.test/"},
+        "issues": {"$audit_v2_collection": "/issues", "count": 1},
+        "groups": {"$audit_v2_collection": "/groups", "count": 1},
+    }
+    binding_json, header_json = encode(binding), encode(header)
+    digest = _digest_start(binding_json, header_json, 2)
+    for pointer, ordinal, value_json in rows:
+        _digest_item(digest, pointer, ordinal, value_json)
+    with sqlite3.connect(audit_v2_path(path)) as con:
+        con.executescript(
+            """
+CREATE TABLE audit_meta (
+    singleton INTEGER PRIMARY KEY CHECK (singleton = 1),
+    format_version TEXT NOT NULL CHECK (format_version = 'audit.v2'),
+    binding_json TEXT NOT NULL,
+    header_json TEXT NOT NULL,
+    sha256 TEXT NOT NULL
+);
+CREATE TABLE collections (
+    pointer TEXT PRIMARY KEY,
+    item_count INTEGER NOT NULL CHECK (item_count >= 0)
+);
+CREATE TABLE items (
+    pointer TEXT NOT NULL REFERENCES collections(pointer),
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 0),
+    value_json TEXT NOT NULL,
+    PRIMARY KEY (pointer, ordinal)
+);
+"""
+        )
+        con.execute(f"PRAGMA application_id={APPLICATION_ID}")
+        con.execute("PRAGMA user_version=2")
+        con.execute(
+            "INSERT INTO audit_meta VALUES(1,'audit.v2',?,?,?)",
+            (binding_json, header_json, digest.hexdigest()),
+        )
+        con.execute("INSERT INTO collections VALUES('/issues',1)")
+        con.execute("INSERT INTO collections VALUES('/groups',1)")
+        for pointer, ordinal, value_json in rows:
+            con.execute("INSERT INTO items VALUES (?,?,?)", (pointer, ordinal, value_json))
+
+
+@pytest.mark.parametrize("store", ["audit-v2", "audit-v2-rev2", "legacy"])
+def test_grouped_finding_reports_affected_urls_and_answers_every_member_url(tmp_path, store):
+    """A grouped finding is one row that still speaks for all of its member URLs (#1411)."""
+    root = _project(tmp_path)
+    builders = {
+        "audit-v2": _grouped_v2_scan,
+        "audit-v2-rev2": _grouped_v2_rev2_scan,
+        "legacy": _grouped_legacy_scan,
+    }
+    builders[store](root)
+
+    page = observer.findings_page(root)
+    assert page["counts"]["matched"] == 1
+    grouped = page["items"][0]
+    assert grouped["check"] == "LOW_TEXT_RATIO"
+    assert grouped["affected_urls"] == 5
+    assert "via_group" not in grouped
+
+    for url in _GROUPED_MEMBERS:
+        by_url = observer.findings_page(root, url=url)
+        assert by_url["counts"]["matched"] == 1
+        assert by_url["items"][0]["check"] == "LOW_TEXT_RATIO"
+        assert by_url["items"][0]["affected_urls"] == 5
+        assert by_url["items"][0]["via_group"] is True
+
+    outsider = observer.findings_page(root, url="https://example.test/clean")
+    assert outsider["counts"]["matched"] == 0
+
+
 def test_checklist_filter_pages_and_detail_keep_user_task_history(tmp_path):
     root = _project(tmp_path)
     initialize_coverage(root)

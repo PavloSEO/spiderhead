@@ -4429,7 +4429,12 @@ def build_server(profile: str = "full", progress_notifications: bool = False):  
         sort: str = "severity",
         descending: bool = False,
     ) -> dict[str, Any]:
-        """Read one bounded page of saved findings, optionally for one exact URL."""
+        """Read one bounded page of saved findings, optionally for one exact URL.
+
+        Grouped findings answer for every member URL of their group: a URL lookup
+        returns them marked ``via_group``, and each summary carries ``affected_urls``
+        (the group size) beside the finding counts.
+        """
         return _checked(
             handlers.scan_findings_page(
                 project=project,
