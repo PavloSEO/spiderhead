@@ -2425,8 +2425,9 @@ class NativeScan:
         if set(record) - source_names:
             raise ScanError(f"page record has unknown fields: {sorted(set(record) - source_names)}")
         for name in _PAGE_NONNEGATIVE_INTS:
+            # Nullable measurements (#1516): absent/None is unmeasured, never zero.
             value = record.get(name)
-            if type(value) is not int or value < 0:
+            if value is not None and (type(value) is not int or value < 0):
                 raise ScanError(f"pages.{name}: expected a nonnegative integer")
         if record.get("content_frames_same_origin", 0) > record.get("content_frames", 0):
             raise ScanError("pages.content_frames_same_origin exceeds content_frames")

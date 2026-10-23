@@ -651,10 +651,10 @@ def test_non_html_static_documents_do_not_claim_html_coverage_and_missing_captur
         "url_id,page_ordinal,document_id,status_code,content_type,size_bytes,response_time,redirect_url,"
         "title,meta_description,h1,h1_2,h2,canonical,meta_robots,x_robots,og_title,og_description,"
         "og_image,word_count,text_ratio,content_frames,content_frames_same_origin,crawl_depth,"
-        "content_encoding,charset,doctype,viewport,head_count,body_count,head_not_first,"
+        "content_encoding,charset,doctype,viewport,transport_upgraded,head_count,body_count,head_not_first,"
         "invalid_head_elements,outlinks,external_outlinks,jsonld_blocks_found,jsonld_blocks_parsed,"
         "error,error_kind,cache_status,representation,redirect_chain_json,final_url) "
-        "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         (
             missing_url_id,
             0,
@@ -684,6 +684,7 @@ def test_non_html_static_documents_do_not_claim_html_coverage_and_missing_captur
             "",
             "",
             "",
+            0,
             0,
             0,
             0,

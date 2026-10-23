@@ -24,8 +24,8 @@ def _graph() -> AnalysisGraph:
     )
     for url_id, ordinal, representation in ((1, 0, "rendered"), (4, 1, "static")):
         con.execute(
-            "INSERT INTO pages(url_id,page_ordinal,content_type,size_bytes,redirect_url,title,meta_description,h1,h1_2,h2,canonical,meta_robots,x_robots,og_title,og_description,og_image,word_count,crawl_depth,content_encoding,charset,doctype,viewport,head_count,body_count,head_not_first,invalid_head_elements,outlinks,external_outlinks,jsonld_blocks_found,jsonld_blocks_parsed,error,error_kind,cache_status,representation,redirect_chain_json,final_url) "
-            "VALUES(?,?, 'text/html',0,'','','','','','','','','','','','',0,0,'','','','',0,0,0,'',0,0,0,0,'','','',?,'[]','')",
+            "INSERT INTO pages(url_id,page_ordinal,content_type,size_bytes,redirect_url,title,meta_description,h1,h1_2,h2,canonical,meta_robots,x_robots,og_title,og_description,og_image,word_count,crawl_depth,content_encoding,charset,doctype,viewport,transport_upgraded,head_count,body_count,head_not_first,invalid_head_elements,outlinks,external_outlinks,jsonld_blocks_found,jsonld_blocks_parsed,error,error_kind,cache_status,representation,redirect_chain_json,final_url) "
+            "VALUES(?,?, 'text/html',0,'','','','','','','','','','','','',0,0,'','','','',0,0,0,0,'',0,0,0,0,'','','',?,'[]','')",
             (url_id, ordinal, representation),
         )
     rows = [
@@ -37,7 +37,7 @@ def _graph() -> AnalysisGraph:
     ]
     for source, destination, representation, ordinal, anchor, nofollow in rows:
         con.execute(
-            "INSERT INTO links(source_url_id,destination_url_id,source_document_id,evidence_representation,ordinal,anchor,nofollow,position,rel_json,target,raw_href) VALUES(?,?,NULL,?,?,?,?,'','[]','','')",
+            "INSERT INTO links(source_url_id,destination_url_id,source_document_id,evidence_representation,ordinal,anchor,anchor_source,nofollow,position,rel_json,target,raw_href) VALUES(?,?,NULL,?,?,?,'',?,'','[]','','')",
             (source, destination, representation, ordinal, anchor, nofollow),
         )
     return AnalysisGraph(con, normalize=lambda value: value, site_host="example.test")

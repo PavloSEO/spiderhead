@@ -334,6 +334,10 @@ class ParsedPage(_ParsedPageOptional):
     content_text: str
     content_area_strategy: str
     word_count: int
+    # Reading level over the same retained content area (#1516): the
+    # reading_ease result. None when the area holds no word with a letter --
+    # unmeasured, never zero.
+    readability: dict[str, Any] | None
     # Always extracted: see parse_html. Empty when the page declares none.
     hreflang: list[HreflangAlternate]
     # Every <iframe> the document declares -- see FrameInfo. Empty when the

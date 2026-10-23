@@ -74,23 +74,35 @@ def _graph(tmp_path):
         raw_href="",
         representation="static",
     ):
+        # Same PRAGMA-driven fill as page(): a NOT NULL column added to links
+        # after this file was written (anchor_source, #1518) arrives with the
+        # empty value of its type instead of breaking every test here.
+        given = {
+            "source_url_id": ids[source],
+            "destination_url_id": url(destination),
+            "evidence_representation": representation,
+            "ordinal": con.execute(
+                "SELECT COUNT(*) FROM links WHERE source_url_id=?", (ids[source],)
+            ).fetchone()[0],
+            "anchor": "anchor",
+            "nofollow": int(nofollow),
+            "position": position,
+            "rel_json": json.dumps(list(rel)),
+            "target": target,
+            "raw_href": raw_href,
+        }
+        row = {}
+        for column in con.execute("PRAGMA table_info(links)"):
+            name = column["name"]
+            if name in given:
+                row[name] = given[name]
+            elif not column["notnull"]:
+                row[name] = None
+            else:
+                row[name] = 0 if column["type"].upper() in ("INTEGER", "REAL") else ""
         con.execute(
-            "INSERT INTO links(source_url_id,destination_url_id,evidence_representation,ordinal,anchor,"
-            "nofollow,position,rel_json,target,raw_href) VALUES(?,?,?,?,?,?,?,?,?,?)",
-            (
-                ids[source],
-                url(destination),
-                representation,
-                con.execute(
-                    "SELECT COUNT(*) FROM links WHERE source_url_id=?", (ids[source],)
-                ).fetchone()[0],
-                "anchor",
-                int(nofollow),
-                position,
-                json.dumps(list(rel)),
-                target,
-                raw_href,
-            ),
+            f"INSERT INTO links({','.join(row)}) VALUES({','.join('?' * len(row))})",
+            tuple(row.values()),
         )
 
     def form(page_url, method, action, has_password):

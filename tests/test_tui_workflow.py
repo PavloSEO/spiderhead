@@ -275,9 +275,9 @@ def test_site_inventory_opens_competitor_scan_without_mixing_owner_artifacts(tmp
     state.handle_key("char:s")
     scans = _read_view(str(root), state, snapshot)
     assert state.watch_section == "scans"
-    assert len(scans["items"]) == 1 and scans["items"][0]["path"] == str(
-        child / "scans" / "competitor.sqlite"
-    )
+    # Compact scan rows (#1397) carry uuid, not path; the competitor binding
+    # itself is proven by the findings view below.
+    assert len(scans["items"]) == 1 and scans["items"][0]["uuid"]
     _watch_lines(str(root), state, palette, None, snapshot=snapshot, data=scans)
     state.handle_key("char:5")
     findings = _read_view(str(root), state, snapshot)

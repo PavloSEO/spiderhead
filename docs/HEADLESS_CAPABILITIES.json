@@ -1,8 +1,8 @@
 {
   "schema": "seohead.headless-capabilities.v1",
   "inventory_source": "seohead.crawl.settings.describe_settings",
-  "inventory_sha256": "b0d5c5b16e2002e00154728422e25c17b14c1902df5ff5c3dbf1f0845debf477",
-  "settings_count": 123,
+  "inventory_sha256": "bdf7c1899cf4fb4aa883407a83a7720c6fbb1b76133b210f53e7247d58c7de41",
+  "settings_count": 127,
   "settings": [
     {
       "path": "analysis.asset_thresholds.page_weight_max_bytes",
@@ -82,6 +82,24 @@
       "default": [],
       "results_affecting": true,
       "description": "Post-crawl finding suppressions only; never narrows URLs fetched. Ordered rules use Python regex search on a finding's target_url, optional exact check IDs, and a required reason. First matching rule wins.",
+      "family": "analysis",
+      "implementation": "seohead/sf/core/registry.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_scan_handler_bridge.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/748",
+        "https://github.com/PavloSEO/seohead-tools/issues/816"
+      ]
+    },
+    {
+      "path": "analysis.redirect_hop_hsts_probe",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Opt-in probe of the start URL's host variants (http/https, bare/www): walks each redirect hop and records its status and Strict-Transport-Security, feeding MISSING_HSTS_ON_REDIRECT_HOP. A few live requests beyond the crawl itself.",
       "family": "analysis",
       "implementation": "seohead/sf/core/registry.py",
       "cli": "crawl-site --set path=value or --config; inventory: --config-help",
@@ -224,6 +242,24 @@
       "default": true,
       "results_affecting": true,
       "description": "Keep discovered hyperlinks in the report.",
+      "family": "discovery",
+      "implementation": "seohead/crawl/sqlite_adapter.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_crawl_settings_wired.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/746",
+        "https://github.com/PavloSEO/seohead-tools/issues/743"
+      ]
+    },
+    {
+      "path": "discovery.record_invalid_targets",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Record hrefs that cannot become fetchable link targets (unparsable syntax, a non-http(s) scheme) per page, with the raw attribute value and the rejection reason. Off by default; recorded targets are data and never enter the frontier.",
       "family": "discovery",
       "implementation": "seohead/crawl/sqlite_adapter.py",
       "cli": "crawl-site --set path=value or --config; inventory: --config-help",
@@ -668,6 +704,24 @@
       "default": 15.0,
       "results_affecting": true,
       "description": "Per-request timeout in seconds.",
+      "family": "http",
+      "implementation": "seohead/recon/net.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_crawl_proxy.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/709",
+        "https://github.com/PavloSEO/seohead-tools/issues/745"
+      ]
+    },
+    {
+      "path": "http.upgrade_to_https",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Fetch every http URL over https instead, before any request: no redirect hop is recorded for the upgrade, the two spellings collapse into one page, and each upgraded page is marked. Turn on only for hosts that enforce transport security -- a host without https answers with connection errors.",
       "family": "http",
       "implementation": "seohead/recon/net.py",
       "cli": "crawl-site --set path=value or --config; inventory: --config-help",
@@ -1991,6 +2045,23 @@
       "default": [],
       "results_affecting": true,
       "description": "Fetch only these segment names (plus 'default' when named); empty means every segment is in scope. Subsumes a subfolder-only or single-subdomain crawl without an ad-hoc scope.include_patterns regex.",
+      "family": "scope",
+      "implementation": "seohead/crawl/spider.py",
+      "cli": "crawl-site --set path=value or --config; inventory: --config-help",
+      "mcp": "seo_crawl_site overrides/config; inventory: seo_crawl_describe_settings",
+      "configuration_test": "tests/test_crawl_settings.py::test_defaults_load_and_validate",
+      "behavioral_test_reference": "tests/test_crawl_settings_wired.py",
+      "acceptance_state": "declared_surface; verify behavioral scope before claiming support",
+      "linked_acceptance_gaps": [
+        "https://github.com/PavloSEO/seohead-tools/issues/749"
+      ]
+    },
+    {
+      "path": "scope.start_folder_only",
+      "type": "bool",
+      "default": false,
+      "results_affecting": true,
+      "description": "Fetch only URLs at or below the start URL's path folder: links above the folder count as unfollowed evidence (excluded under outside_start_folder). Refused for a start URL at the host root.",
       "family": "scope",
       "implementation": "seohead/crawl/spider.py",
       "cli": "crawl-site --set path=value or --config; inventory: --config-help",

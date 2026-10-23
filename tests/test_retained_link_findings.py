@@ -57,15 +57,29 @@ def corpus(tmp_path):
         return fields["url_id"]
 
     def link(source, destination, anchor="descriptive", representation="static"):
+        # Column list comes from the schema, as in page() above: a NOT NULL
+        # column added to links later (anchor_source, #1518) must not break
+        # this fixture -- it arrives with the empty value of its type.
+        fields = {
+            "source_url_id": url(ROOT + source),
+            "destination_url_id": url(ROOT + destination),
+            "evidence_representation": representation,
+            "ordinal": con.execute("SELECT COUNT(*) FROM links").fetchone()[0],
+            "anchor": anchor,
+            "position": "body",
+        }
+        for column in con.execute("PRAGMA table_info(links)"):
+            if column["name"] not in fields:
+                fields[column["name"]] = (
+                    None
+                    if not column["notnull"]
+                    else 0
+                    if column["type"] in {"INTEGER", "REAL"}
+                    else ""
+                )
         con.execute(
-            "INSERT INTO links(source_url_id,destination_url_id,evidence_representation,ordinal,anchor,nofollow,position,rel_json,target,raw_href) VALUES(?,?,?,?,?,0,'body','[]','','')",
-            (
-                url(ROOT + source),
-                url(ROOT + destination),
-                representation,
-                con.execute("SELECT COUNT(*) FROM links").fetchone()[0],
-                anchor,
-            ),
+            f"INSERT INTO links ({','.join(fields)}) VALUES ({','.join('?' for _ in fields)})",
+            tuple(fields.values()),
         )
 
     return con, page, link
