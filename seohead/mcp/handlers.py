@@ -2450,8 +2450,20 @@ def _audit_crawl_result(
     # variants, not by stored page responses. One finding per site, naming every hop
     # that answered without the header. Offline reanalysis never re-probes: it re-judges
     # the observation retained in the scan.
-    # A header recorded before the setting existed carries no key: absent is off.
-    if not settings["analysis"].get("redirect_hop_hsts_probe", False):
+    # A recorded header carries no key at all (#1414 rides outside the frozen
+    # vocabulary): the check runs when the live setting is on, or when the scan
+    # already retains a probe observation to re-judge.
+    retained_probe_row = (
+        stored_scan.con.execute(
+            "SELECT payload_json FROM context_items WHERE kind=? AND item_key='run'",
+            (security_headers.REDIRECT_HOP_PROBE_KIND,),
+        ).fetchone()
+        if stored_scan is not None
+        else None
+    )
+    if not settings["analysis"].get("redirect_hop_hsts_probe", False) and (
+        retained_probe_row is None
+    ):
         ctx.skip(
             security_headers.REDIRECT_HOP_CHECK,
             "opt-in probe disabled; enable analysis.redirect_hop_hsts_probe",
@@ -2464,21 +2476,17 @@ def _audit_crawl_result(
     else:
         probe = None
         if offline:
-            row = (
-                stored_scan.con.execute(
-                    "SELECT payload_json FROM context_items WHERE kind=? AND item_key='run'",
-                    (security_headers.REDIRECT_HOP_PROBE_KIND,),
-                ).fetchone()
-                if stored_scan is not None
-                else None
-            )
-            if row is None:
+            if retained_probe_row is None:
                 ctx.skip(
                     security_headers.REDIRECT_HOP_CHECK,
                     "offline reanalysis has no retained redirect-hop probe result",
                 )
             else:
-                probe = json.loads(row[0])
+                probe = json.loads(retained_probe_row[0])
+        elif retained_probe_row is not None:
+            # A second live audit re-judges the retained hops; the site is not
+            # probed twice for the same scan.
+            probe = json.loads(retained_probe_row[0])
         else:
             probe = security_headers.probe_redirect_hops(
                 start_norm or url, timeout=settings["http"]["timeout_seconds"]

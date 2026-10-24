@@ -18,7 +18,6 @@ CONFIG_EXTENSION_PATHS = (
     "rendering.actions",
     "rendering.presets",
     "rendering.artifacts.screenshot_mode",
-    "analysis.redirect_hop_hsts_probe",
 )
 
 

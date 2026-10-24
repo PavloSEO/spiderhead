@@ -88,12 +88,11 @@ def test_new_config_fields_round_trip_outside_the_frozen_header(tmp_path):
     assert effective["rendering"]["artifacts"]["screenshot_mode"] == "first_screen"
     payload = json.loads(extension[0])
     assert payload["schema_version"] == "native_config_extension.v1"
-    assert (
-        payload["effective_fingerprint"]
-        == hashlib.sha256(
-            json.dumps(effective, ensure_ascii=False, sort_keys=True).encode()
-        ).hexdigest()
-    )
+    # The fingerprint binds the reconstructed effective config minus the probe
+    # toggle, which never enters the header or the extension vocabulary.
+    from seohead.storage.native_scan import _effective_config_fingerprint
+
+    assert payload["effective_fingerprint"] == _effective_config_fingerprint(effective)
 
 
 def test_legacy_config_defaults_keep_tracking_parameters_and_refuse_semantic_resume(tmp_path):
