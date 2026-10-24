@@ -9,6 +9,10 @@ Presence is what is checked, matching how Screaming Frog words these issues ("Mi
 A header sent more than once on one response is reported as DUPLICATE_SECURITY_HEADER.
 Header values are not validated. X-Frame-Options is satisfied by a CSP ``frame-ancestors``
 directive, the same rule ``seohead.recon.security`` applies to a live response.
+
+The redirect-hop HSTS probe (#1414) is the module's live exception: an opt-in walk of
+the start URL's host variants, because a redirecting host is never part of the stored
+crawl. It records observations; ``evaluate_redirect_hops`` judges them.
 """
 
 from __future__ import annotations
@@ -30,6 +34,20 @@ HEADER_CHECKS: dict[str, str] = {
 # reports absence; every check id the evaluation returns is listed in CHECK_IDS.
 DUPLICATE_CHECK = "DUPLICATE_SECURITY_HEADER"
 CHECK_IDS: tuple[str, ...] = (*HEADER_CHECKS, DUPLICATE_CHECK)
+
+# A redirect hop between the host variants of the start URL answered without HSTS (#1414).
+# Sibling of MISSING_HSTS, which judges only the final response of a crawled page: a
+# redirecting host (www to apex, http to https) is never fetched by the crawl, so the
+# header on that hop is invisible to ``evaluate`` and only the opt-in probe can see it.
+REDIRECT_HOP_CHECK = "MISSING_HSTS_ON_REDIRECT_HOP"
+
+# Retained probe payload (context_items kind / version), re-read by offline reanalysis.
+REDIRECT_HOP_PROBE_KIND = "redirect_hop_probe"
+REDIRECT_HOP_PROBE_VERSION = "redirect_hop_probe.v1"
+
+# A redirect loop between host variants is a mirror problem, not an HSTS one; the hops
+# collected before the cap are judged, the walk just stops there.
+_PROBE_MAX_HOPS = 6
 
 # Content-Security-Policy is left out on purpose: a site may send several policies, and the browser
 # enforces each one, so a repeated CSP is not a defect.
@@ -164,3 +182,138 @@ def evaluate(con: sqlite3.Connection) -> dict[str, Any]:
                 {"target_url": finding["target_url"], "header": finding["header"]}
             )
     return {"findings": findings, "pages_measured": measured, "pages_unmeasured": unmeasured}
+
+
+# --------------------------------------------------------------- redirect hops
+
+
+def probe_redirect_hops(url: str, timeout: float = 10.0) -> dict[str, Any]:
+    """Fetch the host variants of the start URL hop by hop, recording status and HSTS (#1414).
+
+    Live and opt-in (``analysis.redirect_hop_hsts_probe``). Walks the four origin
+    variants of ``seohead.recon.mirrors.build_variants`` -- https/http times
+    bare/www -- without following redirects, so every hop response is seen
+    individually. Records observations only; ``evaluate_redirect_hops`` judges
+    them, and an unreachable variant is data, not a defect.
+    """
+    import urllib.parse
+
+    from ..recon.mirrors import build_variants
+    from ..recon.net import UA, http_client
+
+    variants = [v for v in build_variants(url) if v["group"] == "origin"]
+    out: list[dict[str, Any]] = []
+    client, _http2 = http_client(
+        timeout, headers={"User-Agent": UA}, follow_redirects=False, verify=True
+    )
+    with client:
+        for variant in variants:
+            hops: list[dict[str, Any]] = []
+            error = ""
+            reachable = False
+            status = None
+            final_url = None
+            current = variant["url"]
+            for _ in range(_PROBE_MAX_HOPS):
+                try:
+                    resp = client.get(current)
+                except Exception as exc:  # Network failures are result data.
+                    error = str(exc)[:200]
+                    break
+                status = resp.status_code
+                location = resp.headers.get("location")
+                hsts = resp.headers.get("strict-transport-security", "")
+                if status in (301, 302, 303, 307, 308) and location:
+                    nxt = urllib.parse.urljoin(current, location)
+                    hops.append({"url": current, "status": status, "location": nxt, "hsts": hsts})
+                    current = nxt
+                    continue
+                reachable = True
+                final_url = current
+                break
+            else:
+                # Hop cap reached without a terminus: a suspected loop. The hops
+                # collected are real answers and stay judgeable evidence.
+                reachable = True
+            out.append(
+                {
+                    "variant": variant["variant"],
+                    "url": variant["url"],
+                    "reachable": reachable,
+                    "error": error,
+                    "hops": hops,
+                    "status": status,
+                    "final_url": final_url,
+                }
+            )
+    return {"url": url, "variants": out}
+
+
+def evaluate_redirect_hops(probe: dict[str, Any]) -> dict[str, Any]:
+    """Judge probe observations with a pure function that requires no network.
+
+    A redirect response without a non-empty ``strict-transport-security`` header
+    is the defect; a final 2xx without the header is MISSING_HSTS's business,
+    not this check's. Returns how many redirect hops were measured and the hops
+    missing the header, or ``no_redirect_hops`` when no variant answered with a
+    redirect at all -- a state with nothing to judge.
+    """
+    missing: list[dict[str, Any]] = []
+    hops_measured = 0
+    for variant in probe.get("variants") or []:
+        for hop in variant.get("hops") or []:
+            hops_measured += 1
+            if not str(hop.get("hsts", "")).strip():
+                missing.append({"variant": variant["variant"], **hop})
+    if not hops_measured:
+        return {"state": "no_redirect_hops", "hops_measured": 0, "missing": []}
+    return {"state": "measured", "hops_measured": hops_measured, "missing": missing}
+
+
+def validate_redirect_hop_probe(item: dict[str, Any], payload: Any) -> None:
+    """Reject a retained probe row the audit could not have written (#1414)."""
+    from seohead.storage import ScanError
+
+    def _hop_ok(hop: Any) -> bool:
+        return (
+            isinstance(hop, dict)
+            and set(hop) == {"url", "status", "location", "hsts"}
+            and isinstance(hop["url"], str)
+            and bool(hop["url"])
+            and type(hop["status"]) is int
+            and hop["status"] in (301, 302, 303, 307, 308)
+            and isinstance(hop["location"], str)
+            and bool(hop["location"])
+            and isinstance(hop["hsts"], str)
+        )
+
+    def _variant_ok(variant: Any) -> bool:
+        return (
+            isinstance(variant, dict)
+            and set(variant)
+            == {"variant", "url", "reachable", "error", "hops", "status", "final_url"}
+            and isinstance(variant["variant"], str)
+            and isinstance(variant["url"], str)
+            and bool(variant["url"])
+            and type(variant["reachable"]) is bool
+            and isinstance(variant["error"], str)
+            and isinstance(variant["hops"], list)
+            and all(_hop_ok(hop) for hop in variant["hops"])
+            and (variant["status"] is None or type(variant["status"]) is int)
+            and (variant["final_url"] is None or isinstance(variant["final_url"], str))
+        )
+
+    if (
+        not isinstance(payload, dict)
+        or set(payload) != {"schema_version", "url", "variants"}
+        or payload["schema_version"] != REDIRECT_HOP_PROBE_VERSION
+        or not isinstance(payload["url"], str)
+        or not payload["url"]
+        or not isinstance(payload["variants"], list)
+        or not payload["variants"]
+        or not all(_variant_ok(variant) for variant in payload["variants"])
+        or item["item_key"] != "run"
+        or item["completeness"] != "complete"
+        or item["reason"]
+    ):
+        raise ScanError("native redirect-hop probe context is invalid")

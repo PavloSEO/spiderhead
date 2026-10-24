@@ -44,7 +44,7 @@ from seohead.core.models import (
     ParseResult,
     ResourceDeclaration,
 )
-from seohead.recon.net import http_client
+from seohead.recon.net import http_client, waf_block_reason
 
 # Browser-like User-Agent: without it, bot protection (Cloudflare et al.)
 # tends to serve a challenge/block page instead of the real document.
@@ -2496,8 +2496,9 @@ def fetch_html(url: str, timeout: float | None = None) -> dict[str, Any]:
     function rather than duplicating the request logic.
 
     Returns ``{"ok", "url", "final_url", "status_code", "html"}`` on a
-    completed request, or ``{"ok": False, "url", "error"}`` on a transport
-    failure.
+    completed request — plus ``"blocked_by_waf"`` with the reason when the
+    response was a 403/429 bot-protection block (#1363) — or
+    ``{"ok": False, "url", "error"}`` on a transport failure.
     """
     try:
         resolved_timeout = float(timeout or DEFAULT_TIMEOUT)
@@ -2512,13 +2513,20 @@ def fetch_html(url: str, timeout: float | None = None) -> dict[str, Any]:
         )
         with client:
             response = client.get(url)
-        return {
+        fetched: dict[str, Any] = {
             "ok": True,
             "url": url,
             "final_url": str(response.url),
             "status_code": response.status_code,
             "html": response.text,
         }
+        # A 403/429 with WAF markers is the edge refusing this client, not the
+        # site answering about the URL (#1363). The body stays available to the
+        # caller, but the block is named so no check mistakes it for a page.
+        blocked = waf_block_reason(response)
+        if blocked:
+            fetched["blocked_by_waf"] = blocked
+        return fetched
     except Exception as exc:
         return {"ok": False, "url": url, "error": str(exc)}
 
@@ -2553,16 +2561,16 @@ def parse_url(url: str, options: dict[str, Any] | None = None) -> ParseResult:
     if not fetched["ok"]:
         return cast("ParseFailed", fetched)
     data = parse_html(fetched["html"], fetched["final_url"], options)
-    return cast(
-        "ParseFetched",
-        {
-            "url": url,
-            "final_url": fetched["final_url"],
-            "status_code": fetched["status_code"],
-            "ok": 200 <= fetched["status_code"] < 300,
-            **data,
-        },
-    )
+    fetched_fields: dict[str, Any] = {
+        "url": url,
+        "final_url": fetched["final_url"],
+        "status_code": fetched["status_code"],
+        "ok": 200 <= fetched["status_code"] < 300,
+        **data,
+    }
+    if "blocked_by_waf" in fetched:
+        fetched_fields["blocked_by_waf"] = fetched["blocked_by_waf"]
+    return cast("ParseFetched", fetched_fields)
 
 
 # ── SMOKE TEST (no network) ───────────────────────────────────────────────────

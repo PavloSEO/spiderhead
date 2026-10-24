@@ -8,6 +8,9 @@ The crawler understands:
 * gzip-compressed sitemaps (``*.gz`` files and ``Content-Encoding: gzip``),
 * nested sitemap indexes (index -> child sitemaps -> urlsets),
 * XML namespaces (they are stripped before matching element names),
+* sitemap extensions inside ``<url>`` entries — ``image:``, ``news:``, ``video:``
+  and ``xhtml:link`` hreflang alternates — retained on the entry and counted
+  separately from the page (``loc``) entries (#1560),
 * duplicate ``loc`` values across sitemaps (reported, not re-emitted),
 * a global cap on the number of URLs collected (truncation is flagged).
 
@@ -87,15 +90,19 @@ class _StreamingDeduper:
             self.duplicates += 1
             return False
         try:
-            self._sink(
-                {
-                    "loc": entry["loc"],
-                    "loc_normalized": normalized,
-                    "lastmod": entry.get("lastmod"),
-                    "changefreq": entry.get("changefreq"),
-                    "priority": entry.get("priority"),
-                }
-            )
+            payload = {
+                "loc": entry["loc"],
+                "loc_normalized": normalized,
+                "lastmod": entry.get("lastmod"),
+                "changefreq": entry.get("changefreq"),
+                "priority": entry.get("priority"),
+            }
+            # Extensions ride along when present (#1560); the five base keys above
+            # keep their exact shape for every entry, extension or not.
+            for name in ("images", "news", "videos", "alternates"):
+                if entry.get(name):
+                    payload[name] = entry[name]
+            self._sink(payload)
         except Exception:
             self.close()
             raise
@@ -222,10 +229,15 @@ def detect_host_policy(urls: list[dict]) -> dict:
 
 
 def _local_name(tag: object) -> str:
-    """Return an element's tag name with any XML namespace stripped."""
+    """Return an element's tag name with any XML namespace stripped.
+
+    A declared namespace arrives as ``{uri}name``; an *undeclared* prefix (which
+    the recovering parser tolerates rather than rejects — generators do emit
+    these) arrives raw as ``prefix:name`` and is stripped the same way (#1560).
+    """
     if not isinstance(tag, str):
         return ""
-    return tag.rsplit("}", 1)[-1]
+    return tag.rsplit("}", 1)[-1].rsplit(":", 1)[-1]
 
 
 def _child_text(element: etree._Element, name: str) -> str | None:
@@ -247,6 +259,95 @@ def _parse_priority(value: str | None) -> float | None:
         return None
 
 
+# ── Sitemap extensions inside <url> (#1560) ─────────────────────────────────
+# Simple text children retained per extension element. Namespaces are matched
+# on local names because generators emit these extensions under whatever prefix
+# they chose (Yoast, Yandex and hand-rolled exporters all differ), and neither
+# the sitemap protocol nor the extensions define a mandatory prefix.
+_IMAGE_FIELDS = ("loc", "title", "caption", "geo_location", "license")
+_NEWS_FIELDS = ("name", "publication_date", "title")
+_VIDEO_FIELDS = (
+    "thumbnail_loc",
+    "title",
+    "description",
+    "player_loc",
+    "duration",
+    "expiration_date",
+    "rating",
+    "view_count",
+    "publication_date",
+    "family_friendly",
+    "requires_subscription",
+    "live",
+    "tag",
+    "category",
+    "gallery_loc",
+    "uploader",
+)
+
+
+def _text_fields(element: etree._Element, names: tuple[str, ...]) -> dict[str, str]:
+    """Collect the non-empty text children of *element* for the given names."""
+    record: dict[str, str] = {}
+    for name in names:
+        value = _child_text(element, name)
+        if value:
+            record[name] = value
+    return record
+
+
+def _extension_records(url_el: etree._Element, base_url: str) -> dict[str, object]:
+    """Return the extension content of one ``<url>`` entry, keyed for the entry dict.
+
+    Only keys with content are returned, so an entry without extensions keeps the
+    exact ``{loc, lastmod, changefreq, priority}`` shape it always had. Relative
+    ``image:loc`` values resolve against *base_url* like page locations do.
+    """
+    images: list[dict[str, str]] = []
+    news: dict[str, str] | None = None
+    videos: list[dict[str, str]] = []
+    alternates: list[dict[str, str]] = []
+    for child in url_el:
+        name = _local_name(child.tag)
+        if name == "image":
+            record = _text_fields(child, _IMAGE_FIELDS)
+            if record.get("loc"):
+                record["loc"] = urljoin(base_url, record["loc"])
+                images.append(record)
+        elif name == "news":
+            record = _text_fields(child, _NEWS_FIELDS)
+            if not record.get("name"):
+                # Google News nests <name> inside <news:publication>.
+                for sub in child:
+                    if _local_name(sub.tag) == "publication":
+                        name_text = _child_text(sub, "name")
+                        if name_text:
+                            record["name"] = name_text
+                        break
+            if record:
+                news = record
+        elif name == "video":
+            record = _text_fields(child, _VIDEO_FIELDS)
+            if record:
+                videos.append(record)
+        elif name == "link":
+            rel = (child.get("rel") or "").strip().lower()
+            hreflang = (child.get("hreflang") or "").strip()
+            href = (child.get("href") or "").strip()
+            if rel == "alternate" and hreflang and href:
+                alternates.append({"hreflang": hreflang, "href": urljoin(base_url, href)})
+    out: dict[str, object] = {}
+    if images:
+        out["images"] = images
+    if news is not None:
+        out["news"] = news
+    if videos:
+        out["videos"] = videos
+    if alternates:
+        out["alternates"] = alternates
+    return out
+
+
 def parse_text_sitemap(text_bytes: bytes, base_url: str) -> dict:
     """Parse a plain-text sitemap with one URL per line and ``#`` comments.
 
@@ -254,10 +355,15 @@ def parse_text_sitemap(text_bytes: bytes, base_url: str) -> dict:
     non-empty line is an absolute URL. Relative references are resolved against
     ``base_url``; blank lines and comments are ignored. Pure; no network access.
     """
-    try:
-        text = text_bytes.decode("utf-8", errors="replace")
-    except (UnicodeDecodeError, AttributeError):
-        text = str(text_bytes)
+    # A byte-order mark must not become part of the first URL (#1560): some
+    # generators write .txt sitemaps with a BOM, and urljoin would happily
+    # produce a location that exists nowhere on the site.
+    if isinstance(text_bytes, str):  # tolerate a caller that already decoded
+        text = text_bytes
+    elif text_bytes.startswith((b"\xff\xfe", b"\xfe\xff")):
+        text = text_bytes.decode("utf-16", errors="replace")
+    else:
+        text = text_bytes.decode("utf-8-sig", errors="replace")
     urls: list[dict] = []
     for raw in text.splitlines():
         line = raw.strip()
@@ -293,6 +399,15 @@ def parse_sitemap(xml_bytes: bytes, base_url: str) -> dict:
             "sitemaps": [{"loc", "lastmod"}, ...],
             "urls": [{"loc", "lastmod", "changefreq", "priority"}, ...],
         }
+
+    ``urlset`` entries that carry sitemap extensions additionally hold the keys
+    ``images`` (``image:loc``/``title``/``caption``/``geo_location``/``license``),
+    ``news`` (``name``/``publication_date``/``title``), ``videos`` (the video
+    extension's simple child tags) and ``alternates`` (``xhtml:link
+    rel="alternate" hreflang`` pairs); the keys appear only when the entry has
+    that content, so plain sitemaps keep the base shape above (#1560).
+    ``lastmod`` is always retained verbatim — W3C dates, full datetimes with a
+    timezone and RFC3339 values all survive unchanged.
 
     Plain-text sitemaps (one URL per line, optional ``#`` comments) are detected
     when the body does not look like XML and recognised as ``type: "text"``.
@@ -363,6 +478,7 @@ def parse_sitemap(xml_bytes: bytes, base_url: str) -> dict:
                     "lastmod": _child_text(child, "lastmod"),
                     "changefreq": _child_text(child, "changefreq"),
                     "priority": _parse_priority(_child_text(child, "priority")),
+                    **_extension_records(child, base_url),
                 }
             )
         return {"ok": True, "type": "urlset", "sitemaps": [], "urls": urls}
@@ -462,10 +578,17 @@ def crawl(
         * ``root`` — the normalized starting URL,
         * ``count`` — number of unique URLs collected,
         * ``urls`` — ``[{"loc", "lastmod", "changefreq", "priority"}, ...]``,
+          with ``images``/``news``/``videos``/``alternates`` attached to entries
+          that carry sitemap extensions (#1560),
         * ``sitemaps`` — per-document ``{"url", "type", "count"}`` records,
         * ``duplicates`` — ``loc`` values seen more than once,
         * ``errors`` — ``{"url", "error"}`` records,
-        * ``truncated`` — ``True`` if a hard limit stopped collection.
+        * ``truncated`` — ``True`` if a hard limit stopped collection,
+
+        plus page/attachment counters kept strictly apart (#1560):
+        ``loc_entries`` (page ``<loc>`` entries — the same number as ``count``),
+        ``image_entries``, ``news_entries`` and ``video_entries`` (extension
+        attachments on the accepted entries).
     """
     try:
         root = normalize_url(url)
@@ -479,6 +602,10 @@ def crawl(
             "duplicates": [],
             "errors": [{"url": url, "error": str(exc)}],
             "truncated": False,
+            "loc_entries": 0,
+            "image_entries": 0,
+            "news_entries": 0,
+            "video_entries": 0,
         }
 
     concurrency = max(1, int(concurrency))
@@ -501,6 +628,16 @@ def crawl(
     truncated = False
     parsed_documents = 0
     discovery_errors: list[dict] = []
+    # Extension attachments on accepted entries, counted separately from the page
+    # (``loc``) population so a crawl-vs-sitemap comparison can never mix the two:
+    # a sitemap with 1,283 pages and 1,130 image:loc values is two numbers, not
+    # "2,413 URLs" (#1560).
+    extension_counts = {"image": 0, "news": 0, "video": 0}
+
+    def _count_extensions(entry: dict) -> None:
+        extension_counts["image"] += len(entry.get("images") or [])
+        extension_counts["news"] += 1 if entry.get("news") else 0
+        extension_counts["video"] += len(entry.get("videos") or [])
 
     def enqueue(target: str, source: str) -> None:
         if target not in visited and target not in queued:
@@ -632,6 +769,7 @@ def crawl(
                             if not streaming.add(entry, norm_loc):
                                 continue
                             added += 1
+                            _count_extensions(entry)
                             continue
                         if norm_loc in seen_locs:
                             duplicates.append(norm_loc)
@@ -643,23 +781,26 @@ def crawl(
                             truncated = True
                             break
                         seen_locs[norm_loc] = target
-                        all_urls.append(
-                            {
-                                # The address the sitemap published, not the normalised key.
-                                # Normalisation is right for deciding whether two entries are
-                                # the same URL and wrong for deciding what to request: a
-                                # sitemap declaring /a/ must not cause a fetch of /a, which on
-                                # most CMSes is a 301 the crawler invented for itself (#115).
-                                "loc": entry["loc"],
-                                # Kept beside it so every consumer that was comparing on the
-                                # normalised form still can, without re-deriving it.
-                                "loc_normalized": norm_loc,
-                                "lastmod": entry.get("lastmod"),
-                                "changefreq": entry.get("changefreq"),
-                                "priority": entry.get("priority"),
-                            }
-                        )
+                        stored = {
+                            # The address the sitemap published, not the normalised key.
+                            # Normalisation is right for deciding whether two entries are
+                            # the same URL and wrong for deciding what to request: a
+                            # sitemap declaring /a/ must not cause a fetch of /a, which on
+                            # most CMSes is a 301 the crawler invented for itself (#115).
+                            "loc": entry["loc"],
+                            # Kept beside it so every consumer that was comparing on the
+                            # normalised form still can, without re-deriving it.
+                            "loc_normalized": norm_loc,
+                            "lastmod": entry.get("lastmod"),
+                            "changefreq": entry.get("changefreq"),
+                            "priority": entry.get("priority"),
+                        }
+                        for name in ("images", "news", "videos", "alternates"):
+                            if entry.get(name):
+                                stored[name] = entry[name]
+                        all_urls.append(stored)
                         added += 1
+                        _count_extensions(entry)
                     sitemaps.append(
                         {
                             "url": target,
@@ -690,6 +831,12 @@ def crawl(
         "duplicate_sources": {} if sink is not None else duplicate_sources,
         "errors": errors,
         "truncated": truncated,
+        # Pages and extension attachments are counted separately (#1560): the
+        # comparison consumers of this result must never mix the two populations.
+        "loc_entries": count,
+        "image_entries": extension_counts["image"],
+        "news_entries": extension_counts["news"],
+        "video_entries": extension_counts["video"],
     }
     if discover_from_root:
         result["discovery"] = {

@@ -17,7 +17,7 @@ The shared contract: JSON out; when a source is unreachable the tool returns
 data, not an accident.
 
 The current registry has 234 commands and 250 callable tools,
-with 282 audit checks. These are inventories, not coverage on every input.
+with 283 audit checks. These are inventories, not coverage on every input.
 
 <!-- generated-command-inventory:start -->
 ## Generated command inventory
@@ -305,7 +305,9 @@ the report says `http_version_measurable: false`.
 | `hreflang-check` | hreflang annotations: x-default, self-reference, duplicates, malformed language codes | — |
 
 `robots-check` parses a successful robots.txt response. A 404 and every other 4xx response except
-429 report no robots.txt and a permissive crawl policy; a 429 or 5xx response returns `ok: false`
+401, 403 and 429 report no robots.txt and a permissive crawl policy. A 401 or 403 returns
+`state: "access_denied"` with `exists: null`: the host refused the request (often a WAF), the
+rules could not be read, and no permission is claimed. A 429 or 5xx response returns `ok: false`
 because the rules could not be read, so the command never claims crawling is allowed.
 
 ### Content and markup
@@ -551,7 +553,7 @@ without deleting its scan. The exact arguments and defaults are in the generated
 | `scan-inspect` | Reads one allowed table (`pages`, `links`, `forms`, `decisions`, `frontier`, `query_variants`, `context_items`, `responses`, `documents`, `resource_refs`, or `audit`) as a paginated view. At most 1,000 rows and 8 MiB of row payload are returned; `has_more`/`truncated` says when the caller must narrow or continue. | — |
 | `scan-url-detail` | Reads one exact native URL's bounded source HTML window, redacted request/response headers, redirect chain and forms. Query values and sensitive headers are redacted; the body window carries raw and decoded hashes. Legacy and Screaming Frog sources name this evidence as unavailable. | — |
 | `scan-body-read` | Reads one bounded retained static/rendered HTML window by exact URL, with document identity, raw-body SHA-256, decoded-text SHA-256 and encoding. Ambiguous HTTP variants require an explicit variant key; unavailable bodies remain named. | — |
-| `scan-findings-page` | Reads one sorted and filtered page of saved findings. An optional exact URL selector returns findings for that URL; it never runs checks. | — |
+| `scan-findings-page` | Reads one sorted and filtered page of saved findings. An optional exact URL selector returns findings for that URL, including grouped findings whose member URLs contain it, marked `via_group`, with `affected_urls` naming the group size; it never runs checks. | — |
 | `scan-url-counts` | Exact `filtered_total` counts of up to 100 filter sets over one saved scan in a single call — one connection and one shared time budget instead of one process per counter. Each set uses the same allow-listed filters as `scan-url-query`; a set that blows the budget returns `null` rather than failing the batch. Answers the `seohead.scan-url-counts.v1` format with per-set filters, counts and elapsed time. | — |
 | `scan-config-diff` | Field-by-field diff of the recorded crawl configurations of two saved scans (`--before` / `--after`): changed settings with both values, added, removed, an `identical` flag, over the manifest's dotted setting paths. Read-only — both scans' headers, never the sites. | — |
 | `extraction-presets` | The shipped extraction preset catalogue (name, description, rule count) — the same list `scan-extract --list-presets` prints and `seo_extraction_presets` serves over MCP. | — |
@@ -960,7 +962,7 @@ assignment or by the audit's already validated segment rules. It records
 assignment provenance and keeps candidate, declared, confirmed, and unassigned
 states separate; it does not infer a shared implementation from repeated findings.
 
-**282 checks**: 12 critical, 133 warnings, 137 notices. Sources: SF exports,
+**283 checks**: 12 critical, 133 warnings, 138 notices. Sources: SF exports,
 derived metrics, inlink exports, the sitemap module, and heuristics.
 
 Native scans with retained bodies evaluate DOM depth/node count and content-area exact/near
@@ -1036,7 +1038,7 @@ seohead mcp        # stdio
 
 ## Where to go next
 - [TOOL_REFERENCE.md](TOOL_REFERENCE.md) — every tool's arguments, types, defaults, cost, and failure modes, generated from the MCP definitions
-- [CHECKS.md](CHECKS.md) — the 282 checks the SF crawl audit runs, generated from the registry
+- [CHECKS.md](CHECKS.md) — the 283 checks the SF crawl audit runs, generated from the registry
 - [ARCHITECTURE.md](ARCHITECTURE.md) — layers, invariants, where new code goes
 - [SKILLS.md](SKILLS.md) — which skill drives which tool
 - [DECISIONS.md](DECISIONS.md) — why it was decided this way and not another

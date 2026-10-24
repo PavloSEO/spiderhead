@@ -242,12 +242,21 @@ def _seed_urls_from_sitemap(
     """Resolve and expand the sitemap(s) that should seed a crawl, if any.
 
     Returns ``{"sitemap_url": <first source, or None>, "sitemap_urls": [...],
-    "declared": [...]}``. An explicit ``sitemap`` wins and is the sole source;
-    otherwise, with ``auto_discover``, robots.txt can declare more than one
-    ``Sitemap:`` directive and every one of them is independent (RFC-wise there
-    is no "the" sitemap), so all are fetched and their URLs unioned. Neither
-    given means no seeding — the crawl behaves exactly as it did before this
-    feature existed.
+    "declared": [...], "declared_images": [...],
+    "image_entries_in_sitemap": int, "news_entries_in_sitemap": int,
+    "video_entries_in_sitemap": int}``. An explicit ``sitemap`` wins and is the
+    sole source; otherwise, with ``auto_discover``, robots.txt can declare more
+    than one ``Sitemap:`` directive and every one of them is independent
+    (RFC-wise there is no "the" sitemap), so all are fetched and their URLs
+    unioned. Neither given means no seeding — the crawl behaves exactly as it
+    did before this feature existed.
+
+    ``declared`` stays pages only — seed URLs are fetched as pages, and an
+    ``image:loc`` attachment is not a page to crawl. The attachments are kept
+    separately (#1560): ``declared_images`` feeds the reconciliation so a
+    crawled image the sitemap declares for one of its pages is never reported
+    as "not in sitemap", and the three ``*_entries_in_sitemap`` counters feed
+    the report's extension-coverage line.
     """
     from seohead.checks import sitemap as sitemap_tool
 
@@ -297,10 +306,14 @@ def _seed_urls_from_sitemap(
             "sitemap_url": None,
             "sitemap_urls": [],
             "declared": [],
+            "declared_images": [],
             "skipped_sitemaps": skipped,
         }
     declared: list[str] = []
     seen: set[str] = set()
+    declared_images: list[str] = []
+    seen_images: set[str] = set()
+    extension_totals = {"image_entries": 0, "news_entries": 0, "video_entries": 0}
     for target in targets:
         options = {"request_gate": request_gate} if request_gate is not None else {}
         if proxy_route is not None:
@@ -311,10 +324,21 @@ def _seed_urls_from_sitemap(
             if loc and loc not in seen:
                 seen.add(loc)
                 declared.append(loc)
+            for image in entry.get("images") or []:
+                image_loc = str(image.get("loc") or "")
+                if image_loc and image_loc not in seen_images:
+                    seen_images.add(image_loc)
+                    declared_images.append(image_loc)
+        for counter in extension_totals:
+            extension_totals[counter] += int(expanded.get(counter) or 0)
     return {
         "sitemap_url": targets[0],
         "sitemap_urls": targets,
         "declared": declared,
+        "declared_images": declared_images,
+        "image_entries_in_sitemap": extension_totals["image_entries"],
+        "news_entries_in_sitemap": extension_totals["news_entries"],
+        "video_entries_in_sitemap": extension_totals["video_entries"],
         "skipped_sitemaps": skipped,
     }
 
@@ -2026,7 +2050,14 @@ def _audit_crawl_result(
         if stored_sitemap is None:
             observed = [edge.destination for edge in result.links]
             reconciled = reconcile_sitemap(
-                sitemap_seed["declared"], observed, _sitemap_comparable_pages(result, url)
+                sitemap_seed["declared"],
+                observed,
+                _sitemap_comparable_pages(result, url),
+                # The sitemap's image declarations are part of the comparison
+                # (#1560): an image the crawl found that the sitemap carries as
+                # an ``image:loc`` of one of its pages is covered evidence, not
+                # a URL "not in sitemap".
+                declared_assets=sitemap_seed.get("declared_images") or None,
             )
         else:
             reconciled = stored_sitemap.materialize(100_000)
@@ -2108,6 +2139,17 @@ def _audit_crawl_result(
                 },
             )
         sitemap_summary.update(reconciled)
+        # Extension coverage, same key names run_sitemap uses, so the report's
+        # sitemap section has one schema whichever crawl mode produced it (#1560).
+        # Set only when the sitemap actually declared such entries -- a zero would
+        # read as "measured and none", which a plain sitemap never measured.
+        for name in (
+            "image_entries_in_sitemap",
+            "news_entries_in_sitemap",
+            "video_entries_in_sitemap",
+        ):
+            if sitemap_seed.get(name):
+                sitemap_summary[name] = sitemap_seed[name]
 
     # Same "native crawl produces evidence the SF export never carries" shape
     # as the sitemap reconciliation above: classification runs inside the
@@ -2402,6 +2444,96 @@ def _audit_crawl_result(
     else:
         for check_id in security_headers.CHECK_IDS:
             ctx.skip(check_id, "crawl was not stored; per-URL response headers are not retained")
+
+    # Redirect-hop HSTS (#1414): the header on a hop the crawl never fetches (www to
+    # apex, http to https) is judged by an opt-in live probe of the start URL's host
+    # variants, not by stored page responses. One finding per site, naming every hop
+    # that answered without the header. Offline reanalysis never re-probes: it re-judges
+    # the observation retained in the scan.
+    # A recorded header carries no key at all (#1414 rides outside the frozen
+    # vocabulary): the check runs when the live setting is on, or when the scan
+    # already retains a probe observation to re-judge.
+    retained_probe_row = (
+        stored_scan.con.execute(
+            "SELECT payload_json FROM context_items WHERE kind=? AND item_key='run'",
+            (security_headers.REDIRECT_HOP_PROBE_KIND,),
+        ).fetchone()
+        if stored_scan is not None
+        else None
+    )
+    if not settings["analysis"].get("redirect_hop_hsts_probe", False) and (
+        retained_probe_row is None
+    ):
+        ctx.skip(
+            security_headers.REDIRECT_HOP_CHECK,
+            "opt-in probe disabled; enable analysis.redirect_hop_hsts_probe",
+        )
+    elif not url:
+        ctx.skip(
+            security_headers.REDIRECT_HOP_CHECK,
+            "no start URL to derive host variants from",
+        )
+    else:
+        probe = None
+        if offline:
+            if retained_probe_row is None:
+                ctx.skip(
+                    security_headers.REDIRECT_HOP_CHECK,
+                    "offline reanalysis has no retained redirect-hop probe result",
+                )
+            else:
+                probe = json.loads(retained_probe_row[0])
+        elif retained_probe_row is not None:
+            # A second live audit re-judges the retained hops; the site is not
+            # probed twice for the same scan.
+            probe = json.loads(retained_probe_row[0])
+        else:
+            probe = security_headers.probe_redirect_hops(
+                start_norm or url, timeout=settings["http"]["timeout_seconds"]
+            )
+            if stored_scan is not None:
+                # Retained so a reanalysis can re-judge the same hops without
+                # touching the site again -- the discipline external checks follow.
+                stored_scan.con.execute(
+                    "INSERT OR REPLACE INTO context_items"
+                    "(kind,item_key,payload_version,payload_json,completeness,reason) "
+                    "VALUES(?,?,?,?,?,?)",
+                    (
+                        security_headers.REDIRECT_HOP_PROBE_KIND,
+                        "run",
+                        "scan_context.v1",
+                        json.dumps(
+                            {
+                                "schema_version": security_headers.REDIRECT_HOP_PROBE_VERSION,
+                                **probe,
+                            },
+                            sort_keys=True,
+                            separators=(",", ":"),
+                            ensure_ascii=False,
+                        ),
+                        "complete",
+                        "",
+                    ),
+                )
+        if probe is not None:
+            verdict = security_headers.evaluate_redirect_hops(probe)
+            if verdict["missing"]:
+                ctx.add(
+                    security_headers.REDIRECT_HOP_CHECK,
+                    target_url=probe["url"],
+                    details={
+                        "hops_measured": verdict["hops_measured"],
+                        "missing_hops": verdict["missing"][:10],
+                        "probe": "host variants of the start URL, per-hop Strict-Transport-Security",
+                    },
+                )
+            elif verdict["state"] == "no_redirect_hops":
+                ctx.skip(
+                    security_headers.REDIRECT_HOP_CHECK,
+                    "no host variant of the start URL answered with a redirect",
+                )
+            # Measured with the header on every hop: clean, and silence is the
+            # verdict every other clean header check records.
 
     if stored_scan is not None:
         from seohead.storage.retained_link_findings import RetainedLinkFindings
@@ -4143,6 +4275,21 @@ def ai_bots_check(url: str | None = None, robots_text: str | None = None) -> dic
                 "robots_url": robots_url,
                 "status_code": code,
                 "error": f"robots.txt returned {code}; rules could not be read",
+            }
+        if code in (401, 403):
+            # A 401/403 refuses the client, not the file: behind bot
+            # protection the robots.txt usually exists, and empty rules would
+            # report every AI bot "allowed by default" on evidence the server
+            # never served (#1364).
+            return {
+                "ok": False,
+                "url": url,
+                "robots_url": robots_url,
+                "status_code": code,
+                "error": (
+                    f"robots.txt returned {code}; rules could not be read "
+                    "(access denied; the response may be a WAF block)"
+                ),
             }
         # A 4xx robots.txt means "no restrictions" per RFC 9309, same as
         # tools.robots.check_robots; the response body (an error page, not

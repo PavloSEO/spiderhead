@@ -1,8 +1,8 @@
 # Audit Tasks — example.com
 
-> 97 of 282 checks could run; the score is not comparable to a run with full evidence
+> 97 of 283 checks could run; the score is not comparable to a run with full evidence
 
-- Source: audit generated at 2026-10-22T18:51:26Z (health n/a)
+- Source: audit generated at 2026-10-23T17:56:11Z (health n/a)
 - Tasks: **20** (P1: 3, P2: 8, P3: 9)
 
 ## P1 (3)
@@ -98,8 +98,8 @@
     - Reproduction: At https://example.com/page-b: Bytes per word: 1600.0.
         - https://example.com/page-b
 
-- [ ] **Low text-to-HTML ratio — 1 page** · notice · effort: low
-    - _How to fix:_ Increase the proportion of meaningful visible content or reduce unnecessary markup.
+- [ ] **Low text-to-HTML ratio (a native crawl measures text against markup without script, style and JSON data blocks; pages above the thin-content word threshold are never reported) — 1 page** · notice · effort: low
+    - _How to fix:_ Increase the proportion of meaningful visible content or reduce unnecessary markup; a page with enough words is not missing copy, only carrying a heavy template.
     - Reproduction: At https://example.com/page-b: Text ratio: 8.0.
         - https://example.com/page-b
 

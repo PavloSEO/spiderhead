@@ -403,6 +403,38 @@ def test_text_ratio_is_a_percentage_matching_the_analyzer_threshold():
     assert ratio <= 100
 
 
+# #1412 — the ratio's denominator is the markup without script/style blocks, so a
+# text-heavy framework page with a large inline payload is not a low-text page.
+def test_text_ratio_ignores_inline_script_and_style_bytes():
+    words = "word " * 600
+    body = (
+        "<html><head><title>t</title>"
+        f"<style>{'body{{color:red}}' * 3000}</style>"  # ~42 KB of inline CSS
+        f"<script>{'/*hydration data*/' * 5000}</script>"  # ~100 KB of inline code
+        '<script type="application/ld+json">{"@type":"WebPage"}</script>'
+        "</head><body><p>" + words + "</p></body></html>"
+    )
+    assert len(body.encode()) > 100_000, "fixture must be genuinely script-dominated"
+    result = collect_urls(
+        ["https://example.com/"], fetcher=_fetch({"https://example.com/": FakeResponse(body)})
+    )
+    ratio = result.pages[0].text_ratio
+    assert ratio >= 10, f"a 600-word page over stripped markup must clear the 10% line, got {ratio}"
+
+
+def test_text_ratio_stays_low_for_a_genuinely_thin_page():
+    """Heavy markup around a few words keeps a sub-threshold ratio after stripping."""
+    shell = "".join(
+        f'<div class="col-md-4 item-{n}" data-track="impressions"><span>&nbsp;</span></div>'
+        for n in range(80)
+    )
+    body = f"<html><head><title>t</title></head><body><nav>{shell}</nav><p>hello world</p></body></html>"
+    result = collect_urls(
+        ["https://example.com/"], fetcher=_fetch({"https://example.com/": FakeResponse(body)})
+    )
+    assert result.pages[0].text_ratio < 10
+
+
 # ── robots.txt in list mode, and the redirect chain (issue #21) ──────────────
 
 

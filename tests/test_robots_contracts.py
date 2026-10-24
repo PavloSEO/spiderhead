@@ -71,6 +71,57 @@ def test_404_robots_remains_a_missing_permissive_file(monkeypatch):
     assert {page.url for page in crawled.pages} == {"https://example.com/"}
 
 
+def test_410_robots_is_also_a_missing_permissive_file(monkeypatch):
+    response = Response(status_code=410)
+    monkeypatch.setattr(robots, "http_client", lambda *_args, **_kwargs: (Client(response), False))
+
+    checked = robots.check_robots("https://example.com/")
+
+    assert checked["ok"] is True
+    assert checked["exists"] is False
+    assert checked["note"] == "no robots.txt (crawl allowed)"
+    assert "state" not in checked
+
+
+@pytest.mark.parametrize("status_code", [401, 403])
+def test_denied_robots_claims_no_permission(monkeypatch, status_code):
+    """#1364: a WAF-refused robots.txt is not an absent one — no rule may be
+    invented from a body the server never let us read."""
+    response = Response(text="<html>Access denied</html>", status_code=status_code)
+    monkeypatch.setattr(robots, "http_client", lambda *_args, **_kwargs: (Client(response), False))
+
+    checked = robots.check_robots("https://example.com/", paths=["/private/"])
+
+    assert checked["ok"] is True
+    assert checked["status_code"] == status_code
+    assert checked["exists"] is None
+    assert checked["state"] == "access_denied"
+    assert checked["groups"] == []
+    assert checked["sitemaps"] == []
+    assert "could not be read" in checked["note"]
+    assert "WAF" in checked["note"]
+    # Rules that were never served cannot allow or disallow a path.
+    assert "path_checks" not in checked
+
+
+def test_200_robots_reports_parsed_rules_and_path_checks(monkeypatch):
+    response = Response(
+        text="User-agent: *\nDisallow: /private/\n\nSitemap: https://example.com/sitemap.xml"
+    )
+    monkeypatch.setattr(robots, "http_client", lambda *_args, **_kwargs: (Client(response), False))
+
+    checked = robots.check_robots("https://example.com/", paths=["/private/", "/"])
+
+    assert checked["ok"] is True
+    assert checked["status_code"] == 200
+    assert checked["exists"] is True
+    assert checked["sitemaps"] == ["https://example.com/sitemap.xml"]
+    assert checked["path_checks"] == [
+        {"path": "/private/", "allowed": False},
+        {"path": "/", "allowed": True},
+    ]
+
+
 def test_crawl_delay_closes_an_agent_run_before_the_next_agent():
     parsed = robots.parse_robots(
         "User-agent: FirstBot\nCrawl-delay: 10,5\n"

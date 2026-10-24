@@ -210,6 +210,11 @@ DEFAULTS: dict[str, Any] = {
         # Post-analysis URL-pattern suppressions. These never affect scope or
         # collection; the effective ordered policy is stored with the scan.
         "finding_exclusions": [],
+        # Opt-in live probe of the start URL's host variants (http/https, bare/www),
+        # walking each redirect hop and recording its status and HSTS header (#1414).
+        # Off by default: it is a handful of extra requests the crawl itself never
+        # makes, and without it MISSING_HSTS_ON_REDIRECT_HOP honestly skips.
+        "redirect_hop_hsts_probe": False,
     },
     "sitemaps": {
         # Seed the crawl from the sitemap declared in robots.txt (the
@@ -555,6 +560,8 @@ RESULTS_AFFECTING: frozenset[str] = frozenset(
         "scope.normalize_tracking_parameters",
         "analysis.segments",
         "analysis.finding_exclusions",
+        # The probe adds live evidence the crawl itself never collects (#1414).
+        "analysis.redirect_hop_hsts_probe",
         "analysis.canonical_policy.pagination",
         "analysis.canonical_policy.filters",
         "analysis.asset_thresholds.page_weight_max_bytes",
@@ -787,6 +794,11 @@ DESCRIPTIONS: dict[str, str] = {
         "Post-crawl finding suppressions only; never narrows URLs fetched. Ordered rules use "
         "Python regex search on a finding's target_url, optional exact check IDs, and a required "
         "reason. First matching rule wins."
+    ),
+    "analysis.redirect_hop_hsts_probe": (
+        "Opt-in probe of the start URL's host variants (http/https, bare/www): walks each "
+        "redirect hop and records its status and Strict-Transport-Security, feeding "
+        "MISSING_HSTS_ON_REDIRECT_HOP. A few live requests beyond the crawl itself."
     ),
     "analysis.canonical_policy.pagination": (
         "Ordered URL-regex policies for paginated pages: [{'pattern': ..., 'policy': "

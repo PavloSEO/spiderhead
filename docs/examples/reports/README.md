@@ -96,6 +96,8 @@ blank and do not cause an error.
  "findings_by_severity": {"critical": 1, "warning": 1, "notice": 2},
  "tools_run": ["domain_profile", "tech_detect"],
  "tools_failed": [{"tool": "log_analyze", "error": "Log file was not provided"}],
+ "pages_not_measured": [{"url": "https://example.test/gone", "status": 410,
+                          "reason": "HTTP 410"}],
  "severity_note": "Severity is assigned by the aggregator rules"}
 ```
 
@@ -103,6 +105,12 @@ blank and do not cause an error.
 could not run belongs here, and all report formats render it in a separate
 `Not covered by this report` section. A silent check must not be interpreted as
 `no problems found`; the report must distinguish those outcomes.
+
+`pages_checked` counts every requested page; `pages_not_measured` lists the
+subset whose response was an error (status >= 400) or a bot-protection block
+(`blocked_by_waf`, issue #1363). Those pages carry `measured: false` and a
+`not_measured_reason` in `pages[]` and contribute no findings, and the Markdown
+report's header states how many requested pages could not be measured (#1365).
 
 ### `site` — raw tool responses
 

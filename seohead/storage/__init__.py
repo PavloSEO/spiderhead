@@ -141,6 +141,7 @@ _PAGE_NONNEGATIVE_INTS = {
     "mobile_alternate_broken",
     "outlinks",
     "plugin_elements",
+    "sentence_count",
     "size_bytes",
     "word_count",
 }

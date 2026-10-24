@@ -263,9 +263,17 @@ def test_throttle_snapshot_saturates_ceiling_successes_without_changing_future_b
         {"delay_seconds": float("inf"), "concurrency": 1, "consecutive_ok": 0},
         {"delay_seconds": 0.5, "concurrency": 0, "consecutive_ok": 0},
         {"delay_seconds": 0.5, "concurrency": 1, "consecutive_ok": 3},
-        {"delay_seconds": 6.0, "concurrency": 1, "consecutive_ok": 0},
     ],
 )
 def test_throttle_restore_rejects_invalid_closed_state(state):
     with pytest.raises(ValueError):
         Throttle(min_delay=0.5, max_delay=5.0, max_concurrency=4).restore_state(state)
+
+
+def test_throttle_restore_clamps_out_of_bounds_delay_to_configured_politeness():
+    # A live operator rate change may have persisted a delay outside the
+    # configured bounds; a resume returns to the configured politeness
+    # instead of refusing the scan (see restore_state).
+    throttle = Throttle(min_delay=0.5, max_delay=5.0, max_concurrency=4)
+    throttle.restore_state({"delay_seconds": 6.0, "concurrency": 1, "consecutive_ok": 0})
+    assert throttle.delay == 5.0

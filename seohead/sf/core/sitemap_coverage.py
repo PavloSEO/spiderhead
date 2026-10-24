@@ -29,7 +29,6 @@ from .context import AuditContext
 from .normalize import find_column, normalize_value
 
 SITEMAP_DIRECTIVE = re.compile(r"^\s*sitemap:\s*(\S+)", re.IGNORECASE | re.MULTILINE)
-_NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 
 # Hardening bounds for the opt-in network parser.
 MAX_DOWNLOAD_BYTES = 50 * 1024 * 1024  # cap a single download
@@ -43,6 +42,29 @@ def _host(url: str) -> str:
         return urllib.parse.urlparse(url).netloc.lower()
     except (ValueError, AttributeError):
         return ""
+
+
+def _local_children(element: Any, name: str) -> list[Any]:
+    """Direct children whose local name is *name*, whatever wraps it.
+
+    Generators emit sitemaps under non-standard prefixes and occasionally under
+    a mistyped namespace URI, so elements are matched on the local name alone —
+    the same convention ``seohead/checks/sitemap.py`` already uses for the same
+    document shape (#1560).
+    """
+    return [
+        child
+        for child in element
+        if isinstance(child.tag, str) and child.tag.rsplit("}", 1)[-1].rsplit(":", 1)[-1] == name
+    ]
+
+
+def _local_text(element: Any, name: str) -> str | None:
+    """Trimmed text of the first local-name child *name*, or ``None``."""
+    for child in _local_children(element, name):
+        text = child.text
+        return text.strip() if text else None
+    return None
 
 
 # --------------------------------------------------------------------------
@@ -163,16 +185,16 @@ def _parse_sitemap_bytes(
         if failures is not None and source:
             failures.append(source)
         return []
-    tag = root.tag.split("}")[-1]
+    tag = root.tag.rsplit("}", 1)[-1].rsplit(":", 1)[-1]
     out: list[dict[str, Any]] = []
     if tag == "sitemapindex":
         if depth >= MAX_SITEMAP_DEPTH:
             if truncated is not None and source:
                 truncated.append(source)
             return []
-        sitemap_elements = list(root.findall("sm:sitemap", _NS) or root.findall("sitemap"))
+        sitemap_elements = _local_children(root, "sitemap")
         for idx, sm in enumerate(sitemap_elements):
-            loc = sm.findtext("sm:loc", namespaces=_NS) or sm.findtext("loc")
+            loc = _local_text(sm, "loc")
             if not loc:
                 continue
             loc = _resolve_sitemap_loc(loc.strip(), source)
@@ -211,24 +233,31 @@ def _parse_sitemap_bytes(
                 # ``truncated`` so callers get the same honest "incomplete evidence" signal.
                 if truncated is not None:
                     for remaining in sitemap_elements[idx + 1 :]:
-                        rloc = remaining.findtext("sm:loc", namespaces=_NS) or remaining.findtext(
-                            "loc"
-                        )
+                        rloc = _local_text(remaining, "loc")
                         if rloc:
                             truncated.append(_resolve_sitemap_loc(rloc.strip(), source))
                 break
     else:  # urlset
         declared = 0
-        for url_el in root.findall("sm:url", _NS) or root.findall("url"):
+        for url_el in _local_children(root, "url"):
             declared += 1
-            loc = url_el.findtext("sm:loc", namespaces=_NS) or url_el.findtext("loc")
-            lastmod = url_el.findtext("sm:lastmod", namespaces=_NS) or url_el.findtext("lastmod")
+            loc = _local_text(url_el, "loc")
+            lastmod = _local_text(url_el, "lastmod")
+            # Extension attachments are counted per entry, never merged into the
+            # page population: a urlset of 1,283 <loc> and 1,130 <image:loc> is
+            # two counts, not 2,413 URLs (#1560).
+            attached = {
+                "image_entries": len(_local_children(url_el, "image")),
+                "news_entries": len(_local_children(url_el, "news")),
+                "video_entries": len(_local_children(url_el, "video")),
+            }
             if loc:
                 out.append(
                     {
                         "loc": _resolve_sitemap_loc(loc.strip(), source),
                         "lastmod": (lastmod or "").strip() or None,
                         "source": source,
+                        **{k: v for k, v in attached.items() if v},
                     }
                 )
                 if len(out) >= MAX_SITEMAP_URLS:
@@ -747,6 +776,29 @@ def run_sitemap(
             "in_crawl_not_in_sitemap": len(in_crawl_not_sitemap),
             "non_200_in_sitemap": len(_urls_from_export(ctx, "sitemap_non_200")),
             "non_indexable_in_sitemap": len(_urls_from_export(ctx, "sitemap_non_indexable")),
+        }
+    )
+    # Extension coverage (#1560): image/news/video attachments, counted separately
+    # from the page entries and surfaced only when the sitemap declared any — an
+    # absent key means "none were declared", never a measured zero.
+    summary.update(
+        {
+            name: total
+            for name, total in (
+                (
+                    "image_entries_in_sitemap",
+                    sum(e.get("image_entries", 0) for e in sitemap_entries),
+                ),
+                (
+                    "news_entries_in_sitemap",
+                    sum(e.get("news_entries", 0) for e in sitemap_entries),
+                ),
+                (
+                    "video_entries_in_sitemap",
+                    sum(e.get("video_entries", 0) for e in sitemap_entries),
+                ),
+            )
+            if total
         }
     )
     if sitemap_keys:

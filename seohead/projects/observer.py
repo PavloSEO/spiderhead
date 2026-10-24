@@ -11,6 +11,7 @@ import hashlib
 import json
 import re
 from collections import OrderedDict
+from collections.abc import Iterable
 from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
@@ -320,12 +321,24 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
                     )
                     if isinstance(key, str)
                 }
-                first = reader.con.execute(
-                    "SELECT value_json FROM items WHERE pointer='/issues' ORDER BY ordinal LIMIT 20"
+                first_issues = [
+                    json.loads(item[0])
+                    for item in reader.con.execute(
+                        "SELECT value_json FROM items WHERE pointer='/issues' ORDER BY ordinal LIMIT 20"
+                    )
+                ]
+                first_sizes = _v2_group_sizes(
+                    reader, [issue.get("group_id") for issue in first_issues]
                 )
                 first = [
-                    _finding_summary(json.loads(item[0]), ordinal)
-                    for ordinal, item in enumerate(first)
+                    _finding_summary(
+                        issue,
+                        ordinal,
+                        affected_urls=first_sizes.get(issue.get("group_id"))
+                        if isinstance(issue, dict)
+                        else None,
+                    )
+                    for ordinal, issue in enumerate(first_issues)
                 ]
                 skipped = reader.header.get("run", {}).get("checks_skipped", [])
                 if "/run/checks_skipped" in reader.collections:
@@ -375,6 +388,7 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
     by_severity: dict[str, int] = {}
     by_check: dict[str, int] = {}
     finding_items = []
+    first_issues = []
     for issue in retained["issues"]:
         severity = issue.get("severity") if isinstance(issue, dict) else None
         if isinstance(severity, str):
@@ -382,20 +396,28 @@ def _read_scan_evidence(row: dict[str, Any]) -> dict[str, Any]:
         check = issue.get("check") if isinstance(issue, dict) else None
         if isinstance(check, str):
             by_check[check] = by_check.get(check, 0) + 1
-        if isinstance(issue, dict) and len(finding_items) < 20:
-            finding_items.append(
-                {
-                    key: issue.get(key)
-                    for key in (
-                        "id",
-                        "check",
-                        "severity",
-                        "target_url",
-                        "message",
-                        "fingerprint",
-                    )
-                }
+        if isinstance(issue, dict) and len(first_issues) < 20:
+            first_issues.append(issue)
+    group_sizes = (
+        _group_size_map(_legacy_groups(row), [issue.get("group_id") for issue in first_issues])
+        if any(isinstance(issue.get("group_id"), str) for issue in first_issues)
+        else {}
+    )
+    for issue in first_issues:
+        item = {
+            key: issue.get(key)
+            for key in (
+                "id",
+                "check",
+                "severity",
+                "target_url",
+                "message",
+                "fingerprint",
             )
+        }
+        if isinstance(issue.get("group_id"), str) and issue["group_id"] in group_sizes:
+            item["affected_urls"] = group_sizes[issue["group_id"]]
+        finding_items.append(item)
     evidence.update(
         findings={
             "state": "available",
@@ -676,7 +698,13 @@ def _scan_row(directory: str | Path, scan_uuid: str | None) -> dict[str, Any]:
     return row
 
 
-def _finding_summary(issue: dict[str, Any], ordinal: int) -> dict[str, Any]:
+def _finding_summary(
+    issue: dict[str, Any],
+    ordinal: int,
+    *,
+    affected_urls: int | None = None,
+    via_group: bool = False,
+) -> dict[str, Any]:
     """Keep a browse page small; full original evidence stays in the retained artifact."""
     if not isinstance(issue, dict):
         raise ValueError("retained finding is not an object")
@@ -689,6 +717,10 @@ def _finding_summary(issue: dict[str, Any], ordinal: int) -> dict[str, Any]:
         "message": issue.get("message") or issue.get("text"),
         "fingerprint": issue.get("fingerprint"),
     }
+    if affected_urls is not None:
+        result["affected_urls"] = affected_urls
+    if via_group:
+        result["via_group"] = True
     truncated = list(issue.get("truncated_fields", []))
     for key, value in result.items():
         if isinstance(value, str) and len(value) > 4096:
@@ -735,6 +767,70 @@ def _projection_truncated(value: Any, *, depth: int = 0) -> bool:
     return False
 
 
+def _legacy_groups(row: dict[str, Any]) -> list[Any]:
+    """Read the retained audit's groups from its bounded legacy JSON slot."""
+    from seohead.storage import read_audit
+
+    groups = read_audit(row["path"]).get("groups")
+    return groups if isinstance(groups, list) else []
+
+
+def _group_size_map(groups: Iterable[Any], group_ids: Iterable[str | None]) -> dict[str, int]:
+    """Member counts for the named groups; each group row keeps its own count."""
+    wanted = {group_id for group_id in group_ids if isinstance(group_id, str)}
+    sizes: dict[str, int] = {}
+    for group in groups:
+        if not isinstance(group, dict) or group.get("group_id") not in wanted:
+            continue
+        count = group.get("count")
+        sizes[group["group_id"]] = count if type(count) is int else len(group.get("urls") or [])
+    return sizes
+
+
+def _v2_group_sizes(reader, group_ids: Iterable[str | None]) -> dict[str, int]:
+    """Member counts for the named audit.v2 groups, read without their member arrays."""
+    wanted = tuple(dict.fromkeys(group_id for group_id in group_ids if isinstance(group_id, str)))
+    if not wanted:
+        return {}
+    # Storage revision 3 stores the member count beside the marker; revision 2
+    # kept the whole array, so its length is the count.
+    rows = reader.con.execute(
+        "SELECT json_extract(value_json,'$.group_id'),"
+        " COALESCE(json_extract(value_json,'$.urls.count'),"
+        " json_array_length(json_extract(value_json,'$.urls')))"
+        f" FROM items WHERE pointer='/groups'"
+        f" AND json_extract(value_json,'$.group_id') IN ({','.join('?' * len(wanted))})",
+        wanted,
+    )
+    return {
+        group_id: size for group_id, size in rows if isinstance(group_id, str) and type(size) is int
+    }
+
+
+def _v2_group_ids_including(reader, url: str) -> set[str]:
+    """Group ids whose member list contains the URL, answered in SQL, not by iteration."""
+    if reader.storage_version == 2:
+        member = (
+            " EXISTS (SELECT 1 FROM json_each(json_extract(items.value_json,'$.urls')) member"
+            " WHERE member.value=?)"
+        )
+    else:
+        member = (
+            " EXISTS (SELECT 1 FROM group_members member"
+            " WHERE member.group_ordinal=items.ordinal"
+            " AND json_extract(member.value_json,'$')=?)"
+        )
+    return {
+        row[0]
+        for row in reader.con.execute(
+            "SELECT DISTINCT json_extract(items.value_json,'$.group_id') FROM items"
+            " WHERE pointer='/groups' AND" + member,
+            (url,),
+        )
+        if isinstance(row[0], str)
+    }
+
+
 def _v2_findings_page(row, *, offset, limit, query, url, sort, descending):
     """Let SQLite bound sorting/paging; never materialize unrelated audit collections."""
     from seohead.storage.audit_v2 import AuditV2Reader
@@ -748,9 +844,26 @@ def _v2_findings_page(row, *, offset, limit, query, url, sort, descending):
         predicate = "pointer='/issues' AND instr(casefold(" + expression + "),?)>0"
         needle = query.casefold().strip()
         parameters: tuple[Any, ...] = (needle,)
+        via_group_ids: set[str] = set()
         if url is not None:
-            predicate += " AND COALESCE(NULLIF(json_extract(value_json,'$.target_url'),''),json_extract(value_json,'$.url'))=?"
-            parameters += (url,)
+            # A grouped finding answers for every member URL, not only the one
+            # row that carries it, or a member page would read as clean.
+            target = (
+                "COALESCE(NULLIF(json_extract(value_json,'$.target_url'),''),"
+                "json_extract(value_json,'$.url'))=?"
+            )
+            via_group_ids = _v2_group_ids_including(reader, url)
+            if via_group_ids:
+                grouped = (
+                    "json_extract(value_json,'$.group_id') IN ("
+                    + ",".join("?" * len(via_group_ids))
+                    + ")"
+                )
+                predicate += f" AND ({target} OR {grouped})"
+                parameters += (url, *sorted(via_group_ids))
+            else:
+                predicate += f" AND {target}"
+                parameters += (url,)
         matched = reader.con.execute(
             "SELECT COUNT(*) FROM items WHERE " + predicate, parameters
         ).fetchone()[0]
@@ -770,19 +883,19 @@ def _v2_findings_page(row, *, offset, limit, query, url, sort, descending):
             value = f"casefold({raw_value})"
         direction = " DESC" if descending else " ASC"
         order = f"({raw_value} IS NULL OR {raw_value}='') ASC,{value}{direction},ordinal{direction}"
-        selected = reader.con.execute(
-            "SELECT ordinal,value_json FROM items WHERE "
-            + predicate
-            + " ORDER BY "
-            + order
-            + " LIMIT ? OFFSET ?",
-            (*parameters, limit, offset),
-        )
-        return (
-            reader.count("/issues"),
-            matched,
-            [(item[0], _finding_summary(json.loads(item[1]), item[0])) for item in selected],
-        )
+        selected = [
+            (item[0], json.loads(item[1]))
+            for item in reader.con.execute(
+                "SELECT ordinal,value_json FROM items WHERE "
+                + predicate
+                + " ORDER BY "
+                + order
+                + " LIMIT ? OFFSET ?",
+                (*parameters, limit, offset),
+            )
+        ]
+        group_sizes = _v2_group_sizes(reader, [issue.get("group_id") for _, issue in selected])
+        return (reader.count("/issues"), matched, selected, group_sizes, via_group_ids)
 
 
 def findings_page(
@@ -816,11 +929,21 @@ def findings_page(
     from seohead.storage.audit_v2 import audit_v2_path
 
     if audit_v2_path(row["path"]).exists():
-        source_count, matched_count, selected = _v2_findings_page(
+        source_count, matched_count, selected, group_sizes, via_group_ids = _v2_findings_page(
             row, offset=offset, limit=limit, query=query, url=url, sort=sort, descending=descending
         )
         return _finding_page_result(
-            row, query, sort, descending, source_count, matched_count, selected, offset, limit
+            row,
+            query,
+            sort,
+            descending,
+            source_count,
+            matched_count,
+            selected,
+            offset,
+            limit,
+            group_sizes=group_sizes,
+            via_group_ids=via_group_ids,
         )
     issues = _retained_findings(row)["issues"]
     needle = query.casefold().strip()
@@ -835,12 +958,26 @@ def findings_page(
                 for key in ("id", "check", "severity", "target_url", "url", "message", "text")
             ).casefold()
         ]
+    groups: list[Any] | None = None
     if url is not None:
+        # Same grouped-finding rule as the audit.v2 path: membership, not only
+        # the finding's own target row, decides what a URL lookup returns.
+        groups = _legacy_groups(row)
+        member_group_ids = {
+            group.get("group_id")
+            for group in groups
+            if isinstance(group, dict)
+            and isinstance(group.get("group_id"), str)
+            and url in (group.get("urls") or [])
+        }
         indexed = [
             (ordinal, issue)
             for ordinal, issue in indexed
             if (issue.get("target_url") or issue.get("url")) == url
+            or issue.get("group_id") in member_group_ids
         ]
+    else:
+        member_group_ids = set()
 
     def sort_key(item: tuple[int, dict[str, Any]]) -> tuple[bool, Any, int]:
         ordinal, issue = item
@@ -856,14 +993,58 @@ def findings_page(
     indexed.sort(key=sort_key, reverse=descending)
     indexed.sort(key=lambda item: sort_key(item)[0])
     selected = indexed[offset : offset + limit]
+    wanted_ids = [
+        issue.get("group_id")
+        for _, issue in selected
+        if isinstance(issue, dict) and isinstance(issue.get("group_id"), str)
+    ]
+    group_sizes = (
+        _group_size_map(_legacy_groups(row) if groups is None else groups, wanted_ids)
+        if wanted_ids
+        else {}
+    )
     return _finding_page_result(
-        row, query, sort, descending, len(issues), len(indexed), selected, offset, limit
+        row,
+        query,
+        sort,
+        descending,
+        len(issues),
+        len(indexed),
+        selected,
+        offset,
+        limit,
+        group_sizes=group_sizes,
+        via_group_ids=member_group_ids,
     )
 
 
 def _finding_page_result(
-    row, query, sort, descending, source_count, matched_count, selected, offset, limit
+    row,
+    query,
+    sort,
+    descending,
+    source_count,
+    matched_count,
+    selected,
+    offset,
+    limit,
+    *,
+    group_sizes: dict[str, int] | None = None,
+    via_group_ids: frozenset[str] = frozenset(),
 ):
+    items = []
+    for ordinal, issue in selected:
+        group_id = issue.get("group_id") if isinstance(issue, dict) else None
+        items.append(
+            _finding_summary(
+                issue,
+                ordinal,
+                affected_urls=(group_sizes or {}).get(group_id)
+                if isinstance(group_id, str)
+                else None,
+                via_group=bool(isinstance(group_id, str) and group_id in via_group_ids),
+            )
+        )
     return {
         "ok": True,
         "scan": {
@@ -882,7 +1063,7 @@ def _finding_page_result(
             "previous_offset": max(0, offset - limit) if offset else None,
             "truncated": offset + len(selected) < matched_count,
         },
-        "items": [_finding_summary(issue, ordinal) for ordinal, issue in selected],
+        "items": items,
     }
 
 

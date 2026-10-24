@@ -15,17 +15,19 @@ from unittest.mock import patch
 import httpx
 import pytest
 
-from seohead.checks import hreflang, schema_build, schema_org
+from seohead.checks import hreflang, parser, schema_build, schema_org
 
 PAGE = "<html><head><title>Not found</title></head><body><h1>Gone</h1></body></html>"
 
 
 class _Response:
-    def __init__(self, status_code: int, url: str, text: str):
+    def __init__(
+        self, status_code: int, url: str, text: str, headers: dict[str, str] | None = None
+    ):
         self.status_code = status_code
         self.url = url
         self.text = text
-        self.headers: dict[str, str] = {}
+        self.headers: dict[str, str] = headers or {}
 
 
 class _Client:
@@ -47,13 +49,14 @@ class _Client:
         return self._response
 
 
-# Two of these modules bind http_client at import time, so patching only the
+# These modules bind http_client at import time, so patching only the
 # module that defines it would leave them making real requests — which is how
 # an earlier draft of this file quietly asserted against the live example.com.
 _HTTP_CLIENT_NAMES = (
     "seohead.recon.net.http_client",
     "seohead.checks.schema_org.http_client",
     "seohead.checks.hreflang.http_client",
+    "seohead.checks.parser.http_client",
 )
 
 
@@ -138,3 +141,38 @@ def test_schema_validation_names_the_status_before_its_findings():
     with _serving(_Response(503, "https://example.com/p", PAGE)):
         result = schema_org.check_schema(url="https://example.com/p")
     assert result["findings"][0].startswith("The page returned HTTP 503")
+
+
+# --- the bot-protection block is named, not audited (#1363) --------------------
+CHALLENGE = (
+    "<html><head><title>Just a moment...</title></head>"
+    "<body>Please stand by, while we are checking your browser..."
+    "<script src='/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1'></script>"
+    "</body></html>"
+)
+
+
+def test_a_cf_mitigated_403_is_reported_as_blocked_by_waf():
+    with _serving(
+        _Response(403, "https://shop.example/p", CHALLENGE, {"cf-mitigated": "challenge"})
+    ):
+        result = parser.parse_url("https://shop.example/p")
+    assert result["status_code"] == 403
+    assert result["ok"] is False
+    assert result["blocked_by_waf"] == "cf-mitigated: challenge"
+
+
+def test_a_plain_403_is_a_regular_error_not_a_block():
+    forbidden = "<html><head><title>403 Forbidden</title></head><body>Forbidden</body></html>"
+    with _serving(_Response(403, "https://shop.example/p", forbidden, {"server": "nginx"})):
+        result = parser.parse_url("https://shop.example/p")
+    assert result["status_code"] == 403
+    assert result["ok"] is False
+    assert "blocked_by_waf" not in result
+
+
+def test_a_served_page_carries_no_block_marker():
+    with _serving(_Response(200, "https://shop.example/p", PAGE)):
+        result = parser.parse_url("https://shop.example/p")
+    assert result["ok"] is True
+    assert "blocked_by_waf" not in result

@@ -179,7 +179,7 @@ def test_resume_refuses_a_credentialed_scan_it_cannot_reconstruct(tmp_path, monk
         ("sitemap", "https://example.test/sitemap.xml"),
         ("out_dir", "run"),
         ("urls", ["https://example.test/one"]),
-        ("overrides", {"speed.concurrency": 2}),
+        ("overrides", {"limits.max_urls": 50}),
         # Stated-as-zero, not absent: a falsy check here would let a resume run
         # under a delay it never applies.
         ("min_delay", 0),
@@ -193,6 +193,31 @@ def test_resume_refuses_to_be_combined_with_a_crawl_shaping_argument(argument, v
         handlers.crawl_site(resume=scan, producer_build=BUILD, **{argument: value})
 
     assert argument in str(raised.value)
+
+
+def test_resume_applies_politeness_overrides_as_a_live_rate_change(tmp_path, monkeypatch):
+    """Politeness decides how hard the site is hit, not what the crawl collects.
+
+    The two speed keys are applied as a live rate change on resume (see
+    crawl_site); every other override still conflicts, as the parameterized
+    refusal test above asserts.
+    """
+    scan = _interrupted(tmp_path / "scan.sqlite")
+    seen = {}
+    monkeypatch.setattr(
+        "seohead.mcp.scan_handlers.crawl_site_scan",
+        lambda url, **kwargs: seen.update(url=url, **kwargs) or {"ok": True},
+    )
+
+    result = handlers.crawl_site(
+        resume=scan,
+        scan_out=scan,
+        producer_build=BUILD,
+        overrides={"speed.min_delay_seconds": 2, "speed.concurrency": 2},
+    )
+
+    assert result["ok"] is True
+    assert seen["url"] == START
 
 
 def test_resume_accepts_the_same_scan_out_path_it_was_given(tmp_path, monkeypatch):
@@ -230,10 +255,16 @@ def test_cli_resume_reaches_the_handler_without_a_url_or_stdin(tmp_path, monkeyp
     assert seen.pop("progress") is not None
     assert seen == {"resume": scan}
     # The pre-run rate line describes flags a resume refuses, so it is not printed;
-    # the outcome line is, because that is the question a long run leaves open.
+    # the frontier line is, because loading a stored frontier is the pause worth
+    # explaining; the outcome line is, because that is the question a long run
+    # leaves open.
     err = capsys.readouterr().err
     assert "worst-case request rate" not in err
-    assert err.splitlines() == ["seohead: crawl-site", "crawl-site: finished; 4 URLs fetched"]
+    assert err.splitlines() == [
+        "seohead: crawl-site",
+        f"resuming {scan} (0 MB): loading the stored frontier...",
+        "crawl-site: finished; 4 URLs fetched",
+    ]
 
 
 def test_cli_says_a_crawl_stopped_early_and_how_to_continue_it(tmp_path, monkeypatch, capsys):

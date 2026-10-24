@@ -334,6 +334,10 @@ class ParsedPage(_ParsedPageOptional):
     content_text: str
     content_area_strategy: str
     word_count: int
+    # Reading level over the same retained content area (#1516): the
+    # reading_ease result. None when the area holds no word with a letter --
+    # unmeasured, never zero.
+    readability: dict[str, Any] | None
     # Always extracted: see parse_html. Empty when the page declares none.
     hreflang: list[HreflangAlternate]
     # Every <iframe> the document declares -- see FrameInfo. Empty when the
@@ -376,7 +380,14 @@ class ParsedPage(_ParsedPageOptional):
     mobile_alternates: list[dict[str, str]]
 
 
-class ParseFetched(ParsedPage):
+class _ParseFetchedOptional(TypedDict, total=False):
+    # Present only when the response was a 403/429 with WAF markers: a short
+    # reason from seohead.recon.net.waf_block_reason (#1363). The page fields
+    # then describe the block page, not the requested URL.
+    blocked_by_waf: str
+
+
+class ParseFetched(ParsedPage, _ParseFetchedOptional):
     """`parser.parse_url` once the request itself completed: page fields plus
     fetch metadata. ``ok`` mirrors the HTTP response (``response.is_success``)
     and can be ``False`` here too — e.g. a clean 404 still parses the body."""
@@ -433,9 +444,13 @@ class RobotsPathCheck(TypedDict):
 
 
 class _RobotsCheckFoundOptional(TypedDict, total=False):
-    # Present only on the "no robots.txt" branch (status >= 400).
+    # Present only on the two branches where no rules were parsed: "no
+    # robots.txt" (404/410, status >= 400) and "access denied" (401/403).
     note: str
-    # Present only when the caller passed `paths`.
+    # "access_denied" only: the host refused to serve robots.txt (401/403),
+    # so whether one exists is unknown and no permission is claimed (#1364).
+    state: str
+    # Present only when the caller passed `paths` and rules were parsed.
     path_checks: list[RobotsPathCheck]
 
 
@@ -446,7 +461,11 @@ class RobotsCheckFound(_RobotsCheckFoundOptional):
     ok: Literal[True]
     robots_url: str
     status_code: int
-    exists: bool
+    # ``True``: rules were parsed. ``False``: 404/410, no robots.txt
+    # (RFC 9309 — crawl unrestricted). ``None``: 401/403, ``state`` is
+    # "access_denied" — the rules could not be read, so this result allows
+    # and disallows nothing.
+    exists: bool | None
     groups: list[RobotsGroup]
     sitemaps: list[str]
 

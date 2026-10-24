@@ -88,12 +88,11 @@ def test_new_config_fields_round_trip_outside_the_frozen_header(tmp_path):
     assert effective["rendering"]["artifacts"]["screenshot_mode"] == "first_screen"
     payload = json.loads(extension[0])
     assert payload["schema_version"] == "native_config_extension.v1"
-    assert (
-        payload["effective_fingerprint"]
-        == hashlib.sha256(
-            json.dumps(effective, ensure_ascii=False, sort_keys=True).encode()
-        ).hexdigest()
-    )
+    # The fingerprint binds the reconstructed effective config minus the probe
+    # toggle, which never enters the header or the extension vocabulary.
+    from seohead.storage.native_scan import _effective_config_fingerprint
+
+    assert payload["effective_fingerprint"] == _effective_config_fingerprint(effective)
 
 
 def test_legacy_config_defaults_keep_tracking_parameters_and_refuse_semantic_resume(tmp_path):
@@ -327,3 +326,11 @@ def test_page_budget_refuses_oversized_record_before_serialization(tmp_path, mon
         with pytest.raises(ScanError, match="byte limit"):
             scan.commit_page(lease, record, runtime=_runtime())
         assert scan.con.execute("SELECT COUNT(*) FROM pages").fetchone()[0] == 0
+
+
+def test_config_extension_vocabulary_is_declared_in_one_place():
+    """The writer's defaults and the reader's validator must name the same keys."""
+    from seohead.storage.native_context import CONFIG_EXTENSION_PATHS
+    from seohead.storage.native_scan import _CONFIG_EXTENSION_DEFAULTS
+
+    assert set(CONFIG_EXTENSION_PATHS) == set(_CONFIG_EXTENSION_DEFAULTS)

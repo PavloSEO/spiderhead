@@ -47,6 +47,16 @@ giving up on a failing origin is a separate mechanism from backing off.
 
 ## Before blaming the site
 
-1. Re-fetch five of the failing URLs, three seconds apart, with a browser user agent.
-2. If they answer normally, the failures were yours. Lower the rate and re-crawl.
-3. If they still fail, it is a finding — and now you can say so with evidence.
+First decide whether the errors are rate damage or a deliberate block.
+
+A 403 or 429 carrying WAF markers — `cf-mitigated`, `server: cloudflare`, a `Retry-After`
+header, a challenge page in the body — is a block, not a finding about the site. The toolkit
+does not bypass it: no user-agent spoofing, no proxies, no challenge solving. Respect
+`Retry-After`, lower the rate, ask the site's owner for an allowlist, or work from a supplied
+export or Search Console data.
+
+For 5xx and timeouts under our own load, re-fetch five of the failing URLs, three seconds
+apart, with a browser user agent. That re-fetch is a diagnostic comparison — "does this URL
+answer a different client once we are not hammering it" — not a way to continue crawling: if
+they answer normally, the failures were yours. Lower the rate and re-crawl. If they still fail,
+it is a finding — and now you can say so with evidence.

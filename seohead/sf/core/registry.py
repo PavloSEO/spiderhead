@@ -381,8 +381,11 @@ CHECKS: dict[str, dict[str, Any]] = {
     "LOW_TEXT_RATIO": {
         "severity": "notice",
         "source": "SF-derived",
-        "message": "Low text-to-HTML ratio",
-        "fix": "Increase the proportion of meaningful visible content or reduce unnecessary markup.",
+        "message": "Low text-to-HTML ratio (a native crawl measures text against markup without "
+        "script, style and JSON data blocks; pages above the thin-content word threshold are "
+        "never reported)",
+        "fix": "Increase the proportion of meaningful visible content or reduce unnecessary "
+        "markup; a page with enough words is not missing copy, only carrying a heavy template.",
     },
     "DUPLICATE_BY_HASH": {
         "severity": "warning",
@@ -1277,6 +1280,12 @@ CHECKS: dict[str, dict[str, Any]] = {
         "source": "SF:Security:Missing HSTS Header",
         "message": "HSTS header is missing",
         "fix": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
+    },
+    "MISSING_HSTS_ON_REDIRECT_HOP": {
+        "severity": "notice",
+        "source": "crawl:security_headers",
+        "message": "A redirect hop between the host variants of the start URL answers without HSTS",
+        "fix": "Send Strict-Transport-Security on every redirect response, including the www and http hosts a browser can arrive on; an upgrade hop without it leaves the first plain-HTTP request unprotected.",
     },
     "STRUCTURED_DATA_MISSING": {
         "severity": "notice",

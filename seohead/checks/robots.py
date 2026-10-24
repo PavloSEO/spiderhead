@@ -245,6 +245,24 @@ def check_robots(
             "status_code": resp.status_code,
             "error": f"robots.txt returned {resp.status_code}; rules could not be read",
         }
+    if resp.status_code in (401, 403):
+        # A 401/403 answers a question about the client, not about the file:
+        # bot protection (a WAF) can refuse a robots.txt that exists, so
+        # reporting "no robots.txt, crawl allowed" would grant a permission
+        # the server never stated (#1364). Whether rules exist is unknown.
+        return {
+            "ok": True,
+            "robots_url": robots_url,
+            "status_code": resp.status_code,
+            "exists": None,
+            "state": "access_denied",
+            "groups": [],
+            "sitemaps": [],
+            "note": (
+                "robots.txt rules could not be read: access denied "
+                "(the response may be a WAF block); no permission is claimed"
+            ),
+        }
     if resp.status_code >= 400:
         return {
             "ok": True,

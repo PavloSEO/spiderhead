@@ -77,6 +77,25 @@ def _write(document: Any, out: _Lines) -> None:
         out += [f"> **Partial crawl — scope is limited.**{detail}", ""]
     if notice := finding_view_notice(summary):
         out += [f"> **Filtered finding view.** {notice}", ""]
+    # Requested pages that answered with an error or a bot-protection block
+    # contribute no findings (#1363/#1365); the header must say how much of the
+    # sample is missing before the totals below are read as a full audit.
+    not_measured = summary.get("pages_not_measured") or []
+    if not_measured:
+        requested = summary.get("pages_checked") or len(not_measured)
+        out += [
+            f"> **{len(not_measured)} of {requested} requested pages could not be measured** — "
+            "error or blocked responses, no findings were taken from their bodies:",
+            "",
+        ]
+        for row in not_measured[:10]:
+            out += [
+                f"> - {_field(row.get('url'))} — {_field(row.get('reason'))}"
+                f" (status {_field(row.get('status'))})"
+            ]
+        if len(not_measured) > 10:
+            out += [f"> - … {len(not_measured) - 10} more"]
+        out += [""]
 
     from seohead.reports.evidence_summary import rows as evidence_rows
 

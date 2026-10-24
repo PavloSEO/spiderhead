@@ -546,6 +546,19 @@ def _render_sitemap(w, sm: dict[str, Any]) -> None:
         f"- Non-200 URLs in sitemap: **{sm.get('non_200_in_sitemap')}**  ·  "
         f"non-indexable URLs in sitemap: **{sm.get('non_indexable_in_sitemap')}**"
     )
+    if (
+        sm.get("image_entries_in_sitemap")
+        or sm.get("news_entries_in_sitemap")
+        or sm.get("video_entries_in_sitemap")
+    ):
+        # Attached image/news/video entries are their own population (#1560): a
+        # sitemap with 1,283 pages and 1,130 image:loc values reports both numbers,
+        # never a single 2,413-URL figure that mixes pages with images.
+        w(
+            f"- Extension entries in sitemap: images **{sm.get('image_entries_in_sitemap', 0)}**"
+            f"  ·  news **{sm.get('news_entries_in_sitemap', 0)}**  ·  "
+            f"video **{sm.get('video_entries_in_sitemap', 0)}** (counted separately from pages)"
+        )
     lm = sm.get("lastmod")
     if lm:
         w(

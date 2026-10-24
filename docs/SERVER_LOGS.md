@@ -67,6 +67,12 @@ seohead logs bots --source ./shop/logs/IMPORT.sqlite --verdict fake
 Every IP/bot pair has its own PTR hostname, forward addresses/match, verified/fake/
 unchecked verdict, visits and last visit. No sample IP represents its whole family.
 An official suffix and matching forward IPv4/IPv6 address are both required.
+Official Google suffixes follow the crawler family: `*.googlebot.com` for common
+crawlers (Googlebot and variants, GoogleOther, Google-Extended), `*.google.com` for
+special-case crawlers (AdsBot, Mediapartners, APIs-Google, Google-InspectionTool),
+and `*.gae.googleusercontent.com` for user-triggered fetchers only. Bare
+`*.googleusercontent.com` is never official — `*.bc.googleusercontent.com` is the
+reverse DNS of ordinary Google Cloud VMs, so a claimed Googlebot from there reads fake.
 Bots with no supported official PTR suffix remain unchecked. A canary distinguishes
 unavailable reverse DNS from an absent bot record; lookup failures and hard deadlines
 remain unchecked. Verification checks at most `max_dns` uncached records (0..100), plus

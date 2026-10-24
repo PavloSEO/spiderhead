@@ -202,6 +202,8 @@ def _native_config(value: Any, *, recorded: bool = False) -> dict[str, Any]:
             expected["evidence"].pop("retain_no_store_acknowledged")
         if "analysis" in config and "finding_exclusions" not in config["analysis"]:
             expected["analysis"].pop("finding_exclusions")
+        if "analysis" in config and "redirect_hop_hsts_probe" not in config["analysis"]:
+            expected["analysis"].pop("redirect_hop_hsts_probe")
         if "analysis" in config and "asset_thresholds" not in config["analysis"]:
             expected["analysis"].pop("asset_thresholds")
         for key in ("proxy", "proxy_allow_private", "proxy_identity", "proxy_authenticated"):
@@ -232,6 +234,7 @@ def _native_config(value: Any, *, recorded: bool = False) -> dict[str, Any]:
         validation_config["evidence"].setdefault("retain_no_store_acknowledged", False)
         validation_config.setdefault("analysis", {})
         validation_config["analysis"].setdefault("finding_exclusions", [])
+        validation_config["analysis"].setdefault("redirect_hop_hsts_probe", False)
         validation_config["analysis"].setdefault(
             "asset_thresholds", copy.deepcopy(DEFAULTS["analysis"]["asset_thresholds"])
         )
@@ -252,6 +255,10 @@ def _frozen_header_config(config: dict[str, Any]) -> dict[str, Any]:
     """Keep the older reader's config shape; additive settings live in a run context."""
     header = copy.deepcopy(config)
     header.get("analysis", {}).pop("asset_thresholds", None)
+    # The opt-in redirect-hop probe (#1414): rolled-back builds neither know the
+    # key nor the extension vocabulary, so it is simply absent from the header.
+    # The audit path reads it live or from the retained probe observation.
+    header.get("analysis", {}).pop("redirect_hop_hsts_probe", None)
     for path in _CONFIG_EXTENSION_DEFAULTS:
         node = header
         parts = path.split(".")
@@ -294,8 +301,15 @@ def _config_extension_values(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def _effective_config_fingerprint(config: dict[str, Any]) -> str:
-    """Bind all redacted effective values, including operational settings omitted by crawl identity."""
-    return hashlib.sha256(_dump(config).encode("utf-8")).hexdigest()
+    """Bind all redacted effective values, including operational settings omitted by crawl identity.
+
+    The opt-in redirect-hop probe (#1414) is excluded: it rides neither the frozen
+    header nor the extension vocabulary, so an older reader that never sees the
+    key must hash the same shape a current writer does.
+    """
+    bound = copy.deepcopy(config)
+    bound.get("analysis", {}).pop("redirect_hop_hsts_probe", None)
+    return hashlib.sha256(_dump(bound).encode("utf-8")).hexdigest()
 
 
 def read_effective_config(con: sqlite3.Connection) -> dict[str, Any]:
@@ -336,6 +350,11 @@ def read_effective_config(con: sqlite3.Connection) -> dict[str, Any]:
                 if not isinstance(node, dict):
                     raise ScanError("native config header is invalid")
             node.setdefault(parts[-1], copy.deepcopy(value))
+    # The opt-in redirect-hop probe (#1414) rides outside both the header and
+    # the extension vocabulary; an artifact never says it explicitly, and the
+    # effective shape a reader reconstructs must match the writer's for resume
+    # and audit fingerprints. Absent is the default: off.
+    config.setdefault("analysis", {}).setdefault("redirect_hop_hsts_probe", False)
     items = list(
         con.execute("SELECT * FROM context_items WHERE kind='analysis_asset_thresholds' LIMIT 2")
     )
@@ -1064,12 +1083,18 @@ class NativeScan:
 
                 with contextlib.closing(open_scan(path, require_audit=False)) as reader:
                     effective = read_effective_config(reader)
+                    # The opt-in redirect-hop probe (#1414) is an audit-time
+                    # measurement the artifact cannot restate; its recorded
+                    # value is always the default, so a resume compares with
+                    # the toggle normalized to off rather than refusing.
+                    comparable = copy.deepcopy(expected_config)
+                    comparable.setdefault("analysis", {})["redirect_hop_hsts_probe"] = False
                     if (
-                        _resume_fingerprint(expected_config, effective)
+                        _resume_fingerprint(comparable, effective)
                         != crawl_config_fingerprint(effective)
-                        or _config_extension_values(expected_config)
+                        or _config_extension_values(comparable)
                         != _config_extension_values(effective)
-                        or expected_config["analysis"]["asset_thresholds"]
+                        or comparable["analysis"]["asset_thresholds"]
                         != effective["analysis"]["asset_thresholds"]
                     ):
                         raise ScanError("native scan configuration differs; refusing unsafe resume")
@@ -2425,8 +2450,9 @@ class NativeScan:
         if set(record) - source_names:
             raise ScanError(f"page record has unknown fields: {sorted(set(record) - source_names)}")
         for name in _PAGE_NONNEGATIVE_INTS:
+            # Nullable measurements (#1516): absent/None is unmeasured, never zero.
             value = record.get(name)
-            if type(value) is not int or value < 0:
+            if value is not None and (type(value) is not int or value < 0):
                 raise ScanError(f"pages.{name}: expected a nonnegative integer")
         if record.get("content_frames_same_origin", 0) > record.get("content_frames", 0):
             raise ScanError("pages.content_frames_same_origin exceeds content_frames")

@@ -20,6 +20,14 @@ must end in an official suffix, and resolving that hostname forward must return
 the original IP. An attacker can forge a user-agent but not another provider's
 authoritative DNS records.
 
+Official suffixes follow each provider's published rules, per crawler family.
+For Google: common crawlers (Googlebot and variants, GoogleOther, Google-Extended)
+verify against ``*.googlebot.com``; special-case crawlers (AdsBot, Mediapartners,
+APIs-Google, Google-InspectionTool) against ``*.google.com``; user-triggered
+fetchers against ``*.gae.googleusercontent.com`` only. Bare
+``*.googleusercontent.com`` is never official — ``*.bc.googleusercontent.com`` is
+the reverse DNS of ordinary Google Cloud VMs, not of any Google crawler.
+
 DNS verification performs network requests, so it is disabled by default and must
 be enabled explicitly with ``verify_bots=True``.
 
@@ -47,8 +55,17 @@ from datetime import datetime, timedelta, timezone
 from queue import Empty, Queue
 from typing import Any
 
-# Official reverse-DNS suffixes. A non-empty tuple means the bot is verifiable.
-GOOGLE = (".googlebot.com", ".google.com", ".googleusercontent.com")
+# Official reverse-DNS suffixes, one table per Google crawler family (#1532). A
+# non-empty tuple means the bot is verifiable. Bare ``.googleusercontent.com`` is
+# deliberately absent: ``*.bc.googleusercontent.com`` is the reverse DNS of ordinary
+# Google Cloud VMs, which no official Google crawler uses.
+GOOGLE_CRAWLERS = (
+    ".googlebot.com",  # common crawlers: Googlebot and variants, GoogleOther, Google-Extended
+)
+GOOGLE_SPECIAL = (
+    ".google.com",  # special-case crawlers: AdsBot, Mediapartners, APIs-Google, Google-InspectionTool
+)
+GOOGLE_FETCHERS = (".gae.googleusercontent.com",)  # user-triggered fetchers only
 BING = (".search.msn.com",)
 YANDEX = (".yandex.com", ".yandex.net", ".yandex.ru")
 APPLE = (".applebot.apple.com",)
@@ -57,19 +74,24 @@ BAIDU = (".baidu.com", ".baidu.jp")
 # Order matters because the first match wins. Specific signatures such as
 # Googlebot-Image precede generic Googlebot, and the catch-all remains last.
 BOT_PATTERNS: tuple[tuple[str, str, str, tuple[str, ...]], ...] = (
-    (r"Googlebot[^)]*Mobile|Mobile[^)]*Googlebot", "Googlebot Smartphone", "googlebot", GOOGLE),
-    (r"Googlebot-Image", "Googlebot Image", "googlebot", GOOGLE),
-    (r"Googlebot-Video", "Googlebot Video", "googlebot", GOOGLE),
-    (r"Googlebot-News", "Googlebot News", "googlebot", GOOGLE),
-    (r"AdsBot-Google-Mobile", "AdsBot Google Mobile", "googlebot", GOOGLE),
-    (r"AdsBot-Google", "AdsBot Google", "googlebot", GOOGLE),
-    (r"Mediapartners-Google", "Mediapartners (AdSense)", "googlebot", GOOGLE),
-    (r"Google-InspectionTool", "Google InspectionTool", "googlebot", GOOGLE),
-    (r"Google-Extended", "Google-Extended (Gemini)", "ai", GOOGLE),
-    (r"GoogleOther", "GoogleOther", "googlebot", GOOGLE),
-    (r"APIs-Google", "APIs-Google", "googlebot", GOOGLE),
-    (r"FeedFetcher-Google", "FeedFetcher-Google", "googlebot", GOOGLE),
-    (r"Googlebot", "Googlebot", "googlebot", GOOGLE),
+    (
+        r"Googlebot[^)]*Mobile|Mobile[^)]*Googlebot",
+        "Googlebot Smartphone",
+        "googlebot",
+        GOOGLE_CRAWLERS,
+    ),
+    (r"Googlebot-Image", "Googlebot Image", "googlebot", GOOGLE_CRAWLERS),
+    (r"Googlebot-Video", "Googlebot Video", "googlebot", GOOGLE_CRAWLERS),
+    (r"Googlebot-News", "Googlebot News", "googlebot", GOOGLE_CRAWLERS),
+    (r"AdsBot-Google-Mobile", "AdsBot Google Mobile", "googlebot", GOOGLE_SPECIAL),
+    (r"AdsBot-Google", "AdsBot Google", "googlebot", GOOGLE_SPECIAL),
+    (r"Mediapartners-Google", "Mediapartners (AdSense)", "googlebot", GOOGLE_SPECIAL),
+    (r"Google-InspectionTool", "Google InspectionTool", "googlebot", GOOGLE_SPECIAL),
+    (r"Google-Extended", "Google-Extended (Gemini)", "ai", GOOGLE_CRAWLERS),
+    (r"GoogleOther", "GoogleOther", "googlebot", GOOGLE_CRAWLERS),
+    (r"APIs-Google", "APIs-Google", "googlebot", GOOGLE_SPECIAL),
+    (r"FeedFetcher-Google", "FeedFetcher-Google", "googlebot", GOOGLE_FETCHERS),
+    (r"Googlebot", "Googlebot", "googlebot", GOOGLE_CRAWLERS),
     (r"BingPreview", "BingPreview", "bingbot", BING),
     (r"adidxbot", "AdIdxBot (Bing Ads)", "bingbot", BING),
     (r"bingbot", "Bingbot", "bingbot", BING),
@@ -357,7 +379,18 @@ def verify_bot_rdns(
             hostname = hostname.lower().rstrip(".")
             result["hostname"] = hostname
             if not any(hostname.endswith(s.lower()) for s in suffixes):
-                result.update(verified=False, reason="PTR hostname is outside the official domains")
+                if hostname.endswith(".bc.googleusercontent.com"):
+                    # A Google Cloud VM's PTR (#1532): the suffix names a host any
+                    # GCP tenant can run, so this is an impersonator, not an outage.
+                    result.update(
+                        verified=False,
+                        reason="PTR hostname is a Google Cloud VM "
+                        "(bc.googleusercontent.com), which no official Google crawler uses",
+                    )
+                else:
+                    result.update(
+                        verified=False, reason="PTR hostname is outside the official domains"
+                    )
             else:
                 if address.version == 4:
                     _, _, addrs = socket.gethostbyname_ex(hostname)

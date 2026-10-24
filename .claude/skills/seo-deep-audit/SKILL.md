@@ -90,7 +90,7 @@ Remember the stack: if `tech-detect` found an SPA/Next.js/Nuxt, mark JS renderin
 (Phase 2). Some findings from `domain-profile.flags` and `cdn-check.findings` go directly into
 the report.
 
-**Phase 1 — Crawl evidence (282-check registry).** SEOHEAD is the analyzer and adapter here, not
+**Phase 1 — Crawl evidence (283-check registry).** SEOHEAD is the analyzer and adapter here, not
 the crawler. Check the environment first with `seohead sf doctor`; live mode requires a separately
 installed, actively licensed Screaming Frog CLI.
 ```bash
