@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose a focused SEO capability.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Workflow problem
+      description: Describe the evidence or delivery step that is currently difficult.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed capability
+    validations:
+      required: true
+  - type: textarea
+    id: side-effects
+    attributes:
+      label: Network, file, cost, and safety considerations
+    validations:
+      required: true

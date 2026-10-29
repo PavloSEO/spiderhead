@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="550" viewBox="0 0 1100 550" role="img" aria-labelledby="t d"><title id="t">spiderhead logs-bots --help</title><desc id="d">Terminal output of the logs-bots command help: bot verification options</desc>
+<rect width="1100" height="550" rx="18" fill="#0D1117"/><rect width="1100" height="52" rx="18" fill="#161B22"/><rect y="34" width="1100" height="18" fill="#161B22"/>
+<circle cx="32" cy="26" r="7" fill="#FF5F57"/><circle cx="56" cy="26" r="7" fill="#FEBC2E"/><circle cx="80" cy="26" r="7" fill="#28C840"/>
+<text x="550" y="31" text-anchor="middle" fill="#8B949E" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">spiderhead logs-bots</text>
+<text x="32" y="92" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve"><tspan fill="#3FB950">$ </tspan><tspan fill="#E6EDF3">spiderhead logs-bots --help</tspan></text>
+<text x="32" y="122" fill="#C9D1D9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">usage: spiderhead logs-bots [-h] [--source SOURCE] [--project PROJECT]</text>
+<text x="32" y="152" fill="#C9D1D9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">                            [--family FAMILY] [--limit LIMIT] [--offset OFFSET]</text>
+<text x="32" y="182" fill="#C9D1D9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">                            [--bot BOT] [--ip IP] [--verify-bots]</text>
+<text x="32" y="212" fill="#C9D1D9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">                            [--max-dns MAX_DNS]</text>
+<text x="32" y="242" fill="#C9D1D9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">                            [--verdict {verified,fake,unchecked}]</text>
+<text x="32" y="272" fill="#C9D1D9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve"></text>
+<text x="32" y="302" fill="#8B949E" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">  --project PROJECT   existing project workspace; uses its newest log store</text>
+<text x="32" y="332" fill="#8B949E" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">  --family FAMILY     exact bot family filter</text>
+<text x="32" y="362" fill="#8B949E" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">  --ip IP             IP address or subnet filter</text>
+<text x="32" y="392" fill="#8B949E" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">  --verify-bots       explicit bounded DNS verification against official suffixes</text>
+<text x="32" y="422" fill="#8B949E" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">  --max-dns MAX_DNS   maximum DNS checks, 0..100; plus one canary</text>
+<text x="32" y="452" fill="#8B949E" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">  --verdict {verified,fake,unchecked}</text>
+<text x="32" y="482" fill="#8B949E" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" xml:space="preserve">                      cached verdict filter</text>
+</svg>

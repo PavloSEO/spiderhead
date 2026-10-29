@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use SpiderHead in academic work, please cite it as below."
+title: "SpiderHead"
+type: software
+authors:
+  - family-names: Barushka
+    given-names: Pavel
+version: 0.9.0
+date-released: 2026-10-30
+license: MIT
+repository-code: https://github.com/PavloSEO/spiderhead
+url: https://spiderhead.dev

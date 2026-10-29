@@ -1,0 +1,5 @@
+# Keep GitHub language statistics honest: the product is Rust.
+oracle/** linguist-vendored
+**/fixtures/** linguist-vendored
+**/gen/** linguist-generated
+packaging/** linguist-vendored

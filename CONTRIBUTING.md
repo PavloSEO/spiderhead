@@ -1,5 +1,16 @@
 # Contributing
 
+Thanks for helping. SpiderHead is a Rust workspace; the CLI is the primary surface. By taking part you
+agree to the [Code of Conduct](CODE_OF_CONDUCT.md). Report vulnerabilities privately as described
+in [SECURITY.md](SECURITY.md).
+
+## Workflow
+
+1. Open an issue (bug report or feature request) or pick an existing one.
+2. Branch from `main`: `git switch -c <short-topic>`.
+3. Make the change with tests; run `cargo xtask ci` and `cargo xtask layers`.
+4. Open a pull request against `main` using the template. Keep it focused; one concern per PR.
+
 ## Workspace layout
 
 ```
@@ -38,7 +49,8 @@ After merging parallel branches, `cargo build` rejects duplicated dependency lin
 ## Code rules
 
 - No network in unit tests; mock the transport.
-- Commits and PR text in English, imperative mood.
+- Commits and PR text in English, imperative mood ("Add bot verdict filter", not "Added ...").
+- Use only synthetic data and reserved domains (`example.com`, `*.test`) in tests and examples; never commit credentials, access logs or client data.
 - Only add dependencies you need; shared ones go to `[workspace.dependencies]`, alphabetically.
 - No `unwrap`/`expect` outside tests; `thiserror` in libraries, `anyhow` only in binaries.
 
